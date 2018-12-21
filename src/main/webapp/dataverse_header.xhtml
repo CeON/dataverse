@@ -87,8 +87,7 @@
                             <ul class="dropdown-menu">
                                 <h:form class="form-inline">
                                     <ui:repeat value="#{dataverseLocaleBean.dataverseLocales.entrySet().toArray()}" var="language">
-                                        <li class="#{dataverseLocaleBean.localeTitle == language.value ? 'active' : ''}"
-                                                >
+                                        <li class="#{dataverseLocaleBean.localeTitle == language.value ? 'active' : ''}">
                                             <h:commandLink value="#{language.value}" actionListener="#{dataverseLocaleBean.countryLocaleCodeChanged(language.key)}" action="submit()"
                                                            style="padding: 3px 20px;
                                                                     clear: both;
