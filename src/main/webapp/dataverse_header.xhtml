@@ -81,11 +81,14 @@
                         </ui:fragment>
                         
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{bundle.language}">#{dataverseLocaleBean.localeTitle} <b class="caret"></b></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{bundle.language}">
+                                #{dataverseLocaleBean.localeTitle} <b class="caret"></b>
+                            </a>
                             <ul class="dropdown-menu">
                                 <h:form class="form-inline">
                                     <ui:repeat value="#{dataverseLocaleBean.dataverseLocales.entrySet().toArray()}" var="language">
-                                        <li class="#{dataverseLocaleBean.localeTitle == language.value ? 'active' : ''}">
+                                        <li class="#{dataverseLocaleBean.localeTitle == language.value ? 'active' : ''}"
+                                                >
                                             <h:commandLink value="#{language.value}" actionListener="#{dataverseLocaleBean.countryLocaleCodeChanged(language.key)}" action="submit()"
                                                            style="padding: 3px 20px;
                                                                     clear: both;
@@ -94,7 +97,9 @@
                                                                     color: rgb(51, 51, 51);
                                                                     white-space: nowrap;
                                                                     text-decoration: none;
-                                                                    display: block;"/>
+                                                                    display: block;
+                                                                    #{'background: url(/resources/images/flags/'.concat(language.key).concat('.svg) no-repeat 90% center; background-size: 35px 35px')}">
+                                            </h:commandLink>
                                         </li>
                                     </ui:repeat>
                                 </h:form>
