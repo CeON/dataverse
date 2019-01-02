@@ -54,8 +54,8 @@
                         <ui:repeat value="#{metadataBlockVal.value}" var="dsf">
                             <div class="form-group">
                                 <label for="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 control-label">
-                                    <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{(bundle['datasetfieldtype.'.concat(dsf.datasetFieldType.name).concat('.description')].startsWith('???')) ? dsf.datasetFieldType.description : bundle['datasetfieldtype.'.concat(dsf.datasetFieldType.name).concat('.description')]}">
-                                        #{(bundle['datasetfieldtype.'.concat(dsf.datasetFieldType.name).concat('.title')].startsWith('???')) ? dsf.datasetFieldType.title : bundle['datasetfieldtype.'.concat(dsf.datasetFieldType.name).concat('.title')]}
+                                    <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{dsf.datasetFieldType.descriptionDisplayName}">
+                                        #{dsf.datasetFieldType.displayName}
                                     </span>
                                 </label>
                                 <!-- Primitive datasetFields -->
@@ -110,11 +110,9 @@
                                                          or dsf.datasetFieldType.displayOnCreate or !dsf.isEmpty() or dsf.required or dsf.datasetFieldType.hasRequiredChildren) and dsf.include)
                                                          or (!datasetPage and dsf.include)}">
                                     <div class="form-group">
-					<c:set var="Metadataproperty" value="datasetfieldtype.#{dsf.datasetFieldType.name}.title"/>
-					<c:set var="Metadatadescription" value="datasetfieldtype.#{dsf.datasetFieldType.name}.description"/>
-                                        <label for="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 control-label">
-                                            <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{(bundle[Metadatadescription].startsWith('???')) ? dsf.datasetFieldType.description : bundle[Metadatadescription]}">
-						#{bundle[Metadataproperty].startsWith('???') ? dsf.datasetFieldType.title : bundle[Metadataproperty] }
+					                    <label for="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 control-label">
+                                             <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{dsf.datasetFieldType.descriptionDisplayName}">
+                                                 #{dsf.datasetFieldType.displayName}
                                             </span>
                                             <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" rendered="#{dsf.required  or dsf.datasetFieldType.hasRequiredChildren }" />
                                         </label>
@@ -195,8 +193,8 @@
                                                                     </p>
                                                                 </ui:fragment>
                                                                 <label class="control-label" for="metadata_#{subdsf.datasetFieldType.name}">
-                                                                    <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{(bundle['datasetfieldtype.'.concat(subdsf.datasetFieldType.name).concat('.description')].startsWith('???')) ? subdsf.datasetFieldType.description : bundle['datasetfieldtype.'.concat(subdsf.datasetFieldType.name).concat('.description')]}">
-                                                                        #{(bundle['datasetfieldtype.'.concat(subdsf.datasetFieldType.name).concat('.title')].startsWith('???')) ? subdsf.datasetFieldType.title : bundle['datasetfieldtype.'.concat(subdsf.datasetFieldType.name).concat('.title')]}
+                                                                    <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{subdsf.datasetFieldType.descriptionDisplayName}">
+                                                                        #{subdsf.datasetFieldType.displayName}
                                                                     </span>
                                                                     <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" rendered="#{subdsf.required}" />
                                                                 </label>
