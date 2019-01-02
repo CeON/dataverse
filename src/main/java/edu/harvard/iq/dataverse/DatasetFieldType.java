@@ -12,6 +12,10 @@ import java.util.TreeMap;
 import javax.faces.model.SelectItem;
 import javax.persistence.*;
 
+import static edu.harvard.iq.dataverse.util.BundleUtil.getStringFromBundle;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 /**
  * Defines the meaning and constraints of a metadata field and its values.
  * @author Stephen Kraffmiller
@@ -507,10 +511,15 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     
     public String getDisplayName() {
         if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
-        return parentDatasetFieldType.getTitle() + " " + title;
+        return parentDatasetFieldType.getDisplayName() + " " + bundleFieldDisplayName(name, title);
         } else {
-            return title;
+            return bundleFieldDisplayName(name, title);
         }
+    }
+
+    private String bundleFieldDisplayName(String fieldName, String toDisplay) {
+        String bundleDisplayName = getStringFromBundle(format("datasetfieldtype.%s.title", fieldName));
+        return isNotBlank(bundleDisplayName) ? bundleDisplayName : toDisplay;
     }
 
     public SolrField getSolrField() {
@@ -560,7 +569,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     public String getTmpNullFieldTypeIdentifier() {
         return "NullFieldType_s";
     }
-    
+
     @Override
     public String toString() {
         return "[DatasetFieldType name:" + getName() + " id:" + getId() + "]";
