@@ -174,8 +174,6 @@
             <!--NON-TYPE FACETS-->
             <h:form id="facetCategoryForm" rendered="#{SearchIncludeFragment.searchResultsCount > 0}">
                 <p:dataList id="facetCategoryList" value="#{SearchIncludeFragment.facetCategoryList}" var="facetCategory">
-                    <!--<h:outputText value="#{facetCategory.friendlyName}" styleClass="facetCategoryName"/>-->
-                    <!---->
                     <h:outputText
                             value="#{(bundle['facets.search.fieldtype.'.concat(facetCategory.name).concat('.label')].startsWith('???')) ? facetCategory.friendlyName : bundle['facets.search.fieldtype.'.concat(facetCategory.name).concat('.label')]}"
                             styleClass="facetCategoryName"/>
