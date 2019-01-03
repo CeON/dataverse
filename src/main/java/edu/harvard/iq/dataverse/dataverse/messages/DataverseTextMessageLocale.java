@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
+import edu.harvard.iq.dataverse.DataverseLocaleBean;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,7 +32,7 @@ public class DataverseTextMessageLocale implements Serializable {
     private String message;
 
     @Column( nullable=false )
-    private String locale;
+    private String locale = DataverseLocaleBean.DEFAULT_LOCALE;
 
     @Version
     private Long version;
