@@ -44,18 +44,24 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
                 "    dvtml.locale = ? and\n" +
                 "    ? between dvtm.fromtime and dvtm.totime and\n" +
                 "    dvtm.dataverse_id in (with recursive dv_roots as (\n" +
-                "      select dv.id, dv.name, dvo.owner_id, dv.allowmessagesbanners\n" +
-                "      from dataverse dv\n" +
-                "             join dvobject dvo on dv.id = dvo.id\n" +
-                "      where dv.id in (select dv2.id\n" +
-                "                      from dataverse dv2\n" +
-                "                             inner join dvobject dvo2 on dv2.id = dvo2.id\n" +
-                "                      where (dvo2.owner_id is null or dvo2.id = ?))\n" +
-                "      union\n" +
-                "      select dv.id, dv.name, dvr.owner_id, dv.allowmessagesbanners\n" +
-                "      from dataverse dv\n" +
-                "             join dv_roots dvr on dv.id = dvr.owner_id\n" +
-                "    ) select dr.id from dv_roots dr where dr.allowmessagesbanners = true) order by dvtm.totime asc) r")
+                "    select\n" +
+                "        dv.id,\n" +
+                "        dv.owner_id,\n" +
+                "        d2.allowmessagesbanners\n" +
+                "    from dvobject dv\n" +
+                "      join dataverse d2 on dv.id = d2.id\n" +
+                "    where\n" +
+                "        dv.id = ?\n" +
+                "        union all\n" +
+                "        select\n" +
+                "               dv2.id,\n" +
+                "               dv2.owner_id,\n" +
+                "               d2.allowmessagesbanners\n" +
+                "        from dvobject dv2\n" +
+                "               join dataverse d2 on dv2.id = d2.id\n" +
+                "               join dv_roots on dv_roots.owner_id = dv2.id\n" +
+                "    )\n" +
+                "    select id from dv_roots dr where dr.allowmessagesbanners = true) order by dvtm.totime asc) r")
                 .setParameter(1, locale.getLocaleCode())
                 .setParameter(2, LocalDateTime.now())
                 .setParameter(3, dataverseId)
