@@ -1,9 +1,13 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:ui="http://java.sun.com/jsf/facelets">
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <div class="container">
-        <ui:repeat value="#{TextMessagesFragment.textMessages(dataverse.id)}" var="message">
-            <div style="margin-top: 15px; text-align: center; color: #c9302c; font-weight: bold; font-size: larger">#{message}</div>
+        <c:set var="messages" value="#{TextMessagesFragment.textMessages(dataverse.id)}"/>
+        <ui:repeat value="#{messages}" var="message">
+            <div style="margin-top: 15px; text-align: center; color: #c9302c; font-weight: bold; font-size: larger">
+                #{message}
+            </div>
         </ui:repeat>
     </div>
 </ui:composition>
