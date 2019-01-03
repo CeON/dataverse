@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.dataverse.messages;
 
 import edu.harvard.iq.dataverse.Dataverse;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,12 +10,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -30,12 +33,6 @@ public class DataverseTextMessage implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column( nullable=false )
-    private String message;
-
-    @Column( nullable=false )
-    private String locale;
 
     private boolean active;
 
@@ -53,28 +50,15 @@ public class DataverseTextMessage implements Serializable {
     @ManyToOne
     private Dataverse dataverse;
 
+    @OneToMany(mappedBy = "dataverseTextMessage", cascade = CascadeType.ALL)
+    private List<DataverseTextMessageLocale> locales;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
     }
 
     public boolean isActive() {
@@ -115,5 +99,13 @@ public class DataverseTextMessage implements Serializable {
 
     public void setDataverse(Dataverse dataverse) {
         this.dataverse = dataverse;
+    }
+
+    public List<DataverseTextMessageLocale> getLocales() {
+        return locales;
+    }
+
+    public void setLocales(List<DataverseTextMessageLocale> locales) {
+        this.locales = locales;
     }
 }
