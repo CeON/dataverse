@@ -39,7 +39,7 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
         DataverseLocaleBean locale = new DataverseLocaleBean();
         List<String> messages = em.createNativeQuery("select r.message from (select distinct dvtml.message, dvtm.totime  from\n" +
                 "  dataversetextmessage dvtm\n" +
-                "  join dataversetextmessagelocale dvtml on dvtml.dataversetextmessage_id = dvtm.id\n" +
+                "  join dataverselocalizedmessage dvtml on dvtml.dataversetextmessage_id = dvtm.id\n" +
                 "  where\n" +
                 "    dvtm.active = true and\n" +
                 "    dvtml.locale = ? and\n" +
