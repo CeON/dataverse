@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.dataverse.messages.dto;
 import com.google.common.collect.Sets;
 import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.dataverse.messages.DataverseTextMessage;
+import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.Stateless;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 
 @Stateless
 public class DataverseMessagesMapper {
@@ -50,7 +52,17 @@ public class DataverseMessagesMapper {
         Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
 
         return locales.entrySet().stream()
-                .map(e -> new DataverseLocalizedMessageDto(e.getKey(), null, e.getValue()))
+                .map(e -> new DataverseLocalizedMessageDto(e.getKey(), EMPTY, e.getValue()))
                 .collect(Collectors.toSet());
     }
+
+    public DataverseTextMessageDto mapToNewTextMessage(Long dataverseId) {
+        DataverseTextMessageDto dto = new DataverseTextMessageDto();
+
+        dto.setDataverseId(dataverseId);
+        dto.setDataverseLocalizedMessage(mapDefaultLocales());
+
+        return dto;
+    }
+
 }

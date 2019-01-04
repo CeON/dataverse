@@ -167,7 +167,7 @@ public class DataverseTextMessageServiceBeanTest {
         assertTrue(locales.stream().anyMatch(lm ->
                     lm.getLocale().equals(locale) &&
                     lm.getLanguage().equals(language) &&
-                    lm.getMessage() == null
+                    lm.getMessage().equals("")
                 ));
     }
 

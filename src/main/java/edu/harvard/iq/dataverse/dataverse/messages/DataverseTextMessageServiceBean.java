@@ -39,12 +39,7 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
     }
 
     public DataverseTextMessageDto newTextMessage(Long dataverseId) {
-        DataverseTextMessageDto dto = new DataverseTextMessageDto();
-
-        dto.setDataverseId(dataverseId);
-        dto.setDataverseLocalizedMessage(mapper.mapDefaultLocales());
-
-        return dto;
+        return mapper.mapToNewTextMessage(dataverseId);
     }
 
     public DataverseTextMessageDto getTextMessage(Long textMessageId) {

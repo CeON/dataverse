@@ -86,8 +86,8 @@ public class DataverseMessagesMapperTest {
         // then
         assertEquals(2, localesDto.size());
         assertTrue(localesDto.containsAll(asList(
-                    new DataverseLocalizedMessageDto("pl", null, "Polski"),
-                    new DataverseLocalizedMessageDto("en", null, "English"))
+                    new DataverseLocalizedMessageDto("pl", "", "Polski"),
+                    new DataverseLocalizedMessageDto("en", "", "English"))
                 )
         );
     }
