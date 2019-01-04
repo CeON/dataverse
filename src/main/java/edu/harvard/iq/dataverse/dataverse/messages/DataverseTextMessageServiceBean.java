@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
+import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseMessagesMapper;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseTextMessageDto;
@@ -51,8 +52,20 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
         return mapper.mapToDto(textMessage);
     }
 
-    public void create(Long dataverseId, DataverseTextMessageDto messageDto) {
+    public void save(DataverseTextMessageDto messageDto) {
+        // TODO: validate
 
+        DataverseTextMessage textMessage = new DataverseTextMessage();
+        textMessage.setActive(messageDto.isActive());
+        textMessage.setDataverse(em.find(Dataverse.class, messageDto.getDataverseId()));
+        textMessage.setFromTime(messageDto.getFromTime());
+        textMessage.setToTime(messageDto.getToTime());
+
+        messageDto.getDataverseLocalizedMessage().forEach(lm -> {
+            textMessage.addLocalizedMessage(lm.getLocale(), lm.getMessage());
+        });
+
+        em.persist(textMessage);
     }
 
     public List<String> getTextMessagesForDataverse(Long dataverseId) {

@@ -106,4 +106,14 @@ public class DataverseTextMessage implements Serializable {
     public void setDataverseLocalizedMessages(Set<DataverseLocalizedMessage> dataverseLocalizedMessages) {
         this.dataverseLocalizedMessages = dataverseLocalizedMessages;
     }
+
+    public void addLocalizedMessage(String locale, String message) {
+        DataverseLocalizedMessage localizedMessage = new DataverseLocalizedMessage();
+
+        localizedMessage.setDataverseTextMessage(this);
+        localizedMessage.setLocale(locale);
+        localizedMessage.setMessage(message);
+
+        this.dataverseLocalizedMessages.add(localizedMessage);
+    }
 }
