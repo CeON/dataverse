@@ -53,7 +53,9 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
     }
 
     public void deactivate(Long textMessageId) {
-
+        DataverseTextMessage textMessage = em.find(DataverseTextMessage.class, textMessageId);
+        textMessage.deactivate();
+        em.merge(textMessage);
     }
 
     public void delete(Long textMessageId) {

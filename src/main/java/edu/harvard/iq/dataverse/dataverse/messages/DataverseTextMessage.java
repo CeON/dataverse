@@ -116,4 +116,8 @@ public class DataverseTextMessage implements Serializable {
 
         this.dataverseLocalizedMessages.add(localizedMessage);
     }
+
+    public void deactivate() {
+        this.active = false;
+    }
 }
