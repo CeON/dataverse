@@ -30,13 +30,21 @@
 
                     <div class="form-group">
                         <h:outputLabel for="message-fromtime" value="Start date:" style="margin-right: 10px"/>
-                        <p:calendar id="message-fromtime" value="#{EditTextMessagePage.dto.fromTime}"/>
+                        <p:calendar id="message-fromtime"
+                                    value="#{EditTextMessagePage.dto.fromTime}"
+                                    locale="#{dataverseLocaleBean.localeCode}"
+                                    pattern="dd-MM-yyyy HH:mm"
+                                    mask="true"/>
                         <p:message for="message-fromtime"/>
                     </div>
 
                     <div class="form-group">
                         <h:outputLabel for="message-totime" value="Start date:" style="margin-right: 10px"/>
-                        <p:calendar id="message-totime" value="#{EditTextMessagePage.dto.toTime}"/>
+                        <p:calendar id="message-totime"
+                                    value="#{EditTextMessagePage.dto.toTime}"
+                                    locale="#{dataverseLocaleBean.localeCode}"
+                                    pattern="dd-MM-yyyy HH:mm"
+                                    mask="true"/>
                         <p:message for="message-totime"/>
                     </div>
 
