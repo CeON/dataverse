@@ -1,6 +1,8 @@
 package edu.harvard.iq.dataverse.authorization.providers;
 
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
+import org.hibernate.annotations.Type;
+
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -46,6 +48,7 @@ public class AuthenticationProviderRow implements java.io.Serializable {
     private boolean enabled;
     
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String factoryData;
 
     public String getId() {

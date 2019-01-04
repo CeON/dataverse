@@ -183,7 +183,8 @@ public class Dataverse extends DvObjectContainer {
     @ManyToMany(cascade = {CascadeType.MERGE})
     private List<MetadataBlock> metadataBlocks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "dataverse",cascade={ CascadeType.REMOVE, CascadeType.MERGE,CascadeType.PERSIST}, orphanRemoval=true)
+    @OneToMany(fetch = FetchType.EAGER,
+            mappedBy = "dataverse",cascade={ CascadeType.REMOVE, CascadeType.MERGE,CascadeType.PERSIST}, orphanRemoval=true)
     @OrderBy("displayOrder")
     private List<DataverseFacet> dataverseFacets = new ArrayList<>();
     

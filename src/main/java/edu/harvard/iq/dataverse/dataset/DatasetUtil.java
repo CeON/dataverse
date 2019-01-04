@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class DatasetUtil {
 
@@ -47,6 +48,7 @@ public class DatasetUtil {
         if (dataset == null) {
             return thumbnails;
         }
+
         if (considerDatasetLogoAsCandidate) {
 //            Path path = Paths.get(dataset.getFileSystemDirectory() + File.separator + datasetLogoThumbnail + thumb48addedByImageThumbConverter);
 //            if (Files.exists(path)) {

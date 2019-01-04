@@ -8,6 +8,8 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.UserNotification.Type;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.logging.Logger;
@@ -57,7 +59,8 @@ public class UserNotificationServiceBean {
             return new Long("0");
         }
         Query query = em.createNativeQuery("select count(id) from usernotification as o where o.user_id = " + userId + " and o.readnotification = 'false';");
-        return (Long) query.getSingleResult();    
+        BigInteger singleResult = (BigInteger) query.getSingleResult();
+        return singleResult.longValue();
     }
     
     public List<UserNotification> findUnemailed() {

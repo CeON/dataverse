@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -44,9 +45,11 @@ public class SavedSearch implements Serializable {
      * Saved searches are associated with a Dataverse, not a user.
      */
     @JoinColumn(nullable = false)
+    @ManyToOne
     private Dataverse definitionPoint;
 
     @JoinColumn(nullable = false)
+    @ManyToOne
     private AuthenticatedUser creator;
 
     public List<String> getFilterQueriesAsStrings() {

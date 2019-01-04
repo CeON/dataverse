@@ -44,7 +44,7 @@ import javax.persistence.*;
 		, @Index(columnList="owner_id")
 		, @Index(columnList="creator_id")
 		, @Index(columnList="releaseuser_id")},
-		uniqueConstraints = @UniqueConstraint(columnNames = {"authority,protocol,identifier"}))
+		uniqueConstraints = @UniqueConstraint(columnNames = {"authority","protocol","identifier"}))
 public abstract class DvObject extends DataverseEntity implements java.io.Serializable {
     
     public static final String DATAVERSE_DTYPE_STRING = "Dataverse";

@@ -55,7 +55,7 @@ import javax.validation.ValidatorFactory;
  */
 @Entity
 @Table(indexes = {@Index(columnList="dataset_id")},
-        uniqueConstraints = @UniqueConstraint(columnNames = {"dataset_id,versionnumber,minorversionnumber"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"dataset_id","versionnumber","minorversionnumber"}))
 public class DatasetVersion implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetVersion.class.getCanonicalName());

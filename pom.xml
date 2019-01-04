@@ -110,6 +110,16 @@
     <!-- TODO: Housekeeping is utterly needed. -->
     <dependencies>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.4.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.4.0.Final</version>
+        </dependency>
+        <dependency>
             <groupId>org.passay</groupId>
             <artifactId>passay</artifactId>
             <version>1.1.0</version>
@@ -282,11 +292,6 @@
             <groupId>org.omnifaces</groupId>
             <artifactId>omnifaces</artifactId>
             <version>1.7</version> <!-- Or 1.8-SNAPSHOT -->
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>5.0.3.Final</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
