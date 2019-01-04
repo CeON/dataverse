@@ -1,7 +1,8 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
 import edu.harvard.iq.dataverse.DataverseLocaleBean;
-import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseMessagesMapper;
+import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseTextMessageDto;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -9,7 +10,6 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -24,10 +24,33 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(DataverseTextMessageServiceBean.class.getCanonicalName());
 
     @Inject
-    private DataverseSession session;
+    private DataverseMessagesMapper mapper;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
+
+    DataverseTextMessageServiceBean() {
+    }
+
+    DataverseTextMessageServiceBean(EntityManager em, DataverseMessagesMapper mapper) {
+        this.em = em;
+        this.mapper = mapper;
+    }
+
+    public DataverseTextMessageDto newTextMessage() {
+        DataverseTextMessageDto dto = new DataverseTextMessageDto();
+        dto.setDataverseLocalizedMessage(mapper.mapDefaultLocales());
+
+        return dto;
+    }
+
+    public DataverseTextMessageDto getTextMessage(Long textMessageId) {
+        return null;
+    }
+
+    public void create(Long dataverseId, DataverseTextMessageDto messageDto) {
+
+    }
 
     public List<String> getTextMessagesForDataverse(Long dataverseId) {
         logger.info("Getting text messages for dataverse: " + dataverseId);
@@ -65,15 +88,6 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
         return messages;
     }
 
-    public void deactivateAllowMessagesAndBanners(Long dataverseId) {
-        if (session.getUser().isSuperuser()) {
-            logger.info("As superuser, deactivating text messages for dataverse: " + dataverseId);
-            em.createNativeQuery("update dataversetextmessage set active = false where dataverse_id = ?")
-                    .setParameter(1, dataverseId)
-                    .executeUpdate();
-        }
-    }
-
     public List<DataverseTextMessage> fetchAllTextMessagesForDataverse(long dataverseId) {
         return em.createQuery("select dtm FROM DataverseTextMessage as dtm " +
                 "join fetch DataverseLocalizedMessage " +
@@ -81,5 +95,4 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
                 .setParameter("dataverseid", dataverseId)
                 .getResultList();
     }
-
 }

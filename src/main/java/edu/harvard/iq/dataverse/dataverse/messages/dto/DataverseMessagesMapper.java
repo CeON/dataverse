@@ -8,7 +8,9 @@ import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -41,5 +43,13 @@ public class DataverseMessagesMapper {
         textMessages.forEach(dataverseTextMessage -> dtos.add(this.mapToDto(dataverseTextMessage)));
 
         return dtos;
+    }
+
+    public Set<DataverseLocalizedMessageDto> mapDefaultLocales() {
+        Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
+
+        return locales.entrySet().stream()
+                .map(e -> new DataverseLocalizedMessageDto(e.getKey(), null, e.getValue()))
+                .collect(Collectors.toSet());
     }
 }

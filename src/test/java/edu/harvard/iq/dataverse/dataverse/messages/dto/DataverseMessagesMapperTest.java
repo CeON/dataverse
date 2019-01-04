@@ -11,7 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class DataverseMessagesMapperTest {
@@ -61,7 +63,7 @@ public class DataverseMessagesMapperTest {
         DataverseTextMessage anotherTextMessage = aTextMessage(2L);
 
         // when
-        List<DataverseTextMessageDto> dtos = mapper.mapToDtos(Arrays.asList(textMessage, anotherTextMessage));
+        List<DataverseTextMessageDto> dtos = mapper.mapToDtos(asList(textMessage, anotherTextMessage));
 
         // then
         assertEquals(2, dtos.size());
@@ -75,6 +77,20 @@ public class DataverseMessagesMapperTest {
         verifySuccessfullDtoMapping(dtos.get(1), 2L, true, FROM_TIME, TO_TIME, 2);
         verifyThatLocalesWasMapped(dtos.get(1), "en", "English", "Info");
         verifyThatLocalesWasMapped(dtos.get(1), "pl", "Polski", "Komunikat");
+    }
+
+    @Test
+    public void shouldMapDefaultLocales() {
+        // when
+        Set<DataverseLocalizedMessageDto> localesDto = mapper.mapDefaultLocales();
+
+        // then
+        assertEquals(2, localesDto.size());
+        assertTrue(localesDto.containsAll(asList(
+                    new DataverseLocalizedMessageDto("pl", null, "Polski"),
+                    new DataverseLocalizedMessageDto("en", null, "English"))
+                )
+        );
     }
 
     private void verifyThatLocalesWasMapped(DataverseTextMessageDto dto, String locale, String language, String message) {

@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.dataverse.messages.dto;
 
+import java.util.Objects;
+
 public class DataverseLocalizedMessageDto {
 
     public DataverseLocalizedMessageDto(String locale, String message, String language) {
@@ -36,5 +38,20 @@ public class DataverseLocalizedMessageDto {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataverseLocalizedMessageDto that = (DataverseLocalizedMessageDto) o;
+        return Objects.equals(locale, that.locale) &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(language, that.language);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(locale, message, language);
     }
 }
