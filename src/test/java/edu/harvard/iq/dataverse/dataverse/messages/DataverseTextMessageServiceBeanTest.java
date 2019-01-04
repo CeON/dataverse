@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseLocalizedMessageDto;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseMessagesMapper;
@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -150,7 +151,7 @@ public class DataverseTextMessageServiceBeanTest {
         messageDto.setToTime(now.plusDays(2));
         messageDto.setDataverseId(100L);
 
-        Set<DataverseLocalizedMessageDto> locales = Sets.newHashSet();
+        List<DataverseLocalizedMessageDto> locales = Lists.newArrayList();
         locales.add(new DataverseLocalizedMessageDto("pl", "Komunikat", "Polski"));
         locales.add(new DataverseLocalizedMessageDto("en", "Info", "English"));
         messageDto.setDataverseLocalizedMessage(locales);
@@ -163,7 +164,7 @@ public class DataverseTextMessageServiceBeanTest {
         verifyDefaultLocale(dto.getDataverseLocalizedMessage(), "pl", "Polski");
     }
 
-    private void verifyDefaultLocale(Set<DataverseLocalizedMessageDto> locales, String locale, String language) {
+    private void verifyDefaultLocale(List<DataverseLocalizedMessageDto> locales, String locale, String language) {
         assertTrue(locales.stream().anyMatch(lm ->
                     lm.getLocale().equals(locale) &&
                     lm.getLanguage().equals(language) &&

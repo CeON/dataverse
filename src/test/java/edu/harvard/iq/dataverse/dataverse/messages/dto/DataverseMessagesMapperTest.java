@@ -81,7 +81,7 @@ public class DataverseMessagesMapperTest {
     @Test
     public void shouldMapDefaultLocales() {
         // when
-        Set<DataverseLocalizedMessageDto> localesDto = mapper.mapDefaultLocales();
+        List<DataverseLocalizedMessageDto> localesDto = mapper.mapDefaultLocales();
 
         // then
         assertEquals(2, localesDto.size());

@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseMessagesMapper;
@@ -75,6 +76,9 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
     }
 
     public List<String> getTextMessagesForDataverse(Long dataverseId) {
+        if (dataverseId == null) {
+            return Lists.newArrayList();
+        }
         logger.info("Getting text messages for dataverse: " + dataverseId);
         DataverseLocaleBean locale = new DataverseLocaleBean();
         List<String> messages = em.createNativeQuery("select r.message from (select distinct dvtml.message, dvtm.totime  from\n" +

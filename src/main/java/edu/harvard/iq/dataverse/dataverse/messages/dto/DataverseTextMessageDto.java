@@ -1,9 +1,10 @@
 package edu.harvard.iq.dataverse.dataverse.messages.dto;
 
+import com.google.common.collect.Lists;
+
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class DataverseTextMessageDto {
 
@@ -17,7 +18,7 @@ public class DataverseTextMessageDto {
 
     private Long dataverseId;
 
-    private Set<DataverseLocalizedMessageDto> dataverseLocalizedMessage = new HashSet<>();
+    private List<DataverseLocalizedMessageDto> dataverseLocalizedMessage = Lists.newArrayList();
 
     public boolean isActive() {
         return active;
@@ -35,7 +36,7 @@ public class DataverseTextMessageDto {
         return toTime;
     }
 
-    public Set<DataverseLocalizedMessageDto> getDataverseLocalizedMessage() {
+    public List<DataverseLocalizedMessageDto> getDataverseLocalizedMessage() {
         return dataverseLocalizedMessage;
     }
 
@@ -55,7 +56,7 @@ public class DataverseTextMessageDto {
         this.toTime = toTime;
     }
 
-    public void setDataverseLocalizedMessage(Set<DataverseLocalizedMessageDto> dataverseLocalizedMessage) {
+    public void setDataverseLocalizedMessage(List<DataverseLocalizedMessageDto> dataverseLocalizedMessage) {
         this.dataverseLocalizedMessage = dataverseLocalizedMessage;
     }
 
