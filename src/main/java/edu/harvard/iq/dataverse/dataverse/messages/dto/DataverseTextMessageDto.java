@@ -15,6 +15,8 @@ public class DataverseTextMessageDto {
 
     private LocalDateTime toTime;
 
+    private Long dataverseId;
+
     private Set<DataverseLocalizedMessageDto> dataverseLocalizedMessage = new HashSet<>();
 
     public boolean isActive() {
@@ -37,6 +39,10 @@ public class DataverseTextMessageDto {
         return dataverseLocalizedMessage;
     }
 
+    public Long getDataverseId() {
+        return dataverseId;
+    }
+
     public void setActive(boolean active) {
         this.active = active;
     }
@@ -57,6 +63,10 @@ public class DataverseTextMessageDto {
         this.id = id;
     }
 
+    public void setDataverseId(Long dataverseId) {
+        this.dataverseId = dataverseId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,11 +76,12 @@ public class DataverseTextMessageDto {
                 Objects.equals(id, dto.id) &&
                 Objects.equals(fromTime, dto.fromTime) &&
                 Objects.equals(toTime, dto.toTime) &&
+                Objects.equals(dataverseId, dto.dataverseId) &&
                 Objects.equals(dataverseLocalizedMessage, dto.dataverseLocalizedMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, active, fromTime, toTime, dataverseLocalizedMessage);
+        return Objects.hash(id, active, fromTime, toTime, dataverseId, dataverseLocalizedMessage);
     }
 }

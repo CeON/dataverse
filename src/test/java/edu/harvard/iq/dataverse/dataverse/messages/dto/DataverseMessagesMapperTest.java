@@ -1,19 +1,18 @@
 package edu.harvard.iq.dataverse.dataverse.messages.dto;
 
+import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.dataverse.messages.DataverseLocalizedMessage;
 import edu.harvard.iq.dataverse.dataverse.messages.DataverseTextMessage;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class DataverseMessagesMapperTest {
@@ -106,6 +105,7 @@ public class DataverseMessagesMapperTest {
         assertEquals(active, dto.isActive());
         assertEquals(fromTime, dto.getFromTime());
         assertEquals(toTime, dto.getToTime());
+        assertEquals(new Long(100L), dto.getDataverseId());
         assertEquals(locales, dto.getDataverseLocalizedMessage().size());
     }
 
@@ -115,6 +115,9 @@ public class DataverseMessagesMapperTest {
         textMessage.setActive(true);
         textMessage.setFromTime(FROM_TIME);
         textMessage.setToTime(TO_TIME);
+        Dataverse dataverse = new Dataverse();
+        dataverse.setId(100L);
+        textMessage.setDataverse(dataverse);
 
         Set<DataverseLocalizedMessage> localizedMessages = new HashSet<>();
         localizedMessages.add(aLocalizedMessage("pl", "Komunikat"));

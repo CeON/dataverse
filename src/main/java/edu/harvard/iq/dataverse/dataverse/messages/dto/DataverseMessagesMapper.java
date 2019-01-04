@@ -24,6 +24,7 @@ public class DataverseMessagesMapper {
         dto.setActive(textMessage.isActive());
         dto.setFromTime(textMessage.getFromTime());
         dto.setToTime(textMessage.getToTime());
+        dto.setDataverseId(textMessage.getDataverse().getId());
 
         Set<DataverseLocalizedMessageDto> dataverseLocalizedMessageDto = new HashSet<>();
         ofNullable(textMessage.getDataverseLocalizedMessages()).orElseGet(Sets::newHashSet)

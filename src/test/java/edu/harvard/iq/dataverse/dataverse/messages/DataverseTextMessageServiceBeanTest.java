@@ -32,7 +32,7 @@ public class DataverseTextMessageServiceBeanTest {
     @Test
     public void shouldReturnNewTextMessageDto() {
         // when
-        DataverseTextMessageDto dto = service.newTextMessage();
+        DataverseTextMessageDto dto = service.newTextMessage(1L);
 
         // then
         verifyNewDto(dto);
@@ -53,6 +53,7 @@ public class DataverseTextMessageServiceBeanTest {
     }
 
     private void verifyNewDto(DataverseTextMessageDto dto) {
+        assertEquals(new Long(1L), dto.getDataverseId());
         assertNotNull(dto);
         assertNull(dto.getId());
         assertNull(dto.getFromTime());
