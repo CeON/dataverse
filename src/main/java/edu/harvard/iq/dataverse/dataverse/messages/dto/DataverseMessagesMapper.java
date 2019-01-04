@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.dataverse.messages.dto;
 
+import com.google.common.collect.Sets;
+import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.dataverse.messages.DataverseTextMessage;
 
 import javax.ejb.Stateless;
@@ -8,31 +10,36 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Optional.ofNullable;
+
 @Stateless
 public class DataverseMessagesMapper {
 
-    public DataverseTextMessageDto dataverseTextMessageToDto(DataverseTextMessage dataverseTextMessage) {
-        DataverseTextMessageDto dataverseTextMessageDto = new DataverseTextMessageDto();
+    public DataverseTextMessageDto mapToDto(DataverseTextMessage textMessage) {
+        DataverseTextMessageDto dto = new DataverseTextMessageDto();
 
-        dataverseTextMessageDto.setActive(dataverseTextMessage.isActive());
-        dataverseTextMessageDto.setFromTime(dataverseTextMessage.getFromTime());
-        dataverseTextMessageDto.setToTime(dataverseTextMessage.getToTime());
+        dto.setId(textMessage.getId());
+        dto.setActive(textMessage.isActive());
+        dto.setFromTime(textMessage.getFromTime());
+        dto.setToTime(textMessage.getToTime());
 
         Set<DataverseLocalizedMessageDto> dataverseLocalizedMessageDto = new HashSet<>();
-        dataverseTextMessage.getDataverseLocalizedMessages()
-                .forEach(dlm -> dataverseLocalizedMessageDto.add(new DataverseLocalizedMessageDto(dlm.getLocale(), dlm.getMessage())));
+        ofNullable(textMessage.getDataverseLocalizedMessages()).orElseGet(Sets::newHashSet)
+                .forEach(dlm -> dataverseLocalizedMessageDto.add(new DataverseLocalizedMessageDto(
+                        dlm.getLocale(),
+                        dlm.getMessage(),
+                        new DataverseLocaleBean().getLanguage(dlm.getLocale()))));
 
-        dataverseTextMessageDto.setDataverseLocalizedMessage(dataverseLocalizedMessageDto);
+        dto.setDataverseLocalizedMessage(dataverseLocalizedMessageDto);
 
-        return dataverseTextMessageDto;
+        return dto;
     }
 
-    public List<DataverseTextMessageDto> DataverseTextMessageToDtos(List<DataverseTextMessage> dataverseTextMessages) {
-        List<DataverseTextMessageDto> dataverseTextMessageDtos = new ArrayList<>();
+    public List<DataverseTextMessageDto> mapToDtos(List<DataverseTextMessage> textMessages) {
+        List<DataverseTextMessageDto> dtos = new ArrayList<>();
 
-        dataverseTextMessages.forEach(dataverseTextMessage ->
-                dataverseTextMessageDtos.add(this.dataverseTextMessageToDto(dataverseTextMessage)));
+        textMessages.forEach(dataverseTextMessage -> dtos.add(this.mapToDto(dataverseTextMessage)));
 
-        return dataverseTextMessageDtos;
+        return dtos;
     }
 }

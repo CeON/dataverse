@@ -6,6 +6,8 @@ import java.util.Set;
 
 public class DataverseTextMessageDto {
 
+    private Long id;
+
     private boolean active;
 
     private LocalDateTime fromTime;
@@ -16,6 +18,10 @@ public class DataverseTextMessageDto {
 
     public boolean isActive() {
         return active;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public LocalDateTime getFromTime() {
@@ -44,5 +50,9 @@ public class DataverseTextMessageDto {
 
     public void setDataverseLocalizedMessage(Set<DataverseLocalizedMessageDto> dataverseLocalizedMessage) {
         this.dataverseLocalizedMessage = dataverseLocalizedMessage;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
