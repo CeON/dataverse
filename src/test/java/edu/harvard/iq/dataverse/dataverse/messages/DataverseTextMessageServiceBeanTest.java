@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
+import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseLocalizedMessageDto;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseMessagesMapper;
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseTextMessageDto;
@@ -14,7 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DataverseTextMessageServiceBeanTest {
 
@@ -36,6 +40,26 @@ public class DataverseTextMessageServiceBeanTest {
 
         // then
         verifyNewDto(dto);
+    }
+
+    @Test
+    public void shouldReturnTextMessageDto() {
+        // given
+        DataverseTextMessage message = new DataverseTextMessage();
+        message.setId(1L);
+        Dataverse dataverse = new Dataverse();
+        dataverse.setId(100L);
+        message.setDataverse(dataverse);
+
+        // and
+        when(em.find(DataverseTextMessage.class, 1L)).thenReturn(message);
+
+        // when
+        DataverseTextMessageDto dto = service.getTextMessage(1L);
+
+        // then
+        assertEquals(new Long(1L), dto.getId());
+        verify(em).find(DataverseTextMessage.class, 1L);
     }
 
     private void verifyDefaultLocales(DataverseTextMessageDto dto) {

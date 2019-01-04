@@ -47,7 +47,8 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
     }
 
     public DataverseTextMessageDto getTextMessage(Long textMessageId) {
-        return null;
+        DataverseTextMessage textMessage = em.find(DataverseTextMessage.class, textMessageId);
+        return mapper.mapToDto(textMessage);
     }
 
     public void create(Long dataverseId, DataverseTextMessageDto messageDto) {
