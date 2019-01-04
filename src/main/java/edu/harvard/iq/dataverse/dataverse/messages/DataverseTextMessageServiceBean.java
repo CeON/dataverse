@@ -52,6 +52,15 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
         return mapper.mapToDto(textMessage);
     }
 
+    public void deactivate(Long textMessageId) {
+
+    }
+
+    public void delete(Long textMessageId) {
+        DataverseTextMessage textMessage = em.find(DataverseTextMessage.class, textMessageId);
+        em.remove(textMessage);
+    }
+
     public void save(DataverseTextMessageDto messageDto) {
         // TODO: validate
 

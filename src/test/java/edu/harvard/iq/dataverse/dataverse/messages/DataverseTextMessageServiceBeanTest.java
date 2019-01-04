@@ -84,6 +84,19 @@ public class DataverseTextMessageServiceBeanTest {
         verifySaveNewTextMessage(messageDto);
     }
 
+    @Test
+    public void shouldDeleteTextMessage() {
+        // given
+        DataverseTextMessage textMessage = new DataverseTextMessage();
+        when(em.find(DataverseTextMessage.class, 1L)).thenReturn(textMessage);
+
+        // when
+        service.delete(1L);
+
+        // then
+        verify(em).remove(textMessage);
+    }
+
     private void verifySaveNewTextMessage(DataverseTextMessageDto dto) {
         ArgumentCaptor<DataverseTextMessage> argument = ArgumentCaptor.forClass(DataverseTextMessage.class);
         verify(em).persist(argument.capture());
