@@ -1,11 +1,18 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseTextMessageDto;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.validation.ValidationException;
 import java.io.Serializable;
+
+import static javax.faces.application.FacesMessage.SEVERITY_ERROR;
 
 @ViewScoped
 @Named("EditTextMessagePage")
@@ -18,6 +25,8 @@ public class EditTextMessagePage implements Serializable {
     private Long textMessageId;
 
     private DataverseTextMessageDto dto;
+
+    private UIInput fromTimeInput;
 
     public void init() {
         if (dataverseId == null) {
@@ -34,8 +43,11 @@ public class EditTextMessagePage implements Serializable {
     }
 
     public String save() {
-        textMessageService.save(dto);
-        return redirectToTextMessages();
+        FacesContext.getCurrentInstance().addMessage(fromTimeInput.getClientId(),
+                new FacesMessage(SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("textmessages.enddate.valid")));
+        return null;
+//        textMessageService.save(dto);
+//        return redirectToTextMessages();
     }
 
     public String cancel() {
@@ -64,6 +76,14 @@ public class EditTextMessagePage implements Serializable {
 
     public void setDto(DataverseTextMessageDto dto) {
         this.dto = dto;
+    }
+
+    public UIInput getFromTimeInput() {
+        return fromTimeInput;
+    }
+
+    public void setFromTimeInput(UIInput fromTimeInput) {
+        this.fromTimeInput = fromTimeInput;
     }
 
     private String redirectToTextMessages(){
