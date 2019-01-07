@@ -23,12 +23,18 @@ public class EditTextMessagePage implements Serializable {
         if (dataverseId == null) {
             throw new IllegalArgumentException("DataverseId cannot be null!");
         }
-        dto = (textMessageId != null) ?
-                textMessageService.getTextMessage(textMessageId) :
-                textMessageService.newTextMessage(dataverseId);
+        if (textMessageId != null) {
+            dto = textMessageService.getTextMessage(textMessageId);
+        } else {
+            dto = textMessageService.newTextMessage(dataverseId);
+        }
+        if (!dto.getDataverseId().equals(dataverseId)) {
+            throw new IllegalArgumentException("Text message is not from given dataverse!");
+        }
     }
 
     public String save() {
+        textMessageService.save(dto);
         return redirectToTextMessages();
     }
 

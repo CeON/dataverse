@@ -1,8 +1,11 @@
 package edu.harvard.iq.dataverse.dataverse.messages.dto;
 
 import com.google.common.collect.Lists;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,12 +15,15 @@ public class DataverseTextMessageDto {
 
     private boolean active;
 
-    private LocalDateTime fromTime;
+    @NotNull
+    private Date fromTime;
 
-    private LocalDateTime toTime;
+    @NotNull
+    private Date toTime;
 
     private Long dataverseId;
 
+    @NotEmpty
     private List<DataverseLocalizedMessageDto> dataverseLocalizedMessage = Lists.newArrayList();
 
     public boolean isActive() {
@@ -28,11 +34,11 @@ public class DataverseTextMessageDto {
         return id;
     }
 
-    public LocalDateTime getFromTime() {
+    public Date getFromTime() {
         return fromTime;
     }
 
-    public LocalDateTime getToTime() {
+    public Date getToTime() {
         return toTime;
     }
 
@@ -48,11 +54,11 @@ public class DataverseTextMessageDto {
         this.active = active;
     }
 
-    public void setFromTime(LocalDateTime fromTime) {
+    public void setFromTime(Date fromTime) {
         this.fromTime = fromTime;
     }
 
-    public void setToTime(LocalDateTime toTime) {
+    public void setToTime(Date toTime) {
         this.toTime = toTime;
     }
 

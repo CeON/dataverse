@@ -62,17 +62,26 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
     public void save(DataverseTextMessageDto messageDto) {
         // TODO: validate
 
-        DataverseTextMessage textMessage = new DataverseTextMessage();
+        DataverseTextMessage textMessage = (messageDto.getId() != null) ?
+                em.find(DataverseTextMessage.class, messageDto.getId()) :
+                new DataverseTextMessage();
+
+        textMessage.setId(messageDto.getId());
         textMessage.setActive(messageDto.isActive());
-        textMessage.setDataverse(em.find(Dataverse.class, messageDto.getDataverseId()));
+        Dataverse dataverse = em.find(Dataverse.class, messageDto.getDataverseId());
+        if (dataverse == null) {
+            throw new IllegalArgumentException("Dataverse not exists:" + messageDto.getDataverseId());
+        }
+        textMessage.setDataverse(dataverse);
         textMessage.setFromTime(messageDto.getFromTime());
         textMessage.setToTime(messageDto.getToTime());
 
+        textMessage.getDataverseLocalizedMessages().clear();
         messageDto.getDataverseLocalizedMessage().forEach(lm -> {
             textMessage.addLocalizedMessage(lm.getLocale(), lm.getMessage());
         });
 
-        em.persist(textMessage);
+        em.merge(textMessage);
     }
 
     public List<String> getTextMessagesForDataverse(Long dataverseId) {
