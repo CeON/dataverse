@@ -70,7 +70,7 @@ public class DataverseTextMessageServiceBean implements java.io.Serializable {
         textMessage.setActive(messageDto.isActive());
         Dataverse dataverse = em.find(Dataverse.class, messageDto.getDataverseId());
         if (dataverse == null) {
-            throw new IllegalArgumentException("Dataverse not exists:" + messageDto.getDataverseId());
+            throw new IllegalArgumentException("Dataverse doesn't exist:" + messageDto.getDataverseId());
         }
         textMessage.setDataverse(dataverse);
         textMessage.setFromTime(messageDto.getFromTime());
