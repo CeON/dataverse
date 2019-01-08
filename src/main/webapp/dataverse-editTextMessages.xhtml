@@ -102,7 +102,7 @@
                     <p:commandButton styleClass="btn btn-default" value="#{bundle['saveChanges']}"
                                      action="#{EditTextMessagePage.save()}" update="@form"/>
                     <p:commandButton styleClass="btn btn-default" value="#{bundle['cancel']}"
-                                     action="#{EditTextMessagePage.cancel()}"/>
+                                     action="#{EditTextMessagePage.cancel()}" immediate="true"/>
                 </div>
             </h:form>
         </ui:define>
