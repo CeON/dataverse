@@ -18,7 +18,6 @@ public class DataverseTextMessageDto {
     private Date fromTime;
 
     @NotNull(message = "{field.required}")
-    //@Future(message = "{field.enddate.future}")
     private Date toTime;
 
     private Long dataverseId;
