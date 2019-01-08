@@ -73,7 +73,9 @@
                                         value="#{EditTextMessagePage.dto.toTime}"
                                         locale="#{dataverseLocaleBean.localeCode}"
                                         pattern="yyyy-MM-dd HH:mm"
-                                        mask="true"/>
+                                        mask="true"
+                                        binding="#{EditTextMessagePage.toTimeInput}"
+                            />
                         </div>
                         <div class="col-sm-5 form-col-container">
                             <p:message for="message-totime" display="text"/>

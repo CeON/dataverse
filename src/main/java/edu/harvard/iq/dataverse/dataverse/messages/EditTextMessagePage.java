@@ -1,18 +1,18 @@
 package edu.harvard.iq.dataverse.dataverse.messages;
 
 import edu.harvard.iq.dataverse.dataverse.messages.dto.DataverseTextMessageDto;
-import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.dataverse.messages.validation.EndDateMustBeAFutureDate;
+import edu.harvard.iq.dataverse.dataverse.messages.validation.EndDateMustNotBeEarlierThanStartingDate;
+import edu.harvard.iq.dataverse.util.JsfValidationHelper;
+import edu.harvard.iq.dataverse.util.JsfValidationHelper.ValidationCondition;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.validation.ValidationException;
 import java.io.Serializable;
 
-import static javax.faces.application.FacesMessage.SEVERITY_ERROR;
+import static edu.harvard.iq.dataverse.util.JsfValidationHelper.ValidationCondition.on;
 
 @ViewScoped
 @Named("EditTextMessagePage")
@@ -27,6 +27,7 @@ public class EditTextMessagePage implements Serializable {
     private DataverseTextMessageDto dto;
 
     private UIInput fromTimeInput;
+    private UIInput toTimeInput;
 
     public void init() {
         if (dataverseId == null) {
@@ -43,11 +44,10 @@ public class EditTextMessagePage implements Serializable {
     }
 
     public String save() {
-        FacesContext.getCurrentInstance().addMessage(fromTimeInput.getClientId(),
-                new FacesMessage(SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("textmessages.enddate.valid")));
-        return null;
-//        textMessageService.save(dto);
-//        return redirectToTextMessages();
+        return JsfValidationHelper.execute(() -> {
+            textMessageService.save(dto);
+            return redirectToTextMessages();
+        }, endDateMustNotBeEarlierThanStartingDate(), endDateMustBeAFutureDate());
     }
 
     public String cancel() {
@@ -86,8 +86,23 @@ public class EditTextMessagePage implements Serializable {
         this.fromTimeInput = fromTimeInput;
     }
 
+    public UIInput getToTimeInput() {
+        return toTimeInput;
+    }
+
+    public void setToTimeInput(UIInput toTimeInput) {
+        this.toTimeInput = toTimeInput;
+    }
+
     private String redirectToTextMessages(){
         return "/dataverse-textMessages.xhtml?dataverseId=" + dataverseId + "&faces-redirect=true";
     }
 
+    private ValidationCondition endDateMustNotBeEarlierThanStartingDate() {
+        return on(EndDateMustNotBeEarlierThanStartingDate.class, toTimeInput.getClientId(), "textmessages.enddate.valid");
+    }
+
+    private ValidationCondition endDateMustBeAFutureDate() {
+        return on(EndDateMustBeAFutureDate.class, toTimeInput.getClientId(), "textmessages.enddate.future");
+    }
 }
