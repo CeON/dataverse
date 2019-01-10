@@ -32,7 +32,8 @@
                         <p:dataList value="#{TextMessagePage.lazydataverseTextMessages}" var="history"
                                     paginator="#{TextMessagePage.lazydataverseTextMessages.rowCount > 0 ?'true' : 'false'}"
                                     lazy="true" rows="10"
-                                    styleClass="paginated">
+                                    itemType="none"
+                                    styleClass="paginated ui-datalist-nobullets">
 
                             <p:panel id="basic" style="margin-bottom:20px; width: 600px;">
                                 <div class="p-grid">
