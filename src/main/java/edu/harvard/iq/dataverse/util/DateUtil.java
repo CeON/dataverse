@@ -82,6 +82,7 @@ public class DateUtil {
     }
 
     public static String formatDate(Date date, SimpleDateFormat format) {
+
         return date == null ? StringUtils.EMPTY : format.format(date);
     }
 }
