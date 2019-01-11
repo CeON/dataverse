@@ -1,4 +1,4 @@
-create table if not exists workflow
+create table workflow
 (
 	id serial not null
 		constraint workflow_pkey
@@ -8,7 +8,7 @@ create table if not exists workflow
 
 alter table workflow owner to dvnapp;
 
-create table if not exists oaiset
+create table oaiset
 (
 	id serial not null
 		constraint oaiset_pkey
@@ -24,7 +24,7 @@ create table if not exists oaiset
 
 alter table oaiset owner to dvnapp;
 
-create table if not exists storagesite
+create table storagesite
 (
 	id serial not null
 		constraint storagesite_pkey
@@ -37,7 +37,7 @@ create table if not exists storagesite
 
 alter table storagesite owner to dvnapp;
 
-create table if not exists oairecord
+create table oairecord
 (
 	id serial not null
 		constraint oairecord_pkey
@@ -50,7 +50,7 @@ create table if not exists oairecord
 
 alter table oairecord owner to dvnapp;
 
-create table if not exists shibgroup
+create table shibgroup
 (
 	id serial not null
 		constraint shibgroup_pkey
@@ -62,7 +62,7 @@ create table if not exists shibgroup
 
 alter table shibgroup owner to dvnapp;
 
-create table if not exists persistedglobalgroup
+create table persistedglobalgroup
 (
 	id bigint not null
 		constraint persistedglobalgroup_pkey
@@ -77,7 +77,7 @@ create table if not exists persistedglobalgroup
 
 alter table persistedglobalgroup owner to dvnapp;
 
-create table if not exists ipv6range
+create table ipv6range
 (
 	id bigint not null
 		constraint ipv6range_pkey
@@ -97,13 +97,13 @@ create table if not exists ipv6range
 
 alter table ipv6range owner to dvnapp;
 
-create index if not exists index_ipv6range_owner_id
+create index index_ipv6range_owner_id
 	on ipv6range (owner_id);
 
-create index if not exists index_persistedglobalgroup_dtype
+create index index_persistedglobalgroup_dtype
 	on persistedglobalgroup (dtype);
 
-create table if not exists ipv4range
+create table ipv4range
 (
 	id bigint not null
 		constraint ipv4range_pkey
@@ -117,10 +117,10 @@ create table if not exists ipv4range
 
 alter table ipv4range owner to dvnapp;
 
-create index if not exists index_ipv4range_owner_id
+create index index_ipv4range_owner_id
 	on ipv4range (owner_id);
 
-create table if not exists metric
+create table metric
 (
 	id serial not null
 		constraint metric_pkey
@@ -134,10 +134,10 @@ create table if not exists metric
 
 alter table metric owner to dvnapp;
 
-create index if not exists index_metric_id
+create index index_metric_id
 	on metric (id);
 
-create table if not exists workflowstepdata
+create table workflowstepdata
 (
 	id serial not null
 		constraint workflowstepdata_pkey
@@ -152,7 +152,7 @@ create table if not exists workflowstepdata
 
 alter table workflowstepdata owner to dvnapp;
 
-create table if not exists customfieldmap
+create table customfieldmap
 (
 	id serial not null
 		constraint customfieldmap_pkey
@@ -164,13 +164,13 @@ create table if not exists customfieldmap
 
 alter table customfieldmap owner to dvnapp;
 
-create index if not exists index_customfieldmap_sourcedatasetfield
+create index index_customfieldmap_sourcedatasetfield
 	on customfieldmap (sourcedatasetfield);
 
-create index if not exists index_customfieldmap_sourcetemplate
+create index index_customfieldmap_sourcetemplate
 	on customfieldmap (sourcetemplate);
 
-create table if not exists actionlogrecord
+create table actionlogrecord
 (
 	id varchar(36) not null
 		constraint actionlogrecord_pkey
@@ -186,16 +186,16 @@ create table if not exists actionlogrecord
 
 alter table actionlogrecord owner to dvnapp;
 
-create index if not exists index_actionlogrecord_useridentifier
+create index index_actionlogrecord_useridentifier
 	on actionlogrecord (useridentifier);
 
-create index if not exists index_actionlogrecord_actiontype
+create index index_actionlogrecord_actiontype
 	on actionlogrecord (actiontype);
 
-create index if not exists index_actionlogrecord_starttime
+create index index_actionlogrecord_starttime
 	on actionlogrecord (starttime);
 
-create table if not exists foreignmetadataformatmapping
+create table foreignmetadataformatmapping
 (
 	id serial not null
 		constraint foreignmetadataformatmapping_pkey
@@ -208,10 +208,10 @@ create table if not exists foreignmetadataformatmapping
 
 alter table foreignmetadataformatmapping owner to dvnapp;
 
-create index if not exists index_foreignmetadataformatmapping_name
+create index index_foreignmetadataformatmapping_name
 	on foreignmetadataformatmapping (name);
 
-create table if not exists externaltool
+create table externaltool
 (
 	id serial not null
 		constraint externaltool_pkey
@@ -225,7 +225,7 @@ create table if not exists externaltool
 
 alter table externaltool owner to dvnapp;
 
-create table if not exists defaultvalueset
+create table defaultvalueset
 (
 	id serial not null
 		constraint defaultvalueset_pkey
@@ -235,7 +235,7 @@ create table if not exists defaultvalueset
 
 alter table defaultvalueset owner to dvnapp;
 
-create table if not exists authenticateduser
+create table authenticateduser
 (
 	id serial not null
 		constraint authenticateduser_pkey
@@ -259,7 +259,7 @@ create table if not exists authenticateduser
 
 alter table authenticateduser owner to dvnapp;
 
-create table if not exists confirmemaildata
+create table confirmemaildata
 (
 	id serial not null
 		constraint confirmemaildata_pkey
@@ -276,13 +276,13 @@ create table if not exists confirmemaildata
 
 alter table confirmemaildata owner to dvnapp;
 
-create index if not exists index_confirmemaildata_token
+create index index_confirmemaildata_token
 	on confirmemaildata (token);
 
-create index if not exists index_confirmemaildata_authenticateduser_id
+create index index_confirmemaildata_authenticateduser_id
 	on confirmemaildata (authenticateduser_id);
 
-create table if not exists oauth2tokendata
+create table oauth2tokendata
 (
 	id serial not null
 		constraint oauth2tokendata_pkey
@@ -301,7 +301,7 @@ create table if not exists oauth2tokendata
 
 alter table oauth2tokendata owner to dvnapp;
 
-create table if not exists dvobject
+create table dvobject
 (
 	id serial not null
 		constraint dvobject_pkey
@@ -335,7 +335,7 @@ create table if not exists dvobject
 
 alter table dvobject owner to dvnapp;
 
-create table if not exists dataversetheme
+create table dataversetheme
 (
 	id serial not null
 		constraint dataversetheme_pkey
@@ -356,10 +356,10 @@ create table if not exists dataversetheme
 
 alter table dataversetheme owner to dvnapp;
 
-create index if not exists index_dataversetheme_dataverse_id
+create index index_dataversetheme_dataverse_id
 	on dataversetheme (dataverse_id);
 
-create table if not exists datafilecategory
+create table datafilecategory
 (
 	id serial not null
 		constraint datafilecategory_pkey
@@ -372,10 +372,10 @@ create table if not exists datafilecategory
 
 alter table datafilecategory owner to dvnapp;
 
-create index if not exists index_datafilecategory_dataset_id
+create index index_datafilecategory_dataset_id
 	on datafilecategory (dataset_id);
 
-create table if not exists dataverselinkingdataverse
+create table dataverselinkingdataverse
 (
 	id serial not null
 		constraint dataverselinkingdataverse_pkey
@@ -391,13 +391,13 @@ create table if not exists dataverselinkingdataverse
 
 alter table dataverselinkingdataverse owner to dvnapp;
 
-create index if not exists index_dataverselinkingdataverse_dataverse_id
+create index index_dataverselinkingdataverse_dataverse_id
 	on dataverselinkingdataverse (dataverse_id);
 
-create index if not exists index_dataverselinkingdataverse_linkingdataverse_id
+create index index_dataverselinkingdataverse_linkingdataverse_id
 	on dataverselinkingdataverse (linkingdataverse_id);
 
-create table if not exists metadatablock
+create table metadatablock
 (
 	id serial not null
 		constraint metadatablock_pkey
@@ -412,25 +412,25 @@ create table if not exists metadatablock
 
 alter table metadatablock owner to dvnapp;
 
-create index if not exists index_metadatablock_name
+create index index_metadatablock_name
 	on metadatablock (name);
 
-create index if not exists index_metadatablock_owner_id
+create index index_metadatablock_owner_id
 	on metadatablock (owner_id);
 
-create index if not exists index_dvobject_dtype
+create index index_dvobject_dtype
 	on dvobject (dtype);
 
-create index if not exists index_dvobject_owner_id
+create index index_dvobject_owner_id
 	on dvobject (owner_id);
 
-create index if not exists index_dvobject_creator_id
+create index index_dvobject_creator_id
 	on dvobject (creator_id);
 
-create index if not exists index_dvobject_releaseuser_id
+create index index_dvobject_releaseuser_id
 	on dvobject (releaseuser_id);
 
-create table if not exists dataversefeatureddataverse
+create table dataversefeatureddataverse
 (
 	id serial not null
 		constraint dataversefeatureddataverse_pkey
@@ -446,16 +446,16 @@ create table if not exists dataversefeatureddataverse
 
 alter table dataversefeatureddataverse owner to dvnapp;
 
-create index if not exists index_dataversefeatureddataverse_dataverse_id
+create index index_dataversefeatureddataverse_dataverse_id
 	on dataversefeatureddataverse (dataverse_id);
 
-create index if not exists index_dataversefeatureddataverse_featureddataverse_id
+create index index_dataversefeatureddataverse_featureddataverse_id
 	on dataversefeatureddataverse (featureddataverse_id);
 
-create index if not exists index_dataversefeatureddataverse_displayorder
+create index index_dataversefeatureddataverse_displayorder
 	on dataversefeatureddataverse (displayorder);
 
-create table if not exists harvestingclient
+create table harvestingclient
 (
 	id serial not null
 		constraint harvestingclient_pkey
@@ -483,19 +483,19 @@ create table if not exists harvestingclient
 
 alter table harvestingclient owner to dvnapp;
 
-create index if not exists index_harvestingclient_dataverse_id
+create index index_harvestingclient_dataverse_id
 	on harvestingclient (dataverse_id);
 
-create index if not exists index_harvestingclient_harvesttype
+create index index_harvestingclient_harvesttype
 	on harvestingclient (harvesttype);
 
-create index if not exists index_harvestingclient_harveststyle
+create index index_harvestingclient_harveststyle
 	on harvestingclient (harveststyle);
 
-create index if not exists index_harvestingclient_harvestingurl
+create index index_harvestingclient_harvestingurl
 	on harvestingclient (harvestingurl);
 
-create table if not exists apitoken
+create table apitoken
 (
 	id serial not null
 		constraint apitoken_pkey
@@ -513,10 +513,10 @@ create table if not exists apitoken
 
 alter table apitoken owner to dvnapp;
 
-create index if not exists index_apitoken_authenticateduser_id
+create index index_apitoken_authenticateduser_id
 	on apitoken (authenticateduser_id);
 
-create table if not exists dataversetextmessage
+create table dataversetextmessage
 (
 	id serial not null
 		constraint dataversetextmessage_pkey
@@ -532,10 +532,10 @@ create table if not exists dataversetextmessage
 
 alter table dataversetextmessage owner to dvnapp;
 
-create index if not exists index_dataversetextmessage_dataverse_id
+create index index_dataversetextmessage_dataverse_id
 	on dataversetextmessage (dataverse_id);
 
-create table if not exists usernotification
+create table usernotification
 (
 	id serial not null
 		constraint usernotification_pkey
@@ -555,10 +555,10 @@ create table if not exists usernotification
 
 alter table usernotification owner to dvnapp;
 
-create index if not exists index_usernotification_user_id
+create index index_usernotification_user_id
 	on usernotification (user_id);
 
-create table if not exists guestbook
+create table guestbook
 (
 	id serial not null
 		constraint guestbook_pkey
@@ -577,7 +577,7 @@ create table if not exists guestbook
 
 alter table guestbook owner to dvnapp;
 
-create table if not exists customquestion
+create table customquestion
 (
 	id serial not null
 		constraint customquestion_pkey
@@ -594,10 +594,10 @@ create table if not exists customquestion
 
 alter table customquestion owner to dvnapp;
 
-create index if not exists index_customquestion_guestbook_id
+create index index_customquestion_guestbook_id
 	on customquestion (guestbook_id);
 
-create table if not exists maplayermetadata
+create table maplayermetadata
 (
 	id serial not null
 		constraint maplayermetadata_pkey
@@ -624,10 +624,10 @@ create table if not exists maplayermetadata
 
 alter table maplayermetadata owner to dvnapp;
 
-create index if not exists index_maplayermetadata_dataset_id
+create index index_maplayermetadata_dataset_id
 	on maplayermetadata (dataset_id);
 
-create table if not exists savedsearch
+create table savedsearch
 (
 	id serial not null
 		constraint savedsearch_pkey
@@ -643,7 +643,7 @@ create table if not exists savedsearch
 
 alter table savedsearch owner to dvnapp;
 
-create table if not exists savedsearchfilterquery
+create table savedsearchfilterquery
 (
 	id serial not null
 		constraint savedsearchfilterquery_pkey
@@ -656,16 +656,16 @@ create table if not exists savedsearchfilterquery
 
 alter table savedsearchfilterquery owner to dvnapp;
 
-create index if not exists index_savedsearchfilterquery_savedsearch_id
+create index index_savedsearchfilterquery_savedsearch_id
 	on savedsearchfilterquery (savedsearch_id);
 
-create index if not exists index_savedsearch_definitionpoint_id
+create index index_savedsearch_definitionpoint_id
 	on savedsearch (definitionpoint_id);
 
-create index if not exists index_savedsearch_creator_id
+create index index_savedsearch_creator_id
 	on savedsearch (creator_id);
 
-create table if not exists explicitgroup
+create table explicitgroup
 (
 	id serial not null
 		constraint explicitgroup_pkey
@@ -683,13 +683,13 @@ create table if not exists explicitgroup
 
 alter table explicitgroup owner to dvnapp;
 
-create index if not exists index_explicitgroup_owner_id
+create index index_explicitgroup_owner_id
 	on explicitgroup (owner_id);
 
-create index if not exists index_explicitgroup_groupaliasinowner
+create index index_explicitgroup_groupaliasinowner
 	on explicitgroup (groupaliasinowner);
 
-create table if not exists pendingworkflowinvocation
+create table pendingworkflowinvocation
 (
 	invocationid varchar(255) not null
 		constraint pendingworkflowinvocation_pkey
@@ -711,10 +711,10 @@ create table if not exists pendingworkflowinvocation
 
 alter table pendingworkflowinvocation owner to dvnapp;
 
-create unique index if not exists index_authenticateduser_lower_email
+create unique index index_authenticateduser_lower_email
 	on authenticateduser (lower(email::text));
 
-create table if not exists datatable
+create table datatable
 (
 	id serial not null
 		constraint datatable_pkey
@@ -732,10 +732,10 @@ create table if not exists datatable
 
 alter table datatable owner to dvnapp;
 
-create index if not exists index_datatable_datafile_id
+create index index_datatable_datafile_id
 	on datatable (datafile_id);
 
-create table if not exists ingestreport
+create table ingestreport
 (
 	id serial not null
 		constraint ingestreport_pkey
@@ -752,10 +752,10 @@ create table if not exists ingestreport
 
 alter table ingestreport owner to dvnapp;
 
-create index if not exists index_ingestreport_datafile_id
+create index index_ingestreport_datafile_id
 	on ingestreport (datafile_id);
 
-create table if not exists authenticationproviderrow
+create table authenticationproviderrow
 (
 	id varchar(255) not null
 		constraint authenticationproviderrow_pkey
@@ -769,10 +769,10 @@ create table if not exists authenticationproviderrow
 
 alter table authenticationproviderrow owner to dvnapp;
 
-create index if not exists index_authenticationproviderrow_enabled
+create index index_authenticationproviderrow_enabled
 	on authenticationproviderrow (enabled);
 
-create table if not exists foreignmetadatafieldmapping
+create table foreignmetadatafieldmapping
 (
 	id serial not null
 		constraint foreignmetadatafieldmapping_pkey
@@ -792,16 +792,16 @@ create table if not exists foreignmetadatafieldmapping
 
 alter table foreignmetadatafieldmapping owner to dvnapp;
 
-create index if not exists index_foreignmetadatafieldmapping_foreignmetadataformatmapping_
+create index index_foreignmetadatafieldmapping_foreignmetadataformatmapping_
 	on foreignmetadatafieldmapping (foreignmetadataformatmapping_id);
 
-create index if not exists index_foreignmetadatafieldmapping_foreignfieldxpath
+create index index_foreignmetadatafieldmapping_foreignfieldxpath
 	on foreignmetadatafieldmapping (foreignfieldxpath);
 
-create index if not exists index_foreignmetadatafieldmapping_parentfieldmapping_id
+create index index_foreignmetadatafieldmapping_parentfieldmapping_id
 	on foreignmetadatafieldmapping (parentfieldmapping_id);
 
-create table if not exists dataverselocalizedmessage
+create table dataverselocalizedmessage
 (
 	id serial not null
 		constraint dataverselocalizedmessage_pkey
@@ -815,10 +815,10 @@ create table if not exists dataverselocalizedmessage
 
 alter table dataverselocalizedmessage owner to dvnapp;
 
-create index if not exists index_dataverselocalizedmessage_dataversetextmessage_id
+create index index_dataverselocalizedmessage_dataversetextmessage_id
 	on dataverselocalizedmessage (dataversetextmessage_id);
 
-create table if not exists customquestionvalue
+create table customquestionvalue
 (
 	id serial not null
 		constraint customquestionvalue_pkey
@@ -832,7 +832,7 @@ create table if not exists customquestionvalue
 
 alter table customquestionvalue owner to dvnapp;
 
-create table if not exists datasetlinkingdataverse
+create table datasetlinkingdataverse
 (
 	id serial not null
 		constraint datasetlinkingdataverse_pkey
@@ -848,13 +848,13 @@ create table if not exists datasetlinkingdataverse
 
 alter table datasetlinkingdataverse owner to dvnapp;
 
-create index if not exists index_datasetlinkingdataverse_dataset_id
+create index index_datasetlinkingdataverse_dataset_id
 	on datasetlinkingdataverse (dataset_id);
 
-create index if not exists index_datasetlinkingdataverse_linkingdataverse_id
+create index index_datasetlinkingdataverse_linkingdataverse_id
 	on datasetlinkingdataverse (linkingdataverse_id);
 
-create table if not exists clientharvestrun
+create table clientharvestrun
 (
 	id serial not null
 		constraint clientharvestrun_pkey
@@ -872,7 +872,7 @@ create table if not exists clientharvestrun
 
 alter table clientharvestrun owner to dvnapp;
 
-create table if not exists worldmapauth_tokentype
+create table worldmapauth_tokentype
 (
 	id serial not null
 		constraint worldmapauth_tokentype_pkey
@@ -891,7 +891,7 @@ create table if not exists worldmapauth_tokentype
 
 alter table worldmapauth_tokentype owner to dvnapp;
 
-create table if not exists worldmapauth_token
+create table worldmapauth_token
 (
 	id serial not null
 		constraint worldmapauth_token_pkey
@@ -914,22 +914,22 @@ create table if not exists worldmapauth_token
 
 alter table worldmapauth_token owner to dvnapp;
 
-create unique index if not exists token_value
+create unique index token_value
 	on worldmapauth_token (token);
 
-create index if not exists index_worldmapauth_token_application_id
+create index index_worldmapauth_token_application_id
 	on worldmapauth_token (application_id);
 
-create index if not exists index_worldmapauth_token_datafile_id
+create index index_worldmapauth_token_datafile_id
 	on worldmapauth_token (datafile_id);
 
-create index if not exists index_worldmapauth_token_dataverseuser_id
+create index index_worldmapauth_token_dataverseuser_id
 	on worldmapauth_token (dataverseuser_id);
 
-create unique index if not exists application_name
+create unique index application_name
 	on worldmapauth_tokentype (name);
 
-create table if not exists datafiletag
+create table datafiletag
 (
 	id serial not null
 		constraint datafiletag_pkey
@@ -942,10 +942,10 @@ create table if not exists datafiletag
 
 alter table datafiletag owner to dvnapp;
 
-create index if not exists index_datafiletag_datafile_id
+create index index_datafiletag_datafile_id
 	on datafiletag (datafile_id);
 
-create table if not exists authenticateduserlookup
+create table authenticateduserlookup
 (
 	id serial not null
 		constraint authenticateduserlookup_pkey
@@ -963,7 +963,7 @@ create table if not exists authenticateduserlookup
 
 alter table authenticateduserlookup owner to dvnapp;
 
-create table if not exists ingestrequest
+create table ingestrequest
 (
 	id serial not null
 		constraint ingestrequest_pkey
@@ -979,10 +979,10 @@ create table if not exists ingestrequest
 
 alter table ingestrequest owner to dvnapp;
 
-create index if not exists index_ingestrequest_datafile_id
+create index index_ingestrequest_datafile_id
 	on ingestrequest (datafile_id);
 
-create table if not exists setting
+create table setting
 (
 	name varchar(255) not null
 		constraint setting_pkey
@@ -992,7 +992,7 @@ create table if not exists setting
 
 alter table setting owner to dvnapp;
 
-create table if not exists dataversecontact
+create table dataversecontact
 (
 	id serial not null
 		constraint dataversecontact_pkey
@@ -1006,16 +1006,16 @@ create table if not exists dataversecontact
 
 alter table dataversecontact owner to dvnapp;
 
-create index if not exists index_dataversecontact_dataverse_id
+create index index_dataversecontact_dataverse_id
 	on dataversecontact (dataverse_id);
 
-create index if not exists index_dataversecontact_contactemail
+create index index_dataversecontact_contactemail
 	on dataversecontact (contactemail);
 
-create index if not exists index_dataversecontact_displayorder
+create index index_dataversecontact_displayorder
 	on dataversecontact (displayorder);
 
-create table if not exists datavariable
+create table datavariable
 (
 	id serial not null
 		constraint datavariable_pkey
@@ -1043,7 +1043,7 @@ create table if not exists datavariable
 
 alter table datavariable owner to dvnapp;
 
-create table if not exists variablerangeitem
+create table variablerangeitem
 (
 	id serial not null
 		constraint variablerangeitem_pkey
@@ -1056,10 +1056,10 @@ create table if not exists variablerangeitem
 
 alter table variablerangeitem owner to dvnapp;
 
-create index if not exists index_variablerangeitem_datavariable_id
+create index index_variablerangeitem_datavariable_id
 	on variablerangeitem (datavariable_id);
 
-create table if not exists variablerange
+create table variablerange
 (
 	id serial not null
 		constraint variablerange_pkey
@@ -1075,10 +1075,10 @@ create table if not exists variablerange
 
 alter table variablerange owner to dvnapp;
 
-create index if not exists index_variablerange_datavariable_id
+create index index_variablerange_datavariable_id
 	on variablerange (datavariable_id);
 
-create table if not exists summarystatistic
+create table summarystatistic
 (
 	id serial not null
 		constraint summarystatistic_pkey
@@ -1092,10 +1092,10 @@ create table if not exists summarystatistic
 
 alter table summarystatistic owner to dvnapp;
 
-create index if not exists index_summarystatistic_datavariable_id
+create index index_summarystatistic_datavariable_id
 	on summarystatistic (datavariable_id);
 
-create table if not exists variablecategory
+create table variablecategory
 (
 	id serial not null
 		constraint variablecategory_pkey
@@ -1112,13 +1112,13 @@ create table if not exists variablecategory
 
 alter table variablecategory owner to dvnapp;
 
-create index if not exists index_variablecategory_datavariable_id
+create index index_variablecategory_datavariable_id
 	on variablecategory (datavariable_id);
 
-create index if not exists index_datavariable_datatable_id
+create index index_datavariable_datatable_id
 	on datavariable (datatable_id);
 
-create table if not exists datafile
+create table datafile
 (
 	id bigint not null
 		constraint datafile_pkey
@@ -1138,19 +1138,19 @@ create table if not exists datafile
 
 alter table datafile owner to dvnapp;
 
-create index if not exists index_datafile_ingeststatus
+create index index_datafile_ingeststatus
 	on datafile (ingeststatus);
 
-create index if not exists index_datafile_checksumvalue
+create index index_datafile_checksumvalue
 	on datafile (checksumvalue);
 
-create index if not exists index_datafile_contenttype
+create index index_datafile_contenttype
 	on datafile (contenttype);
 
-create index if not exists index_datafile_restricted
+create index index_datafile_restricted
 	on datafile (restricted);
 
-create table if not exists builtinuser
+create table builtinuser
 (
 	id serial not null
 		constraint builtinuser_pkey
@@ -1164,7 +1164,7 @@ create table if not exists builtinuser
 
 alter table builtinuser owner to dvnapp;
 
-create table if not exists passwordresetdata
+create table passwordresetdata
 (
 	id serial not null
 		constraint passwordresetdata_pkey
@@ -1180,16 +1180,16 @@ create table if not exists passwordresetdata
 
 alter table passwordresetdata owner to dvnapp;
 
-create index if not exists index_passwordresetdata_token
+create index index_passwordresetdata_token
 	on passwordresetdata (token);
 
-create index if not exists index_passwordresetdata_builtinuser_id
+create index index_passwordresetdata_builtinuser_id
 	on passwordresetdata (builtinuser_id);
 
-create index if not exists index_builtinuser_username
+create index index_builtinuser_username
 	on builtinuser (username);
 
-create table if not exists termsofuseandaccess
+create table termsofuseandaccess
 (
 	id serial not null
 		constraint termsofuseandaccess_pkey
@@ -1215,7 +1215,7 @@ create table if not exists termsofuseandaccess
 
 alter table termsofuseandaccess owner to dvnapp;
 
-create table if not exists datasetversion
+create table datasetversion
 (
 	id serial not null
 		constraint datasetversion_pkey
@@ -1244,7 +1244,7 @@ create table if not exists datasetversion
 
 alter table datasetversion owner to dvnapp;
 
-create table if not exists workflowcomment
+create table workflowcomment
 (
 	id serial not null
 		constraint workflowcomment_pkey
@@ -1262,14 +1262,14 @@ create table if not exists workflowcomment
 
 alter table workflowcomment owner to dvnapp;
 
-create index if not exists index_datasetversion_dataset_id
+create index index_datasetversion_dataset_id
 	on datasetversion (dataset_id);
 
-create unique index if not exists one_draft_version_per_dataset
+create unique index one_draft_version_per_dataset
 	on datasetversion (dataset_id)
 	where ((versionstate)::text = 'DRAFT'::text);
 
-create table if not exists filemetadata
+create table filemetadata
 (
 	id serial not null
 		constraint filemetadata_pkey
@@ -1285,18 +1285,19 @@ create table if not exists filemetadata
 			references dvobject,
 	datasetversion_id bigint not null
 		constraint fk_filemetadata_datasetversion_id
-			references datasetversion
+			references datasetversion,
+	displayorder integer
 );
 
 alter table filemetadata owner to dvnapp;
 
-create index if not exists index_filemetadata_datafile_id
+create index index_filemetadata_datafile_id
 	on filemetadata (datafile_id);
 
-create index if not exists index_filemetadata_datasetversion_id
+create index index_filemetadata_datasetversion_id
 	on filemetadata (datasetversion_id);
 
-create table if not exists doidataciteregistercache
+create table doidataciteregistercache
 (
 	id serial not null
 		constraint doidataciteregistercache_pkey
@@ -1311,7 +1312,7 @@ create table if not exists doidataciteregistercache
 
 alter table doidataciteregistercache owner to dvnapp;
 
-create table if not exists harvestingdataverseconfig
+create table harvestingdataverseconfig
 (
 	id bigint not null
 		constraint harvestingdataverseconfig_pkey
@@ -1329,19 +1330,19 @@ create table if not exists harvestingdataverseconfig
 
 alter table harvestingdataverseconfig owner to dvnapp;
 
-create index if not exists index_harvestingdataverseconfig_dataverse_id
+create index index_harvestingdataverseconfig_dataverse_id
 	on harvestingdataverseconfig (dataverse_id);
 
-create index if not exists index_harvestingdataverseconfig_harvesttype
+create index index_harvestingdataverseconfig_harvesttype
 	on harvestingdataverseconfig (harvesttype);
 
-create index if not exists index_harvestingdataverseconfig_harveststyle
+create index index_harvestingdataverseconfig_harveststyle
 	on harvestingdataverseconfig (harveststyle);
 
-create index if not exists index_harvestingdataverseconfig_harvestingurl
+create index index_harvestingdataverseconfig_harvestingurl
 	on harvestingdataverseconfig (harvestingurl);
 
-create table if not exists alternativepersistentidentifier
+create table alternativepersistentidentifier
 (
 	id serial not null
 		constraint alternativepersistentidentifier_pkey
@@ -1359,7 +1360,7 @@ create table if not exists alternativepersistentidentifier
 
 alter table alternativepersistentidentifier owner to dvnapp;
 
-create table if not exists datasetversionuser
+create table datasetversionuser
 (
 	id serial not null
 		constraint datasetversionuser_pkey
@@ -1375,13 +1376,13 @@ create table if not exists datasetversionuser
 
 alter table datasetversionuser owner to dvnapp;
 
-create index if not exists index_datasetversionuser_authenticateduser_id
+create index index_datasetversionuser_authenticateduser_id
 	on datasetversionuser (authenticateduser_id);
 
-create index if not exists index_datasetversionuser_datasetversion_id
+create index index_datasetversionuser_datasetversion_id
 	on datasetversionuser (datasetversion_id);
 
-create table if not exists guestbookresponse
+create table guestbookresponse
 (
 	id serial not null
 		constraint guestbookresponse_pkey
@@ -1412,16 +1413,16 @@ create table if not exists guestbookresponse
 
 alter table guestbookresponse owner to dvnapp;
 
-create index if not exists index_guestbookresponse_guestbook_id
+create index index_guestbookresponse_guestbook_id
 	on guestbookresponse (guestbook_id);
 
-create index if not exists index_guestbookresponse_datafile_id
+create index index_guestbookresponse_datafile_id
 	on guestbookresponse (datafile_id);
 
-create index if not exists index_guestbookresponse_dataset_id
+create index index_guestbookresponse_dataset_id
 	on guestbookresponse (dataset_id);
 
-create table if not exists customquestionresponse
+create table customquestionresponse
 (
 	id serial not null
 		constraint customquestionresponse_pkey
@@ -1437,10 +1438,10 @@ create table if not exists customquestionresponse
 
 alter table customquestionresponse owner to dvnapp;
 
-create index if not exists index_customquestionresponse_guestbookresponse_id
+create index index_customquestionresponse_guestbookresponse_id
 	on customquestionresponse (guestbookresponse_id);
 
-create table if not exists template
+create table template
 (
 	id serial not null
 		constraint template_pkey
@@ -1458,10 +1459,10 @@ create table if not exists template
 
 alter table template owner to dvnapp;
 
-create index if not exists index_template_dataverse_id
+create index index_template_dataverse_id
 	on template (dataverse_id);
 
-create table if not exists datasetlock
+create table datasetlock
 (
 	id serial not null
 		constraint datasetlock_pkey
@@ -1479,13 +1480,13 @@ create table if not exists datasetlock
 
 alter table datasetlock owner to dvnapp;
 
-create index if not exists index_datasetlock_user_id
+create index index_datasetlock_user_id
 	on datasetlock (user_id);
 
-create index if not exists index_datasetlock_dataset_id
+create index index_datasetlock_dataset_id
 	on datasetlock (dataset_id);
 
-create table if not exists dataverserole
+create table dataverserole
 (
 	id serial not null
 		constraint dataverserole_pkey
@@ -1503,7 +1504,7 @@ create table if not exists dataverserole
 
 alter table dataverserole owner to dvnapp;
 
-create table if not exists roleassignment
+create table roleassignment
 (
 	id serial not null
 		constraint roleassignment_pkey
@@ -1522,16 +1523,16 @@ create table if not exists roleassignment
 
 alter table roleassignment owner to dvnapp;
 
-create index if not exists index_roleassignment_assigneeidentifier
+create index index_roleassignment_assigneeidentifier
 	on roleassignment (assigneeidentifier);
 
-create index if not exists index_roleassignment_definitionpoint_id
+create index index_roleassignment_definitionpoint_id
 	on roleassignment (definitionpoint_id);
 
-create index if not exists index_roleassignment_role_id
+create index index_roleassignment_role_id
 	on roleassignment (role_id);
 
-create table if not exists dataverse
+create table dataverse
 (
 	id bigint not null
 		constraint dataverse_pkey
@@ -1562,52 +1563,52 @@ create table if not exists dataverse
 
 alter table dataverse owner to dvnapp;
 
-create index if not exists index_dataverse_defaultcontributorrole_id
+create index index_dataverse_defaultcontributorrole_id
 	on dataverse (defaultcontributorrole_id);
 
-create index if not exists index_dataverse_defaulttemplate_id
+create index index_dataverse_defaulttemplate_id
 	on dataverse (defaulttemplate_id);
 
-create index if not exists index_dataverse_alias
+create index index_dataverse_alias
 	on dataverse (alias);
 
-create index if not exists index_dataverse_affiliation
+create index index_dataverse_affiliation
 	on dataverse (affiliation);
 
-create index if not exists index_dataverse_dataversetype
+create index index_dataverse_dataversetype
 	on dataverse (dataversetype);
 
-create index if not exists index_dataverse_facetroot
+create index index_dataverse_facetroot
 	on dataverse (facetroot);
 
-create index if not exists index_dataverse_guestbookroot
+create index index_dataverse_guestbookroot
 	on dataverse (guestbookroot);
 
-create index if not exists index_dataverse_metadatablockroot
+create index index_dataverse_metadatablockroot
 	on dataverse (metadatablockroot);
 
-create index if not exists index_dataverse_templateroot
+create index index_dataverse_templateroot
 	on dataverse (templateroot);
 
-create index if not exists index_dataverse_permissionroot
+create index index_dataverse_permissionroot
 	on dataverse (permissionroot);
 
-create index if not exists index_dataverse_themeroot
+create index index_dataverse_themeroot
 	on dataverse (themeroot);
 
-create unique index if not exists dataverse_alias_unique_idx
+create unique index dataverse_alias_unique_idx
 	on dataverse (lower(alias::text));
 
-create index if not exists index_dataverserole_owner_id
+create index index_dataverserole_owner_id
 	on dataverserole (owner_id);
 
-create index if not exists index_dataverserole_name
+create index index_dataverserole_name
 	on dataverserole (name);
 
-create index if not exists index_dataverserole_alias
+create index index_dataverserole_alias
 	on dataverserole (alias);
 
-create table if not exists datasetfieldtype
+create table datasetfieldtype
 (
 	id serial not null
 		constraint datasetfieldtype_pkey
@@ -1637,7 +1638,7 @@ create table if not exists datasetfieldtype
 
 alter table datasetfieldtype owner to dvnapp;
 
-create table if not exists dataversefacet
+create table dataversefacet
 (
 	id serial not null
 		constraint dataversefacet_pkey
@@ -1653,16 +1654,16 @@ create table if not exists dataversefacet
 
 alter table dataversefacet owner to dvnapp;
 
-create index if not exists index_dataversefacet_dataverse_id
+create index index_dataversefacet_dataverse_id
 	on dataversefacet (dataverse_id);
 
-create index if not exists index_dataversefacet_datasetfieldtype_id
+create index index_dataversefacet_datasetfieldtype_id
 	on dataversefacet (datasetfieldtype_id);
 
-create index if not exists index_dataversefacet_displayorder
+create index index_dataversefacet_displayorder
 	on dataversefacet (displayorder);
 
-create table if not exists datasetfield
+create table datasetfield
 (
 	id serial not null
 		constraint datasetfield_pkey
@@ -1681,7 +1682,7 @@ create table if not exists datasetfield
 
 alter table datasetfield owner to dvnapp;
 
-create table if not exists datasetfieldvalue
+create table datasetfieldvalue
 (
 	id serial not null
 		constraint datasetfieldvalue_pkey
@@ -1695,22 +1696,22 @@ create table if not exists datasetfieldvalue
 
 alter table datasetfieldvalue owner to dvnapp;
 
-create index if not exists index_datasetfieldvalue_datasetfield_id
+create index index_datasetfieldvalue_datasetfield_id
 	on datasetfieldvalue (datasetfield_id);
 
-create index if not exists index_datasetfield_datasetfieldtype_id
+create index index_datasetfield_datasetfieldtype_id
 	on datasetfield (datasetfieldtype_id);
 
-create index if not exists index_datasetfield_datasetversion_id
+create index index_datasetfield_datasetversion_id
 	on datasetfield (datasetversion_id);
 
-create index if not exists index_datasetfield_parentdatasetfieldcompoundvalue_id
+create index index_datasetfield_parentdatasetfieldcompoundvalue_id
 	on datasetfield (parentdatasetfieldcompoundvalue_id);
 
-create index if not exists index_datasetfield_template_id
+create index index_datasetfield_template_id
 	on datasetfield (template_id);
 
-create table if not exists datasetfielddefaultvalue
+create table datasetfielddefaultvalue
 (
 	id serial not null
 		constraint datasetfielddefaultvalue_pkey
@@ -1730,19 +1731,19 @@ create table if not exists datasetfielddefaultvalue
 
 alter table datasetfielddefaultvalue owner to dvnapp;
 
-create index if not exists index_datasetfielddefaultvalue_datasetfield_id
+create index index_datasetfielddefaultvalue_datasetfield_id
 	on datasetfielddefaultvalue (datasetfield_id);
 
-create index if not exists index_datasetfielddefaultvalue_defaultvalueset_id
+create index index_datasetfielddefaultvalue_defaultvalueset_id
 	on datasetfielddefaultvalue (defaultvalueset_id);
 
-create index if not exists index_datasetfielddefaultvalue_parentdatasetfielddefaultvalue_i
+create index index_datasetfielddefaultvalue_parentdatasetfielddefaultvalue_i
 	on datasetfielddefaultvalue (parentdatasetfielddefaultvalue_id);
 
-create index if not exists index_datasetfielddefaultvalue_displayorder
+create index index_datasetfielddefaultvalue_displayorder
 	on datasetfielddefaultvalue (displayorder);
 
-create table if not exists controlledvocabularyvalue
+create table controlledvocabularyvalue
 (
 	id serial not null
 		constraint controlledvocabularyvalue_pkey
@@ -1757,13 +1758,13 @@ create table if not exists controlledvocabularyvalue
 
 alter table controlledvocabularyvalue owner to dvnapp;
 
-create index if not exists index_controlledvocabularyvalue_datasetfieldtype_id
+create index index_controlledvocabularyvalue_datasetfieldtype_id
 	on controlledvocabularyvalue (datasetfieldtype_id);
 
-create index if not exists index_controlledvocabularyvalue_displayorder
+create index index_controlledvocabularyvalue_displayorder
 	on controlledvocabularyvalue (displayorder);
 
-create table if not exists dataset
+create table dataset
 (
 	id bigint not null
 		constraint dataset_pkey
@@ -1790,13 +1791,13 @@ create table if not exists dataset
 
 alter table dataset owner to dvnapp;
 
-create index if not exists index_dataset_guestbook_id
+create index index_dataset_guestbook_id
 	on dataset (guestbook_id);
 
-create index if not exists index_dataset_thumbnailfile_id
+create index index_dataset_thumbnailfile_id
 	on dataset (thumbnailfile_id);
 
-create table if not exists controlledvocabalternate
+create table controlledvocabalternate
 (
 	id serial not null
 		constraint controlledvocabalternate_pkey
@@ -1812,13 +1813,13 @@ create table if not exists controlledvocabalternate
 
 alter table controlledvocabalternate owner to dvnapp;
 
-create index if not exists index_controlledvocabalternate_controlledvocabularyvalue_id
+create index index_controlledvocabalternate_controlledvocabularyvalue_id
 	on controlledvocabalternate (controlledvocabularyvalue_id);
 
-create index if not exists index_controlledvocabalternate_datasetfieldtype_id
+create index index_controlledvocabalternate_datasetfieldtype_id
 	on controlledvocabalternate (datasetfieldtype_id);
 
-create table if not exists dataversefieldtypeinputlevel
+create table dataversefieldtypeinputlevel
 (
 	id serial not null
 		constraint dataversefieldtypeinputlevel_pkey
@@ -1837,16 +1838,16 @@ create table if not exists dataversefieldtypeinputlevel
 
 alter table dataversefieldtypeinputlevel owner to dvnapp;
 
-create index if not exists index_dataversefieldtypeinputlevel_dataverse_id
+create index index_dataversefieldtypeinputlevel_dataverse_id
 	on dataversefieldtypeinputlevel (dataverse_id);
 
-create index if not exists index_dataversefieldtypeinputlevel_datasetfieldtype_id
+create index index_dataversefieldtypeinputlevel_datasetfieldtype_id
 	on dataversefieldtypeinputlevel (datasetfieldtype_id);
 
-create index if not exists index_dataversefieldtypeinputlevel_required
+create index index_dataversefieldtypeinputlevel_required
 	on dataversefieldtypeinputlevel (required);
 
-create table if not exists datasetfieldcompoundvalue
+create table datasetfieldcompoundvalue
 (
 	id serial not null
 		constraint datasetfieldcompoundvalue_pkey
@@ -1863,16 +1864,16 @@ alter table datasetfield
 	add constraint fk_datasetfield_parentdatasetfieldcompoundvalue_id
 		foreign key (parentdatasetfieldcompoundvalue_id) references datasetfieldcompoundvalue;
 
-create index if not exists index_datasetfieldcompoundvalue_parentdatasetfield_id
+create index index_datasetfieldcompoundvalue_parentdatasetfield_id
 	on datasetfieldcompoundvalue (parentdatasetfield_id);
 
-create index if not exists index_datasetfieldtype_metadatablock_id
+create index index_datasetfieldtype_metadatablock_id
 	on datasetfieldtype (metadatablock_id);
 
-create index if not exists index_datasetfieldtype_parentdatasetfieldtype_id
+create index index_datasetfieldtype_parentdatasetfieldtype_id
 	on datasetfieldtype (parentdatasetfieldtype_id);
 
-create table if not exists filemetadata_datafilecategory
+create table filemetadata_datafilecategory
 (
 	filecategories_id bigint not null
 		constraint fk_filemetadata_datafilecategory_filecategories_id
@@ -1886,13 +1887,13 @@ create table if not exists filemetadata_datafilecategory
 
 alter table filemetadata_datafilecategory owner to dvnapp;
 
-create index if not exists index_filemetadata_datafilecategory_filecategories_id
+create index index_filemetadata_datafilecategory_filecategories_id
 	on filemetadata_datafilecategory (filecategories_id);
 
-create index if not exists index_filemetadata_datafilecategory_filemetadatas_id
+create index index_filemetadata_datafilecategory_filemetadatas_id
 	on filemetadata_datafilecategory (filemetadatas_id);
 
-create table if not exists dataverse_citationdatasetfieldtypes
+create table dataverse_citationdatasetfieldtypes
 (
 	dataverse_id bigint not null
 		constraint fk_dataverse_citationdatasetfieldtypes_dataverse_id
@@ -1906,7 +1907,7 @@ create table if not exists dataverse_citationdatasetfieldtypes
 
 alter table dataverse_citationdatasetfieldtypes owner to dvnapp;
 
-create table if not exists dataversesubjects
+create table dataversesubjects
 (
 	dataverse_id bigint not null
 		constraint fk_dataversesubjects_dataverse_id
@@ -1920,7 +1921,7 @@ create table if not exists dataversesubjects
 
 alter table dataversesubjects owner to dvnapp;
 
-create table if not exists dataverse_metadatablock
+create table dataverse_metadatablock
 (
 	dataverse_id bigint not null
 		constraint fk_dataverse_metadatablock_dataverse_id
@@ -1934,7 +1935,7 @@ create table if not exists dataverse_metadatablock
 
 alter table dataverse_metadatablock owner to dvnapp;
 
-create table if not exists datasetfield_controlledvocabularyvalue
+create table datasetfield_controlledvocabularyvalue
 (
 	datasetfield_id bigint not null
 		constraint fk_datasetfield_controlledvocabularyvalue_datasetfield_id
@@ -1948,13 +1949,13 @@ create table if not exists datasetfield_controlledvocabularyvalue
 
 alter table datasetfield_controlledvocabularyvalue owner to dvnapp;
 
-create index if not exists index_datasetfield_controlledvocabularyvalue_datasetfield_id
+create index index_datasetfield_controlledvocabularyvalue_datasetfield_id
 	on datasetfield_controlledvocabularyvalue (datasetfield_id);
 
-create index if not exists index_datasetfield_controlledvocabularyvalue_controlledvocabula
+create index index_datasetfield_controlledvocabularyvalue_controlledvocabula
 	on datasetfield_controlledvocabularyvalue (controlledvocabularyvalues_id);
 
-create table if not exists workflowstepdata_stepparameters
+create table workflowstepdata_stepparameters
 (
 	workflowstepdata_id bigint
 		constraint fk_workflowstepdata_stepparameters_workflowstepdata_id
@@ -1965,7 +1966,7 @@ create table if not exists workflowstepdata_stepparameters
 
 alter table workflowstepdata_stepparameters owner to dvnapp;
 
-create table if not exists workflowstepdata_stepsettings
+create table workflowstepdata_stepsettings
 (
 	workflowstepdata_id bigint
 		constraint fk_workflowstepdata_stepsettings_workflowstepdata_id
@@ -1976,7 +1977,7 @@ create table if not exists workflowstepdata_stepsettings
 
 alter table workflowstepdata_stepsettings owner to dvnapp;
 
-create table if not exists explicitgroup_containedroleassignees
+create table explicitgroup_containedroleassignees
 (
 	explicitgroup_id bigint
 		constraint fk_explicitgroup_containedroleassignees_explicitgroup_id
@@ -1986,7 +1987,7 @@ create table if not exists explicitgroup_containedroleassignees
 
 alter table explicitgroup_containedroleassignees owner to dvnapp;
 
-create table if not exists explicitgroup_authenticateduser
+create table explicitgroup_authenticateduser
 (
 	explicitgroup_id bigint not null
 		constraint fk_explicitgroup_authenticateduser_explicitgroup_id
@@ -2000,7 +2001,7 @@ create table if not exists explicitgroup_authenticateduser
 
 alter table explicitgroup_authenticateduser owner to dvnapp;
 
-create table if not exists explicitgroup_explicitgroup
+create table explicitgroup_explicitgroup
 (
 	explicitgroup_id bigint not null
 		constraint fk_explicitgroup_explicitgroup_explicitgroup_id
@@ -2014,7 +2015,7 @@ create table if not exists explicitgroup_explicitgroup
 
 alter table explicitgroup_explicitgroup owner to dvnapp;
 
-create table if not exists pendingworkflowinvocation_localdata
+create table pendingworkflowinvocation_localdata
 (
 	pendingworkflowinvocation_invocationid varchar(255)
 		constraint pndngwrkflwinvocationlocaldatapndngwrkflwinvocationinvocationid
@@ -2025,7 +2026,7 @@ create table if not exists pendingworkflowinvocation_localdata
 
 alter table pendingworkflowinvocation_localdata owner to dvnapp;
 
-create table if not exists fileaccessrequests
+create table fileaccessrequests
 (
 	datafile_id bigint not null
 		constraint fk_fileaccessrequests_datafile_id
@@ -2039,7 +2040,7 @@ create table if not exists fileaccessrequests
 
 alter table fileaccessrequests owner to dvnapp;
 
-create table if not exists sequence
+create table sequence
 (
 	seq_name varchar(50) not null
 		constraint sequence_pkey
@@ -2049,7 +2050,7 @@ create table if not exists sequence
 
 alter table sequence owner to dvnapp;
 
-create table if not exists "EJB__TIMER__TBL"
+create table "EJB__TIMER__TBL"
 (
 	"TIMERID" varchar(255) not null
 		constraint "EJB__TIMER__TBL_pkey"
