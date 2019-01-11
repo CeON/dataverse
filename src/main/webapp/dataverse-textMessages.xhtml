@@ -66,6 +66,7 @@
                                                  update=":text-messages-form"/>
                                 <div style="float: right">
                                     <p:commandButton value="#{bundle['textmessages.deactivate']}"
+                                                     rendered="#{history.active}"
                                                      style="margin-right:10px;"
                                                      action="#{TextMessagePage.textMessageService.deactivate(history.id)}"
                                                      update=":text-messages-form"/>
