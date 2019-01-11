@@ -30,7 +30,7 @@
                         <h3 title="#{bundle['textmessages.history']}"/>
 
                         <p:dataList value="#{TextMessagePage.lazydataverseTextMessages}" var="history"
-                                    paginator="#{TextMessagePage.lazydataverseTextMessages.rowCount > 0 ?'true' : 'false'}"
+                                    paginator="#{TextMessagePage.lazydataverseTextMessages.rowCount > 10 ?'true' : 'false'}"
                                     lazy="true" rows="10"
                                     itemType="none"
                                     styleClass="paginated ui-datalist-nobullets">
@@ -62,6 +62,7 @@
 
                                 <p:commandButton value="#{bundle['textmessages.delete']}"
                                                  action="#{TextMessagePage.textMessageService.delete(history.id)}"
+                                                 onclick="reloadIfMessageCountTooLow(#{TextMessagePage.lazydataverseTextMessages.rowCount})"
                                                  update=":text-messages-form"/>
                                 <div style="float: right">
                                     <p:commandButton value="#{bundle['textmessages.deactivate']}"
@@ -84,6 +85,13 @@
                     </p:tab>
                 </p:tabView>
             </h:form>
+            <script type="text/javascript">
+                function reloadIfMessageCountTooLow(count) {
+                    if (count === 11) {
+                        location.reload(true);
+                    }
+                }
+            </script>
         </ui:define>
     </ui:composition>
 
