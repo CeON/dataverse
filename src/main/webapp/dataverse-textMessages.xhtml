@@ -62,7 +62,7 @@
 
                                 <p:commandButton value="#{bundle['textmessages.delete']}"
                                                  action="#{TextMessagePage.textMessageService.delete(history.id)}"
-                                                 onclick="reloadIfMessageCountTooLow(#{TextMessagePage.lazydataverseTextMessages.rowCount})"
+                                                 onclick="return reloadIfMessageCountTooLow(#{TextMessagePage.lazydataverseTextMessages.rowCount})"
                                                  update=":text-messages-form"/>
                                 <div style="float: right">
                                     <p:commandButton value="#{bundle['textmessages.deactivate']}"
