@@ -62,8 +62,10 @@
 
                                 <p:commandButton value="#{bundle['textmessages.delete']}"
                                                  action="#{TextMessagePage.textMessageService.delete(history.id)}"
-                                                 onclick="return reloadIfMessageCountTooLow(#{TextMessagePage.lazydataverseTextMessages.rowCount})"
-                                                 update=":text-messages-form"/>
+                                                 update=":text-messages-form"
+                                                 oncomplete="reloadIfMessageCountTooLow
+                                                 (#{TextMessagePage.lazydataverseTextMessages.rowCount},
+                                                 #{TextMessagePage.lazydataverseTextMessages.pageSize})"/>
                                 <div style="float: right">
                                     <p:commandButton value="#{bundle['textmessages.deactivate']}"
                                                      rendered="#{history.active}"
@@ -87,8 +89,8 @@
                 </p:tabView>
             </h:form>
             <script type="text/javascript">
-                function reloadIfMessageCountTooLow(count) {
-                    if (count === 11) {
+                function reloadIfMessageCountTooLow(count, pageSize) {
+                    if (count === pageSize + 1) {
                         location.reload(true);
                     }
                 }
