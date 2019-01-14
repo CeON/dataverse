@@ -2,6 +2,8 @@ package edu.harvard.iq.dataverse.dataverse.banners.dto;
 
 import edu.harvard.iq.dataverse.util.DateUtil;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -11,12 +13,17 @@ public class DataverseBannerDto {
 
     private Long id;
 
+    @NotNull(message = "{field.required}")
     private Date fromTime;
 
+    @NotNull(message = "{field.required}")
     private Date toTime;
 
     private boolean active;
 
+    private Long dataverseId;
+
+    @Valid
     private List<DataverseLocalizedBannerDto> dataverseLocalizedBanner;
 
     public Long getId() {
@@ -62,6 +69,14 @@ public class DataverseBannerDto {
         this.active = active;
     }
 
+    public Long getDataverseId() {
+        return dataverseId;
+    }
+
+    public void setDataverseId(Long dataverseId) {
+        this.dataverseId = dataverseId;
+    }
+
     public List<DataverseLocalizedBannerDto> getDataverseLocalizedBanner() {
         return dataverseLocalizedBanner;
     }
@@ -79,11 +94,12 @@ public class DataverseBannerDto {
                 Objects.equals(id, that.id) &&
                 Objects.equals(fromTime, that.fromTime) &&
                 Objects.equals(toTime, that.toTime) &&
+                Objects.equals(dataverseId, that.dataverseId) &&
                 Objects.equals(dataverseLocalizedBanner, that.dataverseLocalizedBanner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, fromTime, toTime, active, dataverseLocalizedBanner);
+        return Objects.hash(id, fromTime, toTime, active, dataverseId, dataverseLocalizedBanner);
     }
 }

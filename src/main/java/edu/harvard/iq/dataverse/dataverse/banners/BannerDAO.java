@@ -24,6 +24,10 @@ public class BannerDAO {
         em.remove(banner);
     }
 
+    public DataverseBanner getTextMessage(Long bannerId) {
+        return em.find(DataverseBanner.class, bannerId);
+    }
+
     /**
      * Fetches history of banners for dataverse with paging
      * (paging is offset based so it will not offer the best performance if there will be a lot of records)

@@ -5,6 +5,11 @@ import java.util.Objects;
 
 public class DataverseLocalizedBannerDto {
 
+    public DataverseLocalizedBannerDto(String locale, String language) {
+        this.locale = locale;
+        this.language = language;
+    }
+
     public DataverseLocalizedBannerDto(Long id, String locale, byte[] image, String language) {
         this.id = id;
         this.locale = locale;

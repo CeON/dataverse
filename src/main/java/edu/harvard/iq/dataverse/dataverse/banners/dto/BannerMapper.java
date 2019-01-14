@@ -6,6 +6,8 @@ import edu.harvard.iq.dataverse.locale.DataverseLocaleBean;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Stateless
 public class BannerMapper {
@@ -36,5 +38,22 @@ public class BannerMapper {
         dataverseBanners.forEach(dataverseBanner -> dtos.add(mapToDto(dataverseBanner)));
 
         return dtos;
+    }
+
+    public List<DataverseLocalizedBannerDto> mapDefaultLocales() {
+        Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
+
+        return locales.entrySet().stream()
+                .map(e -> new DataverseLocalizedBannerDto(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public DataverseBannerDto mapToNewBanner(Long dataverseId) {
+        DataverseBannerDto dto = new DataverseBannerDto();
+
+        dto.setDataverseId(dataverseId);
+        dto.setDataverseLocalizedBanner(mapDefaultLocales());
+
+        return dto;
     }
 }

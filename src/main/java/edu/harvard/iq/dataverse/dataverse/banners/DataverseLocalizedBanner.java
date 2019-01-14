@@ -28,6 +28,8 @@ public class DataverseLocalizedBanner {
     @Basic(fetch = FetchType.LAZY)
     private byte[] image;
 
+    private String imageLink;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private DataverseBanner dataverseBanner;
 
@@ -64,6 +66,14 @@ public class DataverseLocalizedBanner {
 
     public void setImage(byte[] image) {
         this.image = image;
+    }
+
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
     }
 
     public DataverseBanner getDataverseBanner() {
