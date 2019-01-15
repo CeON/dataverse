@@ -10,11 +10,12 @@ public class DataverseLocalizedBannerDto {
         this.language = language;
     }
 
-    public DataverseLocalizedBannerDto(Long id, String locale, byte[] image, String language) {
+    public DataverseLocalizedBannerDto(Long id, String locale, String language, byte[] image, String imageLink) {
         this.id = id;
         this.locale = locale;
         this.language = language;
         this.image = image;
+        this.imageLink = imageLink;
     }
 
     private Long id;
@@ -24,6 +25,8 @@ public class DataverseLocalizedBannerDto {
     private String language;
 
     private byte[] image;
+
+    private String imageLink;
 
     public Long getId() {
         return id;
@@ -57,6 +60,14 @@ public class DataverseLocalizedBannerDto {
         this.image = image;
     }
 
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -65,12 +76,13 @@ public class DataverseLocalizedBannerDto {
         return Objects.equals(id, that.id) &&
                 Objects.equals(locale, that.locale) &&
                 Objects.equals(language, that.language) &&
-                Arrays.equals(image, that.image);
+                Arrays.equals(image, that.image) &&
+                Objects.equals(imageLink, that.imageLink);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, locale, language);
+        int result = Objects.hash(id, locale, language, imageLink);
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }

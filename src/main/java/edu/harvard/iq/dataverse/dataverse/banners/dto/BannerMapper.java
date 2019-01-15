@@ -24,8 +24,14 @@ public class BannerMapper {
 
         dataverseBanner.getDataverseLocalizedBanner()
                 .forEach(dlb ->
-                        dlbDto.add(new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(), dlb.getImage(),
-                                new DataverseLocaleBean().getLanguage(dlb.getLocale()))));
+                {
+                    DataverseLocalizedBannerDto localBannerDto =
+                            new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
+                                    new DataverseLocaleBean().getLanguage(dlb.getLocale()),
+                                    dlb.getImage(), dlb.getImageLink());
+
+                    dlbDto.add(localBannerDto);
+                });
 
         dto.setDataverseLocalizedBanner(dlbDto);
 

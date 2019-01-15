@@ -33,9 +33,12 @@
                                                              title="#{bundle.requiredField}"/>
                                     </span>
                             </label>
+                            <p:fileUpload mode="advanced" dragDropSupport="false"
+                                          update="messages" sizeLimit="1000000" allowTypes="/(\.|\/)(jpe?g|png)$/"/>
+
                             <div class="col-sm-5 form-col-container">
                                 <p:inputTextarea id="message-locale" tabindex="1" styleClass="form-control"
-                                                 value="#{lm.image}"/>
+                                                 value="#{lm.imageLink}"/>
                             </div>
                             <div class="col-sm-5 form-col-container">
                                 <p:message for="message-locale" display="text"/>
@@ -106,7 +109,7 @@
                         </label>
                         <div class="col-sm-10 form-col-container">
                             <p:selectBooleanCheckbox id="message-active"
-                                                     tabindex="#{EditBannerPage.dto.dataverseLocalizedMessage.size() + 3}"
+                                                     tabindex="#{EditBannerPage.dto.dataverseLocalizedBanner.size() + 3}"
                                                      value="#{EditBannerPage.dto.active}"/>
                         </div>
                     </div>
