@@ -6,7 +6,7 @@ create table workflow
 	name varchar(255)
 );
 
-alter table workflow owner to dvnapp;
+
 
 create table oaiset
 (
@@ -22,7 +22,7 @@ create table oaiset
 	version bigint
 );
 
-alter table oaiset owner to dvnapp;
+
 
 create table storagesite
 (
@@ -35,7 +35,7 @@ create table storagesite
 	transferprotocols text
 );
 
-alter table storagesite owner to dvnapp;
+
 
 create table oairecord
 (
@@ -48,7 +48,7 @@ create table oairecord
 	setname varchar(255)
 );
 
-alter table oairecord owner to dvnapp;
+
 
 create table shibgroup
 (
@@ -60,7 +60,7 @@ create table shibgroup
 	pattern varchar(255) not null
 );
 
-alter table shibgroup owner to dvnapp;
+
 
 create table persistedglobalgroup
 (
@@ -75,7 +75,7 @@ create table persistedglobalgroup
 			unique
 );
 
-alter table persistedglobalgroup owner to dvnapp;
+
 
 create table ipv6range
 (
@@ -132,7 +132,7 @@ create table metric
 	metricvalue text
 );
 
-alter table metric owner to dvnapp;
+
 
 create index index_metric_id
 	on metric (id);
@@ -150,7 +150,7 @@ create table workflowstepdata
 	index integer
 );
 
-alter table workflowstepdata owner to dvnapp;
+
 
 create table customfieldmap
 (
@@ -162,7 +162,7 @@ create table customfieldmap
 	targetdatasetfield varchar(255)
 );
 
-alter table customfieldmap owner to dvnapp;
+
 
 create index index_customfieldmap_sourcedatasetfield
 	on customfieldmap (sourcedatasetfield);
@@ -184,7 +184,7 @@ create table actionlogrecord
 	useridentifier varchar(255)
 );
 
-alter table actionlogrecord owner to dvnapp;
+
 
 create index index_actionlogrecord_useridentifier
 	on actionlogrecord (useridentifier);
@@ -206,7 +206,7 @@ create table foreignmetadataformatmapping
 	startelement varchar(255)
 );
 
-alter table foreignmetadataformatmapping owner to dvnapp;
+
 
 create index index_foreignmetadataformatmapping_name
 	on foreignmetadataformatmapping (name);
@@ -223,7 +223,7 @@ create table externaltool
 	type varchar(255) not null
 );
 
-alter table externaltool owner to dvnapp;
+
 
 create table defaultvalueset
 (
@@ -233,7 +233,7 @@ create table defaultvalueset
 	name varchar(255) not null
 );
 
-alter table defaultvalueset owner to dvnapp;
+
 
 create table authenticateduser
 (
@@ -257,7 +257,7 @@ create table authenticateduser
 			unique
 );
 
-alter table authenticateduser owner to dvnapp;
+
 
 create table confirmemaildata
 (
@@ -274,7 +274,7 @@ create table confirmemaildata
 			references authenticateduser
 );
 
-alter table confirmemaildata owner to dvnapp;
+
 
 create index index_confirmemaildata_token
 	on confirmemaildata (token);
@@ -333,7 +333,7 @@ create table dvobject
 		unique (authority, protocol, identifier)
 );
 
-alter table dvobject owner to dvnapp;
+
 
 create table dataversetheme
 (
@@ -354,7 +354,7 @@ create table dataversetheme
 			references dvobject
 );
 
-alter table dataversetheme owner to dvnapp;
+
 
 create index index_dataversetheme_dataverse_id
 	on dataversetheme (dataverse_id);
@@ -370,7 +370,7 @@ create table datafilecategory
 			references dvobject
 );
 
-alter table datafilecategory owner to dvnapp;
+
 
 create index index_datafilecategory_dataset_id
 	on datafilecategory (dataset_id);
@@ -389,7 +389,7 @@ create table dataverselinkingdataverse
 			references dvobject
 );
 
-alter table dataverselinkingdataverse owner to dvnapp;
+
 
 create index index_dataverselinkingdataverse_dataverse_id
 	on dataverselinkingdataverse (dataverse_id);
@@ -410,7 +410,7 @@ create table metadatablock
 			references dvobject
 );
 
-alter table metadatablock owner to dvnapp;
+
 
 create index index_metadatablock_name
 	on metadatablock (name);
@@ -444,7 +444,7 @@ create table dataversefeatureddataverse
 			references dvobject
 );
 
-alter table dataversefeatureddataverse owner to dvnapp;
+
 
 create index index_dataversefeatureddataverse_dataverse_id
 	on dataversefeatureddataverse (dataverse_id);
@@ -481,7 +481,7 @@ create table harvestingclient
 			references dvobject
 );
 
-alter table harvestingclient owner to dvnapp;
+
 
 create index index_harvestingclient_dataverse_id
 	on harvestingclient (dataverse_id);
@@ -511,7 +511,7 @@ create table apitoken
 			references authenticateduser
 );
 
-alter table apitoken owner to dvnapp;
+
 
 create index index_apitoken_authenticateduser_id
 	on apitoken (authenticateduser_id);
@@ -530,7 +530,7 @@ create table dataversetextmessage
 			references dvobject
 );
 
-alter table dataversetextmessage owner to dvnapp;
+
 
 create index index_dataversetextmessage_dataverse_id
 	on dataversetextmessage (dataverse_id);
@@ -553,7 +553,7 @@ create table usernotification
 			references authenticateduser
 );
 
-alter table usernotification owner to dvnapp;
+
 
 create index index_usernotification_user_id
 	on usernotification (user_id);
@@ -575,7 +575,7 @@ create table guestbook
 			references dvobject
 );
 
-alter table guestbook owner to dvnapp;
+
 
 create table customquestion
 (
@@ -592,7 +592,7 @@ create table customquestion
 			references guestbook
 );
 
-alter table customquestion owner to dvnapp;
+
 
 create index index_customquestion_guestbook_id
 	on customquestion (guestbook_id);
@@ -622,7 +622,7 @@ create table maplayermetadata
 			references dvobject
 );
 
-alter table maplayermetadata owner to dvnapp;
+
 
 create index index_maplayermetadata_dataset_id
 	on maplayermetadata (dataset_id);
@@ -641,7 +641,7 @@ create table savedsearch
 			references dvobject
 );
 
-alter table savedsearch owner to dvnapp;
+
 
 create table savedsearchfilterquery
 (
@@ -654,7 +654,7 @@ create table savedsearchfilterquery
 			references savedsearch
 );
 
-alter table savedsearchfilterquery owner to dvnapp;
+
 
 create index index_savedsearchfilterquery_savedsearch_id
 	on savedsearchfilterquery (savedsearch_id);
@@ -681,7 +681,7 @@ create table explicitgroup
 			references dvobject
 );
 
-alter table explicitgroup owner to dvnapp;
+
 
 create index index_explicitgroup_owner_id
 	on explicitgroup (owner_id);
@@ -709,7 +709,7 @@ create table pendingworkflowinvocation
 			references dvobject
 );
 
-alter table pendingworkflowinvocation owner to dvnapp;
+
 
 create unique index index_authenticateduser_lower_email
 	on authenticateduser (lower(email::text));
@@ -730,7 +730,7 @@ create table datatable
 			references dvobject
 );
 
-alter table datatable owner to dvnapp;
+
 
 create index index_datatable_datafile_id
 	on datatable (datafile_id);
@@ -750,7 +750,7 @@ create table ingestreport
 			references dvobject
 );
 
-alter table ingestreport owner to dvnapp;
+
 
 create index index_ingestreport_datafile_id
 	on ingestreport (datafile_id);
@@ -767,7 +767,7 @@ create table authenticationproviderrow
 	title varchar(255)
 );
 
-alter table authenticationproviderrow owner to dvnapp;
+
 
 create index index_authenticationproviderrow_enabled
 	on authenticationproviderrow (enabled);
@@ -790,7 +790,7 @@ create table foreignmetadatafieldmapping
 		unique (foreignmetadataformatmapping_id, foreignfieldxpath)
 );
 
-alter table foreignmetadatafieldmapping owner to dvnapp;
+
 
 create index index_foreignmetadatafieldmapping_foreignmetadataformatmapping_
 	on foreignmetadatafieldmapping (foreignmetadataformatmapping_id);
@@ -813,7 +813,7 @@ create table dataverselocalizedmessage
 			references dataversetextmessage
 );
 
-alter table dataverselocalizedmessage owner to dvnapp;
+
 
 create index index_dataverselocalizedmessage_dataversetextmessage_id
 	on dataverselocalizedmessage (dataversetextmessage_id);
@@ -830,7 +830,7 @@ create table customquestionvalue
 			references customquestion
 );
 
-alter table customquestionvalue owner to dvnapp;
+
 
 create table datasetlinkingdataverse
 (
@@ -846,7 +846,7 @@ create table datasetlinkingdataverse
 			references dvobject
 );
 
-alter table datasetlinkingdataverse owner to dvnapp;
+
 
 create index index_datasetlinkingdataverse_dataset_id
 	on datasetlinkingdataverse (dataset_id);
@@ -870,7 +870,7 @@ create table clientharvestrun
 			references harvestingclient
 );
 
-alter table clientharvestrun owner to dvnapp;
+
 
 create table worldmapauth_tokentype
 (
@@ -940,7 +940,7 @@ create table datafiletag
 			references dvobject
 );
 
-alter table datafiletag owner to dvnapp;
+
 
 create index index_datafiletag_datafile_id
 	on datafiletag (datafile_id);
@@ -961,7 +961,7 @@ create table authenticateduserlookup
 		unique (persistentuserid, authenticationproviderid)
 );
 
-alter table authenticateduserlookup owner to dvnapp;
+
 
 create table ingestrequest
 (
@@ -977,7 +977,7 @@ create table ingestrequest
 			references dvobject
 );
 
-alter table ingestrequest owner to dvnapp;
+
 
 create index index_ingestrequest_datafile_id
 	on ingestrequest (datafile_id);
@@ -990,7 +990,7 @@ create table setting
 	content text
 );
 
-alter table setting owner to dvnapp;
+
 
 create table dataversecontact
 (
@@ -1004,7 +1004,7 @@ create table dataversecontact
 			references dvobject
 );
 
-alter table dataversecontact owner to dvnapp;
+
 
 create index index_dataversecontact_dataverse_id
 	on dataversecontact (dataverse_id);
@@ -1041,7 +1041,7 @@ create table datavariable
 			references datatable
 );
 
-alter table datavariable owner to dvnapp;
+
 
 create table variablerangeitem
 (
@@ -1054,7 +1054,7 @@ create table variablerangeitem
 			references datavariable
 );
 
-alter table variablerangeitem owner to dvnapp;
+
 
 create index index_variablerangeitem_datavariable_id
 	on variablerangeitem (datavariable_id);
@@ -1073,7 +1073,7 @@ create table variablerange
 			references datavariable
 );
 
-alter table variablerange owner to dvnapp;
+
 
 create index index_variablerange_datavariable_id
 	on variablerange (datavariable_id);
@@ -1090,7 +1090,7 @@ create table summarystatistic
 			references datavariable
 );
 
-alter table summarystatistic owner to dvnapp;
+
 
 create index index_summarystatistic_datavariable_id
 	on summarystatistic (datavariable_id);
@@ -1110,7 +1110,7 @@ create table variablecategory
 			references datavariable
 );
 
-alter table variablecategory owner to dvnapp;
+
 
 create index index_variablecategory_datavariable_id
 	on variablecategory (datavariable_id);
@@ -1136,7 +1136,7 @@ create table datafile
 	rootdatafileid bigint not null
 );
 
-alter table datafile owner to dvnapp;
+
 
 create index index_datafile_ingeststatus
 	on datafile (ingeststatus);
@@ -1162,7 +1162,7 @@ create table builtinuser
 			unique
 );
 
-alter table builtinuser owner to dvnapp;
+
 
 create table passwordresetdata
 (
@@ -1178,7 +1178,7 @@ create table passwordresetdata
 			references builtinuser
 );
 
-alter table passwordresetdata owner to dvnapp;
+
 
 create index index_passwordresetdata_token
 	on passwordresetdata (token);
@@ -1213,7 +1213,7 @@ create table termsofuseandaccess
 	termsofuse text
 );
 
-alter table termsofuseandaccess owner to dvnapp;
+
 
 create table datasetversion
 (
@@ -1242,7 +1242,7 @@ create table datasetversion
 		unique (dataset_id, versionnumber, minorversionnumber)
 );
 
-alter table datasetversion owner to dvnapp;
+
 
 create table workflowcomment
 (
@@ -1260,7 +1260,7 @@ create table workflowcomment
 			references datasetversion
 );
 
-alter table workflowcomment owner to dvnapp;
+
 
 create index index_datasetversion_dataset_id
 	on datasetversion (dataset_id);
@@ -1289,7 +1289,7 @@ create table filemetadata
 	displayorder integer
 );
 
-alter table filemetadata owner to dvnapp;
+
 
 create index index_filemetadata_datafile_id
 	on filemetadata (datafile_id);
@@ -1310,7 +1310,7 @@ create table doidataciteregistercache
 	xml text
 );
 
-alter table doidataciteregistercache owner to dvnapp;
+
 
 create table harvestingdataverseconfig
 (
@@ -1328,7 +1328,7 @@ create table harvestingdataverseconfig
 			references dvobject
 );
 
-alter table harvestingdataverseconfig owner to dvnapp;
+
 
 create index index_harvestingdataverseconfig_dataverse_id
 	on harvestingdataverseconfig (dataverse_id);
@@ -1358,7 +1358,7 @@ create table alternativepersistentidentifier
 			references dvobject
 );
 
-alter table alternativepersistentidentifier owner to dvnapp;
+
 
 create table datasetversionuser
 (
@@ -1374,7 +1374,7 @@ create table datasetversionuser
 			references datasetversion
 );
 
-alter table datasetversionuser owner to dvnapp;
+
 
 create index index_datasetversionuser_authenticateduser_id
 	on datasetversionuser (authenticateduser_id);
@@ -1411,7 +1411,7 @@ create table guestbookresponse
 			references guestbook
 );
 
-alter table guestbookresponse owner to dvnapp;
+
 
 create index index_guestbookresponse_guestbook_id
 	on guestbookresponse (guestbook_id);
@@ -1436,7 +1436,7 @@ create table customquestionresponse
 			references guestbookresponse
 );
 
-alter table customquestionresponse owner to dvnapp;
+
 
 create index index_customquestionresponse_guestbookresponse_id
 	on customquestionresponse (guestbookresponse_id);
@@ -1457,7 +1457,7 @@ create table template
 			references termsofuseandaccess
 );
 
-alter table template owner to dvnapp;
+
 
 create index index_template_dataverse_id
 	on template (dataverse_id);
@@ -1478,7 +1478,7 @@ create table datasetlock
 			references authenticateduser
 );
 
-alter table datasetlock owner to dvnapp;
+
 
 create index index_datasetlock_user_id
 	on datasetlock (user_id);
@@ -1502,7 +1502,7 @@ create table dataverserole
 			references dvobject
 );
 
-alter table dataverserole owner to dvnapp;
+
 
 create table roleassignment
 (
@@ -1521,7 +1521,7 @@ create table roleassignment
 		unique (assigneeidentifier, role_id, definitionpoint_id)
 );
 
-alter table roleassignment owner to dvnapp;
+
 
 create index index_roleassignment_assigneeidentifier
 	on roleassignment (assigneeidentifier);
@@ -1561,7 +1561,7 @@ create table dataverse
 			references template
 );
 
-alter table dataverse owner to dvnapp;
+
 
 create index index_dataverse_defaultcontributorrole_id
 	on dataverse (defaultcontributorrole_id);
@@ -1636,7 +1636,7 @@ create table datasetfieldtype
 			references datasetfieldtype
 );
 
-alter table datasetfieldtype owner to dvnapp;
+
 
 create table dataversefacet
 (
@@ -1652,7 +1652,7 @@ create table dataversefacet
 			references dvobject
 );
 
-alter table dataversefacet owner to dvnapp;
+
 
 create index index_dataversefacet_dataverse_id
 	on dataversefacet (dataverse_id);
@@ -1680,7 +1680,7 @@ create table datasetfield
 			references template
 );
 
-alter table datasetfield owner to dvnapp;
+
 
 create table datasetfieldvalue
 (
@@ -1694,7 +1694,7 @@ create table datasetfieldvalue
 			references datasetfield
 );
 
-alter table datasetfieldvalue owner to dvnapp;
+
 
 create index index_datasetfieldvalue_datasetfield_id
 	on datasetfieldvalue (datasetfield_id);
@@ -1729,7 +1729,7 @@ create table datasetfielddefaultvalue
 			references datasetfielddefaultvalue
 );
 
-alter table datasetfielddefaultvalue owner to dvnapp;
+
 
 create index index_datasetfielddefaultvalue_datasetfield_id
 	on datasetfielddefaultvalue (datasetfield_id);
@@ -1756,7 +1756,7 @@ create table controlledvocabularyvalue
 			references datasetfieldtype
 );
 
-alter table controlledvocabularyvalue owner to dvnapp;
+
 
 create index index_controlledvocabularyvalue_datasetfieldtype_id
 	on controlledvocabularyvalue (datasetfieldtype_id);
@@ -1789,7 +1789,7 @@ create table dataset
 			references dvobject
 );
 
-alter table dataset owner to dvnapp;
+
 
 create index index_dataset_guestbook_id
 	on dataset (guestbook_id);
@@ -1811,7 +1811,7 @@ create table controlledvocabalternate
 			references datasetfieldtype
 );
 
-alter table controlledvocabalternate owner to dvnapp;
+
 
 create index index_controlledvocabalternate_controlledvocabularyvalue_id
 	on controlledvocabalternate (controlledvocabularyvalue_id);
@@ -1836,7 +1836,7 @@ create table dataversefieldtypeinputlevel
 		unique (dataverse_id, datasetfieldtype_id)
 );
 
-alter table dataversefieldtypeinputlevel owner to dvnapp;
+
 
 create index index_dataversefieldtypeinputlevel_dataverse_id
 	on dataversefieldtypeinputlevel (dataverse_id);
@@ -1858,7 +1858,7 @@ create table datasetfieldcompoundvalue
 			references datasetfield
 );
 
-alter table datasetfieldcompoundvalue owner to dvnapp;
+
 
 alter table datasetfield
 	add constraint fk_datasetfield_parentdatasetfieldcompoundvalue_id
@@ -1919,7 +1919,7 @@ create table dataversesubjects
 		primary key (dataverse_id, controlledvocabularyvalue_id)
 );
 
-alter table dataversesubjects owner to dvnapp;
+
 
 create table dataverse_metadatablock
 (
@@ -2038,7 +2038,6 @@ create table fileaccessrequests
 		primary key (datafile_id, authenticated_user_id)
 );
 
-alter table fileaccessrequests owner to dvnapp;
 
 create table sequence
 (
@@ -2048,7 +2047,7 @@ create table sequence
 	seq_count numeric(38)
 );
 
-alter table sequence owner to dvnapp;
+
 
 create table "EJB__TIMER__TBL"
 (
@@ -2068,5 +2067,4 @@ create table "EJB__TIMER__TBL"
 	"STATE" integer
 );
 
-alter table "EJB__TIMER__TBL" owner to dvnapp;
 
