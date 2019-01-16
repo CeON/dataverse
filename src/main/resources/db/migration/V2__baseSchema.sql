@@ -95,7 +95,7 @@ create table ipv6range
 			references persistedglobalgroup
 );
 
-alter table ipv6range owner to dvnapp;
+
 
 create index index_ipv6range_owner_id
 	on ipv6range (owner_id);
@@ -115,7 +115,7 @@ create table ipv4range
 			references persistedglobalgroup
 );
 
-alter table ipv4range owner to dvnapp;
+
 
 create index index_ipv4range_owner_id
 	on ipv4range (owner_id);
@@ -299,7 +299,7 @@ create table oauth2tokendata
 			references authenticateduser
 );
 
-alter table oauth2tokendata owner to dvnapp;
+
 
 create table dvobject
 (
@@ -889,7 +889,7 @@ create table worldmapauth_tokentype
 	timelimitseconds bigint default 1800
 );
 
-alter table worldmapauth_tokentype owner to dvnapp;
+
 
 create table worldmapauth_token
 (
@@ -912,7 +912,7 @@ create table worldmapauth_token
 			references authenticateduser
 );
 
-alter table worldmapauth_token owner to dvnapp;
+
 
 create unique index token_value
 	on worldmapauth_token (token);
@@ -1885,7 +1885,7 @@ create table filemetadata_datafilecategory
 		primary key (filecategories_id, filemetadatas_id)
 );
 
-alter table filemetadata_datafilecategory owner to dvnapp;
+
 
 create index index_filemetadata_datafilecategory_filecategories_id
 	on filemetadata_datafilecategory (filecategories_id);
@@ -1905,7 +1905,7 @@ create table dataverse_citationdatasetfieldtypes
 		primary key (dataverse_id, citationdatasetfieldtype_id)
 );
 
-alter table dataverse_citationdatasetfieldtypes owner to dvnapp;
+
 
 create table dataversesubjects
 (
@@ -1933,7 +1933,7 @@ create table dataverse_metadatablock
 		primary key (dataverse_id, metadatablocks_id)
 );
 
-alter table dataverse_metadatablock owner to dvnapp;
+
 
 create table datasetfield_controlledvocabularyvalue
 (
@@ -1947,7 +1947,7 @@ create table datasetfield_controlledvocabularyvalue
 		primary key (datasetfield_id, controlledvocabularyvalues_id)
 );
 
-alter table datasetfield_controlledvocabularyvalue owner to dvnapp;
+
 
 create index index_datasetfield_controlledvocabularyvalue_datasetfield_id
 	on datasetfield_controlledvocabularyvalue (datasetfield_id);
@@ -1964,7 +1964,7 @@ create table workflowstepdata_stepparameters
 	stepparameters_key varchar(255)
 );
 
-alter table workflowstepdata_stepparameters owner to dvnapp;
+
 
 create table workflowstepdata_stepsettings
 (
@@ -1975,7 +1975,7 @@ create table workflowstepdata_stepsettings
 	stepsettings_key varchar(255)
 );
 
-alter table workflowstepdata_stepsettings owner to dvnapp;
+
 
 create table explicitgroup_containedroleassignees
 (
@@ -1985,7 +1985,7 @@ create table explicitgroup_containedroleassignees
 	containedroleassignees varchar(255)
 );
 
-alter table explicitgroup_containedroleassignees owner to dvnapp;
+
 
 create table explicitgroup_authenticateduser
 (
@@ -1999,7 +1999,7 @@ create table explicitgroup_authenticateduser
 		primary key (explicitgroup_id, containedauthenticatedusers_id)
 );
 
-alter table explicitgroup_authenticateduser owner to dvnapp;
+
 
 create table explicitgroup_explicitgroup
 (
@@ -2013,7 +2013,7 @@ create table explicitgroup_explicitgroup
 		primary key (explicitgroup_id, containedexplicitgroups_id)
 );
 
-alter table explicitgroup_explicitgroup owner to dvnapp;
+
 
 create table pendingworkflowinvocation_localdata
 (
@@ -2024,7 +2024,7 @@ create table pendingworkflowinvocation_localdata
 	localdata_key varchar(255)
 );
 
-alter table pendingworkflowinvocation_localdata owner to dvnapp;
+
 
 create table fileaccessrequests
 (
@@ -2046,25 +2046,4 @@ create table sequence
 			primary key,
 	seq_count numeric(38)
 );
-
-
-
-create table "EJB__TIMER__TBL"
-(
-	"TIMERID" varchar(255) not null
-		constraint "EJB__TIMER__TBL_pkey"
-			primary key,
-	"APPLICATIONID" bigint,
-	"BLOB" bytea,
-	"CONTAINERID" bigint,
-	"CREATIONTIMERAW" bigint,
-	"INITIALEXPIRATIONRAW" bigint,
-	"INTERVALDURATION" bigint,
-	"LASTEXPIRATIONRAW" bigint,
-	"OWNERID" varchar(255),
-	"PKHASHCODE" integer,
-	"SCHEDULE" varchar(255),
-	"STATE" integer
-);
-
 
