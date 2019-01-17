@@ -105,7 +105,8 @@
                                         <div class="p-col">
                                             <h:outputLabel for="banner-thumbnail" value="#{localbanner.language}:"
                                                            style="margin-right: 10px"/>
-                                            <h:outputText id="banner-thumbnail" value="#{localbanner.image}"/>
+                                            <p:graphicImage stream="false" id="banner-thumbnail"
+                                                            value="#{localbanner.miniDisplayImage}"/>
                                         </div>
                                     </ui:repeat>
 

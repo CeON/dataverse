@@ -5,28 +5,34 @@ import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.dataverse.banners.dto.BannerMapper;
 import edu.harvard.iq.dataverse.dataverse.banners.dto.DataverseBannerDto;
-import edu.harvard.iq.dataverse.dataverse.validation.EndDateMustBeAFutureDate;
-import edu.harvard.iq.dataverse.dataverse.validation.EndDateMustNotBeEarlierThanStartingDate;
-import edu.harvard.iq.dataverse.util.JsfValidationHelper;
+import edu.harvard.iq.dataverse.dataverse.validation.BannerErrorHandler;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
 import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-
-import static edu.harvard.iq.dataverse.util.JsfValidationHelper.ValidationCondition.on;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.io.Serializable;
 
 @ViewScoped
 @Named("EditBannerPage")
-public class EditBannerPage {
+public class EditBannerPage implements Serializable {
+
+    @PersistenceContext(unitName = "VDCNet-ejbPU")
+    private EntityManager em;
 
     @EJB
     private BannerDAO dao;
 
     @Inject
     private PermissionsWrapper permissionsWrapper;
+
+    @Inject
+    private BannerErrorHandler errorHandler;
 
     @Inject
     private BannerMapper mapper;
@@ -37,6 +43,8 @@ public class EditBannerPage {
     private Long dataverseId;
     private Dataverse dataverse;
     private Long bannerId;
+    private String link;
+
     private UIInput fromTimeInput;
     private UIInput toTimeInput;
 
@@ -65,10 +73,19 @@ public class EditBannerPage {
     }
 
     public String save() {
-        return JsfValidationHelper.execute(() -> {
-            dao.save(dto);
-            return redirectToTextMessages();
-        }, endDateMustNotBeEarlierThanStartingDate(), endDateMustBeAFutureDate());
+        DataverseBanner banner =
+                mapper.mapToEntity(dto, em.find(Dataverse.class, dto.getDataverseId()));
+
+        banner.getDataverseLocalizedBanner().forEach(dlb ->
+                errorHandler.handleBannerAddingErrors(banner, dlb, FacesContext.getCurrentInstance()));
+
+        if (FacesContext.getCurrentInstance().getMessageList().size() > 0) {
+            return StringUtils.EMPTY;
+        }
+
+        dao.save(banner);
+
+        return redirectToTextMessages();
     }
 
     public String cancel() {
@@ -77,22 +94,6 @@ public class EditBannerPage {
 
     private String redirectToTextMessages() {
         return "/dataverse-textMessages.xhtml?dataverseId=" + dataverseId + "&faces-redirect=true";
-    }
-
-    private JsfValidationHelper.ValidationCondition endDateMustNotBeEarlierThanStartingDate() {
-        return on(EndDateMustNotBeEarlierThanStartingDate.class, toTimeInput.getClientId(), "textmessages.enddate.valid");
-    }
-
-    private JsfValidationHelper.ValidationCondition endDateMustBeAFutureDate() {
-        return on(EndDateMustBeAFutureDate.class, toTimeInput.getClientId(), "textmessages.enddate.future");
-    }
-
-    public BannerDAO getDao() {
-        return dao;
-    }
-
-    public void setDao(BannerDAO dao) {
-        this.dao = dao;
     }
 
     public PermissionsWrapper getPermissionsWrapper() {
@@ -157,5 +158,13 @@ public class EditBannerPage {
 
     public void setToTimeInput(UIInput toTimeInput) {
         this.toTimeInput = toTimeInput;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }

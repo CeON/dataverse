@@ -22,7 +22,7 @@
     <ui:composition template="/dataverse_template.xhtml">
 
         <ui:define name="body">
-            <h:form id="edit-text-messages-form">
+            <h:form id="edit-text-messages-form" enctype="multipart/form-data">
                 <ui:repeat value="#{EditBannerPage.dto.dataverseLocalizedBanner}" var="lm">
                     <div class="row">
                         <div class="col-xs-12 form-group form-col-container">
@@ -33,15 +33,13 @@
                                                              title="#{bundle.requiredField}"/>
                                     </span>
                             </label>
-                            <p:fileUpload mode="advanced" dragDropSupport="false"
-                                          update="messages" sizeLimit="1000000" allowTypes="/(\.|\/)(jpe?g|png)$/"/>
-
+                            <p:message for="upload" display="text"/>
+                            <p:fileUpload id="upload" mode="simple" value="#{lm.file}">
+                            </p:fileUpload>
                             <div class="col-sm-5 form-col-container">
-                                <p:inputTextarea id="message-locale" tabindex="1" styleClass="form-control"
+                                <h:outputLabel for="message-locale" value="Link: "/>
+                                <h:inputText id="message-locale" tabindex="1" styleClass="form-control"
                                                  value="#{lm.imageLink}"/>
-                            </div>
-                            <div class="col-sm-5 form-col-container">
-                                <p:message for="message-locale" display="text"/>
                             </div>
                         </div>
                     </div>
@@ -117,7 +115,7 @@
 
                 <div class="button-block">
                     <p:commandButton styleClass="btn btn-default" value="#{bundle['saveChanges']}"
-                                     action="#{EditBannerPage.save()}" update="@form"/>
+                                     action="#{EditBannerPage.save()}" update="@form" ajax="false"/>
                     <p:commandButton styleClass="btn btn-default" value="#{bundle['cancel']}"
                                      action="#{EditBannerPage.cancel()}" immediate="true"/>
                 </div>

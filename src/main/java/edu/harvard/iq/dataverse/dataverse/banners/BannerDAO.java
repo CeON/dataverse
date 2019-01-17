@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.dataverse.banners;
 
-import edu.harvard.iq.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.dataverse.banners.dto.DataverseBannerDto;
 import edu.harvard.iq.dataverse.dataverse.validation.DataverseTextMessageValidator;
 
 import javax.ejb.Stateless;
@@ -28,30 +26,9 @@ public class BannerDAO {
         em.remove(banner);
     }
 
-    public void save(DataverseBannerDto bannerDto) {
+    public void save(DataverseBanner banner) {
 
-        DataverseTextMessageValidator.validateEndDate(bannerDto.getFromTime(), bannerDto.getToTime());
-
-        DataverseBanner banner = new DataverseBanner();
-
-        banner.setActive(bannerDto.isActive());
-        Dataverse dataverse = em.find(Dataverse.class, bannerDto.getDataverseId());
-        if (dataverse == null) {
-            throw new IllegalArgumentException("Dataverse doesn't exist:" + bannerDto.getDataverseId());
-        }
-        banner.setDataverse(dataverse);
-        banner.setFromTime(bannerDto.getFromTime());
-        banner.setToTime(bannerDto.getToTime());
-
-        banner.getDataverseLocalizedBanner().clear();
-
-        bannerDto.getDataverseLocalizedBanner().forEach(lm -> {
-            DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
-            dataverseLocalizedBanner.setImage(lm.getImage());
-            dataverseLocalizedBanner.setDataverseBanner(banner);
-            dataverseLocalizedBanner.setImageLink(lm.getImageLink());
-            dataverseLocalizedBanner.setLocale(lm.getLocale());
-        });
+        DataverseTextMessageValidator.validateEndDate(banner.getFromTime(), banner.getToTime());
 
         em.merge(banner);
     }

@@ -1,5 +1,8 @@
 package edu.harvard.iq.dataverse.dataverse.banners.dto;
 
+import org.primefaces.model.StreamedContent;
+import org.primefaces.model.UploadedFile;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -26,7 +29,11 @@ public class DataverseLocalizedBannerDto {
 
     private byte[] image;
 
+    private StreamedContent miniDisplayImage;
+
     private String imageLink;
+
+    private UploadedFile file;
 
     public Long getId() {
         return id;
@@ -60,6 +67,14 @@ public class DataverseLocalizedBannerDto {
         this.image = image;
     }
 
+    public StreamedContent getMiniDisplayImage() {
+        return miniDisplayImage;
+    }
+
+    public void setMiniDisplayImage(StreamedContent miniDisplayImage) {
+        this.miniDisplayImage = miniDisplayImage;
+    }
+
     public String getImageLink() {
         return imageLink;
     }
@@ -67,6 +82,15 @@ public class DataverseLocalizedBannerDto {
     public void setImageLink(String imageLink) {
         this.imageLink = imageLink;
     }
+
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    public void setFile(UploadedFile file) {
+        this.file = file;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -77,12 +101,13 @@ public class DataverseLocalizedBannerDto {
                 Objects.equals(locale, that.locale) &&
                 Objects.equals(language, that.language) &&
                 Arrays.equals(image, that.image) &&
-                Objects.equals(imageLink, that.imageLink);
+                Objects.equals(imageLink, that.imageLink) &&
+                Objects.equals(file, that.file);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, locale, language, imageLink);
+        int result = Objects.hash(id, locale, language, imageLink, file);
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }
