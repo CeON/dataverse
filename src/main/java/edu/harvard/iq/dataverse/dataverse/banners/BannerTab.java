@@ -30,7 +30,7 @@ public class BannerTab implements Serializable {
     }
 
     public String reuseBanner(String bannerId) {
-        return "/dataverse-editBanner.xhtml?dataverseId=" + dataverseId +
+        return "/dataverse-editBannerPage.xhtml?dataverseId=" + dataverseId +
                 "&id=" + bannerId + "&faces-redirect=true";
     }
 

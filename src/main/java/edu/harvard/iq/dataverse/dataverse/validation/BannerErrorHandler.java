@@ -3,98 +3,82 @@ package edu.harvard.iq.dataverse.dataverse.validation;
 import edu.harvard.iq.dataverse.dataverse.banners.BannerLimits;
 import edu.harvard.iq.dataverse.dataverse.banners.DataverseBanner;
 import edu.harvard.iq.dataverse.dataverse.banners.DataverseLocalizedBanner;
-import edu.harvard.iq.dataverse.locale.DataverseLocaleBean;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.DataverseClock;
 import edu.harvard.iq.dataverse.util.DateUtil;
 
 import javax.ejb.Stateless;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.inject.Inject;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 
 @Stateless
 public class BannerErrorHandler {
 
-    @Inject
-    private DataverseLocaleBean localeBean;
-
-    public void handleBannerAddingErrors(DataverseBanner banner,
-                                         DataverseLocalizedBanner dlb,
-                                         FacesContext faceContext) {
+    public List<FacesMessage> handleBannerAddingErrors(DataverseBanner banner,
+                                                       DataverseLocalizedBanner dlb,
+                                                       FacesContext faceContext) {
+        ArrayList<DataverseLocalizedBanner> dataverseLocalizedBanners = new ArrayList<>(banner.getDataverseLocalizedBanner());
 
         if (dlb.getImage().length < 1) {
-            throwImageWasMissing(dlb, faceContext);
-        } else if (ImageValidator.isImageResolutionTooBig(dlb.getImage(), 9999, 9999)) {
-            throwResolutionTooBigError(dlb, faceContext);
+            throwImageWasMissing(faceContext, dataverseLocalizedBanners.indexOf(dlb));
+
+        } else if (ImageValidator.isImageResolutionTooBig(dlb.getImage(),
+                BannerLimits.MAX_WIDTH.getValue(), BannerLimits.MAX_HEIGHT.getValue())) {
+            throwResolutionTooBigError(faceContext, dataverseLocalizedBanners.indexOf(dlb));
         }
 
         if (dlb.getImage().length > BannerLimits.MAX_SIZE_IN_BYTES.getValue()) {
-            throwSizeTooBigError(dlb, faceContext);
+            throwSizeTooBigError(faceContext, dataverseLocalizedBanners.indexOf(dlb));
         }
 
         validateEndDate(banner.getFromTime(), banner.getToTime(), faceContext);
+
+        return faceContext.getMessageList();
     }
 
-    private void throwResolutionTooBigError(DataverseLocalizedBanner dlb, FacesContext faceContext) {
+    private void throwResolutionTooBigError(FacesContext faceContext, int index) {
 
-        Optional<FacesMessage> resolutionMsg = findMessageWithContent(faceContext, "The Resolution was too big for");
+        faceContext.addMessage("edit-text-messages-form:repeater:" + index + ":upload",
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
+                        BundleUtil.getStringFromBundle("textmessages.banner.resolutionError")));
 
-        if (resolutionMsg.isPresent()) {
-            resolutionMsg.get().setDetail(resolutionMsg.get().getDetail()
-                    .concat(", " + localeBean.getLanguage(dlb.getLocale())));
-        } else {
-            faceContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    "The Resolution was too big for: " + localeBean.getLanguage(dlb.getLocale())));
-        }
     }
 
-    private void throwSizeTooBigError(DataverseLocalizedBanner dlb, FacesContext faceContext) {
+    private void throwSizeTooBigError(FacesContext faceContext, int index) {
 
-        Optional<FacesMessage> resolutionMsg = findMessageWithContent(faceContext, "The image size was too big for");
+        faceContext.addMessage("edit-text-messages-form:repeater:" + index + ":second-file-warning",
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
+                        BundleUtil.getStringFromBundle("textmessages.banner.sizeError")));
 
-        if (resolutionMsg.isPresent()) {
-            resolutionMsg.get().setDetail(resolutionMsg.get().getDetail()
-                    .concat(", " + localeBean.getLanguage(dlb.getLocale())));
-        } else {
-            faceContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    "The image size was too big for: " + localeBean.getLanguage(dlb.getLocale())));
-        }
     }
 
-    private void throwImageWasMissing(DataverseLocalizedBanner dlb, FacesContext faceContext) {
+    private void throwImageWasMissing(FacesContext faceContext, int index) {
 
-        Optional<FacesMessage> resolutionMsg = findMessageWithContent(faceContext, "The image is missing ");
+        faceContext.addMessage("edit-text-messages-form:repeater:" + index + ":upload",
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
+                        BundleUtil.getStringFromBundle("textmessages.banner.missingError")));
 
-        if (resolutionMsg.isPresent()) {
-            resolutionMsg.get().setDetail(resolutionMsg.get().getDetail()
-                    .concat(", " + localeBean.getLanguage(dlb.getLocale())));
-        } else {
-            faceContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    "The image was missing for: " + localeBean.getLanguage(dlb.getLocale())));
-        }
     }
 
     private void validateEndDate(Date fromTime, Date toTime, FacesContext faceContext) {
         if (fromTime == null || toTime == null) {
             return;
         }
-        if (toTime.before(fromTime) && !findMessageWithContent(faceContext, "End date must not be earlier").isPresent()) {
-            faceContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    "End date must not be earlier than starting date!"));
+        if (toTime.before(fromTime)) {
+            faceContext.addMessage("edit-text-messages-form:message-fromtime", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
+                    BundleUtil.getStringFromBundle("textmessages.enddate.valid")));
         }
         LocalDateTime now = DataverseClock.now();
-        if (!toTime.after(DateUtil.convertToDate(now)) && !findMessageWithContent(faceContext, "End date must be a future date").isPresent()) {
-            faceContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    "End date must be a future date!"));
-        }
-    }
 
-    private Optional<FacesMessage> findMessageWithContent(FacesContext faceContext, String message) {
-        return faceContext.getMessageList().stream()
-                .filter(facesMessage -> facesMessage.getDetail().contains(message))
-                .findFirst();
+        if (!toTime.after(DateUtil.convertToDate(now))) {
+            faceContext.addMessage("edit-text-messages-form:message-totime", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
+                    BundleUtil.getStringFromBundle("textmessages.enddate.future")));
+            List<FacesMessage> messageList = faceContext.getMessageList();
+            System.out.println(messageList);
+        }
     }
 }

@@ -19,11 +19,12 @@
         <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb(bundle['textmessages.banner.new'])}"/>
     </f:metadata>
 
-    <ui:composition template="/dataverse_template.xhtml">
+    <ui:composition template="/dataverse_template_nomessages.xhtml">
 
         <ui:define name="body">
             <h:form id="edit-text-messages-form" enctype="multipart/form-data">
-                <ui:repeat value="#{EditBannerPage.dto.dataverseLocalizedBanner}" var="lm">
+
+                <ui:repeat id="repeater" value="#{EditBannerPage.dto.dataverseLocalizedBanner}" var="lm">
                     <div class="row">
                         <div class="col-xs-12 form-group form-col-container">
                             <label class="col-sm-2 control-label" for="message-locale">
@@ -33,13 +34,17 @@
                                                              title="#{bundle.requiredField}"/>
                                     </span>
                             </label>
-                            <p:message for="upload" display="text"/>
-                            <p:fileUpload id="upload" mode="simple" value="#{lm.file}">
-                            </p:fileUpload>
-                            <div class="col-sm-5 form-col-container">
+
+                            <div class="col-sm-3 form-col-container">
+                                <div class="col-sm-11 form-col-container">
+                                    <p:message style="margin: auto" for="second-file-warning" display="text"/>
+                                    <p:message style="margin: auto" id="second-file-warning" for="upload"
+                                               display="text"/>
+                                </div>
+                                <p:fileUpload id="upload" mode="simple" value="#{lm.file}"/>
                                 <h:outputLabel for="message-locale" value="Link: "/>
                                 <h:inputText id="message-locale" tabindex="1" styleClass="form-control"
-                                                 value="#{lm.imageLink}"/>
+                                             value="#{lm.imageLink}"/>
                             </div>
                         </div>
                     </div>
@@ -62,11 +67,10 @@
                                         locale="#{dataverseLocaleBean.localeCode}"
                                         pattern="yyyy-MM-dd HH:mm"
                                         mask="true"
-                                        binding="#{EditBannerPage.fromTimeInput}"
                             />
                         </div>
                         <div class="col-sm-5 form-col-container">
-                            <p:message for="message-fromtime" display="text"/>
+                            <p:message id="error-message-fromtime" for="message-fromtime" display="text"/>
                         </div>
                     </div>
                 </div>
@@ -88,11 +92,10 @@
                                         locale="#{dataverseLocaleBean.localeCode}"
                                         pattern="yyyy-MM-dd HH:mm"
                                         mask="true"
-                                        binding="#{EditBannerPage.toTimeInput}"
                             />
                         </div>
                         <div class="col-sm-5 form-col-container">
-                            <p:message for="message-totime" display="text"/>
+                            <p:message id="error-message-totime" for="message-totime" display="text"/>
                         </div>
                     </div>
                 </div>

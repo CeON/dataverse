@@ -105,7 +105,7 @@
                                         <div class="p-col">
                                             <h:outputLabel for="banner-thumbnail" value="#{localbanner.language}:"
                                                            style="margin-right: 10px"/>
-                                            <p:graphicImage stream="false" id="banner-thumbnail"
+                                            <p:graphicImage style="padding: 2px" stream="false" id="banner-thumbnail"
                                                             value="#{localbanner.miniDisplayImage}"/>
                                         </div>
                                     </ui:repeat>
@@ -114,7 +114,7 @@
                                         <h:outputLabel for="banner-dates" value="#{bundle['textmessages.dates']}:"
                                                        style="margin-right: 10px"/>
                                         <h:outputText id="banner-dates"
-                                                      value="#{history.getPrettyFromDate()} - #{history.getPrettyToTime()}"/>
+                                                      value="#{bannerHistory.getPrettyFromDate()} - #{bannerHistory.getPrettyToTime()}"/>
                                     </div>
 
                                     <div class="p-col">
@@ -122,21 +122,22 @@
                                                        value="#{bundle['textmessages.status']}:"
                                                        style="margin-right: 10px"/>
                                         <h:outputText id="banner-message-Status"
-                                                      value="#{history.active ? 'Enabled' : 'Disabled'}"/>
+                                                      value="#{bannerHistory.active ? 'Enabled' : 'Disabled'}"/>
                                     </div>
                                 </div>
 
                                 <p:commandButton value="#{bundle['textmessages.delete']}"
-                                                 action="#{BannerTab.bannerDAO.delete(history.id)}"
+                                                 action="#{BannerTab.bannerDAO.delete(bannerHistory.id)}"
                                                  update=":text-messages-form"/>
                                 <div style="float: right">
                                     <p:commandButton value="#{bundle['textmessages.deactivate']}"
                                                      style="margin-right:10px;"
-                                                     action="#{BannerTab.bannerDAO.deactivate(history.id)}"
+                                                     rendered="#{bannerHistory.active}"
+                                                     action="#{BannerTab.bannerDAO.deactivate(bannerHistory.id)}"
                                                      update=":text-messages-form"/>
 
                                     <p:commandButton value="#{bundle['textmessages.reuse']}"
-                                                     action="#{BannerTab.reuseBanner(history.id)}"
+                                                     action="#{BannerTab.reuseBanner(bannerHistory.id)}"
                                                      update=":text-messages-form"/>
                                 </div>
                             </p:panel>
