@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.dataverse.banners.BannerLimits;
 import edu.harvard.iq.dataverse.dataverse.banners.DataverseBanner;
 import edu.harvard.iq.dataverse.dataverse.banners.DataverseLocalizedBanner;
 import edu.harvard.iq.dataverse.locale.DataverseLocaleBean;
+import org.apache.commons.lang.StringUtils;
 import org.imgscalr.Scalr;
 import org.primefaces.model.DefaultStreamedContent;
 
@@ -42,7 +43,8 @@ public class BannerMapper {
                     DataverseLocalizedBannerDto localBannerDto =
                             new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
                                     new DataverseLocaleBean().getLanguage(dlb.getLocale()),
-                                    dlb.getImage(), dlb.getImageLink());
+                                    dlb.getImage(), dlb.getImageLink().isPresent() ?
+                                    dlb.getImageLink().get() : StringUtils.EMPTY);
 
                     ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
 
@@ -82,18 +84,11 @@ public class BannerMapper {
             dataverseLocalizedBanner.setDataverseBanner(banner);
             dataverseLocalizedBanner.setLocale(fuDto.getLocale());
             dataverseLocalizedBanner.setContentType(fuDto.getFile().getContentType());
+            dataverseLocalizedBanner.setImageName(fuDto.getFile().getFileName());
 
             banner.getDataverseLocalizedBanner().add(dataverseLocalizedBanner);
         });
         return banner;
-    }
-
-    public List<DataverseLocalizedBannerDto> mapDefaultLocales() {
-        Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
-
-        return locales.entrySet().stream()
-                .map(e -> new DataverseLocalizedBannerDto(e.getKey(), e.getValue()))
-                .collect(Collectors.toList());
     }
 
     public DataverseBannerDto mapToNewBanner(Long dataverseId) {
@@ -103,6 +98,14 @@ public class BannerMapper {
         dto.setDataverseLocalizedBanner(mapDefaultLocales());
 
         return dto;
+    }
+
+    private List<DataverseLocalizedBannerDto> mapDefaultLocales() {
+        Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
+
+        return locales.entrySet().stream()
+                .map(e -> new DataverseLocalizedBannerDto(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
     }
 
     private ByteArrayOutputStream convertImageToMiniSize(byte[] image) {

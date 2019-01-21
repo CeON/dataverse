@@ -79,13 +79,16 @@ public class EditBannerPage implements Serializable {
         banner.getDataverseLocalizedBanner().forEach(dlb ->
                 errorHandler.handleBannerAddingErrors(banner, dlb, FacesContext.getCurrentInstance()));
 
-        if (FacesContext.getCurrentInstance().getMessageList().size() > 0) {
+        if (errorsOccurred()) {
             return StringUtils.EMPTY;
         }
 
         dao.save(banner);
-
         return redirectToTextMessages();
+    }
+
+    private boolean errorsOccurred() {
+        return FacesContext.getCurrentInstance().getMessageList().size() > 0;
     }
 
     public String cancel() {

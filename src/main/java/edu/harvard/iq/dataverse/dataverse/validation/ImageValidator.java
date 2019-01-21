@@ -19,10 +19,7 @@ public class ImageValidator {
             e.printStackTrace();
         }
 
-        if (buf != null && buf.getWidth() > maxWidth || buf.getHeight() > maxHeight) {
-            return true;
-        }
-        return false;
+        return buf != null && (buf.getWidth() > maxWidth || buf.getHeight() > maxHeight);
 
     }
 }

@@ -96,6 +96,11 @@ public class DataverseLocalizedBannerDto {
         this.imageLink = imageLink;
     }
 
+    /**
+     * Prime Face class which is made when file is uploaded.
+     *
+     * @return UploadedFile
+     */
     public UploadedFile getFile() {
         return file;
     }

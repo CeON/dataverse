@@ -43,32 +43,23 @@ public class BannerMapperTest {
         Assert.assertEquals(localizedBanner.getImage(), bannerDto.getImage());
         Assert.assertEquals(localizedBanner.getLocale(), bannerDto.getLocale());
         Assert.assertEquals(localizedBanner.getContentType(), bannerDto.getContentType());
-        Assert.assertEquals(localizedBanner.getImageLink(), bannerDto.getImageLink());
-
+        Assert.assertEquals(localizedBanner.getImageLink().get(), bannerDto.getImageLink());
     }
 
     @Test
-    public void shouldMapToEntity() throws IOException {
+    public void shouldMapToNewBanner() {
         //given
         BannerMapper bannerMapper = new BannerMapper();
-        DataverseBannerDto bannerDto = createBannerDto();
-        Dataverse dataverse = new Dataverse();
-        dataverse.setId(1L);
 
         //when
-        DataverseBanner banner = bannerMapper.mapToEntity(bannerDto, dataverse);
-        DataverseLocalizedBannerDto localizedBannerDto = bannerDto.getDataverseLocalizedBanner().iterator().next();
-        DataverseLocalizedBanner localizedBanner = banner.getDataverseLocalizedBanner().iterator().next();
+        DataverseBannerDto dataverseBannerDto = bannerMapper.mapToNewBanner(1L);
 
         //then
-        Assert.assertEquals(banner.getDataverse().getId(), bannerDto.getDataverseId());
-        Assert.assertEquals(banner.getFromTime(), bannerDto.getFromTime());
-        Assert.assertEquals(banner.getToTime(), bannerDto.getToTime());
-        Assert.assertEquals(localizedBanner.getImage(), localizedBannerDto.getImage());
-        Assert.assertEquals(localizedBanner.getLocale(), localizedBannerDto.getLocale());
-        Assert.assertEquals(localizedBanner.getContentType(), localizedBannerDto.getContentType());
-        Assert.assertEquals(localizedBanner.getImageLink(), localizedBannerDto.getImageLink());
+        Assert.assertSame(1L, dataverseBannerDto.getDataverseId());
 
+        dataverseBannerDto.getDataverseLocalizedBanner()
+                .forEach(localeDto -> Assert.assertTrue(localeDto.getLocale().equals("pl")
+                        || localeDto.getLocale().equals("en")));
     }
 
     private DataverseBanner createBannerEntity() throws IOException {

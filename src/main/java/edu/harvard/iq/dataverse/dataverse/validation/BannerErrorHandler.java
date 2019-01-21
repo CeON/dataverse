@@ -15,13 +15,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Class which handles errors when adding new banner, errors are displayed thanks to <p:message/>
+ */
 @Stateless
 public class BannerErrorHandler {
 
     public List<FacesMessage> handleBannerAddingErrors(DataverseBanner banner,
                                                        DataverseLocalizedBanner dlb,
                                                        FacesContext faceContext) {
-        ArrayList<DataverseLocalizedBanner> dataverseLocalizedBanners = new ArrayList<>(banner.getDataverseLocalizedBanner());
+        ArrayList<DataverseLocalizedBanner> dataverseLocalizedBanners =
+                new ArrayList<>(banner.getDataverseLocalizedBanner());
 
         if (dlb.getImage().length < 1) {
             throwImageWasMissing(faceContext, dataverseLocalizedBanners.indexOf(dlb));
@@ -69,16 +73,16 @@ public class BannerErrorHandler {
             return;
         }
         if (toTime.before(fromTime)) {
-            faceContext.addMessage("edit-text-messages-form:message-fromtime", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    BundleUtil.getStringFromBundle("textmessages.enddate.valid")));
+            faceContext.addMessage("edit-text-messages-form:message-fromtime",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
+                            BundleUtil.getStringFromBundle("textmessages.enddate.valid")));
         }
         LocalDateTime now = DataverseClock.now();
 
         if (!toTime.after(DateUtil.convertToDate(now))) {
-            faceContext.addMessage("edit-text-messages-form:message-totime", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error!",
-                    BundleUtil.getStringFromBundle("textmessages.enddate.future")));
-            List<FacesMessage> messageList = faceContext.getMessageList();
-            System.out.println(messageList);
+            faceContext.addMessage("edit-text-messages-form:message-totime",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
+                            BundleUtil.getStringFromBundle("textmessages.enddate.future")));
         }
     }
 }

@@ -11,6 +11,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +30,8 @@ public class DataverseLocalizedBanner {
     private byte[] image;
 
     private String contentType;
+
+    private String imageName;
 
     private String imageLink;
 
@@ -78,8 +81,16 @@ public class DataverseLocalizedBanner {
         this.contentType = contentType;
     }
 
-    public String getImageLink() {
-        return imageLink;
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public Optional<String> getImageLink() {
+        return Optional.ofNullable(imageLink);
     }
 
     public void setImageLink(String imageLink) {
