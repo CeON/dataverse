@@ -5,10 +5,13 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
-public class ImageValidator {
+class ImageValidator {
 
-    public static boolean isImageResolutionTooBig(byte[] imageBytes, int maxWidth, int maxHeight) {
+    private static final Logger logger = Logger.getLogger(ImageValidator.class.getCanonicalName());
+
+    static boolean isImageResolutionTooBig(byte[] imageBytes, int maxWidth, int maxHeight) {
 
         InputStream in = new ByteArrayInputStream(imageBytes);
 
@@ -16,7 +19,7 @@ public class ImageValidator {
         try {
             buf = ImageIO.read(in);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fine("There was an error when reading an image");
         }
 
         return buf != null && (buf.getWidth() > maxWidth || buf.getHeight() > maxHeight);
