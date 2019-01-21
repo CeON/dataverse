@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.dataverse.banners;
 
-import edu.harvard.iq.dataverse.dataverse.validation.DataverseTextMessageValidator;
-
 import javax.ejb.Stateless;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
@@ -27,9 +25,6 @@ public class BannerDAO {
     }
 
     public void save(DataverseBanner banner) {
-
-        DataverseTextMessageValidator.validateEndDate(banner.getFromTime(), banner.getToTime());
-
         em.merge(banner);
     }
 
