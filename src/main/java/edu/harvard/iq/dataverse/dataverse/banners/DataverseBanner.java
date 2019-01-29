@@ -13,12 +13,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.List;
 
 @Entity
 public class DataverseBanner {
@@ -38,13 +35,10 @@ public class DataverseBanner {
     private boolean active;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "dataverseBanner")
-    private Set<DataverseLocalizedBanner> dataverseLocalizedBanner = new HashSet<>();
+    private List<DataverseLocalizedBanner> dataverseLocalizedBanner = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Dataverse dataverse;
-
-    @Transient
-    private UUID uuid = UUID.randomUUID();
 
     public Long getId() {
         return id;
@@ -78,11 +72,11 @@ public class DataverseBanner {
         this.active = active;
     }
 
-    public Set<DataverseLocalizedBanner> getDataverseLocalizedBanner() {
+    public List<DataverseLocalizedBanner> getDataverseLocalizedBanner() {
         return dataverseLocalizedBanner;
     }
 
-    public void setDataverseLocalizedBanner(Set<DataverseLocalizedBanner> dataverseLocalizedBanner) {
+    public void setDataverseLocalizedBanner(List<DataverseLocalizedBanner> dataverseLocalizedBanner) {
         this.dataverseLocalizedBanner = dataverseLocalizedBanner;
     }
 
@@ -92,24 +86,5 @@ public class DataverseBanner {
 
     public void setDataverse(Dataverse dataverse) {
         this.dataverse = dataverse;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DataverseBanner that = (DataverseBanner) o;
-        return active == that.active &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(fromTime, that.fromTime) &&
-                Objects.equals(toTime, that.toTime) &&
-                Objects.equals(dataverseLocalizedBanner, that.dataverseLocalizedBanner) &&
-                Objects.equals(dataverse, that.dataverse) &&
-                Objects.equals(uuid, that.uuid);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, fromTime, toTime, active, dataverseLocalizedBanner, dataverse, uuid);
     }
 }

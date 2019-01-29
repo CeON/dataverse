@@ -9,10 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Entity
 public class DataverseLocalizedBanner {
@@ -38,23 +35,12 @@ public class DataverseLocalizedBanner {
     @ManyToOne(fetch = FetchType.LAZY)
     private DataverseBanner dataverseBanner;
 
-    @Transient
-    private UUID uuid = UUID.randomUUID();
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getLocale() {
@@ -103,18 +89,5 @@ public class DataverseLocalizedBanner {
 
     public void setDataverseBanner(DataverseBanner dataverseBanner) {
         this.dataverseBanner = dataverseBanner;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DataverseLocalizedBanner that = (DataverseLocalizedBanner) o;
-        return Objects.equals(uuid, that.uuid);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid);
     }
 }

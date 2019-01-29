@@ -26,12 +26,12 @@ public class BannerTab implements Serializable {
     }
 
     public String newBannerPage() {
-        return "/dataverse-editBannerPage.xhtml?dataverseId=" + dataverseId + "&faces-redirect=true";
+        return "/dataverse-newBannerPage.xhtml?dataverseId=" + dataverseId + "&faces-redirect=true";
     }
 
     public String reuseBanner(String bannerId) {
-        return "/dataverse-editBannerPage.xhtml?dataverseId=" + dataverseId +
-                "&id=" + bannerId + "&faces-redirect=true";
+        return "/dataverse-newBannerPage.xhtml?dataverseId=" + dataverseId +
+                "&bannerTemplateId=" + bannerId + "&faces-redirect=true";
     }
 
     public long getDataverseId() {

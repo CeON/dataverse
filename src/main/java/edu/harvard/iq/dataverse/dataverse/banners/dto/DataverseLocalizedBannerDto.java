@@ -11,15 +11,13 @@ public class DataverseLocalizedBannerDto {
     public DataverseLocalizedBannerDto() {
     }
 
-    public DataverseLocalizedBannerDto(String locale, String language) {
+    public DataverseLocalizedBannerDto(String locale) {
         this.locale = locale;
-        this.language = language;
     }
 
-    public DataverseLocalizedBannerDto(Long id, String locale, String language, byte[] image, String imageLink) {
+    public DataverseLocalizedBannerDto(Long id, String locale, byte[] image, String imageLink) {
         this.id = id;
         this.locale = locale;
-        this.language = language;
         this.image = image;
         this.imageLink = imageLink;
     }
@@ -27,8 +25,6 @@ public class DataverseLocalizedBannerDto {
     private Long id;
 
     private String locale;
-
-    private String language;
 
     private byte[] image;
 
@@ -54,14 +50,6 @@ public class DataverseLocalizedBannerDto {
 
     public void setLocale(String locale) {
         this.locale = locale;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
     }
 
     public byte[] getImage() {
@@ -116,7 +104,6 @@ public class DataverseLocalizedBannerDto {
         DataverseLocalizedBannerDto that = (DataverseLocalizedBannerDto) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(locale, that.locale) &&
-                Objects.equals(language, that.language) &&
                 Arrays.equals(image, that.image) &&
                 Objects.equals(contentType, that.contentType) &&
                 Objects.equals(miniDisplayImage, that.miniDisplayImage) &&
@@ -126,7 +113,7 @@ public class DataverseLocalizedBannerDto {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, locale, language, contentType, miniDisplayImage, imageLink, file);
+        int result = Objects.hash(id, locale, contentType, miniDisplayImage, imageLink, file);
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }

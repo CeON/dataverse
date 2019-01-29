@@ -1,9 +1,13 @@
 package edu.harvard.iq.dataverse.dataverse.banners;
 
+import edu.harvard.iq.dataverse.locale.DataverseLocaleBean;
+
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Stateless
@@ -12,6 +16,9 @@ public class BannerDAO {
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
+
+    @Inject
+    private DataverseLocaleBean locale;
 
     public void deactivate(Long bannerId) {
         DataverseBanner banner = em.find(DataverseBanner.class, bannerId);
@@ -28,8 +35,42 @@ public class BannerDAO {
         em.merge(banner);
     }
 
-    public DataverseBanner getTextMessage(Long bannerId) {
+    public DataverseBanner getBanner(Long bannerId) {
         return em.find(DataverseBanner.class, bannerId);
+    }
+
+    public List<String> getBannersForDataverse(Long dataverseId) {
+        List<String> banners = em.createNativeQuery("select r.image from (select distinct dvtml.image, dvtm.totime  from\n" +
+                "  dataversebanner dvtm\n" +
+                "  join dataverselocalizedbanner dvtml on dvtml.dataversebanner_id = dvtm.id\n" +
+                "  where\n" +
+                "    dvtm.active = true and\n" +
+                "    dvtml.locale = ? and\n" +
+                "    ? between dvtm.fromtime and dvtm.totime and\n" +
+                "    dvtm.dataverse_id in (with recursive dv_roots as (\n" +
+                "    select\n" +
+                "        dv.id,\n" +
+                "        dv.owner_id,\n" +
+                "        d2.allowmessagesbanners\n" +
+                "    from dvobject dv\n" +
+                "      join dataverse d2 on dv.id = d2.id\n" +
+                "    where\n" +
+                "        dv.id = ?\n" +
+                "        union all\n" +
+                "        select\n" +
+                "               dv2.id,\n" +
+                "               dv2.owner_id,\n" +
+                "               d2.allowmessagesbanners\n" +
+                "        from dvobject dv2\n" +
+                "               join dataverse d2 on dv2.id = d2.id\n" +
+                "               join dv_roots on dv_roots.owner_id = dv2.id\n" +
+                "    )\n" +
+                "    select id from dv_roots dr where dr.allowmessagesbanners = true) order by dvtm.totime asc) r")
+                .setParameter(1, locale.getLocaleCode())
+                .setParameter(2, LocalDateTime.now())
+                .setParameter(3, dataverseId)
+                .getResultList();
+        return banners;
     }
 
     /**

@@ -11,6 +11,7 @@ import org.primefaces.model.DefaultStreamedContent;
 
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +27,16 @@ public class BannerMapper {
 
     private static final Logger logger = Logger.getLogger(BannerMapper.class.getCanonicalName());
 
+    private BannerLimits bannerLimits;
+
+    public BannerMapper() {
+    }
+
+    @Inject
+    public BannerMapper(BannerLimits bannerLimits) {
+        this.bannerLimits = bannerLimits;
+    }
+
     public DataverseBannerDto mapToDto(DataverseBanner dataverseBanner) {
         DataverseBannerDto dto = new DataverseBannerDto();
 
@@ -37,24 +48,22 @@ public class BannerMapper {
 
         List<DataverseLocalizedBannerDto> dlbDto = new ArrayList<>();
 
-        dataverseBanner.getDataverseLocalizedBanner()
-                .forEach(dlb ->
-                {
-                    DataverseLocalizedBannerDto localBannerDto =
-                            new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
-                                    new DataverseLocaleBean().getLanguage(dlb.getLocale()),
-                                    dlb.getImage(), dlb.getImageLink().isPresent() ?
-                                    dlb.getImageLink().get() : StringUtils.EMPTY);
+        for (DataverseLocalizedBanner dlb : dataverseBanner.getDataverseLocalizedBanner()) {
 
-                    ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
+            DataverseLocalizedBannerDto localBannerDto =
+                    new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
+                            dlb.getImage(), dlb.getImageLink().isPresent() ?
+                            dlb.getImageLink().get() : StringUtils.EMPTY);
 
-                    localBannerDto.setMiniDisplayImage(
-                            new DefaultStreamedContent(new ByteArrayInputStream(resizedImage.toByteArray()),
-                                    "image/jpeg"));
+            ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
 
-                    localBannerDto.setContentType(dlb.getContentType());
-                    dlbDto.add(localBannerDto);
-                });
+            localBannerDto.setMiniDisplayImage(
+                    new DefaultStreamedContent(new ByteArrayInputStream(resizedImage.toByteArray()),
+                            "image/jpeg"));
+
+            localBannerDto.setContentType(dlb.getContentType());
+            dlbDto.add(localBannerDto);
+        }
 
         dto.setDataverseLocalizedBanner(dlbDto);
 
@@ -77,7 +86,8 @@ public class BannerMapper {
         banner.setToTime(dto.getToTime());
         banner.setDataverse(dataverse);
 
-        dto.getDataverseLocalizedBanner().forEach(fuDto -> {
+        dto.getDataverseLocalizedBanner()
+                .forEach(fuDto -> {
             DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
             dataverseLocalizedBanner.setImage(fuDto.getFile().getContents());
             dataverseLocalizedBanner.setImageLink(fuDto.getImageLink());
@@ -88,6 +98,7 @@ public class BannerMapper {
 
             banner.getDataverseLocalizedBanner().add(dataverseLocalizedBanner);
         });
+
         return banner;
     }
 
@@ -104,7 +115,7 @@ public class BannerMapper {
         Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
 
         return locales.entrySet().stream()
-                .map(e -> new DataverseLocalizedBannerDto(e.getKey(), e.getValue()))
+                .map(e -> new DataverseLocalizedBannerDto(e.getKey()))
                 .collect(Collectors.toList());
     }
 
@@ -114,16 +125,15 @@ public class BannerMapper {
             BufferedImage loadedImage = ImageIO.read(new ByteArrayInputStream(image));
 
             BufferedImage resizedImage = Scalr.resize(loadedImage,
-                    BannerLimits.MAX_WIDTH.getValue() / 3,
-                    BannerLimits.MAX_HEIGHT.getValue() / 3);
+                    bannerLimits.getMaxWidth() / 3,
+                    bannerLimits.getMaxHeight() / 3);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(resizedImage, "jpeg", os);
             return os;
 
         } catch (IOException e) {
-            logger.fine("There was a problem loading the image");
+            throw new RuntimeException("There was a problem loading the image", e);
         }
-        return new ByteArrayOutputStream();
     }
 }

@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.util.DateUtil;
 import javax.ejb.Stateless;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,22 +22,33 @@ import java.util.List;
 @Stateless
 public class BannerErrorHandler {
 
+    private BannerLimits bannerLimits;
+
+    public BannerErrorHandler() {
+    }
+
+    @Inject
+    public BannerErrorHandler(BannerLimits bannerLimits) {
+        this.bannerLimits = bannerLimits;
+    }
+
     public List<FacesMessage> handleBannerAddingErrors(DataverseBanner banner,
                                                        DataverseLocalizedBanner dlb,
                                                        FacesContext faceContext) {
+
         ArrayList<DataverseLocalizedBanner> dataverseLocalizedBanners =
                 new ArrayList<>(banner.getDataverseLocalizedBanner());
 
         if (dlb.getImage().length < 1) {
-            throwImageWasMissing(faceContext, dataverseLocalizedBanners.indexOf(dlb));
+            addErrorMessageImageWasMissing(faceContext, dataverseLocalizedBanners.indexOf(dlb));
 
         } else if (ImageValidator.isImageResolutionTooBig(dlb.getImage(),
-                BannerLimits.MAX_WIDTH.getValue(), BannerLimits.MAX_HEIGHT.getValue())) {
-            throwResolutionTooBigError(faceContext, dataverseLocalizedBanners.indexOf(dlb));
+                bannerLimits.getMaxWidth(), bannerLimits.getMaxHeight())) {
+            addErrorMessageResolutionTooBigError(faceContext, dataverseLocalizedBanners.indexOf(dlb));
         }
 
-        if (dlb.getImage().length > BannerLimits.MAX_SIZE_IN_BYTES.getValue()) {
-            throwSizeTooBigError(faceContext, dataverseLocalizedBanners.indexOf(dlb));
+        if (dlb.getImage().length > bannerLimits.getMaxSizeInBytes()) {
+            addErrorMessageSizeTooBigError(faceContext, dataverseLocalizedBanners.indexOf(dlb));
         }
 
         validateEndDate(banner.getFromTime(), banner.getToTime(), faceContext);
@@ -44,27 +56,27 @@ public class BannerErrorHandler {
         return faceContext.getMessageList();
     }
 
-    private void throwResolutionTooBigError(FacesContext faceContext, int index) {
+    private void addErrorMessageResolutionTooBigError(FacesContext faceContext, int index) {
 
         faceContext.addMessage("edit-text-messages-form:repeater:" + index + ":upload",
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
-                        BundleUtil.getStringFromBundle("textmessages.banner.resolutionError")));
+                        BundleUtil.getStringFromBundle("dataversemessages.banners.resolutionError")));
 
     }
 
-    private void throwSizeTooBigError(FacesContext faceContext, int index) {
+    private void addErrorMessageSizeTooBigError(FacesContext faceContext, int index) {
 
         faceContext.addMessage("edit-text-messages-form:repeater:" + index + ":second-file-warning",
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
-                        BundleUtil.getStringFromBundle("textmessages.banner.sizeError")));
+                        BundleUtil.getStringFromBundle("dataversemessages.banners.sizeError")));
 
     }
 
-    private void throwImageWasMissing(FacesContext faceContext, int index) {
+    private void addErrorMessageImageWasMissing(FacesContext faceContext, int index) {
 
         faceContext.addMessage("edit-text-messages-form:repeater:" + index + ":upload",
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("messages.error"),
-                        BundleUtil.getStringFromBundle("textmessages.banner.missingError")));
+                        BundleUtil.getStringFromBundle("dataversemessages.banners.missingError")));
 
     }
 

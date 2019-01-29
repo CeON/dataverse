@@ -1,22 +1,49 @@
 package edu.harvard.iq.dataverse.dataverse.banners;
 
-public enum BannerLimits {
+import javax.ejb.Local;
+import javax.ejb.Stateful;
 
-    MAX_WIDTH(728),
-    MAX_HEIGHT(90),
-    MAX_SIZE_IN_BYTES(1000000);
+@Stateful
+@Local
+public class BannerLimits {
 
-    BannerLimits(int value) {
-        this.value = value;
+    private int maxWidth;
+    private int maxHeight;
+    private int maxSizeInBytes;
+
+    public BannerLimits() {
+        maxWidth = 728;
+        maxHeight = 90;
+        maxSizeInBytes = 1000000;
     }
 
-    private int value;
-
-    public int getValue() {
-        return value;
+    public BannerLimits(int maxWidth, int maxHeight, int maxSizeInBytes) {
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.maxSizeInBytes = maxSizeInBytes;
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    public int getMaxWidth() {
+        return maxWidth;
+    }
+
+    public void setMaxWidth(int maxWidth) {
+        this.maxWidth = maxWidth;
+    }
+
+    public int getMaxHeight() {
+        return maxHeight;
+    }
+
+    public void setMaxHeight(int maxHeight) {
+        this.maxHeight = maxHeight;
+    }
+
+    public int getMaxSizeInBytes() {
+        return maxSizeInBytes;
+    }
+
+    public void setMaxSizeInBytes(int maxSizeInBytes) {
+        this.maxSizeInBytes = maxSizeInBytes;
     }
 }

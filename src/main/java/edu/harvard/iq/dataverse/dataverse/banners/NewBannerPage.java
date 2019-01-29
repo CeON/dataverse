@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 @ViewScoped
 @Named("EditBannerPage")
-public class EditBannerPage implements Serializable {
+public class NewBannerPage implements Serializable {
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -51,7 +51,7 @@ public class EditBannerPage implements Serializable {
     private DataverseBannerDto dto;
 
     public String init() {
-        if (!permissionsWrapper.canIssueEditDataverseTextMessages(dataverseId)) {
+        if (!permissionsWrapper.canEditDataverseTextMessagesAndBanners(dataverseId)) {
             return permissionsWrapper.notAuthorized();
         }
 
@@ -62,12 +62,8 @@ public class EditBannerPage implements Serializable {
         dataverse = dataverseServiceBean.find(dataverseId);
 
         dto = bannerId != null ?
-                mapper.mapToDto(dao.getTextMessage(bannerId)) :
+                mapper.mapToDto(dao.getBanner(bannerId)) :
                 mapper.mapToNewBanner(dataverseId);
-
-        if (!dto.getDataverseId().equals(dataverseId)) {
-            return permissionsWrapper.notAuthorized();
-        }
 
         return StringUtils.EMPTY;
     }

@@ -11,37 +11,41 @@
 <h:body>
     <f:metadata>
         <f:viewParam name="dataverseId" value="#{EditBannerPage.dataverseId}"/>
-        <f:viewParam name="id" value="#{EditBannerPage.bannerId}"/>
+        <f:viewParam name="bannerTemplateId" value="#{EditBannerPage.bannerId}"/>
         <f:viewAction action="#{EditBannerPage.init()}"/>
         <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(EditBannerPage.dataverse)}"/>
         <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb
-        ('/dataverse-textMessages.xhtml?dataverseId='.concat(EditBannerPage.dataverseId),bundle['textmessages'])}"/>
-        <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb(bundle['textmessages.banner.new'])}"/>
+        ('/dataverse-textMessages.xhtml?dataverseId='.concat(EditBannerPage.dataverseId),bundle['dataversemessages'])}"/>
+        <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb(bundle['dataversemessages.banners.new'])}"/>
     </f:metadata>
 
-    <ui:composition template="/dataverse_template_nomessages.xhtml">
+    <ui:composition template="/dataverse_template.xhtml">
+        <ui:param name="showMessagePanel" value="#{false}"/>
 
         <ui:define name="body">
             <h:form id="edit-text-messages-form" enctype="multipart/form-data">
 
                 <ui:repeat id="repeater" value="#{EditBannerPage.dto.dataverseLocalizedBanner}" var="lm">
-                    <div class="row">
+                    <div class="row" style="padding-top: 10px">
                         <div class="col-xs-12 form-group form-col-container">
                             <label class="col-sm-2 control-label" for="message-locale">
                                     <span data-toggle="tooltip" data-placement="auto right"
                                           class="tooltiplabel text-info">
-                                        #{lm.language} <span class="glyphicon glyphicon-asterisk text-danger"
-                                                             title="#{bundle.requiredField}"/>
+                                        #{dataverseLocaleBean.getLanguage(lm.locale)} <span
+                                            class="glyphicon glyphicon-asterisk text-danger"
+                                            title="#{bundle.requiredField}"/>
                                     </span>
                             </label>
 
                             <div class="col-sm-3 form-col-container">
                                 <div class="col-sm-11 form-col-container">
-                                    <p:message style="margin: auto" for="second-file-warning" display="text"/>
+                                    <p:message id="first-file-warning"
+                                               style="margin: auto" for="second-file-warning" display="text"/>
                                     <p:message style="margin: auto" id="second-file-warning" for="upload"
                                                display="text"/>
                                 </div>
-                                <p:fileUpload id="upload" mode="simple" value="#{lm.file}"/>
+                                <p:fileUpload id="upload" mode="simple" value="#{lm.file}" required="true"/>
+
                                 <h:outputLabel for="message-locale" value="Link: "/>
                                 <h:inputText id="message-locale" tabindex="1" styleClass="form-control"
                                              value="#{lm.imageLink}"/>

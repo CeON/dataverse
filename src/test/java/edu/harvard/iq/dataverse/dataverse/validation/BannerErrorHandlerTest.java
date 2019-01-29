@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse.validation;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.dataverse.banners.BannerLimits;
 import edu.harvard.iq.dataverse.dataverse.banners.DataverseBanner;
 import edu.harvard.iq.dataverse.dataverse.banners.DataverseLocalizedBanner;
@@ -48,22 +48,21 @@ public class BannerErrorHandlerTest {
 
     @Before
     public void setup() {
-        // do some wiring
         Faces.setContext(facesContextMock);
 
         Mockito.when(facesContextMock.getExternalContext()).thenReturn(externalContextMock);
-        Mockito.when(facesContextMock.getExternalContext().getRequestLocale()).thenReturn(locale);
-        Mockito.when(facesContextMock.getExternalContext().getRequestLocale().getLanguage()).thenReturn("en");
+        Mockito.when(externalContextMock.getRequestLocale()).thenReturn(locale);
+        Mockito.when(externalContextMock.getRequestLocale().getLanguage()).thenReturn("en");
     }
 
     @Test
-    public void shouldThrowImageMissing() {
+    public void shouldAddErrorMessageImageMissing() {
         //given
-        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler();
+        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler(new BannerLimits());
         DataverseBanner banner = new DataverseBanner();
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
         dataverseLocalizedBanner.setImage(new byte[0]);
-        banner.setDataverseLocalizedBanner(Sets.newHashSet(dataverseLocalizedBanner));
+        banner.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBanner));
 
         //when
         bannerErrorHandler.handleBannerAddingErrors(banner, dataverseLocalizedBanner, facesContextMock);
@@ -77,15 +76,13 @@ public class BannerErrorHandlerTest {
     }
 
     @Test
-    public void shouldThrowResolutionTooHigh() throws IOException {
+    public void shouldAddErrorMessageResolutionTooHigh() throws IOException {
         //given
-        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler();
+        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler(new BannerLimits(1, 1, Integer.MAX_VALUE));
         DataverseBanner banner = new DataverseBanner();
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
         dataverseLocalizedBanner.setImage(Files.readAllBytes(BANNER_PATH));
-        banner.setDataverseLocalizedBanner(Sets.newHashSet(dataverseLocalizedBanner));
-
-        BannerLimits.MAX_HEIGHT.setValue(10);
+        banner.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBanner));
 
         //when
         bannerErrorHandler.handleBannerAddingErrors(banner, dataverseLocalizedBanner, facesContextMock);
@@ -100,15 +97,13 @@ public class BannerErrorHandlerTest {
     }
 
     @Test
-    public void shouldThrowSizeTooHigh() throws IOException {
+    public void shouldAddErrorMessageSizeTooHigh() throws IOException {
         //given
-        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler();
+        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler(new BannerLimits(Integer.MAX_VALUE, Integer.MAX_VALUE, 0));
         DataverseBanner banner = new DataverseBanner();
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
         dataverseLocalizedBanner.setImage(Files.readAllBytes(BANNER_PATH));
-        banner.setDataverseLocalizedBanner(Sets.newHashSet(dataverseLocalizedBanner));
-
-        BannerLimits.MAX_SIZE_IN_BYTES.setValue(2);
+        banner.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBanner));
 
         //when
         bannerErrorHandler.handleBannerAddingErrors(banner, dataverseLocalizedBanner, facesContextMock);
@@ -125,14 +120,13 @@ public class BannerErrorHandlerTest {
     @Test
     public void shouldValidateDate() throws IOException {
         //given
-        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler();
+        BannerErrorHandler bannerErrorHandler = new BannerErrorHandler(new BannerLimits());
         DataverseBanner banner = new DataverseBanner();
         banner.setFromTime(FROM_TIME);
         banner.setToTime(TO_TIME);
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
-        banner.setDataverseLocalizedBanner(Sets.newHashSet(dataverseLocalizedBanner));
+        banner.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBanner));
         dataverseLocalizedBanner.setImage(Files.readAllBytes(BANNER_PATH));
-
 
         //when
         bannerErrorHandler.handleBannerAddingErrors(banner, dataverseLocalizedBanner, facesContextMock);

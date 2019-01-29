@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.dataverse.banners;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.dataverse.banners.dto.BannerMapper;
 import edu.harvard.iq.dataverse.dataverse.banners.dto.DataverseBannerDto;
 import edu.harvard.iq.dataverse.dataverse.banners.dto.DataverseLocalizedBannerDto;
@@ -13,7 +12,6 @@ import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Stateful
 public class LazyBannerHistory extends LazyDataModel<DataverseBannerDto> {
@@ -30,14 +28,12 @@ public class LazyBannerHistory extends LazyDataModel<DataverseBannerDto> {
     @Override
     public List<DataverseBannerDto> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
 
-        Optional<List<DataverseBanner>> dataverseTextMessages =
-                Optional.ofNullable(dao.fetchBannersForDataverseWithPaging(dataverseId, first, pageSize));
+        List<DataverseBanner> dataverseTextMessages =
+                dao.fetchBannersForDataverseWithPaging(dataverseId, first, pageSize);
 
-        dataverseBannerDtos = dataverseTextMessages.isPresent() ?
-                mapper.mapToDtos(dataverseTextMessages.get()) :
-                Lists.newArrayList();
+        dataverseBannerDtos = mapper.mapToDtos(dataverseTextMessages);
 
-        sortMessageLanguages(dataverseBannerDtos);
+        sortMessageLocales(dataverseBannerDtos);
 
         setPageSize(pageSize);
         setRowCount(dao.countBannersForDataverse(dataverseId).intValue());
@@ -60,10 +56,10 @@ public class LazyBannerHistory extends LazyDataModel<DataverseBannerDto> {
                 .orElse(null);
     }
 
-    private List<DataverseBannerDto> sortMessageLanguages(List<DataverseBannerDto> dataList) {
+    private List<DataverseBannerDto> sortMessageLocales(List<DataverseBannerDto> dataList) {
         dataList.forEach(dataverseBannerDto ->
                 dataverseBannerDto.getDataverseLocalizedBanner()
-                        .sort(Comparator.comparing(DataverseLocalizedBannerDto::getLanguage)));
+                        .sort(Comparator.comparing(DataverseLocalizedBannerDto::getLocale)));
         return dataList;
     }
 

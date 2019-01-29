@@ -41,7 +41,7 @@ public class EditTextMessagePage implements Serializable {
     private UIInput toTimeInput;
 
     public String init() {
-        if (!permissionsWrapper.canIssueEditDataverseTextMessages(dataverseId)) {
+        if (!permissionsWrapper.canEditDataverseTextMessagesAndBanners(dataverseId)) {
             return permissionsWrapper.notAuthorized();
         }
 
