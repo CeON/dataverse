@@ -32,7 +32,11 @@ public class DataverseLocalizedBannerDto {
 
     private StreamedContent miniDisplayImage;
 
+    private StreamedContent uploadedDisplayImage;
+
     private String imageLink;
+
+    private String imageName;
 
     private UploadedFile file;
 
@@ -76,12 +80,28 @@ public class DataverseLocalizedBannerDto {
         this.miniDisplayImage = miniDisplayImage;
     }
 
+    public StreamedContent getUploadedDisplayImage() {
+        return uploadedDisplayImage;
+    }
+
+    public void setUploadedDisplayImage(StreamedContent uploadedDisplayImage) {
+        this.uploadedDisplayImage = uploadedDisplayImage;
+    }
+
     public String getImageLink() {
         return imageLink;
     }
 
     public void setImageLink(String imageLink) {
         this.imageLink = imageLink;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 
     /**
@@ -107,13 +127,14 @@ public class DataverseLocalizedBannerDto {
                 Arrays.equals(image, that.image) &&
                 Objects.equals(contentType, that.contentType) &&
                 Objects.equals(miniDisplayImage, that.miniDisplayImage) &&
+                Objects.equals(uploadedDisplayImage, that.uploadedDisplayImage) &&
                 Objects.equals(imageLink, that.imageLink) &&
                 Objects.equals(file, that.file);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, locale, contentType, miniDisplayImage, imageLink, file);
+        int result = Objects.hash(id, locale, contentType, miniDisplayImage, uploadedDisplayImage, imageLink, file);
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }

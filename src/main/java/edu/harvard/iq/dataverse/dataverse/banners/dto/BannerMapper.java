@@ -55,8 +55,10 @@ public class BannerMapper {
                             dlb.getImage(), dlb.getImageLink().isPresent() ?
                             dlb.getImageLink().get() : StringUtils.EMPTY);
 
+            localBannerDto.setImageName(dlb.getImageName());
             ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
 
+            localBannerDto.setUploadedDisplayImage(new DefaultStreamedContent(new ByteArrayInputStream(dlb.getImage())));
             localBannerDto.setMiniDisplayImage(
                     new DefaultStreamedContent(new ByteArrayInputStream(resizedImage.toByteArray()),
                             "image/jpeg"));
@@ -88,16 +90,10 @@ public class BannerMapper {
 
         dto.getDataverseLocalizedBanner()
                 .forEach(fuDto -> {
-            DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
-            dataverseLocalizedBanner.setImage(fuDto.getFile().getContents());
-            dataverseLocalizedBanner.setImageLink(fuDto.getImageLink());
-            dataverseLocalizedBanner.setDataverseBanner(banner);
-            dataverseLocalizedBanner.setLocale(fuDto.getLocale());
-            dataverseLocalizedBanner.setContentType(fuDto.getFile().getContentType());
-            dataverseLocalizedBanner.setImageName(fuDto.getFile().getFileName());
+                    DataverseLocalizedBanner dataverseLocalizedBanner = MapToLocalizedBanner(banner, fuDto);
 
-            banner.getDataverseLocalizedBanner().add(dataverseLocalizedBanner);
-        });
+                    banner.getDataverseLocalizedBanner().add(dataverseLocalizedBanner);
+                });
 
         return banner;
     }
@@ -109,6 +105,29 @@ public class BannerMapper {
         dto.setDataverseLocalizedBanner(mapDefaultLocales());
 
         return dto;
+    }
+
+    private DataverseLocalizedBanner MapToLocalizedBanner(DataverseBanner banner, DataverseLocalizedBannerDto fuDto) {
+        DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
+
+        if (isBannerReused(fuDto)) {
+            dataverseLocalizedBanner.setImage(fuDto.getImage());
+            dataverseLocalizedBanner.setContentType(fuDto.getContentType());
+            dataverseLocalizedBanner.setImageName(fuDto.getImageName());
+        } else {
+            dataverseLocalizedBanner.setImage(fuDto.getFile() != null ? fuDto.getFile().getContents() : new byte[0]);
+            dataverseLocalizedBanner.setContentType((fuDto.getFile() != null ? fuDto.getFile().getContentType() : StringUtils.EMPTY));
+            dataverseLocalizedBanner.setImageName((fuDto.getFile() != null ? fuDto.getFile().getFileName() : StringUtils.EMPTY));
+        }
+
+        dataverseLocalizedBanner.setImageLink(fuDto.getImageLink());
+        dataverseLocalizedBanner.setDataverseBanner(banner);
+        dataverseLocalizedBanner.setLocale(fuDto.getLocale());
+        return dataverseLocalizedBanner;
+    }
+
+    private boolean isBannerReused(DataverseLocalizedBannerDto fuDto) {
+        return fuDto.getImage() != null && fuDto.getFile() == null;
     }
 
     private List<DataverseLocalizedBannerDto> mapDefaultLocales() {
