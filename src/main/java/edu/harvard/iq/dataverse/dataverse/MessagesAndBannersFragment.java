@@ -38,7 +38,7 @@ public class MessagesAndBannersFragment implements java.io.Serializable {
 
     public void redirect(String link) throws IOException {
 
-        if (!link.contains("http")) {
+        if (!link.startsWith("http")) {
             link = "http://" + link;
         }
         FacesContext.getCurrentInstance().getExternalContext().redirect(link);
