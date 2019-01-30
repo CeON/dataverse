@@ -43,6 +43,13 @@ public class BannerDAO {
         return em.find(DataverseBanner.class, bannerId);
     }
 
+    /**
+     * Fetches banners that are meant to be displayed for the dataverse
+     * (which also means dataverse banners that are higher in the *tree*)
+     *
+     * @param dataverseId
+     * @return ImageWithLinkDto
+     */
     public List<ImageWithLinkDto> getBannersForDataverse(Long dataverseId) {
         List<Object[]> banners = em.createNativeQuery("select r.image, r.imagelink from (select distinct dvtml.image, dvtml.imagelink, dvtm.totime  from\n" +
                 "  dataversebanner dvtm\n" +
