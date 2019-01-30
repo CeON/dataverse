@@ -43,13 +43,6 @@ public class BannerDAO {
         return em.find(DataverseBanner.class, bannerId);
     }
 
-    /**
-     * Fetches banners that are meant to be displayed for the dataverse
-     * (which also means dataverse banners that are higher in the *tree*)
-     *
-     * @param dataverseId
-     * @return ImageWithLinkDto
-     */
     public List<ImageWithLinkDto> getBannersForDataverse(Long dataverseId) {
         List<Object[]> banners = em.createNativeQuery("select r.image, r.imagelink from (select distinct dvtml.image, dvtml.imagelink, dvtm.totime  from\n" +
                 "  dataversebanner dvtm\n" +
@@ -60,21 +53,21 @@ public class BannerDAO {
                 "    ? between dvtm.fromtime and dvtm.totime and\n" +
                 "    dvtm.dataverse_id in (with recursive dv_roots as (\n" +
                 "    select\n" +
-                "        dv.id,\n" +
-                "        dv.owner_id,\n" +
-                "        d2.allowmessagesbanners\n" +
-                "    from dvobject dv\n" +
-                "      join dataverse d2 on dv.id = d2.id\n" +
+                "        dv_obj.id,\n" +
+                "        dv_obj.owner_id,\n" +
+                "        dv.allowmessagesbanners\n" +
+                "    from dvobject dv_obj\n" +
+                "      join dataverse dv on dv_obj.id = dv.id\n" +
                 "    where\n" +
                 "        dv.id = ?\n" +
                 "        union all\n" +
                 "        select\n" +
-                "               dv2.id,\n" +
-                "               dv2.owner_id,\n" +
-                "               d2.allowmessagesbanners\n" +
-                "        from dvobject dv2\n" +
-                "               join dataverse d2 on dv2.id = d2.id\n" +
-                "               join dv_roots on dv_roots.owner_id = dv2.id\n" +
+                "               parent_dv_obj.id,\n" +
+                "               parent_dv_obj.owner_id,\n" +
+                "               parent_dv.allowmessagesbanners\n" +
+                "        from dvobject parent_dv_obj\n" +
+                "               join dataverse parent_dv on parent_dv_obj.id = parent_dv.id\n" +
+                "               join dv_roots dv on dv_roots.owner_id = parent_dv_obj.id\n" +
                 "    )\n" +
                 "    select id from dv_roots dr where dr.allowmessagesbanners = true) order by dvtm.totime asc) r")
                 .setParameter(1, locale.getLocaleCode())
