@@ -28,15 +28,11 @@ public class DataverseLocalizedBannerDto {
 
     private byte[] image;
 
-    private String contentType;
-
     private StreamedContent miniDisplayImage;
 
-    private StreamedContent uploadedDisplayImage;
+    private StreamedContent displayedImage;
 
     private String imageLink;
-
-    private String imageName;
 
     private UploadedFile file;
 
@@ -64,14 +60,6 @@ public class DataverseLocalizedBannerDto {
         this.image = image;
     }
 
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
     public StreamedContent getMiniDisplayImage() {
         return miniDisplayImage;
     }
@@ -80,12 +68,12 @@ public class DataverseLocalizedBannerDto {
         this.miniDisplayImage = miniDisplayImage;
     }
 
-    public StreamedContent getUploadedDisplayImage() {
-        return uploadedDisplayImage;
+    public StreamedContent getDisplayedImage() {
+        return displayedImage;
     }
 
-    public void setUploadedDisplayImage(StreamedContent uploadedDisplayImage) {
-        this.uploadedDisplayImage = uploadedDisplayImage;
+    public void setDisplayedImage(StreamedContent displayedImage) {
+        this.displayedImage = displayedImage;
     }
 
     public String getImageLink() {
@@ -94,14 +82,6 @@ public class DataverseLocalizedBannerDto {
 
     public void setImageLink(String imageLink) {
         this.imageLink = imageLink;
-    }
-
-    public String getImageName() {
-        return imageName;
-    }
-
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
     }
 
     /**
@@ -125,16 +105,15 @@ public class DataverseLocalizedBannerDto {
         return Objects.equals(id, that.id) &&
                 Objects.equals(locale, that.locale) &&
                 Arrays.equals(image, that.image) &&
-                Objects.equals(contentType, that.contentType) &&
                 Objects.equals(miniDisplayImage, that.miniDisplayImage) &&
-                Objects.equals(uploadedDisplayImage, that.uploadedDisplayImage) &&
+                Objects.equals(displayedImage, that.displayedImage) &&
                 Objects.equals(imageLink, that.imageLink) &&
                 Objects.equals(file, that.file);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, locale, contentType, miniDisplayImage, uploadedDisplayImage, imageLink, file);
+        int result = Objects.hash(id, locale, miniDisplayImage, displayedImage, imageLink, file);
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }

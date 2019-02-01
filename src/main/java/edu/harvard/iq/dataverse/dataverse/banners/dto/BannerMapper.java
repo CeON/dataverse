@@ -7,7 +7,7 @@ import edu.harvard.iq.dataverse.dataverse.banners.DataverseLocalizedBanner;
 import edu.harvard.iq.dataverse.locale.DataverseLocaleBean;
 import org.apache.commons.lang.StringUtils;
 import org.imgscalr.Scalr;
-import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.ByteArrayContent;
 
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
@@ -51,19 +51,17 @@ public class BannerMapper {
         for (DataverseLocalizedBanner dlb : dataverseBanner.getDataverseLocalizedBanner()) {
 
             DataverseLocalizedBannerDto localBannerDto =
-                    new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
-                            dlb.getImage(), dlb.getImageLink().isPresent() ?
+                    new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(), dlb.getImage(),
+                            dlb.getImageLink().isPresent() ?
                             dlb.getImageLink().get() : StringUtils.EMPTY);
 
-            localBannerDto.setImageName(dlb.getImageName());
             ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
 
-            localBannerDto.setUploadedDisplayImage(new DefaultStreamedContent(new ByteArrayInputStream(dlb.getImage())));
+            localBannerDto.setDisplayedImage(new ByteArrayContent(dlb.getImage()));
             localBannerDto.setMiniDisplayImage(
-                    new DefaultStreamedContent(new ByteArrayInputStream(resizedImage.toByteArray()),
+                    new ByteArrayContent(resizedImage.toByteArray(),
                             "image/jpeg"));
 
-            localBannerDto.setContentType(dlb.getContentType());
             dlbDto.add(localBannerDto);
         }
 
@@ -90,7 +88,7 @@ public class BannerMapper {
 
         dto.getDataverseLocalizedBanner()
                 .forEach(fuDto -> {
-                    DataverseLocalizedBanner dataverseLocalizedBanner = MapToLocalizedBanner(banner, fuDto);
+                    DataverseLocalizedBanner dataverseLocalizedBanner = mapToLocalizedBanner(banner, fuDto);
 
                     banner.getDataverseLocalizedBanner().add(dataverseLocalizedBanner);
                 });
@@ -107,13 +105,13 @@ public class BannerMapper {
         return dto;
     }
 
-    private DataverseLocalizedBanner MapToLocalizedBanner(DataverseBanner banner, DataverseLocalizedBannerDto fuDto) {
+    private DataverseLocalizedBanner mapToLocalizedBanner(DataverseBanner banner, DataverseLocalizedBannerDto fuDto) {
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
 
         if (isBannerReused(fuDto)) {
             dataverseLocalizedBanner.setImage(fuDto.getImage());
-            dataverseLocalizedBanner.setContentType(fuDto.getContentType());
-            dataverseLocalizedBanner.setImageName(fuDto.getImageName());
+            dataverseLocalizedBanner.setContentType(fuDto.getDisplayedImage().getContentType());
+            dataverseLocalizedBanner.setImageName(fuDto.getDisplayedImage().getName());
         } else {
             dataverseLocalizedBanner.setImage(fuDto.getFile() != null ? fuDto.getFile().getContents() : new byte[0]);
             dataverseLocalizedBanner.setContentType((fuDto.getFile() != null ? fuDto.getFile().getContentType() : StringUtils.EMPTY));
@@ -127,7 +125,7 @@ public class BannerMapper {
     }
 
     private boolean isBannerReused(DataverseLocalizedBannerDto fuDto) {
-        return fuDto.getImage() != null && fuDto.getFile() == null;
+        return fuDto.getDisplayedImage() != null && fuDto.getFile() == null;
     }
 
     private List<DataverseLocalizedBannerDto> mapDefaultLocales() {
