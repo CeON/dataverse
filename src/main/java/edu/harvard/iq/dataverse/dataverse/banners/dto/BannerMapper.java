@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.locale.DataverseLocaleBean;
 import org.apache.commons.lang.StringUtils;
 import org.imgscalr.Scalr;
 import org.primefaces.model.ByteArrayContent;
+import org.springframework.util.StreamUtils;
 
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
@@ -51,13 +52,13 @@ public class BannerMapper {
         for (DataverseLocalizedBanner dlb : dataverseBanner.getDataverseLocalizedBanner()) {
 
             DataverseLocalizedBannerDto localBannerDto =
-                    new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(), dlb.getImage(),
+                    new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
                             dlb.getImageLink().isPresent() ?
                             dlb.getImageLink().get() : StringUtils.EMPTY);
 
             ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
 
-            localBannerDto.setDisplayedImage(new ByteArrayContent(dlb.getImage()));
+            localBannerDto.setDisplayedImage(new ByteArrayContent(dlb.getImage(), dlb.getContentType(), dlb.getImageName()));
             localBannerDto.setMiniDisplayImage(
                     new ByteArrayContent(resizedImage.toByteArray(),
                             "image/jpeg"));
@@ -109,7 +110,13 @@ public class BannerMapper {
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
 
         if (isBannerReused(fuDto)) {
-            dataverseLocalizedBanner.setImage(fuDto.getImage());
+
+            try {
+                dataverseLocalizedBanner.setImage(StreamUtils.copyToByteArray(fuDto.getDisplayedImage().getStream()));
+            } catch (IOException e) {
+                throw new IllegalStateException("There was a problem converting display image to byte array", e);
+            }
+
             dataverseLocalizedBanner.setContentType(fuDto.getDisplayedImage().getContentType());
             dataverseLocalizedBanner.setImageName(fuDto.getDisplayedImage().getName());
         } else {
