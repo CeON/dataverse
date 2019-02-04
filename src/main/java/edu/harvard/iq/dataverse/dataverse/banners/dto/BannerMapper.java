@@ -54,7 +54,7 @@ public class BannerMapper {
             DataverseLocalizedBannerDto localBannerDto =
                     new DataverseLocalizedBannerDto(dlb.getId(), dlb.getLocale(),
                             dlb.getImageLink().isPresent() ?
-                            dlb.getImageLink().get() : StringUtils.EMPTY);
+                                    dlb.getImageLink().get() : StringUtils.EMPTY);
 
             ByteArrayOutputStream resizedImage = convertImageToMiniSize(dlb.getImage());
 
@@ -109,7 +109,9 @@ public class BannerMapper {
     private DataverseLocalizedBanner mapToLocalizedBanner(DataverseBanner banner, DataverseLocalizedBannerDto fuDto) {
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
 
-        if (isBannerReused(fuDto)) {
+        if (fuDto.getDisplayedImage() == null) {
+            dataverseLocalizedBanner.setImage(new byte[0]);
+        } else {
 
             try {
                 dataverseLocalizedBanner.setImage(StreamUtils.copyToByteArray(fuDto.getDisplayedImage().getStream()));
@@ -119,10 +121,6 @@ public class BannerMapper {
 
             dataverseLocalizedBanner.setContentType(fuDto.getDisplayedImage().getContentType());
             dataverseLocalizedBanner.setImageName(fuDto.getDisplayedImage().getName());
-        } else {
-            dataverseLocalizedBanner.setImage(fuDto.getFile() != null ? fuDto.getFile().getContents() : new byte[0]);
-            dataverseLocalizedBanner.setContentType((fuDto.getFile() != null ? fuDto.getFile().getContentType() : StringUtils.EMPTY));
-            dataverseLocalizedBanner.setImageName((fuDto.getFile() != null ? fuDto.getFile().getFileName() : StringUtils.EMPTY));
         }
 
         dataverseLocalizedBanner.setImageLink(fuDto.getImageLink());

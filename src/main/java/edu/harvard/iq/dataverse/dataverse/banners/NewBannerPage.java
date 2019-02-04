@@ -79,7 +79,9 @@ public class NewBannerPage implements Serializable {
                 .forEach(dlb -> {
                     dlb.setFile(event.getFile());
                     dlb.setDisplayedImage(
-                            new ByteArrayContent(event.getFile().getContents()));
+                            new ByteArrayContent(event.getFile().getContents(),
+                                    event.getFile().getContentType(),
+                                    event.getFile().getFileName()));
                 });
     }
 

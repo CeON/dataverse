@@ -69,7 +69,7 @@ public class BannerMapperTest {
     }
 
     @Test
-    public void shouldMapToNewEntity() throws IOException {
+    public void shouldMapToNewEntity() {
         //given
         DataverseBannerDto bannerDto = createBannerDto();
         Dataverse dataverse = new Dataverse();
@@ -78,7 +78,10 @@ public class BannerMapperTest {
         //when
         DataverseLocalizedBannerDto localizedBannerDto = bannerDto.getDataverseLocalizedBanner().get(0);
         localizedBannerDto.setFile(uploadedFile);
-        localizedBannerDto.setDisplayedImage(new ByteArrayContent(uploadedFile.getContents()));
+        localizedBannerDto.setDisplayedImage(new ByteArrayContent(
+                uploadedFile.getContents(),
+                uploadedFile.getContentType(),
+                uploadedFile.getFileName()));
 
         DataverseBanner banner = bannerMapper.mapToEntity(bannerDto, dataverse);
         DataverseLocalizedBanner localizedBanner = banner.getDataverseLocalizedBanner().get(0);
@@ -92,33 +95,6 @@ public class BannerMapperTest {
         Assert.assertEquals(localizedBanner.getContentType(), localizedBannerDto.getFile().getContentType());
         Assert.assertEquals(localizedBanner.getImageName(), localizedBannerDto.getFile().getFileName());
         Assert.assertEquals(localizedBanner.getImageLink().get(), localizedBannerDto.getImageLink());
-
-    }
-
-    @Test
-    public void shouldMapToNewEntityWithReusedData() throws IOException {
-        //given
-        DataverseBannerDto bannerDto = createBannerDto();
-        Dataverse dataverse = new Dataverse();
-        dataverse.setId(1L);
-
-        //when
-        DataverseLocalizedBannerDto localizedBannerDto = bannerDto.getDataverseLocalizedBanner().get(0);
-        localizedBannerDto.setDisplayedImage(new ByteArrayContent(Files.readAllBytes(BANNER_PATH)));
-
-        DataverseBanner banner = bannerMapper.mapToEntity(bannerDto, dataverse);
-        DataverseLocalizedBanner localizedBanner = banner.getDataverseLocalizedBanner().get(0);
-
-        //then
-        Assert.assertEquals(banner.getDataverse().getId(), bannerDto.getDataverseId());
-        Assert.assertEquals(banner.getFromTime(), bannerDto.getFromTime());
-        Assert.assertEquals(banner.getToTime(), bannerDto.getToTime());
-        Assert.assertArrayEquals(localizedBanner.getImage(), StreamUtils.copyToByteArray(localizedBannerDto.getDisplayedImage().getStream()));
-        Assert.assertEquals(localizedBanner.getLocale(), localizedBannerDto.getLocale());
-        Assert.assertEquals(localizedBanner.getContentType(), localizedBannerDto.getDisplayedImage().getContentType());
-        Assert.assertEquals(localizedBanner.getImageName(), localizedBannerDto.getDisplayedImage().getName());
-        Assert.assertEquals(localizedBanner.getImageLink().get(), localizedBannerDto.getImageLink());
-
 
     }
 
@@ -165,7 +141,6 @@ public class BannerMapperTest {
         dataverseBannerDto.setDataverseId(1L);
 
         DataverseLocalizedBannerDto dataverseLocalizedBannerDto = new DataverseLocalizedBannerDto();
-        ;
         dataverseLocalizedBannerDto.setLocale("en");
         dataverseLocalizedBannerDto.setImageLink("www.google.pl");
         dataverseBannerDto.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBannerDto));
