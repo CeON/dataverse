@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!--
     If you are doing more than bumping the version number, please read
@@ -25,7 +26,9 @@
             Moving this from plugin config to global config, because of GH-5122.
             This seems to play well with NetBeans 8.2, IDEA 2018.1 and mvn including compatibility with JaCoCo.
         -->
-        <argLine>-Duser.timezone=${project.timezone} -Dfile.encoding=${project.build.sourceEncoding} -Duser.language=${project.language} -Duser.region=${project.region}</argLine>
+        <argLine>-Duser.timezone=${project.timezone} -Dfile.encoding=${project.build.sourceEncoding}
+            -Duser.language=${project.language} -Duser.region=${project.region}
+        </argLine>
 
         <aws.version>1.11.172</aws.version>
         <jackson.version>2.9.6</jackson.version>
@@ -104,6 +107,13 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents.client.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>1.4.1.Final</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -113,6 +123,43 @@
     -->
     <!-- TODO: Housekeeping is utterly needed. -->
     <dependencies>
+
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
+            <version>1.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.main.extras</groupId>
+            <artifactId>glassfish-embedded-all</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-transaction-jta</artifactId>
+            <version>1.0.0.Alpha3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.scribejava</groupId>
+            <artifactId>scribejava-apis</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>1.4.1.Final</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.imgscalr</groupId>
             <artifactId>imgscalr-lib</artifactId>
@@ -495,11 +542,6 @@
             <version>1.2.17</version>
         </dependency>
         <!-- OAuth2 authentication. -->
-        <dependency>
-            <groupId>com.github.scribejava</groupId>
-            <artifactId>scribejava-apis</artifactId>
-            <version>3.1.0</version>
-        </dependency>
         <!-- EXPERIMENTAL: -->
         <!-- lyncode xoai OAI-PMH implementation: -->
         <!-- unfortunately, their 4.10 version -->
@@ -548,19 +590,19 @@
         </dependency>
         <!-- BagIt export -->
         <dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.18</version>
-		</dependency>
-	    <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.18</version>
+        </dependency>
+        <dependency>
             <groupId>org.duracloud</groupId>
             <artifactId>common</artifactId>
             <version>4.4.6</version>
             <exclusions>
-              <exclusion>
-                <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -568,16 +610,16 @@
             <artifactId>storeclient</artifactId>
             <version>4.4.6</version>
             <exclusions>
-              <exclusion>
-                <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-sqs</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.amazonaws</groupId>
+                    <artifactId>aws-java-sdk-sqs</artifactId>
+                </exclusion>
             </exclusions>
-            
+
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -598,22 +640,14 @@
     </dependencies>
 
     <build>
-        <!--        <testResources>
-                    <testResource>
-                        <directory>${project.basedir}/src/main/resources</directory>
-                    </testResource>
-                </testResources>-->
-        <!--        <testResources>
-                    <testResource>
-                      <directory>${project.basedir}/src/test/java</directory>
-                      <excludes>
-                          <exclude>**/*.java</exclude>
-                      </excludes>
-                    </testResource>
-                    <testResource>
-                      <directory>${project.basedir}/src/test/resources</directory>
-                    </testResource>
-                  </testResources>-->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources-glassfish-embedded</directory>
+            </testResource>
+        </testResources>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -744,7 +778,9 @@
                         <phase>package</phase>
                         <configuration>
                             <fileset>
-                                <directory>target/dataverse-${project.version}/WEB-INF/lib/aws-java-sdk-bundle-${aws.version}.jar/META-INF</directory>
+                                <directory>
+                                    target/dataverse-${project.version}/WEB-INF/lib/aws-java-sdk-bundle-${aws.version}.jar/META-INF
+                                </directory>
                                 <includes>
                                     <include>javamail.providers</include>
                                 </includes>
@@ -759,7 +795,9 @@
                         <phase>package</phase>
                         <configuration>
                             <fileset>
-                                <directory>target/dataverse-${project.version}.war/WEB-INF/lib/aws-java-sdk-bundle-${aws.version}.jar/META-INF</directory>
+                                <directory>
+                                    target/dataverse-${project.version}.war/WEB-INF/lib/aws-java-sdk-bundle-${aws.version}.jar/META-INF
+                                </directory>
                                 <includes>
                                     <include>javamail.providers</include>
                                 </includes>

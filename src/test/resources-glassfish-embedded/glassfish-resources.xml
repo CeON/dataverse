@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC
+        "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN"
+        "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+<resources>
+    <jdbc-resource pool-name="__TimerPool" object-type="system-admin" jndi-name="jdbc/__TimerPool"/>
+
+    <jdbc-connection-pool datasource-classname="org.postgresql.ds.PGPoolingDataSource"
+                          name="dvnDbPool" res-type="javax.sql.DataSource">
+        <property name="password" value="tester"/>
+        <property name="PortNumber" value="5432"/>
+        <property name="create" value="true"/>
+        <property name="ServerName" value="127.0.0.1"/>
+        <property name="databaseName" value="testdatabase"/>
+        <property name="User" value="tester"/>
+        <property name="createDatabase" value="create"/>
+    </jdbc-connection-pool>
+
+    <jdbc-resource pool-name="dvnDbPool" jndi-name="jdbc/VDCNetDS"/>
+
+</resources>
