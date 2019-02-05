@@ -129,10 +129,6 @@ public class BannerMapper {
         return dataverseLocalizedBanner;
     }
 
-    private boolean isBannerReused(DataverseLocalizedBannerDto fuDto) {
-        return fuDto.getDisplayedImage() != null && fuDto.getFile() == null;
-    }
-
     private List<DataverseLocalizedBannerDto> mapDefaultLocales() {
         Map<String, String> locales = new DataverseLocaleBean().getDataverseLocales();
 
