@@ -3,7 +3,7 @@
         "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN"
         "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
 <resources>
-    <jdbc-resource pool-name="__TimerPool" object-type="system-admin" jndi-name="jdbc/__TimerPool"/>
+    <!--<jdbc-resource pool-name="__TimerPool" object-type="system-admin" jndi-name="jdbc/__TimerPool"/>-->
 
     <jdbc-connection-pool datasource-classname="org.postgresql.ds.PGPoolingDataSource"
                           name="dvnDbPool" res-type="javax.sql.DataSource">

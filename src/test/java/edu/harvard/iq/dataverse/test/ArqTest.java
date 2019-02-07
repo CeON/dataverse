@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.test;
 
+import edu.harvard.iq.dataverse.ArquillianIntegrationTests;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.flyway.StartupFlywayMigrator;
@@ -13,6 +14,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
@@ -21,6 +23,7 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @RunWith(Arquillian.class)
+@Category(ArquillianIntegrationTests.class)
 @Transactional(TransactionMode.ROLLBACK)
 public class ArqTest {
 
@@ -28,11 +31,11 @@ public class ArqTest {
     private EntityManager em;
 
     @Inject
-    BuiltinUserServiceBean builtinUserServiceBean;
+    private BuiltinUserServiceBean builtinUserServiceBean;
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive javaArchive = ShrinkWrap.create(JavaArchive.class)
+        return ShrinkWrap.create(JavaArchive.class)
                 .addClass(StartupFlywayMigrator.class)
                 .addClass(BuiltinUserServiceBean.class)
                 .addClass(BuiltinUser.class)
@@ -40,8 +43,6 @@ public class ArqTest {
                 .addClass(PasswordResetServiceBean.class)
                 .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-        System.out.println(javaArchive.toString(true));
-        return javaArchive;
     }
 
     @Test
