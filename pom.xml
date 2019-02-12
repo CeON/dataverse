@@ -160,7 +160,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -253,6 +252,11 @@
             <version>2.2.4</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>27.0.1-jre</version>
+        </dependency>
         <!-- Should be refactored and removed once on Java EE 8 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -291,13 +295,17 @@
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
             <version>1.4.1.Final</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.main.extras</groupId>
             <artifactId>glassfish-embedded-all</artifactId>
             <version>4.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eu.ingwar.tools</groupId>
+            <artifactId>arquillian-suite-extension</artifactId>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <!-- required by org.swordapp.server.sword2-server -->
@@ -317,12 +325,6 @@
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>0.3m</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>16.0.1</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.primefaces</groupId>
@@ -556,9 +558,21 @@
         <!-- a patched version I built locally. -->
         <!-- (pull requests pending - L.A. -->
         <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.lyncode</groupId>
             <artifactId>xoai-common</artifactId>
             <version>4.1.0-header-patch</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.lyncode</groupId>
@@ -642,6 +656,11 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>5.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>0.10.0</version>
         </dependency>
     </dependencies>
 
@@ -776,6 +795,14 @@
                 <artifactId>truezip-maven-plugin</artifactId>
                 <version>1.1</version>
                 <executions>
+                    <execution>
+                        <id>add property</id>
+                        <configuration>
+                            <files>
+
+                            </files>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>remove-javamail-providers-from-exploded</id>
                         <goals>
