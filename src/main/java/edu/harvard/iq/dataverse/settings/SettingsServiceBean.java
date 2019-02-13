@@ -25,7 +25,7 @@ import javax.persistence.PersistenceContext;
  * 
  * @author michael
  * 
- * @see FileBasedSettingsServiceBean
+ * @see FileBasedSettingsFetcher
  */
 @Stateless
 @Named
@@ -420,7 +420,7 @@ public class SettingsServiceBean {
     private ActionLogServiceBean actionLogSvc;
     
     @EJB
-    private FileBasedSettingsServiceBean fileBasedSettings;
+    private FileBasedSettingsFetcher fileBasedSettingsFetcher;
     
     /**
      * Basic functionality - get the name, return the setting, or {@code null}.
@@ -429,7 +429,7 @@ public class SettingsServiceBean {
      */
     public String get( String name ) {
         Setting s = em.find( Setting.class, name );
-        return (s!=null) ? s.getContent() : fileBasedSettings.getSetting(name);
+        return (s!=null) ? s.getContent() : fileBasedSettingsFetcher.getSetting(name);
     }
     
     /**
@@ -534,7 +534,7 @@ public class SettingsServiceBean {
     public Map<String, String> listAll() {
     	Map<String, String> mergedSettings = new HashMap<>();
     	
-    	Map<String, String> fileSettings = fileBasedSettings.getAllSettings();
+    	Map<String, String> fileSettings = fileBasedSettingsFetcher.getAllSettings();
     	mergedSettings.putAll(fileSettings);
     	
     	List<Setting> dbSettings = em.createNamedQuery("Setting.findAll", Setting.class).getResultList();

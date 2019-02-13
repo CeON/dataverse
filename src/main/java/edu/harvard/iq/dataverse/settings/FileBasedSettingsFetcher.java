@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Startup
 @Singleton
-public class FileBasedSettingsServiceBean {
+public class FileBasedSettingsFetcher {
 
 	private final static String DEFAULT_PROPERTIES_CLASSPATH_LOCATION = "/config/dataverse.default.properties";
 	private final static String CUSTOM_PROPERTIES_LOCATION = System.getProperty("user.home") + "/.dataverse/dataverse.properties";
@@ -32,7 +32,6 @@ public class FileBasedSettingsServiceBean {
 	
 	
 	private Map<String, String> settings = new HashMap<>();
-	
 	
 	
 	// -------------------- LOGIC --------------------
