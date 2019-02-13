@@ -1,13 +1,11 @@
-package edu.harvard.iq.dataverse.test;
+package edu.harvard.iq.dataverse.arquillianexamples;
 
-import edu.harvard.iq.dataverse.ArquillianIntegrationTests;
 import edu.harvard.iq.dataverse.arquillianglassfishconfig.DataverseArquillian;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
@@ -16,7 +14,6 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @RunWith(DataverseArquillian.class)
-@Category(ArquillianIntegrationTests.class)
 @Transactional(TransactionMode.ROLLBACK)
 public class ArquillianExampleTest extends ArquillianDeployment {
 

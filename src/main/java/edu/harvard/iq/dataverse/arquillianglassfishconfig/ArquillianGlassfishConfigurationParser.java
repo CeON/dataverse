@@ -16,11 +16,21 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
-public class ArquillianGlassfishConfigurator {
+/**
+ * Class responsible for parsing glassfish configuration.
+ */
+public class ArquillianGlassfishConfigurationParser {
 
+    public static String NEW_RESOURCE_PATH = "/tmp/glassfish-resources.xml";
+
+    // -------------------- LOGIC --------------------
+
+    /**
+     * Reads glassfish-resources template, reads values from properties file
+     * and creates new version of glassfish-resources with new values in temporary location.
+     */
     public void createTempGlassfishResources() {
         try {
-
             String userHomeDirectory = System.getProperty("user.home");
             Path dataversePropertiesDirectory = Files.createDirectories(Paths.get(userHomeDirectory + "/.dataverse"));
             Path propertiesPath = Paths.get(dataversePropertiesDirectory.toString() + "/glassfish.properties");
@@ -34,11 +44,13 @@ public class ArquillianGlassfishConfigurator {
 
             Document document = replaceGlassfishXmlValues(properties);
 
-            createGlassfishResources(document, "/tmp/glassfish-resources.xml");
-        } catch (IOException e) {
-            e.printStackTrace();
+            createGlassfishResources(document, NEW_RESOURCE_PATH);
+        } catch (IOException ex) {
+            throw new IllegalStateException("There was a problem with parsing xml file", ex);
         }
     }
+
+    // -------------------- PRIVATE --------------------
 
     private void createGlassfishResources(Document document, String savePath) throws IOException {
         XMLWriter xmlWriter = new XMLWriter(new FileWriter(savePath));
@@ -46,13 +58,11 @@ public class ArquillianGlassfishConfigurator {
         xmlWriter.close();
     }
 
-    private Document replaceGlassfishXmlValues(Properties properties) throws IOException {
+    private Document replaceGlassfishXmlValues(Properties properties) {
         SAXReader reader = new SAXReader();
         Document document = Try.of(() -> reader
                 .read(new FileInputStream("src/test/resources-glassfish-embedded/glassfish-resources.xml")))
-                .getOrElseThrow(throwable -> {
-                    throw new RuntimeException(throwable);
-                });
+                .getOrElseThrow(throwable -> new RuntimeException("Unable to read glassfish-resources.xml", throwable));
 
         List<Node> list = document.selectNodes("/resources/jdbc-connection-pool/child::*");
 

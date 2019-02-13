@@ -268,9 +268,20 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.arquillian.protocol</groupId>
+            <artifactId>arquillian-protocol-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
             <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
             <version>1.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eu.ingwar.tools</groupId>
+            <artifactId>arquillian-suite-extension</artifactId>
+            <version>1.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -301,11 +312,6 @@
             <artifactId>glassfish-embedded-all</artifactId>
             <version>4.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eu.ingwar.tools</groupId>
-            <artifactId>arquillian-suite-extension</artifactId>
-            <version>1.2.0</version>
         </dependency>
         <dependency>
             <!-- required by org.swordapp.server.sword2-server -->
@@ -867,6 +873,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <reuseForks>false</reuseForks>
                             <groups>edu.harvard.iq.dataverse.ArquillianIntegrationTests</groups>
                         </configuration>
                     </execution>
@@ -885,6 +892,23 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>test-glassfish-embeded</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.glassfish.main.extras</groupId>
+                    <artifactId>glassfish-embedded-all</artifactId>
+                    <version>4.1</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
+                    <version>1.0.2</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <id>dev</id>
             <activation>
