@@ -33,7 +33,6 @@ public class FileBasedSettingsFetcher {
 	
 	private Map<String, String> settings = new HashMap<>();
 	
-	
 	// -------------------- LOGIC --------------------
 	
 	/**
