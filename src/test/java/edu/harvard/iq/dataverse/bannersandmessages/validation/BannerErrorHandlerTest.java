@@ -40,8 +40,10 @@ public class BannerErrorHandlerTest {
     @Captor
     private ArgumentCaptor<FacesMessage> facesMesssage;
 
-    private static final Path BANNER_PATH = Paths.get("src/test/resources/images/banner.png");
-    private static final Path TXT_PATH = Paths.get("src/test/resources/images/sample.txt");
+    private static final Path BANNER_PATH = Paths.get(BannerErrorHandlerTest.class.getClassLoader()
+            .getResource("images/banner.png").getPath());
+    private static final Path TXT_PATH = Paths.get(BannerErrorHandlerTest.class.getClassLoader()
+            .getResource("images/sample.txt").getPath());
     private static final java.util.Date FROM_TIME = convertToDate(
             LocalDateTime.of(2018, 12, 1, 9, 15, 45));
     private static final java.util.Date TO_TIME = convertToDate(
