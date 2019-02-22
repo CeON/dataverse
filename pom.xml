@@ -860,7 +860,6 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${junit.test.plugin.verion}</version>
-                        <scope>test</scope>
                     </dependency>
                 </dependencies>
             </plugin>
