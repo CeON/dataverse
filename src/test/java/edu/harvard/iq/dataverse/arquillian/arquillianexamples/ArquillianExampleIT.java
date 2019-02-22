@@ -1,6 +1,6 @@
-package edu.harvard.iq.dataverse.arquillianexamples;
+package edu.harvard.iq.dataverse.arquillian.arquillianexamples;
 
-import edu.harvard.iq.dataverse.arquillianglassfishconfig.DataverseArquillian;
+import edu.harvard.iq.dataverse.arquillian.DataverseArquillian;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @RunWith(DataverseArquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
-public class ArquillianExampleTest extends ArquillianDeployment {
+public class ArquillianExampleIT extends ArquillianDeployment {
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;

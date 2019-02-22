@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.arquillianglassfishconfig;
+package edu.harvard.iq.dataverse.arquillian;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.runner.notification.RunNotifier;
@@ -20,8 +20,8 @@ public class DataverseArquillian extends Arquillian {
      */
     @Override
     public void run(RunNotifier notifier) {
-        ArquillianGlassfishConfigurationParser arquillianGlassfishConfigurator =
-                new ArquillianGlassfishConfigurationParser();
+        ParametrizedGlassfishConfCreator arquillianGlassfishConfigurator =
+                new ParametrizedGlassfishConfCreator();
 
         arquillianGlassfishConfigurator.createTempGlassfishResources();
         super.run(notifier);

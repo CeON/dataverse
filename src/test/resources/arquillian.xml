@@ -9,7 +9,7 @@
     <container qualifier="glassfish-embedded" default="true">
         <configuration>
             <property name="resourcesXml">
-                /tmp/glassfish-resources.xml
+                ${java.io.tmpdir}/dataverse/glassfish-resources.xml
             </property>
         </configuration>
     </container>

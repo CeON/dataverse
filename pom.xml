@@ -39,6 +39,7 @@
         <junit.jupiter.version>5.3.1</junit.jupiter.version>
         <junit.vintage.version>5.3.1</junit.vintage.version>
         <junit.platform.version>1.3.1</junit.platform.version>
+        <junit.test.plugin.verion>3.0.0-M1</junit.test.plugin.verion>
         <mockito.version>2.22.0</mockito.version>
         <!--
         Jacoco 0.8.2 seems to break Netbeans code coverage integration so we'll use 0.8.1 instead.
@@ -114,6 +115,11 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>org.dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>2.1.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -123,6 +129,10 @@
     -->
     <!-- TODO: Housekeeping is utterly needed. -->
     <dependencies>
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -160,6 +170,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -279,12 +290,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eu.ingwar.tools</groupId>
-            <artifactId>arquillian-suite-extension</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.scribe</groupId>
             <artifactId>scribe</artifactId>
             <version>1.3.7</version>
@@ -294,7 +299,7 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.5</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.arquillian.extension</groupId>
@@ -306,6 +311,7 @@
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
             <version>1.4.1.Final</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.main.extras</groupId>
@@ -556,7 +562,6 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
-        <!-- OAuth2 authentication. -->
         <!-- EXPERIMENTAL: -->
         <!-- lyncode xoai OAI-PMH implementation: -->
         <!-- unfortunately, their 4.10 version -->
@@ -564,21 +569,9 @@
         <!-- a patched version I built locally. -->
         <!-- (pull requests pending - L.A. -->
         <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>2.1.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.lyncode</groupId>
             <artifactId>xoai-common</artifactId>
             <version>4.1.0-header-patch</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>dom4j</groupId>
-                    <artifactId>dom4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.lyncode</groupId>
@@ -802,14 +795,6 @@
                 <version>1.1</version>
                 <executions>
                     <execution>
-                        <id>add property</id>
-                        <configuration>
-                            <files>
-
-                            </files>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>remove-javamail-providers-from-exploded</id>
                         <goals>
                             <goal>remove</goal>
@@ -848,36 +833,36 @@
             <plugin>
                 <!-- https://stackoverflow.com/questions/46177921/how-to-run-unit-tests-in-excludedgroups-in-maven -->
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M1</version>
+                <version>${junit.test.plugin.verion}</version>
+                <configuration>
+                    <!-- testsToExclude come from the profile-->
+                    <excludedGroups>${testsToExclude}</excludedGroups>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${junit.test.plugin.verion}</version>
                 <executions>
                     <execution>
-                        <id>default-test</id>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unit-test</id>
-                        <phase>test</phase>
+                        <id>run-tests</id>
+                        <phase>integration-test</phase>
                         <goals>
-                            <goal>test</goal>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                         <configuration>
-                            <excludedGroups>${testsToExclude}</excludedGroups>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>integration-test</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <reuseForks>false</reuseForks>
                             <groups>edu.harvard.iq.dataverse.ArquillianIntegrationTests</groups>
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${junit.test.plugin.verion}</version>
+                        <scope>test</scope>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -892,23 +877,6 @@
         </plugins>
     </build>
     <profiles>
-        <profile>
-            <id>test-glassfish-embeded</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.glassfish.main.extras</groupId>
-                    <artifactId>glassfish-embedded-all</artifactId>
-                    <version>4.1</version>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.jboss.arquillian.container</groupId>
-                    <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
-                    <version>1.0.2</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
         <profile>
             <id>dev</id>
             <activation>
