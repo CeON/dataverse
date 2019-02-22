@@ -629,7 +629,6 @@
                     <include>**/*.sql</include>
                     <include>**/*.xml</include>
                     <include>**/*.conf</include>
-                    <include>**/*.xsd</include>
                 </includes>
             </resource>
         </resources>
