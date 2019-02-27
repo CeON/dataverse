@@ -6,10 +6,22 @@ import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetFieldType;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.FieldType;
 import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.WidgetWrapper;
+import edu.harvard.iq.dataverse.search.dto.CheckboxSearchField;
+import edu.harvard.iq.dataverse.search.dto.IntegerSearchField;
+import edu.harvard.iq.dataverse.search.dto.SearchMetadataBlock;
+import edu.harvard.iq.dataverse.search.dto.SearchMetadataField;
+import edu.harvard.iq.dataverse.search.dto.TextSearchField;
+import io.vavr.Tuple;
+import org.apache.commons.lang.StringUtils;
+
+import javax.ejb.EJB;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,11 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import org.apache.commons.lang.StringUtils;
 
 @ViewScoped
 @Named("AdvancedSearchPage")
@@ -35,8 +42,12 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
     @EJB
     DatasetFieldServiceBean datasetFieldService;
-    
-    @Inject WidgetWrapper widgetWrapper;
+
+    @Inject
+    WidgetWrapper widgetWrapper;
+
+    @Inject
+    SolrQueryCreator solrQueryCreator;
 
     private Dataverse dataverse;
     private String dataverseIdentifier;
@@ -57,6 +68,10 @@ public class AdvancedSearchPage implements java.io.Serializable {
     private String fileFieldVariableName;
     private String fileFieldVariableLabel;
 
+    private List<SearchMetadataBlock> searchMetadataBlocks = new ArrayList<>();
+
+    // -------------------- LOGIC --------------------
+
     public void init() {
 
         if (dataverseIdentifier != null) {
@@ -70,18 +85,47 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
         for (MetadataBlock mdb : metadataBlocks) {
 
-            List<DatasetFieldType> dsfTypes = new ArrayList<>();
-            for (DatasetFieldType dsfType : metadataFieldList) {
-                if (dsfType.getMetadataBlock().getId().equals(mdb.getId())) {
-                    dsfTypes.add(dsfType);
-                }
-            }
-            metadataFieldMap.put(mdb.getId(), dsfTypes);
+            List<SearchMetadataField> searchMetadataFields = new ArrayList<>();
+
+            metadataFieldList.stream()
+                    .filter(datasetFieldType -> datasetFieldType.getMetadataBlock().getId().equals(mdb.getId()))
+                    .forEach(datasetFieldType -> {
+
+                        if (!datasetFieldType.getControlledVocabularyValues().isEmpty()) {
+
+                            CheckboxSearchField checkboxSearchField = new CheckboxSearchField(datasetFieldType.getName(),
+                                    datasetFieldType.getDisplayName(),
+                                    StringUtils.EMPTY,
+                                    FieldType.CHECKBOX);
+
+                            for (ControlledVocabularyValue vocabValue : datasetFieldType.getControlledVocabularyValues()) {
+                                checkboxSearchField.getCheckboxLabelAndValue().add(Tuple.of(vocabValue.getLocaleStrValue(),
+                                        vocabValue.getStrValue()));
+
+                            }
+                            searchMetadataFields.add(checkboxSearchField);
+                        } else if (datasetFieldType.getFieldType().equals(FieldType.TEXT) ||
+                                datasetFieldType.getFieldType().equals(FieldType.TEXTBOX) ||
+                                datasetFieldType.getFieldType().equals(FieldType.DATE)) {
+                            searchMetadataFields.add(new TextSearchField(datasetFieldType.getName(),
+                                    datasetFieldType.getDisplayName(),
+                                    datasetFieldType.getLocaleDescription(),
+                                    datasetFieldType.getFieldType()));
+
+                        } else if (datasetFieldType.getFieldType().equals(FieldType.INT)) {
+                            searchMetadataFields.add(new IntegerSearchField(datasetFieldType.getName(),
+                                    datasetFieldType.getDisplayName(),
+                                    datasetFieldType.getLocaleDescription(),
+                                    datasetFieldType.getFieldType()));
+                        }
+                    });
+
+            searchMetadataBlocks.add(new SearchMetadataBlock(mdb.getName(), mdb.getLocaleDisplayName(), searchMetadataFields));
         }
 
     }
 
-    public String find() throws IOException, UnsupportedEncodingException {
+    public String find() throws IOException {
         List<String> queryStrings = new ArrayList<>();
         queryStrings.add(constructDataverseQuery());
         queryStrings.add(constructDatasetQuery());
@@ -91,10 +135,12 @@ public class AdvancedSearchPage implements java.io.Serializable {
         returnString += URLEncoder.encode(constructQuery(queryStrings, false, false), "UTF-8");
         returnString += "&alias=" + dataverse.getAlias() + "&faces-redirect=true";
         returnString = widgetWrapper.wrapURL(returnString);
-        
+
         logger.fine(returnString);
         return returnString;
     }
+
+    // -------------------- PRIVATE --------------------
 
     private String constructDatasetQuery() {
         List<String> queryStrings = new ArrayList<>();
@@ -156,7 +202,7 @@ public class AdvancedSearchPage implements java.io.Serializable {
         if (StringUtils.isNotBlank(fileFieldDescription)) {
             queryStrings.add(constructQuery(SearchFields.FILE_DESCRIPTION, fileFieldDescription));
         }
-        
+
         if (StringUtils.isNotBlank(filePersistentId)) {
             queryStrings.add(constructQuery(SearchFields.FILE_PERSISTENT_ID, filePersistentId));
         }
@@ -350,8 +396,8 @@ public class AdvancedSearchPage implements java.io.Serializable {
     public void setFileFieldDescription(String fileFieldDescription) {
         this.fileFieldDescription = fileFieldDescription;
     }
-    
-    
+
+
     public String getFilePersistentId() {
         return filePersistentId;
     }
@@ -384,4 +430,7 @@ public class AdvancedSearchPage implements java.io.Serializable {
         this.fileFieldVariableLabel = fileFieldVariableLabel;
     }
 
+    public List<SearchMetadataBlock> getSearchMetadataBlocks() {
+        return searchMetadataBlocks;
+    }
 }
