@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 @Startup
 @Singleton
-class StartupFlywayMigrator {
+public class StartupFlywayMigrator {
 
     @Resource(lookup = "jdbc/VDCNetDS")
     private DataSource dataSource;
@@ -20,6 +20,7 @@ class StartupFlywayMigrator {
 
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
+                .validateOnMigrate(false)
                 .baselineOnMigrate(true)
                 .load();
 
