@@ -16,6 +16,8 @@ public class NumberSearchField extends SearchField {
         super(name, displayName, description, fieldType);
     }
 
+    // -------------------- GETTERS --------------------
+
     public BigDecimal getMinimum() {
         return minimum;
     }
@@ -23,6 +25,8 @@ public class NumberSearchField extends SearchField {
     public BigDecimal getMaximum() {
         return maximum;
     }
+
+    // -------------------- SETTERS --------------------
 
     public void setMinimum(BigDecimal minimum) {
         this.minimum = minimum;
