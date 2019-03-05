@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Class that holds fields for checkbox display and values that were checked.
  */
-public class CheckboxSearchField extends SearchMetadataField {
+public class CheckboxSearchField extends SearchField {
 
     private List<String> checkedFieldValues;
     private List<Tuple2<String, String>> checkboxLabelAndValue;
@@ -17,10 +17,16 @@ public class CheckboxSearchField extends SearchMetadataField {
     public CheckboxSearchField(String name, String displayName, String description, FieldType fieldType) {
         super(name, displayName, description, fieldType);
         checkboxLabelAndValue = new ArrayList<>();
+        checkedFieldValues = new ArrayList<>();
     }
 
     // -------------------- GETTERS --------------------
 
+    /**
+     * List of fields values that were checked.
+     *
+     * @return list of checked values
+     */
     public List<String> getCheckedFieldValues() {
         return checkedFieldValues;
     }

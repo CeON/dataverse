@@ -2,7 +2,10 @@ package edu.harvard.iq.dataverse.search.dto;
 
 import edu.harvard.iq.dataverse.FieldType;
 
-public class TextSearchField extends SearchMetadataField {
+/**
+ * Class responsible for holding field value represented as String.
+ */
+public class TextSearchField extends SearchField {
 
     private String fieldValue;
 
