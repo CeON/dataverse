@@ -83,34 +83,67 @@ public class SolrQueryCreator {
     private String constructQueryForNumberFields(List<NumberSearchField> numberSearchFields) {
         StringBuilder intQueryBuilder = new StringBuilder();
 
-        numberSearchFields.stream()
-                .filter(this::isOneNumberPresent)
-                .forEach(intField ->
-                        intQueryBuilder
-                                .append(" AND ")
-                                .append(intField.getName())
-                                .append(":")
-                                .append(intField.getMinimum() == null ? intField.getMaximum() : intField.getMinimum()));
+        appendFieldWithMinimumNumberPresent(numberSearchFields, intQueryBuilder);
 
+        appendFieldWithMaximumNumberPresent(numberSearchFields, intQueryBuilder);
 
-        numberSearchFields.stream()
-                .filter(intField -> intField.getMaximum() != null && intField.getMinimum() != null)
-                .forEach(intField ->
-                        intQueryBuilder
-                                .append(" AND ")
-                                .append(intField.getName())
-                                .append(":[")
-                                .append(intField.getMinimum())
-                                .append(" TO ")
-                                .append(intField.getMaximum())
-                                .append("]"));
+        appendFieldWithBothNumbersPresent(numberSearchFields, intQueryBuilder);
 
         return intQueryBuilder.toString();
     }
 
-    private boolean isOneNumberPresent(NumberSearchField intField) {
-        return (intField.getMinimum() == null && intField.getMaximum() != null) ||
-                (intField.getMinimum() != null && intField.getMaximum() == null);
+    private void appendFieldWithBothNumbersPresent(List<NumberSearchField> numberSearchFields, StringBuilder intQueryBuilder) {
+        numberSearchFields.stream()
+                .filter(this::isBothNumberPresent)
+                .forEach(numberField ->
+                        intQueryBuilder
+                                .append(" AND ")
+                                .append(numberField.getName())
+                                .append(":[")
+                                .append(numberField.getMinimum())
+                                .append(" TO ")
+                                .append(numberField.getMaximum())
+                                .append("]"));
+    }
+
+    private void appendFieldWithMaximumNumberPresent(List<NumberSearchField> numberSearchFields, StringBuilder intQueryBuilder) {
+        numberSearchFields.stream()
+                .filter(this::isMaximumNumberPresent)
+                .forEach(numberField ->
+                        intQueryBuilder
+                                .append(" AND ")
+                                .append(numberField.getName())
+                                .append(":[")
+                                .append("*")
+                                .append(" TO ")
+                                .append(numberField.getMaximum())
+                                .append("]"));
+    }
+
+    private void appendFieldWithMinimumNumberPresent(List<NumberSearchField> numberSearchFields, StringBuilder intQueryBuilder) {
+        numberSearchFields.stream()
+                .filter(this::isMinimumNumberPresent)
+                .forEach(numberField ->
+                        intQueryBuilder
+                                .append(" AND ")
+                                .append(numberField.getName())
+                                .append(":[")
+                                .append(numberField.getMinimum())
+                                .append(" TO ")
+                                .append("*")
+                                .append("]"));
+    }
+
+    private boolean isBothNumberPresent(NumberSearchField numberField) {
+        return numberField.getMinimum() != null && numberField.getMaximum() != null;
+    }
+
+    private boolean isMaximumNumberPresent(NumberSearchField numberField) {
+        return numberField.getMaximum() != null && numberField.getMinimum() == null;
+    }
+
+    private boolean isMinimumNumberPresent(NumberSearchField numberField) {
+        return numberField.getMinimum() != null && numberField.getMaximum() == null;
     }
 
     private List<TextSearchField> extractTextOrDateSearchFields(List<SearchField> searchFields) {
