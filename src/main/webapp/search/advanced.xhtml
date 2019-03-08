@@ -86,6 +86,7 @@
 
                                 <ui:repeat value="#{mdb.searchFields}"
                                            var="item">
+
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">
                                                 <span data-toggle="tooltip" data-placement="auto right"
@@ -95,24 +96,24 @@
                                                 </span>
                                         </label>
 
-
                                         <div class="col-sm-6">
                                             <p:inputText id="stringSearchValue" styleClass="form-control"
                                                          value="#{item.fieldValue}"
                                                          rendered="#{item.fieldType == fieldTypeEnums.TEXT or
                                                           item.fieldType == fieldTypeEnums.TEXTBOX or
                                                           item.fieldType == fieldTypeEnums.DATE}"/>
-                                            <div class="col-sm-6">
-                                                <p:inputText id="rangeSearchValue1" styleClass="form-control "
-                                                             placeholder="#{bundle['advanced.search.metadata.rangeMinimum']}"
-                                                             value="#{item.minimum}"
-                                                             rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <p:inputText id="rangeSearchValue2" styleClass="form-control "
-                                                             placeholder="#{bundle['advanced.search.metadata.rangeMaximum']}"
-                                                             value="#{item.maximum}"
-                                                             rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
+                                            <div>
+                                                <p:inputNumber id="rangeSearchMinimum" style="padding-right: 5px"
+                                                               placeholder="#{bundle['advanced.search.metadata.from']}"
+                                                               value="#{item.minimum}"
+                                                               rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
+                                                <p:outputLabel for="rangeSearchMaximum"
+                                                               value="&#8212;"
+                                                               rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
+                                                <p:inputNumber id="rangeSearchMaximum" style="padding-left: 5px"
+                                                               placeholder="#{bundle['advanced.search.metadata.to']}"
+                                                               value="#{item.maximum}"
+                                                               rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
                                             </div>
                                             <div class="ui-inputfield form-control select-scroll-block"
                                                  jsf:rendered="#{item.fieldType == fieldTypeEnums.CHECKBOX}">
