@@ -1,22 +1,22 @@
 package edu.harvard.iq.dataverse.search.dto;
 
-import edu.harvard.iq.dataverse.FieldType;
+import edu.harvard.iq.dataverse.search.SearchFieldType;
 
 /**
  * Class that holds vital information regarding field.
  */
-public class SearchField {
+public abstract class SearchField {
 
     private String name;
     private String displayName;
     private String description;
-    private FieldType fieldType;
+    private SearchFieldType searchFieldType;
 
-    public SearchField(String name, String displayName, String description, FieldType fieldType) {
+    public SearchField(String name, String displayName, String description, SearchFieldType searchFieldType) {
         this.name = name;
         this.displayName = displayName;
         this.description = description;
-        this.fieldType = fieldType;
+        this.searchFieldType = searchFieldType;
     }
 
     /**
@@ -40,7 +40,7 @@ public class SearchField {
         return description;
     }
 
-    public FieldType getFieldType() {
-        return fieldType;
+    public SearchFieldType getSearchFieldType() {
+        return searchFieldType;
     }
 }

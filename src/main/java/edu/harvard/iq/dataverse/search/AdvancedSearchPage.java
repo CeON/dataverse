@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Page class responsible for showing search fields for Metadata blocks, files/dataverses blocks
  * and redirecting to search results.
@@ -53,7 +55,6 @@ public class AdvancedSearchPage implements java.io.Serializable {
     private Dataverse dataverse;
     private String dataverseIdentifier;
 
-    private List<MetadataBlock> metadataBlocks;
     private SearchBlock dataversesSearchBlock;
     private SearchBlock filesSearchBlock;
     private List<SearchBlock> metadataSearchBlocks = new ArrayList<>();
@@ -71,10 +72,10 @@ public class AdvancedSearchPage implements java.io.Serializable {
         if (dataverse == null) {
             dataverse = dataverseServiceBean.findRootDataverse();
         }
-        metadataBlocks = dataverse.getMetadataBlocks();
+        List<MetadataBlock> metadataBlocks = dataverse.getMetadataBlocks();
         List<DatasetFieldType> metadataFieldList = datasetFieldService.findAllAdvancedSearchFieldTypes();
 
-        mapAllMetadataBlocks(metadataFieldList);
+        mapAllMetadataBlocks(metadataFieldList, metadataBlocks);
 
         mapDataversesAndFilesBlocks();
     }
@@ -112,10 +113,14 @@ public class AdvancedSearchPage implements java.io.Serializable {
                 constructFilesSearchFields());
     }
 
-    private void mapAllMetadataBlocks(List<DatasetFieldType> metadataFieldList) {
+    private void mapAllMetadataBlocks(List<DatasetFieldType> metadataFieldList, List<MetadataBlock> metadataBlocks) {
         for (MetadataBlock mdb : metadataBlocks) {
 
-            List<SearchField> searchFields = mapMetadataBlockFieldsToSearchFields(metadataFieldList, mdb);
+            List<DatasetFieldType> filteredDatasetFields = metadataFieldList.stream()
+                    .filter(datasetFieldType -> datasetFieldType.getMetadataBlock().getId().equals(mdb.getId()))
+                    .collect(toList());
+
+            List<SearchField> searchFields = mapMetadataBlockFieldsToSearchFields(filteredDatasetFields, mdb);
 
             metadataSearchBlocks.add(new SearchBlock(mdb.getName(), mdb.getLocaleDisplayName(), searchFields));
         }
@@ -123,61 +128,54 @@ public class AdvancedSearchPage implements java.io.Serializable {
     }
 
     private List<SearchField> mapMetadataBlockFieldsToSearchFields(List<DatasetFieldType> metadataFieldList, MetadataBlock mdb) {
-        List<SearchField> searchFields = new ArrayList<>();
-
-        metadataFieldList.stream()
-                .filter(datasetFieldType -> datasetFieldType.getMetadataBlock().getId().equals(mdb.getId()))
-                .forEach(datasetFieldType -> searchFields.addAll(mapDatasetFields(datasetFieldType)));
-        return searchFields;
+        return metadataFieldList.stream()
+                .map(this::mapDatasetFields)
+                .filter(searchField -> !searchField.getName().isEmpty())
+                .collect(toList());
     }
 
     private void addExtraFieldsToCitationMetadataBlock() {
         metadataSearchBlocks.stream()
                 .filter(searchBlock -> searchBlock.getBlockName().equals(SearchFields.DATASET_CITATION))
-                .map(SearchBlock::getSearchFields)
-                .forEach(searchFields -> {
+                .forEach(searchBlock -> {
 
-                    searchFields.add(new TextSearchField(SearchFields.DATASET_PERSISTENT_ID,
+                    searchBlock.addSearchField(new TextSearchField(SearchFields.DATASET_PERSISTENT_ID,
                             BundleUtil.getStringFromBundle("dataset.metadata.persistentId"),
-                            BundleUtil.getStringFromBundle("dataset.metadata.persistentId.tip"),
-                            FieldType.TEXT));
+                            BundleUtil.getStringFromBundle("dataset.metadata.persistentId.tip")));
 
-                    searchFields.add(new TextSearchField(SearchFields.DATASET_PUBLICATION_DATE,
+                    searchBlock.addSearchField(new TextSearchField(SearchFields.DATASET_PUBLICATION_DATE,
                             BundleUtil.getStringFromBundle("dataset.metadata.publicationYear"),
-                            BundleUtil.getStringFromBundle("dataset.metadata.publicationYear.tip"),
-                            FieldType.TEXT));
+                            BundleUtil.getStringFromBundle("dataset.metadata.publicationYear.tip")));
 
                 });
     }
 
-    private List<SearchField> mapDatasetFields(DatasetFieldType datasetFieldType) {
-        List<SearchField> searchFields = new ArrayList<>();
+    private SearchField mapDatasetFields(DatasetFieldType datasetFieldType) {
 
         if (containsCheckboxValues(datasetFieldType)) {
 
-            searchFields.add(mapCheckBoxValues(datasetFieldType));
+            return mapCheckBoxValues(datasetFieldType);
 
         } else if (isTextOrDateField(datasetFieldType)) {
-            searchFields.add(new TextSearchField(datasetFieldType.getName(),
+            return new TextSearchField(datasetFieldType.getName(),
                     datasetFieldType.getDisplayName(),
-                    datasetFieldType.getLocaleDescription(),
-                    datasetFieldType.getFieldType()));
+                    datasetFieldType.getLocaleDescription());
 
         } else if (isNumberField(datasetFieldType)) {
-            searchFields.add(new NumberSearchField(datasetFieldType.getName(),
+            return new NumberSearchField(datasetFieldType.getName(),
                     datasetFieldType.getDisplayName(),
-                    datasetFieldType.getLocaleDescription(),
-                    datasetFieldType.getFieldType()));
+                    datasetFieldType.getLocaleDescription());
         }
 
-        return searchFields;
+        return new TextSearchField(StringUtils.EMPTY,
+                StringUtils.EMPTY,
+                StringUtils.EMPTY);
     }
 
     private CheckboxSearchField mapCheckBoxValues(DatasetFieldType datasetFieldType) {
         CheckboxSearchField checkboxSearchField = new CheckboxSearchField(datasetFieldType.getName(),
                 datasetFieldType.getDisplayName(),
-                StringUtils.EMPTY,
-                FieldType.CHECKBOX);
+                StringUtils.EMPTY);
 
         for (ControlledVocabularyValue vocabValue : datasetFieldType.getControlledVocabularyValues()) {
             checkboxSearchField.getCheckboxLabelAndValue().add(Tuple.of(vocabValue.getLocaleStrValue(),
@@ -207,33 +205,27 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
         filesSearchFields.add(new TextSearchField(SearchFields.FILE_NAME,
                 BundleUtil.getStringFromBundle("name"),
-                BundleUtil.getStringFromBundle("advanced.search.files.name.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.files.name.tip")));
 
         filesSearchFields.add(new TextSearchField(SearchFields.FILE_DESCRIPTION,
                 BundleUtil.getStringFromBundle("description"),
-                BundleUtil.getStringFromBundle("advanced.search.files.description.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.files.description.tip")));
 
         filesSearchFields.add(new TextSearchField(SearchFields.FILE_TYPE_SEARCHABLE,
                 BundleUtil.getStringFromBundle("advanced.search.files.fileType"),
-                BundleUtil.getStringFromBundle("advanced.search.files.fileType.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.files.fileType.tip")));
 
         filesSearchFields.add(new TextSearchField(SearchFields.FILE_PERSISTENT_ID,
                 BundleUtil.getStringFromBundle("advanced.search.files.persistentId"),
-                BundleUtil.getStringFromBundle("advanced.search.files.persistentId.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.files.persistentId.tip")));
 
         filesSearchFields.add(new TextSearchField(SearchFields.VARIABLE_NAME,
                 BundleUtil.getStringFromBundle("advanced.search.files.variableName"),
-                BundleUtil.getStringFromBundle("advanced.search.files.variableName.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.files.variableName.tip")));
 
         filesSearchFields.add(new TextSearchField(SearchFields.VARIABLE_LABEL,
                 BundleUtil.getStringFromBundle("advanced.search.files.variableLabel"),
-                BundleUtil.getStringFromBundle("advanced.search.files.variableLabel.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.files.variableLabel.tip")));
 
         return filesSearchFields;
     }
@@ -243,28 +235,23 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
         dataversesSearchFields.add(new TextSearchField(SearchFields.DATAVERSE_NAME,
                 BundleUtil.getStringFromBundle("name"),
-                BundleUtil.getStringFromBundle("advanced.search.dataverses.name.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.dataverses.name.tip")));
 
         dataversesSearchFields.add(new TextSearchField(SearchFields.DATAVERSE_ALIAS,
                 BundleUtil.getStringFromBundle("identifier"),
-                BundleUtil.getStringFromBundle("dataverse.identifier.title"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("dataverse.identifier.title")));
 
         dataversesSearchFields.add(new TextSearchField(SearchFields.DATAVERSE_AFFILIATION,
                 BundleUtil.getStringFromBundle("affiliation"),
-                BundleUtil.getStringFromBundle("advanced.search.dataverses.affiliation.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.dataverses.affiliation.tip")));
 
         dataversesSearchFields.add(new TextSearchField(SearchFields.DATAVERSE_DESCRIPTION,
                 BundleUtil.getStringFromBundle("description"),
-                BundleUtil.getStringFromBundle("advanced.search.dataverses.description.tip"),
-                FieldType.TEXT));
+                BundleUtil.getStringFromBundle("advanced.search.dataverses.description.tip")));
 
         CheckboxSearchField checkboxSearchField = new CheckboxSearchField(SearchFields.DATAVERSE_SUBJECT,
                 BundleUtil.getStringFromBundle("subject"),
-                BundleUtil.getStringFromBundle("advanced.search.dataverses.subject.tip"),
-                FieldType.CHECKBOX);
+                BundleUtil.getStringFromBundle("advanced.search.dataverses.subject.tip"));
 
         DatasetFieldType subjectType = datasetFieldService.findByName(DatasetFieldConstant.subject);
 
@@ -287,10 +274,6 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
     public String getDataverseIdentifier() {
         return dataverseIdentifier;
-    }
-
-    public List<MetadataBlock> getMetadataBlocks() {
-        return metadataBlocks;
     }
 
     public List<SearchBlock> getMetadataSearchBlocks() {

@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.search.dto;
 
-import edu.harvard.iq.dataverse.FieldType;
+import edu.harvard.iq.dataverse.search.SearchFieldType;
 
 /**
  * Class responsible for holding field value represented as String.
@@ -9,8 +9,8 @@ public class TextSearchField extends SearchField {
 
     private String fieldValue;
 
-    public TextSearchField(String name, String displayName, String description, FieldType fieldType) {
-        super(name, displayName, description, fieldType);
+    public TextSearchField(String name, String displayName, String description) {
+        super(name, displayName, description, SearchFieldType.TEXT);
     }
 
     public String getFieldValue() {

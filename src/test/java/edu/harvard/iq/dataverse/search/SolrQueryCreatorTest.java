@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.search;
 
-import edu.harvard.iq.dataverse.FieldType;
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.search.dto.CheckboxSearchField;
 import edu.harvard.iq.dataverse.search.dto.NumberSearchField;
 import edu.harvard.iq.dataverse.search.dto.SearchBlock;
@@ -10,70 +10,107 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
-
-import static io.vavr.collection.List.of;
 
 class SolrQueryCreatorTest {
 
     private SolrQueryCreator solrQueryCreator = new SolrQueryCreator();
 
     @Test
-    public void constructTextQuery() {
+    public void constructQuery_TextQuery() {
         //given
         SearchBlock searchBlock = new SearchBlock("TEST", "TEST", createTextSearchFields());
         //when
-        String result = solrQueryCreator.constructQuery(of(searchBlock).asJava());
+        String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
         //then
         Assert.assertEquals("text1:testValue1 AND text2:testValue2", result);
     }
 
     @Test
-    public void constructNumberQuery() {
+    public void constructQuery_BothNumbersQuery() {
         //given
-        SearchBlock searchBlock = new SearchBlock("TEST", "TEST", createNumberSearchFields());
+        SearchBlock searchBlock = new SearchBlock("TEST", "TEST", createBothNumbersSearchFields());
         //when
-        String result = solrQueryCreator.constructQuery(of(searchBlock).asJava());
+        String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
         //then
         Assert.assertEquals("number1:[1 TO 2] AND number2:[3.1 TO 4.1]", result);
     }
 
     @Test
-    public void constructCheckboxQuery() {
+    public void constructQuery_OneNumberQuery() {
+        //given
+        SearchBlock searchBlock = new SearchBlock("TEST", "TEST", createOneNumberSearchFields());
+        //when
+        String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
+        //then
+        Assert.assertEquals("number1:[1 TO *] AND number2:[* TO 4.1]", result);
+    }
+
+    @Test
+    public void constructQuery_CheckboxQuery() {
         //given
         SearchBlock searchBlock = new SearchBlock("TEST", "TEST", createCheckboxSearchFields());
         //when
-        String result = solrQueryCreator.constructQuery(of(searchBlock).asJava());
+        String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
         //then
-        Assert.assertEquals("checkboxValues:checkboxValue1 AND checkboxValues:checkboxValue2", result);
+        Assert.assertEquals("checkboxValues:\"checkboxValue1\" AND checkboxValues:\"checkboxValue2\"", result);
     }
 
-    private List<SearchField> createNumberSearchFields() {
-        SearchField testValue1 = new NumberSearchField("number1", "number1", "desc", FieldType.INT);
-        ((NumberSearchField) testValue1).setMinimum(new BigDecimal(1));
-        ((NumberSearchField) testValue1).setMaximum(new BigDecimal(2));
+    @Test
+    public void constructQuery_CombinedQuery() {
+        //given
+        List<SearchField> searchFields = new ArrayList<>();
+        searchFields.addAll(createBothNumbersSearchFields());
+        searchFields.addAll(createOneNumberSearchFields());
+        searchFields.addAll(createCheckboxSearchFields());
+        searchFields.addAll(createTextSearchFields());
 
-        SearchField testValue2 = new NumberSearchField("number2", "number2", "desc", FieldType.FLOAT);
-        ((NumberSearchField) testValue2).setMinimum(new BigDecimal("3.1"));
-        ((NumberSearchField) testValue2).setMaximum(new BigDecimal("4.1"));
+        SearchBlock searchBlock = new SearchBlock("TEST", "TEST", searchFields);
+        //when
+        String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
+        //then
+        Assert.assertEquals("number1:[1 TO 2] AND number2:[3.1 TO 4.1] AND number1:[1 TO *] AND" +
+                " number2:[* TO 4.1] AND checkboxValues:\"checkboxValue1\" AND checkboxValues:\"checkboxValue2\" AND" +
+                " text1:testValue1 AND text2:testValue2", result);
+    }
 
-        return of(testValue1, testValue2).asJava();
+    private List<SearchField> createBothNumbersSearchFields() {
+        NumberSearchField testValue1 = new NumberSearchField("number1", "number1", "desc");
+        testValue1.setMinimum(new BigDecimal(1));
+        testValue1.setMaximum(new BigDecimal(2));
+
+        NumberSearchField testValue2 = new NumberSearchField("number2", "number2", "desc");
+        testValue2.setMinimum(new BigDecimal("3.1"));
+        testValue2.setMaximum(new BigDecimal("4.1"));
+
+        return Lists.newArrayList(testValue1, testValue2);
+    }
+
+    private List<SearchField> createOneNumberSearchFields() {
+        NumberSearchField testValue1 = new NumberSearchField("number1", "number1", "desc");
+        testValue1.setMinimum(new BigDecimal(1));
+
+        NumberSearchField testValue2 = new NumberSearchField("number2", "number2", "desc");
+        testValue2.setMaximum(new BigDecimal("4.1"));
+
+        return Lists.newArrayList(testValue1, testValue2);
     }
 
     private List<SearchField> createCheckboxSearchFields() {
-        SearchField testValue1 = new CheckboxSearchField("checkboxValues", "checkboxValues", "desc", FieldType.CHECKBOX);
-        ((CheckboxSearchField) testValue1).getCheckedFieldValues().addAll(of("checkboxValue1", "checkboxValue2").asJava());
+        CheckboxSearchField testValue1 = new CheckboxSearchField("checkboxValues", "checkboxValues", "desc");
+        testValue1.getCheckedFieldValues().addAll(Lists.newArrayList("checkboxValue1", "checkboxValue2"));
 
-        return of(testValue1).asJava();
+        return Lists.newArrayList(testValue1);
     }
 
     private List<SearchField> createTextSearchFields() {
-        SearchField testValue1 = new TextSearchField("text1", "text1", "desc", FieldType.TEXT);
-        ((TextSearchField) testValue1).setFieldValue("testValue1");
+        TextSearchField testValue1 = new TextSearchField("text1", "text1", "desc");
+        testValue1.setFieldValue("testValue1");
 
-        SearchField testValue2 = new TextSearchField("text2", "text2", "desc", FieldType.TEXT);
-        ((TextSearchField) testValue2).setFieldValue("testValue2");
+        TextSearchField testValue2 = new TextSearchField("text2", "text2", "desc");
+        testValue2.setFieldValue("testValue2");
 
-        return of(testValue1, testValue2).asJava();
+        return Lists.newArrayList(testValue1, testValue2);
     }
 }

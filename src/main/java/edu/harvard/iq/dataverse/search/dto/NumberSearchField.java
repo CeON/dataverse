@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.search.dto;
 
-import edu.harvard.iq.dataverse.FieldType;
+import edu.harvard.iq.dataverse.search.SearchFieldType;
 
 import java.math.BigDecimal;
 
@@ -12,8 +12,8 @@ public class NumberSearchField extends SearchField {
     private BigDecimal minimum;
     private BigDecimal maximum;
 
-    public NumberSearchField(String name, String displayName, String description, FieldType fieldType) {
-        super(name, displayName, description, fieldType);
+    public NumberSearchField(String name, String displayName, String description) {
+        super(name, displayName, description, SearchFieldType.NUMBER);
     }
 
     // -------------------- GETTERS --------------------
