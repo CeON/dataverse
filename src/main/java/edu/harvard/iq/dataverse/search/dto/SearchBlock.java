@@ -18,13 +18,6 @@ public class SearchBlock {
         this.searchFields = searchFields;
     }
 
-    // -------------------- LOGIC --------------------
-
-    public List<SearchField> addSearchField(SearchField searchField) {
-        searchFields.add(searchField);
-        return searchFields;
-    }
-
     // -------------------- GETTERS --------------------
 
     /**
@@ -51,6 +44,13 @@ public class SearchBlock {
      * @return search values
      */
     public List<SearchField> getSearchFields() {
+        return searchFields;
+    }
+
+    // -------------------- LOGIC --------------------
+
+    public List<SearchField> addSearchField(SearchField searchField) {
+        searchFields.add(searchField);
         return searchFields;
     }
 }
