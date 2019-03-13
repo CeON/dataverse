@@ -175,7 +175,7 @@ public class AdvancedSearchPage implements java.io.Serializable {
     private CheckboxSearchField mapCheckBoxValues(DatasetFieldType datasetFieldType) {
         CheckboxSearchField checkboxSearchField = new CheckboxSearchField(datasetFieldType.getName(),
                 datasetFieldType.getDisplayName(),
-                StringUtils.EMPTY);
+                datasetFieldType.getLocaleDescription());
 
         for (ControlledVocabularyValue vocabValue : datasetFieldType.getControlledVocabularyValues()) {
             checkboxSearchField.getCheckboxLabelAndValue().add(Tuple.of(vocabValue.getLocaleStrValue(),

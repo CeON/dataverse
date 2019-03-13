@@ -18,6 +18,8 @@ public class SearchBlock {
         this.searchFields = searchFields;
     }
 
+    // -------------------- LOGIC --------------------
+
     public List<SearchField> addSearchField(SearchField searchField) {
         searchFields.add(searchField);
         return searchFields;
