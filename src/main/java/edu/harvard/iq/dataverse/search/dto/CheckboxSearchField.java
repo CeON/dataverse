@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.search.dto;
 
-import edu.harvard.iq.dataverse.FieldType;
+import edu.harvard.iq.dataverse.search.SearchFieldType;
 import io.vavr.Tuple2;
 
 import java.util.ArrayList;
@@ -14,8 +14,8 @@ public class CheckboxSearchField extends SearchField {
     private List<String> checkedFieldValues;
     private List<Tuple2<String, String>> checkboxLabelAndValue;
 
-    public CheckboxSearchField(String name, String displayName, String description, FieldType fieldType) {
-        super(name, displayName, description, fieldType);
+    public CheckboxSearchField(String name, String displayName, String description) {
+        super(name, displayName, description, SearchFieldType.CHECKBOX);
         checkboxLabelAndValue = new ArrayList<>();
         checkedFieldValues = new ArrayList<>();
     }

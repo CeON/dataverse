@@ -46,4 +46,11 @@ public class SearchBlock {
     public List<SearchField> getSearchFields() {
         return searchFields;
     }
+
+    // -------------------- LOGIC --------------------
+
+    public List<SearchField> addSearchField(SearchField searchField) {
+        searchFields.add(searchField);
+        return searchFields;
+    }
 }

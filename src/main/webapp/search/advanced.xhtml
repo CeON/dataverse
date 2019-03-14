@@ -6,7 +6,6 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:o="http://omnifaces.org/ui"
 >
-<f:view locale="#{dataverseLocaleBean.localeCode}"/>
 <h:head>
 </h:head>
 
@@ -19,7 +18,7 @@
         <ui:param name="ownerId" value="#{DataversePage.ownerId}"/>
         <ui:define name="body">
             <f:metadata>
-                <o:importConstants type="edu.harvard.iq.dataverse.FieldType" var="fieldTypeEnums"/>
+                <o:importConstants type="edu.harvard.iq.dataverse.search.SearchFieldType" var="fieldTypeEnums"/>
                 <f:viewAction action="#{AdvancedSearchPage.init}"/>
                 <f:viewParam name="dataverseIdentifier" value="#{AdvancedSearchPage.dataverseIdentifier}"/>
                 <f:viewAction
@@ -53,11 +52,11 @@
                                     </label>
                                     <div class="col-sm-6">
                                         <p:inputText id="dvFieldName" styleClass="form-control"
-                                                     rendered="#{searchField.fieldType == fieldTypeEnums.TEXT}"
+                                                     rendered="#{searchField.searchFieldType == fieldTypeEnums.TEXT}"
                                                      value="#{searchField.fieldValue}"/>
 
                                         <div class="ui-inputfield form-control select-scroll-block"
-                                             jsf:rendered="#{searchField.fieldType == fieldTypeEnums.CHECKBOX}">
+                                             jsf:rendered="#{searchField.searchFieldType == fieldTypeEnums.CHECKBOX}">
                                             <p:selectManyCheckbox value="#{searchField.checkedFieldValues}"
                                                                   layout="pageDirection">
                                                 <f:selectItems value="#{searchField.checkboxLabelAndValue}"
@@ -76,13 +75,13 @@
                         <div class="panel panel-default"
                              jsf:rendered="#{not empty mdb}">
                             <div data-toggle="collapse"
-                                 data-target="#panelCollapseCitationFieldList#{AdvancedSearchPage.metadataSearchBlocks.indexOf(mdb)}"
+                                 data-target="#panelCollapseCitationFieldList#{status.index}"
                                  class="panel-heading">
                                 <h:outputText
                                         value="#{bundle['advanced.search.header.datasets']}: #{mdb.blockDisplayName}"/> &#160;<span
                                     class="glyphicon #{status.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}"/>
                             </div>
-                            <div id="panelCollapseCitationFieldList#{AdvancedSearchPage.metadataSearchBlocks.indexOf(mdb)}"
+                            <div id="panelCollapseCitationFieldList#{status.index}"
                                  class="collapse #{status.first?'in':''} panel-body form-horizontal">
 
                                 <ui:repeat value="#{mdb.searchFields}"
@@ -100,24 +99,22 @@
                                         <div class="col-sm-6">
                                             <p:inputText id="stringSearchValue" styleClass="form-control"
                                                          value="#{item.fieldValue}"
-                                                         rendered="#{item.fieldType == fieldTypeEnums.TEXT or
-                                                          item.fieldType == fieldTypeEnums.TEXTBOX or
-                                                          item.fieldType == fieldTypeEnums.DATE}"/>
+                                                         rendered="#{item.searchFieldType == fieldTypeEnums.TEXT}"/>
                                             <div>
                                                 <p:inputNumber id="rangeSearchMinimum" style="padding-right: 5px"
                                                                placeholder="#{bundle['advanced.search.metadata.from']}"
                                                                value="#{item.minimum}"
-                                                               rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
+                                                               rendered="#{item.searchFieldType == fieldTypeEnums.NUMBER}"/>
                                                 <p:outputLabel for="rangeSearchMaximum"
                                                                value="&#8212;"
-                                                               rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
+                                                               rendered="#{item.searchFieldType == fieldTypeEnums.NUMBER}"/>
                                                 <p:inputNumber id="rangeSearchMaximum" style="padding-left: 5px"
                                                                placeholder="#{bundle['advanced.search.metadata.to']}"
                                                                value="#{item.maximum}"
-                                                               rendered="#{item.fieldType == fieldTypeEnums.INT or item.fieldType == fieldTypeEnums.FLOAT}"/>
+                                                               rendered="#{item.searchFieldType == fieldTypeEnums.NUMBER}"/>
                                             </div>
                                             <div class="ui-inputfield form-control select-scroll-block"
-                                                 jsf:rendered="#{item.fieldType == fieldTypeEnums.CHECKBOX}">
+                                                 jsf:rendered="#{item.searchFieldType == fieldTypeEnums.CHECKBOX}">
                                                 <p:selectManyCheckbox value="#{item.checkedFieldValues}"
                                                                       layout="pageDirection">
                                                     <f:selectItems value="#{item.checkboxLabelAndValue}"

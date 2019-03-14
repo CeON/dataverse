@@ -1328,10 +1328,9 @@ public class IndexServiceBean {
         if (dateAsDate == null) {
             dateAsDate = new Date();
         }
-        // using DateFormat.MEDIUM for May 5, 2014 to match what's in DVN 3.x
-        DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
-        String friendlyDate = format.format(dateAsDate);
-        return friendlyDate;
+        // using DateFormat for May 5, 2014 to match what's in DVN 3.x
+        DateFormat dateFormatter = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+        return dateFormatter.format(dateAsDate);
     }
 
     private List<String> findSolrDocIdsForDraftFilesToDelete(Dataset datasetWithDraftFilesToDelete) {

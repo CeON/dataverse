@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.search;
 
-import edu.harvard.iq.dataverse.FieldType;
 import edu.harvard.iq.dataverse.search.dto.CheckboxSearchField;
 import edu.harvard.iq.dataverse.search.dto.NumberSearchField;
 import edu.harvard.iq.dataverse.search.dto.SearchBlock;
@@ -9,8 +8,8 @@ import edu.harvard.iq.dataverse.search.dto.TextSearchField;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.Stateless;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -31,20 +30,12 @@ public class SolrQueryCreator {
         StringBuilder queryBuilder = new StringBuilder();
 
         searchBlocks.stream()
-                .map(SearchBlock::getSearchFields)
-                .forEach(searchFields -> {
-
-                            List<TextSearchField> textSearchFields = extractTextOrDateSearchFields(searchFields);
-                            queryBuilder.append(constructQueryForTextFields(textSearchFields));
-
-                            List<NumberSearchField> numberSearchFields = extractNumberSearchFields(searchFields);
-                            queryBuilder.append(constructQueryForNumberFields(numberSearchFields));
-
-                            List<CheckboxSearchField> checkboxSearchFields = extractCheckBoxSearchFields(searchFields);
-                            queryBuilder.append(constructQueryForCheckboxFields(checkboxSearchFields));
-                        }
-
-                );
+                .flatMap(searchBlock -> searchBlock.getSearchFields().stream())
+                .forEach(searchField -> {
+                    String constructedQuery = constructQueryForField(searchField);
+                    queryBuilder
+                            .append(constructedQuery.isEmpty() ? StringUtils.EMPTY : " AND " + constructedQuery);
+                });
 
         return queryBuilder.toString()
                 .replaceFirst("AND", StringUtils.EMPTY)
@@ -53,125 +44,71 @@ public class SolrQueryCreator {
 
     // -------------------- PRIVATE --------------------
 
-    private String constructQueryForTextFields(List<TextSearchField> textSearchFields) {
+    private String constructQueryForField(SearchField searchField) {
+
+        if (searchField.getSearchFieldType().equals(SearchFieldType.TEXT)) {
+            return constructQueryForTextField((TextSearchField) searchField);
+        } else if (searchField.getSearchFieldType().equals(SearchFieldType.NUMBER)) {
+            return constructQueryForNumberField((NumberSearchField) searchField);
+        } else if (searchField.getSearchFieldType().equals(SearchFieldType.CHECKBOX)) {
+            return constructQueryForCheckboxField((CheckboxSearchField) searchField);
+        }
+
+        return StringUtils.EMPTY;
+    }
+
+    private String constructQueryForTextField(TextSearchField textSearchField) {
+        if (textSearchField.getFieldValue() == null) {
+            return StringUtils.EMPTY;
+        }
+
         StringBuilder textQueryBuilder = new StringBuilder();
 
-        textSearchFields.forEach(textSearchField -> textQueryBuilder
-                .append(" AND ")
-                .append(textSearchField.getName())
-                .append(":")
-                .append(textSearchField.getFieldValue()));
+        List<String> fieldValues = Arrays.asList(textSearchField.getFieldValue().split(" "));
+
+        fieldValues.forEach(fieldValue ->
+                textQueryBuilder
+                        .append(textQueryBuilder.length() == 0 ? StringUtils.EMPTY : " ")
+                        .append(textSearchField.getName())
+                        .append(":")
+                        .append(fieldValue));
 
         return textQueryBuilder.toString();
     }
 
-    private String constructQueryForCheckboxFields(List<CheckboxSearchField> checkboxSearchFields) {
+    private String constructQueryForCheckboxField(CheckboxSearchField checkboxSearchField) {
         StringBuilder checkboxQueryBuilder = new StringBuilder();
 
-        checkboxSearchFields.forEach(checkboxField ->
-                checkboxField.getCheckedFieldValues().forEach(value -> checkboxQueryBuilder
-                        .append(" AND ")
-                        .append(checkboxField.getName())
+        checkboxSearchField.getCheckedFieldValues()
+                .forEach(value -> checkboxQueryBuilder
+                        .append(checkboxQueryBuilder.length() == 0 ? StringUtils.EMPTY : " AND ")
+                        .append(checkboxSearchField.getName())
                         .append(":")
+                        .append("\"")
                         .append(value)
-                )
-        );
+                        .append("\"")
+                );
 
         return checkboxQueryBuilder.toString();
     }
 
-    private String constructQueryForNumberFields(List<NumberSearchField> numberSearchFields) {
+    private String constructQueryForNumberField(NumberSearchField numberSearchField) {
         StringBuilder intQueryBuilder = new StringBuilder();
 
-        appendFieldWithMinimumNumberPresent(numberSearchFields, intQueryBuilder);
-
-        appendFieldWithMaximumNumberPresent(numberSearchFields, intQueryBuilder);
-
-        appendFieldWithBothNumbersPresent(numberSearchFields, intQueryBuilder);
+        if (isOneNumberPresent(numberSearchField)) {
+            intQueryBuilder
+                    .append(numberSearchField.getName())
+                    .append(":[")
+                    .append(numberSearchField.getMinimum() == null ? "*" : numberSearchField.getMinimum())
+                    .append(" TO ")
+                    .append(numberSearchField.getMaximum() == null ? "*" : numberSearchField.getMaximum())
+                    .append("]");
+        }
 
         return intQueryBuilder.toString();
     }
 
-    private void appendFieldWithBothNumbersPresent(List<NumberSearchField> numberSearchFields, StringBuilder intQueryBuilder) {
-        numberSearchFields.stream()
-                .filter(this::isBothNumberPresent)
-                .forEach(numberField ->
-                        intQueryBuilder
-                                .append(" AND ")
-                                .append(numberField.getName())
-                                .append(":[")
-                                .append(numberField.getMinimum())
-                                .append(" TO ")
-                                .append(numberField.getMaximum())
-                                .append("]"));
-    }
-
-    private void appendFieldWithMaximumNumberPresent(List<NumberSearchField> numberSearchFields, StringBuilder intQueryBuilder) {
-        numberSearchFields.stream()
-                .filter(this::isMaximumNumberPresent)
-                .forEach(numberField ->
-                        intQueryBuilder
-                                .append(" AND ")
-                                .append(numberField.getName())
-                                .append(":[")
-                                .append("*")
-                                .append(" TO ")
-                                .append(numberField.getMaximum())
-                                .append("]"));
-    }
-
-    private void appendFieldWithMinimumNumberPresent(List<NumberSearchField> numberSearchFields, StringBuilder intQueryBuilder) {
-        numberSearchFields.stream()
-                .filter(this::isMinimumNumberPresent)
-                .forEach(numberField ->
-                        intQueryBuilder
-                                .append(" AND ")
-                                .append(numberField.getName())
-                                .append(":[")
-                                .append(numberField.getMinimum())
-                                .append(" TO ")
-                                .append("*")
-                                .append("]"));
-    }
-
-    private boolean isBothNumberPresent(NumberSearchField numberField) {
-        return numberField.getMinimum() != null && numberField.getMaximum() != null;
-    }
-
-    private boolean isMaximumNumberPresent(NumberSearchField numberField) {
-        return numberField.getMaximum() != null && numberField.getMinimum() == null;
-    }
-
-    private boolean isMinimumNumberPresent(NumberSearchField numberField) {
-        return numberField.getMinimum() != null && numberField.getMaximum() == null;
-    }
-
-    private List<TextSearchField> extractTextOrDateSearchFields(List<SearchField> searchFields) {
-        return searchFields.stream()
-                .filter(this::isTextOrDateField)
-                .map(TextSearchField.class::cast)
-                .filter(textSearchField -> textSearchField.getFieldValue() != null)
-                .collect(Collectors.toList());
-    }
-
-    private List<NumberSearchField> extractNumberSearchFields(List<SearchField> searchFields) {
-        return searchFields.stream()
-                .filter(searchMetadataField -> searchMetadataField.getFieldType().equals(FieldType.INT) || searchMetadataField.getFieldType().equals(FieldType.FLOAT))
-                .map(NumberSearchField.class::cast)
-                .filter(numberSearchField -> (numberSearchField.getMinimum() != null || numberSearchField.getMaximum() != null))
-                .collect(Collectors.toList());
-    }
-
-    private List<CheckboxSearchField> extractCheckBoxSearchFields(List<SearchField> searchFields) {
-        return searchFields.stream()
-                .filter(searchMetadataField -> searchMetadataField.getFieldType().equals(FieldType.CHECKBOX))
-                .map(CheckboxSearchField.class::cast)
-                .filter(checkboxSearchField -> !checkboxSearchField.getCheckedFieldValues().isEmpty())
-                .collect(Collectors.toList());
-    }
-
-    private boolean isTextOrDateField(SearchField searchField) {
-        FieldType fieldType = searchField.getFieldType();
-        return fieldType.equals(FieldType.TEXT) || fieldType.equals(FieldType.TEXTBOX) || fieldType.equals(FieldType.DATE);
+    private boolean isOneNumberPresent(NumberSearchField numberField) {
+        return numberField.getMinimum() != null || numberField.getMaximum() != null;
     }
 }
