@@ -25,24 +25,21 @@
 
 
             <h:form>
-                <p:dataTable var="license" value="#{LicenseListingPage.licenses}">
-                    <p:column headerText="#{bundle['dashboard.license.displayOrder']}">
+                <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 85%">
+                    <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 10%">
                         <h:outputText value="#{license.position}"/>
-                    </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.isValidLicense']}">
-                        <h:outputText value="#{license.validLicense ? bundle.yes : bundle.no}"/>
                     </p:column>
                     <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}">
                         <h:outputText value="#{license.name}"/>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 20%">
+                    <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 30%">
                         <h:outputText value="#{license.url}"/>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.icon']}">
+                    <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 10%">
                         <p:graphicImage value="#{license.icon.content}" stream="false"
                                         rendered="#{license.icon.content.contentLength>0}" width="81" height="31"/>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.activeByDefault']}">
+                    <p:column headerText="#{bundle['dashboard.license.activeByDefault']}" style="width: 10%">
                         <p:selectBooleanCheckbox value="#{license.active}" style="position: relative; left: 50%;"/>
                     </p:column>
                 </p:dataTable>

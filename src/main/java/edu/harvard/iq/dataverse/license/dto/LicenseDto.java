@@ -14,8 +14,6 @@ public class LicenseDto {
 
     private boolean active;
 
-    private boolean isValidLicense;
-
     private Long position;
 
     private List<LocaleTextDto> localizedNames;
@@ -23,24 +21,22 @@ public class LicenseDto {
     // -------------------- CONSTRUCTORS --------------------
 
     public LicenseDto(Long id, String name, String url, LicenseIconDto icon, boolean active,
-                      boolean isValidLicense, Long position, List<LocaleTextDto> localizedNames) {
+                      Long position, List<LocaleTextDto> localizedNames) {
         this.id = id;
         this.name = name;
         this.url = url;
         this.icon = icon;
         this.active = active;
-        this.isValidLicense = isValidLicense;
         this.position = position;
         this.localizedNames = localizedNames;
     }
 
     public LicenseDto(String name, String url, LicenseIconDto icon,
-                      boolean active, boolean isValidLicense, Long position, List<LocaleTextDto> localizedNames) {
+                      boolean active, Long position, List<LocaleTextDto> localizedNames) {
         this.name = name;
         this.url = url;
         this.icon = icon;
         this.active = active;
-        this.isValidLicense = isValidLicense;
         this.position = position;
         this.localizedNames = localizedNames;
     }
@@ -69,10 +65,6 @@ public class LicenseDto {
 
     public Long getPosition() {
         return position;
-    }
-
-    public boolean isValidLicense() {
-        return isValidLicense;
     }
 
     public List<LocaleTextDto> getLocalizedNames() {

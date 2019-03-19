@@ -28,7 +28,6 @@ public class LicenseMapper {
                 license.getUrl(),
                 mapToDto(license.getIcon()),
                 license.isActive(),
-                true,
                 license.getPosition(),
                 localeTextDtos);
     }
