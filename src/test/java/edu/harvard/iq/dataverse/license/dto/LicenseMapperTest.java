@@ -45,7 +45,7 @@ class LicenseMapperTest {
         license.setName("testLicense");
         license.setPosition(1L);
         license.setUrl("www.test.com");
-        license.setLocalizedNames(createLocaleTexts());
+        createLocaleTexts().forEach(license::addLocalizedName);
         license.setIcon(createLicenseIcon(license));
 
         return license;

@@ -176,7 +176,9 @@ public class License implements Serializable {
         this.position = position;
     }
 
-    public void setLocalizedNames(List<LocaleText> localizedNames) {
+    @SuppressWarnings("unused")
+    /** for jpa only */
+    private void setLocalizedNames(List<LocaleText> localizedNames) {
         this.localizedNames = localizedNames;
     }
 

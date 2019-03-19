@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.license.dto;
 
-import edu.harvard.iq.dataverse.license.License;
 import org.primefaces.model.StreamedContent;
 
 public class LicenseIconDto {
@@ -9,14 +8,11 @@ public class LicenseIconDto {
 
     private StreamedContent content;
 
-    private License license;
-
     // -------------------- CONSTRUCTORS --------------------
 
-    public LicenseIconDto(Long id, StreamedContent content, License license) {
+    public LicenseIconDto(Long id, StreamedContent content) {
         this.id = id;
         this.content = content;
-        this.license = license;
     }
 
     public LicenseIconDto(StreamedContent content) {
@@ -31,9 +27,5 @@ public class LicenseIconDto {
 
     public StreamedContent getContent() {
         return content;
-    }
-
-    public License getLicense() {
-        return license;
     }
 }

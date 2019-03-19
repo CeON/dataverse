@@ -40,7 +40,7 @@
                     </p:column>
                     <p:column headerText="#{bundle['dashboard.license.icon']}">
                         <p:graphicImage value="#{license.icon.content}" stream="false"
-                                        rendered="#{license.icon.content.contentLength>0}"/>
+                                        rendered="#{license.icon.content.contentLength>0}" width="81" height="31"/>
                     </p:column>
                     <p:column headerText="#{bundle['dashboard.license.activeByDefault']}">
                         <p:selectBooleanCheckbox value="#{license.active}" style="position: relative; left: 50%;"/>

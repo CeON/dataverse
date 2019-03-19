@@ -4,14 +4,13 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.license.dto.LicenseDto;
 import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import org.apache.commons.lang.StringUtils;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,10 +34,7 @@ public class LicenseListingPage implements Serializable {
     @Inject
     private LicenseMapper licenseMapper;
 
-    @Inject
-    private InvalidLicensesCreator invalidLicensesCreator;
-
-    private List<LicenseDto> licenses;
+    private List<LicenseDto> licenses = new ArrayList<>();
 
     // -------------------- GETTERS --------------------
 
@@ -50,32 +46,13 @@ public class LicenseListingPage implements Serializable {
 
     public String init() {
 
-        if (session.getUser() == null || !session.getUser().isAuthenticated() || !session.getUser().isSuperuser()) {
+        if (!session.getUser().isSuperuser()) {
             return permissionsWrapper.notAuthorized();
         }
 
         licenses = licenseMapper.mapToDtos(licenseDAO.findAll());
 
-        licenses.add(invalidLicensesCreator.createAllRightsReserved(licenses.size() + 1L));
-        licenses.add(invalidLicensesCreator.createRestrictedAccess(licenses.size() + 1L));
-
         return StringUtils.EMPTY;
-    }
-
-    /**
-     * Calculates and returns count of active and inactive licenses in the whole Dataverse.
-     *
-     * @return active and inactive licenses count
-     */
-    public Tuple2<Long, Long> getActiveAndInactiveLicensesCount() {
-        if (licenses == null) {
-            return Tuple.of(0L, 0L);
-        }
-
-        long activeLicenses = licenses.stream().filter(LicenseDto::isActive).count();
-        long inactiveLicenses = licenses.size() - activeLicenses;
-
-        return Tuple.of(activeLicenses, inactiveLicenses);
     }
 
 }
