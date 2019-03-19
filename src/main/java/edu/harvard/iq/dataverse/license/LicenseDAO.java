@@ -23,11 +23,4 @@ public class LicenseDAO {
     public List<License> findAll() {
         return em.createQuery("SELECT l FROM License l ORDER BY l.position ASC", License.class).getResultList();
     }
-
-    public List<License> findLicensesWithLocales(List<String> locales) {
-        return em.createQuery("SELECT licenses FROM License licenses JOIN licenses.localizedNames as localizedNames" +
-                " WHERE localizedNames.locale IN (:locales) ORDER BY licenses.position ASC", License.class)
-                .setParameter("locales", locales)
-                .getResultList();
-    }
 }

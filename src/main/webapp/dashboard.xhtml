@@ -17,6 +17,7 @@
                     <f:viewParam name="dataverseId" value="#{dashboardPage.dataverseId}"/>
                     <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                     <f:viewAction action="#{dashboardPage.init}"/>
+                    <f:viewAction action="#{LicenseListingPage.init}"/>
                     <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse(), bundle['dashboard.title'])}"/>
                 </f:metadata>
                
@@ -128,19 +129,21 @@
                                     <h4 class="header-title">#{bundle['dashboard.card.licenses']}</h4>
                                     <div class="row text-center">
                                         <div class="col-xs-6">
-                                            <h:outputText value="#{DashboardUsersPage.getUserCount()}"/>
-                                            <p class="small text-muted">#{bundle['dashboard.card.users']}</p>
+                                            <h:outputText
+                                                    value="#{LicenseListingPage.activeAndInactiveLicensesCount._1()}"/>
+                                            <p class="small text-muted">#{bundle['dashboard.card.licenses.active']}</p>
                                         </div>
                                         <div class="col-xs-6">
-                                            <h:outputText value="#{DashboardUsersPage.getSuperUserCount()}"/>
-                                            <p class="small text-muted">#{bundle['dashboard.card.users.super']}</p>
+                                            <h:outputText
+                                                    value="#{LicenseListingPage.activeAndInactiveLicensesCount._2()}"/>
+                                            <p class="small text-muted">#{bundle['dashboard.card.licenses.inactive']}</p>
                                         </div>
                                     </div>
                                     <div class="row text-center">
                                         <div class="col-xs-12">
                                             <p>
                                                 <a href="${pageContext.request.contextPath}/dashboard-licenses.xhtml"
-                                                   class="btn btn-primary">#{bundle['dashboard.card.users.manage']}</a>
+                                                   class="btn btn-primary">#{bundle['dashboard.card.licenses.button']}</a>
                                             </p>
                                         </div>
                                     </div>
