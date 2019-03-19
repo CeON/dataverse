@@ -20,6 +20,8 @@ public class LicenseDto {
 
     private List<LocaleTextDto> localizedNames;
 
+    // -------------------- CONSTRUCTORS --------------------
+
     public LicenseDto(Long id, String name, String url, LicenseIconDto icon, boolean active,
                       boolean isValidLicense, Long position, List<LocaleTextDto> localizedNames) {
         this.id = id;

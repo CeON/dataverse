@@ -11,6 +11,8 @@ public class LicenseIconDto {
 
     private License license;
 
+    // -------------------- CONSTRUCTORS --------------------
+
     public LicenseIconDto(Long id, StreamedContent content, License license) {
         this.id = id;
         this.content = content;

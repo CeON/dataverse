@@ -8,6 +8,8 @@ public class LocaleTextDto {
 
     private String text;
 
+    // -------------------- CONSTRUCTORS --------------------
+
     public LocaleTextDto(Locale locale, String text) {
         this.locale = locale;
         this.text = text;
