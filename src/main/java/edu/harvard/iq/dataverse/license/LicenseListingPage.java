@@ -54,7 +54,7 @@ public class LicenseListingPage implements Serializable {
 
         return StringUtils.EMPTY;
     }
-
+  
     public String saveChanges() {
 
         licenses.forEach(licenseDto -> {
@@ -69,5 +69,4 @@ public class LicenseListingPage implements Serializable {
     public String cancel() {
         return "/dashboard.xhtml?dataverseId=1&faces-redirect=true";
     }
-
 }

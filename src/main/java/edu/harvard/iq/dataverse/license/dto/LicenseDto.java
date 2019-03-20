@@ -76,4 +76,5 @@ public class LicenseDto {
     public void setActive(boolean active) {
         this.active = active;
     }
+  
 }
