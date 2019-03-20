@@ -4,8 +4,11 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.license.dto.LicenseDto;
 import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import org.apache.commons.lang.StringUtils;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -55,19 +58,26 @@ public class LicenseListingPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
-    public String saveChanges() {
+    public void saveLicenseActiveStatus(LicenseDto licenseDto) {
 
-        licenses.forEach(licenseDto -> {
-            License license = licenseDAO.find(licenseDto.getId());
-            license.setActive(licenseDto.isActive());
-            licenseDAO.saveChanges(license);
-        });
+        if (licenses.stream().noneMatch(LicenseDto::isActive)) {
+            licenseDto.setActive(true);
+            displayNoLicensesActiveWarningMessage();
+            return;
+        }
 
-        return "/dashboard.xhtml?dataverseId=1&faces-redirect=true";
+        License license = licenseDAO.find(licenseDto.getId());
+        license.setActive(licenseDto.isActive());
+        licenseDAO.saveChanges(license);
     }
 
-    public String cancel() {
-        return "/dashboard.xhtml?dataverseId=1&faces-redirect=true";
+    // -------------------- PRIVATE --------------------
+
+    private void displayNoLicensesActiveWarningMessage() {
+        FacesContext.getCurrentInstance().
+                addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        StringUtils.EMPTY,
+                        BundleUtil.getStringFromBundle("dashboard.license.warning")));
     }
 
 }

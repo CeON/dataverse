@@ -20,9 +20,11 @@
         <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb(bundle['dashboard.license.header'])}"/>
     </f:metadata>
     <ui:composition template="/dataverse_template.xhtml">
-        <ui:param name="showDataverseHeader" value="false"/>
         <ui:define name="body">
 
+            <p:messages id="warningMessages" showDetail="true" closable="true" style="width: 80%">
+                <p:autoUpdate/>
+            </p:messages>
 
             <h:form>
                 <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 80%">
@@ -42,23 +44,10 @@
                     <p:column headerText="#{bundle['dashboard.license.activeByDefault']}"
                               style="width: 10%; text-align: center; vertical-align: middle">
                         <p:selectBooleanCheckbox value="#{license.active}">
-                            <p:ajax update="@this" listener="#{license.active}"/>
+                            <p:ajax update="@this" listener="#{LicenseListingPage.saveLicenseActiveStatus(license)}"/>
                         </p:selectBooleanCheckbox>
                     </p:column>
                 </p:dataTable>
-                <div class="container">
-                    <div class="row">
-                        <div class="col" style="margin-top: 20px">
-                            <p:commandButton styleClass="btn btn-primary"
-                                             value="#{bundle.saveChanges}"
-                                             action="#{LicenseListingPage.saveChanges}"/>
-
-                            <p:commandButton styleClass="btn btn-primary" style="margin-left: 5px"
-                                             value="#{bundle.cancel}"
-                                             action="#{LicenseListingPage.cancel}"/>
-                        </div>
-                    </div>
-                </div>
             </h:form>
         </ui:define>
     </ui:composition>
