@@ -4,23 +4,24 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.license.License;
 import edu.harvard.iq.dataverse.license.LicenseIcon;
 import edu.harvard.iq.dataverse.license.LocaleText;
-import io.vavr.control.Try;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Locale;
 
-class LicenseMapperTest {
+public class LicenseMapperTest {
+
+    private LicenseMapper licenseMapper = new LicenseMapper();
+
+    // -------------------- TEST --------------------
 
     @Test
-    void shouldCorrectlyMapToDto() {
+    public void shouldCorrectlyMapToDto() {
         //given
         License license = createTestLicense();
 
         //when
-        LicenseMapper licenseMapper = new LicenseMapper();
         LicenseDto licenseDto = licenseMapper.mapToDto(license);
 
         //then
@@ -38,6 +39,8 @@ class LicenseMapperTest {
 
     }
 
+    // -------------------- PRIVATE --------------------
+
     private License createTestLicense() {
         License license = new License();
         license.setActive(true);
@@ -54,8 +57,7 @@ class LicenseMapperTest {
     private LicenseIcon createLicenseIcon(License license) {
 
         LicenseIcon licenseIcon = new LicenseIcon();
-        licenseIcon.setContent(Try.of(() -> IOUtils.toByteArray(this.getClass().getResourceAsStream("/images/banner.png")))
-                .getOrElseGet(throwable -> new byte[0]));
+        licenseIcon.setContent(new byte[0]);
         licenseIcon.setContentType("png");
         licenseIcon.setLicense(license);
 
