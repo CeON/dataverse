@@ -25,30 +25,38 @@
 
 
             <h:form>
-                <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 85%">
-                    <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 10%">
+                <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 80%">
+                    <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 15%">
                         <h:outputText value="#{license.position}"/>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}">
+                    <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}" style="width: 30%">
                         <h:outputText value="#{license.name}"/>
                     </p:column>
                     <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 30%">
-                        <h:outputText value="#{license.url}"/>
+                        <h:outputLink value="#{license.url}">#{license.url}</h:outputLink>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 10%">
+                    <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 15%">
                         <p:graphicImage value="#{license.icon.content}" stream="false"
                                         rendered="#{license.icon.content.contentLength>0}" width="81" height="31"/>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.activeByDefault']}" style="width: 10%">
-                        <p:selectBooleanCheckbox value="#{license.active}" style="position: relative; left: 50%;"/>
+                    <p:column headerText="#{bundle['dashboard.license.activeByDefault']}"
+                              style="width: 10%; text-align: center; vertical-align: middle">
+                        <p:selectBooleanCheckbox value="#{license.active}">
+                            <p:ajax update="@this" listener="#{license.active}"/>
+                        </p:selectBooleanCheckbox>
                     </p:column>
                 </p:dataTable>
-                <div class="row text-left">
-                    <div class="col-xs-1" style="margin-top: 20px">
-                        <p>
-                            <a href="${pageContext.request.contextPath}/dashboard.xhtml?dataverseId=1"
-                               class="btn btn-primary">#{bundle.ok}</a>
-                        </p>
+                <div class="container">
+                    <div class="row">
+                        <div class="col" style="margin-top: 20px">
+                            <p:commandButton styleClass="btn btn-primary"
+                                             value="#{bundle.saveChanges}"
+                                             action="#{LicenseListingPage.saveChanges}"/>
+
+                            <p:commandButton styleClass="btn btn-primary" style="margin-left: 5px"
+                                             value="#{bundle.cancel}"
+                                             action="#{LicenseListingPage.cancel}"/>
+                        </div>
                     </div>
                 </div>
             </h:form>

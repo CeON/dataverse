@@ -55,4 +55,19 @@ public class LicenseListingPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
+    public String saveChanges() {
+
+        licenses.forEach(licenseDto -> {
+            License license = licenseDAO.find(licenseDto.getId());
+            license.setActive(licenseDto.isActive());
+            licenseDAO.saveChanges(license);
+        });
+
+        return "/dashboard.xhtml?dataverseId=1&faces-redirect=true";
+    }
+
+    public String cancel() {
+        return "/dashboard.xhtml?dataverseId=1&faces-redirect=true";
+    }
+
 }
