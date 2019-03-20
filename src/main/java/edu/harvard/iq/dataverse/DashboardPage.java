@@ -9,7 +9,6 @@ import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClientServiceBean;
 import edu.harvard.iq.dataverse.harvest.server.OAISet;
 import edu.harvard.iq.dataverse.harvest.server.OAISetServiceBean;
-import edu.harvard.iq.dataverse.license.License;
 import edu.harvard.iq.dataverse.license.LicenseDAO;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -197,12 +196,7 @@ public class DashboardPage implements java.io.Serializable {
      * @return active and inactive licenses count
      */
     public Tuple2<Long, Long> getActiveAndInactiveLicensesCount() {
-        List<License> licenses = licenseDAO.findAll();
-
-        long activeLicenses = licenses.stream().filter(License::isActive).count();
-        long inactiveLicenses = licenses.size() - activeLicenses;
-
-        return Tuple.of(activeLicenses, inactiveLicenses);
+        return Tuple.of(licenseDAO.countActiveLicenses(), licenseDAO.countInactiveLicenses());
     }
 
 }
