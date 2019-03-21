@@ -60,7 +60,7 @@ public class LicenseListingPage implements Serializable {
 
     public void saveLicenseActiveStatus(LicenseDto licenseDto) {
 
-        if (licenses.stream().noneMatch(LicenseDto::isActive)) {
+        if (licenseDAO.countActiveLicenses() <= 1 && !licenseDto.isActive()) {
             licenseDto.setActive(true);
             displayNoLicensesActiveWarningMessage();
             return;
@@ -77,7 +77,8 @@ public class LicenseListingPage implements Serializable {
         FacesContext.getCurrentInstance().
                 addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         StringUtils.EMPTY,
-                        BundleUtil.getStringFromBundle("dashboard.license.warning")));
+                        BundleUtil.getStringFromBundle("dashboard.license.noActiveLicensesWarning")));
+        ;
     }
 
 }
