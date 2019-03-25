@@ -3,7 +3,7 @@ package edu.harvard.iq.dataverse.license.dto;
 /**
  * Helper class used for reordering page.
  */
-public class LicenseReorderDto {
+public class LicenseSimpleDto {
 
     private Long licenseId;
 
@@ -11,7 +11,7 @@ public class LicenseReorderDto {
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public LicenseReorderDto(Long licenseId, String text) {
+    public LicenseSimpleDto(Long licenseId, String text) {
         this.licenseId = licenseId;
         this.localizedText = text;
     }

@@ -5,7 +5,8 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.license.License;
 import edu.harvard.iq.dataverse.license.LicenseDAO;
-import edu.harvard.iq.dataverse.license.dto.LicenseReorderDto;
+import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
+import edu.harvard.iq.dataverse.license.dto.LicenseSimpleDto;
 import org.apache.commons.lang.StringUtils;
 
 import javax.faces.view.ViewScoped;
@@ -29,11 +30,14 @@ public class LicenseReorderPage implements Serializable {
     @Inject
     private LicenseDAO licenseDAO;
 
-    private List<LicenseReorderDto> licenses = new ArrayList<>();
+    @Inject
+    private LicenseMapper licenseMapper;
+
+    private List<LicenseSimpleDto> licenses = new ArrayList<>();
 
     // -------------------- GETTERS --------------------
 
-    public List<LicenseReorderDto> getLicenses() {
+    public List<LicenseSimpleDto> getLicenses() {
         return licenses;
     }
 
@@ -45,7 +49,7 @@ public class LicenseReorderPage implements Serializable {
             return permissionsWrapper.notAuthorized();
         }
 
-        licenses = licenseDAO.findLocalizedLicenses(new Locale(session.getLocaleCode()));
+        licenses = licenseMapper.mapToSimpleDtos(licenseDAO.findAll(), Locale.forLanguageTag(session.getLocaleCode()));
 
         return StringUtils.EMPTY;
     }
