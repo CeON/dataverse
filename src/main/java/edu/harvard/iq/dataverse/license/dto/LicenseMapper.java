@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.license.dto;
 import edu.harvard.iq.dataverse.license.License;
 import edu.harvard.iq.dataverse.license.LicenseIcon;
 import edu.harvard.iq.dataverse.license.LocaleText;
-import org.apache.commons.lang.StringUtils;
 import org.primefaces.model.ByteArrayContent;
 
 import javax.ejb.Stateless;
@@ -40,13 +39,7 @@ public class LicenseMapper {
 
     public LicenseSimpleDto mapToSimpleDto(License license, Locale textLocale) {
 
-        for (LocaleText localeLicenseText : license.getLocalizedNames()) {
-            if (localeLicenseText.getLocale().equals(textLocale)) {
-                return new LicenseSimpleDto(license.getId(), localeLicenseText.getText());
-            }
-        }
-
-        return new LicenseSimpleDto(0L, StringUtils.EMPTY);
+        return new LicenseSimpleDto(license.getId(), license.getLocalizedName(textLocale));
     }
 
     public List<LicenseSimpleDto> mapToSimpleDtos(List<License> licenses, Locale textLocale) {
