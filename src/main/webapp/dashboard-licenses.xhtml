@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 <h:head>
 </h:head>
@@ -22,16 +22,20 @@
     <ui:composition template="/dataverse_template.xhtml">
         <ui:define name="body">
 
-            <p:messages id="warningMessages" showDetail="true" closable="true" style="width: 80%">
+            <p:messages id="warningMessages" showDetail="true" closable="true" style="width: 80%" globalOnly="true">
                 <p:autoUpdate/>
             </p:messages>
 
-            <h:form>
+            <h:form id="form">
                 <div class="container">
                     <div class="row">
                         <div class="col" style="text-align: right; width: 78%; margin-bottom: 5px">
                             <p:commandButton action="#{LicenseListingPage.redirectToLicenseReorderPage()}"
                                              value="#{bundle['dashboard.license.reorderButton']}"
+                                             styleClass="btn btn-primary"/>
+
+                            <p:commandButton onclick="PF('newLicense').show();"
+                                             value="#{bundle['dashboard.license.newLicense.add']}"
                                              styleClass="btn btn-primary"/>
 
                         </div>
@@ -58,6 +62,80 @@
                         </p:selectBooleanCheckbox>
                     </p:column>
                 </p:dataTable>
+
+                <p:dialog modal="true" widgetVar="newLicense" id="newLicense" style="width: 50%"
+                          draggable="false" closable="false" resizable="false">
+
+                    <p:outputPanel id="newLicenseContent">
+
+                        <div style="display: grid; max-width: 400px; grid-template-columns: repeat(3, 1fr);
+                     grid-gap: 10px; grid-auto-rows: minmax(10px, auto);">
+                            <div style="grid-column: 1; grid-row: 1">
+                                <p:outputLabel for="universalName"
+                                               value="#{bundle['dashboard.license.newLicense.universalName']}:"
+                                               style="width: 150px"/>
+                            </div>
+
+                            <div style="grid-column: 2; grid-row: 1">
+                                <p:inputText id="universalName" value="#{LicenseListingPage.freshLicense.name}"/>
+                            </div>
+                            <div style="grid-column: 3; grid-row: 1">
+                                <p:message for="universalName" style="width: 200px"
+                                           display="text"/>
+                            </div>
+
+                            <ui:repeat id="repeater" value="#{LicenseListingPage.freshLicense.localizedNames}"
+                                       var="localizedLicenses" varStatus="loopIndex">
+                                <div style="grid-column: 1; grid-row: 2 + #{loopIndex.index}">
+                                    <p:outputLabel for="locale"
+                                                   value="#{bundle['language.'.concat(localizedLicenses.locale)]}:"
+                                                   style="width: 150px"/>
+                                </div>
+                                <div style="grid-column: 2; grid-row: 2 + #{loopIndex.index}">
+                                    <p:inputText id="locale" value="#{localizedLicenses.text}"/>
+                                </div>
+                                <div style="grid-column: 3; grid-row: 2 + #{loopIndex.index}">
+                                    <p:message id="localeError" for="locale" display="text"/>
+                                </div>
+                            </ui:repeat>
+
+                            <div style="grid-column: 1; grid-row: auto">
+                                <p:outputLabel for="url" value="URL:" style="width: 150px"/>
+                            </div>
+                            <div style="grid-column: 2; grid-row: auto">
+                                <p:inputText id="url" value="#{LicenseListingPage.freshLicense.url}"/>
+                            </div>
+                            <div style="grid-column: 3; grid-row: auto">
+                                <p:message id="urlError" for="url" display="text"/>
+                            </div>
+
+                            <div style="grid-column: 1; grid-row: auto">
+                                <p:outputLabel for="icon"
+                                               value="#{bundle['dashboard.license.newLicense.chooseLicenseBadge']}:"
+                                               style="width: 150px"/>
+                            </div>
+
+                            <div style="grid-column: 2; grid-row: auto">
+                                <p:fileUpload id="icon"
+                                              fileUploadListener="#{LicenseListingPage.uploadImageForNewLicenseEvent}"
+                                              mode="advanced" skinSimple="true" auto="true"/>
+                            </div>
+                        </div>
+                    </p:outputPanel>
+
+                    <div class="container">
+                        <div class="row text-left">
+                            <div class="col" style="margin-top: 20px">
+                                <p:commandButton value="#{bundle.save}"
+                                                 update="form:newLicenseContent"
+                                                 action="#{LicenseListingPage.saveNewLicense()}"/>
+                                <p:commandButton value="#{bundle.cancel}"
+                                                 onclick="PF('newLicense').close();"
+                                                 action="#{LicenseListingPage.resetFreshLicenseValues()}"/>
+                            </div>
+                        </div>
+                    </div>
+                </p:dialog>
             </h:form>
         </ui:define>
     </ui:composition>
