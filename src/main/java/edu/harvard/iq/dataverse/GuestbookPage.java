@@ -179,8 +179,8 @@ public class GuestbookPage implements java.io.Serializable {
         if (StringUtils.isEmpty(guestbook.getName())) {
             FacesContext.getCurrentInstance().validationFailed();
             FacesContext.getCurrentInstance().addMessage(guestbookName.getClientId(),
-                    new FacesMessage(SEVERITY_ERROR, null, BundleUtil.getStringFromBundle("guestbook.name.empty")));
-            return null;
+                    new FacesMessage(SEVERITY_ERROR, StringUtils.EMPTY, BundleUtil.getStringFromBundle("guestbook.name.empty")));
+            return StringUtils.EMPTY;
         }
         
         if (!(guestbook.getCustomQuestions() == null)) {
