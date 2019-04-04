@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.license.LicenseIcon;
 import edu.harvard.iq.dataverse.license.LocaleText;
 import io.vavr.control.Try;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.primefaces.model.ByteArrayContent;
 
 import javax.ejb.Stateless;
@@ -62,7 +61,7 @@ public class LicenseMapper {
         license.setActive(licenseDto.isActive());
         license.setUrl(licenseDto.getUrl());
         license.setName(licenseDto.getName());
-        license.setIcon(licenseDto.getIcon() == null ? mapToEmptyLicenseIcon(license) : mapToLicenseIcon(licenseDto, license));
+        license.setIcon(licenseDto.getIcon().getContent() == null ? null : mapToLicenseIcon(licenseDto, license));
 
         licenseDto.getLocalizedNames().forEach(localeTextDto -> license.addLocalizedName(
                 new LocaleText(localeTextDto.getLocale(), localeTextDto.getText())));
@@ -71,15 +70,6 @@ public class LicenseMapper {
     }
 
     // -------------------- PRIVATE --------------------
-
-    private LicenseIcon mapToEmptyLicenseIcon(License license) {
-        LicenseIcon licenseIcon = new LicenseIcon();
-        licenseIcon.setContent(new byte[0]);
-        licenseIcon.setLicense(license);
-        licenseIcon.setContentType(StringUtils.EMPTY);
-
-        return licenseIcon;
-    }
 
     private LicenseIcon mapToLicenseIcon(LicenseDto licenseDto, License license) {
         LicenseIcon licenseIcon = new LicenseIcon();

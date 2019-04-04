@@ -40,7 +40,7 @@ public class LicenseDAO {
         return em.createQuery("SELECT count(l) FROM License l where l.active = false ", Long.class).getSingleResult();
     }
 
-    public Long countLicenses() {
-        return em.createQuery("SELECT count(l) FROM License l", Long.class).getSingleResult();
+    public Long findMaxLicensePosition() {
+        return em.createQuery("SELECT MAX(l.position) FROM License l", Long.class).getSingleResult();
     }
 }

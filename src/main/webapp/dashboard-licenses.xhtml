@@ -26,7 +26,7 @@
                 <p:autoUpdate/>
             </p:messages>
 
-            <h:form id="form">
+            <h:form id="tableForm">
                 <div class="container">
                     <div class="row">
                         <div class="col" style="text-align: right; width: 78%; margin-bottom: 5px">
@@ -51,7 +51,7 @@
                     <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 30%">
                         <h:outputLink value="#{license.url}">#{license.url}</h:outputLink>
                     </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 15%">
+                    <p:column headerText="#{bundle['dashboard.license.badge']}" style="width: 15%">
                         <p:graphicImage value="#{license.icon.content}" stream="false"
                                         rendered="#{license.icon.content.contentLength>0}" width="81" height="31"/>
                     </p:column>
@@ -63,80 +63,89 @@
                     </p:column>
                 </p:dataTable>
 
-                <p:dialog modal="true" widgetVar="newLicense" id="newLicense" style="width: 50%"
-                          draggable="false" closable="false" resizable="false">
+            </h:form>
 
-                    <p:outputPanel id="newLicenseContent">
 
-                        <div style="display: grid; max-width: 400px; grid-template-columns: repeat(3, 1fr);
-                     grid-gap: 10px; grid-auto-rows: minmax(10px, auto);">
-                            <div style="grid-column: 1; grid-row: 1">
-                                <p:outputLabel for="universalName"
-                                               value="#{bundle['dashboard.license.newLicense.universalName']}:"
-                                               style="width: 150px"/>
-                            </div>
+            <p:dialog modal="true" widgetVar="newLicense" id="newLicense" styleClass="disable-scroll" width="750"
+                      draggable="false" closable="false" resizable="false"
+                      header="#{bundle['dashboard.license.newLicense.add']}">
 
-                            <div style="grid-column: 2; grid-row: 1">
-                                <p:inputText id="universalName" value="#{LicenseListingPage.freshLicense.name}"/>
-                            </div>
-                            <div style="grid-column: 3; grid-row: 1">
-                                <p:message for="universalName" style="width: 200px"
-                                           display="text"/>
-                            </div>
-
-                            <ui:repeat id="repeater" value="#{LicenseListingPage.freshLicense.localizedNames}"
-                                       var="localizedLicenses" varStatus="loopIndex">
-                                <div style="grid-column: 1; grid-row: 2 + #{loopIndex.index}">
-                                    <p:outputLabel for="locale"
-                                                   value="#{bundle['language.'.concat(localizedLicenses.locale)]}:"
-                                                   style="width: 150px"/>
-                                </div>
-                                <div style="grid-column: 2; grid-row: 2 + #{loopIndex.index}">
-                                    <p:inputText id="locale" value="#{localizedLicenses.text}"/>
-                                </div>
-                                <div style="grid-column: 3; grid-row: 2 + #{loopIndex.index}">
-                                    <p:message id="localeError" for="locale" display="text"/>
-                                </div>
-                            </ui:repeat>
-
-                            <div style="grid-column: 1; grid-row: auto">
-                                <p:outputLabel for="url" value="URL:" style="width: 150px"/>
-                            </div>
-                            <div style="grid-column: 2; grid-row: auto">
-                                <p:inputText id="url" value="#{LicenseListingPage.freshLicense.url}"/>
-                            </div>
-                            <div style="grid-column: 3; grid-row: auto">
-                                <p:message id="urlError" for="url" display="text"/>
-                            </div>
-
-                            <div style="grid-column: 1; grid-row: auto">
-                                <p:outputLabel for="icon"
-                                               value="#{bundle['dashboard.license.newLicense.chooseLicenseBadge']}:"
-                                               style="width: 150px"/>
-                            </div>
-
-                            <div style="grid-column: 2; grid-row: auto">
-                                <p:fileUpload id="icon"
-                                              fileUploadListener="#{LicenseListingPage.uploadImageForNewLicenseEvent}"
-                                              mode="advanced" skinSimple="true" auto="true"/>
-                            </div>
+                <h:form id="dialogForm">
+                    <div style="display: grid; grid-template-columns: repeat(3, 29%);
+                     grid-row-gap: 5%; grid-auto-rows: minmax(auto, auto);">
+                        <div style="grid-column: 1;">
+                            <p:outputLabel for="universalName"
+                                           value="#{bundle['dashboard.license.newLicense.universalName']}:"
+                            />
                         </div>
-                    </p:outputPanel>
+
+                        <div style="grid-column: 2;">
+                            <p:inputText id="universalName" value="#{LicenseListingPage.freshLicense.name}"
+                                         required="true"
+                                         requiredMessage="#{bundle['dashboard.license.newLicense.missingTextField']}"/>
+                        </div>
+                        <div style="grid-column: 3;">
+                            <p:message for="universalName"
+                                       display="text"/>
+                        </div>
+
+                        <ui:repeat id="repeater" value="#{LicenseListingPage.freshLicense.localizedNames}"
+                                   var="localizedLicenses" varStatus="loopIndex">
+                            <div style="grid-column: 1;">
+                                <p:outputLabel for="locale"
+                                               value="#{bundle['language.'.concat(localizedLicenses.locale)]}:"/>
+                            </div>
+                            <div style="grid-column: 2;">
+                                <p:inputText id="locale" value="#{localizedLicenses.text}"
+                                             required="true"
+                                             requiredMessage="#{bundle['dashboard.license.newLicense.missingTextField']}"/>
+                            </div>
+                            <div style="grid-column: 3;">
+                                <p:message id="localeError" for="locale" display="text"/>
+                            </div>
+                        </ui:repeat>
+
+                        <div style="grid-column: 1;">
+                            <p:outputLabel for="url" value="#{bundle['dashboard.license.newLicense.url']}"/>
+                        </div>
+                        <div style="grid-column: 2;">
+                            <p:inputText id="url" value="#{LicenseListingPage.freshLicense.url}"
+                                         required="true"
+                                         requiredMessage="#{bundle['dashboard.license.newLicense.missingTextField']}">
+                                <f:validator validatorId="licenseValidator"/>
+                            </p:inputText>
+                        </div>
+                        <div style="grid-column: 3;">
+                            <p:message id="urlError" for="url" display="text"/>
+                        </div>
+
+                        <div style="grid-column: 1;">
+                            <p:outputLabel value="#{bundle['dashboard.license.newLicense.licenseBadge']}:"/>
+                        </div>
+
+                        <div style="grid-column: 2;">
+                            <p:fileUpload id="icon" label="#{bundle['file.editProvenanceDialog.selectToAddBtn']}"
+                                          fileUploadListener="#{LicenseListingPage.uploadImageForNewLicenseEvent}"
+                                          mode="advanced" skinSimple="true" auto="true" style="width: 77%"/>
+                        </div>
+                    </div>
 
                     <div class="container">
                         <div class="row text-left">
-                            <div class="col" style="margin-top: 20px">
+                            <div class="col" style="margin-top: 2%">
                                 <p:commandButton value="#{bundle.save}"
-                                                 update="form:newLicenseContent"
-                                                 action="#{LicenseListingPage.saveNewLicense()}"/>
+                                                 update="dialogForm"
+                                                 action="#{LicenseListingPage.saveNewLicense()}"
+                                                 style="margin-right: 1%" styleClass="btn btn-default"/>
                                 <p:commandButton value="#{bundle.cancel}"
-                                                 onclick="PF('newLicense').close();"
-                                                 action="#{LicenseListingPage.resetFreshLicenseValues()}"/>
+                                                 action="#{LicenseListingPage.refreshPage}"
+                                                 process="@this"
+                                                 styleClass="btn btn-default"/>
                             </div>
                         </div>
                     </div>
-                </p:dialog>
-            </h:form>
+                </h:form>
+            </p:dialog>
         </ui:define>
     </ui:composition>
 </h:body>

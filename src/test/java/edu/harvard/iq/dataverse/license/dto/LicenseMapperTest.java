@@ -92,6 +92,7 @@ public class LicenseMapperTest {
         licenseDto.setPosition(99L);
         licenseDto.setActive(false);
         licenseDto.setLocalizedNames(createLocaleTextsDto());
+        licenseDto.setIcon(new LicenseIconDto());
 
         return licenseDto;
     }

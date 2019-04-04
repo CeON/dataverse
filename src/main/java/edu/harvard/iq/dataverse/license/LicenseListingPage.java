@@ -7,7 +7,6 @@ import edu.harvard.iq.dataverse.license.dto.LicenseDto;
 import edu.harvard.iq.dataverse.license.dto.LicenseIconDto;
 import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
 import edu.harvard.iq.dataverse.license.dto.LocaleTextDto;
-import edu.harvard.iq.dataverse.license.validation.LicenseErrorHandler;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.event.FileUploadEvent;
@@ -47,9 +46,6 @@ public class LicenseListingPage implements Serializable {
 
     @Inject
     private LicenseMapper licenseMapper;
-
-    @Inject
-    private LicenseErrorHandler licenseErrorHandler;
 
     private List<LicenseDto> licenses = new ArrayList<>();
 
@@ -92,17 +88,6 @@ public class LicenseListingPage implements Serializable {
     }
 
     /**
-     * Used in order to reset fresh license fields in case user hits cancel and wants to add the license again.
-     */
-    public void resetFreshLicenseValues() {
-        freshLicense.setIcon(new LicenseIconDto());
-        freshLicense.setName(StringUtils.EMPTY);
-        freshLicense.setUrl(StringUtils.EMPTY);
-
-        freshLicense.getLocalizedNames().forEach(localeTextDto -> localeTextDto.setText(StringUtils.EMPTY));
-    }
-
-    /**
      * Validates and sets active license status
      *
      * @param licenseDto
@@ -126,10 +111,8 @@ public class LicenseListingPage implements Serializable {
      * @return redirect string
      */
     public String saveNewLicense() {
-        if (isThereAnyValidationErrors(freshLicense)) {
-            return StringUtils.EMPTY;
-        }
 
+        freshLicense.setPosition(licenseDAO.findMaxLicensePosition() + 1);
         License license = licenseMapper.mapToLicense(freshLicense);
         licenseDAO.save(license);
 
@@ -140,6 +123,10 @@ public class LicenseListingPage implements Serializable {
 
     public String redirectToLicenseReorderPage() {
         return "/dashboard-licenses-reorder.xhtml?&faces-redirect=true";
+    }
+
+    public String refreshPage() {
+        return "/dashboard-licenses.xhtml?&faces-redirect=true";
     }
 
     // -------------------- PRIVATE --------------------
@@ -156,13 +143,7 @@ public class LicenseListingPage implements Serializable {
                 licenseDto.getLocalizedNames().add(new LocaleTextDto(Locale.forLanguageTag(localeKey), StringUtils.EMPTY)));
 
         licenseDto.setIcon(new LicenseIconDto());
-        licenseDto.setPosition(licenseDAO.countLicenses() + 1);
-
         return licenseDto;
-    }
-
-    private boolean isThereAnyValidationErrors(LicenseDto licenseDto) {
-        return !licenseErrorHandler.validateNewLicenseErrors(licenseDto).isEmpty();
     }
 
     private void displayNoLicensesActiveWarningMessage() {
