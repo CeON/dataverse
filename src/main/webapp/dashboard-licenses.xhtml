@@ -120,11 +120,11 @@
                         </div>
 
                         <div style="grid-column: 1;">
-                            <p:outputLabel value="#{bundle['dashboard.license.newLicense.licenseBadge']}:"/>
+                            <p:outputLabel value="#{bundle['dashboard.license.newLicense.badgeLabel']}:"/>
                         </div>
 
                         <div style="grid-column: 2;">
-                            <p:fileUpload id="icon" label="#{bundle['file.editProvenanceDialog.selectToAddBtn']}"
+                            <p:fileUpload id="icon" label="#{bundle.selectFile}"
                                           fileUploadListener="#{LicenseListingPage.uploadImageForNewLicenseEvent}"
                                           mode="advanced" skinSimple="true" auto="true" style="width: 77%"/>
                         </div>
