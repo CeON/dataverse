@@ -12,7 +12,7 @@ public class OtherTermsOfUseDAO {
     private EntityManager em;
 
     public List<OtherTermsOfUse> findAll() {
-        return em.createQuery("SELECT tos FROM OtherTermsOfUse tos ORDER BY tos.position ASC"
+        return em.createQuery("SELECT tos FROM OtherTermsOfUse tos ORDER BY tos.id ASC"
                 , OtherTermsOfUse.class).getResultList();
     }
 
@@ -22,10 +22,5 @@ public class OtherTermsOfUseDAO {
 
     public OtherTermsOfUse saveChanges(OtherTermsOfUse otherTermsOfUse) {
         return em.merge(otherTermsOfUse);
-    }
-
-    public Long countActiveLicenses() {
-        return em.createQuery("SELECT count(tos) FROM OtherTermsOfUse tos where tos.active = true ",
-                Long.class).getSingleResult();
     }
 }

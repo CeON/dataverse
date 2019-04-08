@@ -15,8 +15,7 @@ public class OtherTermsOfUseMapper {
 
         return new OtherTermsOfUseDto(otherTermsOfUse.getId(),
                 otherTermsOfUse.getName(),
-                otherTermsOfUse.isActive(),
-                otherTermsOfUse.getPosition());
+                otherTermsOfUse.isActive());
     }
 
     public List<OtherTermsOfUseDto> mapToDtos(List<OtherTermsOfUse> otherTermsOfUses) {

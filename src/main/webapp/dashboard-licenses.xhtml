@@ -6,8 +6,6 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 <h:head>
-    <link type="image/png" rel="image_src" href="#{resource['images/dataverseproject.png']}"/>
-    <link type="image/png" rel="image_src" href="#{resource['images/dataverseproject.png']}"/>
 </h:head>
 
 <h:body>
@@ -30,22 +28,23 @@
             </p:messages>
 
             <h:form id="tableForm">
-                <div class="container">
-                    <div class="row">
-                        <div class="col" style="text-align: right; width: 78%; margin-bottom: 5px">
-                            <p:commandButton action="#{LicenseListingPage.redirectToLicenseReorderPage()}"
-                                             value="#{bundle['dashboard.license.reorderButton']}"
-                                             styleClass="btn btn-primary"/>
 
-                            <p:commandButton onclick="PF('newLicense').show();"
-                                             value="#{bundle['dashboard.license.newLicense.add']}"
-                                             styleClass="btn btn-primary"/>
-
-                        </div>
-                    </div>
-                </div>
                 <p:tabView>
-                    <p:tab title="test1">
+                    <p:tab title="#{bundle['dashboard.license.header']}">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col" style="text-align: right; width: 75%; margin-bottom: 5px">
+                                    <p:commandButton action="#{LicenseListingPage.redirectToLicenseReorderPage()}"
+                                                     value="#{bundle['dashboard.license.reorderButton']}"
+                                                     styleClass="btn "/>
+
+                                    <p:commandButton onclick="PF('newLicense').show();"
+                                                     value="#{bundle['dashboard.license.newLicense.add']}"
+                                                     styleClass="btn"/>
+
+                                </div>
+                            </div>
+                        </div>
                         <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 80%">
                             <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 15%">
                                 <h:outputText value="#{license.position}"/>
@@ -57,7 +56,7 @@
                             <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 30%">
                                 <h:outputLink value="#{license.url}">#{license.url}</h:outputLink>
                             </p:column>
-                            <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 15%">
+                            <p:column headerText="#{bundle['dashboard.license.badge']}" style="width: 15%">
                                 <p:graphicImage value="#{license.icon.content}" stream="false"
                                                 rendered="#{license.icon.content.contentLength>0}" width="81"
                                                 height="31"/>
@@ -71,16 +70,14 @@
                             </p:column>
                         </p:dataTable>
                     </p:tab>
-                    <p:tab title="test2">
-                        <p:dataTable var="otherTos" value="#{OtherTermsOfUseTab.otherTermsOfUse}" style="width: 80%">
-                            <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 15%">
-                                <h:outputText value="#{otherTos.position}"/>
-                            </p:column>
+                    <p:tab title="#{bundle['dashboard.otherTermsOfUse.header']}">
+                        <p:dataTable var="otherTos" value="#{OtherTermsOfUseTab.otherTermsOfUse}"
+                                     style="width: 50%; position: relative; left: 25%">
                             <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}"
                                       style="width: 30%">
                                 <h:outputText value="#{otherTos.name}"/>
                             </p:column>
-                            <p:column headerText="#{bundle['dashboard.license.icon']}"
+                            <p:column headerText="#{bundle['dashboard.license.badge']}"
                                       style="width: 15%; text-align: center">
                                 <p:graphicImage value="#{resource['images/allrightsreserved.png']}" stream="false"
                                                 rendered="#{resource['images/allrightsreserved.png'] != null

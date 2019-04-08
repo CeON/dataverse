@@ -6,11 +6,10 @@ create table othertermsofuse
     active   boolean,
     name     varchar(255) not null
         constraint othertermsofuse_name_key
-            unique,
-    position bigint       not null
+            unique
 );
 
-INSERT INTO othertermsofuse(id, active, name, "position")
-VALUES (1, false, 'All rights reserved', 1);
-INSERT INTO othertermsofuse(id, active, name, "position")
-VALUES (2, false, 'Restricted access', 2);
+INSERT INTO othertermsofuse(id, active, name)
+VALUES (1, false, 'All rights reserved');
+INSERT INTO othertermsofuse(id, active, name)
+VALUES (2, false, 'Restricted access');

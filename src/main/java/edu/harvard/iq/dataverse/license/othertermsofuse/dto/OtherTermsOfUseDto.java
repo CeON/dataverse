@@ -8,15 +8,12 @@ public class OtherTermsOfUseDto {
 
     private boolean active;
 
-    private Long position;
-
     // -------------------- CONSTRUCTORS --------------------
 
-    public OtherTermsOfUseDto(Long id, String name, boolean active, Long position) {
+    public OtherTermsOfUseDto(Long id, String name, boolean active) {
         this.id = id;
         this.name = name;
         this.active = active;
-        this.position = position;
     }
 
     // -------------------- GETTERS --------------------
@@ -33,10 +30,6 @@ public class OtherTermsOfUseDto {
         return active;
     }
 
-    public Long getPosition() {
-        return position;
-    }
-
     // -------------------- SETTERS --------------------
 
 
@@ -50,9 +43,5 @@ public class OtherTermsOfUseDto {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public void setPosition(Long position) {
-        this.position = position;
     }
 }

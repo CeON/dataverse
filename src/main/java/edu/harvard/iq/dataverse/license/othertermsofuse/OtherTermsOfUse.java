@@ -19,9 +19,6 @@ public class OtherTermsOfUse implements Serializable {
 
     private boolean active;
 
-    @Column(nullable = false)
-    private Long position;
-
     //-------------------- GETTERS --------------------
 
     /**
@@ -48,14 +45,6 @@ public class OtherTermsOfUse implements Serializable {
         return active;
     }
 
-    /**
-     * Returns on what position otherTermsOfUse should be displayed
-     * when presenting all or subset of all licenses.
-     */
-    public Long getPosition() {
-        return position;
-    }
-
     //-------------------- SETTERS --------------------
 
     public void setId(Long id) {
@@ -68,9 +57,5 @@ public class OtherTermsOfUse implements Serializable {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public void setPosition(Long position) {
-        this.position = position;
     }
 }
