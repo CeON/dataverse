@@ -6,6 +6,8 @@
       xmlns:p="http://primefaces.org/ui"
 >
 <h:head>
+    <link type="image/png" rel="image_src" href="#{resource['images/dataverseproject.png']}"/>
+    <link type="image/png" rel="image_src" href="#{resource['images/dataverseproject.png']}"/>
 </h:head>
 
 <h:body>
@@ -13,6 +15,7 @@
         <f:viewParam name="dataverseId" value="#{dashboardPage.dataverseId}"/>
         <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
         <f:viewAction action="#{LicenseListingPage.init}"/>
+        <f:viewAction action="#{OtherTermsOfUseTab.init}"/>
         <f:viewAction
                 action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse())}"/>
         <f:viewAction
@@ -27,6 +30,7 @@
             </p:messages>
 
             <h:form>
+
                 <div class="container">
                     <div class="row">
                         <div class="col" style="text-align: right; width: 78%; margin-bottom: 5px">
@@ -37,27 +41,64 @@
                         </div>
                     </div>
                 </div>
-                <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 80%">
-                    <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 15%">
-                        <h:outputText value="#{license.position}"/>
-                    </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}" style="width: 30%">
-                        <h:outputText value="#{license.name}"/>
-                    </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 30%">
-                        <h:outputLink value="#{license.url}">#{license.url}</h:outputLink>
-                    </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 15%">
-                        <p:graphicImage value="#{license.icon.content}" stream="false"
-                                        rendered="#{license.icon.content.contentLength>0}" width="81" height="31"/>
-                    </p:column>
-                    <p:column headerText="#{bundle['dashboard.license.activeByDefault']}"
-                              style="width: 10%; text-align: center; vertical-align: middle">
-                        <p:selectBooleanCheckbox value="#{license.active}">
-                            <p:ajax update="@this" listener="#{LicenseListingPage.saveLicenseActiveStatus(license)}"/>
-                        </p:selectBooleanCheckbox>
-                    </p:column>
-                </p:dataTable>
+                <p:tabView>
+                    <p:tab title="test1">
+                        <p:dataTable var="license" value="#{LicenseListingPage.licenses}" style="width: 80%">
+                            <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 15%">
+                                <h:outputText value="#{license.position}"/>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}"
+                                      style="width: 30%">
+                                <h:outputText value="#{license.name}"/>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.licenseURL']}" style="width: 30%">
+                                <h:outputLink value="#{license.url}">#{license.url}</h:outputLink>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.icon']}" style="width: 15%">
+                                <p:graphicImage value="#{license.icon.content}" stream="false"
+                                                rendered="#{license.icon.content.contentLength>0}" width="81"
+                                                height="31"/>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.activeByDefault']}"
+                                      style="width: 10%; text-align: center; vertical-align: middle">
+                                <p:selectBooleanCheckbox value="#{license.active}">
+                                    <p:ajax update="@this"
+                                            listener="#{LicenseListingPage.saveLicenseActiveStatus(license)}"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+                    <p:tab title="test2">
+                        <p:dataTable var="otherTos" value="#{OtherTermsOfUseTab.otherTermsOfUse}" style="width: 80%">
+                            <p:column headerText="#{bundle['dashboard.license.displayOrder']}" style="width: 15%">
+                                <h:outputText value="#{otherTos.position}"/>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}"
+                                      style="width: 30%">
+                                <h:outputText value="#{otherTos.name}"/>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.icon']}"
+                                      style="width: 15%; text-align: center">
+                                <p:graphicImage value="#{resource['images/allrightsreserved.png']}" stream="false"
+                                                rendered="#{resource['images/allrightsreserved.png'] != null
+                                                 and otherTos.name.equals('All rights reserved')}" width="64"
+                                                height="64"/>
+
+                                <p:graphicImage value="#{resource['images/restrictedAccess.png']}" stream="false"
+                                                rendered="#{resource['images/restrictedAccess.png'] != null
+                                                and otherTos.name.equals('Restricted access')}" width="64"
+                                                height="64"/>
+                            </p:column>
+                            <p:column headerText="#{bundle['dashboard.license.activeByDefault']}"
+                                      style="width: 10%; text-align: center; vertical-align: middle">
+                                <p:selectBooleanCheckbox value="#{otherTos.active}">
+                                    <p:ajax update="@this"
+                                            listener="#{OtherTermsOfUseTab.saveLicenseActiveStatus(otherTos)}"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                        </p:dataTable>
+                    </p:tab>
+                </p:tabView>
             </h:form>
         </ui:define>
     </ui:composition>
