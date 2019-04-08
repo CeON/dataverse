@@ -698,7 +698,6 @@
                     <include>**/*.sql</include>
                     <include>**/*.xml</include>
                     <include>**/*.conf</include>
-                    <include>**/*.png</include>
                 </includes>
             </resource>
         </resources>

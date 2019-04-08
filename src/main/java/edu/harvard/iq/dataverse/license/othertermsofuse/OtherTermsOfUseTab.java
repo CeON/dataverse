@@ -56,6 +56,5 @@ public class OtherTermsOfUseTab implements Serializable {
         otherTermsOfUse.setActive(otherTermsOfUseDto.isActive());
 
         otherTermsOfUseDAO.saveChanges(otherTermsOfUse);
-
     }
 }
