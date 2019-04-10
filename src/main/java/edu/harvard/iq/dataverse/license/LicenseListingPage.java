@@ -69,10 +69,6 @@ public class LicenseListingPage implements Serializable {
         return licenseForPreview;
     }
 
-    public SettingsWrapper getSettingsWrapper() {
-        return settingsWrapper;
-    }
-
     // -------------------- LOGIC --------------------
 
     public String init() {
