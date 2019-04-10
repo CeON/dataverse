@@ -71,22 +71,22 @@
                         </p:dataTable>
                     </p:tab>
                     <p:tab title="#{bundle['dashboard.otherTermsOfUse.header']}">
-                        <p:dataTable var="otherTos" value="#{OtherTermsOfUseTab.otherTermsOfUse}"
+                        <p:dataTable var="otherTos" value="#{OtherTermsOfUseTab.otherTermsOfUseDto}"
                                      style="width: 50%; position: relative; left: 25%">
                             <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}"
                                       style="width: 30%">
-                                <h:outputText value="#{otherTos.name}"/>
+                                <h:outputText value="#{otherTos.universalDisplayName}"/>
                             </p:column>
                             <p:column headerText="#{bundle['dashboard.license.badge']}"
                                       style="width: 15%; text-align: center">
                                 <p:graphicImage value="#{resource['images/allrightsreserved.png']}" stream="false"
                                                 rendered="#{resource['images/allrightsreserved.png'] != null
-                                                 and otherTos.name.equals('All rights reserved')}" width="64"
+                                                 and otherTos.key.equals('Allrightsreserved')}" width="64"
                                                 height="64"/>
 
                                 <p:graphicImage value="#{resource['images/restrictedAccess.png']}" stream="false"
                                                 rendered="#{resource['images/restrictedAccess.png'] != null
-                                                and otherTos.name.equals('Restricted access')}" width="64"
+                                                and otherTos.key.equals('Restrictedaccess')}" width="64"
                                                 height="64"/>
                             </p:column>
                             <p:column headerText="#{bundle['dashboard.license.activeByDefault']}"

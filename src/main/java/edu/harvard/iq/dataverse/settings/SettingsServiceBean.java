@@ -5,19 +5,16 @@ import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.api.ApiBlockingFilter;
 import edu.harvard.iq.dataverse.util.StringUtil;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Service bean accessing and manipulating application settings.
@@ -428,9 +425,9 @@ public class SettingsServiceBean {
     private FileBasedSettingsFetcher fileBasedSettingsFetcher;
     
     /**
-     * Basic functionality - get the name, return the setting, or {@code null}.
+     * Basic functionality - get the name, return the setting from db if present or from properties file if not.
      * @param name of the setting
-     * @return the actual setting, or {@code null}.
+     * @return the actual setting.
      */
     public String get( String name ) {
         Setting s = em.find( Setting.class, name );

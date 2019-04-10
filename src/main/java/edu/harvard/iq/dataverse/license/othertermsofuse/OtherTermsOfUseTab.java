@@ -2,8 +2,7 @@ package edu.harvard.iq.dataverse.license.othertermsofuse;
 
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
-import edu.harvard.iq.dataverse.license.othertermsofuse.dto.OtherTermsOfUseDto;
-import edu.harvard.iq.dataverse.license.othertermsofuse.dto.OtherTermsOfUseMapper;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import org.apache.commons.lang.StringUtils;
 
 import javax.faces.view.ViewScoped;
@@ -24,17 +23,14 @@ public class OtherTermsOfUseTab implements Serializable {
     private PermissionsWrapper permissionsWrapper;
 
     @Inject
-    private OtherTermsOfUseMapper otherTermsOfUseMapper;
+    private SettingsServiceBean settingsServiceBean;
 
-    @Inject
-    private OtherTermsOfUseDAO otherTermsOfUseDAO;
-
-    private List<OtherTermsOfUseDto> otherTermsOfUse = new ArrayList<>();
+    private List<OtherTermsOfUseDto> otherTermsOfUseDto = new ArrayList<>();
 
     // -------------------- GETTERS --------------------
 
-    public List<OtherTermsOfUseDto> getOtherTermsOfUse() {
-        return otherTermsOfUse;
+    public List<OtherTermsOfUseDto> getOtherTermsOfUseDto() {
+        return otherTermsOfUseDto;
     }
 
     // -------------------- LOGIC --------------------
@@ -45,16 +41,18 @@ public class OtherTermsOfUseTab implements Serializable {
             return permissionsWrapper.notAuthorized();
         }
 
-        otherTermsOfUse = otherTermsOfUseMapper.mapToDtos(otherTermsOfUseDAO.findAll());
+        otherTermsOfUseDto.add(new OtherTermsOfUseDto("Allrightsreserved",
+                "All rights reserved",
+                Boolean.valueOf(settingsServiceBean.get("Allrightsreserved"))));
+
+        otherTermsOfUseDto.add(new OtherTermsOfUseDto("Restrictedaccess",
+                "Restricted access",
+                Boolean.valueOf(settingsServiceBean.get("Restrictedaccess"))));
 
         return StringUtils.EMPTY;
     }
 
     public void saveLicenseActiveStatus(OtherTermsOfUseDto otherTermsOfUseDto) {
-
-        OtherTermsOfUse otherTermsOfUse = otherTermsOfUseDAO.find(otherTermsOfUseDto.getId());
-        otherTermsOfUse.setActive(otherTermsOfUseDto.isActive());
-
-        otherTermsOfUseDAO.saveChanges(otherTermsOfUse);
+        settingsServiceBean.set(otherTermsOfUseDto.getKey(), String.valueOf(otherTermsOfUseDto.isActive()));
     }
 }
