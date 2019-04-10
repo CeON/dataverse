@@ -67,7 +67,7 @@
                         <p:commandLink type="button"
                                        styleClass="btn btn-default bootstrap-button-tooltip"
                                        title="#{bundle['dashboard.license.localePreviewButton']}"
-                                       update=":licenseLocalizedPreviewForm"
+                                       update=":licenseLocalizedPreviewContent"
                                        action="#{LicenseListingPage.setLicenseForPreview(license)}"
                                        onclick="PF('licenseLocalizedPreview').show();">
                             <span style="text-align: center" class="glyphicon glyphicon-eye-open"/>
@@ -80,7 +80,7 @@
             <p:dialog modal="true" widgetVar="licenseLocalizedPreview" id="licenseLocalizedPreview"
                       styleClass="disable-scroll" width="600"
                       draggable="false" closable="false" resizable="false">
-                <h:form id="licenseLocalizedPreviewForm">
+                <p:outputPanel id="licenseLocalizedPreviewContent">
                     <div style="display: grid; grid-template-columns: repeat(2, 25%); grid-row-gap: 10%;">
                         <c:forEach items="#{LicenseListingPage.licenseForPreview.localizedNames}" var="localLicense">
                             <div style="grid-column: 1;">
@@ -97,7 +97,7 @@
                                   onclick="PF('licenseLocalizedPreview').hide();"
                                   styleClass="btn btn-default"/>
                     </div>
-                </h:form>
+                </p:outputPanel>
             </p:dialog>
 
 
