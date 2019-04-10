@@ -50,7 +50,7 @@ public class LicenseListingPage implements Serializable {
     private List<LicenseDto> licenses = new ArrayList<>();
 
     private LicenseDto freshLicense;
-    private LicenseDto selectedLicense;
+    private LicenseDto licenseForPreview;
 
     // -------------------- GETTERS --------------------
 
@@ -63,10 +63,10 @@ public class LicenseListingPage implements Serializable {
     }
 
     /**
-     * Used to indicate which license was selected for displaying locale versions.
+     * Is Used to indicate which license localized names to show.
      */
-    public LicenseDto getSelectedLicense() {
-        return selectedLicense;
+    public LicenseDto getLicenseForPreview() {
+        return licenseForPreview;
     }
 
     public SettingsWrapper getSettingsWrapper() {
@@ -167,7 +167,7 @@ public class LicenseListingPage implements Serializable {
 
     // -------------------- SETTERS --------------------
 
-    public void setSelectedLicense(LicenseDto selectedLicense) {
-        this.selectedLicense = selectedLicense;
+    public void setLicenseForPreview(LicenseDto licenseForPreview) {
+        this.licenseForPreview = licenseForPreview;
     }
 }

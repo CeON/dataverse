@@ -68,7 +68,7 @@
                                        styleClass="btn btn-default bootstrap-button-tooltip"
                                        title="#{bundle['dashboard.license.localePreviewButton']}"
                                        update=":licenseLocalizedPreviewForm"
-                                       action="#{LicenseListingPage.setSelectedLicense(license)}"
+                                       action="#{LicenseListingPage.setLicenseForPreview(license)}"
                                        onclick="PF('licenseLocalizedPreview').show();">
                             <span style="text-align: center" class="glyphicon glyphicon-eye-open"/>
                         </p:commandLink>
@@ -81,12 +81,11 @@
                       styleClass="disable-scroll" width="600"
                       draggable="false" closable="false" resizable="false">
                 <h:form id="licenseLocalizedPreviewForm">
-
                     <div style="display: grid; grid-template-columns: repeat(2, 25%); grid-row-gap: 10%;">
-                        <c:forEach items="#{LicenseListingPage.selectedLicense.localizedNames}" var="localLicense">
+                        <c:forEach items="#{LicenseListingPage.licenseForPreview.localizedNames}" var="localLicense">
                             <div style="grid-column: 1;">
                                 <h:outputText value="
-                                #{LicenseListingPage.settingsWrapper.getConfiguredLocaleName(localLicense.locale)}:"/>
+                                #{settingsWrapper.getConfiguredLocaleName(localLicense.locale)}:"/>
                             </div>
                             <div style="grid-column: 2; width: 200%">
                                 #{localLicense.text}
@@ -94,10 +93,9 @@
                         </c:forEach>
                     </div>
                     <div style="text-align: left; padding-top: 2%">
-                        <p:commandButton value="#{bundle.close}"
-                                         onclick="PF('licenseLocalizedPreview').hide();"
-                                         process="@this"
-                                         styleClass="btn btn-default"/>
+                        <p:button value="#{bundle.close}"
+                                  onclick="PF('licenseLocalizedPreview').hide();"
+                                  styleClass="btn btn-default"/>
                     </div>
                 </h:form>
             </p:dialog>
