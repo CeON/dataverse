@@ -3,7 +3,10 @@ package edu.harvard.iq.dataverse.license.othertermsofuse;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
+import edu.harvard.iq.dataverse.util.FileUtil;
 import org.apache.commons.lang.StringUtils;
+import org.primefaces.model.ByteArrayContent;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -41,18 +44,21 @@ public class OtherTermsOfUseTab implements Serializable {
             return permissionsWrapper.notAuthorized();
         }
 
-        otherTermsOfUseDto.add(new OtherTermsOfUseDto("Allrightsreserved",
+        otherTermsOfUseDto.add(new OtherTermsOfUseDto(Key.AllRightsReservedTermsOfUseActive,
                 "All rights reserved",
-                Boolean.valueOf(settingsServiceBean.get("Allrightsreserved"))));
+                Boolean.valueOf(settingsServiceBean.getValueForKey(Key.AllRightsReservedTermsOfUseActive)),
+                new ByteArrayContent(FileUtil.getFileFromResources("/images/allrightsreserved.png"))));
 
-        otherTermsOfUseDto.add(new OtherTermsOfUseDto("Restrictedaccess",
+        otherTermsOfUseDto.add(new OtherTermsOfUseDto(Key.RestrictedAccessTermsOfUseActive,
                 "Restricted access",
-                Boolean.valueOf(settingsServiceBean.get("Restrictedaccess"))));
+                Boolean.valueOf(settingsServiceBean.getValueForKey(Key.RestrictedAccessTermsOfUseActive)),
+                new ByteArrayContent(FileUtil.getFileFromResources("/images/restrictedaccess.png"))));
 
         return StringUtils.EMPTY;
     }
 
     public void saveLicenseActiveStatus(OtherTermsOfUseDto otherTermsOfUseDto) {
-        settingsServiceBean.set(otherTermsOfUseDto.getKey(), String.valueOf(otherTermsOfUseDto.isActive()));
+        settingsServiceBean.setValueForKey(otherTermsOfUseDto.getIsActiveSettingKey(),
+                String.valueOf(otherTermsOfUseDto.isActive()));
     }
 }

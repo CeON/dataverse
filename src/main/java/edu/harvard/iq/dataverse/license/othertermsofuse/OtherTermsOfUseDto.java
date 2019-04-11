@@ -1,28 +1,35 @@
 package edu.harvard.iq.dataverse.license.othertermsofuse;
 
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
+import org.primefaces.model.StreamedContent;
+
 public class OtherTermsOfUseDto {
 
-    private String key;
+    private Key isActiveSettingKey;
 
     private String universalDisplayName;
 
     private boolean active;
 
+    private StreamedContent badge;
+
     // -------------------- CONSTRUCTORS --------------------
 
-    public OtherTermsOfUseDto(String key, String universalDisplayName, boolean active) {
-        this.key = key;
+    public OtherTermsOfUseDto(Key isActiveSettingKey, String universalDisplayName, boolean active, StreamedContent badge) {
+        this.isActiveSettingKey = isActiveSettingKey;
         this.universalDisplayName = universalDisplayName;
         this.active = active;
+        this.badge = badge;
     }
+
 
     // -------------------- GETTERS --------------------
 
     /**
      * Key that represents value in the properties file or db.
      */
-    public String getKey() {
-        return key;
+    public Key getIsActiveSettingKey() {
+        return isActiveSettingKey;
     }
 
     /**
@@ -36,11 +43,14 @@ public class OtherTermsOfUseDto {
         return active;
     }
 
-    // -------------------- SETTERS --------------------
-
-    public void setKey(String key) {
-        this.key = key;
+    /**
+     * Other terms of use image.
+     */
+    public StreamedContent getBadge() {
+        return badge;
     }
+
+    // -------------------- SETTERS --------------------
 
     public void setUniversalDisplayName(String universalDisplayName) {
         this.universalDisplayName = universalDisplayName;
