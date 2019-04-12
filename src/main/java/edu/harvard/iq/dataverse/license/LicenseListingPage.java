@@ -51,7 +51,7 @@ public class LicenseListingPage implements Serializable {
 
     private LicenseDto freshLicense;
     private LicenseDto licenseForPreview;
-    private LicenseDto licenseForEditing;
+    private LicenseDto licenseForEdit;
 
     // -------------------- GETTERS --------------------
 
@@ -70,8 +70,8 @@ public class LicenseListingPage implements Serializable {
         return licenseForPreview;
     }
 
-    public LicenseDto getLicenseForEditing() {
-        return licenseForEditing;
+    public LicenseDto getLicenseForEdit() {
+        return licenseForEdit;
     }
 
     // -------------------- LOGIC --------------------
@@ -107,7 +107,7 @@ public class LicenseListingPage implements Serializable {
      */
     public void editLicenseImageEvent(FileUploadEvent event) {
         UploadedFile uploadedImage = event.getFile();
-        licenseForEditing.getIcon().setContent(new ByteArrayContent(uploadedImage.getContents(),
+        licenseForEdit.getIcon().setContent(new ByteArrayContent(uploadedImage.getContents(),
                 uploadedImage.getContentType()));
     }
 
@@ -191,7 +191,7 @@ public class LicenseListingPage implements Serializable {
         this.licenseForPreview = licenseForPreview;
     }
 
-    public void setLicenseForEditing(LicenseDto licenseForEditing) {
-        this.licenseForEditing = licenseForEditing;
+    public void setLicenseForEdit(LicenseDto licenseForEdit) {
+        this.licenseForEdit = licenseForEdit;
     }
 }

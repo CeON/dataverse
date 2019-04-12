@@ -88,7 +88,7 @@
                                                        styleClass="btn btn-default bootstrap-button-tooltip"
                                                        title="#{bundle['dashboard.license.editLicenseButton']}"
                                                        update=":licenseEditForm"
-                                                       action="#{LicenseListingPage.setLicenseForEditing(license)}"
+                                                       action="#{LicenseListingPage.licenseForEdit(license)}"
                                                        onclick="PF('licenseEdit').show(); ">
                                             <span style="text-align: center" class="glyphicon glyphicon-edit"/>
                                         </p:commandLink>
@@ -131,7 +131,7 @@
                             <p:outputLabel for="urlLicenseEdit" value="#{bundle['dashboard.license.licenseURL']}:"/>
                         </div>
                         <div style="grid-column: 2;">
-                            <p:inputTextarea id="urlLicenseEdit" value="#{LicenseListingPage.licenseForEditing.url}"
+                            <p:inputTextarea id="urlLicenseEdit" value="#{LicenseListingPage.licenseForEdit.url}"
                                              required="true"
                                              requiredMessage="#{bundle['dashboard.license.missingTextField']}">
                                 <f:validator validatorId="licenseValidator"/>
@@ -152,7 +152,7 @@
                                           mode="advanced" skinSimple="true" auto="true"/>
                         </div>
 
-                        <ui:repeat value="#{LicenseListingPage.licenseForEditing.localizedNames}" var="localLicense">
+                        <ui:repeat value="#{LicenseListingPage.licenseForEdit.localizedNames}" var="localLicense">
                             <div style="grid-column: 1;">
                                 <p:outputLabel for="localizedName" value="
                                 #{settingsWrapper.getConfiguredLocaleName(localLicense.locale)}:"/>
@@ -173,7 +173,7 @@
                             <div class="col" style="margin-top: 5%">
                                 <p:commandButton value="#{bundle.save}"
                                                  update=":licenseEditForm"
-                                                 action="#{LicenseListingPage.saveEditedLicense(LicenseListingPage.licenseForEditing)}"
+                                                 action="#{LicenseListingPage.saveEditedLicense(LicenseListingPage.licenseForEdit)}"
                                                  style="margin-right: 1%"
                                                  styleClass="btn btn-default"/>
 
