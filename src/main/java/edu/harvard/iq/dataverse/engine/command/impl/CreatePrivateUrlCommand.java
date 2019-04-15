@@ -13,10 +13,11 @@ import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
+
 import java.util.UUID;
 import java.util.logging.Logger;
 
-@RequiredPermissions(Permission.ManageDatasetPermissions)
+@RequiredPermissions({Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions})
 public class CreatePrivateUrlCommand extends AbstractCommand<PrivateUrl> {
 
     private static final Logger logger = Logger.getLogger(CreatePrivateUrlCommand.class.getCanonicalName());

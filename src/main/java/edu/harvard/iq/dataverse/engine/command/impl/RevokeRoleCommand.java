@@ -1,13 +1,17 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import com.google.common.collect.ImmutableSet;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.RoleAssignment;
+import edu.harvard.iq.dataverse.authorization.DataverseRolePermissionHelper;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.engine.command.AbstractVoidCommand;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +39,18 @@ public class RevokeRoleCommand extends AbstractVoidCommand {
     @Override
     public Map<String, Set<Permission>> getRequiredPermissions() {
         // for data file check permission on owning dataset
-        return Collections.singletonMap("",
-                toBeRevoked.getDefinitionPoint() instanceof Dataverse ? Collections.singleton(Permission.ManageDataversePermissions)
-                : Collections.singleton(Permission.ManageDatasetPermissions));
+
+		if (toBeRevoked.getDefinitionPoint() instanceof Dataverse) {
+			return Collections.singletonMap("", Collections.singleton(Permission.ManageDataversePermissions));
+		}
+
+		if (!CollectionUtils.containsAny(
+				DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions(), toBeRevoked.getRole().permissions())) {
+
+			return Collections.singletonMap("", Collections.singleton(Permission.ManageDatasetPermissions));
+		}
+
+		return Collections.singletonMap("",
+				ImmutableSet.of(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions));
     }	
 }
