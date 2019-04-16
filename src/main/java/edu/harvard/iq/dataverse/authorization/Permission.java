@@ -66,7 +66,7 @@ public enum Permission implements java.io.Serializable {
     //4096
     DeleteDatasetDraft(BundleUtil.getStringFromBundle("permission.deleteDataset"), true, Dataset.class),
     //8192
-    ManageMinorDatasetPermissions(BundleUtil.getStringFromBundle(""), true, Dataset.class);
+    ManageMinorDatasetPermissions(BundleUtil.getStringFromBundle("permission.manageMinorDatasetPermissions"), true, Dataset.class);
 
     // FUTURE:
     //RestrictMetadata("Mark metadata as restricted", DvObject.class),

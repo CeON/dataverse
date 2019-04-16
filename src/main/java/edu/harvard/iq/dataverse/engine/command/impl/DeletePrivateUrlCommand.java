@@ -14,7 +14,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException
 import java.util.List;
 import java.util.logging.Logger;
 
-@RequiredPermissions({Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions})
+@RequiredPermissions(value = {Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions}, isAllPermissionsRequired = false)
 public class DeletePrivateUrlCommand extends AbstractVoidCommand {
 
     private static final Logger logger = Logger.getLogger(DeletePrivateUrlCommand.class.getCanonicalName());

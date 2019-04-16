@@ -11,7 +11,7 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 
 import java.util.logging.Logger;
 
-@RequiredPermissions({Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions})
+@RequiredPermissions(value = {Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions}, isAllPermissionsRequired = false)
 public class GetPrivateUrlCommand extends AbstractCommand<PrivateUrl> {
 
     private static final Logger logger = Logger.getLogger(GetPrivateUrlCommand.class.getCanonicalName());

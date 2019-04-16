@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.engine.command.AbstractVoidCommand;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -43,14 +42,16 @@ public class RevokeRoleCommand extends AbstractVoidCommand {
 		if (toBeRevoked.getDefinitionPoint() instanceof Dataverse) {
 			return Collections.singletonMap("", Collections.singleton(Permission.ManageDataversePermissions));
 		}
-
-		if (!CollectionUtils.containsAny(
-				DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions(), toBeRevoked.getRole().permissions())) {
-
-			return Collections.singletonMap("", Collections.singleton(Permission.ManageDatasetPermissions));
+		if (DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions().contains(toBeRevoked.getRole().getAlias())) {
+			return Collections.singletonMap("",
+					ImmutableSet.of(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions));
 		}
 
-		return Collections.singletonMap("",
-				ImmutableSet.of(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions));
-    }	
+		return Collections.singletonMap("", Collections.singleton(Permission.ManageDatasetPermissions));
+	}
+
+	@Override
+	public boolean isAllPermissionsRequired() {
+		return false;
+	}
 }

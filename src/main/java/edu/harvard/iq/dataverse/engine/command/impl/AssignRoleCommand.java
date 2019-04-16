@@ -16,7 +16,6 @@ import edu.harvard.iq.dataverse.engine.command.AbstractCommand;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -67,14 +66,13 @@ public class AssignRoleCommand extends AbstractCommand<RoleAssignment> {
             return Collections.singletonMap("", Collections.singleton(Permission.ManageDataversePermissions));
         }
 
-        if (!CollectionUtils.containsAny(
-                DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions(), role.permissions())) {
-
-            return Collections.singletonMap("", Collections.singleton(Permission.ManageDatasetPermissions));
+        if (DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions().contains(role.getAlias())) {
+            return Collections.singletonMap("",
+                    ImmutableSet.of(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions));
         }
 
-        return Collections.singletonMap("",
-                ImmutableSet.of(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions));
+        return Collections.singletonMap("", Collections.singleton(Permission.ManageDatasetPermissions));
+
     }
 
     @Override
@@ -82,4 +80,8 @@ public class AssignRoleCommand extends AbstractCommand<RoleAssignment> {
         return grantee + " has been given " + role + " on " + defPoint.accept(DvObject.NameIdPrinter);
     }
 
+    @Override
+    public boolean isAllPermissionsRequired() {
+        return false;
+    }
 }

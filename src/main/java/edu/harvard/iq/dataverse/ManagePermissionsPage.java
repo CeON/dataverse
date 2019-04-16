@@ -418,11 +418,8 @@ public class ManagePermissionsPage implements java.io.Serializable {
                 for (DataverseRole role : roleService.availableRoles(dvObject.getOwner().getId())) {
                     for (Permission permission : role.permissions()) {
                         if (permission.appliesTo(Dataset.class) || permission.appliesTo(DataFile.class)) {
-                            if (permissionService.userOn(this.session.getUser(), this.dvObject)
-                                    .has(Permission.ManageMinorDatasetPermissions) &&
-                                    dataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions().contains(role.getAlias())) {
-                                roles.add(role);
-                            } else {
+                            if (isHasPermission(Permission.ManageMinorDatasetPermissions)
+                                    && isAllowedToManageRole(role) || isHasPermission(Permission.ManageDatasetPermissions)) {
                                 roles.add(role);
                             }
                             break;
@@ -552,6 +549,15 @@ public class ManagePermissionsPage implements java.io.Serializable {
         }
 
         showAssignmentMessages();
+    }
+
+    private boolean isAllowedToManageRole(DataverseRole role) {
+        return DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions().contains(role.getAlias());
+    }
+
+    private boolean isHasPermission(Permission manageMinorDatasetPermissions) {
+        return permissionService.userOn(this.session.getUser(), this.dvObject)
+                .has(manageMinorDatasetPermissions);
     }
 
     /*
