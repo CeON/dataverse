@@ -78,7 +78,7 @@ public abstract class AbstractCommand<R> implements Command<R> {
 
     @Override
     public boolean isAllPermissionsRequired() {
-        return CH.isAllPermissionsRquired(getClass());
+        return CH.isAllPermissionsRequired(getClass());
     }
 
     /**
