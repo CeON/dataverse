@@ -55,7 +55,7 @@ public class CommandHelper {
 		}
 	}
 
-	boolean isAllPermissionsRquired(Class<? extends Command> cmdClass) {
+    boolean isAllPermissionsRequired(Class<? extends Command> cmdClass) {
 		return cmdClass.getAnnotation(RequiredPermissions.class).isAllPermissionsRequired();
 	}
 	
