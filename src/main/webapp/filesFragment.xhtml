@@ -233,7 +233,7 @@
                     #{bundle['dataset.files.termsOfAccess']}: #{bundle['file.allRightsReserved']}
                 </ui:fragment>
                 <ui:fragment rendered="#{fileMetadata.termsOfUse.termsOfUseType == termsOfUseTypeEnum.RESTRICTED}">
-                    #{bundle['dataset.files.termsOfAccess']}: #{bundle['dataset.files.termsOfAccess.restricted']} - 
+                    #{bundle['dataset.files.termsOfAccess']}: #{bundle['file.termsOfAccess.restricted']} - 
                     <ui:fragment rendered="#{fileMetadata.termsOfUse.restrictType != restrictTypeEnum.CUSTOM}">
                         #{bundle['file.termsOfAccess.restricted.'.concat(DatasetPage.termsOfUseOfFirstFile.restrictType)]}
                     </ui:fragment>

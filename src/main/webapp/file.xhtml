@@ -360,7 +360,7 @@
                                             #{bundle['file.termsOfAccess']}: #{bundle['file.allRightsReserved']}
                                         </div>
                                         <div jsf:rendered="#{FilePage.fileMetadata.termsOfUse.termsOfUseType == termsOfUseTypeEnum.RESTRICTED}">
-                                            #{bundle['file.termsOfAccess']}: #{bundle['dataset.files.termsOfAccess.restricted']} - 
+                                            #{bundle['file.termsOfAccess']}: #{bundle['file.termsOfAccess.restricted']} - 
                                             <h:outputText value="#{bundle['file.termsOfAccess.restricted.'.concat(FilePage.fileMetadata.termsOfUse.restrictType)]}"
                                                 rendered="#{FilePage.fileMetadata.termsOfUse.restrictType != restrictTypeEnum.CUSTOM}" />
                                             <h:outputText value="#{FilePage.fileMetadata.termsOfUse.restrictCustomText}"

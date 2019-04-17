@@ -445,7 +445,7 @@
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.license']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license']}"></span>
+                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license.description']}"></span>
                                         </label>
                                         <div class="col-sm-9">
                                             #{bundle['dataset.files.license.multiple']}
@@ -457,7 +457,7 @@
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.license']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license']}"></span>
+                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license.description']}"></span>
                                         </label>
                                         <div class="col-sm-9">
                                             #{DatasetPage.termsOfUseOfFirstFile.license.getLocalizedName(dataverseSession.locale)}
@@ -467,7 +467,7 @@
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.termsOfAccess']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license']}"></span>
+                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license.description']}"></span>
                                         </label>
                                         <div class="col-sm-9">
                                             #{bundle['file.allRightsReserved']}
@@ -477,10 +477,10 @@
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.termsOfAccess']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.termsOfAccess']}"></span>
+                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.termsOfAccess.description']}"></span>
                                         </label>
                                         <div class="col-sm-9">
-                                            #{bundle['dataset.files.termsOfAccess.restricted']} - 
+                                            #{bundle['file.termsOfAccess.restricted']} - 
                                             <h:outputText value="#{bundle['file.termsOfAccess.restricted.'.concat(DatasetPage.termsOfUseOfFirstFile.restrictType)]}"
                                                 rendered="#{DatasetPage.termsOfUseOfFirstFile.restrictType != restrictTypeEnum.CUSTOM}" />
                                             <h:outputText value="#{DatasetPage.termsOfUseOfFirstFile.restrictCustomText}"
