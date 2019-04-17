@@ -84,6 +84,11 @@ public class DataverseSession implements Serializable{
         return localeCode;
     }
 
+    public Locale getLocale() {
+        String localeCode = getLocaleCode();
+        return Locale.forLanguageTag(localeCode);
+    }
+
     public void setLocaleCode(String localeCode) {
         this.localeCode = localeCode;
     }
