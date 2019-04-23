@@ -25,6 +25,8 @@ import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.PrimeFaces;
@@ -562,48 +564,17 @@ public class DataversePage implements java.io.Serializable {
 
     public String save() {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
-        if (editMode != null && editMode.equals(EditMode.INFO)) {
+        if (editMode != null && (editMode.equals(EditMode.INFO) || editMode.equals(EditMode.CREATE))) {
+            Tuple2<List<DataverseFieldTypeInputLevel>, List<MetadataBlock>> selectedMetadatafieldsAndBlocks = getSelectedMetadatafieldsAndBlocks();
+            listDFTIL = selectedMetadatafieldsAndBlocks._1();
 
-            List<MetadataBlock> selectedBlocks = new ArrayList<>();
-            if (dataverse.isMetadataBlockRoot()) {
-                dataverse.getMetadataBlocks().clear();
-            }
-
-            for (MetadataBlock mdb : this.allMetadataBlocks) {
-                if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isRequired())) {
-                    selectedBlocks.add(mdb);
-                    for (DatasetFieldType dsft : mdb.getDatasetFieldTypes()) {
-                        if (dsft.isRequiredDV() && !dsft.isRequired()
-                                && ((!dsft.isHasParent() && dsft.isInclude())
-                                || (dsft.isHasParent() && dsft.getParentDatasetFieldType().isInclude()))) {
-                            DataverseFieldTypeInputLevel dftil = new DataverseFieldTypeInputLevel();
-                            dftil.setDatasetFieldType(dsft);
-                            dftil.setDataverse(dataverse);
-                            dftil.setRequired(true);
-                            dftil.setInclude(true);
-                            listDFTIL.add(dftil);
-                        }
-                        if ((!dsft.isHasParent() && !dsft.isInclude())
-                                || (dsft.isHasParent() && !dsft.getParentDatasetFieldType().isInclude())) {
-                            DataverseFieldTypeInputLevel dftil = new DataverseFieldTypeInputLevel();
-                            dftil.setDatasetFieldType(dsft);
-                            dftil.setDataverse(dataverse);
-                            dftil.setRequired(false);
-                            dftil.setInclude(false);
-                            listDFTIL.add(dftil);
-                        }
-                    }
-                }
-            }
-
-            if (!selectedBlocks.isEmpty()) {
-                dataverse.setMetadataBlocks(selectedBlocks);
+            if (!selectedMetadatafieldsAndBlocks._2().isEmpty()) {
+                dataverse.setMetadataBlocks(selectedMetadatafieldsAndBlocks._2());
             }
 
             if (!dataverse.isFacetRoot()) {
                 facets.getTarget().clear();
             }
-
         }
 
         Command<Dataverse> cmd = null;
@@ -658,6 +629,42 @@ public class DataversePage implements java.io.Serializable {
             JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
             return null;
         }
+    }
+
+    private Tuple2<List<DataverseFieldTypeInputLevel>, List<MetadataBlock>> getSelectedMetadatafieldsAndBlocks() {
+        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
+        List<MetadataBlock> selectedBlocks = new ArrayList<>();
+        if (dataverse.isMetadataBlockRoot()) {
+            dataverse.getMetadataBlocks().clear();
+        }
+
+        for (MetadataBlock mdb : this.allMetadataBlocks) {
+            if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isRequired())) {
+                selectedBlocks.add(mdb);
+                for (DatasetFieldType dsft : mdb.getDatasetFieldTypes()) {
+                    if (dsft.isRequiredDV() && !dsft.isRequired()
+                            && ((!dsft.isHasParent() && dsft.isInclude())
+                            || (dsft.isHasParent() && dsft.getParentDatasetFieldType().isInclude()))) {
+                        DataverseFieldTypeInputLevel dftil = new DataverseFieldTypeInputLevel();
+                        dftil.setDatasetFieldType(dsft);
+                        dftil.setDataverse(dataverse);
+                        dftil.setRequired(true);
+                        dftil.setInclude(true);
+                        listDFTIL.add(dftil);
+                    }
+                    if ((!dsft.isHasParent() && !dsft.isInclude())
+                            || (dsft.isHasParent() && !dsft.getParentDatasetFieldType().isInclude())) {
+                        DataverseFieldTypeInputLevel dftil = new DataverseFieldTypeInputLevel();
+                        dftil.setDatasetFieldType(dsft);
+                        dftil.setDataverse(dataverse);
+                        dftil.setRequired(false);
+                        dftil.setInclude(false);
+                        listDFTIL.add(dftil);
+                    }
+                }
+            }
+        }
+        return Tuple.of(listDFTIL, selectedBlocks);
     }
 
     public void cancel(ActionEvent e) {
