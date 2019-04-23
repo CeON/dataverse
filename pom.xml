@@ -30,7 +30,7 @@
             -Duser.language=${project.language} -Duser.region=${project.region}
         </argLine>
 
-        <aws.version>1.11.172</aws.version>
+        <aws.version>1.11.538</aws.version>
         <jackson.version>2.9.6</jackson.version>
         <commons.logging.version>1.2</commons.logging.version>
         <httpcomponents.client.version>4.5.5</httpcomponents.client.version>
@@ -699,6 +699,7 @@
                     <include>**/*.xml</include>
                     <include>**/*.conf</include>
                     <include>**/*.png</include>
+                    <include>**/*.providers</include>
                 </includes>
             </resource>
         </resources>
