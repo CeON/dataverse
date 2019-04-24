@@ -564,11 +564,12 @@ public class DataversePage implements java.io.Serializable {
     public String save() {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
         if (editMode != null && (editMode.equals(EditMode.INFO) || editMode.equals(EditMode.CREATE))) {
-            List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
 
-            if (!selectedMetadataBlocks.isEmpty()) {
+            if (dataverse.isMetadataBlockRoot()) {
+                dataverse.getMetadataBlocks().clear();
+
+                List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
                 dataverse.setMetadataBlocks(selectedMetadataBlocks);
-
                 listDFTIL = getSelectedMetadataFields(selectedMetadataBlocks);
             }
 
@@ -653,10 +654,6 @@ public class DataversePage implements java.io.Serializable {
 
     private List<MetadataBlock> getSelectedMetadataBlocks() {
         List<MetadataBlock> selectedBlocks = new ArrayList<>();
-
-        if (dataverse.isMetadataBlockRoot()) {
-            dataverse.getMetadataBlocks().clear();
-        }
 
         for (MetadataBlock mdb : this.allMetadataBlocks) {
             if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isRequired())) {
