@@ -195,7 +195,7 @@
                         <c:forEach items="#{LicenseListingPage.licenseForPreview.localizedNames}" var="localLicense">
                             <div style="grid-column: 1;">
                                 <h:outputText value="
-                                #{settingsWrapper.getConfiguredLocaleName(localLicense.locale)}:"/>
+                                #{bundle[localLicense.locale]}:"/>
                             </div>
                             <div style="grid-column: 2; width: 200%">
                                 #{localLicense.text}
