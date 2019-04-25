@@ -38,7 +38,7 @@ public class LazyBannerHistory extends LazyDataModel<DataverseBannerDto> {
 
         dataverseBannerDtos = mapper.mapToDtos(dataverseTextMessages);
 
-        removedBannersLangugaesNotPresentInDataverse(dataverseBannerDtos);
+        removedBannersLanguagesNotPresentInDataverse(dataverseBannerDtos);
         sortMessageLocales(dataverseBannerDtos);
 
         setPageSize(pageSize);
@@ -62,7 +62,7 @@ public class LazyBannerHistory extends LazyDataModel<DataverseBannerDto> {
                 .orElse(null);
     }
 
-    private List<DataverseBannerDto> removedBannersLangugaesNotPresentInDataverse(List<DataverseBannerDto> dataList) {
+    private List<DataverseBannerDto> removedBannersLanguagesNotPresentInDataverse(List<DataverseBannerDto> dataList) {
         Set<String> dataverseLocales = settingsWrapper.getConfiguredLocales().keySet();
 
         dataList.forEach(dataverseBannerDto -> dataverseBannerDto.getDataverseLocalizedBanner()

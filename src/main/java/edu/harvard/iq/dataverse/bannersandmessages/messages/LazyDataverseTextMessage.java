@@ -41,7 +41,7 @@ public class LazyDataverseTextMessage extends LazyDataModel<DataverseTextMessage
                 mapper.mapToDtos(dataverseTextMessages.get()) :
                 Lists.newArrayList();
 
-        removedMessageLangugaesNotPresentInDataverse(dataverseTextMessageDtos);
+        removedMessageLanguagesNotPresentInDataverse(dataverseTextMessageDtos);
         sortMessageLanguages(dataverseTextMessageDtos);
 
         setPageSize(pageSize);
@@ -65,7 +65,7 @@ public class LazyDataverseTextMessage extends LazyDataModel<DataverseTextMessage
                 .orElse(null);
     }
 
-    private List<DataverseTextMessageDto> removedMessageLangugaesNotPresentInDataverse(List<DataverseTextMessageDto> dataList) {
+    private List<DataverseTextMessageDto> removedMessageLanguagesNotPresentInDataverse(List<DataverseTextMessageDto> dataList) {
         Set<String> dataverseLocales = settingsWrapper.getConfiguredLocales().keySet();
 
         dataList.forEach(dataverseTextMessageDto -> dataverseTextMessageDto.getDataverseLocalizedMessage()
