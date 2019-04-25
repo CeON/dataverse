@@ -43,7 +43,8 @@
                                 <div class="p-grid">
                                     <ui:repeat value="#{history.dataverseLocalizedMessage}" var="localmessage">
                                         <div class="p-col">
-                                            <h:outputLabel for="message" value="#{bundle[localmessage.locale]}:"
+                                            <h:outputLabel for="message"
+                                                           value="#{settingsWrapper.getConfiguredLocaleName(localmessage.locale)}:"
                                                            style="margin-right: 10px"/>
                                             <h:outputText id="message" value="#{localmessage.message}"/>
                                         </div>
@@ -106,7 +107,7 @@
                                     <ui:repeat value="#{banner.dataverseLocalizedBanner}" var="localbanner">
                                         <div class="p-col">
                                             <h:outputLabel for="banner-thumbnail"
-                                                           value="#{bundle[localbanner.locale]}:"
+                                                           value="#{settingsWrapper.getConfiguredLocaleName(localbanner.locale)}:"
                                                            style="margin-right: 10px"/>
                                             <p:graphicImage style="padding: 2px" stream="false" id="banner-thumbnail"
                                                             value="#{localbanner.miniDisplayImage}"/>
