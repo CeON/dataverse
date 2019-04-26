@@ -45,8 +45,8 @@ import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.TermsOfUse;
-import edu.harvard.iq.dataverse.license.TermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
@@ -106,6 +106,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -4561,7 +4562,7 @@ public class DatasetPage implements java.io.Serializable {
             sameTermsOfUseForAllFiles = true;
             return sameTermsOfUseForAllFiles;
         }
-        TermsOfUse firstTermsOfUse = workingVersion.getFileMetadatas().get(0).getTermsOfUse();
+        FileTermsOfUse firstTermsOfUse = workingVersion.getFileMetadatas().get(0).getTermsOfUse();
         
         for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
             if (!isSameTermsOfUse(firstTermsOfUse, fileMetadata.getTermsOfUse())) {
@@ -4574,14 +4575,14 @@ public class DatasetPage implements java.io.Serializable {
         return sameTermsOfUseForAllFiles;
     }
     
-    public TermsOfUse getTermsOfUseOfFirstFile() {
+    public Optional<FileTermsOfUse> getTermsOfUseOfFirstFile() {
         if (workingVersion.getFileMetadatas().isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return workingVersion.getFileMetadatas().get(0).getTermsOfUse();
+        return Optional.of(workingVersion.getFileMetadatas().get(0).getTermsOfUse());
     }
     
-    private boolean isSameTermsOfUse(TermsOfUse termsOfUse1, TermsOfUse termsOfUse2) {
+    private boolean isSameTermsOfUse(FileTermsOfUse termsOfUse1, FileTermsOfUse termsOfUse2) {
         if (termsOfUse1.getTermsOfUseType() != termsOfUse2.getTermsOfUseType()) {
             return false;
         }

@@ -35,7 +35,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
-import edu.harvard.iq.dataverse.license.TermsOfUse;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.util.DateUtil;
 import org.hibernate.validator.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -97,7 +97,7 @@ public class FileMetadata implements Serializable {
 
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval=true, fetch=FetchType.EAGER)
     @JoinColumn(nullable=false, name = "termsofuse_id")
-    private TermsOfUse termsOfUse;
+    private FileTermsOfUse termsOfUse;
 
     /**
      * Creates a copy of {@code this}, with identical business logic fields.
@@ -115,7 +115,7 @@ public class FileMetadata implements Serializable {
         fmd.setRestricted( isRestricted() );
         fmd.setDisplayOrder( getDisplayOrder() );
         
-        TermsOfUse termsOfUseCopy = getTermsOfUse().createCopy();
+        FileTermsOfUse termsOfUseCopy = getTermsOfUse().createCopy();
         termsOfUseCopy.setFileMetadata(fmd);
         fmd.setTermsOfUse( termsOfUseCopy );
 
@@ -162,11 +162,11 @@ public class FileMetadata implements Serializable {
         this.displayOrder = displayOrder;
     }
 
-    public TermsOfUse getTermsOfUse() {
+    public FileTermsOfUse getTermsOfUse() {
         return termsOfUse;
     }
 
-    public void setTermsOfUse(TermsOfUse termsOfUse) {
+    public void setTermsOfUse(FileTermsOfUse termsOfUse) {
         this.termsOfUse = termsOfUse;
     }
 

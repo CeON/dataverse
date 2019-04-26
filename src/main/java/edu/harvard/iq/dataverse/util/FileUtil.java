@@ -34,7 +34,7 @@ import edu.harvard.iq.dataverse.ingest.IngestReport;
 import edu.harvard.iq.dataverse.ingest.IngestServiceShapefileHelper;
 import edu.harvard.iq.dataverse.ingest.IngestableDataChecker;
 import edu.harvard.iq.dataverse.license.InitialTermsOfUseFactory;
-import edu.harvard.iq.dataverse.license.TermsOfUse;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import io.vavr.control.Try;
 import org.apache.commons.io.FileUtils;
 
@@ -1034,7 +1034,7 @@ public class FileUtil implements java.io.Serializable  {
         // TODO: add directoryLabel?
         fmd.setLabel(fileName);
 
-        TermsOfUse termsOfUse = termsOfUseFactory.createTermsOfUse();
+        FileTermsOfUse termsOfUse = termsOfUseFactory.createTermsOfUse();
         fmd.setTermsOfUse(termsOfUse);
         termsOfUse.setFileMetadata(fmd);
 

@@ -24,7 +24,7 @@ import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.license.LicenseIcon;
-import edu.harvard.iq.dataverse.license.TermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -46,6 +46,7 @@ import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -635,12 +636,13 @@ public class FilePage implements java.io.Serializable {
         }
         return fileMetadata.getTermsOfUse().getLicense().getIcon() != null;
     }
-    public StreamedContent getLicenseIconContent(FileMetadata fileMetadata) {
+    
+    public Optional<StreamedContent> getLicenseIconContent(FileMetadata fileMetadata) {
         if (!isLicenseIconAvailable(fileMetadata)) {
-            return null;
+            Optional.empty();
         }
         LicenseIcon licenseIcon = fileMetadata.getTermsOfUse().getLicense().getIcon();
-        return new ByteArrayContent(licenseIcon.getContent(), licenseIcon.getContentType());
+        return Optional.of(new ByteArrayContent(licenseIcon.getContent(), licenseIcon.getContentType()));
     }
     
     private String returnToDatasetOnly(){

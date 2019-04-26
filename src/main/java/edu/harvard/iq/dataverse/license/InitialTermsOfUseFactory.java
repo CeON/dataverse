@@ -5,7 +5,7 @@ import javax.inject.Inject;
 
 
 /**
- * Factory of {@link TermsOfUse} objects.
+ * Factory of {@link FileTermsOfUse} objects.
  * 
  * @author madryk
  */
@@ -19,14 +19,14 @@ public class InitialTermsOfUseFactory {
     // -------------------- LOGIC --------------------
     
     /**
-     * Returns new instance of license based {@link TermsOfUse}
+     * Returns new instance of license based {@link FileTermsOfUse}
      * with license set to first active one.
      */
-    public TermsOfUse createTermsOfUse() {
+    public FileTermsOfUse createTermsOfUse() {
         
         License defaultLicense = licenseDao.findFirstActive();
         
-        TermsOfUse termsOfUse = new TermsOfUse();
+        FileTermsOfUse termsOfUse = new FileTermsOfUse();
         termsOfUse.setLicense(defaultLicense);
         
         return termsOfUse;

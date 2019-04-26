@@ -21,7 +21,7 @@ import edu.harvard.iq.dataverse.FileMetadata;
  * @author madryk
  */
 @Entity
-public class TermsOfUse implements Serializable {
+public class FileTermsOfUse implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
@@ -119,8 +119,8 @@ public class TermsOfUse implements Serializable {
         throw new RuntimeException("Unknown terms of use type");
     }
     
-    public TermsOfUse createCopy() {
-        TermsOfUse copy = new TermsOfUse();
+    public FileTermsOfUse createCopy() {
+        FileTermsOfUse copy = new FileTermsOfUse();
         copy.setFileMetadata(getFileMetadata());
         copy.setLicense(getLicense());
         copy.setAllRightsReserved(isAllRightsReserved());

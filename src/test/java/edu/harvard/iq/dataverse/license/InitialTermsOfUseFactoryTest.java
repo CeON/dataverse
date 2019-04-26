@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.harvard.iq.dataverse.license.TermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 
 /**
  * @author madryk
@@ -34,7 +34,7 @@ public class InitialTermsOfUseFactoryTest {
         when(licenseDao.findFirstActive()).thenReturn(license);
         
         // when
-        TermsOfUse termsOfUse = termsOfUseFactory.createTermsOfUse();
+        FileTermsOfUse termsOfUse = termsOfUseFactory.createTermsOfUse();
         
         // then
         assertEquals(TermsOfUseType.LICENSE_BASED, termsOfUse.getTermsOfUseType());

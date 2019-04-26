@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
-import edu.harvard.iq.dataverse.license.TermsOfUse;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.util.DateUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.MarkupChecker;
@@ -582,8 +582,8 @@ public class DatasetVersion implements Serializable {
                 newFm.setDatasetVersion(dsv);
                 newFm.setProvFreeForm(fm.getProvFreeForm());
                 
-                TermsOfUse termsOfUse = fm.getTermsOfUse();
-                TermsOfUse clonedTermsOfUse = termsOfUse.createCopy();
+                FileTermsOfUse termsOfUse = fm.getTermsOfUse();
+                FileTermsOfUse clonedTermsOfUse = termsOfUse.createCopy();
                 clonedTermsOfUse.setFileMetadata(newFm);
                 newFm.setTermsOfUse(clonedTermsOfUse);
                 

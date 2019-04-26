@@ -453,17 +453,17 @@
                                     </div>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{!empty DatasetPage.workingVersion.fileMetadatas and DatasetPage.sameTermsOfUseForAllFiles}">
-                                    <div class="form-group" jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.termsOfUseType == termsOfUseTypeEnum.LICENSE_BASED}">
+                                    <div class="form-group" jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.get().termsOfUseType == termsOfUseTypeEnum.LICENSE_BASED}">
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.license']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
                                                   data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.files.license.description']}"></span>
                                         </label>
                                         <div class="col-sm-9">
-                                            #{DatasetPage.termsOfUseOfFirstFile.license.getLocalizedName(dataverseSession.locale)}
+                                            #{DatasetPage.termsOfUseOfFirstFile.get().license.getLocalizedName(dataverseSession.locale)}
                                         </div>
                                     </div>
-                                    <div class="form-group" jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.termsOfUseType == termsOfUseTypeEnum.ALL_RIGHTS_RESERVED}">
+                                    <div class="form-group" jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.get().termsOfUseType == termsOfUseTypeEnum.ALL_RIGHTS_RESERVED}">
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.termsOfAccess']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
@@ -473,7 +473,7 @@
                                             #{bundle['file.allRightsReserved']}
                                         </div>
                                     </div>
-                                    <div class="form-group" jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.termsOfUseType == termsOfUseTypeEnum.RESTRICTED}">
+                                    <div class="form-group" jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.get().termsOfUseType == termsOfUseTypeEnum.RESTRICTED}">
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.files.termsOfAccess']}
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
@@ -481,10 +481,10 @@
                                         </label>
                                         <div class="col-sm-9">
                                             #{bundle['file.termsOfAccess.restricted']} - 
-                                            <h:outputText value="#{bundle['file.termsOfAccess.restricted.'.concat(DatasetPage.termsOfUseOfFirstFile.restrictType)]}"
-                                                rendered="#{DatasetPage.termsOfUseOfFirstFile.restrictType != restrictTypeEnum.CUSTOM}" />
-                                            <h:outputText value="#{DatasetPage.termsOfUseOfFirstFile.restrictCustomText}"
-                                                rendered="#{DatasetPage.termsOfUseOfFirstFile.restrictType == restrictTypeEnum.CUSTOM}"/>
+                                            <h:outputText value="#{bundle['file.termsOfAccess.restricted.'.concat(DatasetPage.termsOfUseOfFirstFile.get().restrictType)]}"
+                                                rendered="#{DatasetPage.termsOfUseOfFirstFile.get().restrictType != restrictTypeEnum.CUSTOM}" />
+                                            <h:outputText value="#{DatasetPage.termsOfUseOfFirstFile.get().restrictCustomText}"
+                                                rendered="#{DatasetPage.termsOfUseOfFirstFile.get().restrictType == restrictTypeEnum.CUSTOM}"/>
                                         </div>
                                     </div>
                                     </ui:fragment>
