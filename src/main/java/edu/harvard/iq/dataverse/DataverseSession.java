@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.PermissionServiceBean.StaticPermissionQuery;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
-import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 
@@ -31,9 +30,6 @@ public class DataverseSession implements Serializable {
 
     @EJB
     PermissionServiceBean permissionsService;
-
-    @EJB
-    BuiltinUserServiceBean usersSvc;
 
     @EJB
     ActionLogServiceBean logSvc;
@@ -83,11 +79,7 @@ public class DataverseSession implements Serializable {
     public String initLocale() {
         Set<String> dataverseLanguages = settingsWrapper.getConfiguredLocales().keySet();
 
-        String language = dataverseLanguages.contains(getBrowserLanguage()) ? getBrowserLanguage() : "en";
-
-        FacesContext.getCurrentInstance().getViewRoot().setLocale(Locale.forLanguageTag(language));
-
-        return language;
+        return dataverseLanguages.contains(getBrowserLanguage()) ? getBrowserLanguage() : "en";
     }
 
     public void updateLocaleInViewRootAndRedirect(String code) {
@@ -121,7 +113,7 @@ public class DataverseSession implements Serializable {
      * @return Browser locale which is taken from 'Accept-Language header'.
      */
     private String getBrowserLanguage() {
-        return FacesContext.getCurrentInstance().getViewRoot().getLocale().getLanguage();
+        return FacesContext.getCurrentInstance().getExternalContext().getRequestLocale().getLanguage();
     }
 
     // -------------------- SETTERS --------------------
