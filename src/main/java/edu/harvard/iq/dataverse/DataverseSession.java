@@ -110,7 +110,7 @@ public class DataverseSession implements Serializable {
     // -------------------- PRIVATE --------------------
 
     /**
-     * @return Browser locale which is taken from 'Accept-Language header'.
+     * @return Top browser locale which is taken from 'Accept-Language header'.
      */
     private String getBrowserLanguage() {
         return FacesContext.getCurrentInstance().getExternalContext().getRequestLocale().getLanguage();
