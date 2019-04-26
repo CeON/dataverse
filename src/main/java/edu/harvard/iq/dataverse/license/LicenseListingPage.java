@@ -2,11 +2,11 @@ package edu.harvard.iq.dataverse.license;
 
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
-import edu.harvard.iq.dataverse.SettingsWrapper;
 import edu.harvard.iq.dataverse.license.dto.LicenseDto;
 import edu.harvard.iq.dataverse.license.dto.LicenseIconDto;
 import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
 import edu.harvard.iq.dataverse.license.dto.LocaleTextDto;
+import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.event.FileUploadEvent;
@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 
 /**
@@ -83,6 +84,7 @@ public class LicenseListingPage implements Serializable {
         }
 
         licenses = licenseMapper.mapToDtos(licenseDAO.findAll());
+        removeLicenseLanguagesNotPresentInDataverse(licenses);
 
         freshLicense = prepareFreshLicense();
 
@@ -176,6 +178,15 @@ public class LicenseListingPage implements Serializable {
 
         licenseDto.setIcon(new LicenseIconDto());
         return licenseDto;
+    }
+
+    private void removeLicenseLanguagesNotPresentInDataverse(List<LicenseDto> licenses) {
+        Set<String> dataverseLocales = settingsWrapper.getConfiguredLocales().keySet();
+
+        licenses.stream()
+                .map(LicenseDto::getLocalizedNames)
+                .forEach(localeTextDtos -> localeTextDtos
+                        .removeIf(localeTextDto -> !dataverseLocales.contains(localeTextDto.getLocale().getLanguage())));
     }
 
     private void displayNoLicensesActiveWarningMessage() {

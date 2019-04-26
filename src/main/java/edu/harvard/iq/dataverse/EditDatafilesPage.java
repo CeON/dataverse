@@ -26,6 +26,7 @@ import edu.harvard.iq.dataverse.license.InitialTermsOfUseFactory;
 import edu.harvard.iq.dataverse.search.FileView;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
