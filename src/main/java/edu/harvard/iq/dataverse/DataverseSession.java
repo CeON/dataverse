@@ -98,7 +98,7 @@ public class DataverseSession implements Serializable {
         if (localeCode != null
                 && FacesContext.getCurrentInstance() != null
                 && FacesContext.getCurrentInstance().getViewRoot() != null
-                && !localeCode.equals(getBrowserLanguage())) {
+                && !localeCode.equals(FacesContext.getCurrentInstance().getViewRoot().getLocale().getLanguage())) {
             FacesContext.getCurrentInstance().getViewRoot().setLocale(new Locale(localeCode));
         }
     }
