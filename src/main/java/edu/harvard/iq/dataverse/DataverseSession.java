@@ -26,9 +26,6 @@ import java.util.logging.Logger;
 @SessionScoped
 public class DataverseSession implements Serializable {
 
-    /* Note that on logout, variables must be cleared manually in DataverseHeaderFragment*/
-    private User user;
-
     @EJB
     PermissionServiceBean permissionsService;
 
@@ -40,6 +37,8 @@ public class DataverseSession implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DataverseSession.class.getCanonicalName());
 
+    /* Note that on logout, variables must be cleared manually in DataverseHeaderFragment*/
+    private User user;
     private boolean statusDismissed = false;
     private String localeCode;
 
