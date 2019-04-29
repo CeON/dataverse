@@ -539,15 +539,6 @@ public class DatasetVersion implements Serializable {
             
             for (DatasetField templateField : templateDatasetFields) {
                 datasetFieldsMap.put(templateField.getDatasetFieldType(), templateField);
-//                if (datasetFieldsMap.containsKey(templateField.getDatasetFieldType())) {
-//                    datasetFieldsMap.p
-//                }
-//                if (getDatasetField(templateField.getDatasetFieldType()) == null) {
-//                    datasetFields.add(templateField);
-//                } else {
-//                    
-//                    getDatasetField(templateField.getDatasetFieldType());
-//                }
             }
         }
         setDatasetFields(new ArrayList<>(datasetFieldsMap.values()));
