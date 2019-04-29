@@ -33,6 +33,8 @@ public class UnsupportedLanguageCleanerTest {
         when(settingsWrapper.getConfiguredLocales()).thenReturn(ImmutableMap.of("en", "English"));
     }
 
+    // -------------------- TESTS --------------------
+
     @Test
     public void shouldRemoveMessageLanguagesNotPresentInDataverse() {
         //given
@@ -60,6 +62,8 @@ public class UnsupportedLanguageCleanerTest {
         //then
         Assert.assertEquals(bannerDto.getDataverseLocalizedBanner().size(), 1L);
     }
+
+    // -------------------- PRIVATE --------------------
 
     private List<DataverseLocalizedMessageDto> createLocalizedMessages() {
         DataverseLocalizedMessageDto englishLocalMessage = new DataverseLocalizedMessageDto("en", "test", "English");

@@ -13,6 +13,8 @@ public class UnsupportedLanguageCleaner {
 
     private SettingsWrapper settingsWrapper;
 
+    // -------------------- CONSTRUCTORS --------------------
+
     public UnsupportedLanguageCleaner() {
     }
 
@@ -20,6 +22,8 @@ public class UnsupportedLanguageCleaner {
     public UnsupportedLanguageCleaner(SettingsWrapper settingsWrapper) {
         this.settingsWrapper = settingsWrapper;
     }
+
+    // -------------------- LOGIC --------------------
 
     public DataverseTextMessageDto removeMessageLanguagesNotPresentInDataverse(DataverseTextMessageDto textMessageDto) {
         Set<String> dataverseLocales = settingsWrapper.getConfiguredLocales().keySet();
