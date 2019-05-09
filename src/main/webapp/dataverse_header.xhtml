@@ -57,7 +57,8 @@
                         </li>
 
                         <li>
-                            <h:outputLink value="#{settingsWrapper.guidesBaseUrl}/#{systemConfig.guidesVersion}/user" target="_blank">
+                            <h:outputLink value="#{settingsService.guidesBaseUrl}/#{systemConfig.guidesVersion}/user"
+                                          target="_blank">
                                 <h:outputText value="#{bundle['header.guides.user']}"/>
                             </h:outputLink>
                         </li>
