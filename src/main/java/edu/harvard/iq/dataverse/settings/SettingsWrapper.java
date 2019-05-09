@@ -82,21 +82,6 @@ public class SettingsWrapper implements java.io.Serializable {
         return get(key.toString());
     }
 
-    /**
-     * Pass the map key as a "Key" object instead of a string
-     * Allow a default value if null is encountered
-     * 
-     * @param key
-     * @param defaultValue
-     * @return 
-     */
-    public String getValueForKey(Key key, String defaultValue){
-        if (key == null){
-            return null;
-        }
-        return get(key.toString(), defaultValue);
-    }
-
     public boolean isTrueForKey(Key key, boolean safeDefaultIfKeyNotFound) {
         
         return isTrueForKey(key.toString(), safeDefaultIfKeyNotFound);
@@ -106,36 +91,14 @@ public class SettingsWrapper implements java.io.Serializable {
         if (settingsMap == null) {
             initSettingsMap();
         }
-        
-        String val = get(settingKey);;
+
+        String val = get(settingKey);
         return ( val==null ) ? safeDefaultIfKeyNotFound : StringUtil.isTrue(val);
     }
 
     private void initSettingsMap() {
         // initialize settings map
         settingsMap = settingService.listAll();
-    }
-
-    
-    public String getGuidesBaseUrl() {
-        if (true)
-
-            if (guidesBaseUrl == null) {
-            String saneDefault = "http://guides.dataverse.org";
-        
-            guidesBaseUrl = getValueForKey(SettingsServiceBean.Key.GuidesBaseUrl);
-            if (guidesBaseUrl == null) {
-                guidesBaseUrl = saneDefault + "/en"; 
-            } else {
-                guidesBaseUrl = guidesBaseUrl + "/en";
-            }
-            // TODO: 
-            // hard-coded "en"; will need to be configuratble once 
-            // we have support for other languages. 
-            // TODO: 
-            // remove a duplicate of this method from SystemConfig
-        }
-        return guidesBaseUrl;
     }
 
     public boolean isPublicInstall(){
@@ -168,18 +131,8 @@ public class SettingsWrapper implements java.io.Serializable {
         return BrandingUtil.getSupportTeamName(systemAddress, dataverseService.findRootDataverse().getName());
     }
     
-    public String getSupportTeamEmail() {
-        String systemEmail = getValueForKey(SettingsServiceBean.Key.SystemEmail);
-        InternetAddress systemAddress = MailUtil.parseSystemAddress(systemEmail);        
-        return BrandingUtil.getSupportTeamEmailAddress(systemAddress) != null ? BrandingUtil.getSupportTeamEmailAddress(systemAddress) : BrandingUtil.getSupportTeamName(systemAddress, dataverseService.findRootDataverse().getName());
-    }
-    
     public Integer getUploadMethodsCount() {
         return systemConfig.getUploadMethodCount();
-    }
-
-    public boolean isRootDataverseThemeDisabled() {
-        return isTrueForKey(Key.DisableRootDataverseTheme, false);
     }
     
     public String getDropBoxKey() {
@@ -227,7 +180,7 @@ public class SettingsWrapper implements java.io.Serializable {
         configuredLocales = new LinkedHashMap<>();
         
         try {
-            JSONArray entries = new JSONArray(getValueForKey(SettingsServiceBean.Key.Languages, "[{\"locale\":\"en\", \"title\":\"English\"}]"));
+            JSONArray entries = new JSONArray(getValueForKey(SettingsServiceBean.Key.Languages));
             for (Object obj : entries) {
                 JSONObject entry = (JSONObject) obj;
                 String locale = entry.getString("locale");

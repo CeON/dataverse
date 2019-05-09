@@ -228,7 +228,7 @@ public class PasswordResetPage implements java.io.Serializable {
     }
     
     public String getCustomPasswordResetAlertMessage() {
-        String customPasswordResetAlertMessage = settingsWrapper.getValueForKey(SettingsServiceBean.Key.PVCustomPasswordResetAlertMessage);
+        String customPasswordResetAlertMessage = settingsService.getValueForKey(SettingsServiceBean.Key.PVCustomPasswordResetAlertMessage);
         if(customPasswordResetAlertMessage != null && !customPasswordResetAlertMessage.isEmpty()){
             return customPasswordResetAlertMessage;
         } else {

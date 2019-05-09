@@ -51,6 +51,8 @@ import java.util.Map;
 public class WorldMapPermissionHelper implements java.io.Serializable {
     
     @Inject SettingsWrapper settingsWrapper;
+    @Inject
+    SettingsServiceBean settingsService;
     @Inject MapLayerMetadataServiceBean mapLayerMetadataService;
     @Inject PermissionServiceBean permissionService;
     @Inject DataverseSession session;
@@ -170,7 +172,7 @@ public class WorldMapPermissionHelper implements java.io.Serializable {
             Is setting for GeoconnectViewMaps true?
             Nope? no button
         */
-        if (!settingsWrapper.isTrueForKey(SettingsServiceBean.Key.GeoconnectViewMaps, false)){
+        if (!settingsService.isTrueForKey(SettingsServiceBean.Key.GeoconnectViewMaps)) {
             this.fileMetadataWorldMapExplore.put(fm.getId(), false);
             return false;
         } 
@@ -415,7 +417,7 @@ public class WorldMapPermissionHelper implements java.io.Serializable {
         }
         
         //  (1) Is the view GeoconnectViewMaps 
-        if (!settingsWrapper.isTrueForKey(SettingsServiceBean.Key.GeoconnectCreateEditMaps, false)){
+        if (!settingsService.isTrueForKey(SettingsServiceBean.Key.GeoconnectCreateEditMaps)) {
             return false;
         }
         
@@ -530,7 +532,7 @@ public class WorldMapPermissionHelper implements java.io.Serializable {
 
 
         //  (2) Is the view GeoconnectViewMaps 
-        if (!settingsWrapper.isTrueForKey(SettingsServiceBean.Key.GeoconnectCreateEditMaps, false)){
+        if (!settingsService.isTrueForKey(SettingsServiceBean.Key.GeoconnectCreateEditMaps)) {
              
             return false;
         }
