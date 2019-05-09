@@ -454,8 +454,7 @@ public class SettingsServiceBean {
      * @return The setting, or {@code null}.
      */
     public String getValueForKey(Key key) {
-        String s = get(key.toString());
-        return s;
+        return get(key.toString());
     }
     
     
@@ -484,25 +483,6 @@ public class SettingsServiceBean {
         }
         
     }
-    
-    
-    /**
-     * Return the value stored, or the default value, in case no setting by that
-     * name exists. The main difference between this method and the other {@code get()}s
-     * is that is never returns null (unless {@code defaultValue} is {@code null}.
-     * 
-     * @param name Name of the setting.
-     * @param defaultValue The value to return if no setting is found in the DB.
-     * @return Either the stored value, or the default value.
-     */
-    public String get( String name, String defaultValue ) {
-        String val = get(name);
-        return (val!=null) ? val : defaultValue;
-    }
-    
-    public String getValueForKey( Key key, String defaultValue ) {
-        return get( key.toString(), defaultValue );
-    }
      
     public Setting set( String name, String content ) {
         Setting s = new Setting( name, content );
@@ -520,7 +500,6 @@ public class SettingsServiceBean {
      * The correct way to decide whether a string value in the
      * settings table should be considered as {@code true}.
      * @param name name of the setting.
-     * @param defaultValue logical value of {@code null}.
      * @return boolean value of the setting.
      */
     public boolean isTrue(String name) {

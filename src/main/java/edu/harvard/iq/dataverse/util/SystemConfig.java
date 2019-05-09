@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2Aut
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorUtil;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.passay.CharacterRule;
 
 import javax.ejb.EJB;
@@ -364,12 +365,9 @@ public class SystemConfig {
     }
 
     public String getGuidesVersion() {
-        String saneDefault = getVersion();
-        String guidesVersion = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesVersion, saneDefault);
-        if (guidesVersion != null) {
-            return guidesVersion;
-        }
-        return saneDefault;
+        String guidesVersion = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesVersion);
+
+        return guidesVersion.equals(StringUtils.EMPTY) ? getVersion() : guidesVersion;
     }
 
     public String getMetricsUrl() {
@@ -519,15 +517,15 @@ public class SystemConfig {
     }
     
     public String getApplicationTermsOfUse() {
-        String saneDefaultForAppTermsOfUse = BundleUtil.getStringFromBundle("system.app.terms");
-        String appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse, saneDefaultForAppTermsOfUse);
-        return appTermsOfUse;
+        String appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse);
+
+        return appTermsOfUse.equals(StringUtils.EMPTY) ? BundleUtil.getStringFromBundle("system.app.terms") : appTermsOfUse;
     }
 
     public String getApiTermsOfUse() {
-        String saneDefaultForApiTermsOfUse = BundleUtil.getStringFromBundle("system.api.terms");
-        String apiTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApiTermsOfUse, saneDefaultForApiTermsOfUse);
-        return apiTermsOfUse;
+        String apiTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApiTermsOfUse);
+
+        return apiTermsOfUse.equals(StringUtils.EMPTY) ? BundleUtil.getStringFromBundle("system.api.terms") : apiTermsOfUse;
     }
 
     public boolean myDataDoesNotUsePermissionDocs() {

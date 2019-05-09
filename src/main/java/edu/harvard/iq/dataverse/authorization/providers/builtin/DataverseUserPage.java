@@ -108,6 +108,8 @@ public class DataverseUserPage implements java.io.Serializable {
     @Inject
     SettingsWrapper settingsWrapper;
     @Inject
+    SettingsServiceBean settingsService;
+    @Inject
     MyDataPage mydatapage;
     @Inject
     PermissionsWrapper permissionsWrapper;
@@ -141,8 +143,7 @@ public class DataverseUserPage implements java.io.Serializable {
     public String init() {
 
         // prevent creating a user if signup not allowed.
-        boolean safeDefaultIfKeyNotFound = true;
-        boolean signupAllowed = settingsWrapper.isTrueForKey(SettingsServiceBean.Key.AllowSignUp.toString(), safeDefaultIfKeyNotFound);
+        boolean signupAllowed = settingsService.isTrueForKey(SettingsServiceBean.Key.AllowSignUp);
 
         if (editMode == EditMode.CREATE && !signupAllowed) {
             return "/403.xhtml";

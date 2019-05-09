@@ -5,11 +5,6 @@
  */
 package edu.harvard.iq.dataverse.settings;
 
-import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.branding.BrandingUtil;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
-import edu.harvard.iq.dataverse.util.MailUtil;
-import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +13,6 @@ import org.json.JSONObject;
 import javax.ejb.EJB;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
-import javax.mail.internet.InternetAddress;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,66 +28,16 @@ public class SettingsWrapper implements java.io.Serializable {
     SettingsServiceBean settingService;
 
     @EJB
-    DataverseServiceBean dataverseService;
-
-    @EJB
     SystemConfig systemConfig;
 
     private Map<String, String> settingsMap;
-    
-    // Related to a specific setting for guide urls
-    private String guidesBaseUrl = null; 
 
- 
     public String get(String settingKey) {
         if (settingsMap == null) {
             initSettingsMap();
         }
         
         return settingsMap.get(settingKey);
-    }
-    /**
-     * Return value from map, initiating settings map if needed
-     * @param settingKey
-     * @param defaultValue
-     * @return 
-     */
-    public String get(String settingKey, String defaultValue) {
-        if (settingsMap == null) {
-            initSettingsMap();
-        }
-        
-        if (!settingsMap.containsKey(settingKey)){
-            return defaultValue;
-        }
-        return settingsMap.get(settingKey);
-    }
-    
-    /**
-     * Pass the map key as a "Key" object instead of a string
-     * 
-     * @param key
-     * @return 
-     */
-    public String getValueForKey(Key key){
-        if (key == null){
-            return null;
-        }
-        return get(key.toString());
-    }
-
-    public boolean isTrueForKey(Key key, boolean safeDefaultIfKeyNotFound) {
-        
-        return isTrueForKey(key.toString(), safeDefaultIfKeyNotFound);
-    }
-
-    public boolean isTrueForKey(String settingKey, boolean safeDefaultIfKeyNotFound) {
-        if (settingsMap == null) {
-            initSettingsMap();
-        }
-
-        String val = get(settingKey);
-        return ( val==null ) ? safeDefaultIfKeyNotFound : StringUtil.isTrue(val);
     }
 
     private void initSettingsMap() {
@@ -123,12 +67,6 @@ public class SettingsWrapper implements java.io.Serializable {
     
     public boolean isDataFilePIDSequentialDependent(){
         return systemConfig.isDataFilePIDSequentialDependent();
-    }
-    
-    public String getSupportTeamName() {
-        String systemEmail = getValueForKey(SettingsServiceBean.Key.SystemEmail);
-        InternetAddress systemAddress = MailUtil.parseSystemAddress(systemEmail);
-        return BrandingUtil.getSupportTeamName(systemAddress, dataverseService.findRootDataverse().getName());
     }
     
     public Integer getUploadMethodsCount() {
@@ -180,7 +118,7 @@ public class SettingsWrapper implements java.io.Serializable {
         configuredLocales = new LinkedHashMap<>();
         
         try {
-            JSONArray entries = new JSONArray(getValueForKey(SettingsServiceBean.Key.Languages));
+            JSONArray entries = new JSONArray(get(SettingsServiceBean.Key.Languages.toString()));
             for (Object obj : entries) {
                 JSONObject entry = (JSONObject) obj;
                 String locale = entry.getString("locale");
