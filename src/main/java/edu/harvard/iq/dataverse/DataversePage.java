@@ -6,7 +6,6 @@ import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.bannersandmessages.DataverseUtil;
 import edu.harvard.iq.dataverse.engine.command.Command;
-import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateSavedSearchCommand;
@@ -14,12 +13,9 @@ import edu.harvard.iq.dataverse.engine.command.impl.DeleteDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.LinkDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
-import edu.harvard.iq.dataverse.search.SearchException;
-import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchIncludeFragment;
 import edu.harvard.iq.dataverse.search.savedsearch.SavedSearch;
 import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchFilterQuery;
-import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -88,8 +84,6 @@ public class DataversePage implements java.io.Serializable {
     PermissionServiceBean permissionService;
     @EJB
     ControlledVocabularyValueServiceBean controlledVocabularyValueServiceBean;
-    @EJB
-    SavedSearchServiceBean savedSearchService;
     @EJB
     SystemConfig systemConfig;
     @Inject
@@ -239,72 +233,6 @@ public class DataversePage implements java.io.Serializable {
         return null;
     }
 
-    public void updateLinkableDataverses() {
-        dataversesForLinking = new ArrayList<>();
-        linkingDVSelectItems = new ArrayList<>();
-
-        //Since only a super user function add all dvs
-        dataversesForLinking = dataverseService.findAll();// permissionService.getDataversesUserHasPermissionOn(session.getUser(), Permission.PublishDataverse);
-
-
-        //for linking - make sure the link hasn't occurred and its not int the tree
-        if (this.linkMode.equals(LinkMode.LINKDATAVERSE)) {
-
-            // remove this and it's parent tree
-            dataversesForLinking.remove(dataverse);
-            Dataverse testDV = dataverse;
-            while (testDV.getOwner() != null) {
-                dataversesForLinking.remove(testDV.getOwner());
-                testDV = testDV.getOwner();
-            }
-
-            for (Dataverse removeLinked : linkingService.findLinkingDataverses(dataverse.getId())) {
-                dataversesForLinking.remove(removeLinked);
-            }
-        } else {
-            //for saved search add all
-
-        }
-
-        for (Dataverse selectDV : dataversesForLinking) {
-            linkingDVSelectItems.add(new SelectItem(selectDV.getId(), selectDV.getDisplayName()));
-        }
-
-        if (!dataversesForLinking.isEmpty() && dataversesForLinking.size() == 1 && dataversesForLinking.get(0) != null) {
-            linkingDataverse = dataversesForLinking.get(0);
-            linkingDataverseId = linkingDataverse.getId();
-        }
-    }
-
-    public void initFeaturedDataverses() {
-        List<Dataverse> featuredSource = new ArrayList<>();
-        List<Dataverse> featuredTarget = new ArrayList<>();
-        featuredSource.addAll(dataverseService.findAllPublishedByOwnerId(dataverse.getId()));
-        featuredSource.addAll(linkingService.findLinkingDataverses(dataverse.getId()));
-        List<DataverseFeaturedDataverse> featuredList = featuredDataverseService.findByDataverseId(dataverse.getId());
-        for (DataverseFeaturedDataverse dfd : featuredList) {
-            Dataverse fd = dfd.getFeaturedDataverse();
-            featuredTarget.add(fd);
-            featuredSource.remove(fd);
-        }
-        featuredDataverses = new DualListModel<>(featuredSource, featuredTarget);
-
-    }
-
-    public void initFacets() {
-        List<DatasetFieldType> facetsSource = new ArrayList<>();
-        List<DatasetFieldType> facetsTarget = new ArrayList<>();
-        facetsSource.addAll(datasetFieldService.findAllFacetableFieldTypes());
-        List<DataverseFacet> facetsList = dataverseFacetService.findByDataverseId(dataverse.getFacetRootId());
-        for (DataverseFacet dvFacet : facetsList) {
-            DatasetFieldType dsfType = dvFacet.getDatasetFieldType();
-            facetsTarget.add(dsfType);
-            facetsSource.remove(dsfType);
-        }
-        facets = new DualListModel<>(facetsSource, facetsTarget);
-        facetMetadataBlockId = null;
-    }
-
     public void changeFacetsMetadataBlock() {
         if (facetMetadataBlockId == null) {
             facets.setSource(datasetFieldService.findAllFacetableFieldTypes());
@@ -384,27 +312,6 @@ public class DataversePage implements java.io.Serializable {
         setEditInputLevel(false);
     }
 
-    public List<SelectItem> resetSelectItems(DatasetFieldType typeIn) {
-        List<SelectItem> retList = new ArrayList<>();
-        if ((typeIn.isHasParent() && typeIn.getParentDatasetFieldType().isInclude()) || (!typeIn.isHasParent() && typeIn.isInclude())) {
-            SelectItem requiredItem = new SelectItem();
-            requiredItem.setLabel(BundleUtil.getStringFromBundle("dataverse.item.required"));
-            requiredItem.setValue(true);
-            retList.add(requiredItem);
-            SelectItem optional = new SelectItem();
-            optional.setLabel(BundleUtil.getStringFromBundle("dataverse.item.optional"));
-            optional.setValue(false);
-            retList.add(optional);
-        } else {
-            SelectItem hidden = new SelectItem();
-            hidden.setLabel(BundleUtil.getStringFromBundle("dataverse.item.hidden"));
-            hidden.setValue(false);
-            hidden.setDisabled(true);
-            retList.add(hidden);
-        }
-        return retList;
-    }
-
     public String save() {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
         if (editMode != null && (editMode.equals(EditMode.INFO) || editMode.equals(EditMode.CREATE))) {
@@ -422,7 +329,7 @@ public class DataversePage implements java.io.Serializable {
             }
         }
 
-        Command<Dataverse> cmd = null;
+        Command<Dataverse> cmd;
         //TODO change to Create - for now the page is expecting INFO instead.
         Boolean create;
         if (dataverse.getId() == null) {
@@ -463,13 +370,8 @@ public class DataversePage implements java.io.Serializable {
             return returnRedirect();
 
 
-        } catch (CommandException ex) {
+        } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-            String errMsg = create ? BundleUtil.getStringFromBundle("dataverse.create.failure") : BundleUtil.getStringFromBundle("dataverse.update.failure");
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
-            return null;
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", e);
             String errMsg = create ? BundleUtil.getStringFromBundle("dataverse.create.failure") : BundleUtil.getStringFromBundle("dataverse.update.failure");
             JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
             return null;
@@ -536,31 +438,8 @@ public class DataversePage implements java.io.Serializable {
             return returnRedirect();
         }
 
-        SavedSearch savedSearchOfChildren = createSavedSearchForChildren(savedSearchCreator);
-
-        boolean createLinksAndIndexRightNow = false;
-        if (createLinksAndIndexRightNow) {
-            try {
-                // create links (does indexing) right now (might be expensive)
-                boolean debug = false;
-                DataverseRequest dataverseRequest = new DataverseRequest(savedSearchCreator, SavedSearchServiceBean.getHttpServletRequest());
-                savedSearchService.makeLinksForSingleSavedSearch(dataverseRequest, savedSearchOfChildren, debug);
-                JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.linked.success", getSuccessMessageArguments()));
-                return returnRedirect();
-            } catch (SearchException | CommandException ex) {
-                // error: solr is down, etc. can't link children right now
-                JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.linked.internalerror", getSuccessMessageArguments()));
-                String msg = dataverse.getDisplayName() + " has been successfully linked to " + linkingDataverse.getDisplayName() + " but contents will not appear until an internal error has been fixed.";
-                logger.log(Level.SEVERE, "{0} {1}", new Object[]{msg, ex});
-                //JsfHelper.addFlashErrorMessage(msg);
-                return returnRedirect();
-            }
-        } else {
-            // defer: please wait for the next timer/cron job
-            //JsfHelper.addFlashSuccessMessage(dataverse.getDisplayName() + " has been successfully linked to " + linkingDataverse.getDisplayName() + ". Please wait for its contents to appear.");
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.linked.success.wait", getSuccessMessageArguments()));
-            return returnRedirect();
-        }
+        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.linked.success.wait", getSuccessMessageArguments()));
+        return returnRedirect();
     }
 
     public void setupLinkingPopup(String popupSetting) {
@@ -590,10 +469,6 @@ public class DataversePage implements java.io.Serializable {
         SavedSearch savedSearch = new SavedSearch(searchIncludeFragment.getQuery(), linkingDataverse, savedSearchCreator);
         savedSearch.setSavedSearchFilterQueries(new ArrayList<>());
         for (String filterQuery : searchIncludeFragment.getFilterQueriesDebug()) {
-            /**
-             * @todo Why are there null's here anyway? Turn on debug and figure
-             * this out.
-             */
             if (filterQuery != null && !filterQuery.isEmpty()) {
                 SavedSearchFilterQuery ssfq = new SavedSearchFilterQuery(filterQuery, savedSearch);
                 savedSearch.getSavedSearchFilterQueries().add(ssfq);
@@ -767,17 +642,6 @@ public class DataversePage implements java.io.Serializable {
         return arguments;
     }
 
-    private SavedSearch createSavedSearchForChildren(AuthenticatedUser savedSearchCreator) {
-        String wildcardQuery = "*";
-        SavedSearch savedSearchToPersist = new SavedSearch(wildcardQuery, linkingDataverse, savedSearchCreator);
-        String dataversePath = dataverseService.determineDataversePath(dataverse);
-        String filterDownToSubtree = SearchFields.SUBTREE + ":\"" + dataversePath + "\"";
-        SavedSearchFilterQuery filterDownToSubtreeFilterQuery = new SavedSearchFilterQuery(filterDownToSubtree, savedSearchToPersist);
-        savedSearchToPersist.setSavedSearchFilterQueries(Arrays.asList(filterDownToSubtreeFilterQuery));
-        SavedSearch savedSearchCreated = savedSearchService.add(savedSearchToPersist);
-        return savedSearchCreated;
-    }
-
     private AuthenticatedUser getAuthenticatedUser() {
         User user = session.getUser();
         if (user.isAuthenticated()) {
@@ -791,9 +655,8 @@ public class DataversePage implements java.io.Serializable {
         Long dataverseIdForInputLevel = dataverse.getId();
         List<MetadataBlock> retList = new ArrayList<>();
 
-        List<MetadataBlock> availableBlocks = new ArrayList<>();
         //Add System level blocks
-        availableBlocks.addAll(dataverseService.findSystemMetadataBlocks());
+        List<MetadataBlock> availableBlocks = new ArrayList<>(dataverseService.findSystemMetadataBlocks());
 
         Dataverse testDV = dataverse;
         //Add blocks associated with DV
@@ -852,6 +715,90 @@ public class DataversePage implements java.io.Serializable {
             retList.add(mdb);
         }
         setAllMetadataBlocks(retList);
+    }
+
+    private void initFeaturedDataverses() {
+        List<Dataverse> featuredSource = new ArrayList<>();
+        List<Dataverse> featuredTarget = new ArrayList<>();
+        featuredSource.addAll(dataverseService.findAllPublishedByOwnerId(dataverse.getId()));
+        featuredSource.addAll(linkingService.findLinkingDataverses(dataverse.getId()));
+        List<DataverseFeaturedDataverse> featuredList = featuredDataverseService.findByDataverseId(dataverse.getId());
+        for (DataverseFeaturedDataverse dfd : featuredList) {
+            Dataverse fd = dfd.getFeaturedDataverse();
+            featuredTarget.add(fd);
+            featuredSource.remove(fd);
+        }
+        featuredDataverses = new DualListModel<>(featuredSource, featuredTarget);
+
+    }
+
+    private void updateLinkableDataverses() {
+        dataversesForLinking = new ArrayList<>();
+        linkingDVSelectItems = new ArrayList<>();
+
+        //Since only a super user function add all dvs
+        dataversesForLinking = dataverseService.findAll();// permissionService.getDataversesUserHasPermissionOn(session.getUser(), Permission.PublishDataverse);
+
+
+        //for linking - make sure the link hasn't occurred and its not int the tree
+        if (this.linkMode.equals(LinkMode.LINKDATAVERSE)) {
+
+            // remove this and it's parent tree
+            dataversesForLinking.remove(dataverse);
+            Dataverse testDV = dataverse;
+            while (testDV.getOwner() != null) {
+                dataversesForLinking.remove(testDV.getOwner());
+                testDV = testDV.getOwner();
+            }
+
+            for (Dataverse removeLinked : linkingService.findLinkingDataverses(dataverse.getId())) {
+                dataversesForLinking.remove(removeLinked);
+            }
+        }
+
+
+        for (Dataverse selectDV : dataversesForLinking) {
+            linkingDVSelectItems.add(new SelectItem(selectDV.getId(), selectDV.getDisplayName()));
+        }
+
+        if (dataversesForLinking.size() == 1 && dataversesForLinking.get(0) != null) {
+            linkingDataverse = dataversesForLinking.get(0);
+            linkingDataverseId = linkingDataverse.getId();
+        }
+    }
+
+    private void initFacets() {
+        List<DatasetFieldType> facetsTarget = new ArrayList<>();
+        List<DatasetFieldType> facetsSource = new ArrayList<>(datasetFieldService.findAllFacetableFieldTypes());
+        List<DataverseFacet> facetsList = dataverseFacetService.findByDataverseId(dataverse.getFacetRootId());
+        for (DataverseFacet dvFacet : facetsList) {
+            DatasetFieldType dsfType = dvFacet.getDatasetFieldType();
+            facetsTarget.add(dsfType);
+            facetsSource.remove(dsfType);
+        }
+        facets = new DualListModel<>(facetsSource, facetsTarget);
+        facetMetadataBlockId = null;
+    }
+
+    private List<SelectItem> resetSelectItems(DatasetFieldType typeIn) {
+        List<SelectItem> retList = new ArrayList<>();
+        if ((typeIn.isHasParent() && typeIn.getParentDatasetFieldType().isInclude()) || (!typeIn.isHasParent() && typeIn.isInclude())) {
+            SelectItem requiredItem = new SelectItem();
+            requiredItem.setLabel(BundleUtil.getStringFromBundle("dataverse.item.required"));
+            requiredItem.setValue(true);
+            retList.add(requiredItem);
+            SelectItem optional = new SelectItem();
+            optional.setLabel(BundleUtil.getStringFromBundle("dataverse.item.optional"));
+            optional.setValue(false);
+            retList.add(optional);
+        } else {
+            SelectItem hidden = new SelectItem();
+            hidden.setLabel(BundleUtil.getStringFromBundle("dataverse.item.hidden"));
+            hidden.setValue(false);
+            hidden.setDisabled(true);
+            retList.add(hidden);
+        }
+        return retList;
     }
 
     private String returnRedirect() {
