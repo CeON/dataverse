@@ -23,11 +23,12 @@
                         <span class="icon-bar"></span>
                     </button>                       
                     <a href="/">
-                        <ui:fragment rendered="#{empty settingsWrapper.get(':LogoCustomizationFile')}">
+                        <ui:fragment rendered="#{empty settingsServiceBean.get(':LogoCustomizationFile')}">
                             <span class="navbar-brand" tabindex="1"><i id="icon-dataverse" class="icon-dataverse"></i> #{bundle.dataverse}</span>
                         </ui:fragment>
-                        <h:graphicImage rendered="#{!empty settingsWrapper.get(':LogoCustomizationFile')}"
-                            url="#{settingsWrapper.get(':LogoCustomizationFile')}" styleClass="navbar-brand custom-logo"/>
+                        <h:graphicImage rendered="#{!empty settingsServiceBean.get(':LogoCustomizationFile')}"
+                                        url="#{settingsServiceBean.get(':LogoCustomizationFile')}"
+                                        styleClass="navbar-brand custom-logo"/>
                     </a>
                 </div>
                 <div class="collapse navbar-collapse" id="topNavBar">
@@ -49,9 +50,9 @@
                                 </form>
                             </ul>
                         </li>
-                        
-                        <li jsf:rendered="#{!empty settingsWrapper.get(':NavbarAboutUrl')}">
-                            <h:outputLink value="#{settingsWrapper.get(':NavbarAboutUrl')}" target="_blank">
+
+                        <li jsf:rendered="#{!empty settingsServiceBean.get(':NavbarAboutUrl')}">
+                            <h:outputLink value="#{settingsServiceBean.get(':NavbarAboutUrl')}" target="_blank">
                                 <h:outputText value="#{bundle['header.about']}"/>
                             </h:outputLink>
                         </li>
@@ -62,14 +63,14 @@
                                 <h:outputText value="#{bundle['header.guides.user']}"/>
                             </h:outputLink>
                         </li>
-                        
-                        <li jsf:rendered="#{!empty settingsWrapper.get(':NavbarSupportUrl')}">
-                            <h:outputLink value="#{settingsWrapper.get(':NavbarSupportUrl')}" target="_blank">
+
+                        <li jsf:rendered="#{!empty settingsServiceBean.get(':NavbarSupportUrl')}">
+                            <h:outputLink value="#{settingsServiceBean.get(':NavbarSupportUrl')}" target="_blank">
                                 <h:outputText value="#{bundle['header.support']}"/>
                             </h:outputLink>
                         </li>
-                        
-                        <ui:fragment rendered="#{empty settingsWrapper.get(':NavbarSupportUrl')}">
+
+                        <ui:fragment rendered="#{empty settingsServiceBean.get(':NavbarSupportUrl')}">
                             <o:form useRequestURI="true" class="navbar-form navbar-left navbar-form-link">
                                 <p:commandLink oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
@@ -199,12 +200,15 @@
         </noscript>
         <!-- Status Alert -->
         <o:form class="form-inline">
-            <div id="status-alert" class="bg-warning" jsf:rendered="#{!empty settingsWrapper.get(':StatusMessageText') and !empty settingsWrapper.get(':StatusMessageHeader') and !dataverseSession.isStatusDismissed()}">
+            <div id="status-alert" class="bg-warning"
+                 jsf:rendered="#{!empty settingsServiceBean.get(':StatusMessageText') and !empty settingsServiceBean.get(':StatusMessageHeader') and !dataverseSession.isStatusDismissed()}">
                 <div class="alert alert-dismissible container text-warning">
                     <p:commandButton class="close" id="closeButton" actionListener="#{dataverseSession.setStatusDismissed(true)}" update="@form" value="&#215;" />
 <!--                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&#215;</span></button>-->
-                    <h:outputText styleClass="highlightBold" value="#{!empty settingsWrapper.get(':StatusMessageHeader') ? settingsWrapper.get(':StatusMessageHeader') : bundle['header.status.header']}"/>
-                    <h:outputText rendered="#{!empty settingsWrapper.get(':StatusMessageText')}" value=" – #{settingsWrapper.get(':StatusMessageText')}" escape="false"/>
+                    <h:outputText styleClass="highlightBold"
+                                  value="#{!empty settingsServiceBean.get(':StatusMessageHeader') ? settingsServiceBean.get(':StatusMessageHeader') : bundle['header.status.header']}"/>
+                    <h:outputText rendered="#{!empty settingsServiceBean.get(':StatusMessageText')}"
+                                  value=" – #{settingsServiceBean.get(':StatusMessageText')}" escape="false"/>
                 </div>
             </div>
         </o:form>

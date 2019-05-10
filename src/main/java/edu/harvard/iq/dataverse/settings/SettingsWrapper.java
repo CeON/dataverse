@@ -31,19 +31,9 @@ public class SettingsWrapper implements java.io.Serializable {
     SystemConfig systemConfig;
 
     private Map<String, String> settingsMap;
+    private Map<String, String> configuredLocales;
 
-    public String get(String settingKey) {
-        if (settingsMap == null) {
-            initSettingsMap();
-        }
-        
-        return settingsMap.get(settingKey);
-    }
-
-    private void initSettingsMap() {
-        // initialize settings map
-        settingsMap = settingService.listAll();
-    }
+    // -------------------- GETTERS --------------------
 
     public boolean isPublicInstall(){
         return systemConfig.isPublicInstall();
@@ -65,10 +55,6 @@ public class SettingsWrapper implements java.io.Serializable {
         return systemConfig.isHTTPUpload();
     }
     
-    public boolean isDataFilePIDSequentialDependent(){
-        return systemConfig.isDataFilePIDSequentialDependent();
-    }
-    
     public Integer getUploadMethodsCount() {
         return systemConfig.getUploadMethodCount();
     }
@@ -81,16 +67,14 @@ public class SettingsWrapper implements java.io.Serializable {
         }
         return "";
     }
-    
+
+    // -------------------- LOGIC --------------------
+
     public Boolean isHasDropBoxKey() {
 
         return !getDropBoxKey().isEmpty();
     }
-    
-    // Language Locales Configuration: 
-    
-    // Map from locale to display name eg     en -> English
-    private Map<String, String> configuredLocales;
+
     
     public boolean isLocalesConfigured() {
         if (configuredLocales == null) {
@@ -112,6 +96,8 @@ public class SettingsWrapper implements java.io.Serializable {
         }
         return configuredLocales.get(localeCode);
     }
+
+    // -------------------- PRIVATE --------------------
     
     private void initLocaleSettings() {
         
@@ -130,6 +116,19 @@ public class SettingsWrapper implements java.io.Serializable {
             //e.printStackTrace();
             // do we want to know? - probably not
         }
+    }
+
+    private String get(String settingKey) {
+        if (settingsMap == null) {
+            initSettingsMap();
+        }
+
+        return settingsMap.get(settingKey);
+    }
+
+    private void initSettingsMap() {
+        // initialize settings map
+        settingsMap = settingService.listAll();
     }
 }
 
