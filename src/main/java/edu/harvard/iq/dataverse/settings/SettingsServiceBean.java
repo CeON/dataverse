@@ -33,8 +33,6 @@ import java.util.logging.Logger;
 @Named
 public class SettingsServiceBean {
     
-    private static final Logger logger = Logger.getLogger(SettingsServiceBean.class.getCanonicalName());
-    
     /**
      * Some convenient keys for the settings. Note that the setting's 
      * name is really a {@code String}, but it's good to have the compiler look
@@ -425,7 +423,9 @@ public class SettingsServiceBean {
             return ":" + name();
         }
     }
-    
+
+    private static final Logger logger = Logger.getLogger(SettingsServiceBean.class.getCanonicalName());
+
     @PersistenceContext
     private EntityManager em;
     
@@ -437,7 +437,9 @@ public class SettingsServiceBean {
 
     @Inject
     private DataverseServiceBean dataverseService;
-    
+
+    // -------------------- LOGIC --------------------
+
     /**
      * Basic functionality - get the name, return the setting from db if present or from properties file if not.
      * @param name of the setting
