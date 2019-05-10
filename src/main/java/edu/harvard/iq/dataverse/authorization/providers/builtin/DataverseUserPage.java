@@ -107,7 +107,7 @@ public class DataverseUserPage implements java.io.Serializable {
     PasswordValidatorServiceBean passwordValidatorService;
     @Inject
     SettingsWrapper settingsWrapper;
-    @Inject
+    @EJB
     SettingsServiceBean settingsService;
     @Inject
     MyDataPage mydatapage;

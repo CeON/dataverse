@@ -56,7 +56,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     DataverseSession session;
     @Inject
     SettingsWrapper settingsWrapper;
-    @Inject
+    @EJB
     SettingsServiceBean settingsService;
     @Inject
     ThumbnailServiceWrapper thumbnailServiceWrapper;

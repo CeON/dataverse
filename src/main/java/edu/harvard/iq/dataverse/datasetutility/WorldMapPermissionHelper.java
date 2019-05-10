@@ -19,6 +19,7 @@ import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 
+import javax.ejb.EJB;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -51,7 +52,7 @@ import java.util.Map;
 public class WorldMapPermissionHelper implements java.io.Serializable {
     
     @Inject SettingsWrapper settingsWrapper;
-    @Inject
+    @EJB
     SettingsServiceBean settingsService;
     @Inject MapLayerMetadataServiceBean mapLayerMetadataService;
     @Inject PermissionServiceBean permissionService;
