@@ -854,7 +854,6 @@ public class DataversePage implements java.io.Serializable {
         setAllMetadataBlocks(retList);
     }
 
-
     private String returnRedirect() {
         return "/dataverse.xhtml?alias=" + dataverse.getAlias() + "&faces-redirect=true";
     }
