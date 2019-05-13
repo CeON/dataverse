@@ -38,7 +38,7 @@
                 if (window !== top) top.location = window.location;
             </script>
         </ui:fragment>
-        <ui:fragment rendered="#{!empty settingsServiceBean.get(':StyleCustomizationFile')}">
+        <ui:fragment rendered="#{!empty settingsWrapper.getSettingValue(':StyleCustomizationFile')}">
             <style>
                 /* Custom CSS */
                 <o:resourceInclude path="/CustomizationFilesServlet?customFileType=style" />
@@ -72,9 +72,10 @@
         </p:ajaxStatus>
         <ui:include src="contactFormFragment.xhtml">
         </ui:include>
-        <p:dialog id="statusInfo" styleClass="smallPopUp" header="#{settingsServiceBean.get(':StatusMessageHeader')}"
+        <p:dialog id="statusInfo" styleClass="smallPopUp"
+                  header="#{settingsWrapper.getSettingValue(':StatusMessageHeader')}"
                   widgetVar="statusInfo" modal="true">
-            <p><h:outputText value="#{settingsServiceBean.get(':StatusMessageText')}" escape="false"/></p>
+            <p><h:outputText value="#{settingsWrapper.getSettingValue(':StatusMessageText')}" escape="false"/></p>
             <div class="button-block">
                 <button type="button" onclick="PF('statusInfo').hide()" class="btn btn-default" value="#{bundle.close}">
                     #{bundle.close}

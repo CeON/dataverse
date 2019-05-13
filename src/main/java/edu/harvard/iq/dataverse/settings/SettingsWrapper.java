@@ -75,6 +75,13 @@ public class SettingsWrapper implements java.io.Serializable {
         return !getDropBoxKey().isEmpty();
     }
 
+    public String getSettingValue(String settingKey) {
+        if (settingsMap == null) {
+            initSettingsMap();
+        }
+
+        return settingsMap.get(settingKey);
+    }
     
     public boolean isLocalesConfigured() {
         if (configuredLocales == null) {
@@ -104,7 +111,7 @@ public class SettingsWrapper implements java.io.Serializable {
         configuredLocales = new LinkedHashMap<>();
         
         try {
-            JSONArray entries = new JSONArray(get(SettingsServiceBean.Key.Languages.toString()));
+            JSONArray entries = new JSONArray(getSettingValue(SettingsServiceBean.Key.Languages.toString()));
             for (Object obj : entries) {
                 JSONObject entry = (JSONObject) obj;
                 String locale = entry.getString("locale");
@@ -116,14 +123,6 @@ public class SettingsWrapper implements java.io.Serializable {
             //e.printStackTrace();
             // do we want to know? - probably not
         }
-    }
-
-    private String get(String settingKey) {
-        if (settingsMap == null) {
-            initSettingsMap();
-        }
-
-        return settingsMap.get(settingKey);
     }
 
     private void initSettingsMap() {

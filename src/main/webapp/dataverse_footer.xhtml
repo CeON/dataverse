@@ -11,10 +11,10 @@
                 <div class="col-sm-8 small" jsf:rendered="#{!widgetView}">
                     <p>
                         <h:outputText
-                                value="#{systemConfig.footerCopyrightAndYear}#{settingsServiceBean.get(':FooterCopyright')}"
+                                value="#{systemConfig.footerCopyrightAndYear}#{settingsWrapper.getSettingValue(':FooterCopyright')}"
                                 escape="false"/> <ui:fragment
-                            rendered="#{!empty settingsServiceBean.get(':ApplicationPrivacyPolicyUrl')}">&#160;|&#160;
-                        <h:outputLink value="#{settingsServiceBean.get(':ApplicationPrivacyPolicyUrl')}"
+                            rendered="#{!empty settingsWrapper.getSettingValue(':ApplicationPrivacyPolicyUrl')}">&#160;|&#160;
+                        <h:outputLink value="#{settingsWrapper.getSettingValue(':ApplicationPrivacyPolicyUrl')}"
                                       target="_blank">#{bundle['footer.privacyPolicy']}</h:outputLink></ui:fragment>
                     </p>
                 </div>
