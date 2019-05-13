@@ -1,6 +1,29 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.dataverse;
 
+import edu.harvard.iq.dataverse.ControlledVocabularyValue;
+import edu.harvard.iq.dataverse.ControlledVocabularyValueServiceBean;
+import edu.harvard.iq.dataverse.DatasetFieldConstant;
+import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
+import edu.harvard.iq.dataverse.DatasetFieldType;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.DataverseContact;
+import edu.harvard.iq.dataverse.DataverseFacet;
+import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
+import edu.harvard.iq.dataverse.DataverseFeaturedDataverse;
+import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
+import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
+import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
+import edu.harvard.iq.dataverse.MetadataBlock;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.UserNotification.Type;
+import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
@@ -312,6 +335,93 @@ public class DataversePage implements java.io.Serializable {
         setEditInputLevel(false);
     }
 
+    public String saveNewDataverse() {
+        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
+
+        if (dataverse.isMetadataBlockRoot()) {
+            dataverse.getMetadataBlocks().clear();
+
+            List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
+            dataverse.setMetadataBlocks(selectedMetadataBlocks);
+            listDFTIL = getSelectedMetadataFields(selectedMetadataBlocks);
+        }
+
+        if (!dataverse.isFacetRoot()) {
+            facets.getTarget().clear();
+        }
+
+        if (session.getUser().isAuthenticated()) {
+            dataverse.setOwner(ownerId != null ? dataverseService.find(ownerId) : null);
+            Command<Dataverse> cmd = new CreateDataverseCommand(dataverse, dvRequestService.getDataverseRequest(), facets.getTarget(), listDFTIL);
+
+            try {
+                commandEngine.submit(cmd);
+            } catch (CommandException ex) {
+                logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
+                JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.failure"));
+                return StringUtils.EMPTY;
+            }
+
+            userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataverse.getCreateDate(), Type.CREATEDV, dataverse.getId());
+
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.create.success",
+                    Arrays.asList(settingsWrapper.getGuidesBaseUrl(), systemConfig.getGuidesVersion())));
+        } else {
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly"));
+            return StringUtils.EMPTY;
+        }
+
+        return returnRedirect();
+    }
+
+    public String saveEditedDataverse() {
+        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
+
+        if (dataverse.isMetadataBlockRoot()) {
+            dataverse.getMetadataBlocks().clear();
+
+            List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
+            dataverse.setMetadataBlocks(selectedMetadataBlocks);
+            listDFTIL = getSelectedMetadataFields(selectedMetadataBlocks);
+        }
+
+        if (!dataverse.isFacetRoot()) {
+            facets.getTarget().clear();
+        }
+
+        UpdateDataverseCommand cmd = new UpdateDataverseCommand(dataverse, facets.getTarget(), null, dvRequestService.getDataverseRequest(), listDFTIL);
+
+        try {
+            dataverse = commandEngine.submit(cmd);
+
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.update.success"));
+        } catch (CommandException ex) {
+            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
+            String errMsg = BundleUtil.getStringFromBundle("dataverse.update.failure");
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
+            return StringUtils.EMPTY;
+        }
+
+        return returnRedirect();
+    }
+
+    public String saveFeaturedDataverse() {
+        UpdateDataverseCommand cmd =
+                new UpdateDataverseCommand(dataverse, null, featuredDataverses.getTarget(), dvRequestService.getDataverseRequest(), null);
+
+        try {
+            dataverse = commandEngine.submit(cmd);
+
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.feature.update"));
+        } catch (CommandException ex) {
+            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.update.failure"));
+            return StringUtils.EMPTY;
+        }
+
+        return returnRedirect();
+    }
+
     public String save() {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
         if (editMode != null && (editMode.equals(EditMode.INFO) || editMode.equals(EditMode.CREATE))) {
@@ -330,7 +440,6 @@ public class DataversePage implements java.io.Serializable {
         }
 
         Command<Dataverse> cmd;
-        //TODO change to Create - for now the page is expecting INFO instead.
         Boolean create;
         if (dataverse.getId() == null) {
             if (session.getUser().isAuthenticated()) {

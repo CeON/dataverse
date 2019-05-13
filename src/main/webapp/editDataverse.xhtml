@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+</h:head>
+
+<h:body>
+    <f:metadata>
+        <f:viewParam name="dataverseId" value="#{editDataversePage.dataverseId}"/>
+        <f:viewAction action="#{editDataversePage.init}"/>
+        <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(editDataversePage.dataverse)}"/>
+    </f:metadata>
+
+    <ui:composition template="/dataverse_template.xhtml">
+        <ui:define name="body">
+
+
+            <h:form id="editDataverseForm">
+                <p:focus context="editDataverseForm"/>
+                <!-- Sample Block -->
+                <!-- Name Panel -->
+                <!-- Edit Info Panel -->
+                <div class="row">
+                    <div class="col-xs-6 form-group form-col-container">
+                        <label class="col-sm-3 control-label" for="name">
+                            #{bundle.dataverse} <span class="glyphicon glyphicon-asterisk text-danger"
+                                                      title="#{bundle.requiredField}"/>
+                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                  data-toggle="tooltip" data-placement="auto right"
+                                  data-original-title="#{bundle['dataverse.title']}"/>
+                        </label>
+                        <div class="col-sm-9 form-col-container">
+                            <p:inputText id="name" tabindex="1" styleClass="form-control"
+                                         value="#{editDataversePage.dataverse.name}"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 form-group form-col-container">
+                        <label class="col-sm-3 control-label" for="affiliation">
+                            #{bundle.affiliation}
+                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                  data-toggle="tooltip" data-placement="auto right"
+                                  data-original-title="#{bundle['dataverse.affiliation.title']}"/>
+                        </label>
+                        <div class="col-sm-9 form-col-container">
+                            <p:inputText id="affiliation" tabindex="2" styleClass="form-control"
+                                         value="#{editDataversePage.dataverse.affiliation}"/>
+                            <p:message for="affiliation" display="text"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 form-group form-col-container">
+                        <label class="col-sm-3 control-label" for="identifier">
+                            #{bundle.identifier} <span class="glyphicon glyphicon-asterisk text-danger"
+                                                       title="#{bundle.requiredField}"/>
+                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                  data-toggle="tooltip" data-placement="auto right"
+                                  data-original-title="#{bundle['dataverse.identifier.title']}"/>
+                        </label>
+                        <div class="col-sm-9 form-col-container">
+                            <div class="input-group">
+                                <div class="input-group-addon"><span
+                                        class="small">#{systemConfig.dataverseSiteUrl}/dataverse/</span></div>
+                                <p:inputText id="identifier" tabindex="3" styleClass="form-control"
+                                             validator="#{editDataversePage.validateAlias}"
+                                             value="#{editDataversePage.dataverse.alias}"/>
+                            </div>
+                            <p:message for="identifier" display="text"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 form-group">
+                        <label class="col-sm-3 control-label" for="hostDataverse">
+                            #{bundle.hostDataverse}
+                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                  data-toggle="tooltip" data-placement="auto right"
+                                  data-original-title="#{bundle['dataverse.host.title']}"/>
+                        </label>
+                        <div class="col-sm-9 form-col-container">
+                            <p class="form-control-static">#{editDataversePage.dataverse.getOwner().name}</p>
+                            <h:inputHidden value="#{editDataversePage.ownerId}" id="hostDataverse"/>
+                            <ui:remove><!-- removed for beta -->
+                                <p:selectOneMenu id="hostDataverse" tabindex="2" value="#{editDataversePage.ownerId}"
+                                                 filter="true" filterMatchMode="startsWith" effect="none">
+                                    <f:selectItems value="#{dataverseServiceBean.findAll()}" var="dv"
+                                                   itemLabel="#{dv.name}" itemValue="#{dv.id}"
+                                                   itemDisabled="#{dv eq editDataversePage.dataverse or dv.owners.contains(editDataversePage.dataverse)}"/>
+                                </p:selectOneMenu>
+                            </ui:remove>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 form-group form-col-container">
+                        <div class="form-group clearfix">
+                            <label class="col-sm-3 control-label" for="dataverseCategory">
+                                #{bundle['dataverse.category']} <span class="glyphicon glyphicon-asterisk text-danger"
+                                                                      title="#{bundle.requiredField}"/>
+                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                      data-toggle="tooltip" data-placement="auto right"
+                                      data-original-title="#{bundle['dataverse.category.title']}"/>
+                            </label>
+                            <div class="col-sm-9 form-col-container">
+                                <h:selectOneMenu id="dataverseCategory" tabindex="5" styleClass="form-control"
+                                                 value="#{editDataversePage.dataverse.dataverseType}">
+                                    <f:selectItem id="dvSelect" itemLabel="#{bundle['dataverse.type.selectTab.top']}"
+                                                  itemValue=""/>
+                                    <f:selectItem id="dvDepartment"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.department']}"
+                                                  itemValue="DEPARTMENT"/>
+                                    <f:selectItem id="dvJournals"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.journals']}"
+                                                  itemValue="JOURNALS"/>
+                                    <f:selectItem id="dvLab"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.laboratory']}"
+                                                  itemValue="LABORATORY"/>
+                                    <f:selectItem id="dvOrgInst"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.organizationsAndInsitutions']}"
+                                                  itemValue="ORGANIZATIONS_INSTITUTIONS"/>
+                                    <f:selectItem id="dvResearch"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.researchers']}"
+                                                  itemValue="RESEARCHERS"/>
+                                    <f:selectItem id="dvResearchGrp"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.researchGroup']}"
+                                                  itemValue="RESEARCH_GROUP"/>
+                                    <f:selectItem id="dvResearchProj"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.researchProjects']}"
+                                                  itemValue="RESEARCH_PROJECTS"/>
+                                    <f:selectItem id="dvTeaching"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.teachingCourses']}"
+                                                  itemValue="TEACHING_COURSES"/>
+                                    <f:selectItem id="dvUncategorized"
+                                                  itemLabel="#{bundle['dataverse.type.selectTab.uncategorized']}"
+                                                  itemValue="UNCATEGORIZED"/>
+                                </h:selectOneMenu>
+                                <p:message for="dataverseCategory" display="text"/>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix">
+                            <p:fragment>
+                                <p:autoUpdate/>
+                                <label class="col-sm-3 control-label" for="contactEmail">
+                                    #{bundle['dataverse.email']} <span class="glyphicon glyphicon-asterisk text-danger"
+                                                                       title="#{bundle.requiredField}"/>
+                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                          data-toggle="tooltip" data-placement="auto right"
+                                          data-original-title="#{bundle['dataverse.email.title']}"/>
+                                </label>
+                                <div class="col-sm-9 form-col-container edit-compound-field">
+                                    <ui:repeat value="#{editDataversePage.dataverse.dataverseContacts}" var="contacts"
+                                               varStatus="valCount">
+                                        <div class="form-group">
+                                            <div class="col-sm-8 form-col-container">
+                                                <p:inputText id="contactEmail" tabindex="7" styleClass="form-control"
+                                                             value="#{contacts.contactEmail}">
+                                                    <f:validateBean disabled="#{param['SKIP_VALIDATION']}"/>
+                                                </p:inputText>
+                                                <p:message for="contactEmail" display="text"/>
+                                            </div>
+                                            <!-- Add / Remove buttons -->
+                                            <div class="col-sm-4 form-col-container field-add-delete">
+                                                <p:commandLink
+                                                        styleClass="btn btn-default btn-sm bootstrap-button-tooltip"
+                                                        title="#{bundle.add}"
+                                                        actionListener="#{editDataversePage.dataverse.addDataverseContact(valCount.index + 1)}"
+                                                        oncomplete="javascript:bind_bsui_components();">
+                                                    <f:param name="SKIP_VALIDATION" value="true"/>
+                                                    <h:outputText styleClass="glyphicon glyphicon-plus no-text"/>
+                                                </p:commandLink>
+                                                <p:commandLink
+                                                        styleClass="btn btn-default btn-sm bootstrap-button-tooltip"
+                                                        title="#{bundle.delete}"
+                                                        rendered="#{editDataversePage.dataverse.dataverseContacts.size() > 1}"
+                                                        actionListener="#{editDataversePage.dataverse.removeDataverseContact(valCount.index)}"
+                                                        oncomplete="javascript:bind_bsui_components();">
+                                                    <f:param name="SKIP_VALIDATION" value="true"/>
+                                                    <h:outputText styleClass="glyphicon glyphicon-minus no-text"/>
+                                                </p:commandLink>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                            </p:fragment>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 form-group form-col-container">
+                        <label class="col-sm-3 control-label" for="description">
+                            #{bundle.description}
+                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                  data-toggle="tooltip" data-placement="auto right"
+                                  data-original-title="#{bundle['dataverse.description.title']}"/>
+                        </label>
+                        <div class="col-sm-9 form-col-container">
+                            <p class="help-block">
+                                <h:outputFormat value="#{bundle.htmlAllowedMsg}" escape="false">
+                                    <f:param value="#{bundle.htmlAllowedTags}"/>
+                                </h:outputFormat>
+                            </p>
+                            <p:inputTextarea id="description" tabindex="6" styleClass="form-control"
+                                             value="#{editDataversePage.dataverse.description}"
+                                             rows="6" cols="50"
+                                             autoResize="false">
+                            </p:inputTextarea>
+                            <p:message for="description" display="text"/>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="margin-top-half margin-bottom-half"/>
+
+                <!-- Metadata Panel -->
+                <p:panel styleClass="panelLayoutBlock" widgetVar="optionBlock" id="optionBlock">
+                    <p:commandButton id="hiddenRefresh" value="back" style="display:none"
+                                     actionListener="#{editDataversePage.refresh}"
+                                     update="@widgetVar(optionBlock)"/>
+
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-sm-3 control-label"
+                            >#{bundle['dataverse.metadataElements']}</label>
+                            <div class="col-sm-9">
+                                <p class="help-block">#{bundle['dataverse.metadataElements.tip']}</p>
+
+                                <label class="metadata-blocks-default" for="metadataRoot"
+                                       jsf:rendered="#{editDataversePage.dataverse.owner != null}">
+                                    <h:selectBooleanCheckbox id="metadataRoot" tabindex="7"
+                                                             styleClass="metadata-blocks-default"
+                                                             value="#{editDataversePage.inheritMetadataBlockFromParent}"
+                                                             onclick="updateMetadata(this);">
+                                    </h:selectBooleanCheckbox>
+                                    <h:outputFormat value="#{bundle['dataverse.metadataElements.from.tip']}">
+                                        <f:param value="#{editDataversePage.dataverse.metadataRootDataverseName}"/>
+                                    </h:outputFormat>
+                                </label>
+
+                                <p:commandButton value="Direct" id="updateMetadataButton"
+                                                 style="display:none"
+                                                 update="@widgetVar(optionBlock)"
+                                                 process="@this @widgetVar(optionBlock)"
+                                                 actionListener="#{editDataversePage.editMetadataBlocks(false)}">
+                                </p:commandButton>
+                                <p:commandButton value="Direct" id="resetToInherit"
+                                                 style="display:none"
+                                                 update="@all"
+                                                 action="#{editDataversePage.resetToInherit()}">
+                                </p:commandButton>
+
+                                <ui:repeat value="#{editDataversePage.allMetadataBlocks}" var="mdb">
+                                    <div class="checkbox">
+                                        <label for="#{mdb.idString}">
+                                            <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
+                                                   jsf:value="#{mdb.selected}"
+                                                   name="mdbSelectRequired"
+                                                   jsf:rendered="#{mdb.required and !editDataversePage.inheritMetadataBlockFromParent}"/>
+                                            <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
+                                                   jsf:value="#{mdb.selected}"
+                                                   name="mdbSelectRequiredInherited"
+                                                   jsf:rendered="#{editDataversePage.inheritMetadataBlockFromParent}">
+                                                <p:ajax update="@widgetVar(optionBlock)"/>
+                                            </input>
+                                            <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
+                                                   jsf:value="#{mdb.selected}"
+                                                   name="mdbSelectOptional"
+                                                   jsf:rendered="#{!mdb.required and !editDataversePage.inheritMetadataBlockFromParent}">
+                                                <p:ajax update="@widgetVar(optionBlock)"/>
+                                            </input>
+
+                                            <h:outputText
+                                                    value="#{mdb.localeDisplayName} #{mdb.required ? bundle['dataverse.field.required']: ''}"
+                                                    styleClass="#{editDataversePage.inheritMetadataBlockFromParent ? 'text-muted' : ''}"/>
+                                            <p:commandLink id="showDSFT" style="margin-left:1em;"
+                                                           update="@widgetVar(optionBlock)"
+                                                           process="@this"
+                                                           rendered="#{!mdb.showDatasetFieldTypes and (mdb.selected or mdb.required) and !editDataversePage.openMetadataBlock and !editDataversePage.inheritMetadataBlockFromParent}"
+                                                           actionListener="#{editDataversePage.showDatasetFieldTypes(mdb.id)}"
+                                                           oncomplete="javascript:bind_bsui_components();">
+                                                <h:outputText value="#{bundle['dataverse.field.set.tip']}"/>
+                                            </p:commandLink>
+                                            <p:commandLink id="viewDSFT" style="margin-left:1em;"
+                                                           update="@widgetVar(optionBlock)"
+                                                           process="@this"
+                                                           rendered="#{!mdb.showDatasetFieldTypes and (!mdb.selected or editDataversePage.inheritMetadataBlockFromParent)   and !editDataversePage.openMetadataBlock}"
+                                                           actionListener="#{editDataversePage.showDatasetFieldTypes(mdb.id, false)}"
+                                                           oncomplete="javascript:bind_bsui_components();">
+                                                <h:outputText value="#{bundle['dataverse.field.set.view']}"/>
+                                            </p:commandLink>
+                                        </label>
+                                    </div>
+
+                                    <div id="metadataFieldOptionsPanel-Block"
+                                         jsf:rendered="#{mdb.showDatasetFieldTypes}">
+                                        <div class="panel panel-default">
+                                            <div id="metadataFieldOptionsPanel-Body" class="panel-body">
+                                                <table id="metadataFieldOptions" class="table table-striped">
+                                                    <tbody>
+                                                    <ui:repeat value="#{mdb.datasetFieldTypes}" var="dsft">
+                                                        <tr>
+                                                            <td>
+                                                                <p:selectBooleanCheckbox rendered="#{!dsft.hasParent}"
+                                                                                         value="#{dsft.include}"
+                                                                                         itemLabel="#{dsft.displayName}"
+                                                                                         onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;#{editDataversePage.updateInclude(mdb.id, dsft.id)}"
+                                                                                         disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or editDataversePage.editInputLevel == false }">
+                                                                    <p:ajax update="@widgetVar(OptButton#{dsft.id}), @widgetVar(optionBlock)"/>
+                                                                </p:selectBooleanCheckbox>
+                                                                <div class="checkbox child-field"
+                                                                     jsf:rendered="#{dsft.hasParent}">
+                                                                    <label>
+                                                                        <h:outputText value="#{dsft.displayName}"/>
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <p:selectOneRadio id="OptionsRadio#{dsft.id}"
+                                                                                  value="#{dsft.requiredDV}"
+                                                                                  widgetVar="OptButton#{dsft.id}"
+                                                                                  disabled="#{editDataversePage.editInputLevel == false}"
+                                                                                  rendered="#{!dsft.hasChildren and !((!dsft.hasChildren  and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren))}">
+                                                                    <f:selectItems value="#{dsft.optionSelectItems}"/>
+                                                                </p:selectOneRadio>
+
+                                                                <span class="text-muted"
+                                                                      jsf:rendered="#{(!dsft.hasChildren and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren)}">
+                                                                                #{bundle['dataverse.field.requiredByDataverse']}
+                                                                            </span>
+                                                            </td>
+                                                        </tr>
+                                                    </ui:repeat>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <p:commandLink id="hideDSFT" styleClass="btn btn-default"
+                                                       update="@widgetVar(optionBlock)"
+                                                       actionListener="#{editDataversePage.hideDatasetFieldTypes(mdb.id)}"
+                                                       oncomplete="javascript:bind_bsui_components();"
+                                                       rendered="#{mdb.showDatasetFieldTypes}">
+                                            <h:outputText value="#{bundle.done}"/>
+                                        </p:commandLink>
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                        </div>
+                    </div>
+                </p:panel>
+                <!-- Facets Panel -->
+                <p:panel id="editFacets" styleClass="panelLayoutBlock" widgetVar="editFacets">
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-sm-3 control-label"
+                                   for="facetPickListCreate">#{bundle['dataverse.facetPickList.text']}</label>
+                            <div class="col-sm-9">
+                                <p class="help-block">#{bundle['dataverse.facetPickList.tip']}</p>
+
+                                <label class="metadata-blocks-default" for="facetsRoot"
+                                       jsf:rendered="#{editDataversePage.dataverse.owner != null}">
+                                    <h:selectBooleanCheckbox id="facetsRoot" tabindex="8"
+                                                             styleClass="facets-blocks-default"
+                                                             value="#{editDataversePage.inheritFacetFromParent}">
+                                        <p:ajax update="editFacets" listener="#{editDataversePage.toggleFacetRoot()}"/>
+                                    </h:selectBooleanCheckbox>
+                                    <h:outputFormat value="#{bundle['dataverse.facetPickList.facetsFromHost.text']}">
+                                        <f:param value="#{editDataversePage.dataverse.facetRootDataverseName}"/>
+                                    </h:outputFormat>
+                                </label>
+
+                                <p:pickList id="facetPickListCreate" value="#{editDataversePage.facets}" var="facet"
+                                            converter="facetConverter"
+                                            itemLabel="#{facet.displayName}" itemValue="#{facet}"
+                                            disabled="#{!editDataversePage.dataverse.facetRoot and editDataversePage.dataverse.owner != null}"
+                                            style="margin-top:1em;">
+                                    <f:facet name="sourceCaption">
+                                        <p:selectOneMenu styleClass="facet-category-default"
+                                                         disabled="#{!editDataversePage.dataverse.facetRoot and editDataversePage.dataverse.owner != null}"
+                                                         value="#{editDataversePage.facetMetadataBlockId}">
+                                            <f:selectItem
+                                                    itemLabel="#{bundle['dataverse.facetPickList.metadataBlockList.all']}"
+                                                    itemValue=""/>
+                                            <f:selectItems value="#{editDataversePage.allMetadataBlocks}" var="mdb"
+                                                           itemLabel="#{mdb.localeDisplayName}" itemValue="#{mdb.id}"/>
+                                            <p:ajax process="editFacets" update="editFacets"
+                                                    listener="#{editDataversePage.changeFacetsMetadataBlock}"/>
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                    <f:facet name="targetCaption">#{bundle['dataverse.selected']}</f:facet>
+                                    <p:ajax event="transfer" listener="#{editDataversePage.onFacetTransfer}"
+                                            update="editFacets"/>
+                                </p:pickList>
+                            </div>
+                        </div>
+                    </div>
+                </p:panel>
+
+                <!-- Messages and Banners Panel -->
+                <p:panel id="editMessagesBanners" styleClass="panelLayoutBlock"
+                         rendered="#{editDataversePage.userCanChangeAllowMessageAndBanners}"
+                         widgetVar="allowMessagesBanners">
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-sm-3 control-label"><h:outputText
+                                    value="#{bundle['dataverse.config.allow.messages.banners']}"/></label>
+                            <div class="col-sm-9">
+                                <label class="metadata-blocks-default" for="dvAllowMessagesBanners">
+                                    <h:selectBooleanCheckbox id="dvAllowMessagesBanners" tabindex="7"
+                                                             styleClass="metadata-blocks-default"
+                                                             value="#{editDataversePage.dataverse.allowMessagesBanners}">
+                                    </h:selectBooleanCheckbox>
+                                    <h:outputText value="#{bundle['dataverse.config.allow.messages.banners.check']}"/>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </p:panel>
+
+            </h:form>
+
+            <script type="text/javascript">
+                function updateMetadata(checkbox) {
+                    var checked = checkbox.checked;
+                    if (checked === false) {
+                        $('button[id$="updateMetadataButton"]').trigger('click');
+                    } else {
+                        PF('resetModifications').show();
+                    }
+
+                }
+            </script>
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>
