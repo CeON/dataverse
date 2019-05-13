@@ -2801,7 +2801,7 @@ public class DatasetPage implements java.io.Serializable {
                     
                     for (DataFile newFile : newFiles) {
                         TermsOfUseForm termsOfUseForm = newFile.getFileMetadata().getTermsOfUseForm();
-                        FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapFromForm(termsOfUseForm);
+                        FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
                         
                         newFile.getFileMetadata().setTermsOfUse(termsOfUse);
                     }
@@ -4624,7 +4624,7 @@ public class DatasetPage implements java.io.Serializable {
             refreshSelectedFiles();
         }
         
-        FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapFromForm(termsOfUseForm);
+        FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
         
         for (FileMetadata fm : selectedFiles) {
             fm.setTermsOfUse(termsOfUse.createCopy());

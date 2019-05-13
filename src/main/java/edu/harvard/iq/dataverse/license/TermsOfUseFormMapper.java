@@ -16,16 +16,26 @@ import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 @Stateless
 public class TermsOfUseFormMapper {
 
-    @Inject
     private LicenseDAO licenseDao;
     
+    
+    // -------------------- CONSTRUCTORS --------------------
+    
+    public TermsOfUseFormMapper() {
+        
+    }
+    
+    @Inject
+    public TermsOfUseFormMapper(LicenseDAO licenseDao) {
+        this.licenseDao = licenseDao;
+    }
     
     // -------------------- LOGIC --------------------
     
     /**
      * Converts the given {@link TermsOfUseForm} to {@link FileTermsOfUse}
      */
-    public FileTermsOfUse mapFromForm(TermsOfUseForm termsOfUseForm) {
+    public FileTermsOfUse mapToFileTermsOfUse(TermsOfUseForm termsOfUseForm) {
         
         FileTermsOfUse termsOfUse = new FileTermsOfUse();
         

@@ -1155,7 +1155,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             
             for (DataFile newFile : newFiles) {
                 TermsOfUseForm termsOfUseForm = newFile.getFileMetadata().getTermsOfUseForm();
-                FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapFromForm(termsOfUseForm);
+                FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
                 
                 newFile.getFileMetadata().setTermsOfUse(termsOfUse);
             }

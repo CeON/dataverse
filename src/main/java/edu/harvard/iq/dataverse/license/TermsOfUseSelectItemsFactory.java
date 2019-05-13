@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.faces.bean.ApplicationScoped;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 import javax.faces.view.ViewScoped;
@@ -54,9 +52,7 @@ public class TermsOfUseSelectItemsFactory implements Serializable {
         }
         
         Optional<SelectItemGroup> otherTermsOfUseItemGroup = buildOtherTermsOfUseItemGroup();
-        if (otherTermsOfUseItemGroup.isPresent()) {
-            selectItems.add(otherTermsOfUseItemGroup.get());
-        }
+        otherTermsOfUseItemGroup.ifPresent(selectItems::add);
         
         return selectItems;
     }

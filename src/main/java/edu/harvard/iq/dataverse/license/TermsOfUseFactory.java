@@ -14,9 +14,19 @@ import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
 @Stateless
 public class TermsOfUseFactory {
 
-    @Inject
     private LicenseDAO licenseDao;
     
+    
+    // -------------------- CONSTRUCTORS --------------------
+
+    public TermsOfUseFactory() {
+        
+    }
+    
+    @Inject
+    public TermsOfUseFactory(LicenseDAO licenseDao) {
+        this.licenseDao = licenseDao;
+    }
     
     // -------------------- LOGIC --------------------
     
