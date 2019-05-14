@@ -736,7 +736,7 @@
                 <div class="button-block" jsf:rendered="#{!empty DataversePage.editMode}">
                     <p:commandButton id="save" tabindex="9"
                                      value="#{DataversePage.dataverse.id == null ? bundle.createDataverse : bundle.saveChanges}"
-                                     action="#{DataversePage.save}" update="@all">
+                                     action="#{DataversePage.saveNewDataverse()}" update="@all">
                         <f:ajax onerror="window.scrollTo(0, 0)"/>
                     </p:commandButton>
                     <p:commandButton id="cancel" tabindex="10" value="#{bundle.cancel}"

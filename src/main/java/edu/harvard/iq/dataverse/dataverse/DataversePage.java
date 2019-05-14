@@ -231,7 +231,7 @@ public class DataversePage implements java.io.Serializable {
             if (!dataverse.isReleased() && !permissionService.on(dataverse).has(Permission.ViewUnpublishedDataverse)) {
                 return permissionsWrapper.notAuthorized();
             }
-
+            initFeaturedDataverses();
             ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
         } else { // ownerId != null; create mode for a new child dataverse
             editMode = EditMode.CREATE;
@@ -293,17 +293,6 @@ public class DataversePage implements java.io.Serializable {
         List contentsList = dataverseService.findByOwnerId(dataverse.getId());
         contentsList.addAll(datasetService.findByOwnerId(dataverse.getId()));
         return contentsList;
-    }
-
-    public void edit(EditMode editMode) {
-        this.editMode = editMode;
-        if (editMode == EditMode.INFO) {
-            setupForGeneralInfoEdit();
-            JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataverse.edit.msg"), BundleUtil.getStringFromBundle("dataverse.edit.detailmsg"));
-        } else if (editMode == EditMode.FEATURED) {
-            initFeaturedDataverses();
-        }
-
     }
 
     public void refresh() {
