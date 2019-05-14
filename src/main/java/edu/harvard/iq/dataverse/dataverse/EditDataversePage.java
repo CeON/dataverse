@@ -23,6 +23,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import org.apache.commons.lang.StringUtils;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
 
@@ -43,7 +44,6 @@ import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
-@SuppressWarnings("Duplicates")
 @ViewScoped
 @Named("editDataversePage")
 public class EditDataversePage implements Serializable {
@@ -276,6 +276,44 @@ public class EditDataversePage implements Serializable {
         }
     }
 
+    public void updateInclude(Long mdbId, long dsftId) {
+        List<DatasetFieldType> childDSFT = new ArrayList<>();
+
+        for (MetadataBlock mdb : allMetadataBlocks) {
+            if (mdb.getId().equals(mdbId)) {
+                for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
+                    if (dsftTest.getId().equals(dsftId)) {
+                        dsftTest.setOptionSelectItems(resetSelectItems(dsftTest));
+                        if ((dsftTest.isHasParent() && !dsftTest.getParentDatasetFieldType().isInclude()) || (!dsftTest.isHasParent() && !dsftTest.isInclude())) {
+                            dsftTest.setRequiredDV(false);
+                        }
+                        if (dsftTest.isHasChildren()) {
+                            childDSFT.addAll(dsftTest.getChildDatasetFieldTypes());
+                        }
+                    }
+                }
+            }
+        }
+        if (!childDSFT.isEmpty()) {
+            for (DatasetFieldType dsftUpdate : childDSFT) {
+                for (MetadataBlock mdb : allMetadataBlocks) {
+                    if (mdb.getId().equals(mdbId)) {
+                        for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
+                            if (dsftTest.getId().equals(dsftUpdate.getId())) {
+                                dsftTest.setOptionSelectItems(resetSelectItems(dsftTest));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        PrimeFaces.current().executeScript("scrollAfterUpdate();");
+    }
+
+    public String returnRedirect() {
+        return "/dataverse.xhtml?alias=" + dataverse.getAlias() + "&faces-redirect=true";
+    }
+
     // -------------------- SETTERS --------------------
 
     public void setDataverse(Dataverse dataverse) {
@@ -304,6 +342,18 @@ public class EditDataversePage implements Serializable {
 
     public void setInheritMetadataBlockFromParent(boolean inheritMetadataBlockFromParent) {
         dataverse.setMetadataBlockRoot(!inheritMetadataBlockFromParent);
+    }
+
+    public void setFacets(DualListModel<DatasetFieldType> facets) {
+        this.facets = facets;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public void setInheritFacetFromParent(boolean inheritFacetFromParent) {
+        dataverse.setFacetRoot(!inheritFacetFromParent);
     }
 
     // -------------------- PRIVATE --------------------
@@ -472,9 +522,5 @@ public class EditDataversePage implements Serializable {
             retList.add(hidden);
         }
         return retList;
-    }
-
-    private String returnRedirect() {
-        return "/dataverse.xhtml?alias=" + dataverse.getAlias() + "&faces-redirect=true";
     }
 }

@@ -209,7 +209,6 @@ public class DataversePage implements java.io.Serializable {
     // -------------------- LOGIC --------------------
 
     public String init() {
-        //System.out.println("_YE_OLDE_QUERY_COUNTER_");  // for debug purposes
 
         if (dataverse.getAlias() != null || dataverse.getId() != null || ownerId == null) {// view mode for a dataverse
             if (dataverse.getAlias() != null) {
@@ -368,37 +367,6 @@ public class DataversePage implements java.io.Serializable {
                     Arrays.asList(settingsWrapper.getGuidesBaseUrl(), systemConfig.getGuidesVersion())));
         } else {
             JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly"));
-            return StringUtils.EMPTY;
-        }
-
-        return returnRedirect();
-    }
-
-    public String saveEditedDataverse() {
-        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
-
-        if (dataverse.isMetadataBlockRoot()) {
-            dataverse.getMetadataBlocks().clear();
-
-            List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
-            dataverse.setMetadataBlocks(selectedMetadataBlocks);
-            listDFTIL = getSelectedMetadataFields(selectedMetadataBlocks);
-        }
-
-        if (!dataverse.isFacetRoot()) {
-            facets.getTarget().clear();
-        }
-
-        UpdateDataverseCommand cmd = new UpdateDataverseCommand(dataverse, facets.getTarget(), null, dvRequestService.getDataverseRequest(), listDFTIL);
-
-        try {
-            dataverse = commandEngine.submit(cmd);
-
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.update.success"));
-        } catch (CommandException ex) {
-            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-            String errMsg = BundleUtil.getStringFromBundle("dataverse.update.failure");
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
             return StringUtils.EMPTY;
         }
 
