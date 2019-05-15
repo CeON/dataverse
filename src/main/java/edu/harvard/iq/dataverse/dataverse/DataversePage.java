@@ -78,7 +78,7 @@ public class DataversePage implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(DataversePage.class.getCanonicalName());
 
     public enum EditMode {
-        CREATE, INFO, FEATURED
+        CREATE, FEATURED
     }
 
     public enum LinkMode {
@@ -133,10 +133,16 @@ public class DataversePage implements java.io.Serializable {
     private List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues;
     private Dataverse linkingDataverse;
     private Long facetMetadataBlockId;
-    private boolean openMetadataBlock;
-    private boolean editInputLevel;
     private List<Dataverse> carouselFeaturedDataverses = null;
     private List<MetadataBlock> allMetadataBlocks;
+
+    private DataverseMetaBlockOptions mdbViewOptions = new DataverseMetaBlockOptions();
+
+    // -------------------- GETTERS --------------------
+
+    public DataverseMetaBlockOptions getMdbViewOptions() {
+        return mdbViewOptions;
+    }
 
     public Dataverse getLinkingDataverse() {
         return linkingDataverse;
@@ -176,14 +182,6 @@ public class DataversePage implements java.io.Serializable {
 
     public Long getFacetMetadataBlockId() {
         return facetMetadataBlockId;
-    }
-
-    public boolean isOpenMetadataBlock() {
-        return openMetadataBlock;
-    }
-
-    public boolean isEditInputLevel() {
-        return editInputLevel;
     }
 
     public boolean isRootDataverse() {
@@ -236,6 +234,7 @@ public class DataversePage implements java.io.Serializable {
         } else { // ownerId != null; create mode for a new child dataverse
             editMode = EditMode.CREATE;
             dataverse.setOwner(dataverseService.find(ownerId));
+
             if (dataverse.getOwner() == null) {
                 return permissionsWrapper.notFound();
             } else if (!permissionService.on(dataverse.getOwner()).has(Permission.AddDataverse)) {
@@ -299,28 +298,28 @@ public class DataversePage implements java.io.Serializable {
 
     }
 
-    public void showDatasetFieldTypes(Long mdbId) {
-        showDatasetFieldTypes(mdbId, true);
-    }
-
-    public void showDatasetFieldTypes(Long mdbId, boolean allowEdit) {
+    public void showEditableDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdb.setShowDatasetFieldTypes(true);
-                openMetadataBlock = true;
+                mdbViewOptions.getMdbViewOptions().put(mdb.getId(), new MetadataBlockViewOptions(true, true));
             }
         }
-        setEditInputLevel(allowEdit);
+    }
+
+    public void showUnEditableDatasetFieldTypes(Long mdbId) {
+        for (MetadataBlock mdb : allMetadataBlocks) {
+            if (mdb.getId().equals(mdbId)) {
+                mdbViewOptions.getMdbViewOptions().put(mdb.getId(), new MetadataBlockViewOptions(true, false));
+            }
+        }
     }
 
     public void hideDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdb.setShowDatasetFieldTypes(false);
-                openMetadataBlock = false;
+                mdbViewOptions.getMdbViewOptions().put(mdb.getId(), new MetadataBlockViewOptions(false));
             }
         }
-        setEditInputLevel(false);
     }
 
     public String saveNewDataverse() {
@@ -379,71 +378,6 @@ public class DataversePage implements java.io.Serializable {
         return returnRedirect();
     }
 
-    public String save() {
-        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
-        if (editMode != null && (editMode.equals(EditMode.INFO) || editMode.equals(EditMode.CREATE))) {
-
-            if (dataverse.isMetadataBlockRoot()) {
-                dataverse.getMetadataBlocks().clear();
-
-                List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
-                dataverse.setMetadataBlocks(selectedMetadataBlocks);
-                listDFTIL = getSelectedMetadataFields(selectedMetadataBlocks);
-            }
-
-            if (!dataverse.isFacetRoot()) {
-                facets.getTarget().clear();
-            }
-        }
-
-        Command<Dataverse> cmd;
-        Boolean create;
-        if (dataverse.getId() == null) {
-            if (session.getUser().isAuthenticated()) {
-                dataverse.setOwner(ownerId != null ? dataverseService.find(ownerId) : null);
-                create = Boolean.TRUE;
-                cmd = new CreateDataverseCommand(dataverse, dvRequestService.getDataverseRequest(), facets.getTarget(), listDFTIL);
-            } else {
-                JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly"));
-                return null;
-            }
-        } else {
-            create = Boolean.FALSE;
-            if (editMode != null && editMode.equals(EditMode.FEATURED)) {
-                cmd = new UpdateDataverseCommand(dataverse, null, featuredDataverses.getTarget(), dvRequestService.getDataverseRequest(), null);
-            } else {
-                cmd = new UpdateDataverseCommand(dataverse, facets.getTarget(), null, dvRequestService.getDataverseRequest(), listDFTIL);
-            }
-        }
-
-        try {
-            dataverse = commandEngine.submit(cmd);
-            if (session.getUser() instanceof AuthenticatedUser) {
-                if (create) {
-                    userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataverse.getCreateDate(), Type.CREATEDV, dataverse.getId());
-                }
-            }
-
-            String message;
-            if (editMode != null && editMode.equals(EditMode.FEATURED)) {
-                message = BundleUtil.getStringFromBundle("dataverse.feature.update");
-            } else {
-                message = (create) ? BundleUtil.getStringFromBundle("dataverse.create.success", Arrays.asList(settingsWrapper.getGuidesBaseUrl(), systemConfig.getGuidesVersion())) : BundleUtil.getStringFromBundle("dataverse.update.success");
-            }
-            JsfHelper.addFlashSuccessMessage(message);
-
-            editMode = null;
-            return returnRedirect();
-
-
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-            String errMsg = create ? BundleUtil.getStringFromBundle("dataverse.create.failure") : BundleUtil.getStringFromBundle("dataverse.update.failure");
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
-            return null;
-        }
-    }
-
     public void cancel(ActionEvent e) {
         // reset values
         dataverse = dataverseService.find(dataverse.getId());
@@ -451,14 +385,9 @@ public class DataversePage implements java.io.Serializable {
         editMode = null;
     }
 
-    public void editMetadataBlocks() {
-        if (!dataverse.isMetadataBlockRoot()) {
-            refreshAllMetadataBlocks();
-        }
-    }
-
     public void editMetadataBlocks(boolean checkVal) {
         setInheritMetadataBlockFromParent(checkVal);
+        mdbViewOptions.setInheritMetaBlocksFromParent(checkVal);
         if (!dataverse.isMetadataBlockRoot()) {
             refreshAllMetadataBlocks();
         }
@@ -467,12 +396,9 @@ public class DataversePage implements java.io.Serializable {
     public String resetToInherit() {
 
         setInheritMetadataBlockFromParent(true);
-        if (editMode.equals(DataversePage.EditMode.CREATE)) {
-            refreshAllMetadataBlocks();
-            return null;
-        } else {
-            return save();
-        }
+        refreshAllMetadataBlocks();
+
+        return StringUtils.EMPTY;
     }
 
     public String saveLinkedDataverse() {
@@ -612,6 +538,39 @@ public class DataversePage implements java.io.Serializable {
                 ((UIInput) toValidate).setValid(false);
                 FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataverse.alias"), BundleUtil.getStringFromBundle("dataverse.alias.taken"));
                 context.addMessage(toValidate.getClientId(context), message);
+            }
+        }
+    }
+
+    public void updateInclude(Long mdbId, long dsftId) {
+        List<DatasetFieldType> childDSFT = new ArrayList<>();
+
+        for (MetadataBlock mdb : allMetadataBlocks) {
+            if (mdb.getId().equals(mdbId)) {
+                for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
+                    if (dsftTest.getId().equals(dsftId)) {
+                        dsftTest.setOptionSelectItems(resetSelectItems(dsftTest));
+                        if ((dsftTest.isHasParent() && !dsftTest.getParentDatasetFieldType().isInclude()) || (!dsftTest.isHasParent() && !dsftTest.isInclude())) {
+                            dsftTest.setRequiredDV(false);
+                        }
+                        if (dsftTest.isHasChildren()) {
+                            childDSFT.addAll(dsftTest.getChildDatasetFieldTypes());
+                        }
+                    }
+                }
+            }
+        }
+        if (!childDSFT.isEmpty()) {
+            for (DatasetFieldType dsftUpdate : childDSFT) {
+                for (MetadataBlock mdb : allMetadataBlocks) {
+                    if (mdb.getId().equals(mdbId)) {
+                        for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
+                            if (dsftTest.getId().equals(dsftUpdate.getId())) {
+                                dsftTest.setOptionSelectItems(resetSelectItems(dsftTest));
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -912,14 +871,6 @@ public class DataversePage implements java.io.Serializable {
 
     public void setLinkMode(LinkMode linkMode) {
         this.linkMode = linkMode;
-    }
-
-    public void setOpenMetadataBlock(boolean openMetadataBlock) {
-        this.openMetadataBlock = openMetadataBlock;
-    }
-
-    public void setEditInputLevel(boolean editInputLevel) {
-        this.editInputLevel = editInputLevel;
     }
 
     public void setInheritMetadataBlockFromParent(boolean inheritMetadataBlockFromParent) {

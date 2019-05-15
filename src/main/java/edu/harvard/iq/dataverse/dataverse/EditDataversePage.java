@@ -120,10 +120,6 @@ public class EditDataversePage implements Serializable {
         return allMetadataBlocks;
     }
 
-    public boolean isOpenMetadataBlock() {
-        return openMetadataBlock;
-    }
-
     public boolean isEditInputLevel() {
         return editInputLevel;
     }
@@ -169,7 +165,6 @@ public class EditDataversePage implements Serializable {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
                 mdb.setShowDatasetFieldTypes(true);
-                openMetadataBlock = true;
             }
         }
         setEditInputLevel(allowEdit);
@@ -179,7 +174,6 @@ public class EditDataversePage implements Serializable {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
                 mdb.setShowDatasetFieldTypes(false);
-                openMetadataBlock = false;
             }
         }
         setEditInputLevel(false);
