@@ -61,9 +61,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
@@ -71,6 +74,7 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 /**
  * @author gdurand
  */
+@SuppressWarnings("Duplicates")
 @ViewScoped
 @Named("DataversePage")
 public class DataversePage implements java.io.Serializable {
@@ -136,12 +140,12 @@ public class DataversePage implements java.io.Serializable {
     private List<Dataverse> carouselFeaturedDataverses = null;
     private List<MetadataBlock> allMetadataBlocks;
 
-    private DataverseMetaBlockOptions mdbViewOptions = new DataverseMetaBlockOptions();
+    private DataverseMetaBlockOptions mdbOptions = new DataverseMetaBlockOptions();
 
     // -------------------- GETTERS --------------------
 
-    public DataverseMetaBlockOptions getMdbViewOptions() {
-        return mdbViewOptions;
+    public DataverseMetaBlockOptions getMdbOptions() {
+        return mdbOptions;
     }
 
     public Dataverse getLinkingDataverse() {
@@ -288,12 +292,6 @@ public class DataversePage implements java.io.Serializable {
         return carouselFeaturedDataverses;
     }
 
-    public List getContents() {
-        List contentsList = dataverseService.findByOwnerId(dataverse.getId());
-        contentsList.addAll(datasetService.findByOwnerId(dataverse.getId()));
-        return contentsList;
-    }
-
     public void refresh() {
 
     }
@@ -301,7 +299,11 @@ public class DataversePage implements java.io.Serializable {
     public void showEditableDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdbViewOptions.getMdbViewOptions().put(mdb.getId(), new MetadataBlockViewOptions(true, true));
+                mdbOptions.getMdbViewOptions().put(mdb.getId(),
+                        MetadataBlockViewOptions.newBuilder()
+                                .showDatasetFieldTypes(true)
+                                .editableDatasetFieldTypes(true)
+                                .build());
             }
         }
     }
@@ -309,7 +311,11 @@ public class DataversePage implements java.io.Serializable {
     public void showUnEditableDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdbViewOptions.getMdbViewOptions().put(mdb.getId(), new MetadataBlockViewOptions(true, false));
+                mdbOptions.getMdbViewOptions().put(mdb.getId(),
+                        MetadataBlockViewOptions.newBuilder()
+                                .showDatasetFieldTypes(true)
+                                .editableDatasetFieldTypes(false)
+                                .build());
             }
         }
     }
@@ -317,7 +323,10 @@ public class DataversePage implements java.io.Serializable {
     public void hideDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdbViewOptions.getMdbViewOptions().put(mdb.getId(), new MetadataBlockViewOptions(false));
+                mdbOptions.getMdbViewOptions().put(mdb.getId(),
+                        MetadataBlockViewOptions.newBuilder()
+                                .showDatasetFieldTypes(false)
+                                .build());
             }
         }
     }
@@ -325,7 +334,7 @@ public class DataversePage implements java.io.Serializable {
     public String saveNewDataverse() {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
 
-        if (dataverse.isMetadataBlockRoot()) {
+        if (!mdbOptions.isInheritMetaBlocksFromParent()) {
             dataverse.getMetadataBlocks().clear();
 
             List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
@@ -342,7 +351,7 @@ public class DataversePage implements java.io.Serializable {
             Command<Dataverse> cmd = new CreateDataverseCommand(dataverse, dvRequestService.getDataverseRequest(), facets.getTarget(), listDFTIL);
 
             try {
-                commandEngine.submit(cmd);
+                dataverse = commandEngine.submit(cmd);
             } catch (CommandException ex) {
                 logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
                 JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.failure"));
@@ -386,9 +395,8 @@ public class DataversePage implements java.io.Serializable {
     }
 
     public void editMetadataBlocks(boolean checkVal) {
-        setInheritMetadataBlockFromParent(checkVal);
-        mdbViewOptions.setInheritMetaBlocksFromParent(checkVal);
-        if (!dataverse.isMetadataBlockRoot()) {
+        mdbOptions.setInheritMetaBlocksFromParent(checkVal);
+        if (checkVal) {
             refreshAllMetadataBlocks();
         }
     }
@@ -396,6 +404,7 @@ public class DataversePage implements java.io.Serializable {
     public String resetToInherit() {
 
         setInheritMetadataBlockFromParent(true);
+        mdbOptions.setInheritMetaBlocksFromParent(false);
         refreshAllMetadataBlocks();
 
         return StringUtils.EMPTY;
@@ -628,7 +637,7 @@ public class DataversePage implements java.io.Serializable {
         List<MetadataBlock> selectedBlocks = new ArrayList<>();
 
         for (MetadataBlock mdb : this.allMetadataBlocks) {
-            if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isRequired())) {
+            if (!mdbOptions.isInheritMetaBlocksFromParent() && (mdb.isSelected() || mdb.isRequired())) {
                 selectedBlocks.add(mdb);
             }
         }
@@ -677,39 +686,48 @@ public class DataversePage implements java.io.Serializable {
     }
 
     private void refreshAllMetadataBlocks() {
-        Long dataverseIdForInputLevel = dataverse.getId();
-        List<MetadataBlock> retList = new ArrayList<>();
+        Dataverse freshDataverse = dataverse;
+        List<Long> inheritedDataverseIds = new ArrayList<>();
 
-        //Add System level blocks
         List<MetadataBlock> availableBlocks = new ArrayList<>(dataverseService.findSystemMetadataBlocks());
-
-        Dataverse testDV = dataverse;
-        //Add blocks associated with DV
-        availableBlocks.addAll(dataverseService.findMetadataBlocksByDataverseId(dataverse.getId()));
-
-        //Add blocks associated with dv going up inheritance tree
-        while (testDV.getOwner() != null) {
-            availableBlocks.addAll(dataverseService.findMetadataBlocksByDataverseId(testDV.getOwner().getId()));
-            testDV = testDV.getOwner();
-        }
+        Set<MetadataBlock> metadataBlocks = retriveAllDataverseParentsMetaBlocks(dataverse);
+        metadataBlocks.addAll(freshDataverse.getMetadataBlocks());
+        availableBlocks.addAll(metadataBlocks);
 
         for (MetadataBlock mdb : availableBlocks) {
+
+            mdbOptions.getMdbViewOptions().put(mdb.getId(),
+                    MetadataBlockViewOptions.newBuilder()
+                            .selected(false)
+                            .showDatasetFieldTypes(false)
+                            .build());
+
             mdb.setSelected(false);
             mdb.setShowDatasetFieldTypes(false);
-            if (!dataverse.isMetadataBlockRoot() && dataverse.getOwner() != null) {
-                dataverseIdForInputLevel = dataverse.getMetadataRootId();
-                for (MetadataBlock mdbTest : dataverse.getOwner().getMetadataBlocks()) {
-                    if (mdb.equals(mdbTest)) {
-                        mdb.setSelected(true);
-                    }
+
+            if (mdbOptions.isInheritMetaBlocksFromParent() && dataverse.getOwner() != null) {
+                inheritedDataverseIds.add(dataverse.getMetadataRootId());
+                if (dataverse.getOwner().getMetadataBlocks().contains(mdb)) {
+                    setMetaBlockAsSelected(mdb, dataverse.getOwner().getMetadataBlocks());
                 }
             } else {
-                for (MetadataBlock mdbTest : dataverse.getMetadataBlocks(true)) {
-                    if (mdb.equals(mdbTest)) {
-                        mdb.setSelected(true);
-                    }
+                if (dataverse.getMetadataBlocks(true).contains(mdb)) {
+                    setMetaBlockAsSelected(mdb, dataverse.getMetadataBlocks(true));
                 }
             }
+        }
+
+        List<DatasetFieldType> collect = retriveDataverseParentsMetaBlocks(dataverse, inheritedDataverseIds).stream()
+                .flatMap(metadataBlock -> metadataBlock.getDatasetFieldTypes().stream())
+                .filter(datasetFieldType -> !datasetFieldType.isChild())
+                .collect(Collectors.toList());
+
+
+        for (MetadataBlock inheritedMetaBlock : retriveDataverseParentsMetaBlocks(dataverse, inheritedDataverseIds)) {
+            for (DatasetFieldType datasetFieldType : inheritedMetaBlock.getDatasetFieldTypes()) {
+                datasetFieldType.
+            }
+        }
 
             for (DatasetFieldType dsft : mdb.getDatasetFieldTypes()) {
                 if (!dsft.isChild()) {
@@ -737,9 +755,38 @@ public class DataversePage implements java.io.Serializable {
                     }
                 }
             }
-            retList.add(mdb);
+
+
+        setAllMetadataBlocks(availableBlocks);
+    }
+
+    private void setMetaBlockAsSelected(MetadataBlock mdb, List<MetadataBlock> metadataBlocks) {
+
+        mdbOptions.getMdbViewOptions().put(mdb.getId(), MetadataBlockViewOptions.newBuilder()
+                .selected(true)
+                .build());
+        mdb.setSelected(true);
+
+    }
+
+    private Set<MetadataBlock> retriveDataverseParentsMetaBlocks(Dataverse dataverse, List<Long> includedOwners) {
+        Set<MetadataBlock> metadataBlocks = new HashSet<>();
+
+        for (Dataverse owner : dataverse.getOwners()) {
+            if (includedOwners.contains(owner.getId())) {
+                metadataBlocks.addAll(owner.getMetadataBlocks());
+            }
         }
-        setAllMetadataBlocks(retList);
+        return metadataBlocks;
+    }
+
+    private Set<MetadataBlock> retriveAllDataverseParentsMetaBlocks(Dataverse dataverse) {
+        Set<MetadataBlock> metadataBlocks = new HashSet<>();
+        for (Dataverse owner : dataverse.getOwners()) {
+            metadataBlocks.addAll(owner.getMetadataBlocks(true));
+        }
+
+        return metadataBlocks;
     }
 
     private void initFeaturedDataverses() {

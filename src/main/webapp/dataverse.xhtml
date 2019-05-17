@@ -305,7 +305,7 @@
                                                 <p:commandLink id="showEditableDSFT" style="margin-left:1em;"
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
-                                                               rendered="#{!DataversePage.mdbViewOptions.isShowDatasetFieldTypes(mdb.id)
+                                                               rendered="#{!DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)
                                                                and (mdb.selected or mdb.required) and !DataversePage.inheritMetadataBlockFromParent}"
                                                                actionListener="#{DataversePage.showEditableDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
@@ -314,7 +314,7 @@
                                                 <p:commandLink id="viewUnEditableDSFT" style="margin-left:1em;"
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
-                                                               rendered="#{!DataversePage.mdbViewOptions.isShowDatasetFieldTypes(mdb.id)
+                                                               rendered="#{!DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)
                                                                 and (!mdb.selected or DataversePage.inheritMetadataBlockFromParent)}"
                                                                actionListener="#{DataversePage.showUnEditableDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
@@ -324,7 +324,7 @@
                                         </div>
 
                                         <p:outputPanel id="metadataFieldOptionsPanel"
-                                                       rendered="#{DataversePage.mdbViewOptions.isShowDatasetFieldTypes(mdb.id)}">
+                                                       rendered="#{DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)}">
                                             <div class="panel panel-default">
                                                 <div id="metadataFieldOptionsPanel-Body" class="panel-body">
                                                     <table id="metadataFieldOptions" class="table table-striped">
@@ -337,7 +337,7 @@
                                                                             value="#{dsft.include}"
                                                                             itemLabel="#{dsft.displayName}"
                                                                             onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;"
-                                                                            disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or !DataversePage.mdbViewOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}">
+                                                                            disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or !DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}">
                                                                         <p:ajax update="@widgetVar(OptButton#{dsft.id}), @widgetVar(optionBlock)"
                                                                                 onsuccess="#{DataversePage.updateInclude(mdb.id, dsft.id)}"/>
                                                                     </p:selectBooleanCheckbox>
@@ -352,7 +352,7 @@
                                                                     <p:selectOneRadio id="OptionsRadio#{dsft.id}"
                                                                                       value="#{dsft.requiredDV}"
                                                                                       widgetVar="OptButton#{dsft.id}"
-                                                                                      disabled="#{!DataversePage.mdbViewOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}"
+                                                                                      disabled="#{!DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}"
                                                                                       rendered="#{!dsft.hasChildren and !((!dsft.hasChildren  and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren))}">
                                                                         <f:selectItems
                                                                                 value="#{dsft.optionSelectItems}"/>
@@ -374,7 +374,7 @@
                                                            actionListener="#{DataversePage.hideDatasetFieldTypes(mdb.id)}"
                                                            immediate="true"
                                                            oncomplete="javascript:bind_bsui_components();"
-                                                           rendered="#{DataversePage.mdbViewOptions.isShowDatasetFieldTypes(mdb.id) }">
+                                                           rendered="#{DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id) }">
                                                 <h:outputText value="#{bundle.done}"/>
                                             </p:commandLink>
                                         </p:outputPanel>

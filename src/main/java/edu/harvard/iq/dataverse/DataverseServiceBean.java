@@ -17,6 +17,18 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -24,23 +36,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.Properties;
 import java.util.concurrent.Future;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.core.Response;
+import java.util.logging.Logger;
 
 /**
  *
@@ -244,7 +242,15 @@ public class DataverseServiceBean implements java.io.Serializable {
         return em.createQuery(qr, MetadataBlock.class)
                 .setParameter("dataverse_id", dataverse_id).getResultList();
     }
-    
+
+    public List<MetadataBlock> findMetadataBlocksByDataverseIds(List<Long> dataverseIds) {
+
+        return em.createQuery("select mdb from MetadataBlock mdb" +
+                " where mdb.owner.id in :dataverseIds order by mdb.id", MetadataBlock.class)
+                .setParameter("dataverseIds", dataverseIds)
+                .getResultList();
+    }
+
     public DataverseFacet findFacet(Long id) {
         return em.find(DataverseFacet.class, id);
     }
