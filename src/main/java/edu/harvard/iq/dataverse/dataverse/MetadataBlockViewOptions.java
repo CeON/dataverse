@@ -1,10 +1,13 @@
 package edu.harvard.iq.dataverse.dataverse;
 
+import java.util.List;
+
 public class MetadataBlockViewOptions {
 
     private boolean showDatasetFieldTypes;
     private boolean editableDatasetFieldTypes;
     private boolean selected;
+    private List<DatasetFieldViewOptions> datasetFieldViewOptions;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -12,6 +15,7 @@ public class MetadataBlockViewOptions {
         showDatasetFieldTypes = builder.showDatasetFieldTypes;
         editableDatasetFieldTypes = builder.editableDatasetFieldTypes;
         selected = builder.selected;
+        datasetFieldViewOptions = builder.datasetFieldViewOptions;
     }
 
     // -------------------- GETTERS --------------------
@@ -24,17 +28,24 @@ public class MetadataBlockViewOptions {
     }
 
     /**
-     * Indicates if you are able to edit Metadata Blocks fields to be (Optional/Required/Hidden).
+     * Indicates if you are able to edit metadata blocks fields to be (Optional/Required/Hidden).
      */
     public boolean isEditableDatasetFieldTypes() {
         return editableDatasetFieldTypes;
     }
 
     /**
-     * Indicates if this Metadata Block is selected ( in order to mark the checkbox).
+     * Indicates if this metadata block is selected ( in order to mark the checkbox).
      */
     public boolean isSelected() {
         return selected;
+    }
+
+    /**
+     * Retrives dataset fields view options that belong to metadata block.
+     */
+    public List<DatasetFieldViewOptions> getDatasetFieldViewOptions() {
+        return datasetFieldViewOptions;
     }
 
     public static Builder newBuilder() {
@@ -47,6 +58,7 @@ public class MetadataBlockViewOptions {
         private boolean showDatasetFieldTypes;
         private boolean editableDatasetFieldTypes;
         private boolean selected;
+        private List<DatasetFieldViewOptions> datasetFieldViewOptions;
 
         private Builder() {
         }
@@ -63,6 +75,11 @@ public class MetadataBlockViewOptions {
 
         public Builder selected(boolean val) {
             selected = val;
+            return this;
+        }
+
+        public Builder datasetFieldViewOptions(List<DatasetFieldViewOptions> val) {
+            datasetFieldViewOptions = val;
             return this;
         }
 
