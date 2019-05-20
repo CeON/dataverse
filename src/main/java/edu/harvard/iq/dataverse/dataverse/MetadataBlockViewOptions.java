@@ -7,7 +7,6 @@ public class MetadataBlockViewOptions {
     private boolean showDatasetFieldTypes;
     private boolean editableDatasetFieldTypes;
     private boolean selected;
-    private List<DatasetFieldViewOptions> datasetFieldViewOptions;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -15,7 +14,6 @@ public class MetadataBlockViewOptions {
         showDatasetFieldTypes = builder.showDatasetFieldTypes;
         editableDatasetFieldTypes = builder.editableDatasetFieldTypes;
         selected = builder.selected;
-        datasetFieldViewOptions = builder.datasetFieldViewOptions;
     }
 
     // -------------------- GETTERS --------------------
@@ -39,13 +37,6 @@ public class MetadataBlockViewOptions {
      */
     public boolean isSelected() {
         return selected;
-    }
-
-    /**
-     * Retrives dataset fields view options that belong to metadata block.
-     */
-    public List<DatasetFieldViewOptions> getDatasetFieldViewOptions() {
-        return datasetFieldViewOptions;
     }
 
     public static Builder newBuilder() {

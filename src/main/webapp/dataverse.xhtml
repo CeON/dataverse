@@ -279,7 +279,7 @@
                                                      action="#{DataversePage.resetToInherit()}">
                                     </p:commandButton>
 
-                                    <ui:repeat value="#{DataversePage.allMetadataBlocks}" var="mdb">
+                                    <ui:repeat value="#{DataversePage.allMetadataBlocks.toArray()}" var="mdb">
                                         <div class="checkbox">
                                             <label for="#{mdb.idString}">
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
@@ -334,7 +334,7 @@
                                                                 <td>
                                                                     <p:selectBooleanCheckbox
                                                                             rendered="#{!dsft.hasParent}"
-                                                                            value="#{dsft.include}"
+                                                                            value="#{DataversePage.mdbOptions.isDsftIncludedField(mdb.id)}"
                                                                             itemLabel="#{dsft.displayName}"
                                                                             onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;"
                                                                             disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or !DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}">
@@ -350,12 +350,12 @@
                                                                 </td>
                                                                 <td>
                                                                     <p:selectOneRadio id="OptionsRadio#{dsft.id}"
-                                                                                      value="#{dsft.requiredDV}"
+                                                                                      value="#{DataversePage.mdbOptions.isDsftRequiredField(dsft.id)}"
                                                                                       widgetVar="OptButton#{dsft.id}"
-                                                                                      disabled="#{!DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}"
+                                                                                      disabled="#{!DataversePage.mdbOptions.isEditableDatasetFieldTypes(dsft.id)}"
                                                                                       rendered="#{!dsft.hasChildren and !((!dsft.hasChildren  and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren))}">
                                                                         <f:selectItems
-                                                                                value="#{dsft.optionSelectItems}"/>
+                                                                                value="#{DataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).selectedDatasetFields}"/>
                                                                     </p:selectOneRadio>
 
                                                                     <span class="text-muted"
