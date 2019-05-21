@@ -350,7 +350,7 @@
                                                                 </td>
                                                                 <td>
                                                                     <p:selectOneRadio id="OptionsRadio#{dsft.id}"
-                                                                                      value="#{DataversePage.mdbOptions.isDsftRequiredField(dsft.id)}"
+                                                                                      value="#{DataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).requiredField}"
                                                                                       widgetVar="OptButton#{dsft.id}"
                                                                                       disabled="#{!DataversePage.mdbOptions.isEditableDatasetFieldTypes(dsft.id)}"
                                                                                       rendered="#{!dsft.hasChildren and !((!dsft.hasChildren  and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren))}">
