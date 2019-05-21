@@ -157,7 +157,7 @@ public class DatasetFieldServiceApi extends AbstractApiBean {
                     .add("parentAllowsMultiples", parentAllowsMultiplesDisplay)
                     .add("solrFieldSearchable", solrFieldSearchable)
                     .add("solrFieldFacetable", solrFieldFacetable)
-                    .add("isRequired", isRequired));
+                    .add("isCitationMetaBlock", isRequired));
         
         } catch ( NoResultException nre ) {
             return notFound(name);

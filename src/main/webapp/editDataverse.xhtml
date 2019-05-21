@@ -264,7 +264,7 @@
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
                                                        jsf:value="#{mdb.selected}"
                                                        name="mdbSelectRequired" disabled="disabled" checked="checked"
-                                                       jsf:rendered="#{mdb.required and !editDataversePage.inheritMetadataBlockFromParent}"/>
+                                                       jsf:rendered="#{mdb.citationMetaBlock and !editDataversePage.inheritMetadataBlockFromParent}"/>
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
                                                        jsf:value="#{mdb.selected}"
                                                        name="mdbSelectRequiredInherited" disabled="disabled"
@@ -274,17 +274,17 @@
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
                                                        jsf:value="#{mdb.selected}"
                                                        name="mdbSelectOptional"
-                                                       jsf:rendered="#{!mdb.required and !editDataversePage.inheritMetadataBlockFromParent}">
+                                                       jsf:rendered="#{!mdb.citationMetaBlock and !editDataversePage.inheritMetadataBlockFromParent}">
                                                     <p:ajax update="@widgetVar(optionBlock)"/>
                                                 </input>
 
                                                 <h:outputText
-                                                        value="#{mdb.localeDisplayName} #{mdb.required ? bundle['dataverse.field.required']: ''}"
+                                                        value="#{mdb.localeDisplayName} #{mdb.citationMetaBlock ? bundle['dataverse.field.required']: ''}"
                                                         styleClass="#{editDataversePage.inheritMetadataBlockFromParent ? 'text-muted' : ''}"/>
                                                 <p:commandLink id="showDSFT" style="margin-left:1em;"
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
-                                                               rendered="#{!mdb.showDatasetFieldTypes and (mdb.selected or mdb.required) and !editDataversePage.inheritMetadataBlockFromParent}"
+                                                               rendered="#{!mdb.showDatasetFieldTypes and (mdb.selected or mdb.citationMetaBlock) and !editDataversePage.inheritMetadataBlockFromParent}"
                                                                actionListener="#{editDataversePage.showDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
                                                     <h:outputText value="#{bundle['dataverse.field.set.tip']}"/>

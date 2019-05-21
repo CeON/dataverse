@@ -283,30 +283,30 @@
                                         <div class="checkbox">
                                             <label for="#{mdb.idString}">
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
-                                                       jsf:value="#{mdb.selected}"
+                                                       jsf:value="#{DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected}"
                                                        name="mdbSelectRequired" disabled="" checked="checked"
-                                                       jsf:rendered="#{mdb.required and !DataversePage.inheritMetadataBlockFromParent}"/>
+                                                       jsf:rendered="#{mdb.isCitationMetaBlock() and !DataversePage.inheritMetadataBlockFromParent}"/>
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
-                                                       jsf:value="#{mdb.selected}"
+                                                       jsf:value="#{DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected}"
                                                        name="mdbSelectRequiredInherited" disabled="disabled"
                                                        jsf:rendered="#{DataversePage.inheritMetadataBlockFromParent}">
                                                     <p:ajax update="@widgetVar(optionBlock)"/>
                                                 </input>
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
-                                                       jsf:value="#{mdb.selected}"
+                                                       jsf:value="#{DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected}"
                                                        name="mdbSelectOptional"
-                                                       jsf:rendered="#{!mdb.required and !DataversePage.inheritMetadataBlockFromParent}">
+                                                       jsf:rendered="#{!mdb.isCitationMetaBlock() and !DataversePage.inheritMetadataBlockFromParent}">
                                                     <p:ajax update="@widgetVar(optionBlock)"/>
                                                 </input>
 
                                                 <h:outputText
-                                                        value="#{mdb.localeDisplayName} #{mdb.required ? bundle['dataverse.field.required']: ''}"
+                                                        value="#{mdb.localeDisplayName} #{mdb.isCitationMetaBlock() ? bundle['dataverse.field.required']: ''}"
                                                         styleClass="#{DataversePage.inheritMetadataBlockFromParent ? 'text-muted' : ''}"/>
                                                 <p:commandLink id="showEditableDSFT" style="margin-left:1em;"
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
                                                                rendered="#{!DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)
-                                                               and (mdb.selected or mdb.required) and !DataversePage.inheritMetadataBlockFromParent}"
+                                                               and (DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected or mdb.isCitationMetaBlock()) and !DataversePage.inheritMetadataBlockFromParent}"
                                                                actionListener="#{DataversePage.showEditableDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
                                                     <h:outputText value="#{bundle['dataverse.field.set.tip']}"/>
@@ -315,7 +315,7 @@
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
                                                                rendered="#{!DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)
-                                                                and (!mdb.selected or DataversePage.inheritMetadataBlockFromParent)}"
+                                                                and (!DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected or DataversePage.inheritMetadataBlockFromParent)}"
                                                                actionListener="#{DataversePage.showUnEditableDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
                                                     <h:outputText value="#{bundle['dataverse.field.set.view']}"/>
@@ -334,12 +334,12 @@
                                                                 <td>
                                                                     <p:selectBooleanCheckbox
                                                                             rendered="#{!dsft.hasParent}"
-                                                                            value="#{DataversePage.mdbOptions.isDsftIncludedField(mdb.id)}"
+                                                                            value="#{DataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).included}"
                                                                             itemLabel="#{dsft.displayName}"
                                                                             onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;"
                                                                             disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or !DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}">
                                                                         <p:ajax update="@widgetVar(OptButton#{dsft.id}), @widgetVar(optionBlock)"
-                                                                                onsuccess="#{DataversePage.updateInclude(mdb.id, dsft.id)}"/>
+                                                                        />
                                                                     </p:selectBooleanCheckbox>
                                                                     <div class="checkbox child-field"
                                                                          jsf:rendered="#{dsft.hasParent}">
@@ -352,10 +352,11 @@
                                                                     <p:selectOneRadio id="OptionsRadio#{dsft.id}"
                                                                                       value="#{DataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).requiredField}"
                                                                                       widgetVar="OptButton#{dsft.id}"
-                                                                                      disabled="#{!DataversePage.mdbOptions.isEditableDatasetFieldTypes(dsft.id)}"
+                                                                                      disabled="#{!DataversePage.mdbOptions.isEditableDatasetFieldTypes(mdb.id)}"
                                                                                       rendered="#{!dsft.hasChildren and !((!dsft.hasChildren  and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren))}">
                                                                         <f:selectItems
                                                                                 value="#{DataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).selectedDatasetFields}"/>
+                                                                        <p:ajax/>
                                                                     </p:selectOneRadio>
 
                                                                     <span class="text-muted"

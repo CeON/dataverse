@@ -2,10 +2,6 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.util.BundleUtil;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.MissingResourceException;
-import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,6 +17,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.io.Serializable;
+import java.util.List;
+import java.util.MissingResourceException;
+import java.util.Objects;
 
 import static edu.harvard.iq.dataverse.util.BundleUtil.getStringFromBundle;
 import static java.lang.String.format;
@@ -101,8 +101,8 @@ public class MetadataBlock implements Serializable {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
-    
-    public boolean isRequired() {
+
+    public boolean isCitationMetaBlock() {
         // eventually this will be dynamic, for now only citation is required
         return "citation".equals(name);
     }

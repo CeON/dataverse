@@ -356,7 +356,7 @@ public class EditDataversePage implements Serializable {
         List<MetadataBlock> selectedBlocks = new ArrayList<>();
 
         for (MetadataBlock mdb : this.allMetadataBlocks) {
-            if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isRequired())) {
+            if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isCitationMetaBlock())) {
                 selectedBlocks.add(mdb);
             }
         }

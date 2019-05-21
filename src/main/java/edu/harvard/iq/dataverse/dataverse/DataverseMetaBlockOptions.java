@@ -7,7 +7,7 @@ public class DataverseMetaBlockOptions {
 
     private Map<Long, MetadataBlockViewOptions> mdbViewOptions = new HashMap<>();
     private Map<Long, DatasetFieldViewOptions> datasetFieldViewOptions = new HashMap<>();
-    private boolean inheritMetaBlocksFromParent;
+    private boolean inheritMetaBlocksFromParent = true;
 
     // -------------------- GETTERS --------------------
 
@@ -36,10 +36,18 @@ public class DataverseMetaBlockOptions {
                 .orElse(false);
     }
 
-    public boolean isDsftRequiredField(Long dsftId) {
-        return datasetFieldViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(dsftId))
-                .map(map -> map.getValue().isRequiredField())
+    public boolean isEditableDatasetFieldTypes(Long mdbId) {
+        return mdbViewOptions.entrySet().stream()
+                .filter(map -> map.getKey().equals(mdbId))
+                .map(map -> map.getValue().isEditableDatasetFieldTypes())
+                .findFirst()
+                .orElse(false);
+    }
+
+    public boolean isMetaBlockSelected(Long mdbId) {
+        return mdbViewOptions.entrySet().stream()
+                .filter(map -> map.getKey().equals(mdbId))
+                .map(map -> map.getValue().isSelected())
                 .findFirst()
                 .orElse(false);
     }
@@ -48,14 +56,6 @@ public class DataverseMetaBlockOptions {
         return datasetFieldViewOptions.entrySet().stream()
                 .filter(map -> map.getKey().equals(dsftId))
                 .map(map -> map.getValue().isIncluded())
-                .findFirst()
-                .orElse(false);
-    }
-
-    public boolean isEditableDatasetFieldTypes(Long mdbId) {
-        return mdbViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(mdbId))
-                .map(map -> map.getValue().isEditableDatasetFieldTypes())
                 .findFirst()
                 .orElse(false);
     }

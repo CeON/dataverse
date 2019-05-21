@@ -79,4 +79,9 @@ public class MetadataBlockViewOptions {
         }
     }
 
+    // -------------------- SETTERS --------------------
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
 }
