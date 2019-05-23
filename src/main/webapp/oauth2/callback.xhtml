@@ -5,7 +5,7 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:o="http://omnifaces.org/ui"
-      xmlns:jsf="http://xmlns.jcp.org/jsf">
+>
     <h:head>
     </h:head>
 
@@ -22,8 +22,8 @@
 	    <div class="alert alert-danger" role="alert" style="margin-top:3em;">
 		    <p>
                     <h:outputFormat value="#{bundle['oauth2.callback.message']}" escape="false">
-                                    <f:param value="#{systemConfig.guidesBaseUrl}"/>
-                                    <f:param value="#{systemConfig.guidesVersion}"/>
+                                    <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
+                                    <f:param value="#{settingsWrapper.guidesVersion}"/>
 				    </h:outputFormat>
 				    </p>
 				    <p>
@@ -31,7 +31,9 @@
 				    </p>
                     <h:outputFormat value="#{bundle['error.support.message']}" escape="false">
                             <o:param>
-                                <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
+                                <p:commandLink value="#{installationConfig.supportTeamName}"
+                                               oncomplete="PF('contactForm').show()" update=":contactDialog"
+                                               actionListener="#{sendFeedbackDialog.initUserInput}">
                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{null}"/>
                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>

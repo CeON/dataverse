@@ -23,7 +23,8 @@ import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RestrictFileCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.InitialTermsOfUseFactory;
+import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -111,8 +112,8 @@ public class AddReplaceFileHelper{
     private DataFileServiceBean fileService;        
     private PermissionServiceBean permissionService;
     private EjbDataverseEngine commandEngine;
-    private SystemConfig systemConfig;
-    private InitialTermsOfUseFactory termsOfUseFactory;
+    private SettingsServiceBean settingsService;
+    private TermsOfUseFactory termsOfUseFactory;
     
     // -----------------------------------
     // Instance variables directly added
@@ -189,13 +190,13 @@ public class AddReplaceFileHelper{
      * @param dvRequest 
      */
     public AddReplaceFileHelper(DataverseRequest dvRequest, 
-                            IngestServiceBean ingestService,                            
+                            IngestServiceBean ingestService,
                             DatasetServiceBean datasetService,
                             DataFileServiceBean fileService,
                             PermissionServiceBean permissionService,
                             EjbDataverseEngine commandEngine,
-                            SystemConfig systemConfig,
-                            InitialTermsOfUseFactory termsOfUseFactory){
+                            SettingsServiceBean settingsService,
+                            TermsOfUseFactory termsOfUseFactory){
 
         // ---------------------------------
         // make sure DataverseRequest isn't null and has a user
@@ -225,11 +226,11 @@ public class AddReplaceFileHelper{
         if (commandEngine == null){
             throw new NullPointerException("commandEngine cannot be null");
         }
-        if (systemConfig == null) {
-            throw new NullPointerException("systemConfig cannot be null");
+        if (settingsService == null) {
+            throw new NullPointerException("settingsService cannot be null");
         }
         if (termsOfUseFactory == null) {
-            throw new NullPointerException("InitialTermsOfUseFactory cannot be null");
+            throw new NullPointerException("TermsOfUseFactory cannot be null");
         }
 
         // ---------------------------------
@@ -239,7 +240,7 @@ public class AddReplaceFileHelper{
         this.fileService = fileService;
         this.permissionService = permissionService;
         this.commandEngine = commandEngine;
-        this.systemConfig = systemConfig;
+        this.settingsService = settingsService;
         this.termsOfUseFactory = termsOfUseFactory;
         
         
@@ -1056,7 +1057,7 @@ public class AddReplaceFileHelper{
                     this.newFileInputStream,
                     this.newFileName,
                     this.newFileContentType,
-                    this.systemConfig,
+                    this.settingsService,
                     this.termsOfUseFactory);
 
         } catch (IOException ex) {

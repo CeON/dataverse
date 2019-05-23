@@ -46,7 +46,12 @@ import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.license.License;
+import edu.harvard.iq.dataverse.license.LicenseDAO;
+import edu.harvard.iq.dataverse.license.TermsOfUseForm;
+import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
@@ -67,10 +72,12 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.primefaces.PrimeFaces;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.CloseEvent;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.event.data.PageEvent;
 import org.primefaces.model.UploadedFile;
@@ -105,6 +112,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -187,6 +195,8 @@ public class DatasetPage implements java.io.Serializable {
     PrivateUrlServiceBean privateUrlService;
     @EJB
     ExternalToolServiceBean externalToolService;
+    @EJB
+    TermsOfUseFormMapper termsOfUseFormMapper;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
@@ -238,7 +248,6 @@ public class DatasetPage implements java.io.Serializable {
     private String version;
     private String protocol = "";
     private String authority = "";
-    private String customFields="";
 
     private boolean noDVsAtAll = false;
 
@@ -442,8 +451,8 @@ public class DatasetPage implements java.io.Serializable {
     public String getCartComputeUrl() {
         if (session.getUser() instanceof AuthenticatedUser) {
             AuthenticatedUser authUser = (AuthenticatedUser) session.getUser();
-            String url = settingsWrapper.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl);
-            if (url == null) {
+            String url = settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl);
+            if (StringUtils.isEmpty(url)) {
                 return "";
             }
             // url indicates that you are computing with multiple datasets
@@ -678,9 +687,9 @@ public class DatasetPage implements java.io.Serializable {
     */
     public String getComputeUrl() throws IOException {
 
-        return settingsWrapper.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getPersistentId();
+        return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getPersistentId();
             //WHEN we are able to get a temp url for a dataset
-            //return settingsWrapper.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?containerName=" + swiftObject.getSwiftContainerName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
+        //return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?containerName=" + swiftObject.getSwiftContainerName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
 
         
     }
@@ -698,16 +707,16 @@ public class DatasetPage implements java.io.Serializable {
         } catch (IOException e) {
             logger.info("DatasetPage: Failed to get storageIO");
         }
-        if (settingsWrapper.isTrueForKey(SettingsServiceBean.Key.PublicInstall, false)) {
-            return settingsWrapper.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getPersistentId() + "=" + swiftObject.getSwiftFileName();
+        if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall)) {
+            return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getPersistentId() + "=" + swiftObject.getSwiftFileName();
         }
-        
-        return settingsWrapper.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getPersistentId() + "=" + swiftObject.getSwiftFileName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
+
+        return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getPersistentId() + "=" + swiftObject.getSwiftFileName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
 
     }
     
     public String getCloudEnvironmentName() {
-        return settingsWrapper.getValueForKey(SettingsServiceBean.Key.CloudEnvironmentName);
+        return settingsService.getValueForKey(SettingsServiceBean.Key.CloudEnvironmentName);
     }
     
     public DataFile getSelectedDownloadFile() {
@@ -1364,14 +1373,13 @@ public class DatasetPage implements java.io.Serializable {
     
     private String init(boolean initFull) {
         //System.out.println("_YE_OLDE_QUERY_COUNTER_");  // for debug purposes
-        this.maxFileUploadSizeInBytes = systemConfig.getMaxFileUploadSize();
+        this.maxFileUploadSizeInBytes = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaxFileUploadSizeInBytes);
         setDataverseSiteUrl(systemConfig.getDataverseSiteUrl());
 
         guestbookResponse = new GuestbookResponse();
-        
-        String nonNullDefaultIfKeyNotFound = "";
-        protocol = settingsWrapper.getValueForKey(SettingsServiceBean.Key.Protocol, nonNullDefaultIfKeyNotFound);
-        authority = settingsWrapper.getValueForKey(SettingsServiceBean.Key.Authority, nonNullDefaultIfKeyNotFound);
+
+        protocol = settingsService.getValueForKey(SettingsServiceBean.Key.Protocol);
+        authority = settingsService.getValueForKey(SettingsServiceBean.Key.Authority);
         if (dataset.getId() != null || versionId != null || persistentId != null) { // view mode for a dataset     
 
             DatasetVersionServiceBean.RetrieveDatasetVersionResponse retrieveDatasetVersionResponse = null;
@@ -1488,7 +1496,7 @@ public class DatasetPage implements java.io.Serializable {
                 this.guestbookResponse = guestbookResponseService.initGuestbookResponseForFragment(workingVersion, null, session);
                 this.getFileDownloadHelper().setGuestbookResponse(guestbookResponse);
                 logger.fine("Checking if rsync support is enabled.");
-                if (DataCaptureModuleUtil.rsyncSupportEnabled(settingsWrapper.getValueForKey(SettingsServiceBean.Key.UploadMethods))
+                if (DataCaptureModuleUtil.rsyncSupportEnabled(settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods))
                         && dataset.getFiles().isEmpty()) { //only check for rsync if no files exist
                     try {
                         ScriptRequestResponse scriptRequestResponse = commandEngine.submit(new RequestRsyncScriptCommand(dvRequestService.getDataverseRequest(), dataset));
@@ -1545,8 +1553,8 @@ public class DatasetPage implements java.io.Serializable {
                 workingVersion = dataset.getCreateVersion();
                 updateDatasetFieldInputLevels();
             }
-            
-            if (settingsWrapper.isTrueForKey(SettingsServiceBean.Key.PublicInstall, false)){
+
+            if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall)) {
                 JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.message.publicInstall"));
             }
 
@@ -2012,7 +2020,7 @@ public class DatasetPage implements java.io.Serializable {
             // If configured, and currently published version is archived, try to update archive copy as well
             DatasetVersion updateVersion = dataset.getLatestVersion();
             if (updateVersion.getArchivalCopyLocation() != null) {
-                String className = settingsService.get(SettingsServiceBean.Key.ArchiverClassName.toString());
+                String className = settingsService.getValueForKey(SettingsServiceBean.Key.ArchiverClassName);
                 AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, dvRequestService.getDataverseRequest(), updateVersion);
                 if (archiveCommand != null) {
                     // Delete the record of any existing copy since it is now out of date/incorrect
@@ -2692,10 +2700,13 @@ public class DatasetPage implements java.io.Serializable {
         }
 
     }
+    
+    @EJB
+    private LicenseDAO licenseDao;
      
      public String save() {
          //Before dataset saved, write cached prov freeform to version
-        if(systemConfig.isProvCollectionEnabled()) {
+        if(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
             provPopupFragmentBean.saveStageProvFreeformToLatestVersion();
         }
         
@@ -2786,6 +2797,13 @@ public class DatasetPage implements java.io.Serializable {
                     // have been created in the dataset. 
                     dataset = datasetService.find(dataset.getId());
                     
+                    for (DataFile newFile : newFiles) {
+                        TermsOfUseForm termsOfUseForm = newFile.getFileMetadata().getTermsOfUseForm();
+                        FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
+                        
+                        newFile.getFileMetadata().setTermsOfUse(termsOfUse);
+                    }
+                    
                     List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles);
                     newFiles.clear();
                     
@@ -2843,7 +2861,7 @@ public class DatasetPage implements java.io.Serializable {
         ingestService.startIngestJobsForDataset(dataset, (AuthenticatedUser) session.getUser());
 
         //After dataset saved, then persist prov json data
-        if(systemConfig.isProvCollectionEnabled()) {
+        if(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
             try {
                 provPopupFragmentBean.saveStagedProvJson(false, dataset.getLatestVersion().getFileMetadatas());
             } catch (AbstractApiBean.WrappedResponse ex) {
@@ -3367,16 +3385,11 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String getDatasetPublishCustomText(){
-        String datasetPublishCustomText = settingsWrapper.getValueForKey(SettingsServiceBean.Key.DatasetPublishPopupCustomText);
-        if( datasetPublishCustomText!= null && !datasetPublishCustomText.isEmpty()){
-            return datasetPublishCustomText;
-            
-        }
-        return "";
+        return settingsService.getValueForKey(SettingsServiceBean.Key.DatasetPublishPopupCustomText);
     }
     
     public Boolean isDatasetPublishPopupCustomTextOnAllVersions(){
-        return  settingsWrapper.isTrueForKey(SettingsServiceBean.Key.DatasetPublishPopupCustomTextOnAllVersions, false);
+        return settingsService.isTrueForKey(SettingsServiceBean.Key.DatasetPublishPopupCustomTextOnAllVersions);
     }
 
     public String getVariableMetadataURL(Long fileid) {
@@ -4402,8 +4415,8 @@ public class DatasetPage implements java.io.Serializable {
      * @return the dataset fields to be shown in the dataset summary
      */
     public List<DatasetField> getDatasetSummaryFields() {
-       customFields  = settingsWrapper.getValueForKey(SettingsServiceBean.Key.CustomDatasetSummaryFields);
-       
+        List<String> customFields = settingsService.getValueForKeyAsList(SettingsServiceBean.Key.CustomDatasetSummaryFields);
+        
         return DatasetUtil.getDatasetSummaryFields(workingVersion, customFields);
     }
 
@@ -4596,5 +4609,22 @@ public class DatasetPage implements java.io.Serializable {
         }
         return true;
         
+    }
+    
+    public String saveTermsOfUse(TermsOfUseForm termsOfUseForm) {
+        
+        if (bulkUpdateCheckVersion()) {
+            refreshSelectedFiles();
+        }
+        
+        FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
+        
+        for (FileMetadata fm : selectedFiles) {
+            fm.setTermsOfUse(termsOfUse.createCopy());
+        }
+        
+        save();
+        
+        return returnToDraftVersion();
     }
 }

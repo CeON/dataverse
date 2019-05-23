@@ -11,10 +11,8 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.PasswordEncrypti
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.json.Json;
@@ -26,10 +24,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
-import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
-import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
-import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 
 /**
@@ -50,15 +50,11 @@ public class BuiltinUsers extends AbstractApiBean {
     @GET
     @Path("{username}/api-token")
     public Response getApiToken( @PathParam("username") String username, @QueryParam("password") String password ) {
-        boolean disabled = true;
-        boolean lookupAllowed = settingsSvc.isTrueForKey(SettingsServiceBean.Key.AllowApiTokenLookupViaApi, false);
-        if (lookupAllowed) {
-            disabled = false;
-        }
-        if (disabled) {
+        boolean lookupAllowed = settingsSvc.isTrueForKey(SettingsServiceBean.Key.AllowApiTokenLookupViaApi);
+        if (!lookupAllowed) {
             return error(Status.FORBIDDEN, "This API endpoint has been disabled.");
         }
-        BuiltinUser u = null;
+        BuiltinUser u;
 
         u = builtinUserSvc.findByUserName(username);
 
@@ -108,7 +104,7 @@ public class BuiltinUsers extends AbstractApiBean {
     private Response internalSave(BuiltinUser user, String password, String key) {
         String expectedKey = settingsSvc.get(API_KEY_IN_SETTINGS);
         
-        if (expectedKey == null) {
+        if (StringUtils.isEmpty(expectedKey)) {
             return error(Status.SERVICE_UNAVAILABLE, "Dataverse config issue: No API key defined for built in user management");
         }
         if (!expectedKey.equals(key)) {

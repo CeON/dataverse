@@ -76,7 +76,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDvObjectPIDMetadataCom
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.InitialTermsOfUseFactory;
+import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -180,7 +180,7 @@ public class Datasets extends AbstractApiBean {
     SettingsServiceBean settingsService;
 
     @Inject
-    private InitialTermsOfUseFactory termsOfUseFactory;
+    private TermsOfUseFactory termsOfUseFactory;
 
     /**
      * Used to consolidate the way we parse and handle dataset versions.
@@ -916,7 +916,7 @@ public class Datasets extends AbstractApiBean {
                     successMsg = BundleUtil.getStringFromBundle("datasetversion.update.success");
 
                     // If configured, update archive copy as well
-                    String className = settingsService.get(SettingsServiceBean.Key.ArchiverClassName.toString());
+                    String className = settingsService.getValueForKey(SettingsServiceBean.Key.ArchiverClassName);
                     DatasetVersion updateVersion = ds.getLatestVersion();
                     AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, createDataverseRequest(user), updateVersion);
                     if (archiveCommand != null) {
@@ -1477,7 +1477,7 @@ public class Datasets extends AbstractApiBean {
                                                 fileService,
                                                 permissionSvc,
                                                 commandEngine,
-                                                systemConfig,
+                                                settingsService,
                                                 termsOfUseFactory);
 
 

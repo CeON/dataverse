@@ -141,7 +141,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
     public Long getUnreadNotificationCount(Long userId){
         
         if (userId == null){
-            return new Long("0");
+            return 0L;
         }
         
         if (this.unreadNotificationCount != null){
@@ -152,7 +152,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
             this.unreadNotificationCount = userNotificationService.getUnreadNotificationCountByUser(userId);
         }catch (Exception e){
             logger.warning("Error trying to retrieve unread notification count for user." + e.getMessage());
-            this.unreadNotificationCount = new Long("0");
+            this.unreadNotificationCount = 0L;
         }
         return this.unreadNotificationCount;
     }
@@ -247,8 +247,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         if (signupAllowed != null) {
             return signupAllowed;
         }
-        boolean safeDefaultIfKeyNotFound = false;
-        signupAllowed = settingsWrapper.isTrueForKey(SettingsServiceBean.Key.AllowSignUp, safeDefaultIfKeyNotFound);
+        signupAllowed = settingsService.isTrueForKey(SettingsServiceBean.Key.AllowSignUp);
         return signupAllowed;
     }
 
@@ -258,15 +257,14 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         }
         if (dataverse.getOwner() == null) {
             // We're operating on the root dataverse.
-            return settingsWrapper.isRootDataverseThemeDisabled();
+            return settingsService.isTrueForKey(SettingsServiceBean.Key.DisableRootDataverseTheme);
         } else {
             return false;
         }
     }
 
     public String getSignupUrl(String loginRedirect) {
-        String nonNullDefaultIfKeyNotFound = "";
-        String signUpUrl = settingsWrapper.getValueForKey(SettingsServiceBean.Key.SignUpUrl, nonNullDefaultIfKeyNotFound);
+        String signUpUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SignUpUrl);
         return signUpUrl + (!signUpUrl.contains("?") ? loginRedirect : loginRedirect.replace("?", "&"));
     }
 

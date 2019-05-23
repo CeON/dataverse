@@ -109,10 +109,12 @@
                                     <p class="help-block">
                                         <h:outputFormat value="#{bundle['login.institution.blurb']} " escape="false">
                                             <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
-                                            <f:param value="#{systemConfig.guidesVersion}"/>
+                                            <f:param value="#{settingsWrapper.guidesVersion}"/>
                                         </h:outputFormat>
                                         <h:outputText value="#{bundle['login.institution.support.beforeLink']} " />
-                                        <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
+                                        <p:commandLink value="#{installationConfig.supportTeamName}"
+                                                       oncomplete="PF('contactForm').show()" update=":contactDialog"
+                                                       actionListener="#{sendFeedbackDialog.initUserInput}">
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{null}"/>
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
@@ -171,9 +173,12 @@
                                         <h:outputFormat value="#{bundle['auth.providers.blurb']}" escape="false">
                                             <o:param value="#{LoginPage.authProvider.info.title}"/>
                                             <o:param value="#{settingsWrapper.guidesBaseUrl}"/>
-                                            <o:param value="#{systemConfig.guidesVersion}"/>
+                                            <o:param value="#{settingsWrapper.guidesVersion}"/>
                                             <o:param>
-                                                <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
+                                                <p:commandLink value="#{installationConfig.supportTeamName}"
+                                                               oncomplete="PF('contactForm').show()"
+                                                               update=":contactDialog"
+                                                               actionListener="#{sendFeedbackDialog.initUserInput}">
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{null}"/>
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
@@ -215,7 +220,7 @@
                                     <p class="help-block">
                                         <h:outputFormat value="#{bundle['auth.providers.tip']}" escape="false">
                                             <o:param value="#{settingsWrapper.guidesBaseUrl}"/>
-                                            <o:param value="#{systemConfig.guidesVersion}"/>
+                                            <o:param value="#{settingsWrapper.guidesVersion}"/>
                                         </h:outputFormat>
                                     </p>
                                 </div>

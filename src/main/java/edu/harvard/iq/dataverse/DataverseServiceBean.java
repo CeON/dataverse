@@ -647,7 +647,7 @@ public class DataverseServiceBean implements java.io.Serializable {
         }
     }
     
-    public String addRoleAssignmentsToChildren(Dataverse owner, ArrayList<String> rolesToInherit,
+    public String addRoleAssignmentsToChildren(Dataverse owner, List<String> rolesToInherit,
             boolean inheritAllRoles) {
         /*
          * This query recursively finds all Dataverses that are inside/children of the

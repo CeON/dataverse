@@ -107,6 +107,8 @@ public class DataverseUserPage implements java.io.Serializable {
     PasswordValidatorServiceBean passwordValidatorService;
     @Inject
     SettingsWrapper settingsWrapper;
+    @EJB
+    SettingsServiceBean settingsService;
     @Inject
     MyDataPage mydatapage;
     @Inject
@@ -141,8 +143,7 @@ public class DataverseUserPage implements java.io.Serializable {
     public String init() {
 
         // prevent creating a user if signup not allowed.
-        boolean safeDefaultIfKeyNotFound = true;
-        boolean signupAllowed = settingsWrapper.isTrueForKey(SettingsServiceBean.Key.AllowSignUp.toString(), safeDefaultIfKeyNotFound);
+        boolean signupAllowed = settingsService.isTrueForKey(SettingsServiceBean.Key.AllowSignUp);
 
         if (editMode == EditMode.CREATE && !signupAllowed) {
             return "/403.xhtml";
@@ -374,7 +375,7 @@ public class DataverseUserPage implements java.io.Serializable {
             StringBuilder msg = new StringBuilder( passwordChanged ? BundleUtil.getStringFromBundle("userPage.passwordChanged" )
                                                                    :  BundleUtil.getStringFromBundle("userPage.informationUpdated"));
             if (!emailBeforeUpdate.equals(emailAfterUpdate)) {
-                String expTime = ConfirmEmailUtil.friendlyExpirationTime(systemConfig.getMinutesUntilConfirmEmailTokenExpires());
+                String expTime = ConfirmEmailUtil.friendlyExpirationTime(settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MinutesUntilConfirmEmailTokenExpires));
                 List<String> args = Arrays.asList(currentUser.getEmail(),expTime);
                 // delete unexpired token, if it exists (clean slate)
                 confirmEmailService.deleteTokenForUser(currentUser);
@@ -522,7 +523,7 @@ public class DataverseUserPage implements java.io.Serializable {
             confirmEmailService.beginConfirm(currentUser);
             List<String> args = Arrays.asList(
                     userEmail,
-                    ConfirmEmailUtil.friendlyExpirationTime(systemConfig.getMinutesUntilConfirmEmailTokenExpires()));
+                    ConfirmEmailUtil.friendlyExpirationTime(settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MinutesUntilConfirmEmailTokenExpires)));
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("confirmEmail.submitRequest.success", args));
         } catch (ConfirmEmailException ex) {
             Logger.getLogger(DataverseUserPage.class.getName()).log(Level.SEVERE, null, ex);

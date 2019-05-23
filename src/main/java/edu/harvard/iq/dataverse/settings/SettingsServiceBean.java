@@ -4,12 +4,14 @@ import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.api.ApiBlockingFilter;
 import edu.harvard.iq.dataverse.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +27,7 @@ import java.util.logging.Logger;
  * @see FileBasedSettingsFetcher
  */
 @Stateless
-@Named
 public class SettingsServiceBean {
-    
-    private static final Logger logger = Logger.getLogger(SettingsServiceBean.class.getCanonicalName());
     
     /**
      * Some convenient keys for the settings. Note that the setting's 
@@ -109,10 +108,6 @@ public class SettingsServiceBean {
          * old behavior by setting this to false.
          */
         SearchApiRequiresToken,
-        /**
-         * Experimental: Use Solr to power the file listing on the dataset page.
-         */
-        FilesOnDatasetPageFromSolr,
 
         /**
          * API endpoints that are not accessible. Comma separated list.
@@ -146,33 +141,22 @@ public class SettingsServiceBean {
          * to from the footer.
          */
         ApplicationPrivacyPolicyUrl,
-        /**
-         * A boolean defining if indexing and search should respect the concept
-         * of "permission root".
-         *
-         * <p>
-         *
-         * If we ignore permissionRoot at index time, we should blindly give
-         * search ("discoverability") access to people and group who have access
-         * defined in a parent dataverse, all the way back to the root.
-         *
-         * <p>
-         *
-         * If we respect permissionRoot, this means that the dataverse being
-         * indexed is an island of permissions all by itself. We should not look
-         * to its parent to see if more people and groups might be able to
-         * search the DvObjects within it. We would assume no implicit
-         * inheritance of permissions. In this mode, all permissions must be
-         * explicitly defined on DvObjects. No implied inheritance.
-         *
-         */
-        SearchRespectPermissionRoot,
         /** Solr hostname and port, such as "localhost:8983". */
         SolrHostColonPort,
-        /** Enable full-text indexing in solr up to max file size */
-        SolrFullTextIndexing, //true or false (default)
-        SolrMaxFileSizeForFullTextIndexing, //long - size in bytes (default unset/no limit)
-        /** Key for limiting the number of bytes uploaded via the Data Deposit API, UI (web site and . */
+        /** Enable full-text indexing in solr
+         *  Defaults to false
+         **/
+        SolrFullTextIndexing,
+        /**
+         * If file size of indexed file is greater than this value
+         * then full text indexing will not take place
+         * If set to 0 then no limit
+         * Defaults to 0
+         */
+        SolrMaxFileSizeForFullTextIndexing, //
+        /** Key for limiting the number of bytes uploaded via the Data Deposit API, UI
+         *  If not set then not limit
+         **/
         MaxFileUploadSizeInBytes,
         /** Key for if ScrubMigrationData is enabled or disabled. */
         ScrubMigrationData,
@@ -210,31 +194,51 @@ public class SettingsServiceBean {
         /* zip download size limit */
         /** Optionally override version number in guides. */
         GuidesVersion,
+        /**
+         * Download-as-zip size limit.
+         * If set to 0 then no limit.
+         * If set to -1 then zip downloads are disabled
+         */
         ZipDownloadLimit,
-        /* zip upload number of files limit */
+        /**
+         * Number of datafiles that we allow to be created through 
+         * zip file upload.
+         */
         ZipUploadFilesLimit,
-        /* the number of files the GUI user is allowed to upload in one batch, 
-            via drag-and-drop, or through the file select dialog */
+        /** 
+         *  the number of files the GUI user is allowed to upload in one batch, 
+         *  via drag-and-drop, or through the file select dialog
+         */
         MultipleUploadFilesLimit,
-        /* Size limits for generating thumbnails on the fly */
-        /* (i.e., we'll attempt to generate a thumbnail on the fly if the 
+        /** Size limits for generating thumbnails on the fly
+         *(i.e., we'll attempt to generate a thumbnail on the fly if the
          * size of the file is less than this)
+         * FIXME: this setting is currently taken from system environment
         */
         ThumbnailSizeLimitImage,
+        /**
+         * FIXME: this setting is currently taken from system environment
+         */
         ThumbnailSizeLimitPDF,
-        /* status message that will appear on the home page */
+        /**
+         * status message that will appear on the home page
+         */
         StatusMessageHeader,
-        /* full text of status message, to appear in popup */
+        /** full text of status message, to appear in popup */
         StatusMessageText,
-        /* return email address for system emails such as notifications */
-        SystemEmail, 
-        /* size limit for Tabular data file ingests */
-        /* (can be set separately for specific ingestable formats; in which 
-        case the actual stored option will be TabularIngestSizeLimit:{FORMAT_NAME}
-        where {FORMAT_NAME} is the format identification tag returned by the 
-        getFormatName() method in the format-specific plugin; "sav" for the 
-        SPSS/sav format, "RData" for R, etc.
-        for example: :TabularIngestSizeLimit:RData */
+        /** return email address for system emails such as notifications */
+        SystemEmail,
+        /** 
+         * size limit for Tabular data file ingests <br/>
+         * (can be set separately for specific ingestable formats; in which
+         * case the actual stored option will be TabularIngestSizeLimit:{FORMAT_NAME}
+         * where {FORMAT_NAME} is the format identification tag returned by the 
+         * getFormatName() method in the format-specific plugin; "sav" for the 
+         * SPSS/sav format, "RData" for R, etc.
+         * for example: :TabularIngestSizeLimit:RData <br/>
+         * -1 means no limit is set; 
+         * 0 on the other hand would mean that ingest is fully disabled for tabular data.
+         */
         TabularIngestSizeLimit,
         /**
         Whether to allow user to create GeoConnect Maps
@@ -255,11 +259,11 @@ public class SettingsServiceBean {
          * 
          */
         DatasetPublishPopupCustomText,
-        /*
+        /**
         Whether to display the publish text for every published version
         */
         DatasetPublishPopupCustomTextOnAllVersions,
-        /*
+        /**
         Whether Harvesting (OAI) service is enabled
         */
         OAIServerEnabled,
@@ -272,27 +276,27 @@ public class SettingsServiceBean {
          * Whether Export should exclude FieldType.EMAIL
          */
         ExcludeEmailFromExport,
-        /*
+        /**
          Location and name of HomePage customization file
         */
         HomePageCustomizationFile,
-        /*
+        /**
          Location and name of Header customization file
         */
         HeaderCustomizationFile,
-        /*
+        /**
          Location and name of Footer customization file
         */
         FooterCustomizationFile,
-        /*
+        /**
          Location and name of CSS customization file
         */
         StyleCustomizationFile,
-        /*
+        /**
          Location and name of analytics code file
         */
         WebAnalyticsCode,
-        /*
+        /**
          Location and name of installation logo customization file
         */
         LogoCustomizationFile,
@@ -320,51 +324,56 @@ public class SettingsServiceBean {
          */
         PVDictionaries,
 
-//        /**
-//         * The days and minimum length for when to apply an expiration date.
-//         */
-//        PVExpirationDays,
-//        PVValidatorExpirationMaxLength,
-
         /**
          * The minimum length of a good, long, strong password.
+         * Defaults to 20.
          */
         PVGoodStrength,
 
         /**
-         * A password minimum and maximum length
+         * A password minimum length
+         * Defaults to 6
          */
         PVMinLength,
+        /**
+         * A password maximum length
+         * If set to 0 then maximum length is disabled
+         */
         PVMaxLength,
 
         /**
-         * One letter, 2 special characters, etc.
+         * One letter, 2 special characters, etc. (string in form Alphabetical:1,Digit:1)
+         * Defaults to (string in form Alphabetical:1,Digit:1):
+         *  - one alphabetical
+         *  - one digit
          */
         PVCharacterRules,
 
         /**
-         * The number of M characteristics
+         * The number of M characteristics.
+         * Defaults to 2.
          */
         PVNumberOfCharacteristics,
         
         /**
-         * The number of consecutive digits allowed for a password
+         * The number of consecutive digits allowed for a password.
+         * Defaults to highest int
          */
         PVNumberOfConsecutiveDigitsAllowed,
         /**
          * Configurable text for alert/info message on passwordreset.xhtml when users are required to update their password.
          */
         PVCustomPasswordResetAlertMessage,
-        /*
+        /**
         String to describe DOI format for data files. Default is DEPENDENT. 
         'DEPENEDENT' means the DOI will be the Dataset DOI plus a file DOI with a slash in between.
         'INDEPENDENT' means a new global id, completely independent from the dataset-level global id.
         */
-        DataFilePIDFormat, 
-        /* Json array of supported languages
+        DataFilePIDFormat,
+        /** Json array of supported languages
         */
         Languages,
-        /*
+        /**
         Number for the minimum number of files to send PID registration to asynchronous workflow
         */
         PIDAsynchRegFileCount,
@@ -418,7 +427,9 @@ public class SettingsServiceBean {
             return ":" + name();
         }
     }
-    
+
+    private static final Logger logger = Logger.getLogger(SettingsServiceBean.class.getCanonicalName());
+
     @PersistenceContext
     private EntityManager em;
     
@@ -427,7 +438,9 @@ public class SettingsServiceBean {
     
     @EJB
     private FileBasedSettingsFetcher fileBasedSettingsFetcher;
-    
+
+    // -------------------- LOGIC --------------------
+
     /**
      * Basic functionality - get the name, return the setting from db if present or from properties file if not.
      * @param name of the setting
@@ -443,7 +456,7 @@ public class SettingsServiceBean {
      * @param key Enum value of the name.
      * @return The setting, or {@code null}.
      */
-    public String getValueForKey( Key key ) {
+    public String getValueForKey(Key key) {
         return get(key.toString());
     }
     
@@ -456,11 +469,11 @@ public class SettingsServiceBean {
      * @param key
      * @return 
      */
-       public Long getValueForKeyAsLong(Key key){
-        
+    public Long getValueForKeyAsLong(Key key){
+
         String val = this.getValueForKey(key);
 
-        if (val == null){
+        if (StringUtils.isEmpty(val)){
             return null;
         }
 
@@ -471,28 +484,22 @@ public class SettingsServiceBean {
             logger.log(Level.WARNING, "Incorrect setting.  Could not convert \"{0}\" from setting {1} to long.", new Object[]{val, key.toString()});
             return null;
         }
-        
+
+    }
+    
+    public Integer getValueForKeyAsInt(Key key){
+        Long value = getValueForKeyAsLong(key);
+        if (value == null) {
+            return null;
+        }
+        return value.intValue();
+    }
+    
+    public List<String> getValueForKeyAsList(Key key) {
+        return Arrays.asList(StringUtils.split(getValueForKey(key), ","));
     }
     
     
-    /**
-     * Return the value stored, or the default value, in case no setting by that
-     * name exists. The main difference between this method and the other {@code get()}s
-     * is that is never returns null (unless {@code defaultValue} is {@code null}.
-     * 
-     * @param name Name of the setting.
-     * @param defaultValue The value to return if no setting is found in the DB.
-     * @return Either the stored value, or the default value.
-     */
-    public String get( String name, String defaultValue ) {
-        String val = get(name);
-        return (val!=null) ? val : defaultValue;
-    }
-    
-    public String getValueForKey( Key key, String defaultValue ) {
-        return get( key.toString(), defaultValue );
-    }
-     
     public Setting set( String name, String content ) {
         Setting s = new Setting( name, content );
         s = em.merge(s);
@@ -509,20 +516,15 @@ public class SettingsServiceBean {
      * The correct way to decide whether a string value in the
      * settings table should be considered as {@code true}.
      * @param name name of the setting.
-     * @param defaultValue logical value of {@code null}.
      * @return boolean value of the setting.
      */
-    public boolean isTrue( String name, boolean defaultValue ) {
+    public boolean isTrue(String name) {
         String val = get(name);
-        return ( val==null ) ? defaultValue : StringUtil.isTrue(val);
-    }
-    
-    public boolean isTrueForKey( Key key, boolean defaultValue ) {
-        return isTrue( key.toString(), defaultValue );
+        return StringUtil.isTrue(val);
     }
 
-    public boolean isFalseForKey( Key key, boolean defaultValue ) {
-        return ! isTrue( key.toString(), defaultValue );
+    public boolean isTrueForKey(Key key) {
+        return isTrue( key.toString());
     }
             
     public void deleteValueForKey( Key name ) {
@@ -548,6 +550,5 @@ public class SettingsServiceBean {
     	
     	return mergedSettings;
     }
-    
     
 }

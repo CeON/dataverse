@@ -1,31 +1,25 @@
 package edu.harvard.iq.dataverse.util;
 
-import com.ocpsoft.pretty.PrettyContext;
-import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
-import static edu.harvard.iq.dataverse.datasetutility.FileSizeChecker.bytesToHumanReadable;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.validation.PasswordValidatorUtil;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.inject.Named;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.Year;
 import java.util.Arrays;
-import java.util.List;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.inject.Named;
-import org.passay.CharacterRule;
-import org.apache.commons.io.IOUtils;
 
 /**
  * System-wide configuration
@@ -80,25 +74,10 @@ public class SystemConfig {
      */
     private static final String PASSWORD_RESET_TIMEOUT_IN_MINUTES = "dataverse.auth.password-reset-timeout-in-minutes";
 
-    /**
-     * A common place to find the String for a sane Solr hostname:port
-     * combination.
-     */
-    private String saneDefaultForSolrHostColonPort = "localhost:8983";
-
-    /**
-     * The default number of datafiles that we allow to be created through 
-     * zip file upload.
-     */
-    private static final int defaultZipUploadFilesLimit = 1000; 
-    private static final int defaultMultipleUploadFilesLimit = 1000;
-
     private static String appVersionString = null; 
     private static String buildNumberString = null; 
     
     private static final String JVM_TIMER_SERVER_OPTION = "dataverse.timerServer";
-    
-    private static final long DEFAULT_GUESTBOOK_RESPONSES_DISPLAY_LIMIT = 5000L; 
     
     public String getVersion() {
         return getVersion(false);
@@ -228,64 +207,6 @@ public class SystemConfig {
         return appVersionString; 
     }
 
-    public String getSolrHostColonPort() {
-        String SolrHost;
-        if ( System.getenv("SOLR_SERVICE_HOST") != null && System.getenv("SOLR_SERVICE_HOST") != ""){
-            SolrHost = System.getenv("SOLR_SERVICE_HOST");
-        }
-        else SolrHost = saneDefaultForSolrHostColonPort;
-        String solrHostColonPort = settingsService.getValueForKey(SettingsServiceBean.Key.SolrHostColonPort, SolrHost);
-        return solrHostColonPort;
-    }
-
-    public boolean isProvCollectionEnabled() {
-        String provCollectionEnabled = settingsService.getValueForKey(SettingsServiceBean.Key.ProvCollectionEnabled, null);
-        if("true".equalsIgnoreCase(provCollectionEnabled)){         
-            return true;
-        }
-        return false;
-
-    }
-    
-    public int getMetricsCacheTimeoutMinutes() {
-        int defaultValue = 10080; //one week in minutes
-        SettingsServiceBean.Key key = SettingsServiceBean.Key.MetricsCacheTimeoutMinutes;
-        String metricsCacheTimeString = settingsService.getValueForKey(key);
-        int returnInt = 0;
-        try {
-            returnInt = Integer.parseInt(metricsCacheTimeString);
-            if (returnInt >= 0) {
-                return returnInt;
-            } else {
-                logger.info("Returning " + defaultValue + " for " + key + " because value must be greater than zero, not \"" + metricsCacheTimeString + "\".");
-            }
-        } catch (NumberFormatException ex) {
-            logger.info("Returning " + defaultValue + " for " + key + " because value must be an integer greater than zero, not \"" + metricsCacheTimeString + "\".");
-        }
-        return defaultValue;
-    }
-    
-    public int getMinutesUntilConfirmEmailTokenExpires() {
-        final int minutesInOneDay = 1440;
-        final int reasonableDefault = minutesInOneDay;
-        SettingsServiceBean.Key key = SettingsServiceBean.Key.MinutesUntilConfirmEmailTokenExpires;
-        String valueFromDatabase = settingsService.getValueForKey(key);
-        if (valueFromDatabase != null) {
-            try {
-                int intFromDatabase = Integer.parseInt(valueFromDatabase);
-                if (intFromDatabase > 0) {
-                    return intFromDatabase;
-                } else {
-                    logger.info("Returning " + reasonableDefault + " for " + key + " because value must be greater than zero, not \"" + intFromDatabase + "\".");
-                }
-            } catch (NumberFormatException ex) {
-                logger.info("Returning " + reasonableDefault + " for " + key + " because value must be an integer greater than zero, not \"" + valueFromDatabase + "\".");
-            }
-        }
-        logger.fine("Returning " + reasonableDefault + " for " + key);
-        return reasonableDefault;
-    }
-
     /**
      * The number of minutes for which a password reset token is valid. Can be
      * overridden by {@link #PASSWORD_RESET_TIMEOUT_IN_MINUTES}.
@@ -338,13 +259,6 @@ public class SystemConfig {
         hostUrl = "https://" + hostName;
         return hostUrl;
     }
-    
-    /**
-     * URL Tracking: 
-     */
-    public String getPageURLWithQueryString() {
-        return PrettyContext.getCurrentInstance().getRequestURL().toURL() + PrettyContext.getCurrentInstance().getRequestQueryString().toQueryString();
-    }
 
     /**
      * The "official" server's fully-qualified domain name: 
@@ -363,116 +277,14 @@ public class SystemConfig {
     }
 
     public String getGuidesBaseUrl() {
-        String saneDefault = "http://guides.dataverse.org";
-        String guidesBaseUrl = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesBaseUrl, saneDefault);
-        return guidesBaseUrl + "/" + getGuidesLanguage();
-    }
-
-    private String getGuidesLanguage() {
-        String saneDefault = "en";
-        return saneDefault;
+        String guidesBaseUrl = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesBaseUrl);
+        return guidesBaseUrl + "/en";
     }
 
     public String getGuidesVersion() {
-        String saneDefault = getVersion();
-        String guidesVersion = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesVersion, saneDefault);
-        if (guidesVersion != null) {
-            return guidesVersion;
-        }
-        return saneDefault;
-    }
+        String guidesVersion = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesVersion);
 
-    public String getMetricsUrl() {
-        String saneDefault = null;
-        String metricsUrl = settingsService.getValueForKey(SettingsServiceBean.Key.MetricsUrl, saneDefault);
-        return metricsUrl;
-    }
-
-    /**
-     * Download-as-zip size limit.
-     * returns 0 if not specified; 
-     * (the file zipper will then use the default value)
-     * set to -1 to disable zip downloads. 
-     */
-    
-    public long getZipDownloadLimit() {
-        String zipLimitOption = settingsService.getValueForKey(SettingsServiceBean.Key.ZipDownloadLimit);   
-        
-        Long zipLimit = null; 
-        if (zipLimitOption != null && !zipLimitOption.equals("")) {
-            try {
-                zipLimit = new Long(zipLimitOption);
-            } catch (NumberFormatException nfe) {
-                zipLimit = null; 
-            }
-        }
-        
-        if (zipLimit != null) {
-            return zipLimit.longValue();
-        }
-        
-        return 0L; 
-    }
-    
-    public int getZipUploadFilesLimit() {
-        String limitOption = settingsService.getValueForKey(SettingsServiceBean.Key.ZipUploadFilesLimit);
-        Integer limit = null; 
-        
-        if (limitOption != null && !limitOption.equals("")) {
-            try {
-                limit = new Integer(limitOption);
-            } catch (NumberFormatException nfe) {
-                limit = null; 
-            }
-        }
-        
-        if (limit != null) {
-            return limit;
-        }
-        
-        return defaultZipUploadFilesLimit; 
-    }
-    
-    /*
-    `   the number of files the GUI user is allowed to upload in one batch, 
-        via drag-and-drop, or through the file select dialog
-    */
-    public int getMultipleUploadFilesLimit() {
-        String limitOption = settingsService.getValueForKey(SettingsServiceBean.Key.MultipleUploadFilesLimit);
-        Integer limit = null; 
-        
-        if (limitOption != null && !limitOption.equals("")) {
-            try {
-                limit = new Integer(limitOption);
-            } catch (NumberFormatException nfe) {
-                limit = null; 
-            }
-        }
-        
-        if (limit != null) {
-            return limit;
-        }
-        
-        return defaultMultipleUploadFilesLimit; 
-    }
-    
-    public long getGuestbookResponsesPageDisplayLimit() {
-        String limitSetting = settingsService.getValueForKey(SettingsServiceBean.Key.GuestbookResponsesPageDisplayLimit);   
-        
-        Long limit = null; 
-        if (limitSetting != null && !limitSetting.equals("")) {
-            try {
-                limit = new Long(limitSetting);
-            } catch (NumberFormatException nfe) {
-                limit = null; 
-            }
-        }
-        
-        if (limit != null) {
-            return limit.longValue();
-        }
-        
-        return DEFAULT_GUESTBOOK_RESPONSES_DISPLAY_LIMIT; 
+        return guidesVersion.equals(StringUtils.EMPTY) ? getVersion() : guidesVersion;
     }
     
     public long getUploadLogoSizeLimit(){
@@ -531,75 +343,22 @@ public class SystemConfig {
     }
     
     public String getApplicationTermsOfUse() {
-        String saneDefaultForAppTermsOfUse = BundleUtil.getStringFromBundle("system.app.terms");
-        String appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse, saneDefaultForAppTermsOfUse);
-        return appTermsOfUse;
+        String appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse);
+
+        return appTermsOfUse.equals(StringUtils.EMPTY) ? BundleUtil.getStringFromBundle("system.app.terms") : appTermsOfUse;
     }
 
     public String getApiTermsOfUse() {
-        String saneDefaultForApiTermsOfUse = BundleUtil.getStringFromBundle("system.api.terms");
-        String apiTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApiTermsOfUse, saneDefaultForApiTermsOfUse);
-        return apiTermsOfUse;
-    }
+        String apiTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApiTermsOfUse);
 
-    // TODO: 
-    // remove this method!
-    // pages should be using settingsWrapper.get(":ApplicationPrivacyPolicyUrl") instead. -- 4.2.1
-    public String getApplicationPrivacyPolicyUrl() {
-        String saneDefaultForPrivacyPolicyUrl = null;
-        String appPrivacyPolicyUrl = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationPrivacyPolicyUrl, saneDefaultForPrivacyPolicyUrl);
-        return appPrivacyPolicyUrl;
-    }
-
-    public boolean myDataDoesNotUsePermissionDocs() {
-        boolean safeDefaultIfKeyNotFound = false;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.MyDataDoesNotUseSolrPermissionDocs, safeDefaultIfKeyNotFound);
-    }
-
-    public boolean isFilesOnDatasetPageFromSolr() {
-        boolean safeDefaultIfKeyNotFound = false;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.FilesOnDatasetPageFromSolr, safeDefaultIfKeyNotFound);
-    }
-
-    public Long getMaxFileUploadSize(){
-         return settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaxFileUploadSizeInBytes);
-     }
-    
-    public String getHumanMaxFileUploadSize(){
-         return bytesToHumanReadable(getMaxFileUploadSize());
-     }
-
-    public Integer getSearchHighlightFragmentSize() {
-        String fragSize = settingsService.getValueForKey(SettingsServiceBean.Key.SearchHighlightFragmentSize);
-        if (fragSize != null) {
-            try {
-                return new Integer(fragSize);
-            } catch (NumberFormatException nfe) {
-                logger.info("Could not convert " + SettingsServiceBean.Key.SearchHighlightFragmentSize + " to int: " + nfe);
-            }
-        }
-        return null;
+        return apiTermsOfUse.equals(StringUtils.EMPTY) ? BundleUtil.getStringFromBundle("system.api.terms") : apiTermsOfUse;
     }
     
     public long getTabularIngestSizeLimit() {
         // This method will return the blanket ingestable size limit, if 
         // set on the system. I.e., the universal limit that applies to all 
         // tabular ingests, regardless of fromat: 
-        
-        String limitEntry = settingsService.getValueForKey(SettingsServiceBean.Key.TabularIngestSizeLimit); 
-        
-        if (limitEntry != null) {
-            try {
-                Long sizeOption = new Long(limitEntry);
-                return sizeOption;
-            } catch (NumberFormatException nfe) {
-                logger.warning("Invalid value for TabularIngestSizeLimit option? - " + limitEntry);
-            }
-        }
-        // -1 means no limit is set; 
-        // 0 on the other hand would mean that ingest is fully disabled for 
-        // tabular data. 
-        return -1; 
+        return settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.TabularIngestSizeLimit);
     }
     
     public long getTabularIngestSizeLimit(String formatName) {
@@ -607,13 +366,13 @@ public class SystemConfig {
         // if available, otherwise - the blanket limit that applies to all tabular 
         // ingests regardless of a format. 
         
-        if (formatName == null || formatName.equals("")) {
+        if (StringUtils.isEmpty(formatName)) {
             return getTabularIngestSizeLimit(); 
         }
         
         String limitEntry = settingsService.get(SettingsServiceBean.Key.TabularIngestSizeLimit.toString() + ":" + formatName); 
                 
-        if (limitEntry != null) {
+        if (StringUtils.isNotEmpty(limitEntry)) {
             try {
                 Long sizeOption = new Long(limitEntry);
                 return sizeOption;
@@ -624,19 +383,6 @@ public class SystemConfig {
         
         return getTabularIngestSizeLimit();        
     }
-
-    public boolean isOAIServerEnabled() {
-        boolean defaultResponse = false;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.OAIServerEnabled, defaultResponse);
-    }
-    
-    public void enableOAIServer() {
-        settingsService.setValueForKey(SettingsServiceBean.Key.OAIServerEnabled, "true");
-    }
-    
-    public void disableOAIServer() {
-        settingsService.deleteValueForKey(SettingsServiceBean.Key.OAIServerEnabled);
-    }   
     
     public boolean isTimerServer() {
         String optionValue = System.getProperty(JVM_TIMER_SERVER_OPTION);
@@ -646,43 +392,15 @@ public class SystemConfig {
         return false;
     }
 
-    public String getFooterCopyrightAndYear() {
-        return BundleUtil.getStringFromBundle("footer.copyright", Arrays.asList(Year.now().getValue() + ""));
-    }
-
-    public DataFile.ChecksumType getFileFixityChecksumAlgorithm() {
-        DataFile.ChecksumType saneDefault = DataFile.ChecksumType.MD5;
-        String checksumStringFromDatabase = settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm, saneDefault.toString());
-        try {
-            DataFile.ChecksumType checksumTypeFromDatabase = DataFile.ChecksumType.fromString(checksumStringFromDatabase);
-            return checksumTypeFromDatabase;
-        } catch (IllegalArgumentException ex) {
-            logger.info("The setting " + SettingsServiceBean.Key.FileFixityChecksumAlgorithm + " is misconfigured. " + ex.getMessage() + " Returning sane default: " + saneDefault + ".");
-            return saneDefault;
-        }
-    }
-
-    public String getDefaultAuthProvider() {
-        String saneDefault = BuiltinAuthenticationProvider.PROVIDER_ID;
-        String settingInDatabase = settingsService.getValueForKey(SettingsServiceBean.Key.DefaultAuthProvider, saneDefault);
-        if (settingInDatabase != null && !settingInDatabase.isEmpty()) {
-            /**
-             * @todo Add more sanity checking.
-             */
-            return settingInDatabase;
-        }
-        return saneDefault;
-    }
-
-    public String getNameOfInstallation() {
-        return dataverseService.findRootDataverse().getName();
-    }
+//    public String getNameOfInstallation() {
+//        return dataverseService.findRootDataverse().getName();
+//    }
 
     public AbstractOAuth2AuthenticationProvider.DevOAuthAccountType getDevOAuthAccountType() {
         AbstractOAuth2AuthenticationProvider.DevOAuthAccountType saneDefault = AbstractOAuth2AuthenticationProvider.DevOAuthAccountType.PRODUCTION;
         String settingReturned = settingsService.getValueForKey(SettingsServiceBean.Key.DebugOAuthAccountType);
         logger.fine("setting returned: " + settingReturned);
-        if (settingReturned != null) {
+        if (StringUtils.isNotEmpty(settingReturned)) {
             try {
                 AbstractOAuth2AuthenticationProvider.DevOAuthAccountType parsedValue = AbstractOAuth2AuthenticationProvider.DevOAuthAccountType.valueOf(settingReturned);
                 return parsedValue;
@@ -700,135 +418,10 @@ public class SystemConfig {
         String saneDefault = getDataverseSiteUrl() + "/oauth2/callback.xhtml";
         String settingReturned = settingsService.getValueForKey(SettingsServiceBean.Key.OAuth2CallbackUrl);
         logger.fine("getOAuth2CallbackUrl setting returned: " + settingReturned);
-        if (settingReturned != null) {
+        if (StringUtils.isNotEmpty(settingReturned)) {
             return settingReturned;
         }
         return saneDefault;
-    }
-    
-    public boolean isShibPassiveLoginEnabled() {
-        boolean defaultResponse = false;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.ShibPassiveLoginEnabled, defaultResponse);
-    }
-
-    /**
-     * getPVDictionaries
-     *
-     * @return A string of one or more pipe (|) separated file paths.
-     */
-    public String getPVDictionaries() {
-        return settingsService.get(SettingsServiceBean.Key.PVDictionaries.toString());
-    }
-
-    /**
-     * getPVGoodStrength
-     *
-     * Get the minimum length of a valid password to apply an expiration rule.
-     * Defaults to 20.
-     *
-     * @return The length.
-     */
-    public int getPVGoodStrength() {
-        // FIXME: Change this to 21 to match Harvard's requirements or implement a way to disable the rule (0 or -1) and have the default be disabled.
-        int goodStrengthLength = 20;
-        //String _goodStrengthLength = System.getProperty("pv.goodstrength", settingsService.get(SettingsServiceBean.Key.PVGoodStrength.toString()));
-        String _goodStrengthLength = settingsService.get(SettingsServiceBean.Key.PVGoodStrength.toString());
-        try {
-            goodStrengthLength = Integer.parseInt(_goodStrengthLength);
-        } catch (NumberFormatException nfe) {
-            logger.fine("Invalid value for PVGoodStrength: " + _goodStrengthLength);
-        }
-        return goodStrengthLength;
-    }
-
-    /**
-     * getPVMinLength
-     *
-     * Get the minimum length of a valid password. Defaults to 6.
-     *
-     * @return The length.
-     */
-    public int getPVMinLength() {
-        int passportValidatorMinLength = 6;
-        String _passportValidatorMinLength = settingsService.get(SettingsServiceBean.Key.PVMinLength.toString());
-        try {
-            passportValidatorMinLength = Integer.parseInt(_passportValidatorMinLength);
-        } catch (NumberFormatException nfe) {
-            logger.fine("Invalid value for PwMinLength: " + _passportValidatorMinLength);
-        }
-        return passportValidatorMinLength;
-    }
-
-    /**
-     * getPVMaxLength
-     *
-     * Get the maximum length of a valid password. Defaults to 0 (disabled).
-     *
-     * @return The length.
-     */
-    public int getPVMaxLength() {
-        int passportValidatorMaxLength = 0;
-        String _passportValidatorMaxLength = settingsService.get(SettingsServiceBean.Key.PVMaxLength.toString());
-        try {
-            passportValidatorMaxLength = Integer.parseInt(_passportValidatorMaxLength);
-        } catch (NumberFormatException nfe) {
-            logger.fine("Invalid value for PwMaxLength: " + _passportValidatorMaxLength);
-        }
-        return passportValidatorMaxLength;
-    }
-
-    /**
-     * One letter, 2 special characters, etc. Defaults to:
-     *
-     * - one uppercase
-     *
-     * - one lowercase
-     *
-     * - one digit
-     *
-     * - one special character
-     *
-     * TODO: This is more strict than what Dataverse 4.0 shipped with. Consider
-     * keeping the default the same.
-     */
-    public List<CharacterRule> getPVCharacterRules() {
-        String characterRulesString = settingsService.get(SettingsServiceBean.Key.PVCharacterRules.toString());
-        return PasswordValidatorUtil.getCharacterRules(characterRulesString);
-    }
-
-    /**
-     * getPVNumberOfCharacteristics
-     *
-     * Get the number M characteristics. Defaults to 3.
-     *
-     * @return The number.
-     * 
-     * TODO: Consider changing the out-of-the-box rules to be the same as Dataverse 4.0, which was 2 (one letter, one number).
-     */
-    public int getPVNumberOfCharacteristics() {
-        int numberOfCharacteristics = 2;
-        String _numberOfCharacteristics = settingsService.get(SettingsServiceBean.Key.PVNumberOfCharacteristics.toString());
-        try {
-            numberOfCharacteristics = Integer.parseInt(_numberOfCharacteristics);
-        } catch (NumberFormatException nfe) {
-            logger.fine("Invalid value for PVNumberOfCharacteristics: " + _numberOfCharacteristics);
-        }
-        return numberOfCharacteristics;
-    }
-
-    /**
-     * Get the number of consecutive digits allowed. Defaults to highest int
-     * possible.
-     */
-    public int getPVNumberOfConsecutiveDigitsAllowed() {
-        int numConsecutiveDigitsAllowed = Integer.MAX_VALUE;
-        String _numberOfConsecutiveDigitsAllowed = settingsService.get(SettingsServiceBean.Key.PVNumberOfConsecutiveDigitsAllowed.toString());
-        try {
-            numConsecutiveDigitsAllowed = Integer.parseInt(_numberOfConsecutiveDigitsAllowed);
-        } catch (NumberFormatException nfe) {
-            logger.fine("Invalid value for " + SettingsServiceBean.Key.PVNumberOfConsecutiveDigitsAllowed + ": " + _numberOfConsecutiveDigitsAllowed);
-        }
-        return numConsecutiveDigitsAllowed;
     }
 
     /**
@@ -974,11 +567,6 @@ public class SystemConfig {
         }
 
     }
-
-    public boolean isPublicInstall(){
-        boolean saneDefault = false;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall, saneDefault);
-    }
     
     public boolean isRsyncUpload(){
         return getUploadMethodAvailable(SystemConfig.FileUploadMethods.RSYNC.toString());
@@ -991,14 +579,14 @@ public class SystemConfig {
     
     public boolean isRsyncOnly(){       
         String downloadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.DownloadMethods);
-        if(downloadMethods == null){
+        if(StringUtils.isEmpty(downloadMethods)){
             return false;
         }
         if (!downloadMethods.toLowerCase().equals(SystemConfig.FileDownloadMethods.RSYNC.toString())){
             return false;
         }
         String uploadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods);
-        if (uploadMethods==null){
+        if (StringUtils.isEmpty(uploadMethods)){
             return false;
         } else {
            return  Arrays.asList(uploadMethods.toLowerCase().split("\\s*,\\s*")).size() == 1 && uploadMethods.toLowerCase().equals(SystemConfig.FileUploadMethods.RSYNC.toString());
@@ -1018,7 +606,7 @@ public class SystemConfig {
     
     private Boolean getUploadMethodAvailable(String method){
         String uploadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods); 
-        if (uploadMethods==null){
+        if (StringUtils.isEmpty(uploadMethods)){
             return false;
         } else {
            return  Arrays.asList(uploadMethods.toLowerCase().split("\\s*,\\s*")).contains(method);
@@ -1027,39 +615,10 @@ public class SystemConfig {
     
     public Integer getUploadMethodCount(){
         String uploadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods); 
-        if (uploadMethods==null){
+        if (StringUtils.isEmpty(uploadMethods)){
             return 0;
         } else {
            return  Arrays.asList(uploadMethods.toLowerCase().split("\\s*,\\s*")).size();
         }       
-    }
-    public boolean isDataFilePIDSequentialDependent(){
-        String doiIdentifierType = settingsService.getValueForKey(SettingsServiceBean.Key.IdentifierGenerationStyle, "randomString");
-        String doiDataFileFormat = settingsService.getValueForKey(SettingsServiceBean.Key.DataFilePIDFormat, "DEPENDENT");
-        if (doiIdentifierType.equals("sequentialNumber") && doiDataFileFormat.equals("DEPENDENT")){
-            return true;
-        }
-        return false;
-    }
-    
-    public int getPIDAsynchRegFileCount() {
-        String fileCount = settingsService.getValueForKey(SettingsServiceBean.Key.PIDAsynchRegFileCount, "10");
-        int retVal = 10;
-        try {
-            retVal = Integer.parseInt(fileCount);
-        } catch (NumberFormatException e) {           
-            //if no number in the setting we'll return 10
-        }
-        return retVal;
-    }
-    
-    public boolean isFilePIDsEnabled() {
-        boolean safeDefaultIfKeyNotFound = true;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.FilePIDsEnabled, safeDefaultIfKeyNotFound);
-    }
-    
-    public boolean isIndependentHandleService() {
-        boolean safeDefaultIfKeyNotFound = false;
-        return settingsService.isTrueForKey(SettingsServiceBean.Key.IndependentHandleService, safeDefaultIfKeyNotFound);
     }
 }

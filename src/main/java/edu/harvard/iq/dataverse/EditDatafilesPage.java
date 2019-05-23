@@ -21,11 +21,20 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestUtil;
+import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
+import edu.harvard.iq.dataverse.license.License;
+import edu.harvard.iq.dataverse.license.LicenseDAO;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.license.TermsOfUseForm;
+import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
+import edu.harvard.iq.dataverse.license.TermsOfUseSelectItemsFactory;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
-import edu.harvard.iq.dataverse.license.InitialTermsOfUseFactory;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.search.FileView;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
@@ -48,6 +57,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.event.FacesEvent;
+import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -73,13 +83,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static edu.harvard.iq.dataverse.datasetutility.FileSizeChecker.bytesToHumanReadable;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+
 
 /**
  *
@@ -133,7 +146,16 @@ public class EditDatafilesPage implements java.io.Serializable {
     SettingsWrapper settingsWrapper;
     
     @Inject
-    private InitialTermsOfUseFactory termsOfUseFactory;
+    private TermsOfUseFactory termsOfUseFactory;
+    @Inject
+    private TermsOfUseFormMapper termsOfUseFormMapper;
+
+    @EJB
+    private LicenseDAO licenseDao;
+
+    @Inject
+    private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
+
     
     private final DateFormat displayDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
@@ -170,8 +192,10 @@ public class EditDatafilesPage implements java.io.Serializable {
     private final Map<String, Boolean> datasetPermissionMap = new HashMap<>(); // { Permission human_name : Boolean }
 
     private Long maxFileUploadSizeInBytes = null;
-    private Integer multipleUploadFilesLimit = null; 
+    private Long multipleUploadFilesLimit = null; 
     
+    private List<SelectItem> termsOfUseSelectItems;
+
     private final int NUMBER_OF_SCROLL_ROWS = 25;
     
     private DataFile singleFile = null;
@@ -303,6 +327,13 @@ public class EditDatafilesPage implements java.io.Serializable {
         return this.maxFileUploadSizeInBytes;
     }
     
+    public String getHumanMaxFileUploadSize() {
+        if (getMaxFileUploadSizeInBytes() == null) {
+            return StringUtils.EMPTY;
+        }
+        return bytesToHumanReadable(getMaxFileUploadSizeInBytes());
+    }
+    
     public boolean isUnlimitedUploadFileSize() {
         
         return this.maxFileUploadSizeInBytes == null;
@@ -313,7 +344,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         via drag-and-drop, or through the file select dialog. Now configurable 
         in the Settings table. 
     */
-    public Integer getMaxNumberOfFiles() {
+    public Long getMaxNumberOfFiles() {
         return this.multipleUploadFilesLimit;
     }
     /**
@@ -437,8 +468,8 @@ public class EditDatafilesPage implements java.io.Serializable {
             return permissionsWrapper.notFound();
         }
         
-        this.maxFileUploadSizeInBytes = systemConfig.getMaxFileUploadSize();
-        this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();
+        this.maxFileUploadSizeInBytes = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaxFileUploadSizeInBytes);
+        this.multipleUploadFilesLimit = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MultipleUploadFilesLimit);
         
         workingVersion = version; 
         dataset = version.getDataset();
@@ -446,7 +477,8 @@ public class EditDatafilesPage implements java.io.Serializable {
         newFiles = newFilesList;
         uploadedFiles = new ArrayList<>();
         selectedFiles = selectedFileMetadatasList;
-        
+        termsOfUseSelectItems = termsOfUseSelectItemsFactory.buildLicenseSelectItems();
+
         logger.fine("done");
         
         saveEnabled = true;
@@ -461,9 +493,11 @@ public class EditDatafilesPage implements java.io.Serializable {
         newFiles = new ArrayList<>();
         uploadedFiles = new ArrayList<>(); 
         
-        this.maxFileUploadSizeInBytes = systemConfig.getMaxFileUploadSize();
-        this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();
+        this.maxFileUploadSizeInBytes = settingsService.getValueForKeyAsLong(Key.MaxFileUploadSizeInBytes);
+        this.multipleUploadFilesLimit = settingsService.getValueForKeyAsLong(Key.MultipleUploadFilesLimit);
         
+        termsOfUseSelectItems = termsOfUseSelectItemsFactory.buildLicenseSelectItems();
+
         if (dataset.getId() != null){
             // Set Working Version and Dataset by Datasaet Id and Version
             //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionById(dataset.getId(), null);
@@ -516,7 +550,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                                                 datafileService,
                                                 permissionService,
                                                 commandEngine,
-                                                systemConfig,
+                                                settingsService,
                                                 termsOfUseFactory);
                         
             fileReplacePageHelper = new FileReplacePageHelper(addReplaceFileHelper,
@@ -588,10 +622,10 @@ public class EditDatafilesPage implements java.io.Serializable {
             }
             
         }
-        
-        if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall, false)){
+
+        if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall)) {
             JH.addMessage(FacesMessage.SEVERITY_WARN, getBundleString("dataset.message.publicInstall"));
-        }   
+        }
         
         return null;
     }
@@ -1127,7 +1161,14 @@ public class EditDatafilesPage implements java.io.Serializable {
                     }
                 }
             }
-                                
+
+            for (DataFile newFile : newFiles) {
+                TermsOfUseForm termsOfUseForm = newFile.getFileMetadata().getTermsOfUseForm();
+                FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
+
+                newFile.getFileMetadata().setTermsOfUse(termsOfUse);
+            }
+
             // Try to save the NEW files permanently: 
             List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(workingVersion, newFiles);
             
@@ -1143,7 +1184,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         Boolean provJsonChanges = false;
         
-        if(systemConfig.isProvCollectionEnabled()) {
+        if(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
             Boolean provFreeChanges = provPopupFragmentBean.updatePageMetadatasWithProvFreeform(fileMetadatas);
 
             try {
@@ -1190,7 +1231,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 
                 //Moves DataFile updates from popupFragment to page for saving
                 //This does not seem to collide with the tags updating below
-                if(systemConfig.isProvCollectionEnabled() && provJsonChanges) {
+                if(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled) && provJsonChanges) {
                     HashMap<String,ProvPopupFragmentBean.UpdatesEntry> provenanceUpdates = provPopupFragmentBean.getProvenanceUpdates();
                     for (int i = 0; i < dataset.getFiles().size(); i++) {
                         for (ProvPopupFragmentBean.UpdatesEntry ue : provenanceUpdates.values()) { 
@@ -1694,7 +1735,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // for example, multiple files can be extracted from an uncompressed
                 // zip file.
                 //datafiles = ingestService.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream");
-                datafiles = FileUtil.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream", systemConfig, termsOfUseFactory);
+                datafiles = FileUtil.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream", settingsService, termsOfUseFactory);
                 
             } catch (IOException ex) {
                 this.logger.log(Level.SEVERE, "Error during ingest of DropBox file {0} from link {1}", new Object[]{fileName, fileLink});
@@ -1778,7 +1819,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     private  void setUpRsync() {
         logger.fine("setUpRsync called...");
-        if (DataCaptureModuleUtil.rsyncSupportEnabled(settingsWrapper.getValueForKey(SettingsServiceBean.Key.UploadMethods))
+        if (DataCaptureModuleUtil.rsyncSupportEnabled(settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods))
                 && dataset.getFiles().isEmpty()) { //only check for rsync if no files exist
             try {
                 ScriptRequestResponse scriptRequestResponse = commandEngine.submit(new RequestRsyncScriptCommand(dvRequestService.getDataverseRequest(), dataset));
@@ -2050,7 +2091,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             // Note: A single uploaded file may produce multiple datafiles - 
             // for example, multiple files can be extracted from an uncompressed
             // zip file. 
-            dFileList = FileUtil.createDataFiles(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType(), systemConfig, termsOfUseFactory);
+            dFileList = FileUtil.createDataFiles(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType(), settingsService, termsOfUseFactory);
             
         } catch (IOException ioex) {
             logger.warning("Failed to process and/or save the file " + uFile.getFileName() + "; " + ioex.getMessage());
@@ -2767,7 +2808,11 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void handleNameChange(final AjaxBehaviorEvent event) {        
         datasetUpdateRequired = true;
     }
-        
+
+    public void handleTermsOfUseChange(final AjaxBehaviorEvent event) {
+        datasetUpdateRequired = true;
+    }
+
     /* 
      * Items for the "Advanced (Ingest) Options" popup. 
      * 
@@ -2939,4 +2984,20 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
     }
     
+    public List<SelectItem> getTermsOfUseSelectItems() {
+        return termsOfUseSelectItems;
+    }
+
+    public void updateTermsOfUseForSelectedFiles(TermsOfUseForm termsOfUseForm) {
+
+        for (FileMetadata selectedFile: selectedFiles) {
+            TermsOfUseForm termsOfUseCopy = new TermsOfUseForm();
+            termsOfUseCopy.setTypeWithLicenseId(termsOfUseForm.getTypeWithLicenseId());
+            termsOfUseCopy.setRestrictType(termsOfUseForm.getRestrictType());
+            termsOfUseCopy.setCustomRestrictText(termsOfUseForm.getCustomRestrictText());
+            selectedFile.setTermsOfUseForm(termsOfUseCopy);
+        }
+
+    }
+
 }

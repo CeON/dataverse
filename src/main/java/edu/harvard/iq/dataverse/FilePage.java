@@ -23,8 +23,8 @@ import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
-import edu.harvard.iq.dataverse.license.LicenseIcon;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.license.LicenseIcon;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -741,7 +741,7 @@ public class FilePage implements java.io.Serializable {
         if (swiftObject != null) {
             swiftObject.open();
             //generate a temp url for a file
-            if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall, false)) {
+            if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall)) {
                 return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getFile().getOwner().getGlobalIdString() + "=" + swiftObject.getSwiftFileName();
             }
             return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getFile().getOwner().getGlobalIdString() + "=" + swiftObject.getSwiftFileName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
@@ -873,7 +873,7 @@ public class FilePage implements java.io.Serializable {
                     SwiftAccessIO<DataFile> swiftIO = (SwiftAccessIO<DataFile>) storageIO;
                     swiftIO.open();
                     //if its a public install, lets just give users the permanent URL!
-                    if (systemConfig.isPublicInstall()){                        
+                    if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall)){
                         fileDownloadUrl = swiftIO.getRemoteUrl();
                     } else {
                         //TODO: if a user has access to this file, they should be given the swift url

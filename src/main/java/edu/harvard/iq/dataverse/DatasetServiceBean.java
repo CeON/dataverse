@@ -13,24 +13,10 @@ import edu.harvard.iq.dataverse.engine.command.impl.FinalizeDatasetPublicationCo
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.lang.RandomStringUtils;
+import org.ocpsoft.common.util.Strings;
+
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -44,11 +30,20 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import org.apache.commons.lang.RandomStringUtils;
-import org.ocpsoft.common.util.Strings;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -90,9 +85,6 @@ public class DatasetServiceBean implements java.io.Serializable {
     
     @EJB
     EjbDataverseEngine commandEngine;
-    
-    @EJB
-    SystemConfig systemConfig;
 
     private static final SimpleDateFormat logFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
     
@@ -204,8 +196,8 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
 
     public String generateDatasetIdentifier(Dataset dataset, GlobalIdServiceBean idServiceBean) {
-        String identifierType = settingsService.getValueForKey(SettingsServiceBean.Key.IdentifierGenerationStyle, "randomString");
-        String shoulder = settingsService.getValueForKey(SettingsServiceBean.Key.Shoulder, "");
+        String identifierType = settingsService.getValueForKey(SettingsServiceBean.Key.IdentifierGenerationStyle);
+        String shoulder = settingsService.getValueForKey(SettingsServiceBean.Key.Shoulder);
        
         switch (identifierType) {
             case "randomString":
@@ -757,8 +749,8 @@ public class DatasetServiceBean implements java.io.Serializable {
         //If the Id type is sequential and Dependent then write file idenitifiers outside the command
         String datasetIdentifier = dataset.getIdentifier();
         Long maxIdentifier = null;
-
-        if (systemConfig.isDataFilePIDSequentialDependent()) {
+        
+        if (isDataFilePIDSequentialDependent()) {
             maxIdentifier = getMaximumExistingDatafileIdentifier(dataset);
         }
 
@@ -777,10 +769,10 @@ public class DatasetServiceBean implements java.io.Serializable {
                 }
 
                 if (datafile.getProtocol() == null) {
-                    datafile.setProtocol(settingsService.getValueForKey(SettingsServiceBean.Key.Protocol, ""));
+                    datafile.setProtocol(settingsService.getValueForKey(SettingsServiceBean.Key.Protocol));
                 }
                 if (datafile.getAuthority() == null) {
-                    datafile.setAuthority(settingsService.getValueForKey(SettingsServiceBean.Key.Authority, ""));
+                    datafile.setAuthority(settingsService.getValueForKey(SettingsServiceBean.Key.Authority));
                 }
 
                 logger.info("identifier: " + datafile.getIdentifier());
@@ -806,5 +798,14 @@ public class DatasetServiceBean implements java.io.Serializable {
             }
 
         }
+    }
+    
+    private boolean isDataFilePIDSequentialDependent(){
+        String doiIdentifierType = settingsService.getValueForKey(SettingsServiceBean.Key.IdentifierGenerationStyle);
+        String doiDataFileFormat = settingsService.getValueForKey(SettingsServiceBean.Key.DataFilePIDFormat);
+        if (doiIdentifierType.equals("sequentialNumber") && doiDataFileFormat.equals("DEPENDENT")){
+            return true;
+        }
+        return false;
     }
 }

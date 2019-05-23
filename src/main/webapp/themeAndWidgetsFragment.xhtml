@@ -5,8 +5,9 @@
     xmlns:p="http://primefaces.org/ui"
     xmlns:o="http://omnifaces.org/ui">
     <!-- Theme and Widgets Edit Tabs -->
-        <p:tabView  rendered="#{themeWidgetFragment.editDv!=null}" id="themeWidgetsTabView" widgetVar="content">
-            <p:tab id="themeTab" title="#{bundle['dataverse.theme.title']}" rendered="#{not settingsWrapper.rootDataverseThemeDisabled or themeWidgetFragment.editDv.owner != null}">
+    <p:tabView rendered="#{themeWidgetFragment.editDv!=null}" id="themeWidgetsTabView" widgetVar="content">
+        <p:tab id="themeTab" title="#{bundle['dataverse.theme.title']}"
+               rendered="#{themeWidgetFragment.themeEnabled}">
                 <p:fragment>
                     <p:autoUpdate/>
                     <!-- Dataverse Theme Panel -->
@@ -185,7 +186,8 @@
                     <p:commandButton class="btn btn-default" action="#{themeWidgetFragment.cancel()}" immediate="true" id="themeCancel" value="#{bundle.cancel}"/>
                 </div>
             </p:tab>
-            <p:tab id="themeTabDisabled" title="#{bundle['dataverse.theme.title']}" rendered="#{themeWidgetFragment.editDv.owner == null and settingsWrapper.rootDataverseThemeDisabled}">
+        <p:tab id="themeTabDisabled" title="#{bundle['dataverse.theme.title']}"
+               rendered="#{not themeWidgetFragment.themeEnabled}">
                 <div>#{bundle['dataverse.theme.disabled']}</div>
                 <div class="button-block">
                     <p:commandButton class="btn btn-default" action="#{themeWidgetFragment.cancel()}" immediate="true" id="themeTabDisabledDone" value="#{bundle.done}"/>
@@ -205,15 +207,15 @@
                             <li><h:outputText value="#{bundle['dataverse.widgets.notPublished.how.tip2']}" escape="false"/></li>
                             <li>
                                 <h:outputFormat value="#{bundle['dataverse.widgets.notPublished.how.tip3']}" escape="false">
-                                    <f:param value="#{systemConfig.guidesBaseUrl}"/>
-                                    <f:param value="#{systemConfig.guidesVersion}"/>
+                                    <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
+                                    <f:param value="#{settingsWrapper.guidesVersion}"/>
                                 </h:outputFormat>
                             </li>
                         </ul>
                         <p>
                             <h:outputFormat value="#{bundle['dataverse.widgets.notPublished.getStarted']}" escape="false">
-                                <f:param value="#{systemConfig.guidesBaseUrl}"/>
-                                <f:param value="#{systemConfig.guidesVersion}"/>
+                                <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
+                                <f:param value="#{settingsWrapper.guidesVersion}"/>
                             </h:outputFormat>
                         </p>
                     </div>
@@ -222,8 +224,8 @@
                 <ui:fragment rendered="#{themeWidgetFragment.editDv.released}">
                     <p class="help-block"><span class="glyphicon glyphicon-info-sign"/> 
                         <h:outputFormat value=" #{bundle['dataverse.widgets.tip']}" escape="false">
-                            <f:param value="#{systemConfig.guidesBaseUrl}"/>
-                            <f:param value="#{systemConfig.guidesVersion}"/>
+                            <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
+                            <f:param value="#{settingsWrapper.guidesVersion}"/>
                         </h:outputFormat>
                     </p>
                     <div>
