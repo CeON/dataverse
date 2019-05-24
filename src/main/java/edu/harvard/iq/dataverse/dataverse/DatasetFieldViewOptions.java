@@ -1,10 +1,11 @@
 package edu.harvard.iq.dataverse.dataverse;
 
 import javax.faces.model.SelectItem;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatasetFieldViewOptions {
+public class DatasetFieldViewOptions implements Serializable {
 
     private boolean requiredField;
     private boolean included;

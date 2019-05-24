@@ -259,7 +259,7 @@
                                            jsf:rendered="#{DataversePage.dataverse.owner != null}">
                                         <h:selectBooleanCheckbox id="metadataRoot" tabindex="7"
                                                                  styleClass="metadata-blocks-default"
-                                                                 value="#{DataversePage.inheritMetadataBlockFromParent}"
+                                                                 value="#{DataversePage.mdbOptions.inheritMetaBlocksFromParent}"
                                                                  onclick="updateMetadata(this);">
                                         </h:selectBooleanCheckbox>
                                         <h:outputFormat value="#{bundle['dataverse.metadataElements.from.tip']}">
@@ -267,11 +267,11 @@
                                         </h:outputFormat>
                                     </label>
 
-                                    <p:commandButton value="Direct" id="updateMetadataButton"
+                                    <p:commandButton value="Direct" id="makeMetadataBlockSelectable"
                                                      style="display:none"
                                                      update="@widgetVar(optionBlock)"
                                                      process="@this @widgetVar(optionBlock)"
-                                                     actionListener="#{DataversePage.editMetadataBlocks(false)}">
+                                                     actionListener="#{DataversePage.makeMetadataBlocksSelectable()}">
                                     </p:commandButton>
                                     <p:commandButton value="Direct" id="resetToInherit"
                                                      style="display:none"
@@ -285,28 +285,28 @@
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
                                                        jsf:value="#{DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected}"
                                                        name="mdbSelectRequired" disabled="" checked="checked"
-                                                       jsf:rendered="#{mdb.isCitationMetaBlock() and !DataversePage.inheritMetadataBlockFromParent}"/>
+                                                       jsf:rendered="#{mdb.isCitationMetaBlock() and !DataversePage.mdbOptions.inheritMetaBlocksFromParent}"/>
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
                                                        jsf:value="#{DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected}"
                                                        name="mdbSelectRequiredInherited" disabled="disabled"
-                                                       jsf:rendered="#{DataversePage.inheritMetadataBlockFromParent}">
+                                                       jsf:rendered="#{DataversePage.mdbOptions.inheritMetaBlocksFromParent}">
                                                     <p:ajax update="@widgetVar(optionBlock)"/>
                                                 </input>
                                                 <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}"
                                                        jsf:value="#{DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected}"
                                                        name="mdbSelectOptional"
-                                                       jsf:rendered="#{!mdb.isCitationMetaBlock() and !DataversePage.inheritMetadataBlockFromParent}">
+                                                       jsf:rendered="#{!mdb.isCitationMetaBlock() and !DataversePage.mdbOptions.inheritMetaBlocksFromParent}">
                                                     <p:ajax update="@widgetVar(optionBlock)"/>
                                                 </input>
 
                                                 <h:outputText
                                                         value="#{mdb.localeDisplayName} #{mdb.isCitationMetaBlock() ? bundle['dataverse.field.required']: ''}"
-                                                        styleClass="#{DataversePage.inheritMetadataBlockFromParent ? 'text-muted' : ''}"/>
+                                                        styleClass="#{DataversePage.mdbOptions.inheritMetaBlocksFromParent ? 'text-muted' : ''}"/>
                                                 <p:commandLink id="showEditableDSFT" style="margin-left:1em;"
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
                                                                rendered="#{!DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)
-                                                               and (DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected or mdb.isCitationMetaBlock()) and !DataversePage.inheritMetadataBlockFromParent}"
+                                                               and (DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected or mdb.isCitationMetaBlock()) and !DataversePage.mdbOptions.inheritMetaBlocksFromParent}"
                                                                actionListener="#{DataversePage.showEditableDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
                                                     <h:outputText value="#{bundle['dataverse.field.set.tip']}"/>
@@ -315,7 +315,7 @@
                                                                update="@widgetVar(optionBlock)"
                                                                process="@this"
                                                                rendered="#{!DataversePage.mdbOptions.isShowDatasetFieldTypes(mdb.id)
-                                                                and (!DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected or DataversePage.inheritMetadataBlockFromParent)}"
+                                                                and (!DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).selected or DataversePage.mdbOptions.inheritMetaBlocksFromParent)}"
                                                                actionListener="#{DataversePage.showUnEditableDatasetFieldTypes(mdb.id)}"
                                                                oncomplete="javascript:bind_bsui_components();">
                                                     <h:outputText value="#{bundle['dataverse.field.set.view']}"/>
@@ -339,7 +339,7 @@
                                                                             onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;"
                                                                             disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or !DataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}">
                                                                         <p:ajax update="@widgetVar(OptButton#{dsft.id}), @widgetVar(optionBlock)"
-                                                                        />
+                                                                                onsuccess="#{DataversePage.refreshDatasetFieldsViewOptions(mdb.id,dsft.id)}"/>
                                                                     </p:selectBooleanCheckbox>
                                                                     <div class="checkbox child-field"
                                                                          jsf:rendered="#{dsft.hasParent}">
@@ -982,7 +982,7 @@
                 function updateMetadata(checkbox) {
                     var checked = checkbox.checked;
                     if (checked === false) {
-                        $('button[id$="updateMetadataButton"]').trigger('click');
+                        $('button[id$="makeMetadataBlockSelectable"]').trigger('click');
                     } else {
                         PF('resetModifications').show();
                     }

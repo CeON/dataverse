@@ -1,13 +1,29 @@
 package edu.harvard.iq.dataverse.dataverse;
 
+import org.apache.commons.lang3.SerializationUtils;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataverseMetaBlockOptions {
+public class DataverseMetaBlockOptions implements Serializable {
 
     private Map<Long, MetadataBlockViewOptions> mdbViewOptions = new HashMap<>();
     private Map<Long, DatasetFieldViewOptions> datasetFieldViewOptions = new HashMap<>();
     private boolean inheritMetaBlocksFromParent = true;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public DataverseMetaBlockOptions() {
+    }
+
+    public DataverseMetaBlockOptions(Map<Long, MetadataBlockViewOptions> mdbViewOptions,
+                                     Map<Long, DatasetFieldViewOptions> datasetFieldViewOptions,
+                                     boolean inheritMetaBlocksFromParent) {
+        this.mdbViewOptions = mdbViewOptions;
+        this.datasetFieldViewOptions = datasetFieldViewOptions;
+        this.inheritMetaBlocksFromParent = inheritMetaBlocksFromParent;
+    }
 
     // -------------------- GETTERS --------------------
 
@@ -34,6 +50,7 @@ public class DataverseMetaBlockOptions {
                 .map(map -> map.getValue().isShowDatasetFieldTypes())
                 .findFirst()
                 .orElse(false);
+
     }
 
     public boolean isEditableDatasetFieldTypes(Long mdbId) {
@@ -58,6 +75,10 @@ public class DataverseMetaBlockOptions {
                 .map(map -> map.getValue().isIncluded())
                 .findFirst()
                 .orElse(false);
+    }
+
+    public DataverseMetaBlockOptions deepCopy() {
+        return SerializationUtils.clone(this);
     }
 
     // -------------------- SETTERS --------------------

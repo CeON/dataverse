@@ -1,8 +1,9 @@
 package edu.harvard.iq.dataverse.dataverse;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MetadataBlockViewOptions {
+public class MetadataBlockViewOptions implements Serializable {
 
     private boolean showDatasetFieldTypes;
     private boolean editableDatasetFieldTypes;
