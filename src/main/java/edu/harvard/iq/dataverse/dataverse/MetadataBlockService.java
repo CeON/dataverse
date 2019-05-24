@@ -102,7 +102,7 @@ public class MetadataBlockService {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
 
         if (!mdbOptions.isInheritMetaBlocksFromParent()) {
-            dataverse.getMetadataBlocks().clear();
+            dataverse.getOwnersMetadataBlocks().clear();
 
             List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks(metadataBlocks, mdbOptions);
             dataverse.setMetadataBlocks(selectedMetadataBlocks);

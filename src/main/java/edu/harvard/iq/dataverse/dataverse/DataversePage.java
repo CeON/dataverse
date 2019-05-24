@@ -389,6 +389,7 @@ public class DataversePage implements java.io.Serializable {
     }
 
     public String resetToInherit() {
+        setInheritMetadataBlockFromParent(true);
         mdbOptions = defaultMdbOptions.deepCopy();
 
         return StringUtils.EMPTY;
@@ -587,7 +588,7 @@ public class DataversePage implements java.io.Serializable {
 
         Set<MetadataBlock> availableBlocks = new HashSet<>(dataverseService.findSystemMetadataBlocks());
         Set<MetadataBlock> metadataBlocks = retriveAllDataverseParentsMetaBlocks(dataverse);
-        metadataBlocks.addAll(freshDataverse.getMetadataBlocks());
+        metadataBlocks.addAll(freshDataverse.getOwnersMetadataBlocks());
         availableBlocks.addAll(metadataBlocks);
 
         for (MetadataBlock mdb : availableBlocks) {
@@ -598,15 +599,17 @@ public class DataversePage implements java.io.Serializable {
                             .showDatasetFieldTypes(false)
                             .build());
 
-            if (mdbOptions.isInheritMetaBlocksFromParent() && dataverse.getOwner() != null) {
+            if (dataverse.getOwner() != null) {
+                if (dataverse.getOwner().getOwnersMetadataBlocks().contains(mdb)) {
+                    setMetaBlockAsSelected(mdb);
+                }
+
                 if (dataverse.getOwner().getMetadataBlocks().contains(mdb)) {
                     setMetaBlockAsSelected(mdb);
                 }
-            } else {
-                if (dataverse.getMetadataBlocks(true).contains(mdb)) {
-                    setMetaBlockAsSelected(mdb);
-                }
             }
+
+
         }
 
         Set<DatasetFieldType> datasetFieldTypes = retriveAllDatasetFieldsForMdb(availableBlocks);
@@ -666,7 +669,7 @@ public class DataversePage implements java.io.Serializable {
     private Set<MetadataBlock> retriveAllDataverseParentsMetaBlocks(Dataverse dataverse) {
         Set<MetadataBlock> metadataBlocks = new HashSet<>();
         for (Dataverse owner : dataverse.getOwners()) {
-            metadataBlocks.addAll(owner.getMetadataBlocks(true));
+            metadataBlocks.addAll(owner.getMetadataBlocks());
         }
 
         return metadataBlocks;

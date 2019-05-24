@@ -220,7 +220,7 @@ public class EditDataversePage implements Serializable {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
 
         if (dataverse.isMetadataBlockRoot()) {
-            dataverse.getMetadataBlocks().clear();
+            dataverse.getOwnersMetadataBlocks().clear();
 
             List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
             dataverse.setMetadataBlocks(selectedMetadataBlocks);
@@ -453,13 +453,13 @@ public class EditDataversePage implements Serializable {
             mdb.setShowDatasetFieldTypes(false);
             if (!dataverse.isMetadataBlockRoot() && dataverse.getOwner() != null) {
                 dataverseIdForInputLevel = dataverse.getMetadataRootId();
-                for (MetadataBlock mdbTest : dataverse.getOwner().getMetadataBlocks()) {
+                for (MetadataBlock mdbTest : dataverse.getOwner().getOwnersMetadataBlocks()) {
                     if (mdb.equals(mdbTest)) {
                         mdb.setSelected(true);
                     }
                 }
             } else {
-                for (MetadataBlock mdbTest : dataverse.getMetadataBlocks(true)) {
+                for (MetadataBlock mdbTest : dataverse.getMetadataBlocks()) {
                     if (mdb.equals(mdbTest)) {
                         mdb.setSelected(true);
                     }
