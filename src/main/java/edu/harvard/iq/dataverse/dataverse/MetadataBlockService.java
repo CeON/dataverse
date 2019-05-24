@@ -126,6 +126,7 @@ public class MetadataBlockService {
                 MetadataBlockViewOptions.newBuilder()
                         .showDatasetFieldTypes(true)
                         .editableDatasetFieldTypes(false)
+                        .selected(dataverseMetaBlockOptions.isMetaBlockSelected(metadataBlockId))
                         .build());
     }
 
