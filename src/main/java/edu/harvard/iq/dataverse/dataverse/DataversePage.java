@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
 import edu.harvard.iq.dataverse.DataverseFeaturedDataverse;
-import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
 import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
@@ -37,8 +36,6 @@ import edu.harvard.iq.dataverse.search.savedsearch.SavedSearch;
 import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchFilterQuery;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,8 +55,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -562,7 +557,7 @@ public class DataversePage implements java.io.Serializable {
     private void setupForGeneralInfoEdit() {
         updateDataverseSubjectSelectItems();
         initFacets();
-        refreshAllMetadataBlocks();
+        allMetadataBlocks = metadataBlockService.prepareMetaBlocksAndDatasetfields(dataverse, mdbOptions);
         defaultMdbOptions = mdbOptions.deepCopy();
     }
 
@@ -581,98 +576,6 @@ public class DataversePage implements java.io.Serializable {
         } else {
             return null;
         }
-    }
-
-    private void refreshAllMetadataBlocks() {
-        Dataverse freshDataverse = dataverse;
-
-        Set<MetadataBlock> availableBlocks = new HashSet<>(dataverseService.findSystemMetadataBlocks());
-        Set<MetadataBlock> metadataBlocks = retriveAllDataverseParentsMetaBlocks(dataverse);
-        metadataBlocks.addAll(freshDataverse.getOwnersMetadataBlocks());
-        availableBlocks.addAll(metadataBlocks);
-
-        for (MetadataBlock mdb : availableBlocks) {
-
-            mdbOptions.getMdbViewOptions().put(mdb.getId(),
-                    MetadataBlockViewOptions.newBuilder()
-                            .selected(false)
-                            .showDatasetFieldTypes(false)
-                            .build());
-
-            if (dataverse.getOwner() != null) {
-                if (dataverse.getOwner().getOwnersMetadataBlocks().contains(mdb)) {
-                    setMetaBlockAsSelected(mdb);
-                }
-
-                if (dataverse.getOwner().getMetadataBlocks().contains(mdb)) {
-                    setMetaBlockAsSelected(mdb);
-                }
-            }
-
-
-        }
-
-        Set<DatasetFieldType> datasetFieldTypes = retriveAllDatasetFieldsForMdb(availableBlocks);
-
-        for (DatasetFieldType rootDatasetFieldType : datasetFieldTypes) {
-            setViewOptionsForDatasetFieldTypes(freshDataverse.getMetadataRootId(), rootDatasetFieldType);
-
-            if (rootDatasetFieldType.isHasChildren()) {
-                for (DatasetFieldType childDatasetFieldType : rootDatasetFieldType.getChildDatasetFieldTypes()) {
-                    setViewOptionsForDatasetFieldTypes(freshDataverse.getMetadataRootId(), childDatasetFieldType);
-                }
-
-            }
-        }
-
-        setAllMetadataBlocks(availableBlocks);
-    }
-
-    private void setViewOptionsForDatasetFieldTypes(Long dataverseId, DatasetFieldType rootDatasetFieldType) {
-
-        DataverseFieldTypeInputLevel dftil = dataverseFieldTypeInputLevelService.findByDataverseIdDatasetFieldTypeId(dataverseId, rootDatasetFieldType.getId());
-
-        if (dftil != null) {
-            setDsftilViewOptions(rootDatasetFieldType.getId(), dftil.isRequired(), dftil.isInclude());
-        } else {
-            setDsftilViewOptions(rootDatasetFieldType.getId(), rootDatasetFieldType.isRequired(), true);
-        }
-
-        mdbOptions.getDatasetFieldViewOptions()
-                .get(rootDatasetFieldType.getId())
-                .setSelectedDatasetFields(resetSelectItems(rootDatasetFieldType));
-    }
-
-    private Tuple2<Boolean, Boolean> setDsftilViewOptions(long datasetFieldTypeId, boolean requiredField, boolean included) {
-        mdbOptions.getDatasetFieldViewOptions().put(datasetFieldTypeId, new DatasetFieldViewOptions(requiredField, included));
-        return Tuple.of(requiredField, included);
-    }
-
-    private void setMetaBlockAsSelected(MetadataBlock mdb) {
-
-        mdbOptions.getMdbViewOptions().put(mdb.getId(), MetadataBlockViewOptions.newBuilder()
-                .selected(true)
-                .build());
-
-    }
-
-    private Set<DatasetFieldType> retriveAllDatasetFieldsForMdb(Collection<MetadataBlock> mdb) {
-        Set<DatasetFieldType> allFields = new HashSet<>();
-
-        for (MetadataBlock metadataBlock : mdb) {
-            allFields.addAll(metadataBlock.getDatasetFieldTypes());
-        }
-
-        return allFields;
-    }
-
-    private Set<MetadataBlock> retriveAllDataverseParentsMetaBlocks(Dataverse dataverse) {
-        Set<MetadataBlock> metadataBlocks = new HashSet<>();
-        for (Dataverse owner : dataverse.getOwners()) {
-            metadataBlocks.addAll(owner.getMetadataBlocks());
-        }
-
-        return metadataBlocks;
     }
 
     private void initFeaturedDataverses() {

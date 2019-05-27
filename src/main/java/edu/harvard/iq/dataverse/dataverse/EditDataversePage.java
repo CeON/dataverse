@@ -65,6 +65,9 @@ public class EditDataversePage implements Serializable {
     @EJB
     private EjbDataverseEngine commandEngine;
 
+    @EJB
+    private MetadataBlockService metadataBlockService;
+
     @Inject
     private PermissionsWrapper permissionsWrapper;
 
@@ -89,6 +92,9 @@ public class EditDataversePage implements Serializable {
     private List<MetadataBlock> allMetadataBlocks;
     private List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues;
     private DualListModel<DatasetFieldType> facets = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
+
+    private DataverseMetaBlockOptions mdbOptions = new DataverseMetaBlockOptions();
+    private DataverseMetaBlockOptions defaultMdbOptions;
 
     // -------------------- GETTERS --------------------
 
@@ -449,22 +455,12 @@ public class EditDataversePage implements Serializable {
         }
 
         for (MetadataBlock mdb : availableBlocks) {
-            mdb.setSelected(false);
-            mdb.setShowDatasetFieldTypes(false);
-            if (!dataverse.isMetadataBlockRoot() && dataverse.getOwner() != null) {
-                dataverseIdForInputLevel = dataverse.getMetadataRootId();
-                for (MetadataBlock mdbTest : dataverse.getOwner().getOwnersMetadataBlocks()) {
-                    if (mdb.equals(mdbTest)) {
-                        mdb.setSelected(true);
-                    }
-                }
-            } else {
-                for (MetadataBlock mdbTest : dataverse.getMetadataBlocks()) {
-                    if (mdb.equals(mdbTest)) {
-                        mdb.setSelected(true);
-                    }
+            for (MetadataBlock mdbTest : dataverse.getMetadataBlocks()) {
+                if (mdb.equals(mdbTest)) {
+                    mdb.setSelected(true);
                 }
             }
+
 
             for (DatasetFieldType dsft : mdb.getDatasetFieldTypes()) {
                 if (!dsft.isChild()) {
