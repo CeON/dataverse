@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateDataverseCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
@@ -106,13 +107,42 @@ public class MetadataBlockService {
         return Either.right(dataverse);
     }
 
+    public Either<DataverseError, Dataverse> saveEditedDataverse(Collection<DataverseFieldTypeInputLevel> dftilToBeSaved,
+                                                                 Dataverse dataverse,
+                                                                 DualListModel<DatasetFieldType> facets) {
+
+        if (!dataverse.isFacetRoot()) {
+            facets.getTarget().clear();
+        }
+
+        UpdateDataverseCommand cmd = new UpdateDataverseCommand(dataverse, facets.getTarget(), null,
+                dvRequestService.getDataverseRequest(), Lists.newArrayList(dftilToBeSaved));
+
+        try {
+            dataverse = commandEngine.submit(cmd);
+
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.update.success"));
+        } catch (CommandException ex) {
+            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
+            String errMsg = BundleUtil.getStringFromBundle("dataverse.update.failure");
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
+            return Either.left(new DataverseError(ex, BundleUtil.getStringFromBundle("dataverse.create.failure")));
+        }
+
+        return Either.right(dataverse);
+    }
+
+    /**
+     * Extracts dataverse field type input levels to be saved, if field is optional it is not designed to be saved.
+     * Only if it is required or hidden.
+     */
     public List<DataverseFieldTypeInputLevel> getDataverseFieldTypeInputLevelsToBeSaved(Collection<MetadataBlock> metadataBlocks,
                                                                                         DataverseMetaBlockOptions mdbOptions,
                                                                                         Dataverse dataverse) {
         List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
 
         if (!mdbOptions.isInheritMetaBlocksFromParent()) {
-            dataverse.getOwnersMetadataBlocks().clear();
+            dataverse.getRootMetadataBlocks().clear();
 
             List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks(metadataBlocks, mdbOptions);
             dataverse.setMetadataBlocks(selectedMetadataBlocks);
@@ -122,19 +152,22 @@ public class MetadataBlockService {
         return listDFTIL;
     }
 
+    /**
+     * Prepares metadata blocks and dataset fields for edit/creation of dataverse in order to view all metadata blocks and their fields.
+     */
     public Set<MetadataBlock> prepareMetaBlocksAndDatasetfields(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions) {
-        Dataverse freshDataverse = dataverse;
-
-        Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse, mdbOptions, freshDataverse);
+        Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse, mdbOptions, dataverse);
 
         Set<DatasetFieldType> datasetFieldTypes = retriveAllDatasetFieldsForMdb(availableBlocks);
 
-        prepareDatasetFields(mdbOptions, freshDataverse, datasetFieldTypes);
+        prepareDatasetFields(mdbOptions, dataverse, datasetFieldTypes);
 
         return availableBlocks;
     }
 
-
+    /**
+     * Changes metadata block view options in order to show editable dataset fields for given metadata block.
+     */
     public MetadataBlockViewOptions prepareDatasetFieldsToBeEditable(DataverseMetaBlockOptions dataverseMetaBlockOptions, Long metadataBlockId) {
         return dataverseMetaBlockOptions.getMdbViewOptions().put(metadataBlockId,
                 MetadataBlockViewOptions.newBuilder()
@@ -144,6 +177,10 @@ public class MetadataBlockService {
                         .build());
     }
 
+
+    /**
+     * Changes metadata block view options in order to show uneditable dataset fields for given metadata block.
+     */
     public MetadataBlockViewOptions prepareDatasetFieldsToBeUnEditable(DataverseMetaBlockOptions dataverseMetaBlockOptions, Long metadataBlockId) {
         return dataverseMetaBlockOptions.getMdbViewOptions().put(metadataBlockId,
                 MetadataBlockViewOptions.newBuilder()
@@ -153,12 +190,28 @@ public class MetadataBlockService {
                         .build());
     }
 
+    /**
+     * Changes metadata block view options in order to hide all dataset fields for given metadata block.
+     */
     public MetadataBlockViewOptions prepareDatasetFieldsToBeHidden(DataverseMetaBlockOptions dataverseMetaBlockOptions, Long metadataBlockId) {
         return dataverseMetaBlockOptions.getMdbViewOptions().put(metadataBlockId,
                 MetadataBlockViewOptions.newBuilder()
                         .showDatasetFieldTypes(false)
                         .selected(dataverseMetaBlockOptions.isMetaBlockSelected(metadataBlockId))
                         .build());
+    }
+
+    /**
+     * Refreshes dataset fields view options for given dataset field.
+     */
+    public void refreshDatasetFieldsViewOptions(Long mdbId, long dsftId, Collection<MetadataBlock> allMetadataBlocks, DataverseMetaBlockOptions mdbOptions) {
+        List<DatasetFieldType> childDSFT = new ArrayList<>();
+
+        setViewOptionsForDatasetFields(mdbId, dsftId, allMetadataBlocks, mdbOptions, childDSFT);
+
+        if (!childDSFT.isEmpty()) {
+            setViewOptionsForDatasetFieldsChilds(mdbId, allMetadataBlocks, mdbOptions, childDSFT);
+        }
     }
 
     // -------------------- PRIVATE --------------------
@@ -170,6 +223,46 @@ public class MetadataBlockService {
         }
 
         return metadataBlocks;
+    }
+
+    private void setViewOptionsForDatasetFieldsChilds(Long mdbId, Collection<MetadataBlock> allMetadataBlocks, DataverseMetaBlockOptions mdbOptions, List<DatasetFieldType> childDSFT) {
+        for (DatasetFieldType dsftUpdate : childDSFT) {
+            for (MetadataBlock mdb : allMetadataBlocks) {
+                if (mdb.getId().equals(mdbId)) {
+                    for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
+                        if (dsftTest.getId().equals(dsftUpdate.getId())) {
+                            DatasetFieldViewOptions dsftViewOptions = mdbOptions.getDatasetFieldViewOptions().get(dsftTest.getId());
+                            dsftViewOptions.setSelectedDatasetFields(setViewOptionForDatasetField(mdbOptions, dsftTest));
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private void setViewOptionsForDatasetFields(Long mdbId, long dsftId, Collection<MetadataBlock> allMetadataBlocks, DataverseMetaBlockOptions mdbOptions, List<DatasetFieldType> childDSFT) {
+        for (MetadataBlock mdb : allMetadataBlocks) {
+            if (mdb.getId().equals(mdbId)) {
+                for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
+                    if (dsftTest.getId().equals(dsftId)) {
+                        DatasetFieldViewOptions dsftViewOptions = mdbOptions.getDatasetFieldViewOptions().get(dsftTest.getId());
+
+                        dsftViewOptions.setSelectedDatasetFields(setViewOptionForDatasetField(mdbOptions, dsftTest));
+
+                        if ((dsftTest.isHasParent() && !mdbOptions.isDsftIncludedField(dsftTest.getParentDatasetFieldType().getId()))
+                                || (!dsftTest.isHasParent() && !dsftViewOptions.isIncluded())) {
+                            dsftViewOptions.setRequiredField(false);
+                        }
+                        if (dsftTest.isHasChildren()) {
+                            childDSFT.addAll(dsftTest.getChildDatasetFieldTypes());
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     }
 
     private void prepareDatasetFields(DataverseMetaBlockOptions mdbOptions, Dataverse freshDataverse, Set<DatasetFieldType> datasetFieldTypes) {
@@ -191,7 +284,7 @@ public class MetadataBlockService {
     private Set<MetadataBlock> prepareMetadataBlocks(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions, Dataverse freshDataverse) {
         Set<MetadataBlock> availableBlocks = new HashSet<>(dataverseService.findSystemMetadataBlocks());
         Set<MetadataBlock> metadataBlocks = retriveAllDataverseParentsMetaBlocks(dataverse);
-        metadataBlocks.addAll(freshDataverse.getOwnersMetadataBlocks());
+        metadataBlocks.addAll(freshDataverse.getRootMetadataBlocks());
         availableBlocks.addAll(metadataBlocks);
 
         for (MetadataBlock mdb : availableBlocks) {
@@ -203,13 +296,17 @@ public class MetadataBlockService {
                             .build());
 
             if (dataverse.getOwner() != null) {
-                if (dataverse.getOwner().getOwnersMetadataBlocks().contains(mdb)) {
+                if (dataverse.getOwner().getRootMetadataBlocks().contains(mdb)) {
                     setMetaBlockAsSelected(mdb, mdbOptions);
                 }
 
                 if (dataverse.getOwner().getMetadataBlocks().contains(mdb)) {
                     setMetaBlockAsSelected(mdb, mdbOptions);
                 }
+            }
+
+            if (dataverse.getId() != null && dataverse.getMetadataBlocks().contains(mdb)) {
+                setMetaBlockAsSelected(mdb, mdbOptions);
             }
 
         }
@@ -228,10 +325,10 @@ public class MetadataBlockService {
 
         mdbOptions.getDatasetFieldViewOptions()
                 .get(rootDatasetFieldType.getId())
-                .setSelectedDatasetFields(resetSelectItems(mdbOptions, rootDatasetFieldType));
+                .setSelectedDatasetFields(setViewOptionForDatasetField(mdbOptions, rootDatasetFieldType));
     }
 
-    private List<SelectItem> resetSelectItems(DataverseMetaBlockOptions mdbOptions, DatasetFieldType typeIn) {
+    private List<SelectItem> setViewOptionForDatasetField(DataverseMetaBlockOptions mdbOptions, DatasetFieldType typeIn) {
         List<SelectItem> selectItems = new ArrayList<>();
 
         if ((typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getParentDatasetFieldType().getId())) ||

@@ -12,38 +12,35 @@ public class DataverseMetaBlockOptions implements Serializable {
     private Map<Long, DatasetFieldViewOptions> datasetFieldViewOptions = new HashMap<>();
     private boolean inheritMetaBlocksFromParent = true;
 
-    // -------------------- CONSTRUCTORS --------------------
-
-    public DataverseMetaBlockOptions() {
-    }
-
-    public DataverseMetaBlockOptions(Map<Long, MetadataBlockViewOptions> mdbViewOptions,
-                                     Map<Long, DatasetFieldViewOptions> datasetFieldViewOptions,
-                                     boolean inheritMetaBlocksFromParent) {
-        this.mdbViewOptions = mdbViewOptions;
-        this.datasetFieldViewOptions = datasetFieldViewOptions;
-        this.inheritMetaBlocksFromParent = inheritMetaBlocksFromParent;
-    }
-
     // -------------------- GETTERS --------------------
 
+    /**
+     * Retrives metadata block view options.
+     */
     public Map<Long, MetadataBlockViewOptions> getMdbViewOptions() {
         return mdbViewOptions;
     }
 
     /**
-     * Retrives dataset fields view options that belong to metadata block.
+     * Retrives dataset fields view options.
      */
     public Map<Long, DatasetFieldViewOptions> getDatasetFieldViewOptions() {
         return datasetFieldViewOptions;
     }
 
-
+    /**
+     * Indicates if metadata blocks are inherited from parent dataverse or if they are being edited by user.
+     */
     public boolean isInheritMetaBlocksFromParent() {
         return inheritMetaBlocksFromParent;
     }
     // -------------------- LOGIC --------------------
 
+    /**
+     * Indicates if dataset field should be shown.
+     *
+     * @return true/false or false if null.
+     */
     public boolean isShowDatasetFieldTypes(Long mdbId) {
         return mdbViewOptions.entrySet().stream()
                 .filter(map -> map.getKey().equals(mdbId))
@@ -53,6 +50,10 @@ public class DataverseMetaBlockOptions implements Serializable {
 
     }
 
+    /**
+     * Indicates if dataset field should be editable.
+     * @return true/false or false if null.
+     */
     public boolean isEditableDatasetFieldTypes(Long mdbId) {
         return mdbViewOptions.entrySet().stream()
                 .filter(map -> map.getKey().equals(mdbId))
@@ -61,14 +62,10 @@ public class DataverseMetaBlockOptions implements Serializable {
                 .orElse(false);
     }
 
-    public boolean isMetaBlockSelected(Long mdbId) {
-        return mdbViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(mdbId))
-                .map(map -> map.getValue().isSelected())
-                .findFirst()
-                .orElse(false);
-    }
-
+    /**
+     * Indicates if dataset field is included (required/optional).
+     * @return true/false or false if null.
+     */
     public boolean isDsftIncludedField(Long dsftId) {
         return datasetFieldViewOptions.entrySet().stream()
                 .filter(map -> map.getKey().equals(dsftId))
@@ -77,6 +74,23 @@ public class DataverseMetaBlockOptions implements Serializable {
                 .orElse(false);
     }
 
+    /**
+     * Indicates if metadata block is selected.
+     *
+     * @return true/false or false if null.
+     */
+    public boolean isMetaBlockSelected(Long mdbId) {
+        return mdbViewOptions.entrySet().stream()
+                .filter(map -> map.getKey().equals(mdbId))
+                .map(map -> map.getValue().isSelected())
+                .findFirst()
+                .orElse(false);
+    }
+
+    /**
+     * Makes a deep copy using serialization/deserialization.
+     * If top performance is really required, it would be advisable to implement different deep copy mechanism.
+     */
     public DataverseMetaBlockOptions deepCopy() {
         return SerializationUtils.clone(this);
     }

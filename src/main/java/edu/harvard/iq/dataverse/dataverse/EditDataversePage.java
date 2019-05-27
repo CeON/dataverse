@@ -9,21 +9,16 @@ import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
-import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.authorization.Permission;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
+import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Either;
 import org.apache.commons.lang.StringUtils;
-import org.primefaces.PrimeFaces;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.model.DualListModel;
 
@@ -39,13 +34,11 @@ import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
-
 @ViewScoped
-@Named("editDataversePage")
+@Named("EditDataversePage")
 public class EditDataversePage implements Serializable {
 
     private static final Logger logger = Logger.getLogger(EditDataversePage.class.getCanonicalName());
@@ -57,13 +50,7 @@ public class EditDataversePage implements Serializable {
     private DatasetFieldServiceBean datasetFieldService;
 
     @EJB
-    private DataverseFieldTypeInputLevelServiceBean dataverseFieldTypeInputLevelService;
-
-    @EJB
     private PermissionServiceBean permissionService;
-
-    @EJB
-    private EjbDataverseEngine commandEngine;
 
     @EJB
     private MetadataBlockService metadataBlockService;
@@ -80,16 +67,11 @@ public class EditDataversePage implements Serializable {
     @Inject
     private DataverseSession session;
 
-    @Inject
-    private DataverseRequestServiceBean dvRequestService;
-
     private Long dataverseId;
     private Long ownerId;
     private Dataverse dataverse;
-    private boolean openMetadataBlock;
-    private boolean editInputLevel;
     private Long facetMetadataBlockId;
-    private List<MetadataBlock> allMetadataBlocks;
+    private Set<MetadataBlock> allMetadataBlocks;
     private List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues;
     private DualListModel<DatasetFieldType> facets = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
 
@@ -114,20 +96,16 @@ public class EditDataversePage implements Serializable {
         return facetMetadataBlockId;
     }
 
-    public List<ControlledVocabularyValue> getDataverseSubjectControlledVocabularyValues() {
-        return dataverseSubjectControlledVocabularyValues;
-    }
-
     public DualListModel<DatasetFieldType> getFacets() {
         return facets;
     }
 
-    public List<MetadataBlock> getAllMetadataBlocks() {
+    public Set<MetadataBlock> getAllMetadataBlocks() {
         return allMetadataBlocks;
     }
 
-    public boolean isEditInputLevel() {
-        return editInputLevel;
+    public DataverseMetaBlockOptions getMdbOptions() {
+        return mdbOptions;
     }
 
     // -------------------- LOGIC --------------------
@@ -163,49 +141,49 @@ public class EditDataversePage implements Serializable {
         }
     }
 
-    public void showDatasetFieldTypes(Long mdbId) {
-        showDatasetFieldTypes(mdbId, true);
-    }
-
-    public void showDatasetFieldTypes(Long mdbId, boolean allowEdit) {
+    /**
+     * Changes metadata block view options in order to show editable dataset fields for given metadata block.
+     */
+    public void showEditableDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdb.setShowDatasetFieldTypes(true);
+                metadataBlockService.prepareDatasetFieldsToBeEditable(mdbOptions, mdbId);
+                break;
             }
         }
-        setEditInputLevel(allowEdit);
     }
 
+    /**
+     * Changes metadata block view options in order to show uneditable dataset fields for given metadata block.
+     */
+    public void showUnEditableDatasetFieldTypes(Long mdbId) {
+        for (MetadataBlock mdb : allMetadataBlocks) {
+            if (mdb.getId().equals(mdbId)) {
+                metadataBlockService.prepareDatasetFieldsToBeUnEditable(mdbOptions, mdbId);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Changes metadata block view options in order to hide all dataset fields for given metadata block.
+     */
     public void hideDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
-                mdb.setShowDatasetFieldTypes(false);
+                metadataBlockService.prepareDatasetFieldsToBeHidden(mdbOptions, mdbId);
+                break;
             }
         }
-        setEditInputLevel(false);
     }
 
-    public void editMetadataBlocks() {
-        if (!dataverse.isMetadataBlockRoot()) {
-            refreshAllMetadataBlocks();
-        }
-    }
-
-    public void editMetadataBlocks(boolean checkVal) {
-        setInheritMetadataBlockFromParent(checkVal);
-        if (!dataverse.isMetadataBlockRoot()) {
-            refreshAllMetadataBlocks();
-        }
-    }
-
+    /**
+     * Resets all view options for metadata blocks, dataset fields and sets metadata blocks to be inherited from parent.
+     */
     public String resetToInherit() {
+        mdbOptions = defaultMdbOptions.deepCopy();
 
-        setInheritMetadataBlockFromParent(true);
-        return saveEditedDataverse();
-    }
-
-    public boolean isInheritMetadataBlockFromParent() {
-        return !dataverse.isMetadataBlockRoot();
+        return StringUtils.EMPTY;
     }
 
     public boolean isInheritFacetFromParent() {
@@ -223,34 +201,11 @@ public class EditDataversePage implements Serializable {
     }
 
     public String saveEditedDataverse() {
-        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
+        List<DataverseFieldTypeInputLevel> dftilForSave =
+                metadataBlockService.getDataverseFieldTypeInputLevelsToBeSaved(allMetadataBlocks, mdbOptions, dataverse);
+        Either<DataverseError, Dataverse> editResult = metadataBlockService.saveEditedDataverse(dftilForSave, dataverse, facets);
 
-        if (dataverse.isMetadataBlockRoot()) {
-            dataverse.getOwnersMetadataBlocks().clear();
-
-            List<MetadataBlock> selectedMetadataBlocks = getSelectedMetadataBlocks();
-            dataverse.setMetadataBlocks(selectedMetadataBlocks);
-            listDFTIL = getSelectedMetadataFields(selectedMetadataBlocks);
-        }
-
-        if (!dataverse.isFacetRoot()) {
-            facets.getTarget().clear();
-        }
-
-        UpdateDataverseCommand cmd = new UpdateDataverseCommand(dataverse, facets.getTarget(), null, dvRequestService.getDataverseRequest(), listDFTIL);
-
-        try {
-            dataverse = commandEngine.submit(cmd);
-
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.update.success"));
-        } catch (CommandException ex) {
-            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-            String errMsg = BundleUtil.getStringFromBundle("dataverse.update.failure");
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
-            return StringUtils.EMPTY;
-        }
-
-        return returnRedirect();
+        return editResult.isLeft() ? StringUtils.EMPTY : returnRedirect();
     }
 
     public void refresh() {
@@ -267,6 +222,27 @@ public class EditDataversePage implements Serializable {
         facets.getSource().removeAll(facets.getTarget());
     }
 
+    /**
+     * Refreshes dataset fields view options for given dataset field.
+     */
+    public void refreshDatasetFieldsViewOptions(Long mdbId, long dsftId) {
+        metadataBlockService.refreshDatasetFieldsViewOptions(mdbId, dsftId, allMetadataBlocks, mdbOptions);
+    }
+
+    /**
+     * Makes metadata block selectable/editable since it is no longer inherited from parent dataverse.
+     */
+    public void makeMetadataBlocksSelectable() {
+        mdbOptions.setInheritMetaBlocksFromParent(false);
+    }
+
+    /**
+     * Returns to dataverse view.
+     */
+    public String cancel() {
+        return returnRedirect();
+    }
+
     public void onFacetTransfer(TransferEvent event) {
         for (Object item : event.getItems()) {
             DatasetFieldType facet = (DatasetFieldType) item;
@@ -274,40 +250,6 @@ public class EditDataversePage implements Serializable {
                 facets.getSource().remove(facet);
             }
         }
-    }
-
-    public void updateInclude(Long mdbId, long dsftId) {
-        List<DatasetFieldType> childDSFT = new ArrayList<>();
-
-        for (MetadataBlock mdb : allMetadataBlocks) {
-            if (mdb.getId().equals(mdbId)) {
-                for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
-                    if (dsftTest.getId().equals(dsftId)) {
-                        dsftTest.setOptionSelectItems(resetSelectItems(dsftTest));
-                        if ((dsftTest.isHasParent() && !dsftTest.getParentDatasetFieldType().isInclude()) || (!dsftTest.isHasParent() && !dsftTest.isInclude())) {
-                            dsftTest.setRequiredDV(false);
-                        }
-                        if (dsftTest.isHasChildren()) {
-                            childDSFT.addAll(dsftTest.getChildDatasetFieldTypes());
-                        }
-                    }
-                }
-            }
-        }
-        if (!childDSFT.isEmpty()) {
-            for (DatasetFieldType dsftUpdate : childDSFT) {
-                for (MetadataBlock mdb : allMetadataBlocks) {
-                    if (mdb.getId().equals(mdbId)) {
-                        for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
-                            if (dsftTest.getId().equals(dsftUpdate.getId())) {
-                                dsftTest.setOptionSelectItems(resetSelectItems(dsftTest));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        PrimeFaces.current().executeScript("scrollAfterUpdate();");
     }
 
     public String returnRedirect() {
@@ -332,12 +274,8 @@ public class EditDataversePage implements Serializable {
         this.dataverseSubjectControlledVocabularyValues = dataverseSubjectControlledVocabularyValues;
     }
 
-    public void setAllMetadataBlocks(List<MetadataBlock> allMetadataBlocks) {
+    public void setAllMetadataBlocks(Set<MetadataBlock> allMetadataBlocks) {
         this.allMetadataBlocks = allMetadataBlocks;
-    }
-
-    public void setEditInputLevel(boolean editInputLevel) {
-        this.editInputLevel = editInputLevel;
     }
 
     public void setInheritMetadataBlockFromParent(boolean inheritMetadataBlockFromParent) {
@@ -358,65 +296,11 @@ public class EditDataversePage implements Serializable {
 
     // -------------------- PRIVATE --------------------
 
-    private List<MetadataBlock> getSelectedMetadataBlocks() {
-        List<MetadataBlock> selectedBlocks = new ArrayList<>();
-
-        for (MetadataBlock mdb : this.allMetadataBlocks) {
-            if (dataverse.isMetadataBlockRoot() && (mdb.isSelected() || mdb.isCitationMetaBlock())) {
-                selectedBlocks.add(mdb);
-            }
-        }
-
-        return selectedBlocks;
-    }
-
-    private List<DataverseFieldTypeInputLevel> getSelectedMetadataFields(List<MetadataBlock> selectedMetadataBlocks) {
-        List<DataverseFieldTypeInputLevel> listDFTIL = new ArrayList<>();
-
-        for (MetadataBlock selectedMetadataBlock : selectedMetadataBlocks) {
-            for (DatasetFieldType dsft : selectedMetadataBlock.getDatasetFieldTypes()) {
-
-                if (isDatasetFieldChildOrParentRequired(dsft)) {
-                    listDFTIL.add(createDataverseFieldTypeInputLevel(dsft, dataverse, true, true));
-                }
-
-                if (isDatasetFieldChildOrParentNotIncluded(dsft)) {
-                    listDFTIL.add(createDataverseFieldTypeInputLevel(dsft, dataverse, false, false));
-                }
-            }
-
-        }
-
-        return listDFTIL;
-    }
-
-    private DataverseFieldTypeInputLevel createDataverseFieldTypeInputLevel(DatasetFieldType dsft,
-                                                                            Dataverse dataverse,
-                                                                            boolean isRequired,
-                                                                            boolean isIncluded) {
-        DataverseFieldTypeInputLevel dftil = new DataverseFieldTypeInputLevel();
-        dftil.setDatasetFieldType(dsft);
-        dftil.setDataverse(dataverse);
-        dftil.setRequired(isRequired);
-        dftil.setInclude(isIncluded);
-        return dftil;
-    }
-
-    private boolean isDatasetFieldChildOrParentNotIncluded(DatasetFieldType dsft) {
-        return (!dsft.isHasParent() && !dsft.isInclude())
-                || (dsft.isHasParent() && !dsft.getParentDatasetFieldType().isInclude());
-    }
-
-    private boolean isDatasetFieldChildOrParentRequired(DatasetFieldType dsft) {
-        return dsft.isRequiredDV() && !dsft.isRequired()
-                && ((!dsft.isHasParent() && dsft.isInclude())
-                || (dsft.isHasParent() && dsft.getParentDatasetFieldType().isInclude()));
-    }
-
     private void setupForGeneralInfoEdit() {
         updateDataverseSubjectSelectItems();
         initFacets();
-        refreshAllMetadataBlocks();
+        allMetadataBlocks = metadataBlockService.prepareMetaBlocksAndDatasetfields(dataverse, mdbOptions);
+        defaultMdbOptions = mdbOptions.deepCopy();
     }
 
     private void updateDataverseSubjectSelectItems() {
@@ -437,80 +321,24 @@ public class EditDataversePage implements Serializable {
         facetMetadataBlockId = null;
     }
 
-    private void refreshAllMetadataBlocks() {
-        Long dataverseIdForInputLevel = dataverse.getId();
-        List<MetadataBlock> retList = new ArrayList<>();
+    private List<SelectItem> resetSelectItems(DatasetFieldType typeIn) {
+        List<SelectItem> selectItems = new ArrayList<>();
 
-        //Add System level blocks
-        List<MetadataBlock> availableBlocks = new ArrayList<>(dataverseService.findSystemMetadataBlocks());
-
-        Dataverse testDV = dataverse;
-        //Add blocks associated with DV
-        availableBlocks.addAll(dataverseService.findMetadataBlocksByDataverseId(dataverse.getId()));
-
-        //Add blocks associated with dv going up inheritance tree
-        while (testDV.getOwner() != null) {
-            availableBlocks.addAll(dataverseService.findMetadataBlocksByDataverseId(testDV.getOwner().getId()));
-            testDV = testDV.getOwner();
+        if ((typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getParentDatasetFieldType().getId())) ||
+                (!typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getId()))) {
+            selectItems.add(generateSelectedItem("dataverse.item.required", true, false));
+            selectItems.add(generateSelectedItem("dataverse.item.optional", false, false));
+        } else {
+            selectItems.add(generateSelectedItem("dataverse.item.hidden", false, true));
         }
-
-        for (MetadataBlock mdb : availableBlocks) {
-            for (MetadataBlock mdbTest : dataverse.getMetadataBlocks()) {
-                if (mdb.equals(mdbTest)) {
-                    mdb.setSelected(true);
-                }
-            }
-
-
-            for (DatasetFieldType dsft : mdb.getDatasetFieldTypes()) {
-                if (!dsft.isChild()) {
-                    DataverseFieldTypeInputLevel dsfIl = dataverseFieldTypeInputLevelService.findByDataverseIdDatasetFieldTypeId(dataverseIdForInputLevel, dsft.getId());
-                    if (dsfIl != null) {
-                        dsft.setRequiredDV(dsfIl.isRequired());
-                        dsft.setInclude(dsfIl.isInclude());
-                    } else {
-                        dsft.setRequiredDV(dsft.isRequired());
-                        dsft.setInclude(true);
-                    }
-                    dsft.setOptionSelectItems(resetSelectItems(dsft));
-                    if (dsft.isHasChildren()) {
-                        for (DatasetFieldType child : dsft.getChildDatasetFieldTypes()) {
-                            DataverseFieldTypeInputLevel dsfIlChild = dataverseFieldTypeInputLevelService.findByDataverseIdDatasetFieldTypeId(dataverseIdForInputLevel, child.getId());
-                            if (dsfIlChild != null) {
-                                child.setRequiredDV(dsfIlChild.isRequired());
-                                child.setInclude(dsfIlChild.isInclude());
-                            } else {
-                                child.setRequiredDV(child.isRequired());
-                                child.setInclude(true);
-                            }
-                            child.setOptionSelectItems(resetSelectItems(child));
-                        }
-                    }
-                }
-            }
-            retList.add(mdb);
-        }
-        setAllMetadataBlocks(retList);
+        return selectItems;
     }
 
-    private List<SelectItem> resetSelectItems(DatasetFieldType typeIn) {
-        List<SelectItem> retList = new ArrayList<>();
-        if ((typeIn.isHasParent() && typeIn.getParentDatasetFieldType().isInclude()) || (!typeIn.isHasParent() && typeIn.isInclude())) {
-            SelectItem requiredItem = new SelectItem();
-            requiredItem.setLabel(BundleUtil.getStringFromBundle("dataverse.item.required"));
-            requiredItem.setValue(true);
-            retList.add(requiredItem);
-            SelectItem optional = new SelectItem();
-            optional.setLabel(BundleUtil.getStringFromBundle("dataverse.item.optional"));
-            optional.setValue(false);
-            retList.add(optional);
-        } else {
-            SelectItem hidden = new SelectItem();
-            hidden.setLabel(BundleUtil.getStringFromBundle("dataverse.item.hidden"));
-            hidden.setValue(false);
-            hidden.setDisabled(true);
-            retList.add(hidden);
-        }
-        return retList;
+    private SelectItem generateSelectedItem(String label, boolean selected, boolean disabled) {
+        SelectItem requiredItem = new SelectItem();
+        requiredItem.setLabel(BundleUtil.getStringFromBundle(label));
+        requiredItem.setValue(selected);
+        requiredItem.setDisabled(disabled);
+        return requiredItem;
     }
 }

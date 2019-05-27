@@ -151,7 +151,7 @@ public class MoveDataverseCommand extends AbstractVoidCommand {
         List<Dataverse> mbParentsToCheck = new ArrayList<>();
         mbParentsToCheck.addAll(ownersToCheck);
         mbParentsToCheck.addAll(dataverseChildren);
-        if (moved.getOwnersMetadataBlocks() != null) {
+        if (moved.getRootMetadataBlocks() != null) {
             inheritMbValue = !destination.isMetadataBlockRoot();
         }
                 

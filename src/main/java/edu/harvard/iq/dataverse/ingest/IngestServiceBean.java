@@ -1151,7 +1151,7 @@ public class IngestServiceBean {
     private void processDatasetMetadata(FileMetadataIngest fileMetadataIngest, DatasetVersion editVersion) throws IOException {
 
 
-        for (MetadataBlock mdb : editVersion.getDataset().getOwner().getOwnersMetadataBlocks()) {
+        for (MetadataBlock mdb : editVersion.getDataset().getOwner().getRootMetadataBlocks()) {
             if (mdb.getName().equals(fileMetadataIngest.getMetadataBlockName())) {
                 logger.fine("Ingest Service: dataset version has "+mdb.getName()+" metadata block enabled.");
                 

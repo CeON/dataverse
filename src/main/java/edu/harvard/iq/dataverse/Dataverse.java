@@ -396,7 +396,7 @@ public class Dataverse extends DvObjectContainer {
         Dataverse testDV = this;
         while (testDV.getOwner() != null) {
 
-            if (!testDV.getOwnersMetadataBlocks().equals(testDV.getOwner().getOwnersMetadataBlocks())) {
+            if (!testDV.getRootMetadataBlocks().equals(testDV.getOwner().getRootMetadataBlocks())) {
                 break;
             }
             retList.addAll(testDV.getOwner().getTemplates());
@@ -430,11 +430,11 @@ public class Dataverse extends DvObjectContainer {
     }
 
 
-    public List<MetadataBlock> getOwnersMetadataBlocks() {
+    public List<MetadataBlock> getRootMetadataBlocks() {
         if (metadataBlockRoot || getOwner() == null) {
             return metadataBlocks;
         } else {
-            return getOwner().getOwnersMetadataBlocks();
+            return getOwner().getRootMetadataBlocks();
         }
     }
 

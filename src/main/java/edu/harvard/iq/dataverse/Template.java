@@ -181,7 +181,7 @@ public class Template implements Serializable {
         //Test to see that there are values for 
         // all fields in this dataset via metadata blocks
         //only add if not added above
-        for (MetadataBlock mdb : this.getDataverse().getOwnersMetadataBlocks()) {
+        for (MetadataBlock mdb : this.getDataverse().getRootMetadataBlocks()) {
             for (DatasetFieldType dsfType : mdb.getDatasetFieldTypes()) {
                 if (!dsfType.isSubField()) {
                     boolean add = true;
@@ -226,7 +226,7 @@ public class Template implements Serializable {
     private void initMetadataBlocksForCreate() {
         metadataBlocksForView.clear();
         metadataBlocksForEdit.clear();
-        for (MetadataBlock mdb : this.getDataverse().getOwnersMetadataBlocks()) {
+        for (MetadataBlock mdb : this.getDataverse().getRootMetadataBlocks()) {
             List<DatasetField> datasetFieldsForView = new ArrayList<>();
             List<DatasetField> datasetFieldsForEdit = new ArrayList<>();
             for (DatasetField dsf : this.getDatasetFields()) {
@@ -254,7 +254,7 @@ public class Template implements Serializable {
         
         List <MetadataBlock> actualMDB = new ArrayList<>();
 
-        actualMDB.addAll(this.getDataverse().getOwnersMetadataBlocks());
+        actualMDB.addAll(this.getDataverse().getRootMetadataBlocks());
         for (DatasetField dsfv : filledInFields) {
             if (!dsfv.isEmptyForDisplay()) {
                 MetadataBlock mdbTest = dsfv.getDatasetFieldType().getMetadataBlock();

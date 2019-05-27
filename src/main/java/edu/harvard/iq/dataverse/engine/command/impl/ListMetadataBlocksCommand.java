@@ -30,7 +30,7 @@ public class ListMetadataBlocksCommand extends AbstractCommand<List<MetadataBloc
 
     @Override
     public List<MetadataBlock> execute(CommandContext ctxt) throws CommandException {
-        return dv.getOwnersMetadataBlocks();
+        return dv.getRootMetadataBlocks();
     }
     
     @Override

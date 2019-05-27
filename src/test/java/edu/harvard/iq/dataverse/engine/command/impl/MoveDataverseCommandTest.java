@@ -424,7 +424,7 @@ public class MoveDataverseCommandTest {
         DataverseRequest aRequest = new DataverseRequest(auth, httpRequest);
         testEngine.submit(
                         new MoveDataverseCommand(aRequest, childE, childB, null));
-        assertEquals(Arrays.asList(mbB), childE.getOwnersMetadataBlocks());
+        assertEquals(Arrays.asList(mbB), childE.getRootMetadataBlocks());
         
         // move back
         testEngine.submit(

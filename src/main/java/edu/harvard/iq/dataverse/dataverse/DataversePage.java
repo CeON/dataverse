@@ -10,7 +10,7 @@ import edu.harvard.iq.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
 import edu.harvard.iq.dataverse.DataverseFeaturedDataverse;
-import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
+import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
 import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
@@ -48,7 +48,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -66,7 +65,6 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 /**
  * @author gdurand
  */
-@SuppressWarnings("Duplicates")
 @ViewScoped
 @Named("DataversePage")
 public class DataversePage implements java.io.Serializable {
@@ -95,8 +93,6 @@ public class DataversePage implements java.io.Serializable {
     DataverseFacetServiceBean dataverseFacetService;
     @EJB
     FeaturedDataverseServiceBean featuredDataverseService;
-    @EJB
-    DataverseFieldTypeInputLevelServiceBean dataverseFieldTypeInputLevelService;
     @EJB
     PermissionServiceBean permissionService;
     @EJB
@@ -196,7 +192,6 @@ public class DataversePage implements java.io.Serializable {
     }
 
     // -------------------- LOGIC --------------------
-
     public String init() {
 
         if (dataverse.getAlias() != null || dataverse.getId() != null || ownerId == null) {// view mode for a dataverse
@@ -283,6 +278,16 @@ public class DataversePage implements java.io.Serializable {
 
     }
 
+    /**
+     * Refreshes dataset fields view options for given dataset field.
+     */
+    public void refreshDatasetFieldsViewOptions(Long mdbId, long dsftId) {
+        metadataBlockService.refreshDatasetFieldsViewOptions(mdbId, dsftId, allMetadataBlocks, mdbOptions);
+    }
+
+    /**
+     * Changes metadata block view options in order to show editable dataset fields for given metadata block.
+     */
     public void showEditableDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
@@ -292,44 +297,9 @@ public class DataversePage implements java.io.Serializable {
         }
     }
 
-    public void refreshDatasetFieldsViewOptions(Long mdbId, long dsftId) {
-        List<DatasetFieldType> childDSFT = new ArrayList<>();
-
-        for (MetadataBlock mdb : allMetadataBlocks) {
-            if (mdb.getId().equals(mdbId)) {
-                for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
-                    if (dsftTest.getId().equals(dsftId)) {
-                        DatasetFieldViewOptions dsftViewOptions = mdbOptions.getDatasetFieldViewOptions().get(dsftTest.getId());
-
-                        dsftViewOptions.setSelectedDatasetFields(resetSelectItems(dsftTest));
-
-                        if ((dsftTest.isHasParent() && !mdbOptions.isDsftIncludedField(dsftTest.getParentDatasetFieldType().getId()))
-                                || (!dsftTest.isHasParent() && !dsftViewOptions.isIncluded())) {
-                            dsftViewOptions.setRequiredField(false);
-                        }
-                        if (dsftTest.isHasChildren()) {
-                            childDSFT.addAll(dsftTest.getChildDatasetFieldTypes());
-                        }
-                    }
-                }
-            }
-        }
-        if (!childDSFT.isEmpty()) {
-            for (DatasetFieldType dsftUpdate : childDSFT) {
-                for (MetadataBlock mdb : allMetadataBlocks) {
-                    if (mdb.getId().equals(mdbId)) {
-                        for (DatasetFieldType dsftTest : mdb.getDatasetFieldTypes()) {
-                            if (dsftTest.getId().equals(dsftUpdate.getId())) {
-                                DatasetFieldViewOptions dsftViewOptions = mdbOptions.getDatasetFieldViewOptions().get(dsftTest.getId());
-                                dsftViewOptions.setSelectedDatasetFields(resetSelectItems(dsftTest));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    /**
+     * Changes metadata block view options in order to show uneditable dataset fields for given metadata block.
+     */
     public void showUnEditableDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
@@ -339,18 +309,23 @@ public class DataversePage implements java.io.Serializable {
         }
     }
 
+    /**
+     * Changes metadata block view options in order to hide all dataset fields for given metadata block.
+     */
     public void hideDatasetFieldTypes(Long mdbId) {
         for (MetadataBlock mdb : allMetadataBlocks) {
             if (mdb.getId().equals(mdbId)) {
                 metadataBlockService.prepareDatasetFieldsToBeHidden(mdbOptions, mdbId);
+                break;
             }
         }
     }
 
     public String saveNewDataverse() {
-        Either<DataverseError, Dataverse> result = metadataBlockService.saveNewDataverse(
-                metadataBlockService.getDataverseFieldTypeInputLevelsToBeSaved(allMetadataBlocks, mdbOptions, dataverse),
-                dataverse, facets);
+        List<DataverseFieldTypeInputLevel> dftilForSave =
+                metadataBlockService.getDataverseFieldTypeInputLevelsToBeSaved(allMetadataBlocks, mdbOptions, dataverse);
+
+        Either<DataverseError, Dataverse> result = metadataBlockService.saveNewDataverse(dftilForSave, dataverse, facets);
 
         return result.isLeft() ? StringUtils.EMPTY : returnRedirect();
     }
@@ -372,19 +347,23 @@ public class DataversePage implements java.io.Serializable {
         return returnRedirect();
     }
 
-    public void cancel(ActionEvent e) {
-        // reset values
+    public void cancel() {
         dataverse = dataverseService.find(dataverse.getId());
         ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
         editMode = null;
     }
 
+    /**
+     * Makes metadata block selectable/editable since it is no longer inherited from parent dataverse.
+     */
     public void makeMetadataBlocksSelectable() {
         mdbOptions.setInheritMetaBlocksFromParent(false);
     }
 
+    /**
+     * Resets all view options for metadata blocks, dataset fields and sets metadata blocks to be inherited from parent.
+     */
     public String resetToInherit() {
-        setInheritMetadataBlockFromParent(true);
         mdbOptions = defaultMdbOptions.deepCopy();
 
         return StringUtils.EMPTY;
@@ -539,10 +518,6 @@ public class DataversePage implements java.io.Serializable {
         return permissionService.isUserAdminForDataverse(session.getUser(), this.dataverse);
     }
 
-    public boolean isInheritMetadataBlockFromParent() {
-        return !dataverse.isMetadataBlockRoot();
-    }
-
     public boolean isInheritFacetFromParent() {
         return !dataverse.isFacetRoot();
     }
@@ -639,19 +614,6 @@ public class DataversePage implements java.io.Serializable {
         }
         facets = new DualListModel<>(facetsSource, facetsTarget);
         facetMetadataBlockId = null;
-    }
-
-    private List<SelectItem> resetSelectItems(DatasetFieldType typeIn) {
-        List<SelectItem> selectItems = new ArrayList<>();
-
-        if ((typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getParentDatasetFieldType().getId())) ||
-                (!typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getId()))) {
-            selectItems.add(generateSelectedItem("dataverse.item.required", true, false));
-            selectItems.add(generateSelectedItem("dataverse.item.optional", false, false));
-        } else {
-            selectItems.add(generateSelectedItem("dataverse.item.hidden", false, true));
-        }
-        return selectItems;
     }
 
     private SelectItem generateSelectedItem(String label, boolean selected, boolean disabled) {

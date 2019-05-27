@@ -77,7 +77,7 @@ public class ManageTemplatesPage implements java.io.Serializable {
             return permissionsWrapper.notAuthorized();
         }  
         dvpage.setDataverse(dataverse);
-        if (dataverse.getOwner() != null && dataverse.getOwnersMetadataBlocks().equals(dataverse.getOwner().getOwnersMetadataBlocks())) {
+        if (dataverse.getOwner() != null && dataverse.getRootMetadataBlocks().equals(dataverse.getOwner().getRootMetadataBlocks())) {
            setInheritTemplatesAllowed(true); 
         }
  
