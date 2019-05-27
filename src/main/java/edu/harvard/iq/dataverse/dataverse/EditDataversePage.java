@@ -321,19 +321,6 @@ public class EditDataversePage implements Serializable {
         facetMetadataBlockId = null;
     }
 
-    private List<SelectItem> resetSelectItems(DatasetFieldType typeIn) {
-        List<SelectItem> selectItems = new ArrayList<>();
-
-        if ((typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getParentDatasetFieldType().getId())) ||
-                (!typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getId()))) {
-            selectItems.add(generateSelectedItem("dataverse.item.required", true, false));
-            selectItems.add(generateSelectedItem("dataverse.item.optional", false, false));
-        } else {
-            selectItems.add(generateSelectedItem("dataverse.item.hidden", false, true));
-        }
-        return selectItems;
-    }
-
     private SelectItem generateSelectedItem(String label, boolean selected, boolean disabled) {
         SelectItem requiredItem = new SelectItem();
         requiredItem.setLabel(BundleUtil.getStringFromBundle(label));

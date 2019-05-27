@@ -616,14 +616,6 @@ public class DataversePage implements java.io.Serializable {
         facetMetadataBlockId = null;
     }
 
-    private SelectItem generateSelectedItem(String label, boolean selected, boolean disabled) {
-        SelectItem requiredItem = new SelectItem();
-        requiredItem.setLabel(BundleUtil.getStringFromBundle(label));
-        requiredItem.setValue(selected);
-        requiredItem.setDisabled(disabled);
-        return requiredItem;
-    }
-
     private String returnRedirect() {
         return "/dataverse.xhtml?alias=" + dataverse.getAlias() + "&faces-redirect=true";
     }
