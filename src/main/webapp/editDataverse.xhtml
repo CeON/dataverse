@@ -11,6 +11,8 @@
 <h:body>
     <f:metadata>
         <f:viewParam name="dataverseId" value="#{EditDataversePage.dataverseId}"/>
+        <f:viewParam name="ownerId" value="#{EditDataversePage.ownerId}"/>
+        <f:viewParam name="dataverseOwnerAlias" value="#{EditDataversePage.dataverseOwnerAlias}"/>
         <f:viewAction action="#{EditDataversePage.init}"/>
         <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(EditDataversePage.dataverse)}"/>
 
@@ -429,12 +431,12 @@
                 </ui:fragment>
                 <div class="button-block">
                     <p:commandButton id="save" tabindex="9"
-                                     value="#{bundle.saveChanges}"
-                                     action="#{EditDataversePage.saveEditedDataverse()}" update="@all">
+                                     value="#{bundle.save}"
+                                     action="#{EditDataversePage.save()}" update="@all">
                         <f:ajax onerror="window.scrollTo(0, 0)"/>
                     </p:commandButton>
                     <p:commandButton id="cancel" tabindex="10" value="#{bundle.cancel}"
-                                     action="#{EditDataversePage.cancel}"/>
+                                     action="#{EditDataversePage.returnRedirect()}"/>
                 </div>
                 <p:dialog id="resetModifications" header="#{bundle['dataverse.resetModifications']}"
                           widgetVar="resetModifications" modal="true" closable="false">

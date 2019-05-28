@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetFieldType;
 import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
@@ -15,6 +16,7 @@ import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.bannersandmessages.DataverseUtil;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import io.vavr.control.Either;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+@SuppressWarnings("Duplicates")
 @ViewScoped
 @Named("EditDataversePage")
 public class EditDataversePage implements Serializable {
@@ -69,6 +72,8 @@ public class EditDataversePage implements Serializable {
 
     private Long dataverseId;
     private Long ownerId;
+    private String dataverseOwnerAlias;
+
     private Dataverse dataverse;
     private Long facetMetadataBlockId;
     private Set<MetadataBlock> allMetadataBlocks;
@@ -108,19 +113,19 @@ public class EditDataversePage implements Serializable {
         return mdbOptions;
     }
 
+    public String getDataverseOwnerAlias() {
+        return dataverseOwnerAlias;
+    }
+
     // -------------------- LOGIC --------------------
 
     public String init() {
-        dataverse = dataverseService.find(dataverseId);
 
-        if (!dataverse.isReleased() && !permissionService.on(dataverse).has(Permission.ViewUnpublishedDataverse)) {
-            return permissionsWrapper.notAuthorized();
+        if (dataverseId == null) {
+            return setupViewForDataverseCreation();
         }
 
-        ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
-        setupForGeneralInfoEdit();
-
-        return StringUtils.EMPTY;
+        return setupViewForDataverseEdit();
     }
 
     public void validateAlias(FacesContext context, UIComponent toValidate, Object value) {
@@ -200,12 +205,15 @@ public class EditDataversePage implements Serializable {
         return session.getUser().isSuperuser();
     }
 
-    public String saveEditedDataverse() {
+    public String save() {
         List<DataverseFieldTypeInputLevel> dftilForSave =
                 metadataBlockService.getDataverseFieldTypeInputLevelsToBeSaved(allMetadataBlocks, mdbOptions, dataverse);
-        Either<DataverseError, Dataverse> editResult = metadataBlockService.saveEditedDataverse(dftilForSave, dataverse, facets);
 
-        return editResult.isLeft() ? StringUtils.EMPTY : returnRedirect();
+        if (dataverse.getId() == null) {
+            return saveNewDataverse(dftilForSave);
+        }
+
+        return saveEditedDataverse(dftilForSave);
     }
 
     public void refresh() {
@@ -253,7 +261,8 @@ public class EditDataversePage implements Serializable {
     }
 
     public String returnRedirect() {
-        return "/dataverse.xhtml?alias=" + dataverse.getAlias() + "&faces-redirect=true";
+        return dataverse.getId() == null ? "/dataverse.xhtml?alias=" + dataverseOwnerAlias + "&faces-redirect=true" :
+                "/dataverse.xhtml?alias=" + dataverse.getAlias() + "&faces-redirect=true";
     }
 
     // -------------------- SETTERS --------------------
@@ -294,7 +303,52 @@ public class EditDataversePage implements Serializable {
         dataverse.setFacetRoot(!inheritFacetFromParent);
     }
 
+    public void setDataverseOwnerAlias(String dataverseOwnerAlias) {
+        this.dataverseOwnerAlias = dataverseOwnerAlias;
+    }
+
     // -------------------- PRIVATE --------------------
+
+    private String saveEditedDataverse(List<DataverseFieldTypeInputLevel> dftilForSave) {
+        Either<DataverseError, Dataverse> editResult = metadataBlockService.saveEditedDataverse(dftilForSave, dataverse, facets);
+        return editResult.isLeft() ? StringUtils.EMPTY : returnRedirect();
+    }
+
+    private String saveNewDataverse(List<DataverseFieldTypeInputLevel> dftilForSave) {
+        Either<DataverseError, Dataverse> saveResult = metadataBlockService.saveNewDataverse(dftilForSave, dataverse, facets);
+        return saveResult.isLeft() ? StringUtils.EMPTY : returnRedirect();
+    }
+
+    private String setupViewForDataverseEdit() {
+        dataverse = dataverseService.find(dataverseId);
+        if (!dataverse.isReleased() && !permissionService.on(dataverse).has(Permission.ViewUnpublishedDataverse)) {
+            return permissionsWrapper.notAuthorized();
+        }
+
+        ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
+        setupForGeneralInfoEdit();
+
+        return StringUtils.EMPTY;
+    }
+
+    private String setupViewForDataverseCreation() {
+        dataverse = new Dataverse();
+        dataverse.setOwner(dataverseService.find(ownerId));
+
+        if (dataverse.getOwner() == null) {
+            return permissionsWrapper.notFound();
+        } else if (!permissionService.on(dataverse.getOwner()).has(Permission.AddDataverse)) {
+            return permissionsWrapper.notAuthorized();
+        }
+
+        dataverse.getDataverseContacts().add(new DataverseContact(dataverse, session.getUser().getDisplayInfo().getEmailAddress()));
+        dataverse.setAffiliation(session.getUser().getDisplayInfo().getAffiliation());
+        setupForGeneralInfoEdit();
+
+        dataverse.setName(DataverseUtil.getSuggestedDataverseNameOnCreate(session.getUser()));
+
+        return StringUtils.EMPTY;
+    }
 
     private void setupForGeneralInfoEdit() {
         updateDataverseSubjectSelectItems();
