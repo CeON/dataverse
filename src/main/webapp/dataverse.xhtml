@@ -120,7 +120,7 @@
                                     </li>
                                     <li class="divider" role="presentation"></li>
                                     <li>
-                                        <h:link id="editInfo" outcome="editDataverse">
+                                        <h:link id="editInfo" outcome="createEditDataverse">
                                             <f:param name="dataverseId" value="#{DataversePage.dataverse.id}"/>
                                             <h:outputText value="#{bundle['dataverse.option.generalInfo']}"/>
                                         </h:link>
@@ -323,23 +323,6 @@
                         <!-- END: Featured Dataverses Carousel -->
                     </ui:fragment>
                 </ui:fragment>
-
-                <!-- Save / Cancel Button Panel -->
-                <!--<div class="button-block" jsf:rendered="#{!empty DataversePage.editMode}">
-                    <p:commandButton id="save" tabindex="9"
-                                     value="#{DataversePage.dataverse.id == null ? bundle.createDataverse : bundle.saveChanges}"
-                                     action="#{DataversePage.saveNewDataverse()}" update="@all">
-                        <f:ajax onerror="window.scrollTo(0, 0)"/>
-                    </p:commandButton>
-                    <p:commandButton id="cancel" tabindex="10" value="#{bundle.cancel}"
-                                     actionListener="#{DataversePage.cancel}" process="@this"
-                                     update="@form,:searchResults,:messagePanel"
-                                     rendered="#{DataversePage.dataverse.id != null}"
-                                     oncomplete="javascript:bind_bsui_components();initCarousel();"/>
-                    <p:button tabindex="10" value="#{bundle.cancel}"
-                              outcome="/dataverse.xhtml?alias=#{DataversePage.dataverse.owner.alias}"
-                              rendered="#{DataversePage.dataverse.id == null and DataversePage.ownerId != null}"/>
-                </div>-->
 
                 <!-- POPUPS -->
                 <!-- Featured Dataverses Popup -->
@@ -550,20 +533,6 @@
                     }
 
                     $('#featuredDataversesList .item').matchHeight();
-                }
-
-                function updateMetadata(checkbox) {
-                    var checked = checkbox.checked;
-                    if (checked === false) {
-                        $('button[id$="makeMetadataBlockSelectable"]').trigger('click');
-                    } else {
-                        PF('resetModifications').show();
-                    }
-
-                }
-
-                function uncheck() {
-                    $('input:checkbox[id$="metadataRoot"]').prop('checked', false);
                 }
 
                 //]]>

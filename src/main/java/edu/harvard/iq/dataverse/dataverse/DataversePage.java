@@ -1,8 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse;
 
 import edu.harvard.iq.dataverse.ControlledVocabularyValue;
-import edu.harvard.iq.dataverse.ControlledVocabularyValueServiceBean;
-import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetFieldType;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseFeaturedDataverse;
@@ -72,13 +70,9 @@ public class DataversePage implements java.io.Serializable {
     @EJB
     EjbDataverseEngine commandEngine;
     @EJB
-    DatasetFieldServiceBean datasetFieldService;
-    @EJB
     FeaturedDataverseServiceBean featuredDataverseService;
     @EJB
     PermissionServiceBean permissionService;
-    @EJB
-    ControlledVocabularyValueServiceBean controlledVocabularyValueServiceBean;
     @Inject
     SearchIncludeFragment searchIncludeFragment;
     @Inject
@@ -102,8 +96,6 @@ public class DataversePage implements java.io.Serializable {
     private Dataverse linkingDataverse;
     private List<Dataverse> carouselFeaturedDataverses = null;
 
-    private DataverseMetaBlockOptions mdbOptions = new DataverseMetaBlockOptions();
-
     // -------------------- GETTERS --------------------
 
     public Dataverse getLinkingDataverse() {
@@ -120,10 +112,6 @@ public class DataversePage implements java.io.Serializable {
 
     public List<Dataverse> getDataversesForLinking() {
         return dataversesForLinking;
-    }
-
-    public List<ControlledVocabularyValue> getDataverseSubjectControlledVocabularyValues() {
-        return dataverseSubjectControlledVocabularyValues;
     }
 
     public Dataverse getDataverse() {
@@ -434,10 +422,6 @@ public class DataversePage implements java.io.Serializable {
     public void setDataversesForLinking(List<Dataverse> dataversesForLinking) {
 
         this.dataversesForLinking = dataversesForLinking;
-    }
-
-    public void setDataverseSubjectControlledVocabularyValues(List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues) {
-        this.dataverseSubjectControlledVocabularyValues = dataverseSubjectControlledVocabularyValues;
     }
 
     public void setDataverse(Dataverse dataverse) {

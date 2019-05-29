@@ -29,7 +29,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,12 +38,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@SuppressWarnings("Duplicates")
 @ViewScoped
-@Named("EditDataversePage")
-public class EditDataversePage implements Serializable {
+@Named("CreateEditDataversePage")
+public class CreateEditDataversePage implements Serializable {
 
-    private static final Logger logger = Logger.getLogger(EditDataversePage.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(CreateEditDataversePage.class.getCanonicalName());
 
     @EJB
     private DataverseServiceBean dataverseService;
@@ -187,6 +185,7 @@ public class EditDataversePage implements Serializable {
      */
     public String resetToInherit() {
         mdbOptions = defaultMdbOptions.deepCopy();
+        dataverse.setMetadataBlockRoot(false);
 
         return StringUtils.EMPTY;
     }
@@ -242,6 +241,7 @@ public class EditDataversePage implements Serializable {
      */
     public void makeMetadataBlocksSelectable() {
         mdbOptions.setInheritMetaBlocksFromParent(false);
+        dataverse.setMetadataBlockRoot(true);
     }
 
     /**
@@ -316,7 +316,7 @@ public class EditDataversePage implements Serializable {
 
     private String saveNewDataverse(List<DataverseFieldTypeInputLevel> dftilForSave) {
         Either<DataverseError, Dataverse> saveResult = metadataBlockService.saveNewDataverse(dftilForSave, dataverse, facets);
-        return saveResult.isLeft() ? StringUtils.EMPTY : returnRedirect();
+        return saveResult.isLeft() ? StringUtils.EMPTY : "/dataverse.xhtml?alias=" + saveResult.get().getAlias() + "&faces-redirect=true";
     }
 
     private String setupViewForDataverseEdit() {
@@ -373,13 +373,5 @@ public class EditDataversePage implements Serializable {
         }
         facets = new DualListModel<>(facetsSource, facetsTarget);
         facetMetadataBlockId = null;
-    }
-
-    private SelectItem generateSelectedItem(String label, boolean selected, boolean disabled) {
-        SelectItem requiredItem = new SelectItem();
-        requiredItem.setLabel(BundleUtil.getStringFromBundle(label));
-        requiredItem.setValue(selected);
-        requiredItem.setDisabled(disabled);
-        return requiredItem;
     }
 }

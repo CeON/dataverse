@@ -156,6 +156,10 @@ public class MetadataBlockService {
      * Prepares metadata blocks and dataset fields for edit/creation of dataverse in order to view all metadata blocks and their fields.
      */
     public Set<MetadataBlock> prepareMetaBlocksAndDatasetfields(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions) {
+        if (dataverse.isMetadataBlockRoot()) {
+            mdbOptions.setInheritMetaBlocksFromParent(false);
+        }
+
         Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse, mdbOptions, dataverse);
 
         Set<DatasetFieldType> datasetFieldTypes = retriveAllDatasetFieldsForMdb(availableBlocks);
@@ -267,14 +271,11 @@ public class MetadataBlockService {
 
     private void prepareDatasetFields(DataverseMetaBlockOptions mdbOptions, Dataverse freshDataverse, Set<DatasetFieldType> datasetFieldTypes) {
         for (DatasetFieldType rootDatasetFieldType : datasetFieldTypes) {
-            setViewOptionsForDatasetFieldTypes(
-                    freshDataverse.getId() == null ? freshDataverse.getOwner().getId() : freshDataverse.getId(),
-                    rootDatasetFieldType, mdbOptions);
+            setViewOptionsForDatasetFieldTypes(freshDataverse.getMetadataRootId(), rootDatasetFieldType, mdbOptions);
 
             if (rootDatasetFieldType.isHasChildren()) {
                 for (DatasetFieldType childDatasetFieldType : rootDatasetFieldType.getChildDatasetFieldTypes()) {
-                    setViewOptionsForDatasetFieldTypes(freshDataverse.getId() == null ? freshDataverse.getOwner().getId() : freshDataverse.getId()
-                            , childDatasetFieldType, mdbOptions);
+                    setViewOptionsForDatasetFieldTypes(freshDataverse.getMetadataRootId(), childDatasetFieldType, mdbOptions);
                 }
 
             }
