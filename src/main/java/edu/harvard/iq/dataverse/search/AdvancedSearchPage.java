@@ -9,7 +9,6 @@ import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.FieldType;
 import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.WidgetWrapper;
-import edu.harvard.iq.dataverse.locale.MetadataBlockTranslator;
 import edu.harvard.iq.dataverse.search.dto.CheckboxSearchField;
 import edu.harvard.iq.dataverse.search.dto.NumberSearchField;
 import edu.harvard.iq.dataverse.search.dto.SearchBlock;
@@ -52,9 +51,6 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
     @Inject
     private SolrQueryCreator solrQueryCreator;
-
-    @Inject
-    private MetadataBlockTranslator mdbTranslator;
 
     private Dataverse dataverse;
     private String dataverseIdentifier;
