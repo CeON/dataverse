@@ -240,7 +240,7 @@
                                                     </input>
 
                                                     <h:outputText
-                                                            value="#{metadataBlockTranslator.fetchMetadataBlockDisplayName(mdb.displayName,mdb.name)} #{mdb.required ? bundle['dataverse.field.required']: ''}"
+                                                            value="#{mdb.displayName} #{mdb.required ? bundle['dataverse.field.required']: ''}"
                                                             styleClass="#{DataversePage.inheritMetadataBlockFromParent ? 'text-muted' : ''}"/>
                                                     <p:commandLink id="showDSFT" style="margin-left:1em;"
                                                                    update="@widgetVar(optionBlock)"
@@ -336,7 +336,7 @@
                                                                  value="#{DataversePage.facetMetadataBlockId}">
                                                     <f:selectItem itemLabel="#{bundle['dataverse.facetPickList.metadataBlockList.all']}" itemValue=""/>
                                                     <f:selectItems value="#{DataversePage.allMetadataBlocks}" var="mdb"
-                                                                   itemLabel="#{metadataBlockTranslator.fetchMetadataBlockDisplayName(mdb.displayName,mdb.name)}"
+                                                                   itemLabel="#{mdb.displayName}"
                                                                    itemValue="#{mdb.id}"/>
                                                     <p:ajax process="editFacets" update="editFacets" listener="#{DataversePage.changeFacetsMetadataBlock}"/>
                                                 </p:selectOneMenu>
