@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,7 +98,10 @@ public class MetadataBlockService {
                 return Either.left(new DataverseError(ex, BundleUtil.getStringFromBundle("dataverse.create.failure")));
             }
 
-            sendSuccessNotification(dataverse);
+            final Dataverse savedDataverse = dataverse;
+            Executors.newSingleThreadExecutor().execute(() ->
+                    sendSuccessNotification(savedDataverse));
+
             showSuccessMessage();
         } else {
             JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly"));
