@@ -49,10 +49,10 @@ public class BundleUtil {
 
         if ((!DefaultMetadataBlocks.METADATA_BLOCK_NAMES.contains(bundleName) && !bundleName.equals(defaultBundleFile))
                 && System.getProperty("dataverse.lang.directory") != null) {
-            displayNameFromExternalBundle = getDisplayNameFromExternalBundle(bundleKey, bundleName);
+            displayNameFromExternalBundle = getStringFromExternalBundle(bundleKey, bundleName);
         }
 
-        return displayNameFromExternalBundle.orElseGet(() -> getDisplayNameFromDefaultBundle(bundleKey, bundleName));
+        return displayNameFromExternalBundle.orElseGet(() -> getStringFromInternalBundle(bundleKey, bundleName));
     }
     
     public static Locale getCurrentLocale() {
@@ -70,8 +70,8 @@ public class BundleUtil {
 
     // -------------------- PRIVATE --------------------
 
-    private static String getDisplayNameFromDefaultBundle(String bundleKey, String metadataBlockName) {
-        ResourceBundle bundle = ResourceBundle.getBundle(metadataBlockName, getCurrentLocale());
+    private static String getStringFromInternalBundle(String bundleKey, String bundleName) {
+        ResourceBundle bundle = ResourceBundle.getBundle(bundleName, getCurrentLocale());
         try {
             return bundle.getString(bundleKey);
         } catch (Exception ex) {
@@ -80,13 +80,13 @@ public class BundleUtil {
         }
     }
 
-    private static Optional<String> getDisplayNameFromExternalBundle(String bundleKey, String metadataBlockName) {
+    private static Optional<String> getStringFromExternalBundle(String bundleKey, String bundleName) {
         try {
             URL customBundlesDir = Paths.get(System.getProperty("dataverse.lang.directory")).toUri().toURL();
             URLClassLoader externalBundleDirURL = new URLClassLoader(new URL[]{customBundlesDir});
 
             ResourceBundle resourceBundle =
-                    ResourceBundle.getBundle(metadataBlockName, getCurrentLocale(), externalBundleDirURL);
+                    ResourceBundle.getBundle(bundleName, getCurrentLocale(), externalBundleDirURL);
 
             return Optional.of(resourceBundle.getString(bundleKey));
         } catch (MalformedURLException ex) {
