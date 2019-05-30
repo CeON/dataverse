@@ -13,6 +13,7 @@ import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateDataverseCommand;
@@ -100,7 +101,7 @@ public class MetadataBlockService {
 
             final Dataverse savedDataverse = dataverse;
             Executors.newSingleThreadExecutor().execute(() ->
-                    sendSuccessNotification(savedDataverse));
+                    sendSuccessNotification(savedDataverse, session.getUser()));
 
             showSuccessMessage();
         } else {
@@ -402,8 +403,8 @@ public class MetadataBlockService {
                 Arrays.asList(settingsWrapper.getGuidesBaseUrl(), systemConfig.getGuidesVersion())));
     }
 
-    private void sendSuccessNotification(Dataverse dataverse) {
-        userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataverse.getCreateDate(),
+    private void sendSuccessNotification(Dataverse dataverse, User user) {
+        userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
                 UserNotification.Type.CREATEDV, dataverse.getId());
     }
 
