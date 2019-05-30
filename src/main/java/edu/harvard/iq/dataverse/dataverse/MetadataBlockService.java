@@ -100,8 +100,9 @@ public class MetadataBlockService {
             }
 
             final Dataverse savedDataverse = dataverse;
+            User user = session.getUser();
             Executors.newSingleThreadExecutor().execute(() ->
-                    sendSuccessNotification(savedDataverse, session.getUser()));
+                    sendSuccessNotification(savedDataverse, user));
 
             showSuccessMessage();
         } else {
