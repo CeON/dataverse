@@ -99,10 +99,7 @@ public class MetadataBlockService {
                 return Either.left(new DataverseError(ex, BundleUtil.getStringFromBundle("dataverse.create.failure")));
             }
 
-            final Dataverse savedDataverse = dataverse;
-            User user = session.getUser();
-            Executors.newSingleThreadExecutor().execute(() ->
-                    sendSuccessNotification(savedDataverse, user));
+            sendSuccessNotificationAsync(dataverse, session.getUser());
 
             showSuccessMessage();
         } else {
@@ -404,9 +401,10 @@ public class MetadataBlockService {
                 Arrays.asList(settingsWrapper.getGuidesBaseUrl(), systemConfig.getGuidesVersion())));
     }
 
-    private void sendSuccessNotification(Dataverse dataverse, User user) {
-        userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
-                UserNotification.Type.CREATEDV, dataverse.getId());
+    private void sendSuccessNotificationAsync(Dataverse dataverse, User user) {
+        Executors.newSingleThreadExecutor().execute(() ->
+                userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
+                        UserNotification.Type.CREATEDV, dataverse.getId()));
     }
 
     private boolean isDatasetFieldChildOrParentNotIncluded(DatasetFieldType dsft, DataverseMetaBlockOptions mdbOptions) {
