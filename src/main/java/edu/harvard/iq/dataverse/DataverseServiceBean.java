@@ -11,22 +11,12 @@ import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.io.File;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-import java.util.Properties;
-import java.util.concurrent.Future;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -38,6 +28,16 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.io.File;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 /**
  *
@@ -240,35 +240,6 @@ public class DataverseServiceBean implements java.io.Serializable {
         String qr = "select object(o) from MetadataBlock as o where o.owner.id=:dataverse_id order by o.id";
         return em.createQuery(qr, MetadataBlock.class)
                 .setParameter("dataverse_id", dataverse_id).getResultList();
-    }
-    
-    public DataverseFacet findFacet(Long id) {
-        return em.find(DataverseFacet.class, id);
-    }
-    
-    public List<DataverseFacet> findAllDataverseFacets() {
-        return em.createQuery("select object(o) from DataverseFacet as o order by o.display", DataverseFacet.class).getResultList();
-    }
-    
-    public String getDataverseLogoThumbnailAsBase64(Dataverse dataverse, User user) {
-        
-        if (dataverse == null) {
-            return null;
-        }
-
-        File dataverseLogoFile = getLogo(dataverse);
-        if (dataverseLogoFile != null) {
-            String logoThumbNailPath;
-
-            if (dataverseLogoFile.exists()) {
-                logoThumbNailPath = ImageThumbConverter.generateImageThumbnailFromFile(dataverseLogoFile.getAbsolutePath(), 48);
-                if (logoThumbNailPath != null) {
-                    return ImageThumbConverter.getImageAsBase64FromFile(new File(logoThumbNailPath));
-
-                }
-            }
-        } 
-        return null;
     }
     
     public String getDataverseLogoThumbnailAsBase64ById(Long dvId) {
