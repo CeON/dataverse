@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import javax.ejb.EJB;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -82,8 +81,8 @@ public class SettingsWrapper implements java.io.Serializable {
     
     public String getDropBoxKey() {
 
-        String configuredDropBoxKey = System.getProperty("dataverse.dropbox.key");
-        if (configuredDropBoxKey != null) {
+        String configuredDropBoxKey = getSettingValue("DropboxKey");
+        if (!configuredDropBoxKey.isEmpty()) {
             return configuredDropBoxKey;
         }
         return "";

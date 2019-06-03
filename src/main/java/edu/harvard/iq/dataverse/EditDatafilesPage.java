@@ -1,10 +1,10 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
+import edu.harvard.iq.dataverse.dataaccess.ImageThumbService;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
@@ -21,16 +21,12 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestUtil;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
-import edu.harvard.iq.dataverse.license.License;
-import edu.harvard.iq.dataverse.license.LicenseDAO;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.license.TermsOfUseSelectItemsFactory;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
-import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
-import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.search.FileView;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -83,7 +79,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -114,8 +109,6 @@ public class EditDatafilesPage implements java.io.Serializable {
     @EJB
     DatasetServiceBean datasetService;
     @EJB
-    DatasetVersionServiceBean datasetVersionService;
-    @EJB
     DataFileServiceBean datafileService;
     @EJB
     PermissionServiceBean permissionService;
@@ -126,15 +119,9 @@ public class EditDatafilesPage implements java.io.Serializable {
     @Inject
     DataverseSession session;
     @EJB
-    UserNotificationServiceBean userNotificationService;
-    @EJB
     SettingsServiceBean settingsService;
     @EJB
-    AuthenticationServiceBean authService;
-    @EJB
     SystemConfig systemConfig;
-    @EJB
-    DataverseLinkingServiceBean dvLinkingService;
     @EJB
     IndexServiceBean indexService;
     @Inject
@@ -144,14 +131,14 @@ public class EditDatafilesPage implements java.io.Serializable {
     @Inject ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     SettingsWrapper settingsWrapper;
+
+    @Inject
+    private ImageThumbService imageThumbService;
     
     @Inject
     private TermsOfUseFactory termsOfUseFactory;
     @Inject
     private TermsOfUseFormMapper termsOfUseFormMapper;
-
-    @EJB
-    private LicenseDAO licenseDao;
 
     @Inject
     private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
@@ -412,8 +399,8 @@ public class EditDatafilesPage implements java.io.Serializable {
         // via a JVM option under glassfish.
         //if (true)return "some-test-key";  // for debugging
 
-        String configuredDropBoxKey = System.getProperty("dataverse.dropbox.key");
-        if (configuredDropBoxKey != null) {
+        String configuredDropBoxKey = settingsService.getValueForKey(Key.DropboxKey);
+        if (!configuredDropBoxKey.isEmpty()) {
             return configuredDropBoxKey;
         }
         return "";
@@ -2293,9 +2280,9 @@ public class EditDatafilesPage implements java.io.Serializable {
             // we've already looked once - and there's no thumbnail.
             return false;
         }
-        
-        String filesRootDirectory = System.getProperty("dataverse.files.directory");
-        if (filesRootDirectory == null || filesRootDirectory.isEmpty()) {
+
+        String filesRootDirectory = settingsService.getValueForKey(Key.FilesDirectory);
+        if (filesRootDirectory.isEmpty()) {
             filesRootDirectory = "/tmp/files";
         }
 
@@ -2305,7 +2292,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         
         // ATTENTION! TODO: the current version of the method below may not be checking if files are already cached!
         if ("application/pdf".equals(mimeType)) {
-            imageThumbFileName = ImageThumbConverter.generatePDFThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
+            imageThumbFileName = imageThumbService.generatePDFThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
         } else if (mimeType != null && mimeType.startsWith("image/")) {
             imageThumbFileName = ImageThumbConverter.generateImageThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
         }

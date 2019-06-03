@@ -10,7 +10,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -213,13 +212,9 @@ public class SettingsServiceBean {
         /** Size limits for generating thumbnails on the fly
          *(i.e., we'll attempt to generate a thumbnail on the fly if the
          * size of the file is less than this)
-         * FIXME: this setting is currently taken from system environment
         */
-        ThumbnailSizeLimitImage,
-        /**
-         * FIXME: this setting is currently taken from system environment
-         */
-        ThumbnailSizeLimitPDF,
+        ThumbnailImageSizeLimit,
+        ThumbnailPDFSizeLimit,
         /**
          * status message that will appear on the home page
          */
@@ -420,7 +415,37 @@ public class SettingsServiceBean {
          * Indicates if other terms of use are active or not.
          */
         AllRightsReservedTermsOfUseActive,
-        RestrictedAccessTermsOfUseActive;
+        RestrictedAccessTermsOfUseActive,
+
+        /**
+         * If the Dataverse server has multiple DNS names, this option specifies the one to be used as the “official” host name.
+         * For example, you may want to have dataverse.example.edu,
+         * and not the less appealing server-123.socsci.example.edu to appear exclusively in all the registered global identifiers, Data Deposit API records, etc.
+         * <p>
+         * The password reset feature requires dataverse.fqdn to be configured.
+         * Do note that whenever the system needs to form a service URL, by default, it will be formed with https:// and port 443. I.e.,
+         * https://{dataverse.fqdn}/
+         * If that does not suit your setup, you can define an additional option, dataverse.siteUrl, explained below.
+         */
+        FQDN,
+
+        /**
+         * This is how you configure the path to which files uploaded by users are stored.
+         */
+        FilesDirectory,
+
+        SiteUrl,
+
+        DropboxKey,
+        DoiBaseUrlString,
+        DoiUsername,
+        DoiPassword,
+
+        HandleNetAdmCredFile,
+        HandleNetAdmPrivPhrase,
+        HandleNetIndex,
+
+        TimerServer;
 
         @Override
         public String toString() {
@@ -444,7 +469,7 @@ public class SettingsServiceBean {
     /**
      * Basic functionality - get the name, return the setting from db if present or from properties file if not.
      * @param name of the setting
-     * @return the actual setting.
+     * @return the actual setting or empty string.
      */
     public String get( String name ) {
         Setting s = em.find( Setting.class, name );
@@ -454,7 +479,7 @@ public class SettingsServiceBean {
     /**
      * Same as {@link #get(java.lang.String)}, but with static checking.
      * @param key Enum value of the name.
-     * @return The setting, or {@code null}.
+     * @return The setting, or  empty string.
      */
     public String getValueForKey(Key key) {
         return get(key.toString());

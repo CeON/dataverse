@@ -74,10 +74,8 @@ public class SystemConfig {
      */
     private static final String PASSWORD_RESET_TIMEOUT_IN_MINUTES = "dataverse.auth.password-reset-timeout-in-minutes";
 
-    private static String appVersionString = null; 
-    private static String buildNumberString = null; 
-    
-    private static final String JVM_TIMER_SERVER_OPTION = "dataverse.timerServer";
+    private static String appVersionString = null;
+    private static String buildNumberString = null;
     
     public String getVersion() {
         return getVersion(false);
@@ -240,7 +238,23 @@ public class SystemConfig {
      * by the Settings Service configuration.
      */
     public String getDataverseSiteUrl() {
-        return getDataverseSiteUrlStatic();
+        String hostUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
+
+        if (!hostUrl.isEmpty()) {
+            return hostUrl;
+        }
+
+        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
+
+        if (hostName.isEmpty()) {
+            try {
+                hostName = InetAddress.getLocalHost().getCanonicalHostName();
+            } catch (UnknownHostException e) {
+                return null;
+            }
+        }
+        hostUrl = "https://" + hostName;
+        return hostUrl;
     }
     
     public static String getDataverseSiteUrlStatic() {
@@ -385,11 +399,10 @@ public class SystemConfig {
     }
     
     public boolean isTimerServer() {
-        String optionValue = System.getProperty(JVM_TIMER_SERVER_OPTION);
-        if ("true".equalsIgnoreCase(optionValue)) {
-            return true;
-        }
-        return false;
+
+        String optionValue = settingsService.getValueForKey(SettingsServiceBean.Key.TimerServer);
+
+        return optionValue.equalsIgnoreCase("true");
     }
 
 //    public String getNameOfInstallation() {
