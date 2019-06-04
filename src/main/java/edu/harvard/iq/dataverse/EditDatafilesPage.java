@@ -399,11 +399,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         // via a JVM option under glassfish.
         //if (true)return "some-test-key";  // for debugging
 
-        String configuredDropBoxKey = settingsService.getValueForKey(Key.DropboxKey);
-        if (!configuredDropBoxKey.isEmpty()) {
-            return configuredDropBoxKey;
-        }
-        return "";
+        return settingsService.getValueForKey(Key.DropboxKey);
     }
 
     public void setDropBoxSelection(String dropBoxSelection) {

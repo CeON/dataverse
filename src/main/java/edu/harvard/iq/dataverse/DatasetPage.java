@@ -1037,11 +1037,7 @@ public class DatasetPage implements java.io.Serializable {
         // via a JVM option under glassfish.
         //if (true)return "some-test-key";  // for debugging
 
-        String configuredDropBoxKey = settingsService.getValueForKey(SettingsServiceBean.Key.DropboxKey);
-        if (!configuredDropBoxKey.isEmpty()) {
-            return configuredDropBoxKey;
-        }
-        return "";
+        return settingsService.getValueForKey(SettingsServiceBean.Key.DropboxKey);
     }
 
     public void setDropBoxSelection(String dropBoxSelection) {

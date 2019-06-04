@@ -32,7 +32,7 @@ public class DOIEZIdServiceBean extends AbstractGlobalIdServiceBean {
     public DOIEZIdServiceBean() {
         logger.log(Level.FINE,"Constructor");
         baseURLString = settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString);
-        ezidService = new EZIDService(baseURLString.isEmpty() ? null : baseURLString);
+        ezidService = new EZIDService(baseURLString);
         USERNAME = settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername);
         PASSWORD = settingsService.getValueForKey(SettingsServiceBean.Key.DoiPassword);
         logger.log(Level.FINE, "Using baseURLString {0}", baseURLString);

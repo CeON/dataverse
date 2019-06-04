@@ -57,11 +57,8 @@ public class DOIDataCiteRegisterService {
     
     private DataCiteRESTfullClient getClient() throws IOException {
         if (client == null) {
-            String username = settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername);
-
-            username = username.isEmpty() ? null : username;
             client = new DataCiteRESTfullClient(settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString),
-                    username,
+                    settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername),
                     settingsService.getValueForKey(SettingsServiceBean.Key.DoiPassword));
         }
         return client;
