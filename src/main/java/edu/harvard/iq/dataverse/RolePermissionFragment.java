@@ -173,8 +173,9 @@ public class RolePermissionFragment implements java.io.Serializable {
     }
 
     public void toggleFileRestrict(ActionEvent evt) {
-        DataFile file = (DataFile) dvObject;
-        file.setRestricted(!file.isRestricted());
+        throw new UnsupportedOperationException("Restriction is made by terms of use change");
+//        DataFile file = (DataFile) dvObject;
+//        file.setRestricted(!file.isRestricted());
     }
     
     public void grantAccess(ActionEvent evt) {

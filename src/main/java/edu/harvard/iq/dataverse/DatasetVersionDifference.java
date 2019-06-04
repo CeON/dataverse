@@ -425,15 +425,6 @@ public final class DatasetVersionDifference {
             }            
         }               
     }
-    
-    private DifferenceSummaryItem createSummaryItem(){
-        return null;
-    }
-    
-    private List addToSummaryGroup(String displayName, DifferenceSummaryItem differenceSummaryItem){
-        
-        return null;
-    }
 
     private List<String[]> addToTermsChangedList(List<String[]> listIn, String label, String origVal, String newVal) {
         String[] diffArray;
@@ -527,8 +518,8 @@ public final class DatasetVersionDifference {
         if (!StringUtils.equals(fmdo.getProvFreeForm(), fmdn.getProvFreeForm())) {
             return false;
         }
-        
-        return fmdo.isRestricted() == fmdn.isRestricted();
+        return true;
+//        return fmdo.isRestricted() == fmdn.isRestricted();
     }
     
     private void compareValues(DatasetField originalField, DatasetField newField, boolean compound) {
@@ -1030,8 +1021,8 @@ public final class DatasetVersionDifference {
         
         //File restrictions
         
-        value1 = fm1.isRestricted() ? "Restricted" : "Not Restricted";
-        value2 = fm2.isRestricted() ? "Restricted" : "Not Restricted";
+//        value1 = fm1.isRestricted() ? "Restricted" : "Not Restricted";
+//        value2 = fm2.isRestricted() ? "Restricted" : "Not Restricted";
         
         return !value1.equals(value2);
     }
@@ -1057,7 +1048,7 @@ public final class DatasetVersionDifference {
             }
 
             fdi.setFileProvFree1(fm1.getProvFreeForm());
-            fdi.setFileRest1(fm1.isRestricted() ? "Restricted" : "Not Restricted");
+//            fdi.setFileRest1(fm1.isRestricted() ? "Restricted" : "Not Restricted");
             fdi.setFile2Empty(true);
 
         } else if (fm1 == null) {
@@ -1073,7 +1064,7 @@ public final class DatasetVersionDifference {
                 fdi.setFileCat2(fm2.getCategoriesByName().toString());
             }
             fdi.setFileProvFree2(fm2.getProvFreeForm());
-            fdi.setFileRest2(fm2.isRestricted() ? "Restricted" : "Not Restricted");
+//            fdi.setFileRest2(fm2.isRestricted() ? "Restricted" : "Not Restricted");
         } else {
             // Both are non-null metadata objects.
             // We simply go through the 5 metadata fields, if any are
@@ -1154,12 +1145,12 @@ public final class DatasetVersionDifference {
             }
             
             // file restricted:
-            value1 = fm1.isRestricted() ? "Restricted" : "Not Restricted";
-            value2 = fm2.isRestricted() ? "Restricted" : "Not Restricted";
-            if (!value1.equals(value2)) {
-                fdi.setFileRest1(value1);
-                fdi.setFileRest2(value2);
-            }
+//            value1 = fm1.isRestricted() ? "Restricted" : "Not Restricted";
+//            value2 = fm2.isRestricted() ? "Restricted" : "Not Restricted";
+//            if (!value1.equals(value2)) {
+//                fdi.setFileRest1(value1);
+//                fdi.setFileRest2(value2);
+//            }
         }
         return fdi;
     }

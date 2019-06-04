@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 
@@ -194,7 +195,7 @@ public class WorldMapPermissionHelper implements java.io.Serializable {
        }
                //Check for restrictions
         
-        boolean isRestrictedFile = fm.isRestricted();
+        boolean isRestrictedFile = fm.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED;
         
         // --------------------------------------------------------------------
         //  Is the file Unrestricted ?        
@@ -540,7 +541,7 @@ public class WorldMapPermissionHelper implements java.io.Serializable {
         
         
         // (3) Is File restricted? if Yes - no button.
-        if (fm.isRestricted() || fm.getDataFile().isRestricted()){
+        if (fm.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED){
             
             return false;
         }

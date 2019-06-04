@@ -570,40 +570,40 @@ public class AddReplaceFileHelper{
      * @param restricted
      * @return 
      */
-    public boolean updateLabelDescriptionRestrictedFromUI(String label, String description, Boolean restricted){
-                
-        if (hasError()){
-            logger.severe("Should not be calling this method");
-            return false;
-        }
-        
-        if ((finalFileList==null)||(finalFileList.size()==0)){
-            throw new NullPointerException("finalFileList needs at least 1 file!!");
-        }
-        
-        
-        for (DataFile df : finalFileList){
-            
-            // update description
-            if (description != null){
-                df.getFileMetadata().setDescription(description.trim());
-            }        
-
-            // update label
-            if (label != null){
-                df.getFileMetadata().setLabel(label.trim());
-            }               
-            
-            // update restriction
-            if (restricted == null){
-                restricted = false;
-            }
-            
-            df.getFileMetadata().setRestricted(restricted);
-        }
-        
-        return true;
-    }
+//    public boolean updateLabelDescriptionRestrictedFromUI(String label, String description, Boolean restricted){
+//                
+//        if (hasError()){
+//            logger.severe("Should not be calling this method");
+//            return false;
+//        }
+//        
+//        if ((finalFileList==null)||(finalFileList.size()==0)){
+//            throw new NullPointerException("finalFileList needs at least 1 file!!");
+//        }
+//        
+//        
+//        for (DataFile df : finalFileList){
+//            
+//            // update description
+//            if (description != null){
+//                df.getFileMetadata().setDescription(description.trim());
+//            }        
+//
+//            // update label
+//            if (label != null){
+//                df.getFileMetadata().setLabel(label.trim());
+//            }               
+//            
+//            // update restriction
+//            if (restricted == null){
+//                restricted = false;
+//            }
+//            
+//            df.getFileMetadata().setRestricted(restricted);
+//        }
+//        
+//        return true;
+//    }
     
     /**
      * For the UI: File add/replace has been broken into 2 steps
@@ -1391,18 +1391,19 @@ public class AddReplaceFileHelper{
                 optionalFileParams.addOptionalParams(df);
                 
                 // call restriction command here
-                boolean restrict = optionalFileParams.getRestriction();
-                if (restrict != df.getFileMetadata().isRestricted()) {
-                    commandEngine.submit(new RestrictFileCommand(df, dvRequest, restrict));
-                }
+//                boolean restrict = optionalFileParams.getRestriction();
+//                if (restrict != df.getFileMetadata().isRestricted()) {
+//                    commandEngine.submit(new RestrictFileCommand(df, dvRequest, restrict));
+//                }
                 
             } catch (DataFileTagException ex) {
                 Logger.getLogger(AddReplaceFileHelper.class.getName()).log(Level.SEVERE, null, ex);
                 addError(ex.getMessage());
                 return false;
-            } catch (CommandException ex) {
-                addError(ex.getMessage());
             }
+//            } catch (CommandException ex) {
+//                addError(ex.getMessage());
+//            }
         }
         
         

@@ -9,6 +9,8 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
+
 import static edu.harvard.iq.dataverse.dataset.DatasetUtil.datasetLogoThumbnail;
 import static edu.harvard.iq.dataverse.dataset.DatasetUtil.thumb48addedByImageThumbConverter;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
@@ -105,6 +107,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
         }
         
         Long imageFileId = result.getEntity().getId();
+        DataFile dataFile = (DataFile)result.getEntity();
 
         if (imageFileId != null) {
             if (this.dvobjectThumbnailsMap.containsKey(imageFileId)) {
@@ -131,12 +134,12 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
                 }
             }
 
-            if ((!((DataFile)result.getEntity()).isRestricted()
-                        || permissionsWrapper.hasDownloadFilePermission(result.getEntity()))
-                    && dataFileService.isThumbnailAvailable((DataFile) result.getEntity())) {
+            if ((dataFile.getFileMetadata().getTermsOfUse().getTermsOfUseType() != TermsOfUseType.RESTRICTED
+                        || permissionsWrapper.hasDownloadFilePermission(dataFile))
+                    && dataFileService.isThumbnailAvailable(dataFile)) {
                 
                 cardImageUrl = ImageThumbConverter.getImageThumbnailAsBase64(
-                        (DataFile) result.getEntity(),
+                        dataFile,
                         ImageThumbConverter.DEFAULT_CARDIMAGE_SIZE);
             }
 

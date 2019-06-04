@@ -45,9 +45,9 @@ public class RequestAccessCommand extends AbstractCommand<DataFile> {
     @Override
     public DataFile execute(CommandContext ctxt) throws CommandException {
         
-       if(!file.getOwner().isFileAccessRequest()){
-            throw new CommandException(BundleUtil.getStringFromBundle("file.requestAccess.notAllowed"), this);
-       }
+//       if(!file.getOwner().isFileAccessRequest()){
+//            throw new CommandException(BundleUtil.getStringFromBundle("file.requestAccess.notAllowed"), this);
+//       }
         
         
         file.getFileAccessRequesters().add(requester);

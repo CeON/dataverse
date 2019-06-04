@@ -1953,7 +1953,7 @@ public class DatasetPage implements java.io.Serializable {
 
         for (FileMetadata fmd : workingVersion.getFileMetadatas()){
              if (worldMapPermissionHelper.hasMapLayerMetadata(fmd)){
-                 if (fmd.isRestricted() || fmd.isRestrictedUI()){
+                 if (fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED){
                         return true;
                  }
              }
@@ -2343,7 +2343,7 @@ public class DatasetPage implements java.io.Serializable {
         setSelectedRestrictedFiles(new ArrayList<>());
         setTabularDataSelected(false);
         for (FileMetadata fmd : this.selectedFiles){
-            if(fmd.isRestricted()){
+            if(fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED){
                 getSelectedRestrictedFiles().add(fmd);
             } else {
                 getSelectedUnrestrictedFiles().add(fmd);
@@ -2431,120 +2431,122 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    List<FileMetadata> previouslyRestrictedFiles = null;
+//    List<FileMetadata> previouslyRestrictedFiles = null;
     
-    public boolean isShowAccessPopup() {
+//    public boolean isShowAccessPopup() {
+//        
+//        for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
+//
+//            if (fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
+//            
+//                if (editMode == EditMode.CREATE) {
+//                    // if this is a brand new file, it's definitely not 
+//                    // of a previously restricted kind!
+//                    return true; 
+//                }
+//            
+//                if (previouslyRestrictedFiles != null) {
+//                    // We've already checked whether we are in the CREATE mode, 
+//                    // above; and that means we can safely assume this filemetadata
+//                    // has an existing db id. So it is safe to use the .contains()
+//                    // method below:
+//                    if (!previouslyRestrictedFiles.contains(fmd)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//        
+//        return false;
+//    }
+//    
+//    public void setShowAccessPopup(boolean showAccessPopup) {} // dummy set method
+    
+//    public String testSelectedFilesForRestrict(){
+//        throw new UnsupportedOperationException("Restriction is made by terms of use change");
+//        RequestContext requestContext = RequestContext.getCurrentInstance();
+//        if (selectedFiles.isEmpty()) {
+//                requestContext.execute("PF('selectFilesForRestrict').show()");           
+//            return "";
+//        } else {           
+//            boolean validSelection = true;
+//            for (FileMetadata fmd : selectedFiles) {
+//                if (fmd.isRestricted() == true) {
+//                    validSelection = false;
+//                    break;
+//                }
+//            }
+//            if (!validSelection) {
+//                requestContext.execute("PF('selectFilesForRestrict').show()");
+//                return "";
+//            }                       
+//            testSelectedFilesForMapData();
+//            requestContext.execute("PF('accessPopup').show()");
+//            return "";
+//        }        
+//    }
+    
         
-        for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
+//    public String restrictSelectedFiles(boolean restricted) throws CommandException{
+//        throw new UnsupportedOperationException("Restriction is made by terms of use change");
+//        RequestContext requestContext = RequestContext.getCurrentInstance();
+//        if (selectedFiles.isEmpty()) {
+//            if (restricted) {
+//                requestContext.execute("PF('selectFilesForRestrict').show()");
+//            } else {
+//                requestContext.execute("PF('selectFilesForUnRestrict').show()");
+//            }
+//            return "";
+//        } else {
+//            boolean validSelection = true;
+//            for (FileMetadata fmd : selectedFiles) {
+//                if (fmd.isRestricted() == restricted) {
+//                    validSelection = false;
+//                    break;
+//                }
+//            }
+//            if (!validSelection) {
+//                if (restricted) {
+//                    requestContext.execute("PF('selectFilesForRestrict').show()");
+//                }
+//                if (!restricted) {
+//                    requestContext.execute("PF('selectFilesForUnRestrict').show()");
+//                }
+//                return "";
+//            }
+//        }
+//        
+//        if (editMode != EditMode.CREATE) {
+//            if (bulkUpdateCheckVersion()) {
+//                refreshSelectedFiles();
+//            }
+//            restrictFiles(restricted);
+//        }
+//        
+//        save();
+//        
+//        return  returnToDraftVersion();
+//    }
 
-            if (fmd.isRestricted()) {
-            
-                if (editMode == EditMode.CREATE) {
-                    // if this is a brand new file, it's definitely not 
-                    // of a previously restricted kind!
-                    return true; 
-                }
-            
-                if (previouslyRestrictedFiles != null) {
-                    // We've already checked whether we are in the CREATE mode, 
-                    // above; and that means we can safely assume this filemetadata
-                    // has an existing db id. So it is safe to use the .contains()
-                    // method below:
-                    if (!previouslyRestrictedFiles.contains(fmd)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    public void setShowAccessPopup(boolean showAccessPopup) {} // dummy set method
-    
-    public String testSelectedFilesForRestrict(){
-        RequestContext requestContext = RequestContext.getCurrentInstance();
-        if (selectedFiles.isEmpty()) {
-                requestContext.execute("PF('selectFilesForRestrict').show()");           
-            return "";
-        } else {           
-            boolean validSelection = true;
-            for (FileMetadata fmd : selectedFiles) {
-                if (fmd.isRestricted() == true) {
-                    validSelection = false;
-                    break;
-                }
-            }
-            if (!validSelection) {
-                requestContext.execute("PF('selectFilesForRestrict').show()");
-                return "";
-            }                       
-            testSelectedFilesForMapData();
-            requestContext.execute("PF('accessPopup').show()");
-            return "";
-        }        
-    }
-    
-        
-    public String restrictSelectedFiles(boolean restricted) throws CommandException{
-        
-        RequestContext requestContext = RequestContext.getCurrentInstance();
-        if (selectedFiles.isEmpty()) {
-            if (restricted) {
-                requestContext.execute("PF('selectFilesForRestrict').show()");
-            } else {
-                requestContext.execute("PF('selectFilesForUnRestrict').show()");
-            }
-            return "";
-        } else {
-            boolean validSelection = true;
-            for (FileMetadata fmd : selectedFiles) {
-                if (fmd.isRestricted() == restricted) {
-                    validSelection = false;
-                    break;
-                }
-            }
-            if (!validSelection) {
-                if (restricted) {
-                    requestContext.execute("PF('selectFilesForRestrict').show()");
-                }
-                if (!restricted) {
-                    requestContext.execute("PF('selectFilesForUnRestrict').show()");
-                }
-                return "";
-            }
-        }
-        
-        if (editMode != EditMode.CREATE) {
-            if (bulkUpdateCheckVersion()) {
-                refreshSelectedFiles();
-            }
-            restrictFiles(restricted);
-        }
-        
-        save();
-        
-        return  returnToDraftVersion();
-    }
-
-    private void restrictFiles(boolean restricted) throws CommandException {
-        Command<Void> cmd;
-        previouslyRestrictedFiles = new ArrayList<>();
-        for (FileMetadata fmd : this.getSelectedFiles()) {
-            if(fmd.isRestricted()) {
-                previouslyRestrictedFiles.add(fmd);
-            }
-            if (restricted  != fmd.isRestricted()) {
-                cmd = new RestrictFileCommand(fmd.getDataFile(), dvRequestService.getDataverseRequest(), restricted);
-                commandEngine.submit(cmd);
-            }
-        }
-    }
+//    private void restrictFiles(boolean restricted) throws CommandException {
+//        throw new UnsupportedOperationException("Restriction is made by terms of use change");
+//        Command<Void> cmd;
+//        previouslyRestrictedFiles = new ArrayList<>();
+//        for (FileMetadata fmd : this.getSelectedFiles()) {
+//            if(fmd.isRestricted()) {
+//                previouslyRestrictedFiles.add(fmd);
+//            }
+//            if (restricted  != fmd.isRestricted()) {
+//                cmd = new RestrictFileCommand(fmd.getDataFile(), dvRequestService.getDataverseRequest(), restricted);
+//                commandEngine.submit(cmd);
+//            }
+//        }
+//    }
 
     public int getRestrictedFileCount() {
         int restrictedFileCount = 0;
         for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
-            if (fmd.isRestricted()) {
+            if (fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
                 restrictedFileCount++;
             }
         }
@@ -2622,32 +2624,32 @@ public class DatasetPage implements java.io.Serializable {
         */
     }
     
-    private String enteredTermsOfAccess;
-
-    public String getEnteredTermsOfAccess() {
-        return enteredTermsOfAccess;
-    }
-
-    public void setEnteredTermsOfAccess(String enteredTermsOfAccess) {
-        this.enteredTermsOfAccess = enteredTermsOfAccess;
-    }
+//    private String enteredTermsOfAccess;
+//
+//    public String getEnteredTermsOfAccess() {
+//        return enteredTermsOfAccess;
+//    }
+//
+//    public void setEnteredTermsOfAccess(String enteredTermsOfAccess) {
+//        this.enteredTermsOfAccess = enteredTermsOfAccess;
+//    }
     
-    private Boolean enteredFileAccessRequest;
-
-    public Boolean getEnteredFileAccessRequest() {
-        return enteredFileAccessRequest;
-    }
-
-    public void setEnteredFileAccessRequest(Boolean fileAccessRequest) {
-        this.enteredFileAccessRequest = fileAccessRequest;
-    }
+//    private Boolean enteredFileAccessRequest;
+//
+//    public Boolean getEnteredFileAccessRequest() {
+//        return enteredFileAccessRequest;
+//    }
+//
+//    public void setEnteredFileAccessRequest(Boolean fileAccessRequest) {
+//        this.enteredFileAccessRequest = fileAccessRequest;
+//    }
     
     
-     public String saveWithTermsOfUse() {
-        workingVersion.getTermsOfUseAndAccess().setTermsOfAccess(enteredTermsOfAccess);
-        workingVersion.getTermsOfUseAndAccess().setFileAccessRequest(enteredFileAccessRequest);
-        return save();
-    }
+//     public String saveWithTermsOfUse() {
+//        workingVersion.getTermsOfUseAndAccess().setTermsOfAccess(enteredTermsOfAccess);
+//        workingVersion.getTermsOfUseAndAccess().setFileAccessRequest(enteredFileAccessRequest);
+//        return save();
+//    }
 
     public void validateDeaccessionReason(FacesContext context, UIComponent toValidate, Object value) {
 
@@ -4020,9 +4022,12 @@ public class DatasetPage implements java.io.Serializable {
     }
     
     public boolean isFileAccessRequestMultiButtonRequired(){
-        if (!isSessionUserAuthenticated() || !dataset.isFileAccessRequest()){
+        if (!isSessionUserAuthenticated()) {
             return false;
         }
+//        if (!isSessionUserAuthenticated() || !dataset.isFileAccessRequest()){
+//            return false;
+//        }
         if (workingVersion == null) {
             return false;
         }
@@ -4038,9 +4043,12 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public boolean isFileAccessRequestMultiButtonEnabled(){
-        if (!isSessionUserAuthenticated() || !dataset.isFileAccessRequest()){
+        if (!isSessionUserAuthenticated()) {
             return false;
         }
+//        if (!isSessionUserAuthenticated() || !dataset.isFileAccessRequest()){
+//            return false;
+//        }
         if( this.selectedRestrictedFiles == null || this.selectedRestrictedFiles.isEmpty() ){
             return false;
         }
@@ -4086,9 +4094,9 @@ public class DatasetPage implements java.io.Serializable {
             return false;
         }
         // only show button if dataset allows an access request
-        if (!dataset.isFileAccessRequest()){
-            return false;
-        }
+//        if (!dataset.isFileAccessRequest()){
+//            return false;
+//        }
         for (FileMetadata fmd : workingVersion.getFileMetadatas()){
             if (!this.fileDownloadHelper.canDownloadFile(fmd)){
                 return true;               
@@ -4105,9 +4113,9 @@ public class DatasetPage implements java.io.Serializable {
             return false;
         }
         // only show button if dataset allows an access request
-        if (!dataset.isFileAccessRequest()){
-            return false;
-        }
+//        if (!dataset.isFileAccessRequest()){
+//            return false;
+//        }
         for (FileMetadata fmd : this.selectedRestrictedFiles){
             if (!this.fileDownloadHelper.canDownloadFile(fmd)){
                 return true;               
@@ -4120,8 +4128,8 @@ public class DatasetPage implements java.io.Serializable {
         return FileUtil.isDownloadPopupRequired(workingVersion);
     }
     
-    public boolean isRequestAccessPopupRequired() {  
-        return FileUtil.isRequestAccessPopupRequired(workingVersion);
+    public boolean isRequestAccessPopupRequired(FileMetadata fileMetadata) {  
+        return FileUtil.isRequestAccessPopupRequired(fileMetadata);
     }
     
     public String requestAccessMultipleFiles() {
@@ -4135,7 +4143,14 @@ public class DatasetPage implements java.io.Serializable {
             for (FileMetadata fmd : selectedFiles){
                  fileDownloadHelper.addMultipleFilesForRequestAccess(fmd.getDataFile());
             }
-            if (isRequestAccessPopupRequired()) {
+            boolean anyFileAccessPopupRequired = false;
+            for (FileMetadata fmd : selectedFiles) {
+                if (isRequestAccessPopupRequired(fmd)) {
+                    anyFileAccessPopupRequired = true;
+                    break;
+                }
+            }
+            if (anyFileAccessPopupRequired) {
                 RequestContext requestContext = RequestContext.getCurrentInstance();                
                 requestContext.execute("PF('requestAccessPopup').show()");               
                 return "";
@@ -4579,7 +4594,7 @@ public class DatasetPage implements java.io.Serializable {
         FileTermsOfUse firstTermsOfUse = workingVersion.getFileMetadatas().get(0).getTermsOfUse();
         
         for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
-            if (!isSameTermsOfUse(firstTermsOfUse, fileMetadata.getTermsOfUse())) {
+            if (!datafileService.isSameTermsOfUse(firstTermsOfUse, fileMetadata.getTermsOfUse())) {
                 sameTermsOfUseForAllFiles = false;
                 return sameTermsOfUseForAllFiles;
             }
@@ -4594,21 +4609,6 @@ public class DatasetPage implements java.io.Serializable {
             return Optional.empty();
         }
         return Optional.of(workingVersion.getFileMetadatas().get(0).getTermsOfUse());
-    }
-    
-    private boolean isSameTermsOfUse(FileTermsOfUse termsOfUse1, FileTermsOfUse termsOfUse2) {
-        if (termsOfUse1.getTermsOfUseType() != termsOfUse2.getTermsOfUseType()) {
-            return false;
-        }
-        if (termsOfUse1.getTermsOfUseType() == TermsOfUseType.LICENSE_BASED) {
-            return termsOfUse1.getLicense().getId().equals(termsOfUse2.getLicense().getId());
-        }
-        if (termsOfUse1.getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
-            return termsOfUse1.getRestrictType() == termsOfUse2.getRestrictType() &&
-                    StringUtils.equals(termsOfUse1.getRestrictCustomText(), termsOfUse2.getRestrictCustomText());
-        }
-        return true;
-        
     }
     
     public String saveTermsOfUse(TermsOfUseForm termsOfUseForm) {

@@ -238,7 +238,7 @@ public class FilePage implements java.io.Serializable {
         if(fileMetadata.getId() == null || fileMetadata.getDatasetVersion().getId() == null ){
             return false;
         }
-        return FileUtil.isRequestAccessPopupRequired(fileMetadata.getDatasetVersion());
+        return FileUtil.isRequestAccessPopupRequired(fileMetadata);
     }
 
 
@@ -314,32 +314,33 @@ public class FilePage implements java.io.Serializable {
     }
     
     public String restrictFile(boolean restricted) throws CommandException{
-        String fileNames = null;
-        String termsOfAccess = this.fileMetadata.getDatasetVersion().getTermsOfUseAndAccess().getTermsOfAccess();        
-        Boolean allowRequest = this.fileMetadata.getDatasetVersion().getTermsOfUseAndAccess().isFileAccessRequest();
-        editDataset = this.file.getOwner();
-        
-        Command cmd;
-        for (FileMetadata fmw : editDataset.getEditVersion().getFileMetadatas()) {
-            if (fmw.getDataFile().equals(this.fileMetadata.getDataFile())) {
-                fileNames += fmw.getLabel();
-                //fmw.setRestricted(restricted);
-                cmd = new RestrictFileCommand(fmw.getDataFile(), dvRequestService.getDataverseRequest(), restricted);
-                commandEngine.submit(cmd);
-            }
-        }
-        
-        editDataset.getEditVersion().getTermsOfUseAndAccess().setTermsOfAccess(termsOfAccess);
-        editDataset.getEditVersion().getTermsOfUseAndAccess().setFileAccessRequest(allowRequest);
-        
-        if (fileNames != null) {
-            String successMessage = BundleUtil.getStringFromBundle("file.restricted.success");
-            successMessage = successMessage.replace("{0}", fileNames);
-            JsfHelper.addFlashMessage(successMessage);
-        }
-        save();
-        init();
-        return returnToDraftVersion();
+        throw new UnsupportedOperationException("Restriction is made by terms of use change");
+//        String fileNames = null;
+//        String termsOfAccess = this.fileMetadata.getDatasetVersion().getTermsOfUseAndAccess().getTermsOfAccess();        
+//        Boolean allowRequest = this.fileMetadata.getDatasetVersion().getTermsOfUseAndAccess().isFileAccessRequest();
+//        editDataset = this.file.getOwner();
+//        
+//        Command cmd;
+//        for (FileMetadata fmw : editDataset.getEditVersion().getFileMetadatas()) {
+//            if (fmw.getDataFile().equals(this.fileMetadata.getDataFile())) {
+//                fileNames += fmw.getLabel();
+//                //fmw.setRestricted(restricted);
+//                cmd = new RestrictFileCommand(fmw.getDataFile(), dvRequestService.getDataverseRequest(), restricted);
+//                commandEngine.submit(cmd);
+//            }
+//        }
+//        
+//        editDataset.getEditVersion().getTermsOfUseAndAccess().setTermsOfAccess(termsOfAccess);
+//        editDataset.getEditVersion().getTermsOfUseAndAccess().setFileAccessRequest(allowRequest);
+//        
+//        if (fileNames != null) {
+//            String successMessage = BundleUtil.getStringFromBundle("file.restricted.success");
+//            successMessage = successMessage.replace("{0}", fileNames);
+//            JsfHelper.addFlashMessage(successMessage);
+//        }
+//        save();
+//        init();
+//        return returnToDraftVersion();
     }
     
     private List<FileMetadata> filesToBeDeleted = new ArrayList<>();

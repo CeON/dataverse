@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import java.util.ArrayList;
@@ -388,7 +389,7 @@ public class FileDownloadHelper implements java.io.Serializable {
         Long fid = fileMetadata.getId();
         //logger.info("calling candownloadfile on filemetadata "+fid);
         // Note that `isRestricted` at the FileMetadata level is for expressing intent by version. Enforcement is done with `isRestricted` at the DataFile level.
-        boolean isRestrictedFile = fileMetadata.isRestricted();
+        boolean isRestrictedFile = fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED;
         
         // Has this file been checked? Look at the DatasetPage hash
         if (this.fileDownloadPermissionMap.containsKey(fid)){

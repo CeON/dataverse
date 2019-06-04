@@ -49,6 +49,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.RequestAccessCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -602,7 +603,7 @@ public class Access extends AbstractApiBean {
                                         
                                         zipper.addToManifest(fileName + " (" + mimeType + ") " + " skipped because the total size of the download bundle exceeded the limit of " + zipDownloadSizeLimit + " bytes.\r\n");
                                     }
-                                } else if(file.isRestricted()) {
+                                } else if(file.getFileMetadata().getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
                                     if (zipper == null) {
                                         fileManifest = fileManifest + file.getFileMetadata().getLabel() + " IS RESTRICTED AND CANNOT BE DOWNLOADED\r\n";
                                     } else {
@@ -983,9 +984,9 @@ public class Access extends AbstractApiBean {
             return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.requestAccess.fileNotFound", args));
         }
 
-        if (!dataFile.getOwner().isFileAccessRequest()) {
-            return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.requestAccess.requestsNotAccepted"));
-        }
+//        if (!dataFile.getOwner().isFileAccessRequest()) {
+//            return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.requestAccess.requestsNotAccepted"));
+//        }
 
         AuthenticatedUser requestor;
 
@@ -1322,11 +1323,11 @@ public class Access extends AbstractApiBean {
         // We don't need to check permissions on files that are 
         // from released Dataset versions and not restricted: 
         
-        boolean restricted = false; 
+        boolean restricted = df.getFileMetadata().getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED; 
         
-        if (df.isRestricted()) {
-            restricted = true;
-        } else {
+//        if (df.isRestricted()) {
+//            restricted = true;
+//        } else {
         
         // There is also a special case of a restricted file that only exists 
         // in a draft version (i.e., a new file, that hasn't been published yet).
@@ -1343,12 +1344,13 @@ public class Access extends AbstractApiBean {
         
             //if (!published && df.getOwner().getVersions().size() == 1 && df.getOwner().getLatestVersion().isDraft()) {
             // !df.isReleased() really means just this: new file, only exists in a Draft version!
-            if (!df.isReleased()) {
-                if (df.getFileMetadata().isRestricted()) {
-                    restricted = true;
-                }
-            }
-        }
+        
+//            if (!df.isReleased()) {
+//                if (df.getFileMetadata().isRestricted()) {
+//                    restricted = true;
+//                }
+//            }
+//        }
         
         if (!restricted) {
             // And if they are not published, they can still be downloaded, if the user

@@ -113,7 +113,7 @@ public class FileMetadata implements Serializable {
         fmd.setDatasetVersion( getDatasetVersion() );
         fmd.setDescription( getDescription() );
         fmd.setLabel( getLabel() );
-        fmd.setRestricted( isRestricted() );
+//        fmd.setRestricted( isRestricted() );
         fmd.setDisplayOrder( getDisplayOrder() );
         
         FileTermsOfUse termsOfUseCopy = getTermsOfUse().createCopy();
@@ -147,13 +147,13 @@ public class FileMetadata implements Serializable {
         this.description = description;
     }
 
-    public boolean isRestricted() {
-        return restricted;
-    }
+//    public boolean isRestricted() {
+//        return restricted;
+//    }
 
-    public void setRestricted(boolean restricted) {
-        this.restricted = restricted;
-    }
+//    public void setRestricted(boolean restricted) {
+//        this.restricted = restricted;
+//    }
 
     public int getDisplayOrder() {
         return displayOrder;
@@ -439,16 +439,16 @@ public class FileMetadata implements Serializable {
         this.selected = selected;
     }
 
-    @Transient
-    private boolean restrictedUI;
-
-    public boolean isRestrictedUI() {
-        return restrictedUI;
-    }
-
-    public void setRestrictedUI(boolean restrictedUI) {
-        this.restrictedUI = restrictedUI;
-    }
+//    @Transient
+//    private boolean restrictedUI;
+//
+//    public boolean isRestrictedUI() {
+//        return restrictedUI;
+//    }
+//
+//    public void setRestrictedUI(boolean restrictedUI) {
+//        this.restrictedUI = restrictedUI;
+//    }
 
     @Transient
     private FileVersionDifference fileVersionDifference ;

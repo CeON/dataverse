@@ -63,7 +63,8 @@ import org.hibernate.validator.constraints.NotBlank;
 @Table(indexes = {@Index(columnList="ingeststatus")
 		, @Index(columnList="checksumvalue")
 		, @Index(columnList="contenttype")
-		, @Index(columnList="restricted")})
+//		, @Index(columnList="restricted")
+})
 public class DataFile extends DvObject implements Comparable {
     private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
     private static final long serialVersionUID = 1L;
@@ -167,8 +168,8 @@ public class DataFile extends DvObject implements Comparable {
     @Column(nullable=true)
     private Long filesize;      // Number of bytes in file.  Allows 0 and null, negative numbers not permitted
 
-    @Expose
-    private boolean restricted;
+//    @Expose
+//    private boolean restricted;
     
     @Expose
     @Column(columnDefinition = "TEXT", nullable = true, name="prov_entityname")
@@ -494,14 +495,14 @@ public class DataFile extends DvObject implements Comparable {
         return FileSizeChecker.bytesToHumanReadable(filesize);
     }
 
-    public boolean isRestricted() {
-        return restricted;
-    }
-
-    
-    public void setRestricted(boolean restricted) {
-        this.restricted = restricted;
-    }
+//    public boolean isRestricted() {
+//        return restricted;
+//    }
+//
+//    
+//    public void setRestricted(boolean restricted) {
+//        this.restricted = restricted;
+//    }
 
     public ChecksumType getChecksumType() {
         return checksumType;
