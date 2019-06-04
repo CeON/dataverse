@@ -1,8 +1,5 @@
 package edu.harvard.iq.dataverse.dataverse;
 
-import edu.harvard.iq.dataverse.ControlledVocabularyValue;
-import edu.harvard.iq.dataverse.ControlledVocabularyValueServiceBean;
-import edu.harvard.iq.dataverse.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetFieldType;
 import edu.harvard.iq.dataverse.Dataverse;
@@ -36,13 +33,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 @ViewScoped
 @Named("CreateEditDataversePage")
 public class CreateEditDataversePage implements Serializable {
-
-    private static final Logger logger = Logger.getLogger(CreateEditDataversePage.class.getCanonicalName());
 
     @EJB
     private DataverseServiceBean dataverseService;
@@ -56,11 +50,11 @@ public class CreateEditDataversePage implements Serializable {
     @EJB
     private MetadataBlockService metadataBlockService;
 
-    @Inject
-    private PermissionsWrapper permissionsWrapper;
+    @EJB
+    private DataverseSaver metadataBlockSaveManager;
 
     @Inject
-    private ControlledVocabularyValueServiceBean controlledVocabularyValueServiceBean;
+    private PermissionsWrapper permissionsWrapper;
 
     @Inject
     private DataverseFacetServiceBean dataverseFacetService;
@@ -75,7 +69,6 @@ public class CreateEditDataversePage implements Serializable {
     private Dataverse dataverse;
     private Long facetMetadataBlockId;
     private Set<MetadataBlock> allMetadataBlocks;
-    private List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues;
     private DualListModel<DatasetFieldType> facets = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
 
     private DataverseMetaBlockOptions mdbOptions = new DataverseMetaBlockOptions();
@@ -148,36 +141,21 @@ public class CreateEditDataversePage implements Serializable {
      * Changes metadata block view options in order to show editable dataset fields for given metadata block.
      */
     public void showEditableDatasetFieldTypes(Long mdbId) {
-        for (MetadataBlock mdb : allMetadataBlocks) {
-            if (mdb.getId().equals(mdbId)) {
-                metadataBlockService.prepareDatasetFieldsToBeEditable(mdbOptions, mdbId);
-                break;
-            }
-        }
+        metadataBlockService.prepareDatasetFieldsToBeEditable(mdbOptions, mdbId);
     }
 
     /**
      * Changes metadata block view options in order to show uneditable dataset fields for given metadata block.
      */
     public void showUnEditableDatasetFieldTypes(Long mdbId) {
-        for (MetadataBlock mdb : allMetadataBlocks) {
-            if (mdb.getId().equals(mdbId)) {
-                metadataBlockService.prepareDatasetFieldsToBeUnEditable(mdbOptions, mdbId);
-                break;
-            }
-        }
+        metadataBlockService.prepareDatasetFieldsToBeUnEditable(mdbOptions, mdbId);
     }
 
     /**
      * Changes metadata block view options in order to hide all dataset fields for given metadata block.
      */
     public void hideDatasetFieldTypes(Long mdbId) {
-        for (MetadataBlock mdb : allMetadataBlocks) {
-            if (mdb.getId().equals(mdbId)) {
-                metadataBlockService.prepareDatasetFieldsToBeHidden(mdbOptions, mdbId);
-                break;
-            }
-        }
+        metadataBlockService.prepareDatasetFieldsToBeHidden(mdbOptions, mdbId);
     }
 
     /**
@@ -279,16 +257,8 @@ public class CreateEditDataversePage implements Serializable {
         this.facetMetadataBlockId = facetMetadataBlockId;
     }
 
-    public void setDataverseSubjectControlledVocabularyValues(List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues) {
-        this.dataverseSubjectControlledVocabularyValues = dataverseSubjectControlledVocabularyValues;
-    }
-
     public void setAllMetadataBlocks(Set<MetadataBlock> allMetadataBlocks) {
         this.allMetadataBlocks = allMetadataBlocks;
-    }
-
-    public void setInheritMetadataBlockFromParent(boolean inheritMetadataBlockFromParent) {
-        dataverse.setMetadataBlockRoot(!inheritMetadataBlockFromParent);
     }
 
     public void setFacets(DualListModel<DatasetFieldType> facets) {
@@ -310,12 +280,12 @@ public class CreateEditDataversePage implements Serializable {
     // -------------------- PRIVATE --------------------
 
     private String saveEditedDataverse(List<DataverseFieldTypeInputLevel> dftilForSave) {
-        Either<DataverseError, Dataverse> editResult = metadataBlockService.saveEditedDataverse(dftilForSave, dataverse, facets);
+        Either<DataverseError, Dataverse> editResult = metadataBlockSaveManager.saveEditedDataverse(dftilForSave, dataverse, facets);
         return editResult.isLeft() ? StringUtils.EMPTY : returnRedirect();
     }
 
     private String saveNewDataverse(List<DataverseFieldTypeInputLevel> dftilForSave) {
-        Either<DataverseError, Dataverse> saveResult = metadataBlockService.saveNewDataverse(dftilForSave, dataverse, facets);
+        Either<DataverseError, Dataverse> saveResult = metadataBlockSaveManager.saveNewDataverse(dftilForSave, dataverse, facets);
         return saveResult.isLeft() ? StringUtils.EMPTY : "/dataverse.xhtml?alias=" + saveResult.get().getAlias() + "&faces-redirect=true";
     }
 
@@ -351,15 +321,9 @@ public class CreateEditDataversePage implements Serializable {
     }
 
     private void setupForGeneralInfoEdit() {
-        updateDataverseSubjectSelectItems();
         initFacets();
         allMetadataBlocks = metadataBlockService.prepareMetaBlocksAndDatasetfields(dataverse, mdbOptions);
         defaultMdbOptions = mdbOptions.deepCopy();
-    }
-
-    private void updateDataverseSubjectSelectItems() {
-        DatasetFieldType subjectDatasetField = datasetFieldService.findByName(DatasetFieldConstant.subject);
-        setDataverseSubjectControlledVocabularyValues(controlledVocabularyValueServiceBean.findByDatasetFieldTypeId(subjectDatasetField.getId()));
     }
 
     private void initFacets() {

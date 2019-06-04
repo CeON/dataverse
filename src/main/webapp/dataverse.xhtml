@@ -12,15 +12,13 @@
 
 <h:body>
     <ui:composition template="/dataverse_template.xhtml">
-        <ui:param name="pageTitle"
-                  value="#{empty DataversePage.dataverse.name ? bundle.new : DataversePage.dataverse.name}"/>
+        <ui:param name="pageTitle" value="#{DataversePage.dataverse.name}"/>
         <ui:param name="dataverse" value="#{DataversePage.dataverse}"/>
         <ui:define name="body">
             <f:metadata>
                 <f:viewParam name="id" value="#{DataversePage.dataverse.id}"/>
                 <f:viewParam name="alias" value="#{DataversePage.dataverse.alias}"/>
                 <f:viewParam name="ownerId" value="#{DataversePage.ownerId}"/>
-                <f:viewParam name="editMode" value="#{DataversePage.editMode}"/>
                 <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                 <f:viewAction action="#{DataversePage.init}"/>
                 <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(DataversePage.dataverse)}"/>
@@ -46,7 +44,7 @@
 
             <h:form id="dataverseForm">
                 <!-- View Mode / Description Panel -->
-                <ui:fragment rendered="#{empty DataversePage.editMode}">
+                <ui:fragment>
                     <div id="actionButtonBlock" class="button-block clearfix"
                          jsf:rendered="#{!widgetWrapper.widgetView}">
                         <!-- Edit/Publish Button Group -->
@@ -391,7 +389,7 @@
 
             <!-- Search/Browse Facets Panel -->
             <p:fragment id="searchResults">
-                <ui:fragment rendered="#{empty DataversePage.editMode}">
+                <ui:fragment>
                     <ui:include src="search-include-fragment.xhtml"/>
                 </ui:fragment>
             </p:fragment>

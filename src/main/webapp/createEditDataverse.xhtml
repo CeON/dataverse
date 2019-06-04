@@ -462,11 +462,6 @@
             <script type="text/javascript">
                 function updateMetadata(checkbox) {
 
-                    $(document).ready(function () {
-                        initCarousel();
-                        popoverHTML('#{bundle.htmlAllowedTitle}');
-                    });
-
                     var checked = checkbox.checked;
                     if (checked === false) {
                         $('button[id$="makeMetadataBlockSelectable"]').trigger('click');

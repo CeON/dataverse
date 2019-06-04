@@ -1,139 +1,36 @@
 package edu.harvard.iq.dataverse.dataverse;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DatasetFieldType;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.MetadataBlock;
-import edu.harvard.iq.dataverse.UserNotification;
-import edu.harvard.iq.dataverse.UserNotificationServiceBean;
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.authorization.users.User;
-import edu.harvard.iq.dataverse.engine.command.Command;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.CreateDataverseCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
-import edu.harvard.iq.dataverse.error.DataverseError;
-import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import edu.harvard.iq.dataverse.util.JsfHelper;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.control.Either;
-import org.primefaces.model.DualListModel;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.faces.application.FacesMessage;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
 @Stateless
 public class MetadataBlockService {
 
-    private static final Logger logger = Logger.getLogger(MetadataBlockService.class.getCanonicalName());
-
-    @Inject
-    private DataverseSession session;
-
-    @Inject
-    private DataverseRequestServiceBean dvRequestService;
-
     @Inject
     private DataverseServiceBean dataverseService;
-
-    @Inject
-    private EjbDataverseEngine commandEngine;
-
-    @Inject
-    private UserNotificationServiceBean userNotificationService;
-
-    @Inject
-    private SettingsWrapper settingsWrapper;
-
-    @Inject
-    private SystemConfig systemConfig;
 
     @EJB
     private DataverseFieldTypeInputLevelServiceBean dataverseFieldTypeInputLevelService;
 
     // -------------------- LOGIC --------------------
-
-    public Either<DataverseError, Dataverse> saveNewDataverse(Collection<DataverseFieldTypeInputLevel> dftilToBeSaved,
-                                                              Dataverse dataverse,
-                                                              DualListModel<DatasetFieldType> facets) {
-
-        if (!dataverse.isFacetRoot()) {
-            facets.getTarget().clear();
-        }
-
-        if (session.getUser().isAuthenticated()) {
-            dataverse.setOwner(dataverse.getOwner().getId() != null ? dataverseService.find(dataverse.getOwner().getId()) : null);
-            Command<Dataverse> cmd = new CreateDataverseCommand(dataverse,
-                    dvRequestService.getDataverseRequest(),
-                    facets.getTarget(),
-                    Lists.newArrayList(dftilToBeSaved));
-
-            try {
-                dataverse = commandEngine.submit(cmd);
-            } catch (CommandException ex) {
-                logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-                JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.failure"));
-                return Either.left(new DataverseError(ex, BundleUtil.getStringFromBundle("dataverse.create.failure")));
-            }
-
-            sendSuccessNotificationAsync(dataverse, session.getUser());
-
-            showSuccessMessage();
-        } else {
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly"));
-            return Either.left(new DataverseError(BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly")));
-        }
-
-        return Either.right(dataverse);
-    }
-
-    public Either<DataverseError, Dataverse> saveEditedDataverse(Collection<DataverseFieldTypeInputLevel> dftilToBeSaved,
-                                                                 Dataverse dataverse,
-                                                                 DualListModel<DatasetFieldType> facets) {
-
-        if (!dataverse.isFacetRoot()) {
-            facets.getTarget().clear();
-        }
-
-        UpdateDataverseCommand cmd = new UpdateDataverseCommand(dataverse, facets.getTarget(), null,
-                dvRequestService.getDataverseRequest(), Lists.newArrayList(dftilToBeSaved));
-
-        try {
-            dataverse = commandEngine.submit(cmd);
-
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.update.success"));
-        } catch (CommandException ex) {
-            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-            String errMsg = BundleUtil.getStringFromBundle("dataverse.update.failure");
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, errMsg);
-            return Either.left(new DataverseError(ex, BundleUtil.getStringFromBundle("dataverse.create.failure")));
-        }
-
-        return Either.right(dataverse);
-    }
 
     /**
      * Extracts dataverse field type input levels to be saved, if field is optional it is not designed to be saved.
@@ -163,7 +60,9 @@ public class MetadataBlockService {
             mdbOptions.setInheritMetaBlocksFromParent(false);
         }
 
-        Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse, mdbOptions, dataverse);
+        Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse, mdbOptions);
+
+        buildInitialMetadataBlockOptions(dataverse, mdbOptions, availableBlocks);
 
         Set<DatasetFieldType> datasetFieldTypes = retriveAllDatasetFieldsForMdb(availableBlocks);
 
@@ -285,36 +184,39 @@ public class MetadataBlockService {
         }
     }
 
-    private Set<MetadataBlock> prepareMetadataBlocks(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions, Dataverse freshDataverse) {
+    private Set<MetadataBlock> prepareMetadataBlocks(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions) {
         Set<MetadataBlock> availableBlocks = new HashSet<>(dataverseService.findSystemMetadataBlocks());
         Set<MetadataBlock> metadataBlocks = retriveAllDataverseParentsMetaBlocks(dataverse);
-        metadataBlocks.addAll(freshDataverse.getRootMetadataBlocks());
         availableBlocks.addAll(metadataBlocks);
 
+        return availableBlocks;
+    }
+
+    private Map<Long, MetadataBlockViewOptions> buildInitialMetadataBlockOptions(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions, Set<MetadataBlock> availableBlocks) {
         for (MetadataBlock mdb : availableBlocks) {
 
-            mdbOptions.getMdbViewOptions().put(mdb.getId(),
-                    MetadataBlockViewOptions.newBuilder()
-                            .selected(false)
-                            .showDatasetFieldTypes(false)
-                            .build());
+            MetadataBlockViewOptions.Builder blockOptionsBuilder = MetadataBlockViewOptions.newBuilder()
+                    .selected(false)
+                    .showDatasetFieldTypes(false);
 
             if (dataverse.getOwner() != null) {
                 if (dataverse.getOwner().getRootMetadataBlocks().contains(mdb)) {
-                    setMetaBlockAsSelected(mdb, mdbOptions);
+                    blockOptionsBuilder.selected(true);
                 }
 
                 if (dataverse.getOwner().getMetadataBlocks().contains(mdb)) {
-                    setMetaBlockAsSelected(mdb, mdbOptions);
+                    blockOptionsBuilder.selected(true);
                 }
             }
 
             if (dataverse.getId() != null && dataverse.getMetadataBlocks().contains(mdb)) {
-                setMetaBlockAsSelected(mdb, mdbOptions);
+                blockOptionsBuilder.selected(true);
             }
 
+            mdbOptions.getMdbViewOptions().put(mdb.getId(), blockOptionsBuilder.build());
         }
-        return availableBlocks;
+
+        return mdbOptions.getMdbViewOptions();
     }
 
     private void setViewOptionsForDatasetFieldTypes(Long dataverseId, DatasetFieldType rootDatasetFieldType, DataverseMetaBlockOptions mdbOptions) {
@@ -386,25 +288,6 @@ public class MetadataBlockService {
         }
 
         return listDFTIL;
-    }
-
-    private void setMetaBlockAsSelected(MetadataBlock mdb, DataverseMetaBlockOptions mdbOptions) {
-
-        mdbOptions.getMdbViewOptions().put(mdb.getId(), MetadataBlockViewOptions.newBuilder()
-                .selected(true)
-                .build());
-
-    }
-
-    private void showSuccessMessage() {
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.create.success",
-                Arrays.asList(settingsWrapper.getGuidesBaseUrl(), systemConfig.getGuidesVersion())));
-    }
-
-    private void sendSuccessNotificationAsync(Dataverse dataverse, User user) {
-        Executors.newSingleThreadExecutor().execute(() ->
-                userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
-                        UserNotification.Type.CREATEDV, dataverse.getId()));
     }
 
     private boolean isDatasetFieldChildOrParentNotIncluded(DatasetFieldType dsft, DataverseMetaBlockOptions mdbOptions) {

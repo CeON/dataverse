@@ -7,9 +7,14 @@
         <view-id value="/dataverse.xhtml" />
     </url-mapping>
 
-    <url-mapping id="dataverse">
-        <pattern value="/dataverse/#{alias}/edit"/>
-        <view-id value="/editDataverse.xhtml"/>
+    <url-mapping id="editDataverse">
+        <pattern value="/dataverse/edit/#{dataverseId}"/>
+        <view-id value="/createEditDataverse.xhtml"/>
+    </url-mapping>
+
+    <url-mapping id="createDataverse">
+        <pattern value="/dataverse/create/#{dataverseId}/#{dataverseOwnerAlias}"/>
+        <view-id value="/createEditDataverse.xhtml"/>
     </url-mapping>
     
     <url-mapping id="dataverseslash">

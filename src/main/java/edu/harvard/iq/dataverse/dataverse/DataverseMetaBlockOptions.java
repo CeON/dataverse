@@ -42,12 +42,8 @@ public class DataverseMetaBlockOptions implements Serializable {
      * @return true/false or false if null.
      */
     public boolean isShowDatasetFieldTypes(Long mdbId) {
-        return mdbViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(mdbId))
-                .map(map -> map.getValue().isShowDatasetFieldTypes())
-                .findFirst()
-                .orElse(false);
 
+        return mdbViewOptions.containsKey(mdbId) && mdbViewOptions.get(mdbId).isShowDatasetFieldTypes();
     }
 
     /**
@@ -55,11 +51,7 @@ public class DataverseMetaBlockOptions implements Serializable {
      * @return true/false or false if null.
      */
     public boolean isEditableDatasetFieldTypes(Long mdbId) {
-        return mdbViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(mdbId))
-                .map(map -> map.getValue().isEditableDatasetFieldTypes())
-                .findFirst()
-                .orElse(false);
+        return mdbViewOptions.containsKey(mdbId) && mdbViewOptions.get(mdbId).isEditableDatasetFieldTypes();
     }
 
     /**
@@ -67,11 +59,7 @@ public class DataverseMetaBlockOptions implements Serializable {
      * @return true/false or false if null.
      */
     public boolean isDsftIncludedField(Long dsftId) {
-        return datasetFieldViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(dsftId))
-                .map(map -> map.getValue().isIncluded())
-                .findFirst()
-                .orElse(false);
+        return datasetFieldViewOptions.containsKey(dsftId) && datasetFieldViewOptions.get(dsftId).isIncluded();
     }
 
     /**
@@ -80,11 +68,7 @@ public class DataverseMetaBlockOptions implements Serializable {
      * @return true/false or false if null.
      */
     public boolean isMetaBlockSelected(Long mdbId) {
-        return mdbViewOptions.entrySet().stream()
-                .filter(map -> map.getKey().equals(mdbId))
-                .map(map -> map.getValue().isSelected())
-                .findFirst()
-                .orElse(false);
+        return mdbViewOptions.containsKey(mdbId) && mdbViewOptions.get(mdbId).isSelected();
     }
 
     /**

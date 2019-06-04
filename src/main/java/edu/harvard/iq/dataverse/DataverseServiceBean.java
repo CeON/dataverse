@@ -243,14 +243,6 @@ public class DataverseServiceBean implements java.io.Serializable {
                 .setParameter("dataverse_id", dataverse_id).getResultList();
     }
 
-    public List<MetadataBlock> findMetadataBlocksByDataverseIds(List<Long> dataverseIds) {
-
-        return em.createQuery("select mdb from MetadataBlock mdb" +
-                " where mdb.owner.id in :dataverseIds order by mdb.id", MetadataBlock.class)
-                .setParameter("dataverseIds", dataverseIds)
-                .getResultList();
-    }
-
     public DataverseFacet findFacet(Long id) {
         return em.find(DataverseFacet.class, id);
     }

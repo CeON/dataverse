@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.dataverse;
 
-import edu.harvard.iq.dataverse.ControlledVocabularyValue;
-import edu.harvard.iq.dataverse.DatasetFieldType;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseFeaturedDataverse;
 import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
@@ -55,10 +53,6 @@ public class DataversePage implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(DataversePage.class.getCanonicalName());
 
-    public enum EditMode {
-        CREATE, FEATURED
-    }
-
     public enum LinkMode {
         SAVEDSEARCH, LINKDATAVERSE
     }
@@ -83,16 +77,13 @@ public class DataversePage implements java.io.Serializable {
     PermissionsWrapper permissionsWrapper;
 
     private Dataverse dataverse = new Dataverse();
-    private EditMode editMode;
     private LinkMode linkMode;
 
     private Long ownerId;
-    private DualListModel<DatasetFieldType> facets = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
     private DualListModel<Dataverse> featuredDataverses = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
     private List<Dataverse> dataversesForLinking;
     private Long linkingDataverseId;
     private List<SelectItem> linkingDVSelectItems;
-    private List<ControlledVocabularyValue> dataverseSubjectControlledVocabularyValues;
     private Dataverse linkingDataverse;
     private List<Dataverse> carouselFeaturedDataverses = null;
 
@@ -122,10 +113,6 @@ public class DataversePage implements java.io.Serializable {
         return linkMode;
     }
 
-    public EditMode getEditMode() {
-        return editMode;
-    }
-
     public Long getOwnerId() {
         return ownerId;
     }
@@ -138,10 +125,6 @@ public class DataversePage implements java.io.Serializable {
         return (ownerId != null) ? dataverseService.find(ownerId) : null;
     }
 
-    public DualListModel<DatasetFieldType> getFacets() {
-        return facets;
-    }
-
     public DualListModel<Dataverse> getFeaturedDataverses() {
         return featuredDataverses;
     }
@@ -149,28 +132,29 @@ public class DataversePage implements java.io.Serializable {
     // -------------------- LOGIC --------------------
     public String init() {
 
-            if (dataverse.getAlias() != null) {
-                dataverse = dataverseService.findByAlias(dataverse.getAlias());
-            } else if (dataverse.getId() != null) {
-                dataverse = dataverseService.find(dataverse.getId());
-            } else {
-                try {
-                    dataverse = dataverseService.findRootDataverse();
-                } catch (EJBException e) {
-                    // @todo handle case with no root dataverse (a fresh installation) with message about using API to create the root
-                    dataverse = null;
-                }
+        if (dataverse.getAlias() != null) {
+            dataverse = dataverseService.findByAlias(dataverse.getAlias());
+        } else if (dataverse.getId() != null) {
+            dataverse = dataverseService.find(dataverse.getId());
+        } else {
+            try {
+                dataverse = dataverseService.findRootDataverse();
+            } catch (EJBException e) {
+                // @todo handle case with no root dataverse (a fresh installation) with message about using API to create the root
+                dataverse = null;
             }
+        }
 
-            // check if dv exists and user has permission
-            if (dataverse == null) {
-                return permissionsWrapper.notFound();
-            }
-            if (!dataverse.isReleased() && !permissionService.on(dataverse).has(Permission.ViewUnpublishedDataverse)) {
-                return permissionsWrapper.notAuthorized();
-            }
-            initFeaturedDataverses();
-            ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
+        // check if dv exists and user has permission
+        if (dataverse == null) {
+            return permissionsWrapper.notFound();
+        }
+        if (!dataverse.isReleased() && !permissionService.on(dataverse).has(Permission.ViewUnpublishedDataverse)) {
+            return permissionsWrapper.notAuthorized();
+        }
+        initFeaturedDataverses();
+        ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
+        carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
 
         return null;
     }
@@ -179,13 +163,8 @@ public class DataversePage implements java.io.Serializable {
         if (carouselFeaturedDataverses != null) {
             return carouselFeaturedDataverses;
         }
-        carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
 
         return carouselFeaturedDataverses;
-    }
-
-    public void refresh() {
-
     }
 
     public String saveFeaturedDataverse() {
@@ -428,10 +407,6 @@ public class DataversePage implements java.io.Serializable {
         this.dataverse = dataverse;
     }
 
-    public void setEditMode(EditMode editMode) {
-        this.editMode = editMode;
-    }
-
     public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
     }
@@ -442,9 +417,5 @@ public class DataversePage implements java.io.Serializable {
 
     public void setFeaturedDataverses(DualListModel<Dataverse> featuredDataverses) {
         this.featuredDataverses = featuredDataverses;
-    }
-
-    public void setFacets(DualListModel<DatasetFieldType> facets) {
-        this.facets = facets;
     }
 }
