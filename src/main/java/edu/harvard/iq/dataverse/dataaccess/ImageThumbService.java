@@ -3,11 +3,11 @@ package edu.harvard.iq.dataverse.dataaccess;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import org.apache.commons.io.IOUtils;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.inject.Inject;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -18,15 +18,15 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-@SuppressWarnings("Duplicates")
 @Stateless
 public class ImageThumbService {
-    public int DEFAULT_PREVIEW_SIZE = 400;
-    public String THUMBNAIL_SUFFIX = "thumb";
+
+    private int DEFAULT_PREVIEW_SIZE = 400;
+    private String THUMBNAIL_SUFFIX = "thumb";
 
     private static final Logger logger = Logger.getLogger(ImageThumbService.class.getCanonicalName());
 
-    @Inject
+    @EJB
     private SettingsServiceBean settingsService;
 
     public String generatePDFThumbnailFromFile(String fileLocation, int size) {
