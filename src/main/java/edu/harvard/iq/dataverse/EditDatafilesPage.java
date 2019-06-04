@@ -2281,8 +2281,8 @@ public class EditDatafilesPage implements java.io.Serializable {
             return false;
         }
 
-        String filesRootDirectory = settingsService.getValueForKey(Key.FilesDirectory);
-        if (filesRootDirectory.isEmpty()) {
+        String filesRootDirectory = System.getProperty("dataverse.files.directory");
+        if (filesRootDirectory == null) {
             filesRootDirectory = "/tmp/files";
         }
 

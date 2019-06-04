@@ -238,15 +238,15 @@ public class SystemConfig {
      * by the Settings Service configuration.
      */
     public String getDataverseSiteUrl() {
-        String hostUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
+        String hostUrl = System.getProperty("dataverse.siteUrl");
 
-        if (!hostUrl.isEmpty()) {
+        if (hostUrl != null) {
             return hostUrl;
         }
 
-        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
+        String hostName = System.getProperty("dataverse.fqdn");
 
-        if (hostName.isEmpty()) {
+        if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();
             } catch (UnknownHostException e) {

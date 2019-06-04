@@ -209,12 +209,7 @@ public class SettingsServiceBean {
          *  via drag-and-drop, or through the file select dialog
          */
         MultipleUploadFilesLimit,
-        /** Size limits for generating thumbnails on the fly
-         *(i.e., we'll attempt to generate a thumbnail on the fly if the
-         * size of the file is less than this)
-        */
-        ThumbnailImageSizeLimit,
-        ThumbnailPDFSizeLimit,
+
         /**
          * status message that will appear on the home page
          */
@@ -435,6 +430,14 @@ public class SettingsServiceBean {
         FilesDirectory,
 
         SiteUrl,
+
+        /**
+         * Size limits for generating thumbnails on the fly
+         * (i.e., we'll attempt to generate a thumbnail on the fly if the
+         * size of the file is less than this)
+         */
+        ThumbnailImageSizeLimit,
+        ThumbnailPDFSizeLimit,
 
         DropboxKey,
         DoiBaseUrlString,

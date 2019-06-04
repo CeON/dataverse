@@ -276,9 +276,9 @@ public class ImageThumbService {
     private long getThumbnailSizeLimit(String fileType) {
         String option = null;
         if (fileType.equals("Image")) {
-            option = settingsService.getValueForKey(SettingsServiceBean.Key.ThumbnailImageSizeLimit);
+            option = System.getProperty("dataverse.dataAccess.thumbnail.image.limit");
         } else if (fileType.equals("PDF")) {
-            option = settingsService.getValueForKey(SettingsServiceBean.Key.ThumbnailPDFSizeLimit);
+            option = System.getProperty("dataverse.dataAccess.thumbnail.pdf.limit");
         }
         Long limit = null;
 

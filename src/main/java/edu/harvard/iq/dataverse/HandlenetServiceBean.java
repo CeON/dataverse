@@ -254,8 +254,8 @@ public class HandlenetServiceBean extends AbstractGlobalIdServiceBean {
         if (hostUrl != null && !"".equals(hostUrl)) {
             return hostUrl;
         }
-        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (hostName.isEmpty()) {
+        String hostName = System.getProperty("dataverse.fqdn");
+        if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();
             } catch (UnknownHostException e) {
