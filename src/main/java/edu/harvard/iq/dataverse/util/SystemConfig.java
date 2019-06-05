@@ -238,23 +238,7 @@ public class SystemConfig {
      * by the Settings Service configuration.
      */
     public String getDataverseSiteUrl() {
-        String hostUrl = System.getProperty("dataverse.siteUrl");
-
-        if (hostUrl != null) {
-            return hostUrl;
-        }
-
-        String hostName = System.getProperty("dataverse.fqdn");
-
-        if (hostName == null) {
-            try {
-                hostName = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                return null;
-            }
-        }
-        hostUrl = "https://" + hostName;
-        return hostUrl;
+        return getDataverseSiteUrlStatic();
     }
     
     public static String getDataverseSiteUrlStatic() {

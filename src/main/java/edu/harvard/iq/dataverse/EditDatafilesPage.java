@@ -2278,7 +2278,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
 
         String filesRootDirectory = System.getProperty("dataverse.files.directory");
-        if (filesRootDirectory == null) {
+        if (filesRootDirectory == null || filesRootDirectory.isEmpty()) {
             filesRootDirectory = "/tmp/files";
         }
 
@@ -2288,7 +2288,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         
         // ATTENTION! TODO: the current version of the method below may not be checking if files are already cached!
         if ("application/pdf".equals(mimeType)) {
-            imageThumbFileName = imageThumbService.generatePDFThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
+            imageThumbFileName = ImageThumbConverter.generatePDFThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
         } else if (mimeType != null && mimeType.startsWith("image/")) {
             imageThumbFileName = ImageThumbConverter.generateImageThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
         }
