@@ -12,6 +12,9 @@ import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.MetadataBlockServiceBean;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.MetadataBlockDao;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
 import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -64,7 +67,7 @@ public class ImportGenericServiceBean {
     DatasetFieldServiceBean datasetFieldSvc;
     
     @EJB
-    MetadataBlockServiceBean blockService;
+    MetadataBlockDao blockService;
     
     @EJB
     SettingsServiceBean settingsService;
@@ -533,8 +536,8 @@ public class ImportGenericServiceBean {
         }
         return datasetDTO;
     }
-    
-     public void importDCTerms(String xmlToParse, DatasetVersion datasetVersion, DatasetFieldServiceBean datasetFieldSvc, MetadataBlockServiceBean blockService, SettingsServiceBean settingsService) {
+
+    public void importDCTerms(String xmlToParse, DatasetVersion datasetVersion, DatasetFieldServiceBean datasetFieldSvc, MetadataBlockDao blockService, SettingsServiceBean settingsService) {
         DatasetDTO datasetDTO = this.initializeDataset();
         try {
             // Read docDescr and studyDesc into DTO objects.

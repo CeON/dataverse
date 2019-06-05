@@ -11,18 +11,17 @@ import java.util.List;
  * @author michael
  */
 @Stateless
-public class MetadataBlockServiceBean {
+public class MetadataBlockDao {
     
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
-    
-    
-    
+
+    // -------------------- LOGIC --------------------
+
     public MetadataBlock save(MetadataBlock mdb) {
        return em.merge(mdb);
-    }   
-    
-    
+    }
+
     public List<MetadataBlock> listMetadataBlocks() {
         return em.createNamedQuery("MetadataBlock.listAll", MetadataBlock.class).getResultList();
     }
