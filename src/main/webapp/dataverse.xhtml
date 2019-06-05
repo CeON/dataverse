@@ -18,7 +18,6 @@
             <f:metadata>
                 <f:viewParam name="id" value="#{DataversePage.dataverse.id}"/>
                 <f:viewParam name="alias" value="#{DataversePage.dataverse.alias}"/>
-                <f:viewParam name="ownerId" value="#{DataversePage.ownerId}"/>
                 <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                 <f:viewAction action="#{DataversePage.init}"/>
                 <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(DataversePage.dataverse)}"/>

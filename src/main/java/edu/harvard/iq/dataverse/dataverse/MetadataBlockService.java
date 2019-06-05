@@ -60,7 +60,7 @@ public class MetadataBlockService {
             mdbOptions.setInheritMetaBlocksFromParent(false);
         }
 
-        Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse, mdbOptions);
+        Set<MetadataBlock> availableBlocks = prepareMetadataBlocks(dataverse);
 
         buildInitialMetadataBlockOptions(dataverse, mdbOptions, availableBlocks);
 
@@ -184,7 +184,7 @@ public class MetadataBlockService {
         }
     }
 
-    private Set<MetadataBlock> prepareMetadataBlocks(Dataverse dataverse, DataverseMetaBlockOptions mdbOptions) {
+    private Set<MetadataBlock> prepareMetadataBlocks(Dataverse dataverse) {
         Set<MetadataBlock> availableBlocks = new HashSet<>(dataverseService.findSystemMetadataBlocks());
         Set<MetadataBlock> metadataBlocks = retriveAllDataverseParentsMetaBlocks(dataverse);
         availableBlocks.addAll(metadataBlocks);

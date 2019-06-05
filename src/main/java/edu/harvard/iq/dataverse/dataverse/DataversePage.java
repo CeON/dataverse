@@ -79,7 +79,6 @@ public class DataversePage implements java.io.Serializable {
     private Dataverse dataverse = new Dataverse();
     private LinkMode linkMode;
 
-    private Long ownerId;
     private DualListModel<Dataverse> featuredDataverses = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
     private List<Dataverse> dataversesForLinking;
     private Long linkingDataverseId;
@@ -113,16 +112,8 @@ public class DataversePage implements java.io.Serializable {
         return linkMode;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
     public boolean isRootDataverse() {
         return dataverse.getOwner() == null;
-    }
-
-    public Dataverse getOwner() {
-        return (ownerId != null) ? dataverseService.find(ownerId) : null;
     }
 
     public DualListModel<Dataverse> getFeaturedDataverses() {
@@ -153,17 +144,12 @@ public class DataversePage implements java.io.Serializable {
             return permissionsWrapper.notAuthorized();
         }
         initFeaturedDataverses();
-        ownerId = dataverse.getOwner() != null ? dataverse.getOwner().getId() : null;
         carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
 
         return null;
     }
 
     public List<Dataverse> getCarouselFeaturedDataverses() {
-        if (carouselFeaturedDataverses != null) {
-            return carouselFeaturedDataverses;
-        }
-
         return carouselFeaturedDataverses;
     }
 
@@ -405,10 +391,6 @@ public class DataversePage implements java.io.Serializable {
 
     public void setDataverse(Dataverse dataverse) {
         this.dataverse = dataverse;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
     }
 
     public void setLinkMode(LinkMode linkMode) {
