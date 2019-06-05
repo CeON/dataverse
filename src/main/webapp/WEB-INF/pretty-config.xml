@@ -8,15 +8,10 @@
     </url-mapping>
 
     <url-mapping id="editDataverse">
-        <pattern value="/dataverse/edit/#{dataverseId}"/>
+        <pattern value="/editDataverse/#{dataverseId}"/>
         <view-id value="/createEditDataverse.xhtml"/>
     </url-mapping>
 
-    <url-mapping id="createDataverse">
-        <pattern value="/dataverse/create/#{dataverseId}/#{dataverseOwnerAlias}"/>
-        <view-id value="/createEditDataverse.xhtml"/>
-    </url-mapping>
-    
     <url-mapping id="dataverseslash">
         <pattern value="/dataverse/#{alias}/" />
         <view-id value="/dataverse.xhtml" />
