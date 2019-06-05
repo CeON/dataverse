@@ -412,6 +412,14 @@ public class SettingsServiceBean {
         AllRightsReservedTermsOfUseActive,
         RestrictedAccessTermsOfUseActive,
 
+        /**
+         * Size limits for generating thumbnails on the fly
+         * (i.e., we'll attempt to generate a thumbnail on the fly if the
+         * size of the file is less than this)
+         */
+        ThumbnailImageSizeLimit,
+        ThumbnailPDFSizeLimit,
+
         DropboxKey,
         DoiBaseUrlString,
         DoiUsername,

@@ -4,7 +4,6 @@ import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbService;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
@@ -131,9 +130,6 @@ public class EditDatafilesPage implements java.io.Serializable {
     @Inject ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     SettingsWrapper settingsWrapper;
-
-    @Inject
-    private ImageThumbService imageThumbService;
     
     @Inject
     private TermsOfUseFactory termsOfUseFactory;
