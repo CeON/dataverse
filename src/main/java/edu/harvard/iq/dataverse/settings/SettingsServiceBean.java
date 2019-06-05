@@ -412,33 +412,6 @@ public class SettingsServiceBean {
         AllRightsReservedTermsOfUseActive,
         RestrictedAccessTermsOfUseActive,
 
-        /**
-         * If the Dataverse server has multiple DNS names, this option specifies the one to be used as the “official” host name.
-         * For example, you may want to have dataverse.example.edu,
-         * and not the less appealing server-123.socsci.example.edu to appear exclusively in all the registered global identifiers, Data Deposit API records, etc.
-         * <p>
-         * The password reset feature requires dataverse.fqdn to be configured.
-         * Do note that whenever the system needs to form a service URL, by default, it will be formed with https:// and port 443. I.e.,
-         * https://{dataverse.fqdn}/
-         * If that does not suit your setup, you can define an additional option, dataverse.siteUrl, explained below.
-         */
-        FQDN,
-
-        /**
-         * This is how you configure the path to which files uploaded by users are stored.
-         */
-        FilesDirectory,
-
-        SiteUrl,
-
-        /**
-         * Size limits for generating thumbnails on the fly
-         * (i.e., we'll attempt to generate a thumbnail on the fly if the
-         * size of the file is less than this)
-         */
-        ThumbnailImageSizeLimit,
-        ThumbnailPDFSizeLimit,
-
         DropboxKey,
         DoiBaseUrlString,
         DoiUsername,
