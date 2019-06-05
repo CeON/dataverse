@@ -241,7 +241,7 @@ public class DataverseServiceBean implements java.io.Serializable {
         return em.createQuery(qr, MetadataBlock.class)
                 .setParameter("dataverse_id", dataverse_id).getResultList();
     }
-    
+
     public String getDataverseLogoThumbnailAsBase64ById(Long dvId) {
      
         File dataverseLogoFile = getLogoById(dvId);
