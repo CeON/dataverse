@@ -5,6 +5,7 @@
  */
 package edu.harvard.iq.dataverse;
 
+import com.amazonaws.thirdparty.apache.codec.binary.StringUtils;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
@@ -13,6 +14,8 @@ import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 
 import static edu.harvard.iq.dataverse.dataset.DatasetUtil.datasetLogoThumbnail;
 import static edu.harvard.iq.dataverse.dataset.DatasetUtil.thumb48addedByImageThumbConverter;
+
+import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import java.io.File;
@@ -134,7 +137,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
                 }
             }
 
-            if ((dataFile.getFileMetadata().getTermsOfUse().getTermsOfUseType() != TermsOfUseType.RESTRICTED
+            if ((!StringUtils.equals(result.getFileAccess(), SearchConstants.RESTRICTED)
                         || permissionsWrapper.hasDownloadFilePermission(dataFile))
                     && dataFileService.isThumbnailAvailable(dataFile)) {
                 
