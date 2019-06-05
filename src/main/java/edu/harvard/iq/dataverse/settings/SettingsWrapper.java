@@ -38,39 +38,39 @@ public class SettingsWrapper implements java.io.Serializable {
     public boolean isPublicInstall(){
         return settingService.isTrueForKey(SettingsServiceBean.Key.PublicInstall);
     }
-    
+
     public String getMetricsUrl() {
         return settingService.getValueForKey(SettingsServiceBean.Key.MetricsUrl);
     }
-    
+
     public boolean isShibPassiveLoginEnabled() {
         return settingService.isTrueForKey(SettingsServiceBean.Key.ShibPassiveLoginEnabled);
     }
-    
+
     public boolean isProvCollectionEnabled() {
         return settingService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled);
     }
-    
+
     public boolean isRsyncUpload() {
         return systemConfig.isRsyncUpload();
     }
-    
+
     public boolean isRsyncDownload() {
         return systemConfig.isRsyncDownload();
     }
-    
+
     public boolean isRsyncOnly() {
         return systemConfig.isRsyncOnly();
     }
-    
+
     public boolean isHTTPUpload(){
         return systemConfig.isHTTPUpload();
     }
-    
+
     public Integer getUploadMethodsCount() {
         return systemConfig.getUploadMethodCount();
     }
-    
+
     public String getGuidesBaseUrl() {
         return systemConfig.getGuidesBaseUrl();
     }
@@ -78,16 +78,16 @@ public class SettingsWrapper implements java.io.Serializable {
     public String getGuidesVersion() {
         return systemConfig.getGuidesVersion();
     }
-    
+
     public String getDropBoxKey() {
 
-        String configuredDropBoxKey = getSettingValue("DropboxKey");
-        if (!configuredDropBoxKey.isEmpty()) {
+        String configuredDropBoxKey = getSettingValue(SettingsServiceBean.Key.DropboxKey.toString());
+        if (configuredDropBoxKey != null) {
             return configuredDropBoxKey;
         }
         return "";
     }
-    
+
     // -------------------- LOGIC --------------------
 
     public Boolean isHasDropBoxKey() {
@@ -102,7 +102,7 @@ public class SettingsWrapper implements java.io.Serializable {
 
         return settingsMap.get(settingKey);
     }
-    
+
     public boolean isLocalesConfigured() {
         if (configuredLocales == null) {
             initLocaleSettings();
@@ -112,24 +112,24 @@ public class SettingsWrapper implements java.io.Serializable {
 
     public Map<String, String> getConfiguredLocales() {
         if (configuredLocales == null) {
-            initLocaleSettings(); 
+            initLocaleSettings();
         }
         return configuredLocales;
     }
-    
+
     public String getConfiguredLocaleName(String localeCode) {
         if (configuredLocales == null) {
-            initLocaleSettings(); 
+            initLocaleSettings();
         }
         return configuredLocales.get(localeCode);
     }
 
     // -------------------- PRIVATE --------------------
-    
+
     private void initLocaleSettings() {
-        
+
         configuredLocales = new LinkedHashMap<>();
-        
+
         try {
             JSONArray entries = new JSONArray(getSettingValue(SettingsServiceBean.Key.Languages.toString()));
             for (Object obj : entries) {
