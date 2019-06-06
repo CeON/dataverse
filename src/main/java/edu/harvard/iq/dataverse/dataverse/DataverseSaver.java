@@ -73,7 +73,7 @@ public class DataverseSaver {
         }
 
         if (session.getUser().isAuthenticated()) {
-            dataverse.setOwner(dataverse.getOwner().getId() != null ? dataverseService.find(dataverse.getOwner().getId()) : null);
+            dataverse.setOwner(dataverse.getOwner() != null ? dataverseService.find(dataverse.getOwner().getId()) : null);
             Command<Dataverse> cmd = new CreateDataverseCommand(dataverse,
                     dvRequestService.getDataverseRequest(),
                     facets.getTarget(),
