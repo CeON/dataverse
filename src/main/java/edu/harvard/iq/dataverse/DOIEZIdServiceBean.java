@@ -5,6 +5,7 @@ import edu.ucsb.nceas.ezid.EZIDException;
 import edu.ucsb.nceas.ezid.EZIDService;
 import edu.ucsb.nceas.ezid.EZIDServiceRequest;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +30,8 @@ public class DOIEZIdServiceBean extends AbstractGlobalIdServiceBean {
     private String USERNAME;
     private String PASSWORD;
 
-    public DOIEZIdServiceBean() {
+    @PostConstruct
+    private void loginToEZId() {
         logger.log(Level.FINE,"Constructor");
         baseURLString = settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString);
         ezidService = new EZIDService(baseURLString);
