@@ -71,10 +71,6 @@ public class HandlenetServiceBean extends AbstractGlobalIdServiceBean {
     
     private static final String HANDLE_PROTOCOL_TAG = "hdl";
     private int handlenetIndex;
-    
-    public HandlenetServiceBean() {
-        logger.log(Level.FINE,"Constructor");
-    }
 
     @PostConstruct
     private void loadHandlenetIndex() {
