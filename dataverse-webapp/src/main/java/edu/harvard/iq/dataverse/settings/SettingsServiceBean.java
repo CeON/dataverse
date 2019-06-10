@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -544,7 +543,7 @@ public class SettingsServiceBean {
     public void delete( String name ) {
         actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Setting, "delete")
                             .setInfo(name));
-        settingDao.deleteSetting(name);
+        settingDao.delete(name);
     }
     
     public Map<String, String> listAll() {

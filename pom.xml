@@ -34,6 +34,7 @@
         <jackson.version>2.9.6</jackson.version>
         <commons.logging.version>1.2</commons.logging.version>
         <httpcomponents.client.version>4.5.5</httpcomponents.client.version>
+        <duracloud.version>4.4.6</duracloud.version>
 
         <junit.version>4.12</junit.version>
         <junit.jupiter.version>5.3.1</junit.jupiter.version>
@@ -136,6 +137,13 @@
     <dependencies>
     
         <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.jupiter.version}</version>
@@ -157,6 +165,117 @@
             <artifactId>junit-vintage-engine</artifactId>
             <version>${junit.vintage.version}</version>
             <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- BEGIN Data Deposit API v1 (SWORD v2) -->
+        <dependency>
+            <groupId>org.swordapp</groupId>
+            <artifactId>sword2-server</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+            <classifier>classes</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.swordapp</groupId>
+            <artifactId>sword2-server</artifactId>
+            <!--
+            Built from https://github.com/IQSS/swordv2-java-server-library
+            to return a proper SWORD error message rather than a Glassfish
+            Exception per https://github.com/IQSS/dataverse/issues/893
+            If the fix is merged upstream at
+            https://github.com/swordapp/JavaServer2.0/issues/6
+            we can switch back to the official SWORD library.
+            -->
+            <version>1.1-SNAPSHOT</version>
+            <type>war</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- END Data Deposit API v1 (SWORD v2) -->
+        
+        <!-- fits.jar, not available from network repos, supplied in local_lib -->
+        <dependency>
+            <groupId>nom.tam.fits</groupId>
+            <artifactId>fits</artifactId>
+            <version>2012-10-25-generated</version>
+        </dependency>
+        <dependency>
+            <groupId>net.handle</groupId>
+            <artifactId>handle</artifactId>
+            <version>8.1.1</version>
+        </dependency>
+        <!-- UNF v5 (buggy), (temporarily) added for testing ingest against DVN v3  - L.A. -->
+        <dependency>
+            <groupId>edu.harvard.iq.dvn</groupId>
+            <artifactId>unf5</artifactId>
+            <version>5.0</version>
+        </dependency>
+        <!-- (new) UNF v6: -->
+        <dependency>
+            <groupId>org.dataverse</groupId>
+            <artifactId>unf</artifactId>
+            <version>6.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>edu.harvard.hul.ois.jhove</groupId>
+            <artifactId>jhove</artifactId>
+            <version>1.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.hul.ois.jhove</groupId>
+            <artifactId>jhove-module</artifactId>
+            <version>1.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.hul.ois.jhove</groupId>
+            <artifactId>jhove-handler</artifactId>
+            <version>1.11.0</version>
+        </dependency>
+        
+        <!-- EXPERIMENTAL: -->
+        <!-- lyncode xoai OAI-PMH implementation: -->
+        <!-- unfortunately, their 4.10 version -->
+        <!-- is still buggy. As an experiment, I'm using -->
+        <!-- a patched version I built locally. -->
+        <!-- (pull requests pending - L.A. -->
+        <dependency>
+            <groupId>com.lyncode</groupId>
+            <artifactId>xoai-common</artifactId>
+            <version>4.1.0-header-patch</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lyncode</groupId>
+            <artifactId>xoai-data-provider</artifactId>
+            <version>4.1.0-header-patch</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lyncode</groupId>
+            <artifactId>xoai-service-provider</artifactId>
+            <version>4.1.0-header-patch</version>
         </dependency>
     
     </dependencies>
@@ -204,31 +323,6 @@
                         </manifest>
                     </archive>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${endorsed.dir}</outputDirectory>
-                            <silent>true</silent>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>javax</groupId>
-                                    <artifactId>javaee-endorsed-api</artifactId>
-                                    <version>7.0</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -301,6 +395,7 @@
             </plugin>
         </plugins>
     </build>
+    
     <profiles>
         <profile>
             <id>dev</id>

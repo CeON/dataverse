@@ -27,6 +27,8 @@ public class Setting implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    // -------------------- CONSTRUCTORS --------------------
+    
     public Setting() {
     }
 
@@ -35,22 +37,28 @@ public class Setting implements Serializable {
         this.content = content;
     }
 
+    // -------------------- GETTERS --------------------
+    
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getContent() {
         return content;
+    }
+    
+    // -------------------- SETTERS --------------------
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
 
+    // -------------------- hashCode & equals --------------------
+    
     @Override
     public int hashCode() {
         int hash = 7;
@@ -73,6 +81,8 @@ public class Setting implements Serializable {
         return Objects.equals(this.content, other.content);
     }
 
+    // -------------------- toString --------------------
+    
     @Override
     public String toString() {
         return "[Setting name:" + getName() + " value:" + getContent() + "]";

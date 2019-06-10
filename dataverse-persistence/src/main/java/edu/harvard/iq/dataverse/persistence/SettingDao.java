@@ -3,19 +3,24 @@ package edu.harvard.iq.dataverse.persistence;
 import java.util.List;
 
 import javax.ejb.Stateless;
-import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+/**
+ * Database access object to {@link Setting} entity.
+ * 
+ * @author madryk
+ */
 @Stateless
 public class SettingDao {
 
     @PersistenceContext
     private EntityManager em;
     
+    // -------------------- LOGIC --------------------
     
     public Setting find(String name) {
-        return em.find( Setting.class, name );
+        return em.find(Setting.class, name);
     }
     
     public List<Setting> findAll() {
@@ -26,9 +31,9 @@ public class SettingDao {
         return em.merge(setting);
     }
     
-    public void deleteSetting(String name) {
+    public void delete(String name) {
         em.createNamedQuery("Setting.deleteByName")
-        .setParameter("name", name)
-        .executeUpdate();
+            .setParameter("name", name)
+            .executeUpdate();
     }
 }

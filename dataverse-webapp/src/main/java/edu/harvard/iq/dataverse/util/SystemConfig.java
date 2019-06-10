@@ -130,7 +130,7 @@ public class SystemConfig {
                     // Using a relative path, find the location of the maven pom.properties file. 
                     // First, try to look for it in the app-level META-INF. This will only be 
                     // available if it's a war file deployment: 
-                    mavenPropertiesFilePath = filePath.concat("../../../META-INF/maven/edu.harvard.iq/dataverse/pom.properties");
+                    mavenPropertiesFilePath = filePath.concat("../../../META-INF/maven/edu.harvard.iq/dataverse-webapp/pom.properties");
 
                     try {
                         mavenPropertiesInputStream = new FileInputStream(mavenPropertiesFilePath);
