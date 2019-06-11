@@ -427,7 +427,7 @@ public class SearchServiceBean {
                          * right... knit the SolrField object more into the
                          * highlighting stuff
                          */
-                        SolrField solrField = new SolrField(field, SolrField.SolrType.STRING, true, true);
+                        SolrField solrField = new SolrField(field, SolrField.SolrType.STRING, true, true, false);
                         Highlight highlight = new Highlight(solrField, highlightSnippets, displayName);
                         highlights.add(highlight);
                         highlightsMap.put(solrField, highlight);
@@ -506,7 +506,7 @@ public class SearchServiceBean {
                 /**
                  * @todo Could use getFieldValues (plural) here.
                  */
-                List<String> datasetDescriptions = (List<String>) solrDocument.getFieldValue(SearchFields.DATASET_DESCRIPTION);
+                List<String> datasetDescriptions = (List) solrDocument.getFieldValues(SearchFields.DATASET_DESCRIPTION);
                 if (datasetDescriptions != null) {
                     String firstDatasetDescription = datasetDescriptions.get(0);
                     if (firstDatasetDescription != null) {

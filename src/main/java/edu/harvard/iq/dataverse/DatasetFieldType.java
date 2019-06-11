@@ -555,7 +555,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
                 makeSolrFieldMultivalued = false;
             }
 
-            return new SolrField(name, solrType, makeSolrFieldMultivalued, facetable);
+            return new SolrField(name, solrType, makeSolrFieldMultivalued, facetable, true);
 
         } else {
             /**
@@ -563,7 +563,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
              */
             String oddValue = name + getTmpNullFieldTypeIdentifier();
             boolean makeSolrFieldMultivalued = false;
-            SolrField solrField = new SolrField(oddValue, solrType, makeSolrFieldMultivalued, facetable);
+            SolrField solrField = new SolrField(oddValue, solrType, makeSolrFieldMultivalued, facetable, true);
             return solrField;
         }
     }
