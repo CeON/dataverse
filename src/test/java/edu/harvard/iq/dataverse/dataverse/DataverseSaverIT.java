@@ -2,72 +2,122 @@ package edu.harvard.iq.dataverse.dataverse;
 
 import com.google.api.client.util.Lists;
 import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.DataverseContact;
+import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.arquillian.DataverseArquillian;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.ArquillianDeployment;
+import edu.harvard.iq.dataverse.arquillian.facesmock.FacesContextMocker;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.error.DataverseError;
+import edu.harvard.iq.dataverse.search.IndexServiceBean;
+import io.vavr.control.Either;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.primefaces.model.DualListModel;
 
-import javax.ejb.EJB;
-import javax.faces.context.FacesContext;
+import javax.ejb.AsyncResult;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 @RunWith(DataverseArquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 public class DataverseSaverIT extends ArquillianDeployment {
 
-    @PersistenceContext(unitName = "VDCNet-ejbPU")
-    private EntityManager em;
-
-    @EJB
+    @Inject
     private DataverseSaver dataverseSaver;
+
+    @Mock
+    private IndexServiceBean indexServiceBean;
 
     @Inject
     private DataverseSession dataverseSession;
 
-    private FacesContext facesContext;
+    @Inject
+    private DataverseServiceBean dataverseServiceBean;
 
     @Before
     public void init() {
-        facesContext = FacesContextMocker.mockServletRequest();
+        MockitoAnnotations.initMocks(this);
+        FacesContextMocker.mockServletRequest();
+
+        when(indexServiceBean.indexDataverse(Mockito.any(Dataverse.class)))
+                .thenReturn(new AsyncResult<>("NICE"));
+
+        dataverseSession.setUser(createUser());
     }
 
-    @org.junit.Test
-    public void saveNewDataverse() {
+    @Test
+    public void saveNewDataverse_ShouldSuccessfullySave() {
         //given
         Dataverse dataverse = prepareDataverse();
-        createUser();
 
         //when
-        dataverseSaver.saveNewDataverse(Lists.newArrayList(), dataverse, new DualListModel<>());
+        Either<DataverseError, Dataverse> savedDataverse = dataverseSaver.saveNewDataverse(Lists.newArrayList(), dataverse, new DualListModel<>());
 
         //then
+        Assert.assertTrue(savedDataverse.isRight());
+        Assert.assertEquals(2, dataverseServiceBean.findAll().size());
     }
 
-    @org.junit.Test
+    @Test
     public void saveEditedDataverse() {
+        //given
+        Dataverse dataverse = dataverseServiceBean.findRootDataverse();
+        String oldDataverseName = dataverse.getName();
+        dataverse.setName("UPDATED DATAVERSE");
+
+        //when
+        Either<DataverseError, Dataverse> updatedDataverse = dataverseSaver.saveEditedDataverse(Lists.newArrayList(), dataverse, new DualListModel<>());
+
+        //then
+        Assert.assertNotEquals(oldDataverseName, updatedDataverse.get().getName());
+
     }
 
     private Dataverse prepareDataverse() {
         Dataverse dataverse = new Dataverse();
         dataverse.setMetadataBlockRoot(true);
+        dataverse.setOwner(dataverseServiceBean.findRootDataverse());
         dataverse.setName("NICE DATAVERSE");
-        dataverse.setAlias("FIRST DATAVERSE");
-        dataverse.setDataverseType(Dataverse.DataverseType.UNCATEGORIZED);
+        dataverse.setAlias("FIRSTDATAVERSE");
+        dataverse.setFacetRoot(true);
+        dataverse.setDataverseType(Dataverse.DataverseType.JOURNALS);
+        dataverse.setDataverseContacts(prepareDataverseContact());
         dataverse.setAllowMessagesBanners(false);
 
         return dataverse;
     }
 
-    private void createUser() {
+    private List<DataverseContact> prepareDataverseContact() {
+        DataverseContact dataverseContact = new DataverseContact();
+        dataverseContact.setContactEmail("test@gmail.com");
+
+        ArrayList<DataverseContact> contacts = new ArrayList<>();
+        contacts.add(dataverseContact);
+        return contacts;
+    }
+
+    private AuthenticatedUser createUser() {
         AuthenticatedUser user = new AuthenticatedUser();
         user.setSuperuser(true);
-        dataverseSession.setUser(user);
+        user.setLastName("Banan");
+        user.setEmail("test@gmail.com");
+        user.setUserIdentifier("TERMINATOR");
+        user.setFirstName("Anakin");
+        user.setCreatedTime(Timestamp.valueOf(LocalDateTime.of(2019, 1, 1, 1, 1)));
+        return user;
     }
 }
