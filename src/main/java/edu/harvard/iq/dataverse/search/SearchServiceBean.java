@@ -395,8 +395,8 @@ public class SearchServiceBean {
             String persistentUrl = (String) solrDocument.getFieldValue(SearchFields.PERSISTENT_URL);
             String name = (String) solrDocument.getFieldValue(SearchFields.NAME);
             String nameSort = (String) solrDocument.getFieldValue(SearchFields.NAME_SORT);
-//            ArrayList titles = (ArrayList) solrDocument.getFieldValues(SearchFields.TITLE);
-            String title = (String) solrDocument.getFieldValue(titleSolrField);
+            ArrayList titles = (ArrayList) solrDocument.getFieldValues(titleSolrField);
+//            String title = (String) solrDocument.getFieldValue(titleSolrField);
             Long datasetVersionId = (Long) solrDocument.getFieldValue(SearchFields.DATASET_VERSION_ID);
             String deaccessionReason = (String) solrDocument.getFieldValue(SearchFields.DATASET_DEACCESSION_REASON);
 //            logger.info("titleSolrField: " + titleSolrField);
@@ -521,9 +521,9 @@ public class SearchServiceBean {
                 solrSearchResult.setIdentifierOfDataverse(identifierOfDataverse);
                 solrSearchResult.setNameOfDataverse(nameOfDataverse);
                 
-                if (title != null) {
-//                    solrSearchResult.setTitle((String) titles.get(0));
-                    solrSearchResult.setTitle(title);
+                if (titles != null) {
+                    solrSearchResult.setTitle((String) titles.get(0));
+//                    solrSearchResult.setTitle(title);
                 } else {
                     logger.fine("No title indexed. Setting to empty string to prevent NPE. Dataset id " + entityid + " and version id " + datasetVersionId);
                     solrSearchResult.setTitle("");
