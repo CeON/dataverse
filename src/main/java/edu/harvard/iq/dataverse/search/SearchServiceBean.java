@@ -396,11 +396,8 @@ public class SearchServiceBean {
             String name = (String) solrDocument.getFieldValue(SearchFields.NAME);
             String nameSort = (String) solrDocument.getFieldValue(SearchFields.NAME_SORT);
             ArrayList titles = (ArrayList) solrDocument.getFieldValues(titleSolrField);
-//            String title = (String) solrDocument.getFieldValue(titleSolrField);
             Long datasetVersionId = (Long) solrDocument.getFieldValue(SearchFields.DATASET_VERSION_ID);
             String deaccessionReason = (String) solrDocument.getFieldValue(SearchFields.DATASET_DEACCESSION_REASON);
-//            logger.info("titleSolrField: " + titleSolrField);
-//            logger.info("title: " + title);
             String filetype = (String) solrDocument.getFieldValue(SearchFields.FILE_TYPE_FRIENDLY);
             String fileContentType = (String) solrDocument.getFieldValue(SearchFields.FILE_CONTENT_TYPE);
             Date release_or_create_date = (Date) solrDocument.getFieldValue(SearchFields.RELEASE_OR_CREATE_DATE);
@@ -523,7 +520,6 @@ public class SearchServiceBean {
                 
                 if (titles != null) {
                     solrSearchResult.setTitle((String) titles.get(0));
-//                    solrSearchResult.setTitle(title);
                 } else {
                     logger.fine("No title indexed. Setting to empty string to prevent NPE. Dataset id " + entityid + " and version id " + datasetVersionId);
                     solrSearchResult.setTitle("");
