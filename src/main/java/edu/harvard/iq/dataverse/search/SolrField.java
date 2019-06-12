@@ -19,6 +19,7 @@ public class SolrField {
      */
     public SolrField(String name, SolrType solrType, boolean allowedToBeMultivalued, boolean facetable, boolean isDatasetField) {
 
+        this.facetable = facetable;
         if(isDatasetField) {
             /**
              * prefixes for Solr dynamicField's specified in schema.xml
@@ -34,7 +35,12 @@ public class SolrField {
             } else if (solrType.equals(SolrType.INTEGER)) {
                 nameSearchable = "dsf_int_" + name;
                 nameFacetable = "dsf_int_" + name;
-            } else {
+            } else if (solrType.equals(SolrType.FLOAT)) {
+                nameSearchable = "dsf_flt_" + name;
+                nameFacetable = name;
+                this.facetable = false;
+            }
+            else {
                 nameSearchable = name;
                 nameFacetable = name;
             }
@@ -60,7 +66,6 @@ public class SolrField {
         }
 
         this.solrType = solrType;
-        this.facetable = facetable;
     }
 
     public String getNameSearchable() {
@@ -98,7 +103,9 @@ public class SolrField {
          * support range queries) in
          * https://github.com/IQSS/dataverse/issues/370
          */
-        STRING("string"), TEXT_EN("text_en"), INTEGER("int"), LONG("long"), DATE("text_en"), EMAIL("text_en");
+        STRING("string"), TEXT_EN("text_en"),
+        INTEGER("pint"), LONG("plong"),
+        DATE("text_en"), EMAIL("text_en"), FLOAT("pfloat");
 
         private String type;
 

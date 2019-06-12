@@ -533,10 +533,17 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
              * @todo made more decisions based on fieldType: index as dates,
              * integers, and floats so we can do range queries etc.
              */
-            if (fieldType.equals(FieldType.DATE)) {
-                solrType = SolrField.SolrType.DATE;
-            } else if (fieldType.equals(FieldType.EMAIL)) {
-                solrType = SolrField.SolrType.EMAIL;
+//            if (fieldType.equals(FieldType.DATE)) {
+//                solrType = SolrField.SolrType.DATE;
+//            } else if (fieldType.equals(FieldType.EMAIL)) {
+//                solrType = SolrField.SolrType.EMAIL;
+//            }
+            if(fieldType.equals(FieldType.INT)) {
+                solrType = SolrField.SolrType.INTEGER;
+            } else if(fieldType.equals(FieldType.FLOAT)) {
+                solrType = SolrField.SolrType.FLOAT;
+            } else if(fieldType.equals(FieldType.LONG)) {
+                solrType = SolrField.SolrType.LONG;
             }
 
             Boolean parentAllowsMultiplesBoolean = false;
