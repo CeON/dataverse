@@ -536,8 +536,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
                 solrType = SolrField.SolrType.INTEGER;
             } else if(fieldType.equals(FieldType.FLOAT)) {
                 solrType = SolrField.SolrType.FLOAT;
-            } else if(fieldType.equals(FieldType.LONG)) {
-                solrType = SolrField.SolrType.LONG;
             }
 
             Boolean parentAllowsMultiplesBoolean = false;
