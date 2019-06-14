@@ -435,7 +435,6 @@ public class SettingsServiceBean {
         RservePassword,
         RserveTempDir,
 
-
         TimerServer;
 
         @Override
