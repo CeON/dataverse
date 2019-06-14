@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -429,6 +428,13 @@ public class SettingsServiceBean {
         HandleNetAdmCredFile,
         HandleNetAdmPrivPhrase,
         HandleNetIndex,
+
+        RserveHost,
+        RservePort,
+        RserveUser,
+        RservePassword,
+        RserveTempDir,
+
 
         TimerServer;
 
