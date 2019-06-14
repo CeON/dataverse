@@ -51,10 +51,6 @@ public class SettingsWrapper implements java.io.Serializable {
         return settingService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled);
     }
 
-    public Integer getMinutesUntilPasswordResetTokenExpires() {
-        return systemConfig.getMinutesUntilPasswordResetTokenExpires();
-    }
-
     public boolean isRsyncUpload() {
         return systemConfig.isRsyncUpload();
     }

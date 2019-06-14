@@ -79,14 +79,12 @@ public class PasswordResetData implements Serializable {
     public PasswordResetData() {
     }
 
-    public PasswordResetData(BuiltinUser aBuiltinUser, SettingsWrapper settingsWrapper) {
+    public PasswordResetData(BuiltinUser aBuiltinUser) {
         builtinUser = aBuiltinUser;
         token = UUID.randomUUID().toString();
         long nowInMilliseconds = new Date().getTime();
         created = new Timestamp(nowInMilliseconds);
-        long ONE_MINUTE_IN_MILLISECONDS = 60000;
-        long futureInMilliseconds = nowInMilliseconds + (settingsWrapper.getMinutesUntilPasswordResetTokenExpires() * ONE_MINUTE_IN_MILLISECONDS);
-        expires = new Timestamp(new Date(futureInMilliseconds).getTime());
+        expires = created;
         reason = Reason.FORGOT_PASSWORD;
     }
 

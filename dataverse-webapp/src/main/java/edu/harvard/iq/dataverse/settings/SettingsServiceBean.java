@@ -432,9 +432,6 @@ public class SettingsServiceBean {
 
         TimerServer,
 
-        /**
-         * The number of minutes for which a password reset token is valid .
-         */
         MinutesUntilPasswordResetTokenExpires
         ;
 

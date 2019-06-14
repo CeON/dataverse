@@ -195,17 +195,7 @@ public class SystemConfig {
      * The number of minutes for which a password reset token is valid.
      */
     public int getMinutesUntilPasswordResetTokenExpires() {
-        final int reasonableDefault = 60;
-        Integer configuredValue = settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.MinutesUntilPasswordResetTokenExpires);
-        if (configuredValue != null) {
-            if (configuredValue > 0) {
-                return configuredValue;
-            } else {
-                logger.info(SettingsServiceBean.Key.MinutesUntilPasswordResetTokenExpires + " is configured as a negative number \"" + configuredValue + "\". Using default value instead: " + reasonableDefault);
-                return reasonableDefault;
-            }
-        }
-        return reasonableDefault;
+        return settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.MinutesUntilPasswordResetTokenExpires);
     }
 
     /**
