@@ -36,7 +36,7 @@ public class PasswordResetDataTest {
     @Test
     public void testNewTokenNotExpired() {
         System.out.println("newTokenNotExpired");
-        PasswordResetData instance = new PasswordResetData(null);
+        PasswordResetData instance = new PasswordResetData(null, null);
         boolean expResult = false;
         boolean result = instance.isExpired();
         assertEquals(expResult, result);

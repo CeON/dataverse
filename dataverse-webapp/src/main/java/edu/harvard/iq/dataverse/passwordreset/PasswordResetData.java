@@ -70,9 +70,6 @@ public class PasswordResetData implements Serializable {
     @Enumerated(EnumType.STRING)
     private Reason reason;
 
-    @EJB
-    SettingsWrapper settingsWrapper;
-
     /**
      * This is only here because it has to be: "The class should have a no-arg,
      * public or protected constructor." Please use the constructor that takes
@@ -82,7 +79,7 @@ public class PasswordResetData implements Serializable {
     public PasswordResetData() {
     }
 
-    public PasswordResetData(BuiltinUser aBuiltinUser) {
+    public PasswordResetData(BuiltinUser aBuiltinUser, SettingsWrapper settingsWrapper) {
         builtinUser = aBuiltinUser;
         token = UUID.randomUUID().toString();
         long nowInMilliseconds = new Date().getTime();
