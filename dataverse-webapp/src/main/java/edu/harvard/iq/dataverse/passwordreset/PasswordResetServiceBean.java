@@ -6,6 +6,8 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.PasswordEncryption;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
@@ -38,6 +40,9 @@ public class PasswordResetServiceBean {
     
     @EJB
     AuthenticationServiceBean authService;
+
+    @EJB
+    SettingsWrapper settingsWrapper;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -95,7 +100,7 @@ public class PasswordResetServiceBean {
 
         String pattern = BundleUtil.getStringFromBundle("notification.email.passwordReset");
 
-        String[] paramArray = {authUser.getName(), aUser.getUserName() ,passwordResetUrl,  SystemConfig.getMinutesUntilPasswordResetTokenExpires()+""  };
+        String[] paramArray = {authUser.getName(), aUser.getUserName() ,passwordResetUrl, settingsWrapper.getMinutesUntilPasswordResetTokenExpires() +""  };
         String messageBody = MessageFormat.format(pattern, paramArray);
 
         try {

@@ -1,11 +1,14 @@
 package edu.harvard.iq.dataverse.passwordreset;
 
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
+import javax.ejb.EJB;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -67,6 +70,9 @@ public class PasswordResetData implements Serializable {
     @Enumerated(EnumType.STRING)
     private Reason reason;
 
+    @EJB
+    SettingsWrapper settingsWrapper;
+
     /**
      * This is only here because it has to be: "The class should have a no-arg,
      * public or protected constructor." Please use the constructor that takes
@@ -82,7 +88,7 @@ public class PasswordResetData implements Serializable {
         long nowInMilliseconds = new Date().getTime();
         created = new Timestamp(nowInMilliseconds);
         long ONE_MINUTE_IN_MILLISECONDS = 60000;
-        long futureInMilliseconds = nowInMilliseconds + (SystemConfig.getMinutesUntilPasswordResetTokenExpires() * ONE_MINUTE_IN_MILLISECONDS);
+        long futureInMilliseconds = nowInMilliseconds + (settingsWrapper.getMinutesUntilPasswordResetTokenExpires() * ONE_MINUTE_IN_MILLISECONDS);
         expires = new Timestamp(new Date(futureInMilliseconds).getTime());
         reason = Reason.FORGOT_PASSWORD;
     }

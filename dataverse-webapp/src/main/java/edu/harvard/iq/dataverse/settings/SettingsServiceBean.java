@@ -430,7 +430,13 @@ public class SettingsServiceBean {
         HandleNetAdmPrivPhrase,
         HandleNetIndex,
 
-        TimerServer;
+        TimerServer,
+
+        /**
+         * The number of minutes for which a password reset token is valid .
+         */
+        MinutesUntilPasswordResetTokenExpires
+        ;
 
         @Override
         public String toString() {
