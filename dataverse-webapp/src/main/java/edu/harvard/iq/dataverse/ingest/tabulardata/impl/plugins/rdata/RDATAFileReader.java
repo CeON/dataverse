@@ -108,7 +108,7 @@ public class RDATAFileReader extends TabularDataFileReader {
     private RRequestBuilder mRequestBuilder;
 
     @PostConstruct
-    public void initalizeVariables() {
+    public void initializeVariables() {
 
         RSERVE_HOST = settingsService.getValueForKey(SettingsServiceBean.Key.RserveHost);
         RSERVE_USER = settingsService.getValueForKey(SettingsServiceBean.Key.RserveUser);

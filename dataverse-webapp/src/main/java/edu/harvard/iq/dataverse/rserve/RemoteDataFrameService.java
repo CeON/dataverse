@@ -98,7 +98,7 @@ public class RemoteDataFrameService {
     private String tempFileNameOut;
 
     @PostConstruct
-    public void initalizeVariables() {
+    public void initializeVariables() {
         RSERVE_TMP_DIR = settingsService.getValueForKey(SettingsServiceBean.Key.RserveTempDir);
         RSERVE_HOST = settingsService.getValueForKey(SettingsServiceBean.Key.RserveHost);
         RSERVE_USER = settingsService.getValueForKey(SettingsServiceBean.Key.RserveUser);
