@@ -21,35 +21,31 @@
 package edu.harvard.iq.dataverse.dataaccess;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import java.util.logging.Logger;
-import java.util.List; 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.LinkedHashMap; 
-
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.datavariable.VariableCategory;
+import edu.harvard.iq.dataverse.rserve.RJobRequest;
+import edu.harvard.iq.dataverse.rserve.RemoteDataFrameService;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import edu.harvard.iq.dataverse.rserve.*;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 
@@ -62,19 +58,20 @@ import java.util.logging.Level;
  * 
  * @author Leonid Andreev
  */
+
+@Stateless
 public class DataConverter {
     private static Logger logger = Logger.getLogger(DataConverter.class.getPackage().getName());
+
+    @Inject
+    private RemoteDataFrameService dfs;
     
     public DataConverter() {
     }
-    
-    public static String FILE_TYPE_TAB = "tab";
-    public static String FILE_TYPE_RDATA = "RData";
-    
-    public static String SERVICE_REQUEST_CONVERT = "convert";
-    
-    
-    public static StorageIO<DataFile> performFormatConversion(DataFile file, StorageIO<DataFile> storageIO, String formatRequested, String formatType) {
+
+    private String FILE_TYPE_TAB = "tab";
+
+    public StorageIO<DataFile> performFormatConversion(DataFile file, StorageIO<DataFile> storageIO, String formatRequested, String formatType) {
         if (!file.isTabularData()) {
             return null;
         }
@@ -202,7 +199,7 @@ public class DataConverter {
     // (possibly running on a remote host) and gets back the transformed copy,
     // providing error-checking and diagnostics in the process.
     // This is mostly Akio Sone's code from DVN3.
-    private static File runFormatConversion (DataFile file, File tabFile, String formatRequested) {
+    private File runFormatConversion(DataFile file, File tabFile, String formatRequested) {
 
         if ( formatRequested.equals (FILE_TYPE_TAB) ) {
             // if the *requested* format is TAB-delimited, we don't
@@ -219,8 +216,6 @@ public class DataConverter {
         }
 
         File formatConvertedFile;
-        // create the service instance
-        RemoteDataFrameService dfs = new RemoteDataFrameService();
         
         if ("RData".equals(formatRequested)) {
             String origFormat = file.getOriginalFileFormat();
@@ -253,7 +248,9 @@ public class DataConverter {
                 RJobRequest sro = new RJobRequest(dataVariables, vls);
 
                 sro.setTabularDataFileName(tabFile.getAbsolutePath());
+                String SERVICE_REQUEST_CONVERT = "convert";
                 sro.setRequestType(SERVICE_REQUEST_CONVERT);
+                String FILE_TYPE_RDATA = "RData";
                 sro.setFormatRequested(FILE_TYPE_RDATA);
 
                 // execute the service

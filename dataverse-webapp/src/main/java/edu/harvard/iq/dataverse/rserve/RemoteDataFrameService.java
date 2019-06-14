@@ -40,6 +40,7 @@ import org.rosuda.REngine.Rserve.RserveException;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -67,6 +68,7 @@ import java.util.logging.Logger;
  * @author Akio Sone
  */
 
+@Stateless
 public class RemoteDataFrameService {
 
     @EJB
@@ -75,12 +77,7 @@ public class RemoteDataFrameService {
     private static Logger logger = Logger.getLogger(RemoteDataFrameService.class.getPackage().getName());
 
 
-    private static String TMP_DATA_FILE_NAME = "dataverseTabData_";
     private static String RWRKSP_FILE_PREFIX = "dataverseDataFrame_";
-    private static String PREPROCESS_FILE_PREFIX = "dataversePreprocess_";
-
-    private static String TMP_TABDATA_FILE_EXT = ".tab";
-    private static String TMP_RDATA_FILE_EXT = ".RData";
 
     private String RSERVE_HOST;
     private String RSERVE_USER;
@@ -88,7 +85,6 @@ public class RemoteDataFrameService {
     private int RSERVE_PORT;
 
     private static String DATAVERSE_R_FUNCTIONS = "scripts/dataverse_r_functions.R";
-    private static String DATAVERSE_R_PREPROCESSING = "scripts/preprocess.R";
 
     private static String LOCAL_TEMP_DIR = System.getProperty("java.io.tmpdir");
     private String RSERVE_TMP_DIR;
@@ -105,9 +101,12 @@ public class RemoteDataFrameService {
         RSERVE_PWD = settingsService.getValueForKey(SettingsServiceBean.Key.RservePassword);
         RSERVE_PORT = settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.RservePort);
 
+        String TMP_DATA_FILE_NAME = "dataverseTabData_";
+        String TMP_TABDATA_FILE_EXT = ".tab";
         tempFileNameIn = RSERVE_TMP_DIR + "/" + TMP_DATA_FILE_NAME
                 + "." + PID + TMP_TABDATA_FILE_EXT;
 
+        String TMP_RDATA_FILE_EXT = ".RData";
         tempFileNameOut = RSERVE_TMP_DIR + "/" + RWRKSP_FILE_PREFIX
                 + "." + PID + TMP_RDATA_FILE_EXT;
     }
@@ -552,10 +551,6 @@ public class RemoteDataFrameService {
             StorageIO<DataFile> accessObject = DataAccess.getStorageIO(dataFile,
                     new DataAccessRequest());
 
-            if (accessObject == null) {
-                return null;
-            }
-
             accessObject.open();
             InputStream is = accessObject.getInputStream();
             if (is == null) {
@@ -583,6 +578,7 @@ public class RemoteDataFrameService {
             // created: 
 
             connection.voidEval("library(rjson)");
+            String DATAVERSE_R_PREPROCESSING = "scripts/preprocess.R";
             String rscript = readLocalResource(DATAVERSE_R_PREPROCESSING);
             logger.fine("preprocessing R code: " + rscript.substring(0, 64));
             connection.voidEval(rscript);
@@ -600,6 +596,7 @@ public class RemoteDataFrameService {
             // Finally, transfer the saved file back on the application side:
 
             int fileSize = getFileSize(connection, tempFileNameOut);
+            String PREPROCESS_FILE_PREFIX = "dataversePreprocess_";
             preprocessedDataFile = transferRemoteFile(connection, tempFileNameOut, PREPROCESS_FILE_PREFIX, "json", fileSize);
 
             String deleteLine = "file.remove('" + tempFileNameOut + "')";

@@ -6,47 +6,57 @@
 
 package edu.harvard.iq.dataverse.api;
 
-import java.lang.reflect.Type;
-import java.lang.annotation.Annotation;
-import java.io.InputStream; 
-import java.io.OutputStream;
-import java.io.IOException;
-
-import javax.ws.rs.WebApplicationException;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
-
 import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.dataaccess.*;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataaccess.DataAccessRequest;
+import edu.harvard.iq.dataverse.dataaccess.DataConverter;
+import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
+import edu.harvard.iq.dataverse.dataaccess.InputStreamIO;
+import edu.harvard.iq.dataverse.dataaccess.S3AccessIO;
+import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.dataaccess.StoredOriginalFile;
+import edu.harvard.iq.dataverse.dataaccess.TabularSubsetGenerator;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateGuestbookResponseCommand;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.RedirectionException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.RedirectionException;
 
 /**
  *
  * @author Leonid Andreev
  */
 @Provider
+@Stateless
 public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstance> {
     
     private static final Logger logger = Logger.getLogger(DownloadInstanceWriter.class.getCanonicalName());
 
+    @Inject
+    private DataConverter dataConverter;
     
     @Override
     public boolean isWriteable(Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType) {
@@ -133,9 +143,9 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                                     // default mime type, in case real type is unknown;
                                     // (this shouldn't happen in real life - but just in case): 
                                     requestedMimeType = "application/octet-stream";
-                                } 
-                                storageIO = 
-                                        DataConverter.performFormatConversion(dataFile, 
+                                }
+                                storageIO =
+                                        dataConverter.performFormatConversion(dataFile,
                                         storageIO, 
                                         di.getConversionParamValue(), requestedMimeType);
                             } 
