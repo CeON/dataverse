@@ -100,11 +100,12 @@ public class RDATAFileReader extends TabularDataFileReader {
     static private String RSCRIPT_GET_LABELS = "";
     static private String RSCRIPT_WRITE_DVN_TABLE = "";
 
-    // RServe static variables
     private String RSERVE_HOST;
     private String RSERVE_USER;
     private String RSERVE_PASSWORD;
     private int RSERVE_PORT;
+
+    private RRequestBuilder mRequestBuilder;
 
     @PostConstruct
     public void initalizeVariables() {
@@ -157,9 +158,6 @@ public class RDATAFileReader extends TabularDataFileReader {
 
     // Number formatter
     NumberFormat doubleNumberFormatter = new DecimalFormat();
-
-    // Builds R Requests for an R-server
-    private RRequestBuilder mRequestBuilder;
 
     /*
      * Initialize Static Variables
