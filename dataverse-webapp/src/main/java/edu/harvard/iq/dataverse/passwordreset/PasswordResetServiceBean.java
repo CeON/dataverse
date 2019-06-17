@@ -17,6 +17,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.logging.Level;
@@ -88,6 +90,27 @@ public class PasswordResetServiceBean {
             throw new PasswordResetException(msg, ex);
         }
         
+    }
+
+    private String createResetUrl(PasswordResetData passwordResetData) {
+        // default to localhost
+        String finalHostname = "localhost";
+        String configuredHostname = System.getProperty(SystemConfig.FQDN);
+        if (configuredHostname != null) {
+            if (configuredHostname.equals("localhost")) {
+                // must be a dev environment
+                finalHostname = "localhost:8181";
+            } else {
+                finalHostname = configuredHostname;
+            }
+        } else {
+            try {
+                finalHostname = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException ex) {
+                // just use the dev address
+            }
+        }
+        return "https://" + finalHostname + "/passwordreset.xhtml?token=" + passwordResetData.getToken();
     }
 
     private void sendPasswordResetEmail(BuiltinUser aUser, String passwordResetUrl) throws PasswordResetException {
