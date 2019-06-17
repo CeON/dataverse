@@ -248,10 +248,8 @@ public class DataConverter {
                 RJobRequest sro = new RJobRequest(dataVariables, vls);
 
                 sro.setTabularDataFileName(tabFile.getAbsolutePath());
-                String SERVICE_REQUEST_CONVERT = "convert";
-                sro.setRequestType(SERVICE_REQUEST_CONVERT);
-                String FILE_TYPE_RDATA = "RData";
-                sro.setFormatRequested(FILE_TYPE_RDATA);
+                sro.setRequestType("convert");
+                sro.setFormatRequested("RData");
 
                 // execute the service
                 resultInfo = dfs.execute(sro);

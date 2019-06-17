@@ -21,11 +21,12 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.csv;
 
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
-import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 /*
  * @author Leonid Andreev
@@ -70,10 +71,5 @@ public class CSVFileReaderSpi extends TabularDataFileReaderSpi{
   
   public boolean fileIsValid() throws IOException {
     return false; 
-  }
-  
-  @Override
-  public TabularDataFileReader createReaderInstance(Object ext) throws IOException {
-    return new CSVFileReader(this, ',');
   }
 }

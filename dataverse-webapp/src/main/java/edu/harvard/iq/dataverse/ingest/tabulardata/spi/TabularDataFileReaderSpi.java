@@ -20,9 +20,12 @@
 
 package edu.harvard.iq.dataverse.ingest.tabulardata.spi;
 
-import edu.harvard.iq.dataverse.ingest.tabulardata.*;
-import java.util.logging.*;
-import java.io.*;
+import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * The service provider interface (SPI) for <code>StatDataFileReader</code>.
@@ -127,29 +130,6 @@ public abstract class TabularDataFileReaderSpi extends TabularDataFileReaderWrit
      * during reading the stream.
      */
     public abstract boolean canDecodeInput(BufferedInputStream stream) throws IOException;
-    
-    /**
-     * Returns an instance of <code>StatDataFileReader</code> implementation associated with
-     * this service provider.
-     * 
-     * @param extension     a plug-in specific extension object.
-     * @return              a <code>StatDataFileReader</code> instance.
-     * @throws IOException  if the instantiation attempt of the reader fails.
-     */
-    public abstract TabularDataFileReader createReaderInstance(Object extension)
-        throws IOException;
-    
-    /**
-     * Returns an instance of <code>StatDataFileReader</code> implementation 
-     * associated with his service provider.
-     *
-     * @return  a <code>StatDataFileReader</code> instance.
-     * @throws java.io.IOException if an error occurs during the 
-     *         reader instantiation.
-     */
-    public TabularDataFileReader createReaderInstance() throws IOException{
-        return createReaderInstance(null);
-    }
     
     /**
      * Returns <code>true</code> if the <code>StatDataFileReader</code> object

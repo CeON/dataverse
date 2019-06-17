@@ -21,18 +21,20 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.dta;
 
 
-import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
-
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.logging.*;
+import org.apache.commons.codec.binary.Hex;
 
 import javax.imageio.IIOException;
-import java.util.*;
-
-import org.apache.commons.codec.binary.Hex;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 /**
@@ -219,10 +221,5 @@ public class DTAFileReaderSpi extends TabularDataFileReaderSpi{
                     "(No in HEX=" + hdr4[0] + ")");
             return true;
         }
-    }
-    
-    @Override
-    public TabularDataFileReader createReaderInstance(Object ext) throws IIOException {
-        return new DTAFileReader(this);
     }
 }

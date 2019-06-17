@@ -20,18 +20,17 @@
 
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.sav;
 
-import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
-
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.logging.*;
-
-import javax.imageio.IIOException;
-import java.util.*;
-
 import org.apache.commons.codec.binary.Hex;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  *
@@ -206,10 +205,5 @@ public class SAVFileReaderSpi extends TabularDataFileReaderSpi{
 
     public String getDescription(Locale locale) {
         return "HU-IQSS-DataVerse-project SPSS/SAV File Ingest plugin";
-    }
-    
-    @Override
-    public TabularDataFileReader createReaderInstance(Object ext) throws IIOException {
-        return new SAVFileReader(this);
     }
 }
