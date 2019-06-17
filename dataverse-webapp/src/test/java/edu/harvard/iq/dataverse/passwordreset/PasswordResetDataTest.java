@@ -52,17 +52,18 @@ public class PasswordResetDataTest {
 
     @Test
     public void testSetExpiredToSystemDefault() {
+        // given
+        PasswordResetData instance = new PasswordResetData(new BuiltinUser());
+        long defValueOfPasswordReset = 60;
 
-        BuiltinUser user = new BuiltinUser();
-        long val = 60;
-
-        PasswordResetData instance = new PasswordResetData(user);
+        // when
         instance.setExpires(new Timestamp(
                 instance.getCreated().getTime() +
-                        TimeUnit.MINUTES.toMillis(val)));
+                        TimeUnit.MINUTES.toMillis(defValueOfPasswordReset)));
         long calculatedDefault = instance.getExpires().getTime() - instance.getCreated().getTime();
 
-        assertEquals(calculatedDefault, TimeUnit.MINUTES.toMillis(val));
+        // then
+        assertEquals(calculatedDefault, TimeUnit.MINUTES.toMillis(defValueOfPasswordReset));
     }
 
     /**
