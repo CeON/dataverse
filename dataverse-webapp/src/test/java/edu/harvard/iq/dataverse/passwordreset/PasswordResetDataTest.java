@@ -5,13 +5,27 @@
  */
 package edu.harvard.iq.dataverse.passwordreset;
 
+import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
+import edu.harvard.iq.dataverse.util.SystemConfig;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
+
+import java.sql.Timestamp;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -37,12 +51,18 @@ public class PasswordResetDataTest {
     }
 
     @Test
-    public void testNewTokenNotExpired() {
-        System.out.println("newTokenNotExpired");
-        PasswordResetData instance = new PasswordResetData(null);
-        boolean expResult = false;
-        boolean result = instance.isExpired();
-        assertEquals(expResult, result);
+    public void testSetExpiredToSystemDefault() {
+
+        BuiltinUser user = new BuiltinUser();
+        long val = 60;
+
+        PasswordResetData instance = new PasswordResetData(user);
+        instance.setExpires(new Timestamp(
+                instance.getCreated().getTime() +
+                        TimeUnit.MINUTES.toMillis(val)));
+        long calculatedDefault = instance.getExpires().getTime() - instance.getCreated().getTime();
+
+        assertEquals(calculatedDefault, TimeUnit.MINUTES.toMillis(val));
     }
 
     /**
