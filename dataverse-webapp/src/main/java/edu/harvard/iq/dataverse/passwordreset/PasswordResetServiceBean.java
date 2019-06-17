@@ -77,7 +77,9 @@ public class PasswordResetServiceBean {
         
         // create a fresh token for the user
         PasswordResetData passwordResetData = new PasswordResetData(aUser);
-        passwordResetData.setExpires(new Timestamp(TimeUnit.MINUTES.toMillis(systemConfig.getMinutesUntilPasswordResetTokenExpires())));
+        passwordResetData.setExpires(new Timestamp(
+                        passwordResetData.getCreated().getTime() +
+                            TimeUnit.MINUTES.toMillis(systemConfig.getMinutesUntilPasswordResetTokenExpires())));
         passwordResetData.setReason(reason);
         try {
             em.persist(passwordResetData);
