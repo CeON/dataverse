@@ -10,9 +10,15 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.ejb.EJB;
+
 import static org.junit.Assert.*;
 
 public class PasswordResetDataTest {
+
+    @EJB
+    private PasswordResetServiceBean serviceBean;
 
     public PasswordResetDataTest() {
     }
@@ -36,7 +42,7 @@ public class PasswordResetDataTest {
     @Test
     public void testNewTokenNotExpired() {
         System.out.println("newTokenNotExpired");
-        PasswordResetData instance = new PasswordResetData(null, null);
+        PasswordResetData instance = new PasswordResetData(null);
         boolean expResult = false;
         boolean result = instance.isExpired();
         assertEquals(expResult, result);
