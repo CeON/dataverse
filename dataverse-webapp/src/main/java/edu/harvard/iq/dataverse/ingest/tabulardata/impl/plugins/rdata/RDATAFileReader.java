@@ -109,7 +109,6 @@ public class RDATAFileReader extends TabularDataFileReader {
         mRWorkspace = new RWorkspace();
         mPID = RandomStringUtils.randomNumeric(6);
 
-
     }
 
     // Logger

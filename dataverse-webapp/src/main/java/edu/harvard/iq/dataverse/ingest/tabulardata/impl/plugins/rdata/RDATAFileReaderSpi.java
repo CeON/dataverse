@@ -19,12 +19,16 @@
 */
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.rdata;
 
-import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
+import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
-import java.io.*;
-import java.util.logging.*;
+import javax.ejb.EJB;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 /*
  * original 
@@ -34,6 +38,9 @@ import java.util.Locale;
 public class RDATAFileReaderSpi extends TabularDataFileReaderSpi{
 
   private static Logger LOG = Logger.getLogger(RDATAFileReaderSpi.class.getPackage().getName());
+
+  @EJB
+  private SettingsServiceBean settingsService;
 
   private static String[] formatNames = {"Rdata", "rdata", "RDATA"};
   private static String[] extensions = {"Rdata", "rdata"};
@@ -70,12 +77,16 @@ public class RDATAFileReaderSpi extends TabularDataFileReaderSpi{
     return true;
   }
   
-  public boolean fileIsValid() throws IOException {
+  public boolean fileIsValid() {
     return false; 
   }
   
   @Override
-  public TabularDataFileReader createReaderInstance(Object ext) throws IOException {
-    return new RDATAFileReader(this);
+  public TabularDataFileReader createReaderInstance(Object ext) {
+    return new RDATAFileReader(this,
+            settingsService.getValueForKey(SettingsServiceBean.Key.RserveHost),
+            settingsService.getValueForKey(SettingsServiceBean.Key.RserveUser),
+            settingsService.getValueForKey(SettingsServiceBean.Key.RservePassword),
+            settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.RservePort));
   }
 }
