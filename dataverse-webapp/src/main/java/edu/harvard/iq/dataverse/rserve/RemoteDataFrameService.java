@@ -109,9 +109,6 @@ public class RemoteDataFrameService {
         String TMP_RDATA_FILE_EXT = ".RData";
         tempFileNameOut = RSERVE_TMP_DIR + "/" + RWRKSP_FILE_PREFIX
                 + "." + PID + TMP_RDATA_FILE_EXT;
-    }
-
-    public RemoteDataFrameService() {
         PID = RandomStringUtils.randomNumeric(6);
     }
 
