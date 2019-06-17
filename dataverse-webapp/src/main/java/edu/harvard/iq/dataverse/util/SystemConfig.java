@@ -191,9 +191,6 @@ public class SystemConfig {
         return appVersionString;
     }
 
-    /**
-     * The number of minutes for which a password reset token is valid.
-     */
     public int getMinutesUntilPasswordResetTokenExpires() {
         return settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.MinutesUntilPasswordResetTokenExpires);
     }

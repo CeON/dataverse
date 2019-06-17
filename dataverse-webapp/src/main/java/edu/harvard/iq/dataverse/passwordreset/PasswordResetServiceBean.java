@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,9 +77,7 @@ public class PasswordResetServiceBean {
         
         // create a fresh token for the user
         PasswordResetData passwordResetData = new PasswordResetData(aUser);
-        // set token expiration date based on SystemSettings
-        updateTokenExpirationTime(aUser);
-
+        passwordResetData.setExpires(new Timestamp(TimeUnit.MINUTES.toMillis(systemConfig.getMinutesUntilPasswordResetTokenExpires())));
         passwordResetData.setReason(reason);
         try {
             em.persist(passwordResetData);
@@ -94,30 +93,6 @@ public class PasswordResetServiceBean {
             throw new PasswordResetException(msg, ex);
         }
         
-    }
-
-    private void updateTokenExpirationTime(BuiltinUser aUser) {
-
-        long ONE_MINUTE_IN_MILLISECONDS = 60000;
-        long defaultInMilliseconds = systemConfig.getMinutesUntilPasswordResetTokenExpires() * ONE_MINUTE_IN_MILLISECONDS;
-
-
-        List<PasswordResetData> passwordResetDatas = findPasswordResetDataByDataverseUser(aUser);
-        if(passwordResetDatas.size() > 1) {
-            logger.severe(aUser + " has more than one Reset Password Token");
-            return;
-        } else if(passwordResetDatas.size() == 0) {
-            logger.info(aUser + " doesn't have active Reset Password Token");
-            return;
-        }
-
-        PasswordResetData passwordResetData = passwordResetDatas.get(0);
-        Timestamp expires = passwordResetData.getExpires();
-        long futureExpireInMilliseconds = expires.getTime() + defaultInMilliseconds;
-        Timestamp updatedExpire = new Timestamp(new Date(futureExpireInMilliseconds).getTime());
-
-        Query query = em.createQuery("UPDATE PasswordResetData SET expires = :updatedExpire WHERE builtinUser = :user_id");
-        query.setParameter("updatedExpire", updatedExpire).setParameter("user_id", aUser.getId()).executeUpdate();
     }
 
     private void sendPasswordResetEmail(BuiltinUser aUser, String passwordResetUrl) throws PasswordResetException {

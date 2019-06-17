@@ -17,9 +17,6 @@ import static org.junit.Assert.*;
 
 public class PasswordResetDataTest {
 
-    @EJB
-    private PasswordResetServiceBean serviceBean;
-
     public PasswordResetDataTest() {
     }
 

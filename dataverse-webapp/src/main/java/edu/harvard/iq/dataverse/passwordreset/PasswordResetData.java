@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import javax.ejb.EJB;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -84,7 +85,6 @@ public class PasswordResetData implements Serializable {
         token = UUID.randomUUID().toString();
         long nowInMilliseconds = new Date().getTime();
         created = new Timestamp(nowInMilliseconds);
-        expires = created;
         reason = Reason.FORGOT_PASSWORD;
     }
 
@@ -129,4 +129,7 @@ public class PasswordResetData implements Serializable {
         this.reason = reason;
     }
 
+    public void setExpires(Timestamp expires) {
+        this.expires = expires;
+    }
 }
