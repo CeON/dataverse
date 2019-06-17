@@ -430,8 +430,7 @@ public class SettingsServiceBean {
         HandleNetAdmPrivPhrase,
         HandleNetIndex,
 
-        TimerServer,
-        FQDN
+        TimerServer
         ;
 
         @Override

@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.PasswordEncryption;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
@@ -40,6 +41,9 @@ public class PasswordResetServiceBean {
     
     @EJB
     AuthenticationServiceBean authService;
+
+    @EJB
+    private SettingsServiceBean settingsServiceBean;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -79,6 +83,7 @@ public class PasswordResetServiceBean {
         try {
             em.persist(passwordResetData);
             PasswordResetInitResponse passwordResetInitResponse = new PasswordResetInitResponse(true, passwordResetData);
+            passwordResetInitResponse.setResetUrl(createResetUrl(passwordResetData));
             if ( sendEmail ) {
                 sendPasswordResetEmail(aUser, passwordResetInitResponse.getResetUrl());
             }
