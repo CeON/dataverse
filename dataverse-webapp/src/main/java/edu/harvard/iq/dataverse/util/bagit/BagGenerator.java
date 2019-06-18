@@ -664,7 +664,6 @@ public class BagGenerator {
         InputStreamSupplier supp = new InputStreamSupplier() {
             public InputStream get() {
                 return new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-                return null;
             }
         };
 
