@@ -30,17 +30,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- *
  * @author Leonid Andreev
  */
 @Provider
 public class BundleDownloadInstanceWriter implements MessageBodyWriter<BundleDownloadInstance> {
-    
+
     private static final Logger logger = Logger.getLogger(BundleDownloadInstanceWriter.class.getCanonicalName());
 
     @Inject
     private DataConverter dataConverter;
-    
+
     @Override
     public boolean isWriteable(Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType) {
         return clazz == BundleDownloadInstance.class;
@@ -51,8 +50,7 @@ public class BundleDownloadInstanceWriter implements MessageBodyWriter<BundleDow
         return -1;
     }
 
-    
-    
+
     @Override
     public void writeTo(BundleDownloadInstance di, Class<?> clazz, Type type, Annotation[] annotation, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream outstream) throws IOException, WebApplicationException {
 
@@ -85,43 +83,48 @@ public class BundleDownloadInstanceWriter implements MessageBodyWriter<BundleDow
 
                 byte[] data = new byte[8192];
 
-                int i = 0;
-                while ((i = instream.read(data)) > 0) {
-                    zout.write(data, 0, i);
-                    zout.flush();
-                }
-                instream.close();
-                zout.closeEntry();
-                instream = null;
+                    int i = 0;
+                    while ((i = instream.read(data)) > 0) {
+                        zout.write(data, 0, i);
+                        zout.flush();
+                    }
+                    instream.close();
+                    zout.closeEntry();
+                    instream = null;
 
-                // Now, the original format:
-                String origFormat = null;
-                try {
-                    StorageIO<DataFile> accessObjectOrig = StoredOriginalFile.retreive(accessObject); //.retrieve(sf, (FileAccessIO) accessObject);
-                    if (accessObjectOrig != null) {
-                        instream = accessObjectOrig.getInputStream();
-                        if (instream != null) {
-                            String origFileName = accessObjectOrig.getFileName();
-                            origFormat = accessObject.getMimeType();
-                            e = new ZipEntry(origFileName);
-                            zout.putNextEntry(e);
+                    // Now, the original format:
+                    String origFormat = null;
+                    try {
+                        StorageIO<DataFile> accessObjectOrig = StoredOriginalFile.retreive(accessObject); //.retrieve(sf, (FileAccessIO) accessObject);
+                        if (accessObjectOrig != null) {
+                            instream = accessObjectOrig.getInputStream();
+                            if (instream != null) {
+                                String origFileName = accessObjectOrig.getFileName();
+                                origFormat = accessObject.getMimeType();
+                                e = new ZipEntry(origFileName);
+                                zout.putNextEntry(e);
 
-                            i = 0;
-                            while ((i = instream.read(data)) > 0) {
-                                zout.write(data, 0, i);
-                                zout.flush();
+                                i = 0;
+                                while ((i = instream.read(data)) > 0) {
+                                    zout.write(data, 0, i);
+                                    zout.flush();
+                                }
                             }
                         }
-                    }
-                } catch (IOException ioex) {
-                    // ignore; if for whatever reason the original is not
-                    // available, we'll just skip it.
-                    logger.warning("failed to retrieve saved original for " + fileName);
-                } finally {
-                    if (instream != null) {
-                        try {
-                            instream.close();
-                        } catch (IOException ioex) {
+                    } catch (IOException ioex) {
+                        // ignore; if for whatever reason the original is not
+                        // available, we'll just skip it. 
+                        logger.warning("failed to retrieve saved original for " + fileName);
+                    } finally {
+                        if (instream != null) {
+                            try {
+                                instream.close();
+                            } catch (IOException ioex) {
+                            }
+                            try {
+                                zout.closeEntry();
+                            } catch (IOException ioex) {
+                            }
                         }
                         try {
                             zout.closeEntry();
@@ -146,22 +149,27 @@ public class BundleDownloadInstanceWriter implements MessageBodyWriter<BundleDow
                                 e = new ZipEntry(rdataFileName);
                                 zout.putNextEntry(e);
 
-                                i = 0;
-                                while ((i = instream.read(data)) > 0) {
-                                    zout.write(data, 0, i);
-                                    zout.flush();
+                                    i = 0;
+                                    while ((i = instream.read(data)) > 0) {
+                                        zout.write(data, 0, i);
+                                        zout.flush();
+                                    }
                                 }
                             }
-                        }
-                    } catch (IOException ioex) {
-                        // ignore; if for whatever reason RData conversion is not
-                        // available, we'll just skip it.
-                        logger.warning("failed to convert tabular data file " + fileName + " to RData.");
-                    } finally {
-                        if (instream != null) {
-                            try {
-                                instream.close();
-                            } catch (IOException ioex) {
+                        } catch (IOException ioex) {
+                            // ignore; if for whatever reason RData conversion is not
+                            // available, we'll just skip it.
+                            logger.warning("failed to convert tabular data file " + fileName + " to RData.");
+                        } finally {
+                            if (instream != null) {
+                                try {
+                                    instream.close();
+                                } catch (IOException ioex) {
+                                }
+                                try {
+                                    zout.closeEntry();
+                                } catch (IOException ioex) {
+                                }
                             }
                             try {
                                 zout.closeEntry();
@@ -169,20 +177,19 @@ public class BundleDownloadInstanceWriter implements MessageBodyWriter<BundleDow
                             }
                         }
                     }
-                }
 
-                // And the variable metadata (DDI/XML), if available:
-                if (di.getFileDDIXML() != null) {
-                    e = new ZipEntry(fileName.replaceAll("\\.tab$", "-ddi.xml"));
+                    // And the variable metadata (DDI/XML), if available: 
+                    if (di.getFileDDIXML() != null) {
+                        e = new ZipEntry(fileName.replaceAll("\\.tab$", "-ddi.xml"));
 
                     zout.putNextEntry(e);
                     zout.write(di.getFileDDIXML().getBytes());
                     zout.closeEntry();
                 }
 
-                // And now the citations:
-                if (di.getFileCitationEndNote() != null) {
-                    e = new ZipEntry(fileName.replaceAll("\\.tab$", "citation-endnote.xml"));
+                    // And now the citations: 
+                    if (di.getFileCitationEndNote() != null) {
+                        e = new ZipEntry(fileName.replaceAll("\\.tab$", "citation-endnote.xml"));
 
                     zout.putNextEntry(e);
                     zout.write(di.getFileCitationEndNote().getBytes());
@@ -190,16 +197,16 @@ public class BundleDownloadInstanceWriter implements MessageBodyWriter<BundleDow
 
                 }
 
-                if (di.getFileCitationRIS() != null) {
-                    e = new ZipEntry(fileName.replaceAll("\\.tab$", "citation-ris.ris"));
+                    if (di.getFileCitationRIS() != null) {
+                        e = new ZipEntry(fileName.replaceAll("\\.tab$", "citation-ris.ris"));
 
                     zout.putNextEntry(e);
                     zout.write(di.getFileCitationRIS().getBytes());
                     zout.closeEntry();
                 }
 
-                if (di.getFileCitationBibtex() != null) {
-                    e = new ZipEntry(fileName.replaceAll("\\.tab$", "citation-bib.bib"));
+                    if (di.getFileCitationBibtex() != null) {
+                        e = new ZipEntry(fileName.replaceAll("\\.tab$", "citation-bib.bib"));
 
                     zout.putNextEntry(e);
                     zout.write(di.getFileCitationBibtex().getBytes());
