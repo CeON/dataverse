@@ -55,8 +55,8 @@ public class StatementManagerImpl implements StatementManager {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
         urlManagerServiceBean.processUrl(editUri);
-        String globalId = urlManagerServiceBean.getTargetIdentifier();
-        if (urlManagerServiceBean.getTargetType().equals("study") && globalId != null) {
+        String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+        if (urlManagerServiceBean.getUrlManager().getTargetType().equals("study") && globalId != null) {
 
             logger.fine("request for sword statement by user " + user.getDisplayInfo().getTitle());
             Dataset dataset = datasetService.findByGlobalId(globalId);

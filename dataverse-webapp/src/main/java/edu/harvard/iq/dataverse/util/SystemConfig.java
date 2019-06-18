@@ -246,6 +246,10 @@ public class SystemConfig {
         return hostUrl;
     }
 
+    public String getFqdnProperty() {
+        return System.getProperty(SystemConfig.FQDN);
+    }
+
     public static String getDataverseSiteUrlStatic() {
         String hostUrl = System.getProperty(SITE_URL);
         if (hostUrl != null && !"".equals(hostUrl)) {

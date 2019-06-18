@@ -9,9 +9,6 @@ import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.dataaccess.StorageIO;
-import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
-import edu.harvard.iq.dataverse.datasetutility.FileExceedsMaxSizeException;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
@@ -66,7 +63,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManagerServiceBean urlManager;
+    UrlManagerServiceBean urlManagerServiceBean;
     @Inject
     private TermsOfUseFactory termsOfUseFactory;
 
@@ -77,9 +74,9 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
 
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
-        urlManager.processUrl(uri);
-        String globalId = urlManager.getTargetIdentifier();
-        if (urlManager.getTargetType().equals("study") && globalId != null) {
+        urlManagerServiceBean.processUrl(uri);
+        String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+        if (urlManagerServiceBean.getUrlManager().getTargetType().equals("study") && globalId != null) {
             logger.fine("looking up dataset with globalId " + globalId);
             Dataset dataset = datasetService.findByGlobalId(globalId);
             if (dataset != null) {
@@ -146,12 +143,12 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
     public void deleteMediaResource(String uri, AuthCredentials authCredentials, SwordConfiguration swordConfiguration) throws SwordError, SwordServerException, SwordAuthException {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
-        urlManager.processUrl(uri);
-        String targetType = urlManager.getTargetType();
-        String fileId = urlManager.getTargetIdentifier();
+        urlManagerServiceBean.processUrl(uri);
+        String targetType = urlManagerServiceBean.getUrlManager().getTargetType();
+        String fileId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
         if (targetType != null && fileId != null) {
             if ("file".equals(targetType)) {
-                String fileIdString = urlManager.getTargetIdentifier();
+                String fileIdString = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
                 if (fileIdString != null) {
                     Long fileIdLong;
                     try {
@@ -233,9 +230,9 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
 
-        urlManager.processUrl(uri);
-        String globalId = urlManager.getTargetIdentifier();
-        if (urlManager.getTargetType().equals("study") && globalId != null) {
+        urlManagerServiceBean.processUrl(uri);
+        String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+        if (urlManagerServiceBean.getUrlManager().getTargetType().equals("study") && globalId != null) {
             logger.fine("looking up dataset with globalId " + globalId);
             Dataset dataset = datasetService.findByGlobalId(globalId);
             if (dataset == null) {
@@ -380,7 +377,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
             ingestService.startIngestJobsForDataset(dataset, user);
 
             ReceiptGenerator receiptGenerator = new ReceiptGenerator();
-            String baseUrl = urlManager.getHostnamePlusBaseUrlPath(uri);
+            String baseUrl = urlManagerServiceBean.getHostnamePlusBaseUrlPath(uri);
             DepositReceipt depositReceipt = receiptGenerator.createDatasetReceipt(baseUrl, dataset);
             return depositReceipt;
         } else {

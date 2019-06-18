@@ -48,8 +48,8 @@ public class CollectionListManagerImpl implements CollectionListManager {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, request);
         urlManagerServiceBean.processUrl(iri.toString());
-        String dvAlias = urlManagerServiceBean.getTargetIdentifier();
-        if (urlManagerServiceBean.getTargetType().equals("dataverse") && dvAlias != null) {
+        String dvAlias = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+        if (urlManagerServiceBean.getUrlManager().getTargetType().equals("dataverse") && dvAlias != null) {
 
             Dataverse dv = dataverseService.findByAlias(dvAlias);
 

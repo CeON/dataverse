@@ -5,14 +5,14 @@ import org.apache.commons.lang.StringUtils;
 import org.swordapp.server.SwordError;
 import org.swordapp.server.UriRegistry;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-@Stateless
+@Stateful
 public class UrlManagerServiceBean {
     private static final Logger logger = Logger.getLogger(UrlManagerServiceBean.class.getCanonicalName());
 
@@ -193,19 +193,11 @@ public class UrlManagerServiceBean {
         return "https://" + hostName + optionalPort + swordConfiguration.getBaseUrlPathCurrent();
     }
 
-    public String getTargetIdentifier() {
-        return urlManager.getTargetIdentifier();
+    public UrlManager getUrlManager() {
+        return urlManager;
     }
 
-    public String getTargetType() {
-        return urlManager.getTargetType();
-    }
-
-    public String getOriginalUrl() {
-        return urlManager.getOriginalUrl();
-    }
-
-    public String getServlet() {
-        return urlManager.getServlet();
+    public SwordConfigurationImpl getSwordConfiguration() {
+        return swordConfiguration;
     }
 }

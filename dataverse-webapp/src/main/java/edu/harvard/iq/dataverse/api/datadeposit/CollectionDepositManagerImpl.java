@@ -70,8 +70,8 @@ public class CollectionDepositManagerImpl implements CollectionDepositManager {
         DataverseRequest dvReq = new DataverseRequest(user, request);
 
         urlManagerServiceBean.processUrl(collectionUri);
-        String dvAlias = urlManagerServiceBean.getTargetIdentifier();
-        if (urlManagerServiceBean.getTargetType().equals("dataverse") && dvAlias != null) {
+        String dvAlias = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+        if (urlManagerServiceBean.getUrlManager().getTargetType().equals("dataverse") && dvAlias != null) {
 
             logger.log(Level.FINE, "attempting deposit into this dataverse alias: {0}", dvAlias);
 
