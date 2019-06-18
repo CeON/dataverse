@@ -80,11 +80,13 @@ public class ContainerManagerImpl implements ContainerManager {
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
         logger.fine("getEntry called with url: " + uri);
         urlManagerServiceBean.processUrl(uri);
-        String targetType = urlManagerServiceBean.getUrlManager().getTargetType();
+        UrlManager urlManager = urlManagerServiceBean.getUrlManager();
+
+        String targetType = urlManager.getTargetType();
         if (!targetType.isEmpty()) {
-            logger.fine("operating on target type: " + urlManagerServiceBean.getUrlManager().getTargetType());
+            logger.fine("operating on target type: " + urlManager.getTargetType());
             if ("study".equals(targetType)) {
-                String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+                String globalId = urlManager.getTargetIdentifier();
                 Dataset dataset = datasetService.findByGlobalId(globalId);
                 if (dataset != null) {
                     if (!permissionService.isUserAllowedOn(user, new GetDraftDatasetVersionCommand(dvReq, dataset), dataset)) {
@@ -116,10 +118,11 @@ public class ContainerManagerImpl implements ContainerManager {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
         logger.fine("replaceMetadata called with url: " + uri);
+        UrlManager urlManager = urlManagerServiceBean.getUrlManager();
         urlManagerServiceBean.processUrl(uri);
-        String targetType = urlManagerServiceBean.getUrlManager().getTargetType();
+        String targetType = urlManager.getTargetType();
         if (!targetType.isEmpty()) {
-            logger.fine("operating on target type: " + urlManagerServiceBean.getUrlManager().getTargetType());
+            logger.fine("operating on target type: " + urlManager.getTargetType());
             if ("dataverse".equals(targetType)) {
                 throw new SwordError(UriRegistry.ERROR_BAD_REQUEST,
                         "Metadata replace of dataverse is not supported.");
@@ -134,7 +137,7 @@ public class ContainerManagerImpl implements ContainerManager {
                             "Can not replace dataset metadata due to malformed Atom entry: " + ex);
                 }
 
-                String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+                String globalId = urlManager.getTargetIdentifier();
                 Dataset dataset = datasetService.findByGlobalId(globalId);
                 if (dataset != null) {
                     Dataverse dvThatOwnsDataset = dataset.getOwner();
@@ -206,20 +209,21 @@ public class ContainerManagerImpl implements ContainerManager {
         DataverseRequest dvRequest = new DataverseRequest(user, httpRequest);
         logger.fine("deleteContainer called with url: " + uri);
         urlManagerServiceBean.processUrl(uri);
-        logger.fine("original url: " + urlManagerServiceBean.getUrlManager().getOriginalUrl());
-        if (!"edit".equals(urlManagerServiceBean.getUrlManager().getServlet())) {
+        UrlManager urlManager = urlManagerServiceBean.getUrlManager();
+        logger.fine("original url: " + urlManager.getOriginalUrl());
+        if (!"edit".equals(urlManager.getServlet())) {
             throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "edit servlet expected, not " +
-                    urlManagerServiceBean.getUrlManager().getServlet());
+                    urlManager.getServlet());
         }
-        String targetType = urlManagerServiceBean.getUrlManager().getTargetType();
+        String targetType = urlManager.getTargetType();
         if (!targetType.isEmpty()) {
-            logger.fine("operating on target type: " + urlManagerServiceBean.getUrlManager().getTargetType());
+            logger.fine("operating on target type: " + urlManager.getTargetType());
 
             if ("dataverse".equals(targetType)) {
                 throw new SwordError(UriRegistry.ERROR_BAD_REQUEST,
                         "Dataverses can not be deleted via the Data Deposit API but other Dataverse APIs may support this operation.");
             } else if ("study".equals(targetType)) {
-                String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+                String globalId = urlManager.getTargetIdentifier();
                 logger.fine("globalId: " + globalId);
                 if (globalId != null) {
                     Dataset dataset = dataset = datasetService.findByGlobalId(globalId);
@@ -324,11 +328,12 @@ public class ContainerManagerImpl implements ContainerManager {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvRequest = new DataverseRequest(user, httpRequest);
         urlManagerServiceBean.processUrl(uri);
-        String targetType = urlManagerServiceBean.getUrlManager().getTargetType();
+        UrlManager urlManager = urlManagerServiceBean.getUrlManager();
+        String targetType = urlManager.getTargetType();
         if (!targetType.isEmpty()) {
-            logger.fine("operating on target type: " + urlManagerServiceBean.getUrlManager().getTargetType());
+            logger.fine("operating on target type: " + urlManager.getTargetType());
             if ("study".equals(targetType)) {
-                String globalId = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+                String globalId = urlManager.getTargetIdentifier();
                 if (globalId != null) {
                     Dataset dataset = null;
                     try {
@@ -392,7 +397,7 @@ public class ContainerManagerImpl implements ContainerManager {
                     throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "Unable to find globalId for dataset in URL:" + uri);
                 }
             } else if ("dataverse".equals(targetType)) {
-                String dvAlias = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
+                String dvAlias = urlManager.getTargetIdentifier();
                 if (dvAlias != null) {
                     Dataverse dvToRelease = dataverseService.findByAlias(dvAlias);
                     if (dvToRelease != null) {

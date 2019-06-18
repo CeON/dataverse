@@ -17,8 +17,6 @@ public class UrlManager {
     String targetIdentifier;
     int port;
 
-
-
     public String getOriginalUrl() {
         return originalUrl;
     }

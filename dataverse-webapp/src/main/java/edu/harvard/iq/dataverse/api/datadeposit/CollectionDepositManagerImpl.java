@@ -61,6 +61,7 @@ public class CollectionDepositManagerImpl implements CollectionDepositManager {
     SettingsServiceBean settingsService;
 
     private HttpServletRequest request;
+    private UrlManager urlManager;
 
     @Override
     public DepositReceipt createNew(String collectionUri, Deposit deposit, AuthCredentials authCredentials, SwordConfiguration config)
@@ -70,8 +71,11 @@ public class CollectionDepositManagerImpl implements CollectionDepositManager {
         DataverseRequest dvReq = new DataverseRequest(user, request);
 
         urlManagerServiceBean.processUrl(collectionUri);
-        String dvAlias = urlManagerServiceBean.getUrlManager().getTargetIdentifier();
-        if (urlManagerServiceBean.getUrlManager().getTargetType().equals("dataverse") && dvAlias != null) {
+        UrlManager urlManager = urlManagerServiceBean.getUrlManager();
+
+        this.urlManager = urlManagerServiceBean.getUrlManager();
+        String dvAlias = urlManager.getTargetIdentifier();
+        if (urlManager.getTargetType().equals("dataverse") && dvAlias != null) {
 
             logger.log(Level.FINE, "attempting deposit into this dataverse alias: {0}", dvAlias);
 
