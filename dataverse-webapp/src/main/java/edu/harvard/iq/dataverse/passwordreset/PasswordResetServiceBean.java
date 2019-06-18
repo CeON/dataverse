@@ -42,9 +42,6 @@ public class PasswordResetServiceBean {
     @EJB
     AuthenticationServiceBean authService;
 
-    @EJB
-    private SettingsServiceBean settingsServiceBean;
-
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
 
@@ -100,7 +97,7 @@ public class PasswordResetServiceBean {
     private String createResetUrl(PasswordResetData passwordResetData) {
         // default to localhost
         String finalHostname = "localhost";
-        String configuredHostname = System.getProperty(SystemConfig.FQDN);
+        String configuredHostname = SystemConfig.FQDN;
         if (configuredHostname != null) {
             if (configuredHostname.equals("localhost")) {
                 // must be a dev environment
