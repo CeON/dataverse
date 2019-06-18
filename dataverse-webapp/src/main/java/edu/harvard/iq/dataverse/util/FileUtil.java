@@ -33,6 +33,7 @@ import edu.harvard.iq.dataverse.ingest.IngestServiceShapefileHelper;
 import edu.harvard.iq.dataverse.ingest.IngestableDataChecker;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
+import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import io.vavr.control.Try;
 import org.apache.commons.io.FileUtils;
@@ -590,7 +591,7 @@ public class FileUtil implements java.io.Serializable  {
     }
     
     public static List<DataFile> createDataFiles(DatasetVersion version, InputStream inputStream, String fileName, String suppliedContentType,
-            SettingsServiceBean settingsService, TermsOfUseFactory termsOfUseFactory) throws IOException {
+            SettingsServiceBean settingsService, TermsOfUseFactory termsOfUseFactory, TermsOfUseFormMapper termsOfUseFormMapper) throws IOException {
         List<DataFile> datafiles = new ArrayList<>(); 
         
         String warningMessage = null; 
@@ -702,7 +703,7 @@ public class FileUtil implements java.io.Serializable  {
                 uncompressedIn = new GZIPInputStream(new FileInputStream(tempFile.toFile()));
                 File unZippedTempFile = saveInputStreamInTempFile(uncompressedIn, fileSizeLimit);
                 ChecksumType checksumType = ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
-                datafile = createSingleDataFile(version, unZippedTempFile, finalFileName, MIME_TYPE_UNDETERMINED_DEFAULT, checksumType, termsOfUseFactory);
+                datafile = createSingleDataFile(version, unZippedTempFile, finalFileName, MIME_TYPE_UNDETERMINED_DEFAULT, checksumType, termsOfUseFactory, termsOfUseFormMapper);
             } catch (IOException | FileExceedsMaxSizeException ioex) {
                 datafile = null;
             } finally {
@@ -813,7 +814,7 @@ public class FileUtil implements java.io.Serializable  {
 
                                 File unZippedTempFile = saveInputStreamInTempFile(unZippedIn, fileSizeLimit);
                                 ChecksumType checksumType = ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
-                                DataFile datafile = createSingleDataFile(version, unZippedTempFile, shortName, MIME_TYPE_UNDETERMINED_DEFAULT, checksumType, false, termsOfUseFactory);
+                                DataFile datafile = createSingleDataFile(version, unZippedTempFile, shortName, MIME_TYPE_UNDETERMINED_DEFAULT, checksumType, false, termsOfUseFactory, termsOfUseFormMapper);
 
                                 if (!fileEntryName.equals(shortName)) {
                                     // If the filename looks like a hierarchical folder name (i.e., contains slashes and backslashes),
@@ -925,7 +926,7 @@ public class FileUtil implements java.io.Serializable  {
 
                     File unZippedShapeTempFile = saveInputStreamInTempFile(finalFileInputStream, fileSizeLimit);
                     ChecksumType checksumType = ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
-                    DataFile new_datafile = createSingleDataFile(version, unZippedShapeTempFile, finalFile.getName(), finalType, checksumType, termsOfUseFactory);
+                    DataFile new_datafile = createSingleDataFile(version, unZippedShapeTempFile, finalFile.getName(), finalType, checksumType, termsOfUseFactory, termsOfUseFormMapper);
                     if (new_datafile != null) {
                         datafiles.add(new_datafile);
                     } else {
@@ -964,7 +965,7 @@ public class FileUtil implements java.io.Serializable  {
         // if we were unable to unpack an uploaded file, etc.), we'll just 
         // create and return a single DataFile:
         ChecksumType checksumType = ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
-        DataFile datafile = createSingleDataFile(version, tempFile.toFile(), fileName, finalType, checksumType, termsOfUseFactory);
+        DataFile datafile = createSingleDataFile(version, tempFile.toFile(), fileName, finalType, checksumType, termsOfUseFactory, termsOfUseFormMapper);
         
         if (datafile != null && tempFile.toFile() != null) {
        
@@ -1011,11 +1012,13 @@ public class FileUtil implements java.io.Serializable  {
      * been figured out. 
     */
     
-    private static DataFile createSingleDataFile(DatasetVersion version, File tempFile, String fileName, String contentType, DataFile.ChecksumType checksumType, TermsOfUseFactory termsOfUseFactory) {
-        return createSingleDataFile(version, tempFile, fileName, contentType, checksumType, false, termsOfUseFactory);
+    private static DataFile createSingleDataFile(DatasetVersion version, File tempFile, String fileName, String contentType, DataFile.ChecksumType checksumType,
+            TermsOfUseFactory termsOfUseFactory, TermsOfUseFormMapper termsOfUseFormMapper) {
+        return createSingleDataFile(version, tempFile, fileName, contentType, checksumType, false, termsOfUseFactory, termsOfUseFormMapper);
     }
     
-    private static DataFile createSingleDataFile(DatasetVersion version, File tempFile, String fileName, String contentType, DataFile.ChecksumType checksumType, boolean addToDataset, TermsOfUseFactory termsOfUseFactory) {
+    private static DataFile createSingleDataFile(DatasetVersion version, File tempFile, String fileName, String contentType, DataFile.ChecksumType checksumType, boolean addToDataset,
+            TermsOfUseFactory termsOfUseFactory, TermsOfUseFormMapper termsOfUseFormMapper) {
 
         if (tempFile == null) {
             return null;
@@ -1038,6 +1041,8 @@ public class FileUtil implements java.io.Serializable  {
         FileTermsOfUse termsOfUse = termsOfUseFactory.createTermsOfUse();
         fmd.setTermsOfUse(termsOfUse);
         termsOfUse.setFileMetadata(fmd);
+        
+        fmd.setTermsOfUseForm(termsOfUseFormMapper.mapToForm(termsOfUse));
 
         if (addToDataset) {
             datafile.setOwner(version.getDataset());

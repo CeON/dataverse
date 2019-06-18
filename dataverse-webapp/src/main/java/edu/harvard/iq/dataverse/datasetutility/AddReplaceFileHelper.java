@@ -24,6 +24,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.RestrictFileCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
+import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -48,6 +49,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.ocpsoft.common.util.Strings;
+
+import com.google.common.base.Preconditions;
 
 /**
  *  Methods to add or replace a single file.
@@ -114,6 +117,7 @@ public class AddReplaceFileHelper{
     private EjbDataverseEngine commandEngine;
     private SettingsServiceBean settingsService;
     private TermsOfUseFactory termsOfUseFactory;
+    private TermsOfUseFormMapper termsOfUseFormMapper;
     
     // -----------------------------------
     // Instance variables directly added
@@ -196,42 +200,26 @@ public class AddReplaceFileHelper{
                             PermissionServiceBean permissionService,
                             EjbDataverseEngine commandEngine,
                             SettingsServiceBean settingsService,
-                            TermsOfUseFactory termsOfUseFactory){
+                            TermsOfUseFactory termsOfUseFactory,
+                            TermsOfUseFormMapper termsOfUseFormMapper){
 
         // ---------------------------------
         // make sure DataverseRequest isn't null and has a user
         // ---------------------------------
-        if (dvRequest == null){
-            throw new NullPointerException("dvRequest cannot be null");
-        }
-        if (dvRequest.getUser() == null){
-            throw new NullPointerException("dvRequest cannot have a null user");
-        }
+        Preconditions.checkNotNull(dvRequest, "dvRequest cannot be null");
+        Preconditions.checkNotNull(dvRequest.getUser(), "dvRequest cannot have a null user");
 
         // ---------------------------------
         // make sure services aren't null
         // ---------------------------------
-        if (ingestService == null){
-            throw new NullPointerException("ingestService cannot be null");
-        }
-        if (datasetService == null){
-            throw new NullPointerException("datasetService cannot be null");
-        }
-        if (fileService == null){
-            throw new NullPointerException("fileService cannot be null");
-        }
-        if (permissionService == null){
-            throw new NullPointerException("ingestService cannot be null");
-        }
-        if (commandEngine == null){
-            throw new NullPointerException("commandEngine cannot be null");
-        }
-        if (settingsService == null) {
-            throw new NullPointerException("settingsService cannot be null");
-        }
-        if (termsOfUseFactory == null) {
-            throw new NullPointerException("TermsOfUseFactory cannot be null");
-        }
+        Preconditions.checkNotNull(ingestService, "ingestService cannot be null");
+        Preconditions.checkNotNull(datasetService, "datasetService cannot be null");
+        Preconditions.checkNotNull(fileService, "fileService cannot be null");
+        Preconditions.checkNotNull(permissionService, "permissionService cannot be null");
+        Preconditions.checkNotNull(commandEngine, "commandEngine cannot be null");
+        Preconditions.checkNotNull(settingsService, "settingsService cannot be null");
+        Preconditions.checkNotNull(termsOfUseFactory, "TermsOfUseFactory cannot be null");
+        Preconditions.checkNotNull(termsOfUseFormMapper, "TermsOfUseFormMapper cannot be null");
 
         // ---------------------------------
         
@@ -1058,7 +1046,8 @@ public class AddReplaceFileHelper{
                     this.newFileName,
                     this.newFileContentType,
                     this.settingsService,
-                    this.termsOfUseFactory);
+                    this.termsOfUseFactory,
+                    this.termsOfUseFormMapper);
 
         } catch (IOException ex) {
             if (!Strings.isNullOrEmpty(ex.getMessage())) {

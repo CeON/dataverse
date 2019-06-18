@@ -530,7 +530,8 @@ public class EditDatafilesPage implements java.io.Serializable {
                                                 permissionService,
                                                 commandEngine,
                                                 settingsService,
-                                                termsOfUseFactory);
+                                                termsOfUseFactory,
+                                                termsOfUseFormMapper);
                         
             fileReplacePageHelper = new FileReplacePageHelper(addReplaceFileHelper,
                                                 dataset, 
@@ -1714,7 +1715,8 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // for example, multiple files can be extracted from an uncompressed
                 // zip file.
                 //datafiles = ingestService.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream");
-                datafiles = FileUtil.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream", settingsService, termsOfUseFactory);
+                datafiles = FileUtil.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream",
+                        settingsService, termsOfUseFactory, termsOfUseFormMapper);
                 
             } catch (IOException ex) {
                 this.logger.log(Level.SEVERE, "Error during ingest of DropBox file {0} from link {1}", new Object[]{fileName, fileLink});
@@ -2070,7 +2072,8 @@ public class EditDatafilesPage implements java.io.Serializable {
             // Note: A single uploaded file may produce multiple datafiles - 
             // for example, multiple files can be extracted from an uncompressed
             // zip file. 
-            dFileList = FileUtil.createDataFiles(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType(), settingsService, termsOfUseFactory);
+            dFileList = FileUtil.createDataFiles(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType(),
+                    settingsService, termsOfUseFactory, termsOfUseFormMapper);
             
         } catch (IOException ioex) {
             logger.warning("Failed to process and/or save the file " + uFile.getFileName() + "; " + ioex.getMessage());
