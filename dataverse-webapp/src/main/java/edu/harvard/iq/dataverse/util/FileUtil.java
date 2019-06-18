@@ -83,12 +83,12 @@ import static edu.harvard.iq.dataverse.datasetutility.FileSizeChecker.bytesToHum
 
 /**
  * a 4.0 implementation of the DVN FileUtil;
- * it provides some of the functionality from the 3.6 implementation, 
+ * it provides some of the functionality from the 3.6 implementation,
  * but the old code is ported creatively on the method-by-method basis.
- * 
+ *
  * @author Leonid Andreev
  */
-public class FileUtil implements java.io.Serializable  {
+public class FileUtil implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(FileUtil.class.getCanonicalName());
 
     private static final String[] TABULAR_DATA_FORMAT_SET = {"POR", "SAV", "DTA", "RDA"};
@@ -96,12 +96,12 @@ public class FileUtil implements java.io.Serializable  {
     private static Map<String, String> STATISTICAL_FILE_EXTENSION = new HashMap<String, String>();
 
     /*
-     * The following are Stata, SAS and SPSS syntax/control cards: 
-     * These are recognized as text files (because they are!) so 
-     * we check all the uploaded "text/plain" files for these extensions, and 
+     * The following are Stata, SAS and SPSS syntax/control cards:
+     * These are recognized as text files (because they are!) so
+     * we check all the uploaded "text/plain" files for these extensions, and
      * assign the following types when they are matched;
-     * Note that these types are only used in the metadata displayed on the 
-     * dataset page. We don't support ingest on control cards. 
+     * Note that these types are only used in the metadata displayed on the
+     * dataset page. We don't support ingest on control cards.
      * -- L.A. 4.0 Oct. 2014
      */
 
@@ -119,7 +119,7 @@ public class FileUtil implements java.io.Serializable  {
     public static final String MIME_TYPE_STATA13 = "application/x-stata-13";
     public static final String MIME_TYPE_STATA14 = "application/x-stata-14";
     public static final String MIME_TYPE_STATA15 = "application/x-stata-15";
-    public static final String MIME_TYPE_RDATA   = "application/x-rlang-transport";
+    public static final String MIME_TYPE_RDATA = "application/x-rlang-transport";
 
     public static final String MIME_TYPE_CSV = "text/csv";
     public static final String MIME_TYPE_CSV_ALT = "text/comma-separated-values";

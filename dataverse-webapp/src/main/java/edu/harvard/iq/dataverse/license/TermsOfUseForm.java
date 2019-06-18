@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * Terms of use used to populate values of
  * {@link FileTermsOfUse} in forms
- * 
+ *
  * @author madryk
  */
 public class TermsOfUseForm implements Serializable {
@@ -37,7 +37,7 @@ public class TermsOfUseForm implements Serializable {
     }
 
     /**
-     * Returns custom restrict text if 
+     * Returns custom restrict text if
      * (corresponds to {@link FileTermsOfUse#getRestrictCustomText()})
      */
     public String getCustomRestrictText() {
@@ -49,9 +49,11 @@ public class TermsOfUseForm implements Serializable {
     public void setTypeWithLicenseId(String typeWithLicenseId) {
         this.typeWithLicenseId = typeWithLicenseId;
     }
+
     public void setRestrictType(String restrictType) {
         this.restrictType = restrictType;
     }
+
     public void setCustomRestrictText(String customRestrictText) {
         this.customRestrictText = customRestrictText;
     }

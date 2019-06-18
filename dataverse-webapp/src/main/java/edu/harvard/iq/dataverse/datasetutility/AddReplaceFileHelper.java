@@ -92,7 +92,7 @@ import java.util.logging.Logger;
  *
  * @author rmp553
  */
-public class AddReplaceFileHelper{
+public class AddReplaceFileHelper {
 
     private static final Logger logger = Logger.getLogger(AddReplaceFileHelper.class.getCanonicalName());
 
@@ -133,13 +133,13 @@ public class AddReplaceFileHelper{
     private User user;
     private DatasetVersion workingVersion;
     private DatasetVersion clone;
-    List<DataFile> initialFileList; 
+    List<DataFile> initialFileList;
     List<DataFile> finalFileList;
 
     // -----------------------------------
     // Ingested files
     // -----------------------------------
-    private List<DataFile> newlyAddedFiles; 
+    private List<DataFile> newlyAddedFiles;
     private List<FileMetadata> newlyAddedFileMetadatas;
     // -----------------------------------
     // For error handling
@@ -650,7 +650,9 @@ public class AddReplaceFileHelper{
 
         if (this.currentOperation.equals(FILE_REPLACE_OPERATION)) {
             return true;
-        } else return this.currentOperation.equals(FILE_REPLACE_FORCE_OPERATION);
+        } else {
+            return this.currentOperation.equals(FILE_REPLACE_FORCE_OPERATION);
+        }
     }
 
     /**
