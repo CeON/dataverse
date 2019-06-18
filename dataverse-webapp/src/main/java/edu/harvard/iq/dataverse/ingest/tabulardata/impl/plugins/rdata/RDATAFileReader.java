@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -253,7 +254,7 @@ public class RDATAFileReader extends TabularDataFileReader {
          * Destroy the Actual R Workspace
          */
         public void destroy() {
-            String destroyerScript = new StringBuilder("")
+            String destroyerScript = new StringBuilder()
                     .append(String.format("unlink(\"%s\", TRUE, TRUE)", mParent))
                     .toString();
 
@@ -401,7 +402,7 @@ public class RDATAFileReader extends TabularDataFileReader {
             mCsvDataFile = new File(mRWorkspace.getRdataFile().getParent(), "data.csv");
 
             //
-            String csvScript = new StringBuilder("")
+            String csvScript = new StringBuilder()
                     .append("options(digits.secs=3)")
                     .append("\n")
                     .append(RSCRIPT_WRITE_DVN_TABLE)
@@ -487,7 +488,7 @@ public class RDATAFileReader extends TabularDataFileReader {
             // created!
             // - L.A. 
             RTabFileParser csvFileReader = new RTabFileParser('\t');
-            BufferedReader localBufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(localCsvFile), "UTF-8"));
+            BufferedReader localBufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(localCsvFile), StandardCharsets.UTF_8));
 
             File tabFileDestination = File.createTempFile("data-", ".tab");
             PrintWriter tabFileWriter = new PrintWriter(tabFileDestination.getAbsolutePath(), "UTF-8");
@@ -579,7 +580,7 @@ public class RDATAFileReader extends TabularDataFileReader {
 
         String parentDirectory = mRWorkspace.getRdataFile().getParent();
 
-        String fileInfoScript = new StringBuilder("")
+        String fileInfoScript = new StringBuilder()
                 .append(String.format("load(\"%s\")\n", mRWorkspace.getRdataAbsolutePath()))
                 .append(String.format("setwd(\"%s\")\n", parentDirectory))
                 .append(RSCRIPT_GET_DATASET)
@@ -665,7 +666,7 @@ public class RDATAFileReader extends TabularDataFileReader {
 
         // Try opening a buffered reader stream
         try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(resourceStream, "UTF-8"));
+            BufferedReader rd = new BufferedReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8));
 
             String line = null;
             while ((line = rd.readLine()) != null) {
@@ -791,11 +792,11 @@ public class RDATAFileReader extends TabularDataFileReader {
                     dataTable.getDataVariables().get(k).setTypeNumeric();
                     dataTable.getDataVariables().get(k).setIntervalDiscrete();
 
-                    String booleanFactorLabels[] = new String[2];
+                    String[] booleanFactorLabels = new String[2];
                     booleanFactorLabels[0] = "FALSE";
                     booleanFactorLabels[1] = "TRUE";
 
-                    String booleanFactorValues[] = new String[2];
+                    String[] booleanFactorValues = new String[2];
                     booleanFactorValues[0] = "0";
                     booleanFactorValues[1] = "1";
 

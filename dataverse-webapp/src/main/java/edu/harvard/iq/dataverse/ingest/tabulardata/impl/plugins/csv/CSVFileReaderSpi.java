@@ -21,7 +21,6 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.csv;
 
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
-import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -225,7 +225,7 @@ public class RemoteDataFrameService {
                 connection.voidEval(fmtValuesLine);
             } else {
                 connection.assign("varFmt", new REXPList(new RList(new ArrayList<>(),
-                        new String[]{})));
+                                                                   new String[]{})));
             }
 
             // Variable names:
@@ -374,10 +374,10 @@ public class RemoteDataFrameService {
                 if (orderedCategoryValues != null && orderedCategoryValues.containsKey(varId)) {
                     List<String> orderList = orderedCategoryValues.get(varId);
                     if (orderList != null) {
-                        String[] ordv = (String[]) orderList.toArray(new String[orderList.size()]);
+                        String[] ordv = orderList.toArray(new String[orderList.size()]);
                         logger.fine("ordv=" + StringUtils.join(ordv, ","));
                         connection.assign("ordv", new REXPString(ordv));
-                        String sbvl = "VALORDER[['" + Integer.toString(j + 1) + "']]" + "<- as.list(ordv)";
+                        String sbvl = "VALORDER[['" + (j + 1) + "']]" + "<- as.list(ordv)";
                         logger.fine("VALORDER[...]=" + sbvl);
                         connection.voidEval(sbvl);
                     } else {
@@ -552,7 +552,7 @@ public class RemoteDataFrameService {
             // send the tabular data file to the Rserve side:
 
             StorageIO<DataFile> accessObject = DataAccess.getStorageIO(dataFile,
-                    new DataAccessRequest());
+                                                                       new DataAccessRequest());
 
             accessObject.open();
             InputStream is = accessObject.getInputStream();
