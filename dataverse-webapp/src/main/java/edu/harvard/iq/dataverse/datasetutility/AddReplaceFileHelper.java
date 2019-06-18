@@ -212,26 +212,16 @@ public class AddReplaceFileHelper{
         // ---------------------------------
         // make sure services aren't null
         // ---------------------------------
-        Preconditions.checkNotNull(ingestService, "ingestService cannot be null");
-        Preconditions.checkNotNull(datasetService, "datasetService cannot be null");
-        Preconditions.checkNotNull(fileService, "fileService cannot be null");
-        Preconditions.checkNotNull(permissionService, "permissionService cannot be null");
-        Preconditions.checkNotNull(commandEngine, "commandEngine cannot be null");
-        Preconditions.checkNotNull(settingsService, "settingsService cannot be null");
-        Preconditions.checkNotNull(termsOfUseFactory, "TermsOfUseFactory cannot be null");
-        Preconditions.checkNotNull(termsOfUseFormMapper, "TermsOfUseFormMapper cannot be null");
+        this.ingestService = Objects.requireNonNull(ingestService, "ingestService cannot be null");
+        this.datasetService = Objects.requireNonNull(datasetService, "datasetService cannot be null");
+        this.fileService = Objects.requireNonNull(fileService, "fileService cannot be null");
+        this.permissionService = Objects.requireNonNull(permissionService, "permissionService cannot be null");
+        this.commandEngine = Objects.requireNonNull(commandEngine, "commandEngine cannot be null");
+        this.settingsService = Objects.requireNonNull(settingsService, "settingsService cannot be null");
+        this.termsOfUseFactory = Objects.requireNonNull(termsOfUseFactory, "TermsOfUseFactory cannot be null");
+        this.termsOfUseFormMapper = Objects.requireNonNull(termsOfUseFormMapper, "TermsOfUseFormMapper cannot be null");
 
         // ---------------------------------
-        
-        this.ingestService = ingestService;
-        this.datasetService = datasetService;
-        this.fileService = fileService;
-        this.permissionService = permissionService;
-        this.commandEngine = commandEngine;
-        this.settingsService = settingsService;
-        this.termsOfUseFactory = termsOfUseFactory;
-        
-        
         
         initErrorHandling();
         
