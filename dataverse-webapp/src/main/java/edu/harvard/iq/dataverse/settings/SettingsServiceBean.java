@@ -429,13 +429,15 @@ public class SettingsServiceBean {
         HandleNetAdmPrivPhrase,
         HandleNetIndex,
 
+        TimerServer,
+
+        MinutesUntilPasswordResetTokenExpires,
+
         RserveHost,
         RservePort,
         RserveUser,
         RservePassword,
-        RserveTempDir,
-
-        TimerServer;
+        RserveTempDir;
 
         @Override
         public String toString() {
