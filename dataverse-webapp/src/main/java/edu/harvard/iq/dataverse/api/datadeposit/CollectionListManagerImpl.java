@@ -39,7 +39,7 @@ public class CollectionListManagerImpl implements CollectionListManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManager urlManager;
+    UrlManagerServiceBean urlManagerServiceBean;
 
     private HttpServletRequest request;
 
@@ -47,9 +47,9 @@ public class CollectionListManagerImpl implements CollectionListManager {
     public Feed listCollectionContents(IRI iri, AuthCredentials authCredentials, SwordConfiguration swordConfiguration) throws SwordServerException, SwordAuthException, SwordError {
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, request);
-        urlManager.processUrl(iri.toString());
-        String dvAlias = urlManager.getTargetIdentifier();
-        if (urlManager.getTargetType().equals("dataverse") && dvAlias != null) {
+        urlManagerServiceBean.processUrl(iri.toString());
+        String dvAlias = urlManagerServiceBean.getTargetIdentifier();
+        if (urlManagerServiceBean.getTargetType().equals("dataverse") && dvAlias != null) {
 
             Dataverse dv = dataverseService.findByAlias(dvAlias);
 
@@ -67,7 +67,7 @@ public class CollectionListManagerImpl implements CollectionListManager {
                 Abdera abdera = new Abdera();
                 Feed feed = abdera.newFeed();
                 feed.setTitle(dv.getName());
-                String baseUrl = urlManager.getHostnamePlusBaseUrlPath(iri.toString());
+                String baseUrl = urlManagerServiceBean.getHostnamePlusBaseUrlPath(iri.toString());
                 List<Dataset> datasets = datasetService.findByOwnerId(dv.getId());
                 for (Dataset dataset : datasets) {
                     /**

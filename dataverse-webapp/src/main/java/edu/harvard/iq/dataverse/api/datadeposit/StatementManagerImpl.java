@@ -45,7 +45,7 @@ public class StatementManagerImpl implements StatementManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManager urlManager;
+    UrlManagerServiceBean urlManagerServiceBean;
 
     private HttpServletRequest httpRequest;
 
@@ -54,9 +54,9 @@ public class StatementManagerImpl implements StatementManager {
 
         AuthenticatedUser user = swordAuth.auth(authCredentials);
         DataverseRequest dvReq = new DataverseRequest(user, httpRequest);
-        urlManager.processUrl(editUri);
-        String globalId = urlManager.getTargetIdentifier();
-        if (urlManager.getTargetType().equals("study") && globalId != null) {
+        urlManagerServiceBean.processUrl(editUri);
+        String globalId = urlManagerServiceBean.getTargetIdentifier();
+        if (urlManagerServiceBean.getTargetType().equals("study") && globalId != null) {
 
             logger.fine("request for sword statement by user " + user.getDisplayInfo().getTitle());
             Dataset dataset = datasetService.findByGlobalId(globalId);
@@ -68,7 +68,7 @@ public class StatementManagerImpl implements StatementManager {
             if (!permissionService.isUserAllowedOn(user, new GetDraftDatasetVersionCommand(dvReq, dataset), dataset)) {
                 throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "user " + user.getDisplayInfo().getTitle() + " is not authorized to view dataset with global ID " + globalId);
             }
-            String feedUri = urlManager.getHostnamePlusBaseUrlPath(editUri) + "/edit/study/" + dataset.getGlobalIdString();
+            String feedUri = urlManagerServiceBean.getHostnamePlusBaseUrlPath(editUri) + "/edit/study/" + dataset.getGlobalIdString();
             String author = dataset.getLatestVersion().getAuthorsStr();
             String title = dataset.getLatestVersion().getTitle();
             // in the statement, the element is called "updated"
@@ -113,7 +113,7 @@ public class StatementManagerImpl implements StatementManager {
                 // Replace spaces to avoid IRISyntaxException
                 String fileNameFinal = fileMetadata.getLabel().replace(' ', '_');
                 // TODO: Consider where we would show the persistent identifiers for files via SWORD.
-                String fileUrlString = urlManager.getHostnamePlusBaseUrlPath(editUri) + "/edit-media/file/" + dataFile.getId() + "/" + fileNameFinal;
+                String fileUrlString = urlManagerServiceBean.getHostnamePlusBaseUrlPath(editUri) + "/edit-media/file/" + dataFile.getId() + "/" + fileNameFinal;
                 IRI fileUrl;
                 try {
                     fileUrl = new IRI(fileUrlString);

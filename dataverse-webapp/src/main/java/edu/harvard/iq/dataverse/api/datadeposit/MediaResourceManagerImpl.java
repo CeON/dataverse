@@ -66,7 +66,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManager urlManager;
+    UrlManagerServiceBean urlManager;
     @Inject
     private TermsOfUseFactory termsOfUseFactory;
 
