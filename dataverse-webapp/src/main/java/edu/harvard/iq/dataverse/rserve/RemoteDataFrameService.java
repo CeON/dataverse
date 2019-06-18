@@ -83,15 +83,17 @@ public class RemoteDataFrameService {
     private String RSERVE_USER;
     private String RSERVE_PWD;
     private int RSERVE_PORT;
-
-    private static String DATAVERSE_R_FUNCTIONS = "scripts/dataverse_r_functions.R";
-
-    private static String LOCAL_TEMP_DIR = System.getProperty("java.io.tmpdir");
     private String RSERVE_TMP_DIR;
 
-    public String PID;
-    private String tempFileNameIn;
-    private String tempFileNameOut;
+    private static String DATAVERSE_R_FUNCTIONS = "scripts/dataverse_r_functions.R";
+    private static final String PREPROCESS_FILE_PREFIX = "dataversePreprocess_";
+    private static final String DATAVERSE_R_PREPROCESSING = "scripts/preprocess.R";
+
+    private static final String TMP_DATA_FILE_NAME = "dataverseTabData_";
+    private static final String TMP_TABDATA_FILE_EXT = ".tab";
+
+    private static final String LOCAL_TEMP_DIR = System.getProperty("java.io.tmpdir");
+    private static final String TMP_RDATA_FILE_EXT = ".RData";
 
     @PostConstruct
     public void initializeVariables() {
@@ -100,25 +102,23 @@ public class RemoteDataFrameService {
         RSERVE_USER = settingsService.getValueForKey(SettingsServiceBean.Key.RserveUser);
         RSERVE_PWD = settingsService.getValueForKey(SettingsServiceBean.Key.RservePassword);
         RSERVE_PORT = settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.RservePort);
-
-        String TMP_DATA_FILE_NAME = "dataverseTabData_";
-        String TMP_TABDATA_FILE_EXT = ".tab";
-        tempFileNameIn = RSERVE_TMP_DIR + "/" + TMP_DATA_FILE_NAME
-                + "." + PID + TMP_TABDATA_FILE_EXT;
-
-        String TMP_RDATA_FILE_EXT = ".RData";
-        tempFileNameOut = RSERVE_TMP_DIR + "/" + RWRKSP_FILE_PREFIX
-                + "." + PID + TMP_RDATA_FILE_EXT;
-        PID = RandomStringUtils.randomNumeric(6);
     }
 
-    public Map<String, String> directConvert(File originalFile, String fmt) {
+    public String generateRandomPID() {
+        return RandomStringUtils.randomNumeric(6);
+    }
+
+    public Map<String, String> directConvert(File originalFile, String fmt, String pid) {
+
 
         Map<String, String> result = new HashMap<>();
         try {
             RConnection connection = setupConnection();
             // send the data file to the Rserve side:
             InputStream inFile = new BufferedInputStream(new FileInputStream(originalFile));
+
+
+            String tempFileNameIn = generateTempFileNameIn(pid);
 
             RFileOutputStream rOutFile = connection.createFile(tempFileNameIn);
             copyWithBuffer(inFile, rOutFile, 1024);
@@ -128,7 +128,7 @@ public class RemoteDataFrameService {
             String rscript = readLocalResource(DATAVERSE_R_FUNCTIONS);
             connection.voidEval(rscript);
 
-            String dataFileName = "Data." + PID + ".RData";
+            String dataFileName = "Data." + pid + ".RData";
 
             // data file to be copied back to the dvn
             String dsnprfx = RSERVE_TMP_DIR + "/" + dataFileName;
@@ -139,7 +139,7 @@ public class RemoteDataFrameService {
             connection.voidEval(command);
 
             int wbFileSize = getFileSize(connection, dsnprfx);
-            File localDataFrameFile = transferRemoteFile(connection, dsnprfx, RWRKSP_FILE_PREFIX, "RData", wbFileSize);
+            File localDataFrameFile = transferRemoteFile(connection, dsnprfx, RWRKSP_FILE_PREFIX, "RData", wbFileSize, pid);
 
             if (localDataFrameFile != null) {
                 logger.fine("data frame file name: " + localDataFrameFile.getAbsolutePath());
@@ -177,8 +177,10 @@ public class RemoteDataFrameService {
      * TODO: replace this Map with a dedicated RJobResult object; -- L.A. 4.0 alpha 1
      */
 
-    public Map<String, String> execute(RJobRequest jobRequest) {
+    public Map<String, String> execute(RJobRequest jobRequest, String pid) {
         logger.fine("RemoteDataFrameService: execute() starts here.");
+
+        String tempFileNameIn = generateTempFileNameIn(pid);
 
         Map<String, String> result = new HashMap<>();
 
@@ -442,8 +444,7 @@ public class RemoteDataFrameService {
             // to handle the conversion (so, another choice would be to convert 
             // the above to a factor of "0" and "1"s), etc. 
             // -- L.A. 4.3
-
-            String dataFileName = "Data." + PID + "." + jobRequest.getFormatRequested();
+            String dataFileName = "Data." + pid + "." + jobRequest.getFormatRequested();
 
             // data file to be copied back to the dvn
             String dsnprfx = RSERVE_TMP_DIR + "/" + dataFileName;
@@ -458,7 +459,7 @@ public class RemoteDataFrameService {
 
             logger.fine("wbFileSize=" + wbFileSize);
 
-            result.putAll(buildResult(connection, dsnprfx, wbFileSize, result));
+            result.putAll(buildResult(connection, dsnprfx, wbFileSize, result, pid));
         } catch (Exception e) {
             logger.severe(e.getMessage());
             result.put("RexecError", "true");
@@ -468,11 +469,13 @@ public class RemoteDataFrameService {
 
     }
 
-    private Map<String, String> buildResult(RConnection connection, String dsnprfx, int wbFileSize, Map<String, String> result) throws RserveException, REXPMismatchException {
+    private Map<String, String> buildResult(RConnection connection, String dsnprfx, int wbFileSize, Map<String, String> result, String pid) throws RserveException, REXPMismatchException {
         // If the above succeeded, the dataframe has been saved on the
         // Rserve side as an .Rdata file. Now we can transfer it back to the
         // dataverse side:
-        File localDataFrameFile = transferRemoteFile(connection, dsnprfx, RWRKSP_FILE_PREFIX, "RData", wbFileSize);
+        String tempFileNameIn = generateTempFileNameIn(pid);
+
+        File localDataFrameFile = transferRemoteFile(connection, dsnprfx, RWRKSP_FILE_PREFIX, "RData", wbFileSize, pid);
 
         if (localDataFrameFile != null) {
             logger.fine("data frame file name: " + localDataFrameFile.getAbsolutePath());
@@ -524,10 +527,13 @@ public class RemoteDataFrameService {
     }
 
 
-    public File runDataPreprocessing(DataFile dataFile) {
+    public File runDataPreprocessing(DataFile dataFile, String pid) {
         if (!dataFile.isTabularData()) {
             return null;
         }
+
+        String tempFileNameIn = generateTempFileNameIn(pid);
+        String tempFileNameOut = generateTempFileNameOut(pid);
 
         File preprocessedDataFile = null;
 
@@ -575,7 +581,6 @@ public class RemoteDataFrameService {
             // created: 
 
             connection.voidEval("library(rjson)");
-            String DATAVERSE_R_PREPROCESSING = "scripts/preprocess.R";
             String rscript = readLocalResource(DATAVERSE_R_PREPROCESSING);
             logger.fine("preprocessing R code: " + rscript.substring(0, 64));
             connection.voidEval(rscript);
@@ -593,8 +598,7 @@ public class RemoteDataFrameService {
             // Finally, transfer the saved file back on the application side:
 
             int fileSize = getFileSize(connection, tempFileNameOut);
-            String PREPROCESS_FILE_PREFIX = "dataversePreprocess_";
-            preprocessedDataFile = transferRemoteFile(connection, tempFileNameOut, PREPROCESS_FILE_PREFIX, "json", fileSize);
+            preprocessedDataFile = transferRemoteFile(connection, tempFileNameOut, PREPROCESS_FILE_PREFIX, "json", fileSize, pid);
 
             String deleteLine = "file.remove('" + tempFileNameOut + "')";
             connection.eval(deleteLine);
@@ -641,12 +645,12 @@ public class RemoteDataFrameService {
      * (TODO: may not need to be a separate method -- something for the final cleanup ?
      * -- L.A. 4.0 alpha 1)
      */
-    public Map<String, String> runDataFrameRequest(RJobRequest jobRequest, RConnection connection) {
+    public Map<String, String> runDataFrameRequest(RJobRequest jobRequest, RConnection connection, String pid) {
 
         Map<String, String> sr = new HashMap<>();
 
         try {
-            String dataFileName = "Data." + PID + "." + jobRequest.getFormatRequested();
+            String dataFileName = "Data." + pid + "." + jobRequest.getFormatRequested();
 
             // data file to be copied back to the dvn
             String dsnprfx = RSERVE_TMP_DIR + "/" + dataFileName;
@@ -673,12 +677,12 @@ public class RemoteDataFrameService {
 
 
     public File transferRemoteFile(RConnection connection, String targetFilename,
-                                   String tmpFilePrefix, String tmpFileExt, int fileSize) {
+                                   String tmpFilePrefix, String tmpFileExt, int fileSize, String pid) {
 
         // set up a local temp file: 
 
         File tmpResultFile = null;
-        String resultFile = tmpFilePrefix + PID + "." + tmpFileExt;
+        String resultFile = tmpFilePrefix + pid + "." + tmpFileExt;
 
         RFileInputStream rInStream = null;
         OutputStream outbr = null;
@@ -762,5 +766,15 @@ public class RemoteDataFrameService {
             logger.warning(String.format("RDATAFileReader: (readLocalResource) resource stream from path \"%s\" was invalid", path));
         }
         return resourceAsString;
+    }
+
+    private String generateTempFileNameIn(String pid) {
+        return RSERVE_TMP_DIR + "/" + TMP_DATA_FILE_NAME
+                + "." + pid + TMP_TABDATA_FILE_EXT;
+    }
+
+    private String generateTempFileNameOut(String pid) {
+        return RSERVE_TMP_DIR + "/" + RWRKSP_FILE_PREFIX
+                + "." + pid + TMP_RDATA_FILE_EXT;
     }
 }

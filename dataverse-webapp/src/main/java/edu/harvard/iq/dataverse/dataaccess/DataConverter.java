@@ -216,7 +216,8 @@ public class DataConverter {
         }
 
         File formatConvertedFile;
-        
+        String pid = dfs.generateRandomPID();
+
         if ("RData".equals(formatRequested)) {
             String origFormat = file.getOriginalFileFormat();
             Map<String, String> resultInfo;
@@ -233,7 +234,7 @@ public class DataConverter {
                     StorageIO<DataFile> storageIO = file.getStorageIO();
                     long size = storageIO.getAuxObjectSize("orig");
                     File origFile = downloadFromByteChannel((ReadableByteChannel) storageIO.openAuxChannel("orig"), size);
-                    resultInfo = dfs.directConvert(origFile, origFormat);
+                    resultInfo = dfs.directConvert(origFile, origFormat, pid);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     return null;
@@ -252,7 +253,7 @@ public class DataConverter {
                 sro.setFormatRequested("RData");
 
                 // execute the service
-                resultInfo = dfs.execute(sro);
+                resultInfo = dfs.execute(sro, pid);
             }
 
             //resultInfo.put("offlineCitation", citation);
@@ -269,7 +270,7 @@ public class DataConverter {
 
             formatConvertedFile = new File(dataFrameFileName);
         } else if ("prep".equals(formatRequested)) {
-            formatConvertedFile = dfs.runDataPreprocessing(file);
+            formatConvertedFile = dfs.runDataPreprocessing(file, pid);
         } else {
             logger.warning("Unsupported file format requested: "+formatRequested);
             return null; 

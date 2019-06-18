@@ -21,7 +21,6 @@ import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateGuestbookResponseCommand;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
@@ -50,7 +49,6 @@ import java.util.logging.Logger;
  * @author Leonid Andreev
  */
 @Provider
-@Stateless
 public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstance> {
     
     private static final Logger logger = Logger.getLogger(DownloadInstanceWriter.class.getCanonicalName());
