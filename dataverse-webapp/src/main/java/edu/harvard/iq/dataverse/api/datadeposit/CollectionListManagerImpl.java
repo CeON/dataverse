@@ -39,7 +39,7 @@ public class CollectionListManagerImpl implements CollectionListManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManagerServiceBean urlManagerServiceBean;
+    private UrlManagerServiceBean urlManagerServiceBean;
 
     private HttpServletRequest request;
 

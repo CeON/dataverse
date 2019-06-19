@@ -66,7 +66,7 @@ public class ContainerManagerImpl implements ContainerManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManagerServiceBean urlManagerServiceBean;
+    private UrlManagerServiceBean urlManagerServiceBean;
     SwordConfigurationImpl swordConfiguration = new SwordConfigurationImpl();
     @EJB
     SwordServiceBean swordService;

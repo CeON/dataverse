@@ -6,6 +6,7 @@ import org.swordapp.server.SwordError;
 import org.swordapp.server.UriRegistry;
 
 import javax.ejb.Stateful;
+import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -18,6 +19,9 @@ public class UrlManagerServiceBean {
 
     private UrlManager urlManager = new UrlManager();
     private SwordConfigurationImpl swordConfiguration = new SwordConfigurationImpl();
+
+    @Inject
+    private SystemConfig systemConfig;
 
     public String processUrl(String url) throws SwordError {
         String warning = null;
@@ -163,7 +167,7 @@ public class UrlManagerServiceBean {
             optionalPort = ":" + port;
         }
         String requestedHostname = u.getHost();
-        String hostName = SystemConfig.FQDN;
+        String hostName = systemConfig.getFqdnProperty();
         if (hostName == null) {
             hostName = "localhost";
         }
@@ -195,9 +199,5 @@ public class UrlManagerServiceBean {
 
     public UrlManager getUrlManager() {
         return urlManager;
-    }
-
-    public SwordConfigurationImpl getSwordConfiguration() {
-        return swordConfiguration;
     }
 }

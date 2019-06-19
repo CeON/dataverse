@@ -234,7 +234,7 @@ public class SystemConfig {
         if (hostUrl != null && !"".equals(hostUrl)) {
             return hostUrl;
         }
-        String hostName = SystemConfig.FQDN;
+        String hostName = getFqdnProperty();
         if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();

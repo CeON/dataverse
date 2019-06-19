@@ -48,7 +48,7 @@ public class CollectionDepositManagerImpl implements CollectionDepositManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManagerServiceBean urlManagerServiceBean;
+    private UrlManagerServiceBean urlManagerServiceBean;
     @EJB
     EjbDataverseEngine engineSvc;
     @EJB
@@ -61,7 +61,6 @@ public class CollectionDepositManagerImpl implements CollectionDepositManager {
     SettingsServiceBean settingsService;
 
     private HttpServletRequest request;
-    private UrlManager urlManager;
 
     @Override
     public DepositReceipt createNew(String collectionUri, Deposit deposit, AuthCredentials authCredentials, SwordConfiguration config)
@@ -73,7 +72,6 @@ public class CollectionDepositManagerImpl implements CollectionDepositManager {
         urlManagerServiceBean.processUrl(collectionUri);
         UrlManager urlManager = urlManagerServiceBean.getUrlManager();
 
-        this.urlManager = urlManagerServiceBean.getUrlManager();
         String dvAlias = urlManager.getTargetIdentifier();
         if (urlManager.getTargetType().equals("dataverse") && dvAlias != null) {
 
