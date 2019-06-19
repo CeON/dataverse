@@ -45,7 +45,7 @@ public class StatementManagerImpl implements StatementManager {
     @Inject
     SwordAuth swordAuth;
     @Inject
-    UrlManagerServiceBean urlManagerServiceBean;
+    private UrlManagerServiceBean urlManagerServiceBean;
 
     private HttpServletRequest httpRequest;
 
