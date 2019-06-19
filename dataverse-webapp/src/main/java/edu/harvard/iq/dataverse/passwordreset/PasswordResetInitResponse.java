@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-@Stateful
 public class PasswordResetInitResponse {
 
     /**
@@ -17,9 +16,6 @@ public class PasswordResetInitResponse {
     private boolean emailFound;
     private String resetUrl;
     private PasswordResetData passwordResetData;
-
-    public PasswordResetInitResponse() {
-    }
 
     public PasswordResetInitResponse(boolean emailFound) {
         this.emailFound = emailFound;
