@@ -2,8 +2,6 @@ package edu.harvard.iq.dataverse.passwordreset;
 
 import edu.harvard.iq.dataverse.util.SystemConfig;
 
-import javax.ejb.Stateful;
-import javax.inject.Inject;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 

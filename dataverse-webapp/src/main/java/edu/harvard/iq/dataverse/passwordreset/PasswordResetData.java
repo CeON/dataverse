@@ -1,11 +1,7 @@
 package edu.harvard.iq.dataverse.passwordreset;
 
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
-import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -19,30 +15,34 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.UUID;
 
-@Table(indexes = {@Index(columnList="token")
-		, @Index(columnList="builtinuser_id")})
+@Table(indexes = {@Index(columnList = "token")
+        , @Index(columnList = "builtinuser_id")})
 @NamedQueries({
-    @NamedQuery(name="PasswordResetData.findAll",
-            query="SELECT prd FROM PasswordResetData prd"),
-    @NamedQuery(name="PasswordResetData.findByUser",
-            query="SELECT prd FROM PasswordResetData prd WHERE prd.builtinUser = :user"),
-    @NamedQuery(name="PasswordResetData.findByToken",
-            query="SELECT prd FROM PasswordResetData prd WHERE prd.token = :token")
+        @NamedQuery(name = "PasswordResetData.findAll",
+                query = "SELECT prd FROM PasswordResetData prd"),
+        @NamedQuery(name = "PasswordResetData.findByUser",
+                query = "SELECT prd FROM PasswordResetData prd WHERE prd.builtinUser = :user"),
+        @NamedQuery(name = "PasswordResetData.findByToken",
+                query = "SELECT prd FROM PasswordResetData prd WHERE prd.token = :token")
 })
 @Entity
 public class PasswordResetData implements Serializable {
-     
+
     public enum Reason {
         FORGOT_PASSWORD,
         NON_COMPLIANT_PASSWORD,
         UPGRADE_REQUIRED
     }
-    
+
     // TODO cleaup: can remove the (unused) id field, and use the token field as an id instead.
     // This will prevent duplicate tokens (ok, not a likely poroblem) and would
     // make the token lookup much faster.
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -63,7 +63,7 @@ public class PasswordResetData implements Serializable {
 
     @Column(nullable = false)
     private Timestamp expires;
-    
+
     @Enumerated(EnumType.STRING)
     private Reason reason;
 
@@ -81,9 +81,6 @@ public class PasswordResetData implements Serializable {
         token = UUID.randomUUID().toString();
         long nowInMilliseconds = new Date().getTime();
         created = new Timestamp(nowInMilliseconds);
-        long ONE_MINUTE_IN_MILLISECONDS = 60000;
-        long futureInMilliseconds = nowInMilliseconds + (SystemConfig.getMinutesUntilPasswordResetTokenExpires() * ONE_MINUTE_IN_MILLISECONDS);
-        expires = new Timestamp(new Date(futureInMilliseconds).getTime());
         reason = Reason.FORGOT_PASSWORD;
     }
 
@@ -128,4 +125,7 @@ public class PasswordResetData implements Serializable {
         this.reason = reason;
     }
 
+    public void setExpires(Timestamp expires) {
+        this.expires = expires;
+    }
 }

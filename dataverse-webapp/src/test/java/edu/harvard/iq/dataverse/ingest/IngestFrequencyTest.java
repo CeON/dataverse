@@ -5,15 +5,13 @@ import edu.harvard.iq.dataverse.DataTable;
 import edu.harvard.iq.dataverse.datavariable.VariableCategory;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
-
 import org.junit.Test;
 
-import javax.ejb.EJB;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.BufferedInputStream;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -21,8 +19,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class IngestFrequencyTest {
 
-    @EJB
-    IngestServiceBean ingestService;
+    private IngestServiceBean ingestService = new IngestServiceBean();
 
     @Test
     /**
