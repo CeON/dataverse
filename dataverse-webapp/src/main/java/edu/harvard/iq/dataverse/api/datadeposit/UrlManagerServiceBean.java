@@ -23,6 +23,12 @@ public class UrlManagerServiceBean {
     @Inject
     private SystemConfig systemConfig;
 
+    // -------------------- GETTERS --------------------
+    public UrlManager getUrlManager() {
+        return urlManager;
+    }
+
+    // -------------------- LOGIC --------------------
     public String processUrl(String url) throws SwordError {
         String warning = null;
         urlManager.setOriginalUrl(url);
@@ -195,9 +201,5 @@ public class UrlManagerServiceBean {
          * on Dataverse.
          */
         return "https://" + hostName + optionalPort + swordConfiguration.getBaseUrlPathCurrent();
-    }
-
-    public UrlManager getUrlManager() {
-        return urlManager;
     }
 }
