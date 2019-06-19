@@ -18,9 +18,6 @@ public class PasswordResetInitResponse {
     private String resetUrl;
     private PasswordResetData passwordResetData;
 
-    @Inject
-    private SystemConfig systemConfig;
-
     public PasswordResetInitResponse() {
     }
 
@@ -28,31 +25,10 @@ public class PasswordResetInitResponse {
         this.emailFound = emailFound;
     }
 
-    public PasswordResetInitResponse(boolean emailFound, PasswordResetData passwordResetData) {
+    public PasswordResetInitResponse(boolean emailFound, PasswordResetData passwordResetData, String resetUrl) {
         this.emailFound = emailFound;
         this.passwordResetData = passwordResetData;
-        this.resetUrl = createResetUrl();
-    }
-
-    private String createResetUrl() {
-        // default to localhost
-        String finalHostname = "localhost";
-        String configuredHostname = systemConfig.getFqdnProperty();
-        if (configuredHostname != null) {
-            if (configuredHostname.equals("localhost")) {
-                // must be a dev environment
-                finalHostname = "localhost:8181";
-            } else {
-                finalHostname = configuredHostname;
-            }
-        } else {
-            try {
-                finalHostname = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException ex) {
-                // just use the dev address
-            }
-        }
-        return "https://" + finalHostname + "/passwordreset.xhtml?token=" + passwordResetData.getToken();
+        this.resetUrl = resetUrl;
     }
 
     public boolean isEmailFound() {
