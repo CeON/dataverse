@@ -9,6 +9,8 @@ import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,8 +61,10 @@ public class DatasetUtilTest {
         thumbnailFile.setId(42l);
         
         FileMetadata thumbnailFileMetadata = MocksFactory.makeFileMetadata(123l, "file.png", 0);
+        thumbnailFileMetadata.getTermsOfUse().setLicense(null);
         thumbnailFileMetadata.getTermsOfUse().setRestrictType(RestrictType.ACADEMIC_PURPOSE);
         
+        thumbnailFile.setFileMetadatas(Lists.newArrayList(thumbnailFileMetadata));
         dataset.setThumbnailFile(thumbnailFile);
         
         DatasetThumbnail result = DatasetUtil.getThumbnail(dataset);
