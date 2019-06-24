@@ -2272,7 +2272,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             return false;
         }
 
-        String filesRootDirectory = System.getProperty("dataverse.files.directory");
+        String filesRootDirectory = systemConfig.getFilesDirectoryProperty();
         if (filesRootDirectory == null || filesRootDirectory.isEmpty()) {
             filesRootDirectory = "/tmp/files";
         }

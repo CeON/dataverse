@@ -224,6 +224,8 @@ public class SystemConfig {
         return System.getProperty(SystemConfig.FQDN);
     }
 
+    public String getFilesDirectoryProperty() { return System.getProperty(SystemConfig.FILES_DIRECTORY); }
+
     public static String getDataverseSiteUrlStatic() {
         String hostUrl = System.getProperty(SITE_URL);
         if (hostUrl != null && !"".equals(hostUrl)) {
