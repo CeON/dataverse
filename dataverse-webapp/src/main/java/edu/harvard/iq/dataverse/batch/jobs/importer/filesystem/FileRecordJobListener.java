@@ -39,6 +39,7 @@ import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.commons.io.IOUtils;
 
 import javax.batch.api.BatchProperty;
@@ -82,7 +83,7 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
     private JobContext jobContext;
 
     @Inject
-    private StepContext stepContext;
+    private SystemConfig systemConfig;
 
     @EJB
     UserNotificationServiceBean notificationServiceBean;
@@ -432,7 +433,7 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
             getJobLogger().log(Level.INFO, "Checksum manifest = " + manifest + " (FileSystemImportJob.xml property)");
         }
         // construct full path
-        String manifestAbsolutePath = System.getProperty("dataverse.files.directory")
+        String manifestAbsolutePath = systemConfig.getFilesDirectoryProperty()
                 + SEP + dataset.getAuthority()
                 + SEP + dataset.getIdentifier()
                 + SEP + uploadFolder
