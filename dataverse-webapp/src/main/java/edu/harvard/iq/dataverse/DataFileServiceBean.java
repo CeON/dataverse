@@ -340,7 +340,7 @@ public class DataFileServiceBean implements java.io.Serializable {
         Object[] result;
 
         try {
-            result = (Object[]) em.createNativeQuery("SELECT t0.ID, t0.CREATEDATE, t0.INDEXTIME, t0.MODIFICATIONTIME, t0.PERMISSIONINDEXTIME, t0.PERMISSIONMODIFICATIONTIME, t0.PUBLICATIONDATE, t0.CREATOR_ID, t0.RELEASEUSER_ID, t0.PREVIEWIMAGEAVAILABLE, t1.CONTENTTYPE, t0.STORAGEIDENTIFIER, t1.FILESIZE, t1.INGESTSTATUS, t1.CHECKSUMVALUE, NULL, t3.ID, t2.AUTHORITY, t2.IDENTIFIER, t1.CHECKSUMTYPE, t1.PREVIOUSDATAFILEID, t1.ROOTDATAFILEID, t0.AUTHORITY, T0.PROTOCOL, T0.IDENTIFIER FROM DVOBJECT t0, DATAFILE t1, DVOBJECT t2, DATASET t3 WHERE ((t0.ID = " + id + ") AND (t0.OWNER_ID = t2.ID) AND (t2.ID = t3.ID) AND (t1.ID = t0.ID))").getSingleResult();
+            result = (Object[]) em.createNativeQuery("SELECT t0.ID, t0.CREATEDATE, t0.INDEXTIME, t0.MODIFICATIONTIME, t0.PERMISSIONINDEXTIME, t0.PERMISSIONMODIFICATIONTIME, t0.PUBLICATIONDATE, t0.CREATOR_ID, t0.RELEASEUSER_ID, t0.PREVIEWIMAGEAVAILABLE, t1.CONTENTTYPE, t0.STORAGEIDENTIFIER, t1.FILESIZE, t1.INGESTSTATUS, t1.CHECKSUMVALUE, t3.ID, t2.AUTHORITY, t2.IDENTIFIER, t1.CHECKSUMTYPE, t1.PREVIOUSDATAFILEID, t1.ROOTDATAFILEID, t0.AUTHORITY, T0.PROTOCOL, T0.IDENTIFIER FROM DVOBJECT t0, DATAFILE t1, DVOBJECT t2, DATASET t3 WHERE ((t0.ID = " + id + ") AND (t0.OWNER_ID = t2.ID) AND (t2.ID = t3.ID) AND (t1.ID = t0.ID))").getSingleResult();
         } catch (Exception ex) {
             return null;
         }
@@ -440,11 +440,11 @@ public class DataFileServiceBean implements java.io.Serializable {
 
 
         // TODO: check for nulls
-        owner.setId((Long) result[16]);
-        owner.setAuthority((String) result[17]);
-        owner.setIdentifier((String) result[18]);
+        owner.setId((Long) result[15]);
+        owner.setAuthority((String) result[16]);
+        owner.setIdentifier((String) result[17]);
 
-        String checksumType = (String) result[19];
+        String checksumType = (String) result[18];
         if (checksumType != null) {
             try {
                 // In the database we store "SHA1" rather than "SHA-1".
@@ -455,27 +455,27 @@ public class DataFileServiceBean implements java.io.Serializable {
             }
         }
 
-        Long previousDataFileId = (Long) result[20];
+        Long previousDataFileId = (Long) result[19];
         if (previousDataFileId != null) {
             dataFile.setPreviousDataFileId(previousDataFileId);
         }
 
-        Long rootDataFileId = (Long) result[21];
+        Long rootDataFileId = (Long) result[20];
         if (rootDataFileId != null) {
             dataFile.setRootDataFileId(rootDataFileId);
         }
 
-        String authority = (String) result[22];
+        String authority = (String) result[21];
         if (authority != null) {
             dataFile.setAuthority(authority);
         }
 
-        String protocol = (String) result[23];
+        String protocol = (String) result[22];
         if (protocol != null) {
             dataFile.setProtocol(protocol);
         }
 
-        String identifier = (String) result[24];
+        String identifier = (String) result[23];
         if (identifier != null) {
             dataFile.setIdentifier(identifier);
         }
