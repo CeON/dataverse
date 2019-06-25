@@ -208,7 +208,7 @@ public class SystemConfig {
         if (hostUrl != null && !"".equals(hostUrl)) {
             return hostUrl;
         }
-        String hostName = getFqdnProperty();
+        String hostName = getFqdn();
         if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();
@@ -220,11 +220,17 @@ public class SystemConfig {
         return hostUrl;
     }
 
-    public String getFqdnProperty() {
+    public String getFqdn() {
         return System.getProperty(SystemConfig.FQDN);
     }
 
-    public String getFilesDirectoryProperty() { return System.getProperty(SystemConfig.FILES_DIRECTORY); }
+    public String getFilesDirectory() {
+        String filesDirectory = System.getProperty(SystemConfig.FILES_DIRECTORY);
+        if(StringUtils.isEmpty(filesDirectory)) {
+            filesDirectory = "/tmp/files";
+        }
+        return filesDirectory;
+    }
 
     public static String getDataverseSiteUrlStatic() {
         String hostUrl = System.getProperty(SITE_URL);

@@ -99,7 +99,7 @@ public class FileRecordReader extends AbstractItemReader {
     @Override
     public void open(Serializable checkpoint) throws Exception {
 
-        directory = new File(systemConfig.getFilesDirectoryProperty()
+        directory = new File(systemConfig.getFilesDirectory()
                                      + SEP + dataset.getAuthority() + SEP + dataset.getIdentifier() + SEP + uploadFolder);
         getJobLogger().log(Level.INFO, "Reading dataset directory: " + directory.getAbsolutePath()
                 + " (excluding: " + excludes + ")");

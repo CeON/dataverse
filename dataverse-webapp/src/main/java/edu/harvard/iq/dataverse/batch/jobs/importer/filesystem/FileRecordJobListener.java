@@ -54,7 +54,6 @@ import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
 import javax.batch.runtime.StepExecution;
 import javax.batch.runtime.context.JobContext;
-import javax.batch.runtime.context.StepContext;
 import javax.ejb.EJB;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -433,7 +432,7 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
             getJobLogger().log(Level.INFO, "Checksum manifest = " + manifest + " (FileSystemImportJob.xml property)");
         }
         // construct full path
-        String manifestAbsolutePath = systemConfig.getFilesDirectoryProperty()
+        String manifestAbsolutePath = systemConfig.getFilesDirectory()
                 + SEP + dataset.getAuthority()
                 + SEP + dataset.getIdentifier()
                 + SEP + uploadFolder

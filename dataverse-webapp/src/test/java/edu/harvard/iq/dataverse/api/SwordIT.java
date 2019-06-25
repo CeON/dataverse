@@ -48,10 +48,6 @@ public class SwordIT {
     private static final String rootDataverseAlias = "root";
     private static String apiTokenSuperuser;
 
-    @Inject
-    SwordConfigurationFactory swordConfigurationFactory;
-
-
     @BeforeClass
     public static void setUpClass() {
         RestAssured.baseURI = UtilIT.getRestAssuredBaseUri();
@@ -89,7 +85,7 @@ public class SwordIT {
 
         serviceDocumentResponse.then().assertThat()
                 .statusCode(OK.getStatusCode())
-                .body("service.version", equalTo(swordConfigurationFactory.getSwordConfiguration().generatorVersion()));
+                .body("service.version", equalTo("2.0"));
 
         String collection = serviceDocumentResponse.getBody().xmlPath().get("service.workspace.collection").toString();
         System.out.println("collection: " + collection);

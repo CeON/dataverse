@@ -78,14 +78,14 @@ public class UrlManagerServiceBean {
         } catch (IndexOutOfBoundsException ex) {
             throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "Error processing URL: " + url);
         }
-        if (!SwordConfigurationConstants.getBaseUrlPathsValid().contains(dataDepositApiBasePath)) {
+        if (!SwordConfigurationConstants.BASE_URL_PATHS_VALID.contains(dataDepositApiBasePath)) {
             throw new SwordError(dataDepositApiBasePath + " found but one of these required: " +
-                    SwordConfigurationConstants.getBaseUrlPathsValid() + ". Current version is "
-                    + SwordConfigurationConstants.getBaseUrlPathCurrent());
+                    SwordConfigurationConstants.BASE_URL_PATHS_VALID + ". Current version is "
+                    + SwordConfigurationConstants.BASE_URL_PATH_CURRENT);
         } else {
-            if (SwordConfigurationConstants.getBaseUrlPathsDeprecated().contains(dataDepositApiBasePath)) {
+            if (SwordConfigurationConstants.BASE_URL_PATHS_DEPRECATED.contains(dataDepositApiBasePath)) {
                 String msg = "Deprecated version used for Data Deposit API. The current version expects '" +
-                        SwordConfigurationConstants.getBaseUrlPathCurrent() + "'. URL passed in: " + url;
+                        SwordConfigurationConstants.BASE_URL_PATH_CURRENT + "'. URL passed in: " + url;
                 warning = msg;
             }
         }
@@ -172,7 +172,7 @@ public class UrlManagerServiceBean {
             optionalPort = ":" + port;
         }
         String requestedHostname = u.getHost();
-        String hostName = systemConfig.getFqdnProperty();
+        String hostName = systemConfig.getFqdn();
         if (hostName == null) {
             hostName = "localhost";
         }
@@ -199,6 +199,6 @@ public class UrlManagerServiceBean {
          * Installation Guide), perhaps because they are only kicking the tires
          * on Dataverse.
          */
-        return "https://" + hostName + optionalPort + SwordConfigurationConstants.getBaseUrlPathCurrent();
+        return "https://" + hostName + optionalPort + SwordConfigurationConstants.BASE_URL_PATH_CURRENT;
     }
 }

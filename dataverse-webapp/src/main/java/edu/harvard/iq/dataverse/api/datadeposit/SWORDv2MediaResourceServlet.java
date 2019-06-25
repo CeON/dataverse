@@ -30,7 +30,7 @@ public class SWORDv2MediaResourceServlet extends SwordServlet {
         super.init();
 
         // load the api
-        this.api = new MediaResourceAPI(mediaResourceManagerImpl, swordConfigurationFactory.getSwordConfiguration());
+        this.api = new MediaResourceAPI(mediaResourceManagerImpl, swordConfigurationFactory.createSwordConfiguration());
     }
 
     @Override

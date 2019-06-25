@@ -1,21 +1,13 @@
 package edu.harvard.iq.dataverse.api.datadeposit;
 
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.swordapp.server.SwordConfiguration;
-
-import javax.ejb.EJB;
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * pure model class for Sword Configuration implementation
  */
 public class SwordConfigurationImpl implements SwordConfiguration {
 
-    private String swordDirString;
+    private String tempDirectory;
     private int maxUploadSize;
     private boolean depositReceipt;
     private boolean errorBody;
@@ -71,7 +63,7 @@ public class SwordConfigurationImpl implements SwordConfiguration {
 
     @Override
     public String getTempDirectory() {
-        return swordDirString;
+        return tempDirectory;
     }
 
     @Override
@@ -95,8 +87,8 @@ public class SwordConfigurationImpl implements SwordConfiguration {
     }
 
     // -------------------- SETTERS --------------------
-    public void setSwordDirString(String swordDirString) {
-        this.swordDirString = swordDirString;
+    public void setTempDirectory(String tempDirectory) {
+        this.tempDirectory = tempDirectory;
     }
 
     public void setMaxUploadSize(int maxUploadSize) {

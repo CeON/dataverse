@@ -71,7 +71,7 @@ public class ImportFromFileSystemCommand extends AbstractCommand<JsonObject> {
                 logger.info(error);
                 throw new IllegalCommandException(error, this);
             }
-            File directory = new File(ctxt.systemConfig().getFilesDirectoryProperty()
+            File directory = new File(ctxt.systemConfig().getFilesDirectory()
                                               + File.separator + dataset.getAuthority() + File.separator + dataset.getIdentifier());
             if (!isValidDirectory(directory)) {
                 String error = "Dataset directory is invalid. " + directory;
@@ -85,7 +85,7 @@ public class ImportFromFileSystemCommand extends AbstractCommand<JsonObject> {
                 throw new IllegalCommandException(error, this);
             }
 
-            File uploadDirectory = new File(ctxt.systemConfig().getFilesDirectoryProperty()
+            File uploadDirectory = new File(ctxt.systemConfig().getFilesDirectory()
                                                     + File.separator + dataset.getAuthority() + File.separator + dataset.getIdentifier()
                                                     + File.separator + uploadFolder);
             if (!isValidDirectory(uploadDirectory)) {
