@@ -110,7 +110,7 @@ public final class DatasetVersionDifference {
             for (FileMetadata fmdn : newVersion.getFileMetadatas()) {
                 if (fmdo.getDataFile().equals(fmdn.getDataFile())) {
                     deleted = false;
-                    if (!areFileMetadatasEqual(fmdo, fmdn)) {
+                    if (!areFilesMetadataEqual(fmdo, fmdn)) {
                         changedFileMetadata.add(fmdo);
                         changedFileMetadata.add(fmdn);
                     }
@@ -500,7 +500,7 @@ public final class DatasetVersionDifference {
         summaryDataForNote.add(noteArray);
     }
 
-    private boolean areFileMetadatasEqual(FileMetadata fmdo, FileMetadata fmdn) {
+    private boolean areFilesMetadataEqual(FileMetadata fmdo, FileMetadata fmdn) {
 
         if (!StringUtils.equals(fmdo.getDescription(), fmdn.getDescription())) {
             return false;
