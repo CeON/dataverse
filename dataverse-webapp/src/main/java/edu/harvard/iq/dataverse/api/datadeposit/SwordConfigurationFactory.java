@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.swordapp.server.SwordConfiguration;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.File;
@@ -17,7 +18,7 @@ public class SwordConfigurationFactory {
 
     @Inject
     SystemConfig systemConfig;
-    @Inject
+    @EJB
     SettingsServiceBean settingsService;
 
     // -------------------- LOGIC --------------------
@@ -52,8 +53,9 @@ public class SwordConfigurationFactory {
      */
     private String createTempDirectory() {
         String tmpFileDir = systemConfig.getFilesDirectory();
-        File swordDirFile = new File(tmpFileDir + File.separator + "sword");
+        File swordDirFile = new File(tmpFileDir, "sword");
 
+        swordDirFile.mkdirs();
         if(!swordDirFile.exists()) {
             throw new RuntimeException("Could not determine or create SWORD temp directory. Check logs for details.");
         }
