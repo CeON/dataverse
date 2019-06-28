@@ -38,21 +38,15 @@ public class DatasetFieldValueValidator implements ConstraintValidator<ValidateD
 
         context.disableDefaultConstraintViolation(); // we do this so we can have different messages depending on the different issue
 
-        boolean lengthOnly = false;
-
         DatasetFieldType dsfType = value.getDatasetField().getDatasetFieldType();
         FieldType fieldType = dsfType.getFieldType();
 
         if (value.getDatasetField().getTemplate() != null) {
-            lengthOnly = true;
+            return true;
         }
 
         if (value.getDatasetField().getParentDatasetFieldCompoundValue() != null
                 && value.getDatasetField().getParentDatasetFieldCompoundValue().getParentDatasetField().getTemplate() != null) {
-            lengthOnly = true;
-        }
-        
-        if (lengthOnly) {
             return true;
         }
 
