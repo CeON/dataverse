@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchFields;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import org.apache.commons.lang.StringUtils;
 
 import javax.json.Json;
@@ -173,28 +174,32 @@ public class MyDataFilterParams {
     private void checkParams() {
 
         if ((this.userIdentifier == null) || (this.userIdentifier.isEmpty())) {
-            this.addError("Sorry!  No user was found!");
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoUserSelected"));
             return;
         }
 
         if ((this.roleIds == null) || (this.roleIds.isEmpty())) {
-            this.addError("No results. Please select at least one Role.");
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoRoleSelected"));
             return;
         }
 
         if ((this.dvObjectTypes == null) || (this.dvObjectTypes.isEmpty())) {
-            this.addError("No results. Please select one of Dataverses, Datasets, Files.");
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoDvObjectsSelected"));
             return;
         }
 
         if ((this.publicationStatuses == null) || (this.publicationStatuses.isEmpty())) {
-            this.addError("No results. Please select one of " + StringUtils.join(MyDataFilterParams.defaultPublishedStates, ", ") + ".");
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoPublicationStatusSelected")
+                    + " " + StringUtils.join(MyDataFilterParams.defaultPublishedStates, ", ")
+                                .replace("_", " ") + ".");
             return;
         }
 
         for (String dtype : this.dvObjectTypes) {
             if (!DvObject.DTYPE_LIST.contains(dtype)) {
-                this.addError("Sorry!  The type '" + dtype + "' is not known.");
+                this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.UnknownType.Prefix") +
+                        dtype +
+                        BundleUtil.getStringFromBundle("mydataFragment.errorMessage.UnknownType.Suffix"));
                 return;
             }
         }
@@ -339,7 +344,7 @@ public class MyDataFilterParams {
         List<String[]> publicationStateInfoList = new ArrayList<String[]>();
         String stateNameAsVariable;
         for (String displayState : defaultPublishedStates) {
-            stateNameAsVariable = displayState.toLowerCase().replace(" ", "_");
+            stateNameAsVariable = displayState.toLowerCase();
             String[] singleInfoRow = {displayState, stateNameAsVariable};
             publicationStateInfoList.add(singleInfoRow);
         }
