@@ -92,8 +92,8 @@ public class MyDataFilterParams {
     /**
      * Constructor used to get total counts
      *
-     * @param authenticatedUser
-     * @param userIdentifier
+     * @param dataverseRequest
+     * @param roleHelper
      */
     public MyDataFilterParams(DataverseRequest dataverseRequest, DataverseRolePermissionHelper roleHelper) {
         if (dataverseRequest == null) {
@@ -113,7 +113,7 @@ public class MyDataFilterParams {
     }
 
     /**
-     * @param userIdentifier
+     * @param dataverseRequest
      * @param dvObjectTypes
      * @param publicationStatuses
      * @param searchTerm
@@ -174,22 +174,22 @@ public class MyDataFilterParams {
     private void checkParams() {
 
         if ((this.userIdentifier == null) || (this.userIdentifier.isEmpty())) {
-            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoUserSelected"));
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.noUserSelected"));
             return;
         }
 
         if ((this.roleIds == null) || (this.roleIds.isEmpty())) {
-            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoRoleSelected"));
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.noRoleSelected"));
             return;
         }
 
         if ((this.dvObjectTypes == null) || (this.dvObjectTypes.isEmpty())) {
-            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoDvObjectsSelected"));
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.noDvObjectsSelected"));
             return;
         }
 
         if ((this.publicationStatuses == null) || (this.publicationStatuses.isEmpty())) {
-            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.NoPublicationStatusSelected")
+            this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.noPublicationStatusSelected")
                     + " " + StringUtils.join(MyDataFilterParams.defaultPublishedStates, ", ")
                                 .replace("_", " ") + ".");
             return;
@@ -197,9 +197,9 @@ public class MyDataFilterParams {
 
         for (String dtype : this.dvObjectTypes) {
             if (!DvObject.DTYPE_LIST.contains(dtype)) {
-                this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.UnknownType.Prefix") +
+                this.addError(BundleUtil.getStringFromBundle("mydataFragment.errorMessage.unknownType.prefix") +
                         dtype +
-                        BundleUtil.getStringFromBundle("mydataFragment.errorMessage.UnknownType.Suffix"));
+                        BundleUtil.getStringFromBundle("mydataFragment.errorMessage.unknownType.suffix"));
                 return;
             }
         }
