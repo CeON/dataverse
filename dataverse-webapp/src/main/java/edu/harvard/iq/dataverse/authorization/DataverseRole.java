@@ -130,22 +130,8 @@ public class DataverseRole implements Serializable {
     }
 
     public String getName() {
-        if (alias != null) {
-            try {
-                String key = "role." + alias.toLowerCase() + ".name";
-                String _name = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
-                if (_name == null) {
-                    return name;
-                } else {
-                    return _name;
-                }
-            } catch (MissingResourceException mre) {
-                return name;
-            }
-
-        } else {
-            return name;
-        }
+        return RoleTranslationUtil.getNameFromAlias(alias) != null ?
+                RoleTranslationUtil.getNameFromAlias(alias) : name;
     }
 
     public void setName(String name) {
@@ -153,23 +139,8 @@ public class DataverseRole implements Serializable {
     }
 
     public String getDescription() {
-        if (alias != null) {
-            String key = "role." + alias.toLowerCase() + ".description";
-            try {
-                String _description = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
-                if (_description == null) {
-                    return description;
-                } else {
-                    return _description;
-                }
-
-            } catch (MissingResourceException mre) {
-                return description;
-            }
-
-        } else {
-            return description;
-        }
+        return RoleTranslationUtil.getDescriptionFromAlias(alias) != null ?
+                RoleTranslationUtil.getDescriptionFromAlias(alias) : description;
     }
 
     public void setDescription(String description) {
