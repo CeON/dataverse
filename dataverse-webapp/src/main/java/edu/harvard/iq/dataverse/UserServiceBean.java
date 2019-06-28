@@ -186,6 +186,7 @@ public class UserServiceBean {
         // -------------------------------------------------
         String qstr = "SELECT distinct a.assigneeidentifier,";
         qstr += " d.alias";
+        qstr += " d.name";
         qstr += " FROM roleassignment a,";
         qstr += " dataverserole d";
         qstr += " WHERE d.id = a.role_id";
@@ -206,7 +207,8 @@ public class UserServiceBean {
         for (Object[] dbResultRow : dbRoleResults) {
 
             userIdentifier = UserUtil.getStringOrNull(dbResultRow[0]);
-            userRole = RoleTranslationUtil.getNameFromAlias(UserUtil.getStringOrNull(dbResultRow[1]));
+            userRole = RoleTranslationUtil.getLocaleNameFromAlias(UserUtil.getStringOrNull(dbResultRow[1]),
+                        UserUtil.getStringOrNull(dbResultRow[2]));
             if ((userIdentifier != null) && (userRole != null)) {  // should never be null
 
                 List<String> userRoleList = userRoleLookup.getOrDefault(userIdentifier, new ArrayList<String>());
@@ -283,6 +285,7 @@ public class UserServiceBean {
 
         qstr = "SELECT distinct a.assigneeidentifier,";
         qstr += " d.alias";
+        qstr += " d.name";
         qstr += " FROM roleassignment a,";
         qstr += " dataverserole d";
         qstr += " WHERE d.id = a.role_id";
@@ -303,7 +306,8 @@ public class UserServiceBean {
         for (Object[] dbResultRow : dbRoleResults) {
 
             String groupIdentifier = UserUtil.getStringOrNull(dbResultRow[0]);
-            String groupRole = RoleTranslationUtil.getNameFromAlias(UserUtil.getStringOrNull(dbResultRow[1]));
+            String groupRole = RoleTranslationUtil.getLocaleNameFromAlias(UserUtil.getStringOrNull(dbResultRow[1]),
+                        UserUtil.getStringOrNull(dbResultRow[2]));
             if ((groupIdentifier != null) && (groupRole != null)) {  // should never be null
 
                 List<String> groupUserList = groupsLookup.get(groupIdentifier);

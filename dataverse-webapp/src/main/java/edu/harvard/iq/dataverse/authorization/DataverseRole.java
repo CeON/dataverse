@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.authorization;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.util.BitSet;
-import edu.harvard.iq.dataverse.util.BundleUtil;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +20,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Set;
 
@@ -130,8 +128,7 @@ public class DataverseRole implements Serializable {
     }
 
     public String getName() {
-        return RoleTranslationUtil.getNameFromAlias(alias) != null ?
-                RoleTranslationUtil.getNameFromAlias(alias) : name;
+        return RoleTranslationUtil.getLocaleNameFromAlias(alias, name);
     }
 
     public void setName(String name) {
@@ -139,8 +136,7 @@ public class DataverseRole implements Serializable {
     }
 
     public String getDescription() {
-        return RoleTranslationUtil.getDescriptionFromAlias(alias) != null ?
-                RoleTranslationUtil.getDescriptionFromAlias(alias) : description;
+        return RoleTranslationUtil.getLocaleDescriptionFromAlias(alias, description);
     }
 
     public void setDescription(String description) {

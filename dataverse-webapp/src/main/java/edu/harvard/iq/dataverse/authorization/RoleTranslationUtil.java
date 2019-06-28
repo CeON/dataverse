@@ -6,39 +6,53 @@ import java.util.MissingResourceException;
 
 public class RoleTranslationUtil {
 
-    public static String getNameFromAlias(String alias) {
+    /**
+     *
+     * @param alias db alias used to check for property
+     * @param name default value we want to use in case property based on alias isn't found,
+     *             usually original role name should be passed here
+     * @return localized Role name if found, or provided in second parameter default
+     */
+    public static String getLocaleNameFromAlias(String alias, String name) {
         if (alias != null) {
             try {
                 String key = "role." + alias.toLowerCase() + ".name";
-                String _name = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
-                if (_name == null) {
-                    return null;
+                String localeName = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
+                if (localeName == null) {
+                    return name;
                 } else {
-                    return _name;
+                    return localeName;
                 }
             } catch (MissingResourceException mre) {
-                return null;
+                return name;
             }
         }
-        return null;
+        return name;
     }
 
-    public static String getDescriptionFromAlias(String alias) {
+    /**
+     *
+     * @param alias db alias used to check for property
+     * @param description default value we want to use in case property based on alias isn't found,
+     *             usually original role description should be passed here
+     * @return localized Role description if found, or provided in second parameter default
+     */
+    public static String getLocaleDescriptionFromAlias(String alias, String description) {
         if (alias != null) {
             String key = "role." + alias.toLowerCase() + ".description";
             try {
-                String _description = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
-                if (_description == null) {
-                    return null;
+                String localeDescription = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
+                if (localeDescription == null) {
+                    return description;
                 } else {
-                    return _description;
+                    return localeDescription;
                 }
 
             } catch (MissingResourceException mre) {
-                return null;
+                return description;
             }
 
         }
-        return null;
+        return description;
     }
 }
