@@ -456,23 +456,27 @@ public class ManagePermissionsPage implements java.io.Serializable {
             }
             */
             if (dataverseRolePermissionHelper.hasDatasetPermissions(selectedRoleId) && dvObject instanceof Dataverse) {
-                String dsLabel = BundleUtil.getStringFromBundle("datasets");
+                String dsLabel = BundleUtil.getStringFromBundle(
+                        "dataverse.permissions.usersOrGroups.assignDialog.role.warning.appliedTo.datasets");
                 if (!retString.isEmpty()) {
-                    retString += ", " + dsLabel;
+                    retString += " " + BundleUtil.getStringFromBundle("and")
+                            + " " + dsLabel;
                 } else {
                     retString = dsLabel;
                 }
 
             }
             if (dataverseRolePermissionHelper.hasFilePermissions(selectedRoleId)) {
-                String filesLabel = BundleUtil.getStringFromBundle("files");
+                String filesLabel = BundleUtil.getStringFromBundle(
+                        "dataverse.permissions.usersOrGroups.assignDialog.role.warning.appliedTo.files");
                 if (!retString.isEmpty()) {
-                    retString += ", " + filesLabel;
+                    retString += " " + BundleUtil.getStringFromBundle("and")
+                            + " " + filesLabel;
                 } else {
                     retString = filesLabel;
                 }
             }
-            return retString;
+            return StringUtil.nonEmpty(retString) ?  retString : BundleUtil.getStringFromBundle("objects");
         }
         return null;
     }
@@ -480,10 +484,12 @@ public class ManagePermissionsPage implements java.io.Serializable {
     public String getDefinitionLevelString() {
         if (dvObject != null) {
             if (dvObject instanceof Dataverse) {
-                return BundleUtil.getStringFromBundle("dataverse");
+                return BundleUtil.getStringFromBundle(
+                        "dataverse.permissions.usersOrGroups.assignDialog.role.warning.objectTypeWithin.dataverse");
             }
             if (dvObject instanceof Dataset) {
-                return BundleUtil.getStringFromBundle("dataset");
+                return BundleUtil.getStringFromBundle(
+                        "dataverse.permissions.usersOrGroups.assignDialog.role.warning.objectTypeWithin.dataset");
             }
         }
         return null;
