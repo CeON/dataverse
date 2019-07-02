@@ -13,8 +13,8 @@ public class DatasetVersionDTO {
     String archiveNote;
     String deacessionLink;
     Long versionNumber;
-    String minorVersionNumber;
-    long id;
+    Long minorVersionNumber;
+    Long id;
     VersionState versionState;
     String releaseDate;
     String releaseTime;
@@ -37,6 +37,7 @@ public class DatasetVersionDTO {
     String contactForAccess;
     String sizeOfCollection;
     String studyCompletion;
+    boolean fileAccessRequest;
     String citation;
     String license;
     boolean inReview;
@@ -229,19 +230,19 @@ public class DatasetVersionDTO {
         this.versionNumber = versionNumber;
     }
 
-    public String getMinorVersionNumber() {
+    public Long getMinorVersionNumber() {
         return minorVersionNumber;
     }
 
-    public void setMinorVersionNumber(String minorVersionNumber) {
+    public void setMinorVersionNumber(Long minorVersionNumber) {
         this.minorVersionNumber = minorVersionNumber;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -309,6 +310,14 @@ public class DatasetVersionDTO {
 
     public void setMetadataBlocks(Map<String, MetadataBlockDTO> metadataBlocks) {
         this.metadataBlocks = metadataBlocks;
+    }
+
+    public boolean isFileAccessRequest() {
+        return fileAccessRequest;
+    }
+
+    public void setFileAccessRequest(boolean fileAccessRequest) {
+        this.fileAccessRequest = fileAccessRequest;
     }
 
     public List<FieldDTO> getDatasetFields() {
