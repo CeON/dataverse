@@ -871,7 +871,7 @@ public class OpenAireExportUtilTest {
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         {
             dto.setVersionNumber(2L);
-            dto.setMinorVersionNumber(1L);
+            dto.setVersionMinorNumber(1L);
         }
         OpenAireExportUtil.writeVersionElement(xmlw, dto, null);
 

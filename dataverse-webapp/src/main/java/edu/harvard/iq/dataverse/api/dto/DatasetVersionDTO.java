@@ -13,7 +13,7 @@ public class DatasetVersionDTO {
     String archiveNote;
     String deacessionLink;
     Long versionNumber;
-    Long minorVersionNumber;
+    Long versionMinorNumber;
     Long id;
     VersionState versionState;
     String releaseDate;
@@ -230,12 +230,12 @@ public class DatasetVersionDTO {
         this.versionNumber = versionNumber;
     }
 
-    public Long getMinorVersionNumber() {
-        return minorVersionNumber;
+    public Long getVersionMinorNumber() {
+        return versionMinorNumber;
     }
 
-    public void setMinorVersionNumber(Long minorVersionNumber) {
-        this.minorVersionNumber = minorVersionNumber;
+    public void setVersionMinorNumber(Long versionMinorNumber) {
+        this.versionMinorNumber = versionMinorNumber;
     }
 
     public Long getId() {
@@ -328,7 +328,7 @@ public class DatasetVersionDTO {
 
     @Override
     public String toString() {
-        return "DatasetVersionDTO{" + "archiveNote=" + archiveNote + ", deacessionLink=" + deacessionLink + ", versionNumber=" + versionNumber + ", minorVersionNumber=" + minorVersionNumber + ", id=" + id + ", versionState=" + versionState + ", releaseDate=" + releaseDate + ", lastUpdateTime=" + lastUpdateTime + ", createTime=" + createTime + ", archiveTime=" + archiveTime + ", UNF=" + UNF + ", metadataBlocks=" + metadataBlocks + ", fileMetadatas=" + fileMetadatas + '}';
+        return "DatasetVersionDTO{" + "archiveNote=" + archiveNote + ", deacessionLink=" + deacessionLink + ", versionNumber=" + versionNumber + ", versionMinorNumber=" + versionMinorNumber + ", id=" + id + ", versionState=" + versionState + ", releaseDate=" + releaseDate + ", lastUpdateTime=" + lastUpdateTime + ", createTime=" + createTime + ", archiveTime=" + archiveTime + ", UNF=" + UNF + ", metadataBlocks=" + metadataBlocks + ", fileMetadatas=" + fileMetadatas + '}';
     }
 
 

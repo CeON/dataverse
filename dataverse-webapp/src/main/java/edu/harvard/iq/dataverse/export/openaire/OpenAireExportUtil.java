@@ -1075,7 +1075,7 @@ public class OpenAireExportUtil {
      */
     public static void writeVersionElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO, String language) throws XMLStreamException {
         Long majorVersionNumber = datasetVersionDTO.getVersionNumber();
-        Long minorVersionNumber = datasetVersionDTO.getMinorVersionNumber();
+        Long minorVersionNumber = datasetVersionDTO.getVersionMinorNumber();
 
         if (majorVersionNumber != null && StringUtils.isNotBlank(majorVersionNumber.toString())) {
             if (minorVersionNumber != null && StringUtils.isNotBlank(minorVersionNumber.toString())) {
