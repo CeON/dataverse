@@ -78,6 +78,8 @@ public class SearchServiceBean {
     SettingsServiceBean settingsService;
     @EJB
     SystemConfig systemConfig;
+    @EJB
+    private SolrFieldFactory solrFieldFactory;
 
     private SolrClient solrServer;
 
@@ -197,7 +199,14 @@ public class SearchServiceBean {
         solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, "File Tag");
         List<DatasetFieldType> datasetFields = datasetFieldService.findAllOrderedById();
         for (DatasetFieldType datasetFieldType : datasetFields) {
-            String solrField = datasetFieldType.getSolrField().getNameSearchable();
+
+            SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetFieldType.getName(),
+                                                                   datasetFieldType.getTmpNullFieldTypeIdentifier(),
+                                                                   datasetFieldType.getFieldType(),
+                                                                   datasetFieldType.isThisOrParentAllowsMultipleValues(),
+                                                                   datasetFieldType.isFacetable());
+
+            String solrField = dsfSolrField.getNameSearchable();
             String displayName = datasetFieldType.getDisplayName();
             solrFieldsToHightlightOnMap.put(solrField, displayName);
         }
@@ -256,7 +265,13 @@ public class SearchServiceBean {
                 if (dataverse != null) {
                     for (DataverseFacet dataverseFacet : dataverse.getDataverseFacets()) {
                         DatasetFieldType datasetField = dataverseFacet.getDatasetFieldType();
-                        solrQuery.addFacetField(datasetField.getSolrField().getNameFacetable());
+
+                        SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetField.getName(),
+                                                                               datasetField.getTmpNullFieldTypeIdentifier(),
+                                                                               datasetField.getFieldType(),
+                                                                               datasetField.isThisOrParentAllowsMultipleValues(),
+                                                                               datasetField.isFacetable());
+                        solrQuery.addFacetField(dsfSolrField.getNameFacetable());
                     }
                 }
             }
@@ -364,7 +379,11 @@ public class SearchServiceBean {
         String titleSolrField = null;
         try {
             DatasetFieldType titleDatasetField = datasetFieldService.findByName(DatasetFieldConstant.title);
-            titleSolrField = titleDatasetField.getSolrField().getNameSearchable();
+            titleSolrField = solrFieldFactory.getSolrField(titleDatasetField.getName(),
+                                                           titleDatasetField.getTmpNullFieldTypeIdentifier(),
+                                                           titleDatasetField.getFieldType(),
+                                                           titleDatasetField.isThisOrParentAllowsMultipleValues(),
+                                                           titleDatasetField.isFacetable()).getNameSearchable();
         } catch (EJBTransactionRolledbackException ex) {
             logger.info("Couldn't find " + DatasetFieldConstant.title);
             if (ex.getCause() instanceof TransactionRolledbackLocalException) {
@@ -575,7 +594,7 @@ public class SearchServiceBean {
                 if (null != filePID && !"".equals(filePID) && !"".equals("null")) {
                     solrSearchResult.setFilePersistentId(filePID);
                 }
-                
+
                 String fileAccess = (String) solrDocument.getFirstValue(SearchFields.ACCESS);
                 solrSearchResult.setFileAccess(fileAccess);
             }
@@ -646,7 +665,12 @@ public class SearchServiceBean {
              * we'll build a hashmap
              */
             for (DatasetFieldType datasetField : datasetFields) {
-                String solrFieldNameForDataset = datasetField.getSolrField().getNameFacetable();
+                SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetField.getName(),
+                                                                       datasetField.getTmpNullFieldTypeIdentifier(),
+                                                                       datasetField.getFieldType(),
+                                                                       datasetField.isThisOrParentAllowsMultipleValues(),
+                                                                       datasetField.isFacetable());
+                String solrFieldNameForDataset = dsfSolrField.getNameFacetable();
                 String friendlyName = datasetField.getDisplayName();
                 if (solrFieldNameForDataset != null && facetField.getName().endsWith(datasetField.getTmpNullFieldTypeIdentifier())) {
                     // give it the non-friendly name so we remember to update the reference data script for datasets
@@ -658,7 +682,7 @@ public class SearchServiceBean {
                         break;
                     }
                 }
-                datasetfieldFriendlyNamesBySolrField.put(datasetField.getSolrField().getNameFacetable(), friendlyName);
+                datasetfieldFriendlyNamesBySolrField.put(dsfSolrField.getNameFacetable(), friendlyName);
             }
             /**
              * @todo get rid of this crazy reflection, per todo above... or
