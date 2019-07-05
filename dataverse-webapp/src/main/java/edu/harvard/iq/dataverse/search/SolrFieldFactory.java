@@ -21,7 +21,7 @@ public class SolrFieldFactory {
                                   String nullSolrFieldName,
                                   FieldType fieldType,
                                   boolean isMultivaluedSolrField,
-                                  boolean isSolrFieldUsedAsFacetable) {
+                                  boolean isSolrFieldCanBeUsedAsFacetable) {
 
         SolrField.SolrType solrType = SolrField.SolrType.TEXT_EN;
 
@@ -36,11 +36,11 @@ public class SolrFieldFactory {
                 solrType = SolrField.SolrType.EMAIL;
             }
 
-            return new SolrField(datasetFieldTypeName, solrType, isMultivaluedSolrField, isSolrFieldUsedAsFacetable, true);
+            return new SolrField(datasetFieldTypeName, solrType, isMultivaluedSolrField, isSolrFieldCanBeUsedAsFacetable, true);
 
         } else {
             String oddValue = datasetFieldTypeName + nullSolrFieldName;
-            return new SolrField(oddValue, solrType, false, isSolrFieldUsedAsFacetable, true);
+            return new SolrField(oddValue, solrType, false, isSolrFieldCanBeUsedAsFacetable, true);
         }
     }
 }
