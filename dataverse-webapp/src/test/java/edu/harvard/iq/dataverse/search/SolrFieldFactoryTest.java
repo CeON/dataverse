@@ -9,7 +9,6 @@ public class SolrFieldFactoryTest {
     private SolrFieldFactory solrFieldFactory = new SolrFieldFactory();
 
     private final String FIELD_NAME = "test";
-    private final String NULL_FIELD_NAME = "nullfield";
 
     // -------------------- TESTS --------------------
 
@@ -17,7 +16,7 @@ public class SolrFieldFactoryTest {
     public void getSolrField_forIntType() {
 
         //when
-        SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, NULL_FIELD_NAME, FieldType.INT, true, false);
+        SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, FieldType.INT, true, false);
 
         //then
         Assert.assertEquals(SolrField.SolrType.INTEGER, solrField.getSolrType());
@@ -27,27 +26,27 @@ public class SolrFieldFactoryTest {
     }
 
     @Test
-    public void getSolrField_forURLType() {
+    public void getSolrField_forDateType() {
 
         //when
-        SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, NULL_FIELD_NAME, FieldType.URL, true, false);
+        SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, FieldType.DATE, true, false);
 
         //then
-        Assert.assertEquals(SolrField.SolrType.TEXT_EN, solrField.getSolrType());
+        Assert.assertEquals(SolrField.SolrType.DATE, solrField.getSolrType());
         Assert.assertTrue(solrField.getNameSearchable().contains(FIELD_NAME));
         Assert.assertTrue(solrField.isAllowedToBeMultivalued());
         Assert.assertFalse(solrField.isFacetable());
     }
 
     @Test
-    public void getSolrField_forNullType() {
+    public void getSolrField_forURLType() {
 
         //when
-        SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, NULL_FIELD_NAME, null, true, false);
+        SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, FieldType.URL, true, false);
 
         //then
         Assert.assertEquals(SolrField.SolrType.TEXT_EN, solrField.getSolrType());
-        Assert.assertTrue(solrField.getNameSearchable().contains(NULL_FIELD_NAME));
+        Assert.assertTrue(solrField.getNameSearchable().contains(FIELD_NAME));
         Assert.assertTrue(solrField.isAllowedToBeMultivalued());
         Assert.assertFalse(solrField.isFacetable());
     }

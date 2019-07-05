@@ -18,29 +18,23 @@ public class SolrFieldFactory {
      * {@link SolrField.SolrType} defaults to TEXT_EN.
      */
     public SolrField getSolrField(String datasetFieldTypeName,
-                                  String nullSolrFieldName,
                                   FieldType fieldType,
                                   boolean isMultivaluedSolrField,
                                   boolean isSolrFieldCanBeUsedAsFacetable) {
 
         SolrField.SolrType solrType = SolrField.SolrType.TEXT_EN;
 
-        if (fieldType != null) {
-            if (fieldType.equals(FieldType.INT)) {
-                solrType = SolrField.SolrType.INTEGER;
-            } else if (fieldType.equals(FieldType.FLOAT)) {
-                solrType = SolrField.SolrType.FLOAT;
-            } else if (fieldType.equals(FieldType.DATE)) {
-                solrType = SolrField.SolrType.DATE;
-            } else if (fieldType.equals(FieldType.EMAIL)) {
-                solrType = SolrField.SolrType.EMAIL;
-            }
-
-            return new SolrField(datasetFieldTypeName, solrType, isMultivaluedSolrField, isSolrFieldCanBeUsedAsFacetable, true);
-
-        } else {
-            String oddValue = datasetFieldTypeName + nullSolrFieldName;
-            return new SolrField(oddValue, solrType, false, isSolrFieldCanBeUsedAsFacetable, true);
+        if (fieldType.equals(FieldType.INT)) {
+            solrType = SolrField.SolrType.INTEGER;
+        } else if (fieldType.equals(FieldType.FLOAT)) {
+            solrType = SolrField.SolrType.FLOAT;
+        } else if (fieldType.equals(FieldType.DATE)) {
+            solrType = SolrField.SolrType.DATE;
+        } else if (fieldType.equals(FieldType.EMAIL)) {
+            solrType = SolrField.SolrType.EMAIL;
         }
+
+        return new SolrField(datasetFieldTypeName, solrType, isMultivaluedSolrField, isSolrFieldCanBeUsedAsFacetable, true);
+
     }
 }

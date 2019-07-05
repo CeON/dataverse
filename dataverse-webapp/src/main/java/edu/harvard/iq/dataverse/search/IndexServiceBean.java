@@ -750,7 +750,6 @@ public class IndexServiceBean {
 
                 DatasetFieldType dsfType = dsf.getDatasetFieldType();
                 SolrField dsfSolrField = solrFieldFactory.getSolrField(dsfType.getName(),
-                                                                       dsfType.getTmpNullFieldTypeIdentifier(),
                                                                        dsfType.getFieldType(),
                                                                        dsfType.isThisOrParentAllowsMultipleValues(),
                                                                        dsfType.isFacetable());

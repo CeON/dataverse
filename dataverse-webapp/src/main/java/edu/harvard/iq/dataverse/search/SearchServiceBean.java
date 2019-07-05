@@ -201,7 +201,6 @@ public class SearchServiceBean {
         for (DatasetFieldType datasetFieldType : datasetFields) {
 
             SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetFieldType.getName(),
-                                                                   datasetFieldType.getTmpNullFieldTypeIdentifier(),
                                                                    datasetFieldType.getFieldType(),
                                                                    datasetFieldType.isThisOrParentAllowsMultipleValues(),
                                                                    datasetFieldType.isFacetable());
@@ -267,7 +266,6 @@ public class SearchServiceBean {
                         DatasetFieldType datasetField = dataverseFacet.getDatasetFieldType();
 
                         SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetField.getName(),
-                                                                               datasetField.getTmpNullFieldTypeIdentifier(),
                                                                                datasetField.getFieldType(),
                                                                                datasetField.isThisOrParentAllowsMultipleValues(),
                                                                                datasetField.isFacetable());
@@ -380,7 +378,6 @@ public class SearchServiceBean {
         try {
             DatasetFieldType titleDatasetField = datasetFieldService.findByName(DatasetFieldConstant.title);
             titleSolrField = solrFieldFactory.getSolrField(titleDatasetField.getName(),
-                                                           titleDatasetField.getTmpNullFieldTypeIdentifier(),
                                                            titleDatasetField.getFieldType(),
                                                            titleDatasetField.isThisOrParentAllowsMultipleValues(),
                                                            titleDatasetField.isFacetable()).getNameSearchable();
@@ -666,16 +663,12 @@ public class SearchServiceBean {
              */
             for (DatasetFieldType datasetField : datasetFields) {
                 SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetField.getName(),
-                                                                       datasetField.getTmpNullFieldTypeIdentifier(),
                                                                        datasetField.getFieldType(),
                                                                        datasetField.isThisOrParentAllowsMultipleValues(),
                                                                        datasetField.isFacetable());
                 String solrFieldNameForDataset = dsfSolrField.getNameFacetable();
                 String friendlyName = datasetField.getDisplayName();
-                if (solrFieldNameForDataset != null && facetField.getName().endsWith(datasetField.getTmpNullFieldTypeIdentifier())) {
-                    // give it the non-friendly name so we remember to update the reference data script for datasets
-                    facetCategory.setName(facetField.getName());
-                } else if (solrFieldNameForDataset != null && facetField.getName().equals(solrFieldNameForDataset)) {
+                if (solrFieldNameForDataset != null && facetField.getName().equals(solrFieldNameForDataset)) {
                     if (friendlyName != null && !friendlyName.isEmpty()) {
                         facetCategory.setFriendlyName(friendlyName);
                         // stop examining available dataset fields. we found a match

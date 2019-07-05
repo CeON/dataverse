@@ -560,11 +560,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         }
     }
 
-    // help us identify fields that have null fieldType values
-    public String getTmpNullFieldTypeIdentifier() {
-        return "NullFieldType_s";
-    }
-
     /**
      * Determinate if this DatasetFieldType or it's parent allows multiple values for solr field.
      */

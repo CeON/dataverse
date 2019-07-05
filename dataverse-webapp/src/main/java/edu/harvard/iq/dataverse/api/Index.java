@@ -470,7 +470,6 @@ public class Index extends AbstractApiBean {
 
         for (DatasetFieldType datasetField : datasetFieldService.findAllOrderedByName()) {
             SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetField.getName(),
-                                                                   datasetField.getTmpNullFieldTypeIdentifier(),
                                                                    datasetField.getFieldType(),
                                                                    datasetField.isThisOrParentAllowsMultipleValues(),
                                                                    datasetField.isFacetable());
@@ -526,7 +525,6 @@ public class Index extends AbstractApiBean {
 
         for (DatasetFieldType datasetField : datasetFieldService.findAllOrderedByName()) {
             SolrField dsfSolrField = solrFieldFactory.getSolrField(datasetField.getName(),
-                                                                   datasetField.getTmpNullFieldTypeIdentifier(),
                                                                    datasetField.getFieldType(),
                                                                    datasetField.isThisOrParentAllowsMultipleValues(),
                                                                    datasetField.isFacetable());
