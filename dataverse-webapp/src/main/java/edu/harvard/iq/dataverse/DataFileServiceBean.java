@@ -1305,7 +1305,7 @@ public class DataFileServiceBean implements java.io.Serializable {
 
     public String getPhysicalFileToDelete(DataFile dataFile) {
         try {
-            StorageIO<DataFile> storageIO = dataFile.getStorageIO();
+            StorageIO<DataFile> storageIO = dataFile.getStorageIO(new DataAccess());
             return storageIO.getStorageLocation();
 
         } catch (IOException ioex) {

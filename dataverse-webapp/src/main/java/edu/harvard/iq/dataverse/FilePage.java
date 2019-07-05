@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.SwiftAccessIO;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
@@ -679,7 +680,7 @@ public class FilePage implements java.io.Serializable {
 
     public SwiftAccessIO getSwiftObject() {
         try {
-            StorageIO<DataFile> storageIO = getFile().getStorageIO();
+            StorageIO<DataFile> storageIO = getFile().getStorageIO(new DataAccess());
             if (storageIO != null && storageIO instanceof SwiftAccessIO) {
                 return (SwiftAccessIO) storageIO;
             } else {
@@ -829,7 +830,7 @@ public class FilePage implements java.io.Serializable {
 
     public String getPublicDownloadUrl() {
         try {
-            StorageIO<DataFile> storageIO = getFile().getStorageIO();
+            StorageIO<DataFile> storageIO = getFile().getStorageIO(new DataAccess());
             if (storageIO instanceof SwiftAccessIO) {
                 String fileDownloadUrl = null;
                 try {

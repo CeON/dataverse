@@ -37,7 +37,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.GlobalIdServiceBean.logger;
-import static edu.harvard.iq.dataverse.dataaccess.DataAccess.getStorageIO;
 
 /**
  * @author skraffmi
@@ -90,7 +89,7 @@ public class ExportService {
     public InputStream getExport(Dataset dataset, String formatName) throws ExportException, IOException {
         // first we will try to locate an already existing, cached export 
         // for this format: 
-        InputStream exportInputStream = getCachedExportFormat(dataset, formatName);
+        InputStream exportInputStream = getCachedExportFormat(dataset, formatName, new DataAccess());
 
         if (exportInputStream != null) {
             return exportInputStream;
@@ -100,7 +99,7 @@ public class ExportService {
         exportFormat(dataset, formatName);
 
         // and then try again: 
-        exportInputStream = getCachedExportFormat(dataset, formatName);
+        exportInputStream = getCachedExportFormat(dataset, formatName, new DataAccess());
 
         if (exportInputStream != null) {
             return exportInputStream;
@@ -186,7 +185,7 @@ public class ExportService {
                 Exporter e = exporters.next();
                 String formatName = e.getProviderName();
 
-                clearCachedExport(dataset, formatName);
+                clearCachedExport(dataset, formatName, new DataAccess());
             }
 
             dataset.setLastExportTime(null);
@@ -296,9 +295,9 @@ public class ExportService {
 
     }
 
-    private void clearCachedExport(Dataset dataset, String format) throws IOException {
+    private void clearCachedExport(Dataset dataset, String format, DataAccess dataAccess) throws IOException {
         try {
-            StorageIO<Dataset> storageIO = getStorageIO(dataset);
+            StorageIO<Dataset> storageIO = dataAccess.getStorageIO(dataset);
             storageIO.deleteAuxObject("export_" + format + ".cached");
 
         } catch (IOException ex) {
@@ -310,12 +309,12 @@ public class ExportService {
     // This method checks if the metadata has already been exported in this 
     // format and cached on disk. If it has, it'll open the file and retun 
     // the file input stream. If not, it'll return null. 
-    private InputStream getCachedExportFormat(Dataset dataset, String formatName) throws ExportException, IOException {
+    private InputStream getCachedExportFormat(Dataset dataset, String formatName, DataAccess dataAccess) throws ExportException, IOException {
 
-        StorageIO<Dataset> dataAccess = null;
+        StorageIO<Dataset> storageIO = null;
 
         try {
-            dataAccess = DataAccess.getStorageIO(dataset);
+            storageIO = dataAccess.getStorageIO(dataset);
         } catch (IOException ioex) {
             throw new IOException("IO Exception thrown exporting as " + "export_" + formatName + ".cached");
         }
@@ -323,7 +322,7 @@ public class ExportService {
         InputStream cachedExportInputStream = null;
 
         try {
-            cachedExportInputStream = dataAccess.getAuxFileAsInputStream("export_" + formatName + ".cached");
+            cachedExportInputStream = storageIO.getAuxFileAsInputStream("export_" + formatName + ".cached");
             return cachedExportInputStream;
         } catch (IOException ioex) {
             throw new IOException("IO Exception thrown exporting as " + "export_" + formatName + ".cached");

@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -632,7 +633,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.fine("In setDatasetFileAsThumbnail but dataset is null! Returning null.");
             return null;
         }
-        DatasetUtil.deleteDatasetLogo(dataset);
+        DatasetUtil.deleteDatasetLogo(dataset, new DataAccess());
         dataset.setThumbnailFile(datasetFileThumbnailToSwitchTo);
         dataset.setUseGenericThumbnail(false);
         return merge(dataset);
@@ -643,7 +644,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.fine("In removeDatasetThumbnail but dataset is null! Returning null.");
             return null;
         }
-        DatasetUtil.deleteDatasetLogo(dataset);
+        DatasetUtil.deleteDatasetLogo(dataset, new DataAccess());
         dataset.setThumbnailFile(null);
         dataset.setUseGenericThumbnail(true);
         return merge(dataset);

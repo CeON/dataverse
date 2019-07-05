@@ -40,8 +40,8 @@ public class DataAccess {
     // The getStorageIO() methods initialize StorageIO objects for
     // datafiles that are already saved using one of the supported Dataverse
     // DataAccess IO drivers.
-    public static <T extends DvObject> StorageIO<T> getStorageIO(T dvObject) throws IOException {
-        return getStorageIO(dvObject, null);
+    public <T extends DvObject> StorageIO<T> getStorageIO(T dvObject) throws IOException {
+        return getStorageIO(dvObject, new DataAccessRequest());
     }
 
     //passing DVObject instead of a datafile to accomodate for use of datafiles as well as datasets
@@ -96,7 +96,7 @@ public class DataAccess {
         return createNewStorageIO(dvObject, storageTag, DEFAULT_STORAGE_DRIVER_IDENTIFIER);
     }
 
-    public static <T extends DvObject> StorageIO<T> createNewStorageIO(T dvObject, String storageTag, String driverIdentifier) throws IOException {
+    private static <T extends DvObject> StorageIO<T> createNewStorageIO(T dvObject, String storageTag, String driverIdentifier) throws IOException {
         if (dvObject == null
                 || storageTag == null
                 || storageTag.isEmpty()) {

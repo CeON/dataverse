@@ -762,7 +762,7 @@ public class IngestServiceBean {
         StorageIO<DataFile> storageIO = null;
 
         try {
-            storageIO = dataFile.getStorageIO();
+            storageIO = dataFile.getStorageIO(new DataAccess());
             storageIO.open();
 
             if (storageIO.isLocalFile()) {
@@ -946,7 +946,7 @@ public class IngestServiceBean {
                 try {
                     /* Start of save as backup */
 
-                    StorageIO<DataFile> dataAccess = dataFile.getStorageIO();
+                    StorageIO<DataFile> dataAccess = dataFile.getStorageIO(new DataAccess());
                     dataAccess.open();
 
                     // and we want to save the original of the ingested file: 
@@ -993,7 +993,7 @@ public class IngestServiceBean {
 
     private BufferedInputStream openFile(DataFile dataFile) throws IOException {
         BufferedInputStream inputStream;
-        StorageIO<DataFile> storageIO = dataFile.getStorageIO();
+        StorageIO<DataFile> storageIO = dataFile.getStorageIO(new DataAccess());
         storageIO.open();
         if (storageIO.isLocalFile()) {
             inputStream = new BufferedInputStream(storageIO.getInputStream());
@@ -1693,7 +1693,7 @@ public class IngestServiceBean {
                 boolean tempFileRequired = false;
 
                 try {
-                    storageIO = dataFile.getStorageIO();
+                    storageIO = dataFile.getStorageIO(new DataAccess());
                     storageIO.open();
 
 
@@ -1784,7 +1784,7 @@ public class IngestServiceBean {
                 StorageIO<DataFile> storageIO;
 
                 try {
-                    storageIO = dataFile.getStorageIO();
+                    storageIO = dataFile.getStorageIO(new DataAccess());
                     storageIO.open();
                     savedOriginalFileSize = storageIO.getAuxObjectSize(FileUtil.SAVED_ORIGINAL_FILENAME_EXTENSION);
 
