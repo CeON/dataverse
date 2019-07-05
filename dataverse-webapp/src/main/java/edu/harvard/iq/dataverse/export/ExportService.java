@@ -165,7 +165,7 @@ public class ExportService {
                 Exporter e = exporters.next();
                 String formatName = e.getProviderName();
 
-                cacheExport(releasedVersion, formatName, datasetAsJson, e);
+                cacheExport(releasedVersion, formatName, datasetAsJson, e, new DataAccess());
 
             }
         } catch (ServiceConfigurationError serviceError) {
@@ -209,7 +209,7 @@ public class ExportService {
                         throw new IllegalStateException("No Released Version");
                     }
                     final JsonObjectBuilder datasetAsJsonBuilder = JsonPrinter.jsonAsDatasetDto(releasedVersion);
-                    cacheExport(releasedVersion, formatName, datasetAsJsonBuilder.build(), e);
+                    cacheExport(releasedVersion, formatName, datasetAsJsonBuilder.build(), e, new DataAccess());
                 }
             }
         } catch (ServiceConfigurationError serviceError) {
@@ -239,7 +239,11 @@ public class ExportService {
 
     // This method runs the selected metadata exporter, caching the output 
     // in a file in the dataset directory / container based on its DOI:
-    private void cacheExport(DatasetVersion version, String format, JsonObject datasetAsJson, Exporter exporter) throws ExportException {
+    private void cacheExport(DatasetVersion version,
+                             String format,
+                             JsonObject datasetAsJson,
+                             Exporter exporter,
+                             DataAccess dataAccess) throws ExportException {
         boolean tempFileRequired = false;
         File tempFile = null;
         OutputStream outputStream = null;
@@ -253,7 +257,7 @@ public class ExportService {
             // to save the output into a temp file, and then copy it over to the 
             // permanent storage using the IO "save" command: 
             try {
-                storageIO = DataAccess.createNewStorageIO(dataset, "placeholder");
+                storageIO = dataAccess.createNewStorageIO(dataset, "placeholder");
                 Channel outputChannel = storageIO.openAuxChannel("export_" + format + ".cached", DataAccessOption.WRITE_ACCESS);
                 outputStream = Channels.newOutputStream((WritableByteChannel) outputChannel);
             } catch (IOException ioex) {

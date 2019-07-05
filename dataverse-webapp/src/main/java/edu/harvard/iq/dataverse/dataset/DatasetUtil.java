@@ -260,7 +260,7 @@ public class DatasetUtil {
         return null;
     }
 
-    public static Dataset persistDatasetLogoToStorageAndCreateThumbnail(Dataset dataset, InputStream inputStream) {
+    public static Dataset persistDatasetLogoToStorageAndCreateThumbnail(Dataset dataset, InputStream inputStream, DataAccess dataAccess) {
         if (dataset == null) {
             return null;
         }
@@ -271,10 +271,10 @@ public class DatasetUtil {
             logger.severe(ex.getMessage());
         }
 
-        StorageIO<Dataset> dataAccess = null;
+        StorageIO<Dataset> storageIO = null;
 
         try {
-            dataAccess = DataAccess.createNewStorageIO(dataset, "placeholder");
+            storageIO = dataAccess.createNewStorageIO(dataset, "placeholder");
         } catch (IOException ioex) {
             //TODO: Add a suitable waing message
             logger.warning("Failed to save the file, storage id " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");
@@ -283,7 +283,7 @@ public class DatasetUtil {
         //File originalFile = new File(datasetDirectory.toString(), datasetLogoFilenameFinal);
         try {
             //this goes through Swift API/local storage/s3 to write the dataset thumbnail into a container
-            dataAccess.savePathAsAux(tmpFile.toPath(), datasetLogoFilenameFinal);
+            storageIO.savePathAsAux(tmpFile.toPath(), datasetLogoFilenameFinal);
         } catch (IOException ex) {
             logger.severe("Failed to move original file from " + tmpFile.getAbsolutePath() + " to its DataAccess location" + ": " + ex);
         }
@@ -333,7 +333,7 @@ public class DatasetUtil {
         logger.fine("tmpFileLocation=" + tmpFileForResize.toPath().toString());
         //now we must save the updated thumbnail 
         try {
-            dataAccess.savePathAsAux(Paths.get(thumbFileLocation), datasetLogoThumbnail + thumb48addedByImageThumbConverter);
+            storageIO.savePathAsAux(Paths.get(thumbFileLocation), datasetLogoThumbnail + thumb48addedByImageThumbConverter);
         } catch (IOException ex) {
             logger.severe("Failed to move updated thumbnail file from " + tmpFile.getAbsolutePath() + " to its DataAccess location" + ": " + ex);
         }

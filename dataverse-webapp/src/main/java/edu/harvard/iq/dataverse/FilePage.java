@@ -559,7 +559,7 @@ public class FilePage implements java.io.Serializable {
                     // longer exists in the database, before proceeding to 
                     // delete the physical file)
                     try {
-                        datafileService.finalizeFileDelete(deleteFileId, deleteStorageLocation);
+                        datafileService.finalizeFileDelete(deleteFileId, deleteStorageLocation, new DataAccess());
                     } catch (IOException ioex) {
                         logger.warning("Failed to delete the physical file associated with the deleted datafile id="
                                                + deleteFileId + ", storage location: " + deleteStorageLocation);

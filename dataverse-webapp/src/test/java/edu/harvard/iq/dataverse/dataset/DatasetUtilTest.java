@@ -95,7 +95,7 @@ public class DatasetUtilTest {
      */
     @Test
     public void testPersistDatasetLogoToStorageAndCreateThumbnail() {
-        assertNull(DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnail(null, null));
+        assertNull(DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnail(null, null, new DataAccess()));
         //Todo: a test for this that test main logic
     }
 

@@ -5,6 +5,7 @@
  */
 package edu.harvard.iq.dataverse.datasetutility;
 
+import com.google.common.base.Preconditions;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.Dataset;
@@ -15,6 +16,7 @@ import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.api.Util;
 import edu.harvard.iq.dataverse.authorization.users.User;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -30,8 +32,6 @@ import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ocpsoft.common.util.Strings;
-
-import com.google.common.base.Preconditions;
 
 import javax.ejb.EJBException;
 import javax.json.JsonObjectBuilder;
@@ -1319,7 +1319,7 @@ public class AddReplaceFileHelper {
         }
 
         int nFiles = finalFileList.size();
-        finalFileList = ingestService.saveAndAddFilesToDataset(workingVersion, finalFileList);
+        finalFileList = ingestService.saveAndAddFilesToDataset(workingVersion, finalFileList, new DataAccess());
 
         if (nFiles != finalFileList.size()) {
             if (nFiles == 1) {

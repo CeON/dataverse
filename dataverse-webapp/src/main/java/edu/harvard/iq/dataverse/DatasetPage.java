@@ -2650,7 +2650,7 @@ public class DatasetPage implements java.io.Serializable {
                         newFile.getFileMetadata().setTermsOfUse(termsOfUse);
                     }
 
-                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles);
+                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles, new DataAccess());
                     newFiles.clear();
 
                     // and another update command: 
