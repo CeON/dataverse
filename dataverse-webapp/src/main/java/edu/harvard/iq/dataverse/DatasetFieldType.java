@@ -566,7 +566,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     /**
-     * Determinates if this DatasetFieldType or it's parent allows multiple values for solr field.
+     * Determinate if this DatasetFieldType or it's parent allows multiple values for solr field.
      */
     public boolean isThisOrParentAllowsMultipleValues() {
         return allowMultiples || isParentAllowsMutlipleValues();
