@@ -11,8 +11,10 @@ public class SolrFieldFactoryTest {
     private final String FIELD_NAME = "test";
     private final String NULL_FIELD_NAME = "nullfield";
 
+    // -------------------- TESTS --------------------
+
     @Test
-    public void getSolrField_forInt() {
+    public void getSolrField_forIntType() {
 
         //when
         SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, NULL_FIELD_NAME, FieldType.INT, true, false);
@@ -25,7 +27,7 @@ public class SolrFieldFactoryTest {
     }
 
     @Test
-    public void getSolrField_forURL() {
+    public void getSolrField_forURLType() {
 
         //when
         SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, NULL_FIELD_NAME, FieldType.URL, true, false);
@@ -38,7 +40,7 @@ public class SolrFieldFactoryTest {
     }
 
     @Test
-    public void getSolrField_forNull() {
+    public void getSolrField_forNullType() {
 
         //when
         SolrField solrField = solrFieldFactory.getSolrField(FIELD_NAME, NULL_FIELD_NAME, null, true, false);
