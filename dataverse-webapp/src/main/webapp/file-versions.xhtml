@@ -64,19 +64,19 @@
                     <h:outputText rendered="#{!(versionTab.datasetVersion.released or versionTab.datasetVersion.deaccessioned) and versionTab.dataFile == null}"                   
                                   value="#{versionTab.datasetVersion.versionState}" />
                     <h:outputLink rendered="#{(versionTab.datasetVersion.released or versionTab.datasetVersion.deaccessioned) and versionTab.dataFile != null}"
-                                  value="/file.xhtml?fileId=#{versionTab.dataFile.id}&#38;version=#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.versionMinorNumber}" class="ui-commandlink ui-widget">
-                        <h:outputText value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.versionMinorNumber}" />
+                                  value="/file.xhtml?fileId=#{versionTab.dataFile.id}&#38;version=#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" class="ui-commandlink ui-widget">
+                        <h:outputText value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" />
                     </h:outputLink>
                     <h:outputText rendered="#{(versionTab.datasetVersion.released or versionTab.datasetVersion.deaccessioned)and versionTab.dataFile == null}"
-                                  value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.versionMinorNumber}" />
+                                  value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" />
                 </ui:fragment>
                 <h:outputText rendered="#{versionTab.datasetVersion.deaccessioned
                                      and !permissionServiceBean.on(versionTab.datasetVersion.dataset).has('ViewUnpublishedDataset')}"
-                              value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.versionMinorNumber}" />
+                              value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" />
             </ui:fragment>
             <ui:fragment rendered="#{versionTab.datasetVersion == FilePage.fileMetadata.datasetVersion }">
                 <h:outputText rendered="#{!versionTab.datasetVersion.draft}" styleClass="highlightBold"
-                              value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.versionMinorNumber}" />
+                              value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" />
                 <h:outputText rendered="#{versionTab.datasetVersion.draft}" styleClass="highlightBold"
                               value="#{versionTab.datasetVersion.versionState}"/> 
             </ui:fragment>    

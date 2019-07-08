@@ -1,3 +1,0 @@
-# File with hints used to determine the beginning of family name
-# hint.txt 
-van

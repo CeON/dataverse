@@ -161,6 +161,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
             <version>${junit.vintage.version}</version>
@@ -238,14 +244,6 @@
             <groupId>org.dataverse</groupId>
             <artifactId>unf</artifactId>
             <version>6.0</version>
-        </dependency>
-        <!-- Added for AutoService -->
-        <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
-            <version>1.0-rc2</version>
-            <optional>true</optional>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>edu.harvard.hul.ois.jhove</groupId>
