@@ -282,6 +282,7 @@
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>2.4.0</version>
+            <scope>test</scope>
         </dependency>
         <!-- Added specific versionf of SLF4J jars; otherwise we end up with
         conflicting versions of slf4j-api and slf4j-log4j12, loaded as
@@ -431,18 +432,6 @@
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
             <version>0.10.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
