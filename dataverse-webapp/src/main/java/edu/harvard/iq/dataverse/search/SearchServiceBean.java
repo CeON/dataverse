@@ -377,10 +377,12 @@ public class SearchServiceBean {
         String titleSolrField = null;
         try {
             DatasetFieldType titleDatasetField = datasetFieldService.findByName(DatasetFieldConstant.title);
-            titleSolrField = solrFieldFactory.getSolrField(titleDatasetField.getName(),
-                                                           titleDatasetField.getFieldType(),
-                                                           titleDatasetField.isThisOrParentAllowsMultipleValues(),
-                                                           titleDatasetField.isFacetable()).getNameSearchable();
+            titleSolrField = solrFieldFactory
+                    .getSolrField(titleDatasetField.getName(),
+                                  titleDatasetField.getFieldType(),
+                                  titleDatasetField.isThisOrParentAllowsMultipleValues(),
+                                  titleDatasetField.isFacetable())
+                    .getNameSearchable();
         } catch (EJBTransactionRolledbackException ex) {
             logger.info("Couldn't find " + DatasetFieldConstant.title);
             if (ex.getCause() instanceof TransactionRolledbackLocalException) {
