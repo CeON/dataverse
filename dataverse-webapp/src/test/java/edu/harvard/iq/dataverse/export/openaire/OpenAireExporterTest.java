@@ -3,8 +3,19 @@ package edu.harvard.iq.dataverse.export.openaire;
 import com.jayway.restassured.path.xml.XmlPath;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.OpenAireExporter;
-import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.xml.XmlPrinter;
+import junit.framework.Assert;
+import org.junit.Test;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,19 +23,8 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import static junit.framework.Assert.assertEquals;
 
-import junit.framework.Assert;
-import org.junit.Test;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
+import static junit.framework.Assert.assertEquals;
 
 public class OpenAireExporterTest {
 
@@ -69,9 +69,8 @@ public class OpenAireExporterTest {
         JsonReader jsonReader = Json.createReader(new StringReader(datasetVersionAsJson));
         JsonObject jsonObject = jsonReader.readObject();
         DatasetVersion nullVersion = null;
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        openAireExporter.exportDataset(nullVersion, jsonObject, byteArrayOutputStream);
-        String xmlOnOneLine = new String(byteArrayOutputStream.toByteArray());
+
+        String xmlOnOneLine = openAireExporter.exportDataset(nullVersion);
         String xmlAsString = XmlPrinter.prettyPrintXml(xmlOnOneLine);
         System.out.println("XML: " + xmlAsString);
         XmlPath xmlpath = XmlPath.from(xmlAsString);
@@ -92,7 +91,7 @@ public class OpenAireExporterTest {
         JsonObject jsonObject = jsonReader.readObject();
         DatasetVersion nullVersion = null;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        openAireExporter.exportDataset(nullVersion, jsonObject, byteArrayOutputStream);
+        openAireExporter.exportDataset(nullVersion);
 
         {
             String xmlOnOneLine = new String(byteArrayOutputStream.toByteArray());

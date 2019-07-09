@@ -21,7 +21,6 @@ import org.junit.Test;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -280,9 +279,7 @@ public class SchemaDotOrgExporterTest {
         dataFile.setOwner(dataset);
         version.setFileMetadatas(fileMetadatas);
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        schemaDotOrgExporter.exportDataset(version, json1, byteArrayOutputStream);
-        String jsonLd = byteArrayOutputStream.toString();
+        String jsonLd = schemaDotOrgExporter.exportDataset(version);
         String prettyJson = JsonUtil.prettyPrint(jsonLd);
         System.out.println("schema.org JSON-LD: " + prettyJson);
         JsonReader jsonReader2 = Json.createReader(new StringReader(jsonLd));

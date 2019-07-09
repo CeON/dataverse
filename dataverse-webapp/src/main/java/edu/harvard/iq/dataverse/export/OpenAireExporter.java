@@ -1,16 +1,17 @@
 package edu.harvard.iq.dataverse.export;
 
-import java.io.OutputStream;
-
-import javax.json.JsonObject;
-import javax.xml.stream.XMLStreamException;
-
 import com.google.auto.service.AutoService;
-
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.openaire.OpenAireExportUtil;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonPrinter;
+
+import javax.json.JsonObject;
+import javax.xml.stream.XMLStreamException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @AutoService(Exporter.class)
 public class OpenAireExporter implements Exporter {
@@ -29,11 +30,14 @@ public class OpenAireExporter implements Exporter {
     }
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream)
-            throws ExportException {
-        try {
-            OpenAireExportUtil.datasetJson2openaire(json, outputStream);
-        } catch (XMLStreamException xse) {
+    public String exportDataset(DatasetVersion version) throws ExportException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+                    .build();
+
+            OpenAireExportUtil.datasetJson2openaire(datasetAsJson, byteArrayOutputStream);
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
+        } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DataCite OpenAIRE export", xse);
         }
     }

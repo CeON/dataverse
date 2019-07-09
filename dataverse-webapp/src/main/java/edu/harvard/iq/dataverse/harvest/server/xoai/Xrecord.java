@@ -4,8 +4,6 @@ import com.lyncode.xoai.model.oaipmh.Header;
 import com.lyncode.xoai.model.oaipmh.Record;
 import com.lyncode.xoai.xml.XmlWriter;
 import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.export.ExportException;
-import edu.harvard.iq.dataverse.export.ExportService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,11 +81,11 @@ public class Xrecord extends Record {
 
                 if (dataset != null && formatName != null) {
                     InputStream inputStream = null;
-                    try {
-                        inputStream = ExportService.getInstance().exportDatasetVersion(dataset.getReleasedVersion(), formatName);
+                    /*try {
+                        inputStream = ExportService.getInstance().exportDatasetVersion(dataset.getReleasedVersion(), );
                     } catch (ExportException ex) {
                         inputStream = null;
-                    }
+                    }*/
 
                     if (inputStream == null) {
                         throw new IOException("Xrecord: failed to open metadata stream.");

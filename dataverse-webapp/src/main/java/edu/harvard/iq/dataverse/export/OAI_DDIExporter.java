@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
  */
 
 public class OAI_DDIExporter implements Exporter {
-    // TODO: move these to the export utility:
+
     private static String DEFAULT_XML_NAMESPACE = "ddi:codebook:2_5";
     private static String DEFAULT_XML_SCHEMALOCATION = "http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd";
     private static String DEFAULT_XML_VERSION = "2.5";

@@ -25,6 +25,7 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.export.ExporterConstant;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.harvest.server.OAISetServiceBean;
@@ -38,6 +39,7 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -49,6 +51,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.lyncode.xoai.model.oaipmh.OAIPMH.NAMESPACE_URI;
@@ -75,6 +78,8 @@ public class OAIServlet extends HttpServlet {
 
     @EJB
     SystemConfig systemConfig;
+    @Inject
+    private ExportService exportService;
 
     private static final Logger logger = Logger.getLogger("edu.harvard.iq.dataverse.harvest.server.web.servlet.OAIServlet");
     protected HashMap attributesMap = new HashMap();
@@ -124,21 +129,16 @@ public class OAIServlet extends HttpServlet {
     }
 
     private void addSupportedMetadataFormats(Context context) {
-        for (String[] provider : ExportService.getInstance(settingsService).getExportersLabels()) {
-            String formatName = provider[1];
-            Exporter exporter;
-            try {
-                exporter = ExportService.getInstance(settingsService).getExporter(formatName);
-            } catch (ExportException ex) {
-                exporter = null;
-            }
 
-            if (exporter != null && exporter.isXMLFormat() && exporter.isHarvestable()) {
+        Map<ExporterConstant, Exporter> exporters = exportService.getAllExporters();
+
+        for (Exporter exporter : exporters.values()) {
+
+            if (exporter.isXMLFormat() && exporter.isHarvestable()) {
                 MetadataFormat metadataFormat;
 
                 try {
-
-                    metadataFormat = MetadataFormat.metadataFormat(formatName);
+                    metadataFormat = MetadataFormat.metadataFormat(exporter.getProviderName());
                     metadataFormat.withNamespace(exporter.getXMLNameSpace());
                     metadataFormat.withSchemaLocation(exporter.getXMLSchemaLocation());
                 } catch (ExportException ex) {
@@ -148,8 +148,8 @@ public class OAIServlet extends HttpServlet {
                     context.withMetadataFormat(metadataFormat);
                 }
             }
+
         }
-        //return context;
     }
 
     private Context addDataverseJsonMetadataFormat(Context context) {
