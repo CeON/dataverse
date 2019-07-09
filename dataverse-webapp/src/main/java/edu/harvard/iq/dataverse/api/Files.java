@@ -102,7 +102,7 @@ public class Files extends AbstractApiBean {
     /**
      * Replace an Existing File
      *
-     * @param datasetId
+     * @param
      * @param testFileInputStream
      * @param contentDispositionHeader
      * @param formDataBodyPart
@@ -390,7 +390,7 @@ public class Files extends AbstractApiBean {
 
         try {
             ExportService instance = ExportService.getInstance(settingsServiceBean);
-            instance.exportAllFormats(theDataset);
+            instance.exportAllFormats(theDataset, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
 
         } catch (ExportException ex) {
             // Something went wrong!

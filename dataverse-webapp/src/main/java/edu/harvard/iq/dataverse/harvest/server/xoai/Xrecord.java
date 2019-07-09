@@ -63,7 +63,7 @@ public class Xrecord extends Record {
         return this;
     }
 
-    public void writeToStream(OutputStream outputStream) throws IOException {
+    public void writeToStream(OutputStream outputStream, boolean excludeEmailFromExport) throws IOException {
         outputStream.flush();
 
         String headerString = itemHeaderToString(this.header);
@@ -84,7 +84,7 @@ public class Xrecord extends Record {
                 if (dataset != null && formatName != null) {
                     InputStream inputStream = null;
                     try {
-                        inputStream = ExportService.getInstance().getExport(dataset, formatName);
+                        inputStream = ExportService.getInstance().getExport(dataset, formatName, excludeEmailFromExport);
                     } catch (ExportException ex) {
                         inputStream = null;
                     }

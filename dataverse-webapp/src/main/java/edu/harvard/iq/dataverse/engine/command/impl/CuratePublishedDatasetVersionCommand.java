@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException
 import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 
 import java.util.List;
@@ -173,7 +174,8 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         //And the exported metadata files
         try {
             ExportService instance = ExportService.getInstance(ctxt.settings());
-            instance.exportAllFormats(getDataset());
+            instance.exportAllFormats(getDataset(),
+                    ctxt.settings().isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
         } catch (ExportException ex) {
             // Just like with indexing, a failure to export is not a fatal condition.
             logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while exporting metadata files:{0}", ex.getMessage());

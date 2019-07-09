@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -74,7 +75,8 @@ public class DeaccessionDatasetVersionCommand extends AbstractCommand<DatasetVer
 
         if (managed.getDataset().getReleasedVersion() != null) {
             try {
-                instance.exportAllFormats(managed.getDataset());
+                instance.exportAllFormats(managed.getDataset(),
+                        ctxt.settings().isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
             } catch (ExportException ex) {
                 // Something went wrong!
                 // But we're not going to treat it as a fatal condition.

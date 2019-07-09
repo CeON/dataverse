@@ -158,7 +158,8 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
 
         try {
             ExportService instance = ExportService.getInstance(settingsServiceBean);
-            instance.exportAllFormats(getDataset());
+            instance.exportAllFormats(getDataset(),
+                    settingsServiceBean.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
 
         } catch (ExportException ex) {
             // Something went wrong!
