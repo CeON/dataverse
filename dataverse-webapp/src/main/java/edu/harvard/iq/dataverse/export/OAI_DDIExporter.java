@@ -1,19 +1,27 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.ddi.DdiExportUtil;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 
 import javax.json.JsonObject;
 import javax.xml.stream.XMLStreamException;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author skraffmi
  */
-@AutoService(Exporter.class)
+
+/**
+ * This exporter is for the OAI ("short") flavor of the DDI -
+ * that is, without the variable/data information. The ddi export
+ * utility does not need the version entity to produce that.
+ */
+
 public class OAI_DDIExporter implements Exporter {
     // TODO: move these to the export utility:
     private static String DEFAULT_XML_NAMESPACE = "ddi:codebook:2_5";
@@ -31,13 +39,14 @@ public class OAI_DDIExporter implements Exporter {
     }
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) throws ExportException {
-        try {
-            // This exporter is for the OAI ("short") flavor of the DDI - 
-            // that is, without the variable/data information. The ddi export 
-            // utility does not need the version entity to produce that. 
-            DdiExportUtil.datasetJson2ddi(json, outputStream);
-        } catch (XMLStreamException xse) {
+    public String exportDataset(DatasetVersion version) throws ExportException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+                    .build();
+
+            DdiExportUtil.datasetJson2ddi(datasetAsJson, byteArrayOutputStream);
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
+        } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DDI export");
         }
     }

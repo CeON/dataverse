@@ -1,16 +1,16 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.ddi.DdiExportUtil;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 
 import javax.json.JsonObject;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Leonid Andreev
@@ -18,7 +18,7 @@ import java.io.OutputStream;
  * @author skraffmi
  * - renamed OAI_DDIExporter)
  */
-@AutoService(Exporter.class)
+
 public class DDIExporter implements Exporter {
     // TODO: 
     // move these into the ddi export utility
@@ -39,13 +39,14 @@ public class DDIExporter implements Exporter {
     }
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) throws ExportException {
-        try {
-            XMLStreamWriter xmlw = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
-            xmlw.writeStartDocument();
-            xmlw.flush();
-            DdiExportUtil.datasetJson2ddi(json, version, outputStream);
-        } catch (XMLStreamException xse) {
+    public String exportDataset(DatasetVersion version) throws ExportException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+                    .build();
+
+            DdiExportUtil.datasetJson2ddi(datasetAsJson, version, byteArrayOutputStream);
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
+        } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DDI export");
         }
     }

@@ -1,18 +1,10 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 /**
@@ -69,7 +61,7 @@ import java.util.logging.Logger;
  * https://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/23980/export , and
  * https://doi.pangaea.de/10.1594/PANGAEA.884619
  */
-@AutoService(Exporter.class)
+
 public class SchemaDotOrgExporter implements Exporter {
 
     private static final Logger logger = Logger.getLogger(SchemaDotOrgExporter.class.getCanonicalName());
@@ -77,21 +69,8 @@ public class SchemaDotOrgExporter implements Exporter {
     public static final String NAME = "schema.org";
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) throws ExportException {
-        String jsonLdAsString = version.getJsonLd();
-        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonLdAsString))) {
-            JsonObject jsonLdJsonObject = jsonReader.readObject();
-            try {
-                outputStream.write(jsonLdJsonObject.toString().getBytes(StandardCharsets.UTF_8));
-            } catch (IOException ex) {
-                logger.info("IOException calling outputStream.write: " + ex);
-            }
-            try {
-                outputStream.flush();
-            } catch (IOException ex) {
-                logger.info("IOException calling outputStream.flush: " + ex);
-            }
-        }
+    public String exportDataset(DatasetVersion version) {
+        return version.getJsonLd();
     }
 
     @Override

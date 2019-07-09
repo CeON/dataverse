@@ -1,18 +1,18 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.bagit.OREMap;
+import org.apache.commons.lang.StringUtils;
 
-import javax.json.JsonObject;
 import javax.ws.rs.core.MediaType;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-@AutoService(Exporter.class)
+
 public class OAI_OREExporter implements Exporter {
 
     private static final Logger logger = Logger.getLogger(OAI_OREExporter.class.getCanonicalName());
@@ -20,15 +20,18 @@ public class OAI_OREExporter implements Exporter {
     public static final String NAME = "OAI_ORE";
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) {
-        try {
-            new OREMap(version, ExportService.settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)).writeOREMap(outputStream);
+    public String exportDataset(DatasetVersion version) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            new OREMap(version, ExportService.settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport))
+                    .writeOREMap(byteArrayOutputStream);
+
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             logger.severe(e.getMessage());
             e.printStackTrace();
         }
+        return StringUtils.EMPTY;
     }
-
 
     @Override
     public String getProviderName() {
@@ -37,9 +40,7 @@ public class OAI_OREExporter implements Exporter {
 
     @Override
     public String getDisplayName() {
-        return ResourceBundle.getBundle("Bundle").getString("dataset.exportBtn.itemLabel.oai_ore") != null
-                ? ResourceBundle.getBundle("Bundle").getString("dataset.exportBtn.itemLabel.oai_ore")
-                : "OAI_ORE";
+        return ResourceBundle.getBundle("Bundle").getString("dataset.exportBtn.itemLabel.oai_ore");
     }
 
     @Override

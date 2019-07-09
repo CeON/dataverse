@@ -1,20 +1,18 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 
-import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.ws.rs.core.MediaType;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 
 /**
  * @author skraffmi
  */
-@AutoService(Exporter.class)
+
 public class JSONExporter implements Exporter {
 
     @Override
@@ -28,10 +26,14 @@ public class JSONExporter implements Exporter {
     }
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try {
-            outputStream.write(json.toString().getBytes(StandardCharsets.UTF_8));
-            outputStream.flush();
+            JsonObjectBuilder jsonObjectBuilder = JsonPrinter.jsonAsDatasetDto(version);
+
+            return jsonObjectBuilder
+                    .build()
+                    .toString();
+
         } catch (Exception e) {
             throw new ExportException("Unknown exception caught during JSON export.");
         }

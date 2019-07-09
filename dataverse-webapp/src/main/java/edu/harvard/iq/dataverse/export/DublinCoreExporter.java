@@ -1,19 +1,21 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.dublincore.DublinCoreExportUtil;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 
 import javax.json.JsonObject;
 import javax.xml.stream.XMLStreamException;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author skraffmi
  */
-@AutoService(Exporter.class)
+
 public class DublinCoreExporter implements Exporter {
 
 
@@ -28,10 +30,14 @@ public class DublinCoreExporter implements Exporter {
     }
 
     @Override
-    public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) throws ExportException {
-        try {
-            DublinCoreExportUtil.datasetJson2dublincore(json, outputStream, DublinCoreExportUtil.DC_FLAVOR_OAI);
-        } catch (XMLStreamException xse) {
+    public String exportDataset(DatasetVersion version) throws ExportException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+                    .build();
+
+            DublinCoreExportUtil.datasetJson2dublincore(datasetAsJson, byteArrayOutputStream, DublinCoreExportUtil.DC_FLAVOR_OAI);
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
+        } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DC export");
         }
     }
