@@ -38,7 +38,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.SubmitDatasetForReviewComman
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.export.SchemaDotOrgExporter;
+import edu.harvard.iq.dataverse.export.ExporterConstant;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
@@ -2325,7 +2325,7 @@ public class DatasetPage implements java.io.Serializable {
         setSelectedRestrictedFiles(new ArrayList<>());
         setTabularDataSelected(false);
         for (FileMetadata fmd : this.selectedFiles) {
-            if(fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED){
+            if (fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
                 getSelectedRestrictedFiles().add(fmd);
             } else {
                 getSelectedUnrestrictedFiles().add(fmd);
@@ -4306,15 +4306,17 @@ public class DatasetPage implements java.io.Serializable {
     public String getJsonLd() {
         if (isThisLatestReleasedVersion()) {
             ExportService instance = ExportService.getInstance(settingsService);
-            String jsonLd = instance.getExportAsString(dataset, SchemaDotOrgExporter.NAME);
-            if (jsonLd != null) {
-                logger.fine("Returning cached schema.org JSON-LD.");
+            Optional<String> jsonLd = instance.getExportAsString(dataset.getReleasedVersion(), ExporterConstant.SCHEMA_DOT_ORG);
+
+            jsonLd.flatMap(string -> {
+                logger.fine("Returning schema.org JSON-LD.");
                 return jsonLd;
-            } else {
-                logger.fine("No cached schema.org JSON-LD available. Going to the database.");
-                String jsonLdProduced = workingVersion.getJsonLd();
-                return jsonLdProduced != null ? jsonLdProduced : "";
-            }
+            })
+                    .orElseGet(() -> {
+                        logger.fine("No schema.org JSON-LD available. Going to the database.");
+                        String jsonLdProduced = workingVersion.getJsonLd();
+                        return jsonLdProduced != null ? jsonLdProduced : StringUtils.EMPTY;
+                    });
         }
         return "";
     }

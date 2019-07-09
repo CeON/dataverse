@@ -73,8 +73,10 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetTargetURLComman
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDvObjectPIDMetadataCommand;
+import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.export.ExporterConstant;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
@@ -86,6 +88,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
+import io.vavr.control.Either;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -223,27 +226,26 @@ public class Datasets extends AbstractApiBean {
     @GET
     @Path("/export")
     @Produces({"application/xml", "application/json"})
-    public Response exportDataset(@QueryParam("persistentId") String persistentId, @QueryParam("exporter") String exporter) {
+    public Response exportDataset(@QueryParam("persistentId") String persistentId, @QueryParam("exporter") ExporterConstant exporter) {
 
-        try {
-            Dataset dataset = datasetService.findByGlobalId(persistentId);
-            if (dataset == null) {
-                return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
-            }
-
-            ExportService instance = ExportService.getInstance(settingsSvc);
-
-            InputStream is = instance.getExport(dataset, exporter);
-
-            String mediaType = instance.getMediaType(exporter);
-
-            return allowCors(Response.ok()
-                                     .entity(is)
-                                     .type(mediaType).
-                            build());
-        } catch (Exception wr) {
-            return error(Response.Status.FORBIDDEN, "Export Failed");
+        Dataset dataset = datasetService.findByGlobalId(persistentId);
+        if (dataset == null) {
+            return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
         }
+
+        ExportService instance = ExportService.getInstance(settingsSvc);
+
+        Either<DataverseError, InputStream> exportedDataset = instance.exportDatasetVersion(dataset.getReleasedVersion(), exporter);
+
+        if (exportedDataset.isLeft()) {
+            return error(Response.Status.FORBIDDEN, exportedDataset.getLeft().getErrorMsg());
+        }
+
+        String mediaType = instance.getMediaType(exporter);
+        return allowCors(Response.ok()
+                                 .entity(exportedDataset.get())
+                                 .type(mediaType).
+                        build());
     }
 
     @DELETE

@@ -17,7 +17,6 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -78,13 +77,6 @@ public class DeaccessionDatasetVersionCommand extends AbstractCommand<DatasetVer
             } catch (ExportException ex) {
                 // Something went wrong!
                 // But we're not going to treat it as a fatal condition.
-            }
-        } else {
-            try {
-                // otherwise, we need to wipe clean the exports we may have cached:
-                instance.clearAllCachedFormats(managed.getDataset());
-            } catch (IOException ex) {
-                //Try catch required due to original method for clearing cached metadata (non fatal)
             }
         }
         // And save the dataset, to get the "last exported" timestamp right:
