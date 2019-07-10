@@ -303,7 +303,7 @@ public class JsonPrinter {
                 .add("storageIdentifier", ds.getStorageIdentifier());
     }
 
-    public static JsonObjectBuilder json(DatasetVersion dsv, boolean excludeEmailFromExport) {
+    public static JsonObjectBuilder json(DatasetVersion dsv, boolean excludeEmailFields) {
         JsonObjectBuilder bld = jsonObjectBuilder()
                 .add("id", dsv.getId())
                 .add("storageIdentifier", dsv.getDataset().getStorageIdentifier())
@@ -339,7 +339,7 @@ public class JsonPrinter {
                 .add("studyCompletion", dsv.getTermsOfUseAndAccess().getStudyCompletion())
                 .add("fileAccessRequest", dsv.getTermsOfUseAndAccess().isFileAccessRequest());
 
-        bld.add("metadataBlocks", jsonByBlocks(dsv.getDatasetFields(), excludeEmailFromExport));
+        bld.add("metadataBlocks", jsonByBlocks(dsv.getDatasetFields(), excludeEmailFields));
 
         bld.add("files", jsonFileMetadatas(dsv.getFileMetadatas()));
 

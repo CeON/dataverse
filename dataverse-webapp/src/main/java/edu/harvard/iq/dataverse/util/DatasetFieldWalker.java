@@ -56,13 +56,13 @@ public class DatasetFieldWalker {
      * is done in display order.
      *
      * @param fields  the fields to go over. Does not have to be sorted.
-     * @param excludeEmailFromExport is email excluded from export
+     * @param excludeEmailFields is email excluded from export
      * @param l       the listener to execute on each field values and structure.
      */
-    public static void walk(List<DatasetField> fields, Listener l, boolean excludeEmailFromExport) {
+    public static void walk(List<DatasetField> fields, Listener l, boolean excludeEmailFields) {
         DatasetFieldWalker joe = new DatasetFieldWalker(l);
         for (DatasetField dsf : sort(fields, DatasetField.DisplayOrder)) {
-            joe.walk(dsf, excludeEmailFromExport);
+            joe.walk(dsf, excludeEmailFields);
         }
     }
 
@@ -77,7 +77,7 @@ public class DatasetFieldWalker {
         this(null);
     }
 
-    public void walk(DatasetField fld, boolean excludeEmailFromExport) {
+    public void walk(DatasetField fld, boolean excludeEmailFields) {
         l.startField(fld);
         DatasetFieldType datasetFieldType = fld.getDatasetFieldType();
 
@@ -89,7 +89,7 @@ public class DatasetFieldWalker {
 
         } else if (datasetFieldType.isPrimitive()) {
             for (DatasetFieldValue pv : sort(fld.getDatasetFieldValues(), DatasetFieldValue.DisplayOrder)) {
-                if (excludeEmailFromExport && FieldType.EMAIL.equals(pv.getDatasetField().getDatasetFieldType().getFieldType())) {
+                if (excludeEmailFields && FieldType.EMAIL.equals(pv.getDatasetField().getDatasetFieldType().getFieldType())) {
                     continue;
                 }
                 l.primitiveValue(pv);
@@ -99,7 +99,7 @@ public class DatasetFieldWalker {
             for (DatasetFieldCompoundValue dsfcv : sort(fld.getDatasetFieldCompoundValues(), DatasetFieldCompoundValue.DisplayOrder)) {
                 l.startCompoundValue(dsfcv);
                 for (DatasetField dsf : sort(dsfcv.getChildDatasetFields(), DatasetField.DisplayOrder)) {
-                    walk(dsf, excludeEmailFromExport);
+                    walk(dsf, excludeEmailFields);
                 }
                 l.endCompoundValue(dsfcv);
             }
