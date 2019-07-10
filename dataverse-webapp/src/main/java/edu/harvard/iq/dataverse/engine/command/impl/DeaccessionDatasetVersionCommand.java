@@ -14,9 +14,6 @@ import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.export.ExportException;
-import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import java.util.logging.Logger;
 
@@ -68,21 +65,7 @@ public class DeaccessionDatasetVersionCommand extends AbstractCommand<DatasetVer
         boolean doNormalSolrDocCleanUp = true;
         ctxt.index().indexDataset(managed.getDataset(), doNormalSolrDocCleanUp);
 
-
-        ExportService instance = ExportService.getInstance(ctxt.settings());
-
-
-        if (managed.getDataset().getReleasedVersion() != null) {
-            try {
-                instance.exportAllFormats(managed.getDataset());
-            } catch (ExportException ex) {
-                // Something went wrong!
-                // But we're not going to treat it as a fatal condition.
-            }
-        }
-        // And save the dataset, to get the "last exported" timestamp right:
-
-        Dataset managedDs = ctxt.em().merge(managed.getDataset());
+        ctxt.em().merge(managed.getDataset());
 
         return managed;
     }

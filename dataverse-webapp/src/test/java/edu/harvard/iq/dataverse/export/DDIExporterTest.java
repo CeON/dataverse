@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
@@ -22,12 +21,10 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,7 +32,6 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class DDIExporterTest {
 
@@ -158,27 +154,6 @@ public class DDIExporterTest {
         System.out.println("citation: " + citation);
         int currentYear = Year.now().getValue();
         assertEquals("Finch, Fiona, " + currentYear + ", \"Darwin's Finches\", DRAFT VERSION", citation);
-    }
-
-    @Test
-    public void testExportDatasetContactEmailPresent() throws Exception {
-        File datasetVersionJson = new File("src/test/java/edu/harvard/iq/dataverse/export/ddi/datasetContactEmailPresent.json");
-        String datasetVersionAsJson = new String(Files.readAllBytes(Paths.get(datasetVersionJson.getAbsolutePath())));
-
-        JsonReader jsonReader = Json.createReader(new StringReader(datasetVersionAsJson));
-        JsonObject json = jsonReader.readObject();
-        JsonParser jsonParser = new JsonParser(datasetFieldTypeSvc, null, null);
-        DatasetVersion version = jsonParser.parseDatasetVersion(json.getJsonObject("datasetVersion"));
-        version.setDatasetFields(Lists.newArrayList());
-        version.setReleaseTime(Date.from(Instant.ofEpochSecond(1562680398)));
-        version.setDataset(generateDataset());
-
-        DDIExporter instance = new DDIExporter();
-        String exportDataset = instance.exportDataset(version);
-
-        System.out.println(XmlPrinter.prettyPrintXml(exportDataset));
-        assertTrue(exportDataset.contains("finch@mailinator.com"));
-
     }
 
     @Test

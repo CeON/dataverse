@@ -4302,8 +4302,10 @@ public class DatasetPage implements java.io.Serializable {
 
     public String getJsonLd() {
         if (isThisLatestReleasedVersion()) {
-            ExportService instance = ExportService.getInstance(settingsService);
-            Either<DataverseError, String> exportedDataset = instance.exportDatasetVersionAsString(dataset.getReleasedVersion(), ExporterConstant.SCHEMA_DOT_ORG);
+            Either<DataverseError, String> exportedDataset =
+                    exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
+                                                               ExporterConstant.SCHEMA_DOT_ORG,
+                                                               new Timestamp(new Date().getTime()));
 
             if (exportedDataset.isLeft()) {
                 logger.fine(exportedDataset.getLeft().getErrorMsg());

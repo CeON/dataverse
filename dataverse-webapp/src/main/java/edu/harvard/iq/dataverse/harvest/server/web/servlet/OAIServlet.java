@@ -243,11 +243,9 @@ public class OAIServlet extends HttpServlet {
             response.setContentType("text/xml;charset=UTF-8");
 
             if (isGetRecord(request) && !handle.hasErrors()) {
-                writeGetRecord(response, handle,
-                        settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+                writeGetRecord(response, handle);
             } else if (isListRecords(request) && !handle.hasErrors()) {
-                writeListRecords(response, handle,
-                        settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+                writeListRecords(response, handle);
             } else {
                 XmlWriter xmlWriter = new XmlWriter(response.getOutputStream());
                 xmlWriter.write(handle);
@@ -276,7 +274,7 @@ public class OAIServlet extends HttpServlet {
 
     // Custom methods for the potentially expensive GetRecord and ListRecords requests:
 
-    private void writeListRecords(HttpServletResponse response, OAIPMH handle, boolean excludeEmailFromExport)
+    private void writeListRecords(HttpServletResponse response, OAIPMH handle)
             throws IOException {
         OutputStream outputStream = response.getOutputStream();
 
@@ -296,7 +294,7 @@ public class OAIServlet extends HttpServlet {
 
         outputStream.flush();
 
-        ((XlistRecords) verb).writeToStream(outputStream, excludeEmailFromExport);
+        ((XlistRecords) verb).writeToStream(outputStream, exportService);
 
         outputStream.write(("</" + verb.getType().displayName() + ">").getBytes());
         outputStream.write(("</" + OAI_PMH + ">\n").getBytes());
@@ -306,7 +304,7 @@ public class OAIServlet extends HttpServlet {
 
     }
 
-    private void writeGetRecord(HttpServletResponse response, OAIPMH handle, boolean excludeEmailFromExport)
+    private void writeGetRecord(HttpServletResponse response, OAIPMH handle)
             throws IOException, XmlWriteException, XMLStreamException {
         OutputStream outputStream = response.getOutputStream();
 
@@ -326,7 +324,7 @@ public class OAIServlet extends HttpServlet {
 
         outputStream.flush();
 
-        ((XgetRecord) verb).writeToStream(outputStream, excludeEmailFromExport);
+        ((XgetRecord) verb).writeToStream(outputStream, exportService);
 
         outputStream.write(("</" + verb.getType().displayName() + ">").getBytes());
         outputStream.write(("</" + OAI_PMH + ">\n").getBytes());

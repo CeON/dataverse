@@ -190,6 +190,9 @@ public class Datasets extends AbstractApiBean {
     @Inject
     private TermsOfUseFormMapper termsOfUseFormMapper;
 
+    @Inject
+    private ExportService exportService;
+
     /**
      * Used to consolidate the way we parse and handle dataset versions.
      *
@@ -235,15 +238,13 @@ public class Datasets extends AbstractApiBean {
             return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
         }
 
-        ExportService instance = ExportService.getInstance(settingsSvc);
-
-        Either<DataverseError, InputStream> exportedDataset = instance.exportDatasetVersion(dataset.getReleasedVersion(), exporter);
+        Either<DataverseError, InputStream> exportedDataset = exportService.exportDatasetVersion(dataset.getReleasedVersion(), exporter);
 
         if (exportedDataset.isLeft()) {
             return error(Response.Status.FORBIDDEN, exportedDataset.getLeft().getErrorMsg());
         }
 
-        String mediaType = instance.getMediaType(exporter);
+        String mediaType = exportService.getMediaType(exporter);
         return allowCors(Response.ok()
                                  .entity(exportedDataset.get())
                                  .type(mediaType).

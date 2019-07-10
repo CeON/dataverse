@@ -4,6 +4,10 @@ import com.lyncode.xoai.model.oaipmh.Header;
 import com.lyncode.xoai.model.oaipmh.Record;
 import com.lyncode.xoai.xml.XmlWriter;
 import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.error.DataverseError;
+import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.export.ExporterConstant;
+import io.vavr.control.Either;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,6 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import static com.lyncode.xoai.xml.XmlWriter.defaultContext;
 import static edu.harvard.iq.dataverse.util.SystemConfig.FQDN;
@@ -61,7 +67,7 @@ public class Xrecord extends Record {
         return this;
     }
 
-    public void writeToStream(OutputStream outputStream, boolean excludeEmailFromExport) throws IOException {
+    public void writeToStream(OutputStream outputStream, ExportService exportService) throws IOException {
         outputStream.flush();
 
         String headerString = itemHeaderToString(this.header);
@@ -80,17 +86,16 @@ public class Xrecord extends Record {
                 outputStream.flush();
 
                 if (dataset != null && formatName != null) {
-                    InputStream inputStream = null;
-                    /*try {
-                        inputStream = ExportService.getInstance().exportDatasetVersion(dataset.getReleasedVersion(), );
-                    } catch (ExportException ex) {
-                        inputStream = null;
-                    }*/
+                    Either<DataverseError, InputStream> exportedDataset =
+                            exportService.exportDatasetVersion(dataset.getReleasedVersion(),
+                                                               ExporterConstant.valueOf(formatName),
+                                                               new Timestamp(new Date().getTime()));
 
-                    if (inputStream == null) {
-                        throw new IOException("Xrecord: failed to open metadata stream.");
+                    if (exportedDataset.isLeft()) {
+                        throw new RuntimeException(exportedDataset.getLeft().getErrorMsg());
                     }
-                    writeMetadataStream(inputStream, outputStream);
+
+                    writeMetadataStream(exportedDataset.get(), outputStream);
                 }
                 outputStream.write(METADATA_END_ELEMENT.getBytes());
             } else {

@@ -8,8 +8,6 @@ package edu.harvard.iq.dataverse.harvest.server;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.export.ExportException;
-import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import javax.ejb.EJB;
@@ -24,7 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
@@ -83,35 +80,6 @@ public class OAIRecordServiceBean implements java.io.Serializable {
                 } else if (dataset.isReleased() && !dataset.isDeaccessioned()) {
                     // This means this is a published dataset
                     setUpdateLogger.fine("found published dataset.");
-
-                    // if doExport was requested, we'll check if the 
-                    // dataset has been exported since the last time it was 
-                    // published, and try to export if not.
-                    if (doExport) {
-                        // OK, it looks like we can't rely on .getPublicationDate() - 
-                        // as it is essentially the *first publication* date; 
-                        // and we are interested in the *last*
-
-                        DatasetVersion releasedVersion = dataset.getReleasedVersion();
-                        Date publicationDate = releasedVersion == null ? null : releasedVersion.getReleaseTime();
-
-                        //if (dataset.getPublicationDate() != null
-                        //        && (dataset.getLastExportTime() == null
-                        //        || dataset.getLastExportTime().before(dataset.getPublicationDate()))) {
-                        if (publicationDate != null
-                                && (dataset.getLastExportTime() == null
-                                || dataset.getLastExportTime().before(publicationDate))) {
-
-                            setUpdateLogger.fine("Attempting to run export on dataset " + dataset.getGlobalIdString());
-                            exportAllFormats(dataset);
-                        }
-
-                        // TODO: should probably bail if the export attempt has failed! -- L.A. 4.9.2
-                    }
-
-                    setUpdateLogger.fine("\"last exported\" timestamp: " + dataset.getLastExportTime());
-                    em.refresh(dataset);
-                    setUpdateLogger.fine("\"last exported\" timestamp, after db refresh: " + dataset.getLastExportTime());
 
                     updateOaiRecordForDataset(dataset, setName, recordMap, setUpdateLogger);
                 }
@@ -208,40 +176,6 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         }
 
     }
-
-    // TODO: 
-    // Export functionality probably deserves its own EJB ServiceBean - 
-    // so maybe create ExportServiceBean, and move these methods there? 
-    // (why these need to be in an EJB bean at all, what's wrong with keeping 
-    // them in the loadable ExportService? - since we need to modify the 
-    // "last export" timestamp on the dataset, being able to do that in the 
-    // @EJB context is convenient. 
-
-    public void exportAllFormats(Dataset dataset) {
-        try {
-            ExportService exportServiceInstance = ExportService.getInstance(settingsService);
-            logger.log(Level.FINE, "Attempting to run export on dataset {0}", dataset.getGlobalId());
-            exportServiceInstance.exportAllFormats(dataset);
-            datasetService.updateLastExportTimeStamp(dataset.getId());
-        } catch (ExportException ee) {
-            logger.fine("Caught export exception while trying to export. (ignoring)");
-        } catch (Exception e) {
-            logger.fine("Caught unknown exception while trying to export (ignoring)");
-        }
-    }
-
-    @TransactionAttribute(REQUIRES_NEW)
-    public void exportAllFormatsInNewTransaction(Dataset dataset) throws ExportException {
-        try {
-            ExportService exportServiceInstance = ExportService.getInstance(settingsService);
-            exportServiceInstance.exportAllFormats(dataset);
-            datasetService.updateLastExportTimeStamp(dataset.getId());
-        } catch (Exception e) {
-            logger.fine("Caught unknown exception while trying to export");
-            throw new ExportException(e.getMessage());
-        }
-    }
-
 
     public OAIRecord findOAIRecordBySetNameandGlobalId(String setName, String globalId) {
         OAIRecord oaiRecord = null;

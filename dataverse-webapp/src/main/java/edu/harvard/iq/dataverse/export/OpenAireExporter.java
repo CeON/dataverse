@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.openaire.OpenAireExportUtil;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
@@ -13,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-@AutoService(Exporter.class)
 public class OpenAireExporter implements Exporter {
 
     public OpenAireExporter() {
@@ -58,17 +56,17 @@ public class OpenAireExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
+    public String getXMLNameSpace() {
         return OpenAireExportUtil.RESOURCE_NAMESPACE;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
+    public String getXMLSchemaLocation() {
         return OpenAireExportUtil.RESOURCE_SCHEMA_LOCATION;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
+    public String getXMLSchemaVersion() {
         return OpenAireExportUtil.SCHEMA_VERSION;
     }
 
