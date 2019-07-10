@@ -235,8 +235,7 @@ public class Datasets extends AbstractApiBean {
 
             ExportService instance = ExportService.getInstance(settingsSvc);
 
-            InputStream is = instance.getExport(dataset, exporter,
-                    settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+            InputStream is = instance.getExport(dataset, exporter);
 
             String mediaType = instance.getMediaType(exporter);
 

@@ -221,8 +221,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         try {
             ExportService exportServiceInstance = ExportService.getInstance(settingsService);
             logger.log(Level.FINE, "Attempting to run export on dataset {0}", dataset.getGlobalId());
-            exportServiceInstance.exportAllFormats(dataset,
-                    settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+            exportServiceInstance.exportAllFormats(dataset);
             datasetService.updateLastExportTimeStamp(dataset.getId());
         } catch (ExportException ee) {
             logger.fine("Caught export exception while trying to export. (ignoring)");
@@ -235,8 +234,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
     public void exportAllFormatsInNewTransaction(Dataset dataset) throws ExportException {
         try {
             ExportService exportServiceInstance = ExportService.getInstance(settingsService);
-            exportServiceInstance.exportAllFormats(dataset,
-                    settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+            exportServiceInstance.exportAllFormats(dataset);
             datasetService.updateLastExportTimeStamp(dataset.getId());
         } catch (Exception e) {
             logger.fine("Caught unknown exception while trying to export");

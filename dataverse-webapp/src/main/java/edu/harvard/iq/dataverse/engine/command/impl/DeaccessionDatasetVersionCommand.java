@@ -75,8 +75,7 @@ public class DeaccessionDatasetVersionCommand extends AbstractCommand<DatasetVer
 
         if (managed.getDataset().getReleasedVersion() != null) {
             try {
-                instance.exportAllFormats(managed.getDataset(),
-                        ctxt.settings().isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+                instance.exportAllFormats(managed.getDataset());
             } catch (ExportException ex) {
                 // Something went wrong!
                 // But we're not going to treat it as a fatal condition.

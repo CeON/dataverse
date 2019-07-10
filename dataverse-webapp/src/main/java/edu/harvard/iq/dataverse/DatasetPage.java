@@ -4306,8 +4306,7 @@ public class DatasetPage implements java.io.Serializable {
     public String getJsonLd() {
         if (isThisLatestReleasedVersion()) {
             ExportService instance = ExportService.getInstance(settingsService);
-            String jsonLd = instance.getExportAsString(dataset, SchemaDotOrgExporter.NAME,
-                    settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+            String jsonLd = instance.getExportAsString(dataset, SchemaDotOrgExporter.NAME);
             if (jsonLd != null) {
                 logger.fine("Returning cached schema.org JSON-LD.");
                 return jsonLd;

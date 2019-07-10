@@ -390,7 +390,7 @@ public class Files extends AbstractApiBean {
 
         try {
             ExportService instance = ExportService.getInstance(settingsServiceBean);
-            instance.exportAllFormats(theDataset, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
+            instance.exportAllFormats(theDataset);
 
         } catch (ExportException ex) {
             // Something went wrong!

@@ -86,7 +86,7 @@ public class ExportService {
         return retList;
     }
 
-    public InputStream getExport(Dataset dataset, String formatName, boolean excludeEmailFromExport)
+    public InputStream getExport(Dataset dataset, String formatName)
             throws ExportException, IOException {
         // first we will try to locate an already existing, cached export 
         // for this format: 
@@ -97,7 +97,7 @@ public class ExportService {
         }
 
         // if it doesn't exist, we'll try to run the export: 
-        exportFormat(dataset, formatName, excludeEmailFromExport);
+        exportFormat(dataset, formatName);
 
         // and then try again: 
         exportInputStream = getCachedExportFormat(dataset, formatName);
@@ -112,11 +112,11 @@ public class ExportService {
 
     }
 
-    public String getExportAsString(Dataset dataset, String formatName, boolean excludeEmailFromExport) {
+    public String getExportAsString(Dataset dataset, String formatName) {
         InputStream inputStream = null;
         InputStreamReader inp = null;
         try {
-            inputStream = getExport(dataset, formatName, excludeEmailFromExport);
+            inputStream = getExport(dataset, formatName);
             if (inputStream != null) {
                 inp = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 BufferedReader br = new BufferedReader(inp);
@@ -145,7 +145,7 @@ public class ExportService {
     // This method goes through all the Exporters and calls 
     // the "chacheExport()" method that will save the produced output  
     // in a file in the dataset directory, on each Exporter available. 
-    public void exportAllFormats(Dataset dataset, boolean excludeEmailFromExport) throws ExportException {
+    public void exportAllFormats(Dataset dataset) throws ExportException {
         try {
             clearAllCachedFormats(dataset);
         } catch (IOException ex) {
@@ -158,7 +158,9 @@ public class ExportService {
                 throw new ExportException("No released version for dataset " + dataset.getGlobalId().toString());
             }
 
-            final JsonObjectBuilder datasetAsJsonBuilder = JsonPrinter.jsonAsDatasetDto(releasedVersion, excludeEmailFromExport);
+            final JsonObjectBuilder datasetAsJsonBuilder =
+                    JsonPrinter.jsonAsDatasetDto(releasedVersion,
+                                        settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
             JsonObject datasetAsJson = datasetAsJsonBuilder.build();
 
             Iterator<Exporter> exporters = loader.iterator();
@@ -199,7 +201,7 @@ public class ExportService {
     // then produces the dataset metadata as a JsonObject, then calls
     // the "cacheExport()" method that will save the produced output  
     // in a file in the dataset directory. 
-    public void exportFormat(Dataset dataset, String formatName, boolean excludeEmailFromExport) throws ExportException {
+    public void exportFormat(Dataset dataset, String formatName) throws ExportException {
         try {
             Iterator<Exporter> exporters = loader.iterator();
             while (exporters.hasNext()) {
@@ -210,7 +212,8 @@ public class ExportService {
                         throw new IllegalStateException("No Released Version");
                     }
                     final JsonObjectBuilder datasetAsJsonBuilder =
-                            JsonPrinter.jsonAsDatasetDto(releasedVersion, excludeEmailFromExport);
+                            JsonPrinter.jsonAsDatasetDto(releasedVersion,
+                                    settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport));
                     cacheExport(releasedVersion, formatName, datasetAsJsonBuilder.build(), e);
                 }
             }
@@ -241,7 +244,8 @@ public class ExportService {
 
     // This method runs the selected metadata exporter, caching the output 
     // in a file in the dataset directory / container based on its DOI:
-    private void cacheExport(DatasetVersion version, String format, JsonObject datasetAsJson, Exporter exporter) throws ExportException {
+    private void cacheExport(DatasetVersion version, String format, JsonObject datasetAsJson, Exporter exporter)
+            throws ExportException {
         boolean tempFileRequired = false;
         File tempFile = null;
         OutputStream outputStream = null;
