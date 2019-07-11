@@ -56,7 +56,7 @@ public class ExportService {
 
         exporters.put(ExporterConstant.OAI_DDI, new OAI_DDIExporter());
 
-        exporters.put(ExporterConstant.OAI_OREE, new OAI_OREExporter());
+        exporters.put(ExporterConstant.OAI_ORE, new OAI_OREExporter());
 
         exporters.put(ExporterConstant.SCHEMA_DOT_ORG, new SchemaDotOrgExporter());
 

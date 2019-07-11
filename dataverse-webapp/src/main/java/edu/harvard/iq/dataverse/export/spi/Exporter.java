@@ -24,7 +24,7 @@ public interface Exporter {
     */
     //public void exportDatasetVersion(JsonObject json, OutputStream outputStream) throws ExportException;
 
-    String exportDataset(DatasetVersion version) throws ExportException;
+    String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException;
 
     String getProviderName();
 
