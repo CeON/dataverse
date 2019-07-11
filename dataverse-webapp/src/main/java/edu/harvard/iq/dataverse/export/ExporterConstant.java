@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.export;
 
+import java.util.Optional;
+
 public enum ExporterConstant {
 
     DDI,
@@ -8,6 +10,15 @@ public enum ExporterConstant {
     DUBLIN_CORE,
     JSON,
     OAI_DDI,
-    OAI_OREE,
-    SCHEMA_DOT_ORG
+    OAI_ORE,
+    SCHEMA_DOT_ORG;
+
+    public static Optional<ExporterConstant> fromString(String enumValue) {
+
+        try {
+            return Optional.of(ExporterConstant.valueOf(enumValue.toUpperCase()));
+        } catch (IllegalArgumentException ex) {
+            return Optional.empty();
+        }
+    }
 }

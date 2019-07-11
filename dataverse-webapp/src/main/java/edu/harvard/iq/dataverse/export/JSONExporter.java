@@ -17,7 +17,7 @@ public class JSONExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "dataverse_json";
+        return "json";
     }
 
     @Override
@@ -26,9 +26,9 @@ public class JSONExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) throws ExportException {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
         try {
-            JsonObjectBuilder jsonObjectBuilder = JsonPrinter.jsonAsDatasetDto(version);
+            JsonObjectBuilder jsonObjectBuilder = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport);
 
             return jsonObjectBuilder
                     .build()

@@ -18,11 +18,9 @@ public class DataCiteExporter implements Exporter {
     private static String DEFAULT_XML_SCHEMALOCATION = "http://datacite.org/schema/kernel-3 http://schema.datacite.org/meta/kernel-3/metadata.xsd";
     private static String DEFAULT_XML_VERSION = "3.0";
 
-    public static final String NAME = "Datacite";
-
     @Override
     public String getProviderName() {
-        return NAME;
+        return "datacite";
     }
 
     @Override
@@ -33,7 +31,7 @@ public class DataCiteExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) {
         Map<String, String> metadata = new DataCitation(version).getDataCiteMetadata();
 
         return DOIDataCiteRegisterService.getMetadataFromDvObject(
@@ -56,17 +54,17 @@ public class DataCiteExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
+    public String getXMLNameSpace() {
         return DataCiteExporter.DEFAULT_XML_NAMESPACE;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
+    public String getXMLSchemaLocation() {
         return DataCiteExporter.DEFAULT_XML_SCHEMALOCATION;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
+    public String getXMLSchemaVersion() {
         return DataCiteExporter.DEFAULT_XML_VERSION;
     }
 

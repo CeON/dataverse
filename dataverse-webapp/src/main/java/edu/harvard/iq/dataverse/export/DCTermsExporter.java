@@ -18,10 +18,9 @@ import java.nio.charset.StandardCharsets;
 
 public class DCTermsExporter implements Exporter {
 
-
     @Override
     public String getProviderName() {
-        return "dcterms";
+        return "dcTerms";
     }
 
     @Override
@@ -30,9 +29,9 @@ public class DCTermsExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) throws ExportException {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
 
             DublinCoreExportUtil.datasetJson2dublincore(datasetAsJson, byteArrayOutputStream, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);

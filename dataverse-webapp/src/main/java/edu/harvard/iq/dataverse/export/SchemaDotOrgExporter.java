@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 
 import javax.ws.rs.core.MediaType;
-import java.util.logging.Logger;
 
 /**
  * Schema.org JSON-LD is used by Google Dataset Search and other services to
@@ -64,18 +63,14 @@ import java.util.logging.Logger;
 
 public class SchemaDotOrgExporter implements Exporter {
 
-    private static final Logger logger = Logger.getLogger(SchemaDotOrgExporter.class.getCanonicalName());
-
-    public static final String NAME = "schema.org";
-
     @Override
-    public String exportDataset(DatasetVersion version) {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) {
         return version.getJsonLd();
     }
 
     @Override
     public String getProviderName() {
-        return NAME;
+        return "schemaDotOrg";
     }
 
     @Override

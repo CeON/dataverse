@@ -124,6 +124,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
@@ -231,20 +232,28 @@ public class Datasets extends AbstractApiBean {
     @GET
     @Path("/export")
     @Produces({"application/xml", "application/json"})
-    public Response exportDataset(@QueryParam("persistentId") String persistentId, @QueryParam("exporter") ExporterConstant exporter) {
+    public Response exportDataset(@QueryParam("persistentId") String persistentId, @QueryParam("exporter") String exporter) {
+
+        Optional<ExporterConstant> exporterConstant = ExporterConstant.fromString(exporter);
+
+        if (!exporterConstant.isPresent()) {
+            return error(Response.Status.BAD_REQUEST, exporter + " is not a valid exporter");
+        }
 
         Dataset dataset = datasetService.findByGlobalId(persistentId);
         if (dataset == null) {
             return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
         }
 
-        Either<DataverseError, InputStream> exportedDataset = exportService.exportDatasetVersion(dataset.getReleasedVersion(), exporter);
+        Either<DataverseError, InputStream> exportedDataset = exportService.exportDatasetVersion(dataset.getReleasedVersion(),
+                                                                                                 exporterConstant.get(),
+                                                                                                 new Timestamp(new Date().getTime()));
 
         if (exportedDataset.isLeft()) {
             return error(Response.Status.FORBIDDEN, exportedDataset.getLeft().getErrorMsg());
         }
 
-        String mediaType = exportService.getMediaType(exporter);
+        String mediaType = exportService.getMediaType(exporterConstant.get());
         return allowCors(Response.ok()
                                  .entity(exportedDataset.get())
                                  .type(mediaType).

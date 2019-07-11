@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.export;
 
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.bagit.OREMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -20,9 +19,9 @@ public class OAI_OREExporter implements Exporter {
     public static final String NAME = "OAI_ORE";
 
     @Override
-    public String exportDataset(DatasetVersion version) {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            new OREMap(version, ExportService.settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport))
+            new OREMap(version, excludeEmailFromExport)
                     .writeOREMap(byteArrayOutputStream);
 
             return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());

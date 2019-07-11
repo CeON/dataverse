@@ -21,7 +21,7 @@ public class DublinCoreExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "oai_dc";
+        return "dublinCore";
     }
 
     @Override
@@ -30,9 +30,9 @@ public class DublinCoreExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) throws ExportException {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
 
             DublinCoreExportUtil.datasetJson2dublincore(datasetAsJson, byteArrayOutputStream, DublinCoreExportUtil.DC_FLAVOR_OAI);

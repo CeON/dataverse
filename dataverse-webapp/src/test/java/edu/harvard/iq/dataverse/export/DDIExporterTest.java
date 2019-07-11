@@ -126,9 +126,6 @@ public class DDIExporterTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DDIExporter instance = new DDIExporter();
         boolean nullPointerFixed = false;
-        if (nullPointerFixed) {
-            instance.exportDataset(version);
-        }
 
         System.out.println("out: " + XmlPrinter.prettyPrintXml(byteArrayOutputStream.toString()));
 
@@ -168,7 +165,7 @@ public class DDIExporterTest {
         DatasetVersion version = jsonParser.parseDatasetVersion(json.getJsonObject("datasetVersion"));
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DDIExporter instance = new DDIExporter();
-        instance.exportDataset(version);
+        instance.exportDataset(version, true);
 
         System.out.println(XmlPrinter.prettyPrintXml(byteArrayOutputStream.toString()));
         assertFalse(byteArrayOutputStream.toString().contains("finch@mailinator.com"));

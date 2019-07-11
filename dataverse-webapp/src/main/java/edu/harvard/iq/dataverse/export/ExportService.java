@@ -3,13 +3,15 @@ package edu.harvard.iq.dataverse.export;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
+import edu.harvard.iq.dataverse.qualifiers.ProductionBean;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
-import javax.ws.rs.core.MediaType;
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
@@ -29,10 +31,21 @@ public class ExportService {
 
     private Map<ExporterConstant, Exporter> exporters = new HashMap<>();
 
+    private SettingsServiceBean settingsService;
+
     // -------------------- CONSTRUCTORS --------------------
 
+    public ExportService() {
+        //JEE requirement
+    }
+
+    @Inject
+    public ExportService(@ProductionBean SettingsServiceBean settingsService) {
+        this.settingsService = settingsService;
+    }
+
     @PostConstruct
-    private void loadAllExporters() {
+    void loadAllExporters() {
         exporters.put(ExporterConstant.DDI, new DDIExporter());
 
         exporters.put(ExporterConstant.DATA_CITE, new DataCiteExporter());
@@ -79,7 +92,8 @@ public class ExportService {
 
         if (loadedExporter.isPresent()) {
 
-            String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion))
+            String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion,
+                                                                                     settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)))
                     .onSuccess(string -> datasetVersion.getDataset().setLastExportTime(exportTime))
                     .onFailure(throwable -> logger.fine(throwable.getMessage()))
                     .getOrElse(StringUtils.EMPTY);
@@ -97,13 +111,13 @@ public class ExportService {
     }
 
     /**
-     * @return MediaType of given exporter or {@code MediaType.TEXT_PLAIN} if provider is not found.
+     * @return MediaType of given exporter or {@link Exporter#getMediaType()} default value.
      */
     public String getMediaType(ExporterConstant provider) {
 
         return getExporter(provider)
                 .map(Exporter::getMediaType)
-                .orElse(MediaType.TEXT_PLAIN);
+                .get();
     }
 
     // -------------------- PRIVATE --------------------

@@ -70,7 +70,7 @@ public class OpenAireExporterTest {
         JsonObject jsonObject = jsonReader.readObject();
         DatasetVersion nullVersion = null;
 
-        String xmlOnOneLine = openAireExporter.exportDataset(nullVersion);
+        String xmlOnOneLine = openAireExporter.exportDataset(nullVersion, true);
         String xmlAsString = XmlPrinter.prettyPrintXml(xmlOnOneLine);
         System.out.println("XML: " + xmlAsString);
         XmlPath xmlpath = XmlPath.from(xmlAsString);
@@ -91,7 +91,7 @@ public class OpenAireExporterTest {
         JsonObject jsonObject = jsonReader.readObject();
         DatasetVersion nullVersion = null;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        openAireExporter.exportDataset(nullVersion);
+        openAireExporter.exportDataset(nullVersion, true);
 
         {
             String xmlOnOneLine = new String(byteArrayOutputStream.toByteArray());

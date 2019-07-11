@@ -14,12 +14,9 @@ import java.nio.charset.StandardCharsets;
 
 public class OpenAireExporter implements Exporter {
 
-    public OpenAireExporter() {
-    }
-
     @Override
     public String getProviderName() {
-        return "oai_datacite";
+        return "openAire";
     }
 
     @Override
@@ -28,9 +25,9 @@ public class OpenAireExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) throws ExportException {
+    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version)
+            JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
 
             OpenAireExportUtil.datasetJson2openaire(datasetAsJson, byteArrayOutputStream);

@@ -279,7 +279,7 @@ public class SchemaDotOrgExporterTest {
         dataFile.setOwner(dataset);
         version.setFileMetadatas(fileMetadatas);
 
-        String jsonLd = schemaDotOrgExporter.exportDataset(version);
+        String jsonLd = schemaDotOrgExporter.exportDataset(version, true);
         String prettyJson = JsonUtil.prettyPrint(jsonLd);
         System.out.println("schema.org JSON-LD: " + prettyJson);
         JsonReader jsonReader2 = Json.createReader(new StringReader(jsonLd));
