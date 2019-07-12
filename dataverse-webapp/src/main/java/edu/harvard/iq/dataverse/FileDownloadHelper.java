@@ -351,6 +351,13 @@ public class FileDownloadHelper implements java.io.Serializable {
         this.filesForRequestAccess.add(dataFile);
     }
 
+    /**
+     * Returns restricted files grouped by distinct terms of uses
+     * that user requested to access.
+     * Terms of use are showed to the user in dialog
+     * window so he can decide whether it accepts terms
+     * associated with requested files.
+     */
     public Map<RestrictedTermsOfUseDTO, List<DataFile>> getFilesForRequestAccessByTermsOfUse() {
         Map<RestrictedTermsOfUseDTO, List<DataFile>> distinctTermsOfUse = new HashMap<RestrictedTermsOfUseDTO, List<DataFile>>();
         
@@ -359,9 +366,7 @@ public class FileDownloadHelper implements java.io.Serializable {
             RestrictedTermsOfUseDTO restrictedTermsOfUse = new RestrictedTermsOfUseDTO(
                     fileTermsOfUse.getRestrictType(), fileTermsOfUse.getRestrictCustomText());
             
-            if (!distinctTermsOfUse.containsKey(restrictedTermsOfUse)) {
-                distinctTermsOfUse.put(restrictedTermsOfUse, new ArrayList<DataFile>());
-            }
+            distinctTermsOfUse.putIfAbsent(restrictedTermsOfUse, new ArrayList<>());
             distinctTermsOfUse.get(restrictedTermsOfUse).add(file);
         }
         
