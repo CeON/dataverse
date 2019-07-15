@@ -51,8 +51,8 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class ExportServiceTest {
 
-    //07/10/2019
-    private final long DATE = 1562709600000L;
+    //10/07/2019
+    private final long DATE = 1562747033000L;
 
     private ExportService exportService;
 
@@ -179,6 +179,7 @@ public class ExportServiceTest {
         dataset.setVersions(Lists.newArrayList(datasetVersion));
 
         datasetVersion.setDataset(dataset);
+        datasetVersion.setReleaseTime(new Timestamp(DATE));
 
         prepareDatasetFieldValues(datasetVersion);
 
