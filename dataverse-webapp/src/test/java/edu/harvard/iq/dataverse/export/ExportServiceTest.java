@@ -108,6 +108,21 @@ public class ExportServiceTest {
     }
 
     @Test
+    @DisplayName("export DatasetVersion as string for ddi")
+    public void exportDatasetVersionAsString_forDdi() throws IOException, JsonParseException, URISyntaxException {
+        //given
+        DatasetVersion datasetVersion = parseDatasetVersionFromClasspath("json/testDataset.json");
+        prepareDataForExport(datasetVersion);
+
+        //when
+        Either<DataverseError, String> exportedDataset =
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.DDI, new Date());
+
+        //then
+        Assert.assertEquals(readFileToString("exportdata/ddi.xml"), exportedDataset.get());
+    }
+
+    @Test
     public void getAllExporters() {
         //when
         Map<ExporterConstant, Exporter> allExporters = exportService.getAllExporters();
