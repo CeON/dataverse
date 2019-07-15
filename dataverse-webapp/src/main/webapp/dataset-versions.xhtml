@@ -46,7 +46,7 @@
                              style="display:none"
                              update="detailsBlocks"
                              oncomplete="PF('detailsBlocks').show();post_differences();"
-                             actionListener="#{datasetVersionsTab.compareVersionDifferences()}">
+                             actionListener="#{datasetVersionsTab.updateVersionDiffForModalFromSelected()}">
             </p:commandButton>
         </div>
     
@@ -123,7 +123,7 @@
                 </ui:fragment>
                 
                 <p:commandLink rendered="#{(!empty(versionSummary.differenceFromPreviousVersion))}"
-                               actionListener="#{datasetVersionsTab.updateVersionDifferencesOnlyNew(versionSummary.differenceFromPreviousVersion)}"
+                               actionListener="#{datasetVersionsTab.updateVersionDiffForDialog(versionSummary.differenceFromPreviousVersion)}"
                                oncomplete="PF('detailsBlocks').show();post_differences();"
                                update="@form"
                                value="#{bundle['file.dataFilesTab.versions.viewDetails.btn']}"></p:commandLink>
@@ -148,22 +148,22 @@
     </ui:fragment>
 
     <p:dialog id="detailsBlocks" styleClass="largePopUp" header="#{bundle['file.viewDiffDialog.header']}" widgetVar="detailsBlocks" modal="true">
-        <div id="version-title" class="margin-bottom-half">#{datasetVersionsTab.selectedVersionsDifference.newVersion.title}</div>
+        <div id="version-title" class="margin-bottom-half">#{datasetVersionsTab.versionsDifferenceForDialog.newVersion.title}</div>
         <div id="version-details-block" class=" clearfix margin-bottom-half">
             <div class="pull-left">
                 &#160;
             </div>
             <div class="pull-left">
-                #{bundle['file.viewDiffDialog.version']}: #{datasetVersionsTab.selectedVersionsDifference.originalVersion.semanticVersion}<br/>
-                #{bundle['file.viewDiffDialog.lastUpdated']}: #{datasetVersionsTab.selectedVersionsDifference.originalVersion.localeLastUpdateTime}
+                #{bundle['file.viewDiffDialog.version']}: #{datasetVersionsTab.versionsDifferenceForDialog.originalVersion.semanticVersion}<br/>
+                #{bundle['file.viewDiffDialog.lastUpdated']}: #{datasetVersionsTab.versionsDifferenceForDialog.originalVersion.localeLastUpdateTime}
             </div>
             <div class="pull-left">
-                #{bundle['file.viewDiffDialog.version']}: #{datasetVersionsTab.selectedVersionsDifference.newVersion.semanticVersion}<br/>
-                #{bundle['file.viewDiffDialog.lastUpdated']}: #{datasetVersionsTab.selectedVersionsDifference.newVersion.localeLastUpdateTime}
+                #{bundle['file.viewDiffDialog.version']}: #{datasetVersionsTab.versionsDifferenceForDialog.newVersion.semanticVersion}<br/>
+                #{bundle['file.viewDiffDialog.lastUpdated']}: #{datasetVersionsTab.versionsDifferenceForDialog.newVersion.localeLastUpdateTime}
             </div>
         </div>
         <ui:fragment rendered="#{!empty(datasetVersionsTab.selectedVersionsDifference.detailDataByBlock)}">
-            <ui:repeat value="#{datasetVersionsTab.selectedVersionsDifference.detailDataByBlock}" var="block">
+            <ui:repeat value="#{datasetVersionsTab.versionsDifferenceForDialog.detailDataByBlock}" var="block">
                 <div class="panel panel-default">
                     <div class="panel-heading text-info">
                         <h:outputText
@@ -191,7 +191,7 @@
                 <h:outputText id="outputTextAddedRemoved" value="#{bundle['file.viewDiffDialog.files.header']}"/>
             </div>
             </ui:fragment>
-            <p:dataTable id="diffFilesDataTable" styleClass="dvnDifferanceTable"  value="#{datasetVersionsTab.selectedVersionsDifference.datasetFilesDiffList}" var="fileDiff"
+            <p:dataTable id="diffFilesDataTable" styleClass="dvnDifferanceTable"  value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList}" var="fileDiff"
                          rendered="#{!empty(datasetVersionsTab.selectedVersionsDifference.datasetFilesDiffList)}">
                 <p:column styleClass="versionValue">
                     <h:outputText value="#{bundle['file.viewDiffDialog.fileID']} #{fileDiff.fileId}"/>
@@ -221,7 +221,7 @@
                     &#160;
                 </p:column>
             </p:dataTable>
-            <p:dataTable id="replacemetFilesDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable" value="#{datasetVersionsTab.selectedVersionsDifference.datasetFilesReplacementList}" var="fileReplace"
+            <p:dataTable id="replacemetFilesDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable" value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList}" var="fileReplace"
                          rendered="#{!empty(datasetVersionsTab.selectedVersionsDifference.datasetFilesReplacementList)}">
                 <p:column styleClass="versionValue">
                     <h:outputText value="#{bundle['file.viewDiffDialog.fileReplaced']}"/>

@@ -1,10 +1,12 @@
 package edu.harvard.iq.dataverse;
 
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,6 +39,8 @@ public class DatasetVersionDifferenceTest {
     @Mock
     private DatasetFieldServiceBean datasetFieldService;
     
+    private Dataset dataset;
+    
     
     @BeforeEach
     public void before() {
@@ -47,29 +51,38 @@ public class DatasetVersionDifferenceTest {
         
         
         DatasetFieldType titleFieldType = MocksFactory.makeDatasetFieldType("title", FieldType.TEXT, false, citationMetadataBlock);
+        titleFieldType.setDisplayOrder(0);
         
         DatasetFieldType authorNameFieldType = MocksFactory.makeDatasetFieldType("authorName", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType authorAffiliationFieldType = MocksFactory.makeDatasetFieldType("authorAffiliation", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType authorFieldType = MocksFactory.makeComplexDatasetFieldType("author", true, citationMetadataBlock,
                 authorNameFieldType, authorAffiliationFieldType);
         authorFieldType.setDisplayOnCreate(true);
+        authorFieldType.setDisplayOrder(1);
         
         DatasetFieldType datasetContactNameFieldType = MocksFactory.makeDatasetFieldType("datasetContactName", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType datasetContactAffiliationFieldType = MocksFactory.makeDatasetFieldType("datasetContactAffiliation", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType datasetContactEmailFieldType = MocksFactory.makeDatasetFieldType("datasetContactEmail", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType datasetContactFieldType = MocksFactory.makeComplexDatasetFieldType("datasetContact", true, citationMetadataBlock,
                 datasetContactNameFieldType, datasetContactAffiliationFieldType, datasetContactEmailFieldType);
+        datasetContactFieldType.setDisplayOrder(2);
         
         
         DatasetFieldType dsDescriptionValueFieldType = MocksFactory.makeDatasetFieldType("dsDescriptionValue", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType dsDescriptionDateFieldType = MocksFactory.makeDatasetFieldType("dsDescriptionDate", FieldType.TEXT, false, citationMetadataBlock);
         DatasetFieldType dsDescriptionFieldType = MocksFactory.makeComplexDatasetFieldType("dsDescription", true, citationMetadataBlock,
                 dsDescriptionValueFieldType, dsDescriptionDateFieldType);
+        dsDescriptionFieldType.setDisplayOrder(3);
         
         DatasetFieldType subjectFieldType = MocksFactory.makeControlledVocabDatasetFieldType("subject", true, citationMetadataBlock,
                 "agricultural_sciences", "arts_and_humanities", "chemistry");
+        subjectFieldType.setDisplayOrder(4);
+        
         DatasetFieldType depositorFieldType = MocksFactory.makeDatasetFieldType("depositor", FieldType.TEXT, false, citationMetadataBlock);
+        depositorFieldType.setDisplayOrder(5);
+        
         DatasetFieldType dateOfDepositFieldType = MocksFactory.makeDatasetFieldType("dateOfDeposit", FieldType.TEXT, false, citationMetadataBlock);
+        dateOfDepositFieldType.setDisplayOrder(6);
         
         when(datasetFieldService.findByNameOpt(eq("title"))).thenReturn(titleFieldType);
         when(datasetFieldService.findByNameOpt(eq("author"))).thenReturn(authorFieldType);
@@ -93,71 +106,23 @@ public class DatasetVersionDifferenceTest {
         when(datasetFieldService.findByNameOpt(eq("depositor"))).thenReturn(depositorFieldType);
         when(datasetFieldService.findByNameOpt(eq("dateOfDeposit"))).thenReturn(dateOfDepositFieldType);
         
-        
+
+        dataset = MocksFactory.makeDataset();
     }
     
     
     // -------------------- TESTS --------------------
     
     @Test
-    public void createTest() throws IOException, JsonParseException {
+    public void create_METADATA_ONLY() throws IOException, JsonParseException {
 
         // given
-        
-        Dataset dataset = MocksFactory.makeDataset();
-        
-        DataFile dataFile1 = MocksFactory.makeDataFile();
-        dataFile1.getFileMetadatas().clear();
-        DataFile dataFile2 = MocksFactory.makeDataFile();
-        dataFile2.getFileMetadatas().clear();
-        DataFile dataFile3 = MocksFactory.makeDataFile();
-        dataFile3.getFileMetadatas().clear();
-
-        DataFile dataFileToReplace = MocksFactory.makeDataFile();
-        dataFile3.getFileMetadatas().clear();
-        DataFile dataFileReplacement = MocksFactory.makeDataFile();
-        dataFileReplacement.setPreviousDataFileId(dataFileToReplace.getId());
-        dataFile3.getFileMetadatas().clear();
-        
         
         DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
         v1.setDataset(dataset);
         
-        FileMetadata v1FileMetadata1 = MocksFactory.makeFileMetadata(10L, "firstFile.txt", 0);
-        v1FileMetadata1.setDataFile(dataFile1);
-        dataFile1.getFileMetadatas().add(v1FileMetadata1);
-        
-        FileMetadata v1FileMetadata2 = MocksFactory.makeFileMetadata(11L, "secondFile.txt", 1);
-        v1FileMetadata2.setDataFile(dataFile2);
-        dataFile2.getFileMetadatas().add(v1FileMetadata2);
-        
-        FileMetadata v1FileMetadata3 = MocksFactory.makeFileMetadata(12L, "toreplace.txt", 2);
-        v1FileMetadata3.setDataFile(dataFileToReplace);
-        dataFileToReplace.getFileMetadatas().add(v1FileMetadata3);
-        
-        v1.addFileMetadata(v1FileMetadata1);
-        v1.addFileMetadata(v1FileMetadata2);
-        v1.addFileMetadata(v1FileMetadata3);
-        
-        
         DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version-with-changes.json");
         v2.setDataset(dataset);
-        
-        FileMetadata v2FileMetadata1 = MocksFactory.makeFileMetadata(21L, "secondFile (changed).txt", 1);
-        v2FileMetadata1.setDataFile(dataFile2);
-        dataFile2.getFileMetadatas().add(v2FileMetadata1);
-        
-        FileMetadata v2FileMetadata2 = MocksFactory.makeFileMetadata(22L, "newFile.txt", 2);
-        v2FileMetadata2.setDataFile(dataFile3);
-        dataFile3.getFileMetadatas().add(v2FileMetadata2);
-        
-        FileMetadata v2FileMetadata3 = MocksFactory.makeFileMetadata(23L, "replacementFile.txt", 3);
-        v2FileMetadata3.setDataFile(dataFileReplacement);
-        dataFileReplacement.getFileMetadatas().add(v2FileMetadata3);
-        
-        v2.addFileMetadata(v2FileMetadata1);
-        v2.addFileMetadata(v2FileMetadata2);
-        v2.addFileMetadata(v2FileMetadata3);
         
         
         // when
@@ -166,8 +131,6 @@ public class DatasetVersionDifferenceTest {
         
         
         // then
-        
-        System.out.println(diff.getEditSummaryForLog());
         
         List<Tuple4<MetadataBlock, Integer, Integer, Integer>> blockDataForNote = diff.getBlockDataForNote();
         assertEquals(1, blockDataForNote.size());
@@ -203,45 +166,241 @@ public class DatasetVersionDifferenceTest {
                 "Kew, Susie; Creedence Clearwater Revival",
                 "Kew, Susie (changed); Creedence Clearwater Revival; Doe, Joe");
         
-        assertDatasetPrimitiveFieldChange(detailData.get(2), "subject",
-                "chemistry", "agricultural_sciences; arts_and_humanities");
-        
-        assertDatasetCompoundFieldChange(detailData.get(3), "datasetContact",
+        assertDatasetCompoundFieldChange(detailData.get(2), "datasetContact",
                 "Dataverse, Admin; Dataverse; admin@malinator.com", "");
         
-        
-        assertEquals(1, diff.getAddedFiles().size());
-        assertSame(v2FileMetadata2, diff.getAddedFiles().get(0));
-        
-        assertEquals(1, diff.getChangedFileMetadata().size());
-        assertSame(v1FileMetadata2, diff.getChangedFileMetadata().get(0)._1());
-        assertSame(v2FileMetadata1, diff.getChangedFileMetadata().get(0)._2());
-        
-        assertEquals(3, diff.getDatasetFilesDiffList().size());
-        
-        DatasetFileDifferenceItem fileDifference1 = diff.getDatasetFilesDiffList().get(1);
-        assertEquals("firstFile.txt", fileDifference1.getFileName1());
-        assertNull(fileDifference1.getFileName2());
-        
-        DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(2);
-        assertEquals("secondFile.txt", fileDifference2.getFileName1());
-        assertEquals("secondFile (changed).txt", fileDifference2.getFileName2());
-        
-        DatasetFileDifferenceItem fileDifference3 = diff.getDatasetFilesDiffList().get(0);
-        assertNull(fileDifference3.getFileName1());
-        assertEquals("newFile.txt", fileDifference3.getFileName2());
+        assertDatasetPrimitiveFieldChange(detailData.get(3), "subject",
+                "chemistry", "agricultural_sciences; arts_and_humanities");
         
         
+        assertEquals(0, diff.getAddedFiles().size());
+        assertEquals(0, diff.getChangedFileMetadata().size());
+        assertEquals(0, diff.getDatasetFilesDiffList().size());
+        assertEquals(0, diff.getDatasetFilesReplacementList().size());
+        assertEquals(0, diff.getRemovedFiles().size());
+        
+        assertSame(v1, diff.getOriginalVersion());
+        assertSame(v2, diff.getNewVersion());
+    }
+    
+    @Test
+    public void create_WITH_REPLACED_FILE() throws IOException, JsonParseException {
+
+        // given
+        
+        DataFile dataFileToReplace = MocksFactory.makeDataFile();
+        dataFileToReplace.getFileMetadatas().clear();
+        DataFile dataFileReplacement = MocksFactory.makeDataFile();
+        dataFileReplacement.setPreviousDataFileId(dataFileToReplace.getId());
+        dataFileReplacement.getFileMetadatas().clear();
+        
+        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v1.setDataset(dataset);
+
+        FileMetadata v1FileMetadata = buildFileMetadata(12L, "toreplace.txt", 2, dataFileToReplace);
+        
+        v1.addFileMetadata(v1FileMetadata);
+        
+        
+        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v2.setDataset(dataset);
+        
+        FileMetadata v2FileMetadata = buildFileMetadata(23L, "replacementFile.txt", 3, dataFileReplacement);
+        
+        v2.addFileMetadata(v2FileMetadata);
+        
+        
+        // when
+        
+        DatasetVersionDifference diff = new DatasetVersionDifference(v2, v1);
+        
+        
+        // then
         assertEquals(1, diff.getDatasetFilesReplacementList().size());
+        
         DatasetReplaceFileItem dataFileDiffReplacement = diff.getDatasetFilesReplacementList().get(0);
         assertEquals(String.valueOf(dataFileToReplace.getId()), dataFileDiffReplacement.getFile1Id());
         assertEquals(String.valueOf(dataFileReplacement.getId()), dataFileDiffReplacement.getFile2Id());
         assertEquals("toreplace.txt", dataFileDiffReplacement.getFdi().getFileName1());
         assertEquals("replacementFile.txt", dataFileDiffReplacement.getFdi().getFileName2());
         
-        assertEquals(1, diff.getRemovedFiles().size());
-        assertSame(v1FileMetadata1, diff.getRemovedFiles().get(0));
         
+        assertThat(diff.getBlockDataForNote(), is(empty()));
+        assertThat(diff.getSummaryDataForNote(), is(empty()));
+        assertThat(diff.getDetailDataByBlock(), is(empty()));
+        assertThat(diff.getAddedFiles(), is(empty()));
+        assertThat(diff.getChangedFileMetadata(), is(empty()));
+        assertThat(diff.getDatasetFilesDiffList(), is(empty()));
+        assertThat(diff.getRemovedFiles(), is(empty()));
+        assertSame(v1, diff.getOriginalVersion());
+        assertSame(v2, diff.getNewVersion());
+    }
+    
+    @Test
+    public void create_WITH_REMOVED_FILE() throws IOException, JsonParseException {
+
+        // given
+        
+        DataFile dataFile1 = MocksFactory.makeDataFile();
+        dataFile1.getFileMetadatas().clear();
+        DataFile dataFile2 = MocksFactory.makeDataFile();
+        dataFile2.getFileMetadatas().clear();
+        
+        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v1.setDataset(dataset);
+        
+        FileMetadata v1FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
+        FileMetadata v1FileMetadata2 = buildFileMetadata(11L, "secondFile.txt", 1, dataFile2);
+        
+        v1.addFileMetadata(v1FileMetadata1);
+        v1.addFileMetadata(v1FileMetadata2);
+        
+        
+        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v2.setDataset(dataset);
+        
+        
+        // when
+        
+        DatasetVersionDifference diff = new DatasetVersionDifference(v2, v1);
+        
+        
+        // then
+        assertEquals(2, diff.getDatasetFilesDiffList().size());
+        
+        DatasetFileDifferenceItem fileDifference1 = diff.getDatasetFilesDiffList().get(0);
+        assertEquals("firstFile.txt", fileDifference1.getFileName1());
+        assertNull(fileDifference1.getFileName2());
+        
+        DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(1);
+        assertEquals("secondFile.txt", fileDifference2.getFileName1());
+        assertNull(fileDifference2.getFileName2());
+        
+        
+        assertEquals(2, diff.getRemovedFiles().size());
+        assertSame(v1FileMetadata1, diff.getRemovedFiles().get(0));
+        assertSame(v1FileMetadata2, diff.getRemovedFiles().get(1));
+        
+        
+        assertThat(diff.getBlockDataForNote(), is(empty()));
+        assertThat(diff.getSummaryDataForNote(), is(empty()));
+        assertThat(diff.getDetailDataByBlock(), is(empty()));
+        assertThat(diff.getAddedFiles(), is(empty()));
+        assertThat(diff.getChangedFileMetadata(), is(empty()));
+        assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
+        assertSame(v1, diff.getOriginalVersion());
+        assertSame(v2, diff.getNewVersion());
+    }
+    
+    @Test
+    public void create_WITH_ADDED_FILE() throws IOException, JsonParseException {
+
+        // given
+        
+        DataFile dataFile1 = MocksFactory.makeDataFile();
+        dataFile1.getFileMetadatas().clear();
+        DataFile dataFile2 = MocksFactory.makeDataFile();
+        dataFile2.getFileMetadatas().clear();
+        
+        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v1.setDataset(dataset);
+        
+        
+        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v2.setDataset(dataset);
+        
+        FileMetadata v2FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
+        FileMetadata v2FileMetadata2 = buildFileMetadata(11L, "secondFile.txt", 1, dataFile2);
+        
+        v2.addFileMetadata(v2FileMetadata1);
+        v2.addFileMetadata(v2FileMetadata2);
+        
+        
+        // when
+        
+        DatasetVersionDifference diff = new DatasetVersionDifference(v2, v1);
+        
+        
+        // then
+        assertEquals(2, diff.getDatasetFilesDiffList().size());
+        
+        DatasetFileDifferenceItem fileDifference1 = diff.getDatasetFilesDiffList().get(0);
+        assertNull(fileDifference1.getFileName1());
+        assertEquals("firstFile.txt", fileDifference1.getFileName2());
+        
+        DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(1);
+        assertNull(fileDifference2.getFileName1());
+        assertEquals("secondFile.txt", fileDifference2.getFileName2());
+        
+        
+        assertEquals(2, diff.getAddedFiles().size());
+        assertSame(v2FileMetadata1, diff.getAddedFiles().get(0));
+        assertSame(v2FileMetadata2, diff.getAddedFiles().get(1));
+        
+        
+        assertThat(diff.getBlockDataForNote(), is(empty()));
+        assertThat(diff.getSummaryDataForNote(), is(empty()));
+        assertThat(diff.getDetailDataByBlock(), is(empty()));
+        assertThat(diff.getRemovedFiles(), is(empty()));
+        assertThat(diff.getChangedFileMetadata(), is(empty()));
+        assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
+        assertSame(v1, diff.getOriginalVersion());
+        assertSame(v2, diff.getNewVersion());
+    }
+    
+    @Test
+    public void create__WITH_CHANGED_FILE_METADATA() throws IOException, JsonParseException {
+
+        // given
+        
+        DataFile dataFile1 = MocksFactory.makeDataFile();
+        dataFile1.getFileMetadatas().clear();
+        DataFile dataFile2 = MocksFactory.makeDataFile();
+        dataFile2.getFileMetadatas().clear();
+        
+        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v1.setDataset(dataset);
+        
+        FileMetadata v1FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
+        FileMetadata v1FileMetadata2 = buildFileMetadata(11L, "secondFile.txt", 1, dataFile2);
+        
+        v1.addFileMetadata(v1FileMetadata1);
+        v1.addFileMetadata(v1FileMetadata2);
+        
+        
+        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v2.setDataset(dataset);
+        
+        FileMetadata v2FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
+        FileMetadata v2FileMetadata2 = buildFileMetadata(11L, "secondFile (changed).txt", 1, dataFile2);
+        
+        v2.addFileMetadata(v2FileMetadata1);
+        v2.addFileMetadata(v2FileMetadata2);
+        
+        
+        // when
+        
+        DatasetVersionDifference diff = new DatasetVersionDifference(v2, v1);
+        
+        
+        // then
+        assertEquals(1, diff.getDatasetFilesDiffList().size());
+        
+        DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(0);
+        assertEquals("secondFile.txt", fileDifference2.getFileName1());
+        assertEquals("secondFile (changed).txt", fileDifference2.getFileName2());
+
+        assertEquals(1, diff.getChangedFileMetadata().size());
+        assertSame(v1FileMetadata2, diff.getChangedFileMetadata().get(0)._1());
+        assertSame(v2FileMetadata2, diff.getChangedFileMetadata().get(0)._2());
+        
+        
+        assertThat(diff.getBlockDataForNote(), is(empty()));
+        assertThat(diff.getSummaryDataForNote(), is(empty()));
+        assertThat(diff.getDetailDataByBlock(), is(empty()));
+        assertThat(diff.getAddedFiles(), is(empty()));
+        assertThat(diff.getRemovedFiles(), is(empty()));
+        assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
     }
@@ -279,5 +438,13 @@ public class DatasetVersionDifferenceTest {
             
             return jsonParser.parseDatasetVersion(jsonObject);
         }
+    }
+    
+    private FileMetadata buildFileMetadata(long id, String label, int displayOrder, DataFile dataFile) {
+        FileMetadata fileMetadata = MocksFactory.makeFileMetadata(id, label, displayOrder);
+        fileMetadata.setDataFile(dataFile);
+        dataFile.getFileMetadatas().add(fileMetadata);
+        
+        return fileMetadata;
     }
 }

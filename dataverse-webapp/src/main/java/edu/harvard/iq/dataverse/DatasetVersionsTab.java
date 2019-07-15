@@ -30,7 +30,7 @@ public class DatasetVersionsTab implements Serializable {
     
     private List<VersionSummaryDTO> versionsSummary = new ArrayList<>();
     
-    private DatasetVersionDifference selectedVersionsDifference;
+    private DatasetVersionDifference versionsDifferenceForDialog;
     
     private long comparableVersionsCount = 0;
 
@@ -45,8 +45,8 @@ public class DatasetVersionsTab implements Serializable {
         return dataset;
     }
     
-    public DatasetVersionDifference getSelectedVersionsDifference() {
-        return selectedVersionsDifference;
+    public DatasetVersionDifference getVersionsDifferenceForDialog() {
+        return versionsDifferenceForDialog;
     }
     
     public List<VersionSummaryDTO> getVersionsSummary() {
@@ -87,23 +87,29 @@ public class DatasetVersionsTab implements Serializable {
         comparableVersionsCount = versionsSummary.stream().filter(v -> v.isCanBeCompared()).count();
     }
     
-    public void compareVersionDifferences() {
+    public void updateVersionDiffForModalFromSelected() {
         RequestContext requestContext = RequestContext.getCurrentInstance();
         
         if (this.selectedVersions.size() != 2) {
             requestContext.execute("PF('needTwoVersionsToCompare').show()");
         } else {
+            DatasetVersion newVersion;
+            DatasetVersion oldVersion;
+
             //order depends on order of selection - needs to be chronological order
-            if (this.selectedVersions.get(0).getVersion().getId().intValue() > this.selectedVersions.get(1).getVersion().getId().intValue()) {
-                updateVersionDifferences(this.selectedVersions.get(0).getVersion(), this.selectedVersions.get(1).getVersion());
+            if (selectedVersions.get(0).getVersion().getId() > selectedVersions.get(1).getVersion().getId()) {
+                newVersion = selectedVersions.get(0).getVersion();
+                oldVersion = selectedVersions.get(1).getVersion();
             } else {
-                updateVersionDifferences(this.selectedVersions.get(1).getVersion(), this.selectedVersions.get(0).getVersion());
+                oldVersion = selectedVersions.get(0).getVersion();
+                newVersion = selectedVersions.get(1).getVersion();
             }
+            updateVersionDiffForDialog(new DatasetVersionDifference(newVersion, oldVersion));
         }
     }
     
-    public void updateVersionDifferencesOnlyNew(DatasetVersionDifference difference) {
-        selectedVersionsDifference = difference;
+    public void updateVersionDiffForDialog(DatasetVersionDifference difference) {
+        versionsDifferenceForDialog = difference;
     }
     
     // -------------------- PRIVATE --------------------
@@ -118,10 +124,6 @@ public class DatasetVersionsTab implements Serializable {
         }
         
         return retList;
-    }
-    
-    private void updateVersionDifferences(DatasetVersion newVersion, DatasetVersion originalVersion) {
-        selectedVersionsDifference = new DatasetVersionDifference(newVersion, originalVersion);
     }
 
     private boolean canShowVersion(DatasetVersion datasetVersion) {
