@@ -23,7 +23,6 @@ import com.lyncode.xoai.xml.XSISchema;
 import com.lyncode.xoai.xml.XmlWriter;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterConstant;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
@@ -135,16 +134,11 @@ public class OAIServlet extends HttpServlet {
         for (Exporter exporter : exporters.values()) {
 
             if (exporter.isXMLFormat() && exporter.isHarvestable()) {
-                MetadataFormat metadataFormat;
+                MetadataFormat metadataFormat = MetadataFormat.metadataFormat(exporter.getProviderName());
 
-                try {
-                    metadataFormat = MetadataFormat.metadataFormat(exporter.getProviderName());
+                if (!exporter.getXMLNameSpace().isEmpty() || !exporter.getXMLSchemaLocation().isEmpty()) {
                     metadataFormat.withNamespace(exporter.getXMLNameSpace());
                     metadataFormat.withSchemaLocation(exporter.getXMLSchemaLocation());
-                } catch (ExportException ex) {
-                    metadataFormat = null;
-                }
-                if (metadataFormat != null) {
                     context.withMetadataFormat(metadataFormat);
                 }
             }
