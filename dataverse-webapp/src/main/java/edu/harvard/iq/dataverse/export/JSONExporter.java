@@ -4,16 +4,24 @@ import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.json.JsonPrinter;
+import org.apache.commons.lang.StringUtils;
 
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.core.MediaType;
 
 
-/**
- * @author skraffmi
- */
 
 public class JSONExporter implements Exporter {
+
+    private boolean excludeEmailFromExport;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public JSONExporter(boolean excludeEmailFromExport) {
+        this.excludeEmailFromExport = excludeEmailFromExport;
+    }
+
+    // -------------------- LOGIC --------------------
 
     @Override
     public String getProviderName() {
@@ -26,7 +34,7 @@ public class JSONExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try {
             JsonObjectBuilder jsonObjectBuilder = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport);
 
@@ -55,18 +63,18 @@ public class JSONExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
-        throw new ExportException("JSONExporter: not an XML format.");
+    public String getXMLNameSpace() {
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
-        throw new ExportException("JSONExporter: not an XML format.");
+    public String getXMLSchemaLocation() {
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
-        throw new ExportException("JSONExporter: not an XML format.");
+    public String getXMLSchemaVersion() {
+        return StringUtils.EMPTY;
     }
 
     @Override

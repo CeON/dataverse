@@ -35,7 +35,8 @@ public class ExportService {
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public ExportService() {
+    @Deprecated
+    ExportService() {
         //JEE requirement
     }
 
@@ -46,21 +47,25 @@ public class ExportService {
 
     @PostConstruct
     void loadAllExporters() {
-        exporters.put(ExporterConstant.DDI, new DDIExporter());
+        boolean isEmailExcludedFromExport = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport);
 
-        exporters.put(ExporterConstant.DATA_CITE, new DataCiteExporter());
+        exporters.put(ExporterConstant.DDI, new DDIExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.DC_TERMS, new DCTermsExporter());
+        exporters.put(ExporterConstant.DATACITE, new DataCiteExporter());
 
-        exporters.put(ExporterConstant.DUBLIN_CORE, new DublinCoreExporter());
+        exporters.put(ExporterConstant.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.OAI_DDI, new OAI_DDIExporter());
+        exporters.put(ExporterConstant.DUBLINCORE, new DublinCoreExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.OAI_ORE, new OAI_OREExporter());
+        exporters.put(ExporterConstant.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.SCHEMA_DOT_ORG, new SchemaDotOrgExporter());
+        exporters.put(ExporterConstant.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.JSON, new JSONExporter());
+        exporters.put(ExporterConstant.SCHEMADOTORG, new SchemaDotOrgExporter());
+
+        exporters.put(ExporterConstant.OPENAIRE, new OpenAireExporter(isEmailExcludedFromExport));
+
+        exporters.put(ExporterConstant.JSON, new JSONExporter(isEmailExcludedFromExport));
     }
 
     // -------------------- LOGIC --------------------
@@ -92,10 +97,9 @@ public class ExportService {
 
         if (loadedExporter.isPresent()) {
 
-            String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion,
-                                                                                     settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)))
-                    .onSuccess(string -> datasetVersion.getDataset().setLastExportTime(exportTime))
-                    .onFailure(throwable -> logger.fine(throwable.getMessage()))
+            String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion))
+                    .onSuccess(dataset -> datasetVersion.getDataset().setLastExportTime(exportTime))
+                    .onFailure(Throwable::printStackTrace)
                     .getOrElse(StringUtils.EMPTY);
 
             return exportedDataset.isEmpty() ?
@@ -120,9 +124,7 @@ public class ExportService {
                 .get();
     }
 
-    // -------------------- PRIVATE --------------------
-
-    private Optional<Exporter> getExporter(ExporterConstant exporter) {
+    public Optional<Exporter> getExporter(ExporterConstant exporter) {
         return Optional.ofNullable(exporters.get(exporter));
     }
 }

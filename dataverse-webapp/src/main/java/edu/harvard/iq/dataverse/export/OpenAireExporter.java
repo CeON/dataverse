@@ -14,6 +14,16 @@ import java.nio.charset.StandardCharsets;
 
 public class OpenAireExporter implements Exporter {
 
+    private boolean excludeEmailFromExport;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public OpenAireExporter(boolean excludeEmailFromExport) {
+        this.excludeEmailFromExport = excludeEmailFromExport;
+    }
+
+    // -------------------- LOGIC --------------------
+
     @Override
     public String getProviderName() {
         return "openAire";
@@ -25,7 +35,7 @@ public class OpenAireExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();

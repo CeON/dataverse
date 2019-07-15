@@ -12,11 +12,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/**
- * @author skraffmi
- */
 
 public class DublinCoreExporter implements Exporter {
+
+    private boolean excludeEmailFromExport;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public DublinCoreExporter(boolean excludeEmailFromExport) {
+        this.excludeEmailFromExport = excludeEmailFromExport;
+    }
+
+    // -------------------- LOGIC --------------------
 
 
     @Override
@@ -30,7 +37,7 @@ public class DublinCoreExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
@@ -58,17 +65,17 @@ public class DublinCoreExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
+    public String getXMLNameSpace() {
         return DublinCoreExportUtil.OAI_DC_XML_NAMESPACE;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
+    public String getXMLSchemaLocation() {
         return DublinCoreExportUtil.OAI_DC_XML_SCHEMALOCATION;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
+    public String getXMLSchemaVersion() {
         return DublinCoreExportUtil.DEFAULT_XML_VERSION;
     }
 

@@ -4304,7 +4304,7 @@ public class DatasetPage implements java.io.Serializable {
         if (isThisLatestReleasedVersion()) {
             Either<DataverseError, String> exportedDataset =
                     exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
-                                                               ExporterConstant.SCHEMA_DOT_ORG,
+                                                               ExporterConstant.SCHEMADOTORG,
                                                                new Timestamp(new Date().getTime()));
 
             if (exportedDataset.isLeft()) {

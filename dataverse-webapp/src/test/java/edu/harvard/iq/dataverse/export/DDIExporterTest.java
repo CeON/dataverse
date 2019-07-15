@@ -110,28 +110,6 @@ public class DDIExporterTest {
     }
 
     @Test
-    public void testExportDataset() throws Exception {
-        System.out.println("exportDataset");
-
-        // FIXME: switch ddi/dataset-finch1.json
-        //File datasetVersionJson = new File("src/test/java/edu/harvard/iq/dataverse/export/ddi/dataset-finch1.json");
-        File datasetVersionJson = new File("src/test/resources/json/dataset-finch1.json");
-        String datasetVersionAsJson = new String(Files.readAllBytes(Paths.get(datasetVersionJson.getAbsolutePath())));
-
-        JsonReader jsonReader = Json.createReader(new StringReader(datasetVersionAsJson));
-        JsonObject json = jsonReader.readObject();
-        JsonParser jsonParser = new JsonParser(datasetFieldTypeSvc, null, null);
-        DatasetVersion version = jsonParser.parseDatasetVersion(json.getJsonObject("datasetVersion"));
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DDIExporter instance = new DDIExporter();
-        boolean nullPointerFixed = false;
-
-        System.out.println("out: " + XmlPrinter.prettyPrintXml(byteArrayOutputStream.toString()));
-
-    }
-
-    @Test
     public void testCitation() throws Exception {
         System.out.println("testCitation");
 
@@ -164,8 +142,8 @@ public class DDIExporterTest {
         JsonParser jsonParser = new JsonParser(datasetFieldTypeSvc, null, null);
         DatasetVersion version = jsonParser.parseDatasetVersion(json.getJsonObject("datasetVersion"));
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DDIExporter instance = new DDIExporter();
-        instance.exportDataset(version, true);
+        DDIExporter instance = new DDIExporter(true);
+        instance.exportDataset(version);
 
         System.out.println(XmlPrinter.prettyPrintXml(byteArrayOutputStream.toString()));
         assertFalse(byteArrayOutputStream.toString().contains("finch@mailinator.com"));

@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * This exporter is for the "full" DDI, that includes the file-level,
+ * <data> and <var> metadata.
+ *
  * @author Leonid Andreev
  * (based on the original DDIExporter by
  * @author skraffmi
@@ -20,14 +23,21 @@ import java.nio.charset.StandardCharsets;
  */
 
 public class DDIExporter implements Exporter {
-    // TODO: 
-    // move these into the ddi export utility
+
     private static String DEFAULT_XML_NAMESPACE = "ddi:codebook:2_5";
     private static String DEFAULT_XML_SCHEMALOCATION = "http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd";
     private static String DEFAULT_XML_VERSION = "2.5";
 
-    // This exporter is for the "full" DDI, that includes the file-level, 
-    // <data> and <var> metadata.
+    private boolean excludeEmailFromExport;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    DDIExporter(boolean excludeEmailFromExport) {
+        this.excludeEmailFromExport = excludeEmailFromExport;
+    }
+
+    // -------------------- LOGIC --------------------
+
     @Override
     public String getProviderName() {
         return "ddi";
@@ -39,7 +49,7 @@ public class DDIExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
@@ -71,17 +81,17 @@ public class DDIExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
+    public String getXMLNameSpace() {
         return DDIExporter.DEFAULT_XML_NAMESPACE;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
+    public String getXMLSchemaLocation() {
         return DDIExporter.DEFAULT_XML_SCHEMALOCATION;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
+    public String getXMLSchemaVersion() {
         return DDIExporter.DEFAULT_XML_VERSION;
     }
 

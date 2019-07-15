@@ -16,10 +16,20 @@ public class OAI_OREExporter implements Exporter {
 
     private static final Logger logger = Logger.getLogger(OAI_OREExporter.class.getCanonicalName());
 
-    public static final String NAME = "OAI_ORE";
+    public static final String NAME = "OAIORE";
+
+    private boolean excludeEmailFromExport;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public OAI_OREExporter(boolean excludeEmailFromExport) {
+        this.excludeEmailFromExport = excludeEmailFromExport;
+    }
+
+    // -------------------- LOGIC --------------------
 
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) {
+    public String exportDataset(DatasetVersion version) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             new OREMap(version, excludeEmailFromExport)
                     .writeOREMap(byteArrayOutputStream);
@@ -58,18 +68,18 @@ public class OAI_OREExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
-        throw new ExportException(OAI_OREExporter.class.getSimpleName() + ": not an XML format.");
+    public String getXMLNameSpace() {
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
-        throw new ExportException(OAI_OREExporter.class.getSimpleName() + ": not an XML format.");
+    public String getXMLSchemaLocation() {
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
-        throw new ExportException(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.");
+    public String getXMLSchemaVersion() {
+        return StringUtils.EMPTY;
     }
 
     @Override

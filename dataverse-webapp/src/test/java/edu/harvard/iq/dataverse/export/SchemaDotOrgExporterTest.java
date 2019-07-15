@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.util.json.JsonParser;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -279,7 +280,7 @@ public class SchemaDotOrgExporterTest {
         dataFile.setOwner(dataset);
         version.setFileMetadatas(fileMetadatas);
 
-        String jsonLd = schemaDotOrgExporter.exportDataset(version, true);
+        String jsonLd = schemaDotOrgExporter.exportDataset(version);
         String prettyJson = JsonUtil.prettyPrint(jsonLd);
         System.out.println("schema.org JSON-LD: " + prettyJson);
         JsonReader jsonReader2 = Json.createReader(new StringReader(jsonLd));
@@ -398,45 +399,33 @@ public class SchemaDotOrgExporterTest {
      * Test of getXMLNameSpace method, of class SchemaDotOrgExporter.
      */
     @Test
-    public void testGetXMLNameSpace() throws Exception {
-        System.out.println("getXMLNameSpace");
-        ExportException expectedException = null;
-        try {
-            String result = schemaDotOrgExporter.getXMLNameSpace();
-        } catch (ExportException ex) {
-            expectedException = ex;
-        }
-        assertEquals(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.", expectedException.getMessage());
+    public void testGetXMLNameSpace() {
+
+        String result = schemaDotOrgExporter.getXMLNameSpace();
+
+        Assert.assertTrue(result.isEmpty());
     }
 
     /**
      * Test of getXMLSchemaLocation method, of class SchemaDotOrgExporter.
      */
     @Test
-    public void testGetXMLSchemaLocation() throws Exception {
-        System.out.println("getXMLSchemaLocation");
-        ExportException expectedException = null;
-        try {
-            String result = schemaDotOrgExporter.getXMLSchemaLocation();
-        } catch (ExportException ex) {
-            expectedException = ex;
-        }
-        assertEquals(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.", expectedException.getMessage());
+    public void testGetXMLSchemaLocation() {
+
+        String result = schemaDotOrgExporter.getXMLSchemaLocation();
+
+        Assert.assertTrue(result.isEmpty());
     }
 
     /**
      * Test of getXMLSchemaVersion method, of class SchemaDotOrgExporter.
      */
     @Test
-    public void testGetXMLSchemaVersion() throws Exception {
-        System.out.println("getXMLSchemaVersion");
-        ExportException expectedException = null;
-        try {
-            String result = schemaDotOrgExporter.getXMLSchemaVersion();
-        } catch (ExportException ex) {
-            expectedException = ex;
-        }
-        assertEquals(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.", expectedException.getMessage());
+    public void testGetXMLSchemaVersion() {
+
+        String result = schemaDotOrgExporter.getXMLSchemaVersion();
+
+        Assert.assertTrue(result.isEmpty());
     }
 
     /**

@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.export;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import org.apache.commons.lang.StringUtils;
 
 import javax.ws.rs.core.MediaType;
 
@@ -63,8 +64,10 @@ import javax.ws.rs.core.MediaType;
 
 public class SchemaDotOrgExporter implements Exporter {
 
+    // -------------------- LOGIC --------------------
+
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) {
+    public String exportDataset(DatasetVersion version) {
         return version.getJsonLd();
     }
 
@@ -95,18 +98,18 @@ public class SchemaDotOrgExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
-        throw new ExportException(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.");
+    public String getXMLNameSpace() {
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
-        throw new ExportException(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.");
+    public String getXMLSchemaLocation() {
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
-        throw new ExportException(SchemaDotOrgExporter.class.getSimpleName() + ": not an XML format.");
+    public String getXMLSchemaVersion() {
+        return StringUtils.EMPTY;
     }
 
     @Override

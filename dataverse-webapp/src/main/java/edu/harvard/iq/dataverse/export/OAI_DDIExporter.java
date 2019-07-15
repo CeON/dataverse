@@ -12,9 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/**
- * @author skraffmi
- */
 
 /**
  * This exporter is for the OAI ("short") flavor of the DDI -
@@ -28,6 +25,16 @@ public class OAI_DDIExporter implements Exporter {
     private static String DEFAULT_XML_SCHEMALOCATION = "http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd";
     private static String DEFAULT_XML_VERSION = "2.5";
 
+    private boolean excludeEmailFromExport;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public OAI_DDIExporter(boolean excludeEmailFromExport) {
+        this.excludeEmailFromExport = excludeEmailFromExport;
+    }
+
+    // -------------------- LOGIC --------------------
+
     @Override
     public String getProviderName() {
         return "oai_ddi";
@@ -39,7 +46,7 @@ public class OAI_DDIExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version, boolean excludeEmailFromExport) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
@@ -67,17 +74,17 @@ public class OAI_DDIExporter implements Exporter {
     }
 
     @Override
-    public String getXMLNameSpace() throws ExportException {
+    public String getXMLNameSpace() {
         return OAI_DDIExporter.DEFAULT_XML_NAMESPACE;
     }
 
     @Override
-    public String getXMLSchemaLocation() throws ExportException {
+    public String getXMLSchemaLocation() {
         return OAI_DDIExporter.DEFAULT_XML_SCHEMALOCATION;
     }
 
     @Override
-    public String getXMLSchemaVersion() throws ExportException {
+    public String getXMLSchemaVersion() {
         return OAI_DDIExporter.DEFAULT_XML_VERSION;
     }
 

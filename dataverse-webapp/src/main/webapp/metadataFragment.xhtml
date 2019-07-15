@@ -2,7 +2,6 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:o="http://omnifaces.org/ui"
                 xmlns:jsf="http://xmlns.jcp.org/jsf">
@@ -12,7 +11,7 @@
         <ui:repeat value="#{metadataBlocks}"
                    var="metadataBlockVal" varStatus="block">
             <div class="panel panel-default">
-                <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info">
+                <div data-toggle="collapse" data-target="#panelCollapse#{block}" class="panel-heading text-info">
                     #{metadataBlockVal.key.localeDisplayName} &#160;<span class="glyphicon #{block.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}"/>
                 </div>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first?'in':''}">
