@@ -528,13 +528,9 @@ public class EditDatafilesPage implements java.io.Serializable {
             //DataverseRequest dvRequest2 = createDataverseRequest(authUser);
             AddReplaceFileHelper addReplaceFileHelper = new AddReplaceFileHelper(dvRequestService.getDataverseRequest(),
                                                                                  ingestService,
-                                                                                 datasetService,
                                                                                  datafileService,
                                                                                  permissionService,
-                                                                                 commandEngine,
-                                                                                 settingsService,
-                                                                                 termsOfUseFactory,
-                                                                                 termsOfUseFormMapper);
+                                                                                 commandEngine);
 
             fileReplacePageHelper = new FileReplacePageHelper(addReplaceFileHelper,
                                                               dataset,

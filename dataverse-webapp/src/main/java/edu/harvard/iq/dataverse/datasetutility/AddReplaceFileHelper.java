@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.FileMetadata;
@@ -22,9 +21,6 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
-import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import org.apache.commons.io.IOUtils;
@@ -184,13 +180,9 @@ public class AddReplaceFileHelper {
      */
     public AddReplaceFileHelper(DataverseRequest dvRequest,
                                 IngestServiceBean ingestService,
-                                DatasetServiceBean datasetService,
                                 DataFileServiceBean fileService,
                                 PermissionServiceBean permissionService,
-                                EjbDataverseEngine commandEngine,
-                                SettingsServiceBean settingsService,
-                                TermsOfUseFactory termsOfUseFactory,
-                                TermsOfUseFormMapper termsOfUseFormMapper) {
+                                EjbDataverseEngine commandEngine) {
 
         // ---------------------------------
         // make sure DataverseRequest isn't null and has a user
