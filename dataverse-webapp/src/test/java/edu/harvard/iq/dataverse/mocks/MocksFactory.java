@@ -306,49 +306,4 @@ public class MocksFactory {
         return makeExplicitGroup(null, prv);
     }
 
-
-    public static DatasetFieldType makeDatasetFieldType(String name, FieldType fieldType, boolean allowMultiple, MetadataBlock metadataBlock) {
-        final Long id = nextId();
-        DatasetFieldType retVal = new DatasetFieldType(name, fieldType, allowMultiple);
-        retVal.setId(id);
-
-        if (metadataBlock.getDatasetFieldTypes() == null) {
-            metadataBlock.setDatasetFieldTypes(new ArrayList<>());
-        }
-        metadataBlock.getDatasetFieldTypes().add(retVal);
-        retVal.setMetadataBlock(metadataBlock);
-        return retVal;
-    }
-
-    public static DatasetFieldType makeControlledVocabDatasetFieldType(String name, boolean allowMultiple, MetadataBlock metadataBlock, String... vocabularyStrValues) {
-        final Long id = nextId();
-        DatasetFieldType retVal = new DatasetFieldType(name, FieldType.TEXT, allowMultiple);
-        retVal.setControlledVocabularyValues(new ArrayList<>());
-        for (String vocabStrValue : vocabularyStrValues) {
-            ControlledVocabularyValue vocabValue = new ControlledVocabularyValue(nextId(), vocabStrValue, retVal);
-            retVal.getControlledVocabularyValues().add(vocabValue);
-        }
-        retVal.setId(id);
-
-        if (metadataBlock.getDatasetFieldTypes() == null) {
-            metadataBlock.setDatasetFieldTypes(new ArrayList<>());
-        }
-        metadataBlock.getDatasetFieldTypes().add(retVal);
-        retVal.setMetadataBlock(metadataBlock);
-        return retVal;
-    }
-
-    public static DatasetFieldType makeComplexDatasetFieldType(String name, boolean allowMultiple, MetadataBlock metadataBlock, DatasetFieldType... childDatasetTypes) {
-        final Long id = nextId();
-        DatasetFieldType retVal = new DatasetFieldType(name, FieldType.NONE, allowMultiple);
-        retVal.getChildDatasetFieldTypes().addAll(Arrays.asList(childDatasetTypes));
-        retVal.setId(id);
-
-        if (metadataBlock.getDatasetFieldTypes() == null) {
-            metadataBlock.setDatasetFieldTypes(new ArrayList<>());
-        }
-        metadataBlock.getDatasetFieldTypes().add(retVal);
-        retVal.setMetadataBlock(metadataBlock);
-        return retVal;
-    }
 }
