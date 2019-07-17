@@ -38,10 +38,14 @@ public class OREMap {
     private Map<String, String> localContext = new TreeMap<String, String>();
     private DatasetVersion version;
     private boolean excludeEmail = false;
+    private String dataverseSiteUrl;
+    private LocalDate modifiedDate;
 
-    public OREMap(DatasetVersion version, boolean excludeEmail) {
+    public OREMap(DatasetVersion version, boolean excludeEmail, String dataverseSiteUrl, LocalDate modifiedDate) {
         this.version = version;
         this.excludeEmail = excludeEmail;
+        this.dataverseSiteUrl = dataverseSiteUrl;
+        this.modifiedDate = modifiedDate;
     }
 
     public void writeOREMap(OutputStream outputStream) throws Exception {
@@ -49,7 +53,7 @@ public class OREMap {
         outputStream.flush();
     }
 
-    public JsonObject getOREMap() throws Exception {
+    public JsonObject getOREMap() {
 
         // Add namespaces we'll definitely use to Context
         // Additional namespaces are added as needed below
@@ -204,11 +208,11 @@ public class OREMap {
             String fileSameAs = null;
             if (df.getGlobalId().asString().length() != 0) {
                 fileId = df.getGlobalId().asString();
-                fileSameAs = SystemConfig.getDataverseSiteUrlStatic()
+                fileSameAs = dataverseSiteUrl
                         + "/api/access/datafile/:persistentId?persistentId=" + fileId;
             } else {
-                fileId = SystemConfig.getDataverseSiteUrlStatic() + "/file.xhtml?fileId=" + df.getId();
-                fileSameAs = SystemConfig.getDataverseSiteUrlStatic() + "/api/access/datafile/" + df.getId();
+                fileId = dataverseSiteUrl + "/file.xhtml?fileId=" + df.getId();
+                fileSameAs = dataverseSiteUrl + "/api/access/datafile/" + df.getId();
             }
             aggRes.add("@id", fileId);
             aggRes.add(JsonLDTerm.schemaOrg("sameAs").getLabel(), fileSameAs);
@@ -246,14 +250,14 @@ public class OREMap {
         }
         // Now create the overall map object with it's metadata
         JsonObject oremap = Json.createObjectBuilder()
-                .add(JsonLDTerm.dcTerms("modified").getLabel(), LocalDate.now().toString())
+                .add(JsonLDTerm.dcTerms("modified").getLabel(), modifiedDate.toString())
                 .add(JsonLDTerm.dcTerms("creator").getLabel(),
                      ResourceBundle.getBundle("Bundle").getString("institution.name"))
                 .add("@type", JsonLDTerm.ore("ResourceMap").getLabel())
                 // Define an id for the map itself (separate from the @id of the dataset being
                 // described
                 .add("@id",
-                     SystemConfig.getDataverseSiteUrlStatic() + "/api/datasets/export?exporter="
+                     dataverseSiteUrl + "/api/datasets/export?exporter="
                              + OAI_OREExporter.NAME + "&persistentId=" + id)
                 // Add the aggregation (Dataset) itself to the map.
                 .add(JsonLDTerm.ore("describes").getLabel(),
@@ -339,7 +343,7 @@ public class OREMap {
         } else {
             String namespaceUri = dsft.getMetadataBlock().getNamespaceUri();
             if (namespaceUri == null) {
-                namespaceUri = SystemConfig.getDataverseSiteUrlStatic() + "/schema/" + dsft.getMetadataBlock().getName()
+                namespaceUri = dataverseSiteUrl + "/schema/" + dsft.getMetadataBlock().getName()
                         + "#";
             }
             JsonLDNamespace blockNamespace = new JsonLDNamespace(dsft.getMetadataBlock().getName(), namespaceUri);
@@ -354,7 +358,7 @@ public class OREMap {
             // Use metadatablock URI or custom URI for this field based on the path
             String subFieldNamespaceUri = dfType.getMetadataBlock().getNamespaceUri();
             if (subFieldNamespaceUri == null) {
-                subFieldNamespaceUri = SystemConfig.getDataverseSiteUrlStatic() + "/schema/"
+                subFieldNamespaceUri = dataverseSiteUrl + "/schema/"
                         + dfType.getMetadataBlock().getName() + "/";
             }
             subFieldNamespaceUri = subFieldNamespaceUri + dfType.getName() + "#";

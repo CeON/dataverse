@@ -4304,12 +4304,11 @@ public class DatasetPage implements java.io.Serializable {
         if (isThisLatestReleasedVersion()) {
             Either<DataverseError, String> exportedDataset =
                     exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
-                                                               ExporterConstant.SCHEMADOTORG,
-                                                               new Timestamp(new Date().getTime()));
+                                                               ExporterConstant.SCHEMADOTORG);
 
             if (exportedDataset.isLeft()) {
                 logger.fine(exportedDataset.getLeft().getErrorMsg());
-                String jsonLdProduced = workingVersion.getJsonLd();
+                String jsonLdProduced = workingVersion.getJsonLd(systemConfig.getDataverseSiteUrl());
                 return jsonLdProduced != null ? jsonLdProduced : StringUtils.EMPTY;
             }
 

@@ -49,7 +49,7 @@ public class SchemaDotOrgExporterTest {
     DDIExporterTest.MockDatasetFieldSvc datasetFieldTypeSvc = null;
 
     public SchemaDotOrgExporterTest() {
-        schemaDotOrgExporter = new SchemaDotOrgExporter();
+        schemaDotOrgExporter = new SchemaDotOrgExporter("localhost");
     }
 
     @BeforeClass

@@ -64,11 +64,19 @@ import javax.ws.rs.core.MediaType;
 
 public class SchemaDotOrgExporter implements Exporter {
 
+    private String dataverseSiteUrlStatic;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public SchemaDotOrgExporter(String dataverseSiteUrlStatic) {
+        this.dataverseSiteUrlStatic = dataverseSiteUrlStatic;
+    }
+
     // -------------------- LOGIC --------------------
 
     @Override
     public String exportDataset(DatasetVersion version) {
-        return version.getJsonLd();
+        return version.getJsonLd(dataverseSiteUrlStatic);
     }
 
     @Override

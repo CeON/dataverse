@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.qualifiers.ProductionBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +15,7 @@ import javax.ejb.Stateful;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +32,10 @@ public class ExportService {
     private static final Logger logger = Logger.getLogger(ExportService.class.getCanonicalName());
 
     private Map<ExporterConstant, Exporter> exporters = new HashMap<>();
+    private LocalDate currentDate = LocalDate.now();
 
     private SettingsServiceBean settingsService;
+    private SystemConfig systemConfig;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -41,8 +45,10 @@ public class ExportService {
     }
 
     @Inject
-    public ExportService(@ProductionBean SettingsServiceBean settingsService) {
+    public ExportService(@ProductionBean SettingsServiceBean settingsService,
+                         SystemConfig systemConfig) {
         this.settingsService = settingsService;
+        this.systemConfig = systemConfig;
     }
 
     @PostConstruct
@@ -55,13 +61,11 @@ public class ExportService {
 
         exporters.put(ExporterConstant.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.DUBLINCORE, new DublinCoreExporter(isEmailExcludedFromExport));
-
         exporters.put(ExporterConstant.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterConstant.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
 
-        exporters.put(ExporterConstant.SCHEMADOTORG, new SchemaDotOrgExporter());
+        exporters.put(ExporterConstant.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl()));
 
         exporters.put(ExporterConstant.OPENAIRE, new OpenAireExporter(isEmailExcludedFromExport));
 
@@ -77,8 +81,8 @@ public class ExportService {
      * <p>
      * {@code InputStream} if exporting was an success.
      */
-    public Either<DataverseError, InputStream> exportDatasetVersion(DatasetVersion datasetVersion, ExporterConstant exporter, Date exportTime) {
-        Either<DataverseError, String> exportedDataset = exportDatasetVersionAsString(datasetVersion, exporter, exportTime);
+    public Either<DataverseError, InputStream> exportDatasetVersion(DatasetVersion datasetVersion, ExporterConstant exporter) {
+        Either<DataverseError, String> exportedDataset = exportDatasetVersionAsString(datasetVersion, exporter);
 
         return exportedDataset.isLeft() ?
                 Either.left(exportedDataset.getLeft()) :
@@ -92,13 +96,12 @@ public class ExportService {
      * <p>
      * {@code String} if exporting was a success.
      */
-    public Either<DataverseError, String> exportDatasetVersionAsString(DatasetVersion datasetVersion, ExporterConstant exporter, Date exportTime) {
+    public Either<DataverseError, String> exportDatasetVersionAsString(DatasetVersion datasetVersion, ExporterConstant exporter) {
         Optional<Exporter> loadedExporter = getExporter(exporter);
 
         if (loadedExporter.isPresent()) {
 
             String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion))
-                    .onSuccess(dataset -> datasetVersion.getDataset().setLastExportTime(exportTime))
                     .onFailure(Throwable::printStackTrace)
                     .getOrElse(StringUtils.EMPTY);
 
@@ -126,5 +129,11 @@ public class ExportService {
 
     public Optional<Exporter> getExporter(ExporterConstant exporter) {
         return Optional.ofNullable(exporters.get(exporter));
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setCurrentDate(LocalDate currentDate) {
+        this.currentDate = currentDate;
     }
 }

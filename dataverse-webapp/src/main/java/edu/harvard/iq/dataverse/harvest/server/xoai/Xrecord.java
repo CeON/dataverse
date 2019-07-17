@@ -88,8 +88,7 @@ public class Xrecord extends Record {
                 if (dataset != null && formatName != null) {
                     Either<DataverseError, InputStream> exportedDataset =
                             exportService.exportDatasetVersion(dataset.getReleasedVersion(),
-                                                               ExporterConstant.valueOf(formatName),
-                                                               new Timestamp(new Date().getTime()));
+                                                               ExporterConstant.valueOf(formatName));
 
                     if (exportedDataset.isLeft()) {
                         throw new RuntimeException(exportedDataset.getLeft().getErrorMsg());

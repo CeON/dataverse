@@ -246,8 +246,7 @@ public class Datasets extends AbstractApiBean {
         }
 
         Either<DataverseError, InputStream> exportedDataset = exportService.exportDatasetVersion(dataset.getReleasedVersion(),
-                                                                                                 exporterConstant.get(),
-                                                                                                 new Timestamp(new Date().getTime()));
+                                                                                                 exporterConstant.get());
 
         if (exportedDataset.isLeft()) {
             return error(Response.Status.FORBIDDEN, exportedDataset.getLeft().getErrorMsg());

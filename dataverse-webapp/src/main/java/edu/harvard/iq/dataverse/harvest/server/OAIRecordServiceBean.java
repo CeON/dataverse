@@ -8,7 +8,6 @@ package edu.harvard.iq.dataverse.harvest.server;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -37,20 +36,13 @@ public class OAIRecordServiceBean implements java.io.Serializable {
 
     @EJB
     DatasetServiceBean datasetService;
-    @EJB
-    SettingsServiceBean settingsService;
-    //@EJB
-    //ExportService exportService;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     EntityManager em;
 
     private static final Logger logger = Logger.getLogger("edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean");
 
-    public void updateOaiRecords(String setName, List<Long> datasetIds, Date updateTime, boolean doExport) {
-        updateOaiRecords(setName, datasetIds, updateTime, doExport, logger);
-    }
-
+    @TransactionAttribute(REQUIRES_NEW)
     public void updateOaiRecords(String setName, List<Long> datasetIds, Date updateTime, boolean doExport, Logger setUpdateLogger) {
 
         // create Map of OaiRecords
@@ -91,77 +83,32 @@ public class OAIRecordServiceBean implements java.io.Serializable {
 
     }
 
-    // This method updates -  creates/refreshes/un-marks-as-deleted - one OAI 
-    // record at a time. It does so inside its own transaction, to ensure that 
-    // the changes take place immediately. (except the method is called from 
-    // right here, in this EJB - so the attribute does not do anything! (TODO:!)
-    @TransactionAttribute(REQUIRES_NEW)
+
+    /**
+     * This method updates -  creates/refreshes/un-marks-as-deleted - one OAI
+     * record at a time. It does so inside its own transaction, to ensure that
+     * the changes take place immediately.
+     */
     public void updateOaiRecordForDataset(Dataset dataset, String setName, Map<String, OAIRecord> recordMap, Logger setUpdateLogger) {
-        // TODO: review .isReleased() logic
-        // Answer: no, we can't trust isReleased()! It's a dvobject method that
-        // simply returns (publicationDate != null). And the publication date 
-        // stays in place even if all the released versions have been deaccessioned. 
-        boolean isReleased = dataset.getReleasedVersion() != null;
 
-        if (isReleased && dataset.getLastExportTime() != null) {
-            OAIRecord record = recordMap.get(dataset.getGlobalIdString());
-            if (record == null) {
-                setUpdateLogger.info("creating a new OAI Record for " + dataset.getGlobalIdString());
-                record = new OAIRecord(setName, dataset.getGlobalIdString(), new Date());
-                em.persist(record);
-            } else {
-                if (record.isRemoved()) {
-                    setUpdateLogger.info("\"un-deleting\" an existing OAI Record for " + dataset.getGlobalIdString());
-                    record.setRemoved(false);
-                    record.setLastUpdateTime(new Date());
-                } else if (dataset.getLastExportTime().after(record.getLastUpdateTime())) {
-                    setUpdateLogger.info("updating the timestamp on an existing record.");
-                    record.setLastUpdateTime(new Date());
-                }
-
-                recordMap.remove(record.getGlobalId());
-            }
-        }
-    }
-
-
-    // Updates any existing OAI records for this dataset
-    // Should be called whenever there's a change in the release status of the Dataset
-    // (i.e., when it's published or deaccessioned), so that the timestamps and 
-    // on the records could be freshened before the next reexport of the corresponding
-    // sets. 
-    // *Note* that the method assumes that a full metadata reexport has already 
-    // been attempted on the dataset. (Meaning that if getLastExportTime is null, 
-    // we'll just assume that the exports failed and the OAI records must be marked
-    // as "deleted". 
-    @TransactionAttribute(REQUIRES_NEW)
-    public void updateOaiRecordsForDataset(Dataset dataset) {
-        // create Map of OaiRecords
-
-        List<OAIRecord> oaiRecords = findOaiRecordsByGlobalId(dataset.getGlobalIdString());
-        if (oaiRecords != null) {
-
-            DatasetVersion releasedVersion = dataset.getReleasedVersion();
-
-            if (releasedVersion == null || dataset.getLastExportTime() == null) {
-                // Datast must have been deaccessioned.
-                markOaiRecordsAsRemoved(oaiRecords, new Date(), logger);
-                return;
-
-            }
-
-            for (OAIRecord record : oaiRecords) {
-                if (record.isRemoved()) {
-                    logger.fine("\"un-deleting\" an existing OAI Record for " + dataset.getGlobalIdString());
-                    record.setRemoved(false);
-                    record.setLastUpdateTime(new Date());
-                } else if (dataset.getLastExportTime().after(record.getLastUpdateTime())) {
-                    record.setLastUpdateTime(new Date());
-                }
-            }
+        OAIRecord record = recordMap.get(dataset.getGlobalIdString());
+        if (record == null) {
+            setUpdateLogger.info("creating a new OAI Record for " + dataset.getGlobalIdString());
+            record = new OAIRecord(setName, dataset.getGlobalIdString(), new Date());
+            em.persist(record);
         } else {
-            logger.fine("Null returned - no records found.");
+            if (record.isRemoved()) {
+                setUpdateLogger.info("\"un-deleting\" an existing OAI Record for " + dataset.getGlobalIdString());
+                record.setRemoved(false);
+                record.setLastUpdateTime(new Date());
+            } else if (dataset.getReleasedVersion().getReleaseTime().after(record.getLastUpdateTime())) {
+                setUpdateLogger.info("updating the timestamp on an existing record.");
+                record.setLastUpdateTime(new Date());
+            }
+
+            recordMap.remove(record.getGlobalId());
         }
+
     }
 
     public void markOaiRecordsAsRemoved(Collection<OAIRecord> records, Date updateTime, Logger setUpdateLogger) {

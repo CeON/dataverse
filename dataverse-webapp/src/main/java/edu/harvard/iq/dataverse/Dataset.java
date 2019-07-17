@@ -87,9 +87,6 @@ public class Dataset extends DvObjectContainer {
     @OrderBy("id")
     private List<DataFile> files = new ArrayList<>();
 
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date lastExportTime;
-
     @SerializedName("datasetVersion")
     @OneToMany(mappedBy = "dataset", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("versionNumber DESC, minorVersionNumber DESC")
@@ -206,14 +203,6 @@ public class Dataset extends DvObjectContainer {
 
     public boolean isLocked() {
         return !getLocks().isEmpty();
-    }
-
-    public Date getLastExportTime() {
-        return lastExportTime;
-    }
-
-    public void setLastExportTime(Date lastExportTime) {
-        this.lastExportTime = lastExportTime;
     }
 
     public Guestbook getGuestbook() {

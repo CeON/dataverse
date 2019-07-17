@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -19,11 +20,15 @@ public class OAI_OREExporter implements Exporter {
     public static final String NAME = "OAIORE";
 
     private boolean excludeEmailFromExport;
+    private String dataverseSiteUrl;
+    private LocalDate modificationDate;
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public OAI_OREExporter(boolean excludeEmailFromExport) {
+    public OAI_OREExporter(boolean excludeEmailFromExport, String dataverseSiteUrl, LocalDate modificationDate) {
         this.excludeEmailFromExport = excludeEmailFromExport;
+        this.dataverseSiteUrl = dataverseSiteUrl;
+        this.modificationDate = modificationDate;
     }
 
     // -------------------- LOGIC --------------------
@@ -31,7 +36,7 @@ public class OAI_OREExporter implements Exporter {
     @Override
     public String exportDataset(DatasetVersion version) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            new OREMap(version, excludeEmailFromExport)
+            new OREMap(version, excludeEmailFromExport, dataverseSiteUrl, modificationDate)
                     .writeOREMap(byteArrayOutputStream);
 
             return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());

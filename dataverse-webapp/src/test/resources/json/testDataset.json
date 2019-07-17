@@ -16,33 +16,6 @@
       "displayName": "Citation Metadata",
       "fields": [
         {
-          "typeName": "title",
-          "multiple": false,
-          "typeClass": "primitive",
-          "value": "Export test"
-        },
-        {
-          "typeName": "author",
-          "multiple": true,
-          "typeClass": "compound",
-          "value": [
-            {
-              "authorName": {
-                "typeName": "authorName",
-                "multiple": false,
-                "typeClass": "primitive",
-                "value": "Admin, Dataverse"
-              },
-              "authorAffiliation": {
-                "typeName": "authorAffiliation",
-                "multiple": false,
-                "typeClass": "primitive",
-                "value": "Dataverse.org"
-              }
-            }
-          ]
-        },
-        {
           "typeName": "datasetContact",
           "multiple": true,
           "typeClass": "compound",
@@ -85,6 +58,33 @@
           ]
         },
         {
+          "typeName": "author",
+          "multiple": true,
+          "typeClass": "compound",
+          "value": [
+            {
+              "authorName": {
+                "typeName": "authorName",
+                "multiple": false,
+                "typeClass": "primitive",
+                "value": "Admin, Dataverse"
+              },
+              "authorAffiliation": {
+                "typeName": "authorAffiliation",
+                "multiple": false,
+                "typeClass": "primitive",
+                "value": "Dataverse.org"
+              }
+            }
+          ]
+        },
+        {
+          "typeName": "depositor",
+          "multiple": false,
+          "typeClass": "primitive",
+          "value": "Admin, Dataverse"
+        },
+        {
           "typeName": "subject",
           "multiple": true,
           "typeClass": "controlledVocabulary",
@@ -93,10 +93,10 @@
           ]
         },
         {
-          "typeName": "depositor",
+          "typeName": "title",
           "multiple": false,
           "typeClass": "primitive",
-          "value": "Admin, Dataverse"
+          "value": "Export test"
         },
         {
           "typeName": "dateOfDeposit",
