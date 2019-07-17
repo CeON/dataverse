@@ -235,6 +235,11 @@
                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.terms']}" />
                                             </p:commandLink>
                                         </li>
+                                        <li>
+                                            <h:outputLink value="/selectGuestbook.xhtml?datasetId=#{DatasetPage.dataset.id}">
+                                                <h:outputText value="Select Guestbook" />
+                                            </h:outputLink>
+                                        </li>
                                         <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DatasetPage.dataset)}">
                                             <li class="#{settingsWrapper.publicInstall ? '' : 'dropdown-submenu pull-left'}">
                                                 <ui:fragment rendered="#{!settingsWrapper.publicInstall}">
@@ -699,6 +704,7 @@
                                     <ui:param name="editMode" value="#{!empty DatasetPage.editMode ? 'LICENSE': ''}"/>
                                     <ui:param name="termsOfUseAndAccess" value="#{DatasetPage.workingVersion.termsOfUseAndAccess}"/>
                                     <ui:param name="datasetPage" value="true"/>
+                                    <ui:param name="guestbook" value="#{DatasetPage.selectedGuestbook}" />
                                 </ui:include>
                             </p:tab>
                             <!-- 4.2.1: see above -->

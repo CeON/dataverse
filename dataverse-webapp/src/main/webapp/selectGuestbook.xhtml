@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:dv="http://dataverse.org/facelets"
+>
+
+<!--@elvariable id="dataset" type="edu.harvard.iq.dataverse.Dataset"-->
+
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition template="/dataverse_template.xhtml">
+        <ui:param name="pageTitle" value="#{selectGuestbookPage.workingVersion.title} - #{selectGuestbookPage.dataset.owner.name}"/>
+<!--        <ui:param name="dataverse" value="#{DatasetPage.dataset.owner}"/>-->
+        <ui:param name="dataset" value="#{selectGuestbookPage.dataset}"/>
+        <ui:param name="showMessagePanel" value="#{true}"/>
+        <ui:define name="body">
+            <o:importFunctions type="edu.harvard.iq.dataverse.util.MarkupChecker" />
+            <f:metadata>
+                <o:importConstants type="edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType" var="restrictTypeEnum"/>
+                <o:importConstants type="edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType" var="termsOfUseTypeEnum"/>
+                <f:viewParam name="datasetId" value="#{selectGuestbookPage.datasetId}"/>
+                <f:viewParam name="persistentId" value="#{selectGuestbookPage.persistentId}"/>
+                <f:viewAction action="#{selectGuestbookPage.init}" rendered="true"/>
+                <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(selectGuestbookPage.dataset)}"/>
+            </f:metadata>
+            <h:form id="selectGuestbookForm">
+                <!-- Edit editMode -->
+                <div class="button-block form-top">
+                    <p:commandButton id="saveTop" value="#{bundle.saveChanges}"
+                                     onclick="checkNewlyRestricted();PF('blockSelectGuestbookForm').show();" />
+                    <p:commandButton id="cancelTop" value="#{bundle.cancel}"
+                                     action="#{selectGuestbookPage.cancel}" />
+                </div>
+                <!-- END Header / Button Panel -->
+
+                <!-- Tabs -->
+                <div id="contentTabs">
+
+                    <ui:include src="dataset-license-terms.xhtml">
+                        <ui:param name="editMode" value="LICENSE"/>
+                        <ui:param name="termsOfUseAndAccess" value="#{selectGuestbookPage.workingVersion.termsOfUseAndAccess}"/>
+                        <ui:param name="datasetPage" value="true"/>
+                        <ui:param name="managePage" value="false" />
+                        <ui:param name="guestbook" value="#{selectGuestbookPage.selectedGuestbook}" />
+                    </ui:include>
+                </div>
+                <!-- END View/Tabs infoMode -->
+
+                <!-- Bottom action buttons -->
+                <div class="button-block">
+                    <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}" onclick="checkNewlyRestricted();PF('lockSelectGuestbookForm').show();" />
+                    <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}" action="#{selectGuestbookPage.cancel}" />
+                    <p:commandButton value="Direct" id="datasetSave"
+                                     style="display:none"
+                                     update=":selectGuestbookForm,:messagePanel"
+                                     oncomplete="javascript:bind_bsui_components();$(document).scrollTop(0);"
+                                     action="#{selectGuestbookPage.save}" />
+                </div>
+
+                <p:blockUI block="selectGuestbookForm" widgetVar="lockSelectGuestbookForm"/>
+            </h:form>
+            <script type="text/javascript">
+                function checkNewlyRestricted() {
+                    $('button[id$="datasetSave"]').trigger('click');
+                }
+            </script>
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>
+
