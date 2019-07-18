@@ -17,9 +17,6 @@ public class SelectGuestbookPage implements java.io.Serializable {
     @Inject
     private PermissionsWrapper permissionsWrapper;
 
-    @EJB
-    private EjbDataverseEngine commandEngine;
-
     private String persistentId;
     private Long datasetId;
 
