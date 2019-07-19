@@ -5,6 +5,9 @@
     xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
     xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
+
+    <!--@elvariable id="roleAssignee" type="edu.harvard.iq.dataverse.authorization.RoleAssignee"-->
+
     <p:dialog id="userGroupDialog" styleClass="largePopUp" header="#{bundle['dataverse.permissions.usersOrGroups.assignDialog.header']}" widgetVar="userGroupsForm" modal="true">
         <p:fragment id="assignRoleMessages">
             <div class="container messagePanel">
@@ -76,11 +79,9 @@
                                         </div>
                                         <p class="help-block">
                                             <span class="glyphicon glyphicon-warning-sign text-danger"/>
-                                            <h:outputFormat styleClass="text-danger" value=" #{bundle['dataverse.permissions.usersOrGroups.assignDialog.role.warning']}">
-                                                <f:param value="#{managePermissionsPage.assignedRole.name}"/>
-                                                <f:param value="#{managePermissionsPage.assignedRoleObjectTypes}"/>
-                                                <f:param value="#{managePermissionsPage.definitionLevelString}"/>
-                                            </h:outputFormat>
+                                            <h:outputFormat styleClass="text-danger"
+                                                            escape="false"
+                                                            value=" #{bundle['dataverse.permissions.usersOrGroups.assignDialog.role.warning']}" />
                                         </p>
                                     </div>
                                 </div>

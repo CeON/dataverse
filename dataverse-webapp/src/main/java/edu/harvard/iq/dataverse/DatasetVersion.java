@@ -168,9 +168,6 @@ public class DatasetVersion implements Serializable {
     private String deaccessionLink;
 
     @Transient
-    private String contributorNames;
-
-    @Transient
     private String jsonLd;
 
     @OneToMany(mappedBy = "datasetVersion", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
@@ -359,40 +356,9 @@ public class DatasetVersion implements Serializable {
         return ret;
     }
 
-    public String getContributorNames() {
-        return contributorNames;
-    }
-
-    public void setContributorNames(String contributorNames) {
-        this.contributorNames = contributorNames;
-    }
-
 
     public String getVersionNote() {
         return versionNote;
-    }
-
-    public DatasetVersionDifference getDefaultVersionDifference() {
-        // if version is deaccessioned ignore it for differences purposes
-        int index = 0;
-        int size = this.getDataset().getVersions().size();
-        if (this.isDeaccessioned()) {
-            return null;
-        }
-        for (DatasetVersion dsv : this.getDataset().getVersions()) {
-            if (this.equals(dsv)) {
-                if ((index + 1) <= (size - 1)) {
-                    for (DatasetVersion dvTest : this.getDataset().getVersions().subList(index + 1, size)) {
-                        if (!dvTest.isDeaccessioned()) {
-                            DatasetVersionDifference dvd = new DatasetVersionDifference(this, dvTest);
-                            return dvd;
-                        }
-                    }
-                }
-            }
-            index++;
-        }
-        return null;
     }
 
 
@@ -1620,7 +1586,7 @@ public class DatasetVersion implements Serializable {
      * We call the export format "Schema.org JSON-LD" and extensive Javadoc can
      * be found in {@link SchemaDotOrgExporter}.
      */
-    public String getJsonLd() {
+    public String getJsonLd(String dataverseSiteUrl) {
         // We show published datasets only for "datePublished" field below.
         if (!this.isPublished()) {
             return "";
@@ -1810,7 +1776,7 @@ public class DatasetVersion implements Serializable {
         job.add("includedInDataCatalog", Json.createObjectBuilder()
                 .add("@type", "DataCatalog")
                 .add("name", this.getRootDataverseNameforCitation())
-                .add("url", SystemConfig.getDataverseSiteUrlStatic())
+                .add("url", dataverseSiteUrl)
         );
 
         String installationBrandName = BrandingUtil.getInstallationBrandName(getRootDataverseNameforCitation());
@@ -1852,7 +1818,6 @@ public class DatasetVersion implements Serializable {
         List<FileMetadata> fileMetadatasSorted = getFileMetadatasSorted();
         if (fileMetadatasSorted != null && !fileMetadatasSorted.isEmpty()) {
             JsonArrayBuilder fileArray = Json.createArrayBuilder();
-            String dataverseSiteUrl = SystemConfig.getDataverseSiteUrlStatic();
             for (FileMetadata fileMetadata : fileMetadatasSorted) {
                 JsonObjectBuilder fileObject = NullSafeJsonBuilder.jsonObjectBuilder();
                 String filePidUrlAsString = null;

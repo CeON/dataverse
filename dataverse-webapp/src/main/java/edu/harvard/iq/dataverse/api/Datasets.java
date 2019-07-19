@@ -74,8 +74,10 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetTargetURLComman
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDvObjectPIDMetadataCommand;
+import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
@@ -87,6 +89,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
+import io.vavr.control.Either;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -122,6 +125,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
@@ -188,6 +192,9 @@ public class Datasets extends AbstractApiBean {
     @Inject
     private TermsOfUseFormMapper termsOfUseFormMapper;
 
+    @Inject
+    private ExportService exportService;
+
     /**
      * Used to consolidate the way we parse and handle dataset versions.
      *
@@ -211,7 +218,9 @@ public class Datasets extends AbstractApiBean {
             final DatasetVersion latest = execCommand(new GetLatestAccessibleDatasetVersionCommand(req, retrieved));
             final JsonObjectBuilder jsonbuilder = json(retrieved);
 
-            return allowCors(ok(jsonbuilder.add("latestVersion", (latest != null) ? json(latest) : null)));
+            return allowCors(ok(jsonbuilder.add("latestVersion", (latest != null) ?
+                    json(latest, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport))
+                    : null)));
         });
     }
 
@@ -226,25 +235,29 @@ public class Datasets extends AbstractApiBean {
     @Produces({"application/xml", "application/json"})
     public Response exportDataset(@QueryParam("persistentId") String persistentId, @QueryParam("exporter") String exporter) {
 
-        try {
-            Dataset dataset = datasetService.findByGlobalId(persistentId);
-            if (dataset == null) {
-                return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
-            }
+        Optional<ExporterType> exporterConstant = ExporterType.fromString(exporter);
 
-            ExportService instance = ExportService.getInstance(settingsSvc);
-
-            InputStream is = instance.getExport(dataset, exporter);
-
-            String mediaType = instance.getMediaType(exporter);
-
-            return allowCors(Response.ok()
-                                     .entity(is)
-                                     .type(mediaType).
-                            build());
-        } catch (Exception wr) {
-            return error(Response.Status.FORBIDDEN, "Export Failed");
+        if (!exporterConstant.isPresent()) {
+            return error(Response.Status.BAD_REQUEST, exporter + " is not a valid exporter");
         }
+
+        Dataset dataset = datasetService.findByGlobalId(persistentId);
+        if (dataset == null) {
+            return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
+        }
+
+        Either<DataverseError, String> exportedDataset = exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
+                                                                                                    exporterConstant.get());
+
+        if (exportedDataset.isLeft()) {
+            return error(Response.Status.FORBIDDEN, exportedDataset.getLeft().getErrorMsg());
+        }
+
+        String mediaType = exportService.getMediaType(exporterConstant.get());
+        return allowCors(Response.ok()
+                                 .entity(exportedDataset.get())
+                                 .type(mediaType).
+                        build());
     }
 
     @DELETE
@@ -408,10 +421,10 @@ public class Datasets extends AbstractApiBean {
     @Path("{id}/versions")
     public Response listVersions(@PathParam("id") String id) {
         return allowCors(response(req ->
-                                          ok(execCommand(new ListVersionsCommand(req, findDatasetOrDie(id)))
-                                                     .stream()
-                                                     .map(d -> json(d))
-                                                     .collect(toJsonArray()))));
+                      ok(execCommand(new ListVersionsCommand(req, findDatasetOrDie(id)))
+                         .stream()
+                         .map(d -> json(d, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)))
+                         .collect(toJsonArray()))));
     }
 
     @GET
@@ -420,7 +433,7 @@ public class Datasets extends AbstractApiBean {
         return allowCors(response(req -> {
             DatasetVersion dsv = getDatasetVersionOrDie(req, versionId, findDatasetOrDie(datasetId));
             return (dsv == null || dsv.getId() == null) ? notFound("Dataset version not found")
-                    : ok(json(dsv));
+                    : ok(json(dsv, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)));
         }));
     }
 
@@ -437,7 +450,8 @@ public class Datasets extends AbstractApiBean {
         return allowCors(response(req -> ok(
                 jsonByBlocks(
                         getDatasetVersionOrDie(req, versionId, findDatasetOrDie(datasetId))
-                                .getDatasetFields()))));
+                                .getDatasetFields(),
+                        settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)))));
     }
 
     @GET
@@ -452,7 +466,9 @@ public class Datasets extends AbstractApiBean {
             Map<MetadataBlock, List<DatasetField>> fieldsByBlock = DatasetField.groupByBlock(dsv.getDatasetFields());
             for (Map.Entry<MetadataBlock, List<DatasetField>> p : fieldsByBlock.entrySet()) {
                 if (p.getKey().getName().equals(blockName)) {
-                    return ok(json(p.getKey(), p.getValue()));
+                    return ok(json(p.getKey(),
+                                p.getValue(),
+                                settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)));
                 }
             }
             return notFound("metadata block named " + blockName + " not found");
@@ -556,7 +572,7 @@ public class Datasets extends AbstractApiBean {
 //            DatasetVersion managedVersion = execCommand( updateDraft
 //                                                             ? new UpdateDatasetVersionCommand(req, incomingVersion)
 //                                                             : new CreateDatasetVersionCommand(req, ds, incomingVersion));
-            return ok(json(managedVersion));
+            return ok(json(managedVersion, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)));
 
         } catch (JsonParseException ex) {
             logger.log(Level.SEVERE, "Semantic error parsing dataset version Json: " + ex.getMessage(), ex);
@@ -697,7 +713,7 @@ public class Datasets extends AbstractApiBean {
             DatasetVersion managedVersion = updateDraft
                     ? execCommand(new UpdateDatasetVersionCommand(ds, req)).getEditVersion()
                     : execCommand(new CreateDatasetVersionCommand(req, ds, dsv));
-            return ok(json(managedVersion));
+            return ok(json(managedVersion, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)));
 
         } catch (JsonParseException ex) {
             logger.log(Level.SEVERE, "Semantic error parsing dataset update Json: " + ex.getMessage(), ex);
@@ -838,7 +854,7 @@ public class Datasets extends AbstractApiBean {
                 managedVersion = execCommand(new CreateDatasetVersionCommand(req, ds, dsv));
             }
 
-            return ok(json(managedVersion));
+            return ok(json(managedVersion, settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)));
 
         } catch (JsonParseException ex) {
             logger.log(Level.SEVERE, "Semantic error parsing dataset update Json: " + ex.getMessage(), ex);
@@ -1482,13 +1498,9 @@ public class Datasets extends AbstractApiBean {
         DataverseRequest dvRequest2 = createDataverseRequest(authUser);
         AddReplaceFileHelper addFileHelper = new AddReplaceFileHelper(dvRequest2,
                                                                       ingestService,
-                                                                      datasetService,
                                                                       fileService,
                                                                       permissionSvc,
-                                                                      commandEngine,
-                                                                      settingsService,
-                                                                      termsOfUseFactory,
-                                                                      termsOfUseFormMapper);
+                                                                      commandEngine);
 
 
         //-------------------

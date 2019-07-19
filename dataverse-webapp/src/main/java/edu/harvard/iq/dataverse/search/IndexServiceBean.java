@@ -109,6 +109,8 @@ public class IndexServiceBean {
     DataverseLinkingServiceBean dvLinkingService;
     @EJB
     SettingsServiceBean settingsService;
+    @EJB
+    private SolrFieldFactory solrFieldFactory;
 
     public static final String solrDocIdentifierDataverse = "dataverse_";
     public static final String solrDocIdentifierFile = "datafile_";
@@ -746,18 +748,22 @@ public class IndexServiceBean {
             for (DatasetField dsf : datasetVersion.getFlatDatasetFields()) {
 
                 DatasetFieldType dsfType = dsf.getDatasetFieldType();
-                String solrFieldSearchable = dsfType.getSolrField().getNameSearchable();
-                String solrFieldFacetable = dsfType.getSolrField().getNameFacetable();
+                SolrField dsfSolrField = solrFieldFactory.getSolrField(dsfType.getName(),
+                                                                       dsfType.getFieldType(),
+                                                                       dsfType.isThisOrParentAllowsMultipleValues(),
+                                                                       dsfType.isFacetable());
+                String solrFieldSearchable = dsfSolrField.getNameSearchable();
+                String solrFieldFacetable = dsfSolrField.getNameFacetable();
 
                 if (dsf.getValues() != null && !dsf.getValues().isEmpty() && dsf.getValues().get(0) != null && solrFieldSearchable != null) {
 
                     logger.fine("indexing " + dsf.getDatasetFieldType().getName() + ":" + dsf.getValues() + " into " + solrFieldSearchable + " and maybe " + solrFieldFacetable);
                     // if (dsfType.getSolrField().getSolrType().equals(SolrField.SolrType.INTEGER))
                     // {
-                    if (dsfType.getSolrField().getSolrType().equals(SolrField.SolrType.EMAIL)) {
+                    if (dsfSolrField.getSolrType().equals(SolrField.SolrType.EMAIL)) {
                         // no-op. we want to keep email address out of Solr per
                         // https://github.com/IQSS/dataverse/issues/759
-                    } else if (dsfType.getSolrField().getSolrType().equals(SolrField.SolrType.DATE)) {
+                    } else if (dsfSolrField.getSolrType().equals(SolrField.SolrType.DATE)) {
                         String dateAsString = dsf.getValues_nondisplay().get(0);
                         logger.fine("date as string: " + dateAsString);
                         if (dateAsString != null && !dateAsString.isEmpty()) {
@@ -775,7 +781,7 @@ public class IndexServiceBean {
                                 // solrInputDocument.addField(solrFieldSearchable,
                                 // Integer.parseInt(datasetFieldFlaggedAsDate));
                                 solrInputDocument.addField(solrFieldSearchable, datasetFieldFlaggedAsDate);
-                                if (dsfType.getSolrField().isFacetable()) {
+                                if (dsfSolrField.isFacetable()) {
                                     // solrInputDocument.addField(solrFieldFacetable,
                                     // Integer.parseInt(datasetFieldFlaggedAsDate));
                                     solrInputDocument.addField(solrFieldFacetable, datasetFieldFlaggedAsDate);
@@ -815,7 +821,7 @@ public class IndexServiceBean {
                                     continue;
                                 }
                                 solrInputDocument.addField(solrFieldSearchable, controlledVocabularyValue.getStrValue());
-                                if (dsfType.getSolrField().isFacetable()) {
+                                if (dsfSolrField.isFacetable()) {
                                     solrInputDocument.addField(solrFieldFacetable, controlledVocabularyValue.getStrValue());
                                 }
                             }
@@ -823,13 +829,13 @@ public class IndexServiceBean {
                             // strip HTML
                             List<String> htmlFreeText = StringUtil.htmlArray2textArray(dsf.getValuesWithoutNaValues());
                             solrInputDocument.addField(solrFieldSearchable, htmlFreeText);
-                            if (dsfType.getSolrField().isFacetable()) {
+                            if (dsfSolrField.isFacetable()) {
                                 solrInputDocument.addField(solrFieldFacetable, htmlFreeText);
                             }
                         } else {
                             // do not strip HTML
                             solrInputDocument.addField(solrFieldSearchable, dsf.getValuesWithoutNaValues());
-                            if (dsfType.getSolrField().isFacetable()) {
+                            if (dsfSolrField.isFacetable()) {
                                 if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.topicClassValue)) {
                                     String topicClassificationTerm = getTopicClassificationTermOrTermAndVocabulary(dsf);
                                     if (topicClassificationTerm != null) {
@@ -916,11 +922,11 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.TYPE, "files");
                     datafileSolrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dataset.getDataverseContext().getIndexableCategoryName());
                     datafileSolrInputDocument.addField(SearchFields.ACCESS,
-                            fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED ? SearchConstants.RESTRICTED : SearchConstants.PUBLIC);
+                                                       fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED ? SearchConstants.RESTRICTED : SearchConstants.PUBLIC);
 
                     /* Full-text indexing using Apache Tika */
                     if (doFullTextIndexing) {
-                        if (!dataset.isHarvested() && fileMetadata.getTermsOfUse().getTermsOfUseType() != TermsOfUseType.RESTRICTED 
+                        if (!dataset.isHarvested() && fileMetadata.getTermsOfUse().getTermsOfUseType() != TermsOfUseType.RESTRICTED
                                 && !fileMetadata.getDataFile().isFilePackage()) {
                             StorageIO<DataFile> accessObject = null;
                             InputStream instream = null;
