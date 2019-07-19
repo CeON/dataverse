@@ -41,16 +41,82 @@
                 <!-- END Header / Button Panel -->
 
                 <!-- Tabs -->
-                <div id="contentTabs">
-
-                    <ui:include src="dataset-license-terms.xhtml">
-                        <ui:param name="editMode" value="LICENSE"/>
-                        <ui:param name="termsOfUseAndAccess" value="#{selectGuestbookPage.workingVersion.termsOfUseAndAccess}"/>
-                        <ui:param name="datasetPage" value="true"/>
-                        <ui:param name="managePage" value="false" />
-                        <ui:param name="currentDataset" value="#{selectGuestbookPage.dataset}" />
-                    </ui:include>
+                <div class="text-right margin-bottom"
+                     jsf:rendered="#{dataverseSession.user.authenticated and !widgetWrapper.widgetView
+                        and permissionsWrapper.canIssueUpdateDatasetCommand(dataset)}">
                 </div>
+                <div class="panel-group">
+                    <div class="panel panel-default" jsf:rendered="#{!settingsWrapper.rsyncOnly}">
+                        <div data-toggle="collapse" data-target="#panelCollapseGuestbook" class="panel-heading text-info">
+                            #{bundle['file.dataFilesTab.terms.list.guestbook']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                        </div>
+                        <div id="panelCollapseGuestbook" class="collapse in">
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="metadata_Guestbook" class="col-sm-3 control-label">
+                                        #{bundle['file.dataFilesTab.terms.list.guestbook']}
+                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['file.dataFilesTab.terms.list.guestbook.title']}"></span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <!-- Preview Guestbook from selectGuestbook page -->
+                                        <ui:fragment rendered="true">
+                                            <p class="help-block">#{bundle['file.dataFilesTab.terms.list.guestbook.select.tip']}</p>
+
+                                            <ui:fragment rendered="#{empty selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}">
+                                                <p class="help-block">
+                                                    <h:outputFormat value="#{bundle['file.dataFilesTab.terms.list.guestbook.noAvailable.tip']}">
+                                                        <f:param value="#{selectGuestbookPage.dataset.owner.name}"/>
+                                                    </h:outputFormat>
+                                                </p>
+                                            </ui:fragment>
+
+                                            <ui:fragment rendered="#{!empty selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}">
+                                                <p:commandButton value="#{bundle['file.dataFilesTab.terms.list.guestbook.clearBtn']}"
+                                                                 rendered="#{!empty selectGuestbookPage.dataset.guestbook}"
+                                                                 update="guestbookTable" process="@this" actionListener="#{selectGuestbookPage.reset}"/>
+                                                <p:dataTable id="guestbookTable" styleClass="headerless-table margin-top"
+                                                             value="#{selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}"
+                                                             var="guestbook"
+                                                             widgetVar="guestbookTable"
+                                                             rendered="#{!empty selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}"
+                                                             rowIndexVar="rowNum" selection="#{selectGuestbookPage.dataset.guestbook}"
+                                                             rowKey="#{guestbook}">
+                                                    <p:column  selectionMode="single" class="col-select-width text-center" rendered="true"  />
+                                                    <p:column>
+                                                        <p class="form-control-static pull-left">
+                                                            <h:outputText value="#{guestbook.name}" />
+                                                        </p>
+                                                        <p:commandLink type="button" styleClass="btn btn-default pull-right"
+                                                                       value="#{bundle['file.dataFilesTab.terms.list.guestbook.viewBtn']}"
+                                                                       action="#{selectGuestbookPage.viewSelectedGuestbook(guestbook)}"
+                                                                       update=":selectGuestbookForm"
+                                                                       oncomplete="PF('viewGuestbook').show();bind_bsui_components();"/>
+                                                    </p:column>
+                                                </p:dataTable>
+                                            </ui:fragment>
+                                        </ui:fragment>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- / TERMS -->
+
+                <!-- Preview Guestbook -->
+                <p:dialog id="previewGuestbook" styleClass="largePopUp"
+                          header="#{bundle['dataset.manageGuestbooks.tab.action.btn.view.dialog.header']}"
+                          widgetVar="viewGuestbook" modal="true">
+                    <ui:include src="preview-guestbook.xhtml">
+                        <ui:param name="guestbook" value="#{selectGuestbookPage.selectedGuestbook}" />
+                    </ui:include>
+                    <div class="button-block">
+                        <button type="button" onclick="PF('viewGuestbook').hide()" class="btn btn-default" value="#{bundle.close}">
+                            #{bundle.close}
+                        </button>
+                    </div>
+                </p:dialog>
                 <!-- END View/Tabs infoMode -->
 
                 <!-- Bottom action buttons -->

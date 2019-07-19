@@ -692,11 +692,9 @@
                             <p:tab id="termsTab" title="#{bundle['file.dataFilesTab.terms.list.guestbook']}"
                                    rendered="#{!DatasetPage.workingVersion.deaccessioned and (empty DatasetPage.editMode or DatasetPage.editMode == 'LICENSE')}">
                                 <ui:include src="dataset-license-terms.xhtml">
-                                    <ui:param name="editMode" value=""/>
+                                    <ui:param name="editMode" value="#{!empty DatasetPage.editMode ? 'LICENSE': ''}"/>
                                     <ui:param name="termsOfUseAndAccess" value="#{DatasetPage.workingVersion.termsOfUseAndAccess}"/>
                                     <ui:param name="datasetPage" value="true" />
-                                    <ui:param name="managePage" value="false" />
-                                    <ui:param name="currentDataset" value="#{DatasetPage.dataset}"/>
                                 </ui:include>
                             </p:tab>
                             <!-- 4.2.1: see above -->
