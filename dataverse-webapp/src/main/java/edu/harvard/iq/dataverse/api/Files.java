@@ -21,6 +21,8 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteMapLayerMetadataCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UningestFileCommand;
+import edu.harvard.iq.dataverse.export.ExportException;
+import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
@@ -175,13 +177,9 @@ public class Files extends AbstractApiBean {
         DataverseRequest dvRequest2 = createDataverseRequest(authUser);
         AddReplaceFileHelper addFileHelper = new AddReplaceFileHelper(dvRequest2,
                                                                       this.ingestService,
-                                                                      this.datasetService,
                                                                       this.fileService,
                                                                       this.permissionSvc,
-                                                                      this.commandEngine,
-                                                                      this.settingsService,
-                                                                      this.termsOfUseFactory,
-                                                                      this.termsOfUseFormMapper);
+                                                                      this.commandEngine);
 
         //-------------------
         // (5) Run "runReplaceFileByDatasetId"
@@ -291,6 +289,9 @@ public class Files extends AbstractApiBean {
             DataverseRequest req = createDataverseRequest(findUserOrDie());
             execCommand(new UningestFileCommand(req, dataFile));
             Long dataFileId = dataFile.getId();
+            dataFile = fileService.find(dataFileId);
+            Dataset theDataset = dataFile.getOwner();
+            exportMetadata(settingsService, theDataset);
             return ok("Datafile " + dataFileId + " uningested.");
         } catch (WrappedResponse wr) {
             return wr.getResponse();
@@ -373,6 +374,25 @@ public class Files extends AbstractApiBean {
         }
         return ok("Datafile " + id + " queued for ingest");
 
+    }
+
+    /**
+     * Attempting to run metadata export, for all the formats for which we have
+     * metadata Exporters.
+     */
+    private void exportMetadata(SettingsServiceBean settingsServiceBean, Dataset theDataset) {
+
+        try {
+            ExportService instance = ExportService.getInstance(settingsServiceBean);
+            instance.exportAllFormats(theDataset);
+
+        } catch (ExportException ex) {
+            // Something went wrong!
+            // Just like with indexing, a failure to export is not a fatal
+            // condition. We'll just log the error as a warning and keep
+            // going:
+            logger.log(Level.WARNING, "Dataset publication finalization: exception while exporting:{0}", ex.getMessage());
+        }
     }
 
 }

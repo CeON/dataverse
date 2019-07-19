@@ -1497,13 +1497,9 @@ public class Datasets extends AbstractApiBean {
         DataverseRequest dvRequest2 = createDataverseRequest(authUser);
         AddReplaceFileHelper addFileHelper = new AddReplaceFileHelper(dvRequest2,
                                                                       ingestService,
-                                                                      datasetService,
                                                                       fileService,
                                                                       permissionSvc,
-                                                                      commandEngine,
-                                                                      settingsService,
-                                                                      termsOfUseFactory,
-                                                                      termsOfUseFormMapper);
+                                                                      commandEngine);
 
 
         //-------------------
