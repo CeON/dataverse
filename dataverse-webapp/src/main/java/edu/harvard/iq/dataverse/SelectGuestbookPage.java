@@ -93,6 +93,9 @@ public class SelectGuestbookPage implements java.io.Serializable {
         workingVersion = dataset.getEditVersion();
         clone = workingVersion.cloneDatasetVersion();
 
+        String b1 = BundleUtil.getStringFromBundle("dataset.message.editTerms.label");
+        String b2 = BundleUtil.getStringFromBundle("dataset.message.editTerms.message");
+
         JH.addMessage(FacesMessage.SEVERITY_INFO,
                 BundleUtil.getStringFromBundle("dataset.message.editTerms.label"),
                 BundleUtil.getStringFromBundle("dataset.message.editTerms.message"));

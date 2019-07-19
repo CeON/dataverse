@@ -230,15 +230,15 @@
                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.metadata']}" />
                                             </h:outputLink>
                                         </li>
-                                        <li>
-                                            <p:commandLink id="editTerms" actionListener="#{DatasetPage.edit('LICENSE')}" update="@form,:datasetForm,:messagePanel" oncomplete="javascript:bind_bsui_components();">
-                                                <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
-                                                <h:outputText value="#{bundle['dataset.editBtn.itemLabel.terms']}" />
-                                            </p:commandLink>
-                                        </li>
+<!--                                        <li>-->
+<!--                                            <p:commandLink id="editTerms" actionListener="#{DatasetPage.edit('LICENSE')}" update="@form,:datasetForm,:messagePanel" oncomplete="javascript:bind_bsui_components();">-->
+<!--                                                <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />-->
+<!--                                                <h:outputText value="#{bundle['dataset.editBtn.itemLabel.terms']}" />-->
+<!--                                            </p:commandLink>-->
+<!--                                        </li>-->
                                         <li>
                                             <h:outputLink value="/selectGuestbook.xhtml?datasetId=#{DatasetPage.dataset.id}">
-                                                <h:outputText value="Select Guestbook" />
+                                                <h:outputText value="#{bundle['dataset.manageTemplates.tab.action.btn.edit.terms']}" />
                                             </h:outputLink>
                                         </li>
                                         <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DatasetPage.dataset)}">
