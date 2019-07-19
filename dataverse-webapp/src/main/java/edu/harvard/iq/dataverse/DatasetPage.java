@@ -37,7 +37,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.SubmitDatasetForReviewComman
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.export.ExporterConstant;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
@@ -2822,7 +2822,7 @@ public class DatasetPage implements java.io.Serializable {
     public List<String[]> getExporters() {
         List<String[]> retList = new ArrayList<>();
 
-        Map<ExporterConstant, Exporter> exporters = exportService.getAllExporters();
+        Map<ExporterType, Exporter> exporters = exportService.getAllExporters();
 
         for (Exporter exporter : exporters.values()) {
 
@@ -3829,7 +3829,7 @@ public class DatasetPage implements java.io.Serializable {
         if (isThisLatestReleasedVersion()) {
             Either<DataverseError, String> exportedDataset =
                     exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
-                                                               ExporterConstant.SCHEMADOTORG);
+                                                               ExporterType.SCHEMADOTORG);
 
             if (exportedDataset.isLeft()) {
                 logger.fine(exportedDataset.getLeft().getErrorMsg());

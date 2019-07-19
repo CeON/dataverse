@@ -13,10 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
 import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +28,7 @@ public class ExportService {
 
     private static final Logger logger = Logger.getLogger(ExportService.class.getCanonicalName());
 
-    private Map<ExporterConstant, Exporter> exporters = new HashMap<>();
+    private Map<ExporterType, Exporter> exporters = new HashMap<>();
     private LocalDate currentDate = LocalDate.now();
 
     private SettingsServiceBean settingsService;
@@ -55,21 +52,21 @@ public class ExportService {
     void loadAllExporters() {
         boolean isEmailExcludedFromExport = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport);
 
-        exporters.put(ExporterConstant.DDI, new DDIExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.DATACITE, new DataCiteExporter());
+        exporters.put(ExporterType.DATACITE, new DataCiteExporter());
 
-        exporters.put(ExporterConstant.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
+        exporters.put(ExporterType.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
 
-        exporters.put(ExporterConstant.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl()));
+        exporters.put(ExporterType.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl()));
 
-        exporters.put(ExporterConstant.OPENAIRE, new OpenAireExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.OPENAIRE, new OpenAireExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterConstant.JSON, new JSONExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.JSON, new JSONExporter(isEmailExcludedFromExport));
     }
 
     // -------------------- LOGIC --------------------
@@ -79,24 +76,9 @@ public class ExportService {
      *
      * @return {@code Error} if exporting failed or exporter was not found in the list of exporters.
      * <p>
-     * {@code InputStream} if exporting was an success.
-     */
-    public Either<DataverseError, InputStream> exportDatasetVersion(DatasetVersion datasetVersion, ExporterConstant exporter) {
-        Either<DataverseError, String> exportedDataset = exportDatasetVersionAsString(datasetVersion, exporter);
-
-        return exportedDataset.isLeft() ?
-                Either.left(exportedDataset.getLeft()) :
-                Either.right(new ByteArrayInputStream(exportedDataset.get().getBytes()));
-    }
-
-    /**
-     * Exports datasetVersion with given exporter.
-     *
-     * @return {@code Error} if exporting failed or exporter was not found in the list of exporters.
-     * <p>
      * {@code String} if exporting was a success.
      */
-    public Either<DataverseError, String> exportDatasetVersionAsString(DatasetVersion datasetVersion, ExporterConstant exporter) {
+    public Either<DataverseError, String> exportDatasetVersionAsString(DatasetVersion datasetVersion, ExporterType exporter) {
         Optional<Exporter> loadedExporter = getExporter(exporter);
 
         if (loadedExporter.isPresent()) {
@@ -113,21 +95,21 @@ public class ExportService {
         return Either.left(new DataverseError(exporter + " was not found among exporter list"));
     }
 
-    public Map<ExporterConstant, Exporter> getAllExporters() {
+    public Map<ExporterType, Exporter> getAllExporters() {
         return exporters;
     }
 
     /**
      * @return MediaType of given exporter or {@link Exporter#getMediaType()} default value.
      */
-    public String getMediaType(ExporterConstant provider) {
+    public String getMediaType(ExporterType provider) {
 
         return getExporter(provider)
                 .map(Exporter::getMediaType)
                 .get();
     }
 
-    public Optional<Exporter> getExporter(ExporterConstant exporter) {
+    public Optional<Exporter> getExporter(ExporterType exporter) {
         return Optional.ofNullable(exporters.get(exporter));
     }
 

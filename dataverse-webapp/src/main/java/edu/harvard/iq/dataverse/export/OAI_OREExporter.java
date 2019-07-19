@@ -17,8 +17,6 @@ public class OAI_OREExporter implements Exporter {
 
     private static final Logger logger = Logger.getLogger(OAI_OREExporter.class.getCanonicalName());
 
-    public static final String NAME = "OAIORE";
-
     private boolean excludeEmailFromExport;
     private String dataverseSiteUrl;
     private LocalDate modificationDate;
@@ -49,7 +47,7 @@ public class OAI_OREExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return NAME;
+        return ExporterType.OAIORE.toString();
     }
 
     @Override

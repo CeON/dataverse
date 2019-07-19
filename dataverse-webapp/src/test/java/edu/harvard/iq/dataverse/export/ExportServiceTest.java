@@ -37,10 +37,8 @@ import javax.json.JsonObject;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -80,21 +78,6 @@ public class ExportServiceTest {
         exportService.loadAllExporters();
     }
 
-
-    @Test
-    @DisplayName("export dataset Version as inputstream")
-    public void exportDatasetVersion() throws IOException, JsonParseException {
-        //given
-        DatasetVersion datasetVersion = parseDatasetVersionFromClasspath("json/testDataset.json");
-        prepareDataForExport(datasetVersion);
-
-        //when
-        Either<DataverseError, InputStream> inputStream = exportService.exportDatasetVersion(datasetVersion, ExporterConstant.JSON);
-
-        //then
-        Assert.assertTrue(inputStream.get().available() > 0);
-    }
-
     @Test
     @DisplayName("export DatasetVersion as string for datacite")
     public void exportDatasetVersionAsString_forDataCite() throws IOException, JsonParseException, URISyntaxException {
@@ -104,7 +87,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.DATACITE);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DATACITE);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/testDatacite.xml"), exportedDataset.get());
@@ -119,7 +102,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.DCTERMS);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DCTERMS);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/dcterms.xml"), exportedDataset.get());
@@ -134,7 +117,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.DDI);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DDI);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/ddi.xml"), exportedDataset.get());
@@ -149,7 +132,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.JSON);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.JSON);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/datasetInJson.json"), exportedDataset.get());
@@ -164,7 +147,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.OAIORE);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.OAIORE);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/oai_ore.json"), exportedDataset.get());
@@ -179,7 +162,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.SCHEMADOTORG);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.SCHEMADOTORG);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/schemaorg.json"), exportedDataset.get());
@@ -194,7 +177,7 @@ public class ExportServiceTest {
 
         //when
         Either<DataverseError, String> exportedDataset =
-                exportService.exportDatasetVersionAsString(datasetVersion, ExporterConstant.OPENAIRE);
+                exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.OPENAIRE);
 
         //then
         Assert.assertEquals(readFileToString("exportdata/openaire.xml"), exportedDataset.get());
@@ -204,22 +187,22 @@ public class ExportServiceTest {
     @DisplayName("Get all exporters")
     public void getAllExporters() {
         //when
-        Map<ExporterConstant, Exporter> allExporters = exportService.getAllExporters();
+        Map<ExporterType, Exporter> allExporters = exportService.getAllExporters();
 
         //then
-        Assert.assertTrue(allExporters.containsKey(ExporterConstant.JSON));
-        Assert.assertTrue(allExporters.containsKey(ExporterConstant.DDI));
-        Assert.assertTrue(allExporters.containsKey(ExporterConstant.DATACITE));
-        Assert.assertTrue(allExporters.containsKey(ExporterConstant.SCHEMADOTORG));
-        Assert.assertTrue(allExporters.containsKey(ExporterConstant.DCTERMS));
-        Assert.assertTrue(allExporters.containsKey(ExporterConstant.OPENAIRE));
+        Assert.assertTrue(allExporters.containsKey(ExporterType.JSON));
+        Assert.assertTrue(allExporters.containsKey(ExporterType.DDI));
+        Assert.assertTrue(allExporters.containsKey(ExporterType.DATACITE));
+        Assert.assertTrue(allExporters.containsKey(ExporterType.SCHEMADOTORG));
+        Assert.assertTrue(allExporters.containsKey(ExporterType.DCTERMS));
+        Assert.assertTrue(allExporters.containsKey(ExporterType.OPENAIRE));
     }
 
     @Test
     @DisplayName("Get mediaType for dataCite exporter")
     public void getMediaType_forDataCite() {
         //when
-        String mediaType = exportService.getMediaType(ExporterConstant.DATACITE);
+        String mediaType = exportService.getMediaType(ExporterType.DATACITE);
 
         //then
         Assert.assertEquals(MediaType.APPLICATION_XML, mediaType);
@@ -229,7 +212,7 @@ public class ExportServiceTest {
     @DisplayName("Get mediaType for json exporter")
     public void getMediaType_forJsonExporter() {
         //when
-        String mediaType = exportService.getMediaType(ExporterConstant.JSON);
+        String mediaType = exportService.getMediaType(ExporterType.JSON);
 
         //then
         Assert.assertEquals(MediaType.APPLICATION_JSON, mediaType);
@@ -478,8 +461,7 @@ public class ExportServiceTest {
         when(datasetFieldService.findByNameOpt(eq("dateOfDeposit"))).thenReturn(dateOfDepositFieldType);
     }
 
-    private String readFileToString(String resourcePath) throws IOException, URISyntaxException {
-        byte[] bytes = Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI()));
-        return new String(bytes);
+    private String readFileToString(String resourcePath) throws IOException {
+        return IOUtils.resourceToString(resourcePath, StandardCharsets.UTF_8, getClass().getClassLoader());
     }
 }

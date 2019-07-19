@@ -26,7 +26,7 @@ public class OpenAireExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "openAire";
+        return ExporterType.OPENAIRE.toString();
     }
 
     @Override

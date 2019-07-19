@@ -20,7 +20,7 @@ public class DataCiteExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "datacite";
+        return ExporterType.DATACITE.toString();
     }
 
     @Override

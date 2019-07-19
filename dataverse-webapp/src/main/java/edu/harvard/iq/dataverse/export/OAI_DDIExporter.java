@@ -37,7 +37,7 @@ public class OAI_DDIExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "oai_ddi";
+        return ExporterType.OAIDDI.toString();
     }
 
     @Override

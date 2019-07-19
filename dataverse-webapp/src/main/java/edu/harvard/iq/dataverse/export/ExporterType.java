@@ -2,7 +2,7 @@ package edu.harvard.iq.dataverse.export;
 
 import java.util.Optional;
 
-public enum ExporterConstant {
+public enum ExporterType {
 
     DDI,
     DATACITE,
@@ -17,10 +17,10 @@ public enum ExporterConstant {
     /**
      * @return ExporterConstant if present or Optional.empty if the enum with given string doesnt exist.
      */
-    public static Optional<ExporterConstant> fromString(String enumValue) {
+    public static Optional<ExporterType> fromString(String enumValue) {
 
         try {
-            return Optional.of(ExporterConstant.valueOf(enumValue.toUpperCase()));
+            return Optional.of(ExporterType.valueOf(enumValue.toUpperCase()));
         } catch (IllegalArgumentException ex) {
             return Optional.empty();
         }

@@ -40,7 +40,7 @@ public class DDIExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "ddi";
+        return ExporterType.DDI.toString();
     }
 
     @Override

@@ -76,7 +76,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDvObjectPIDMetadataCom
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.export.ExporterConstant;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
@@ -234,7 +234,7 @@ public class Datasets extends AbstractApiBean {
     @Produces({"application/xml", "application/json"})
     public Response exportDataset(@QueryParam("persistentId") String persistentId, @QueryParam("exporter") String exporter) {
 
-        Optional<ExporterConstant> exporterConstant = ExporterConstant.fromString(exporter);
+        Optional<ExporterType> exporterConstant = ExporterType.fromString(exporter);
 
         if (!exporterConstant.isPresent()) {
             return error(Response.Status.BAD_REQUEST, exporter + " is not a valid exporter");
@@ -245,8 +245,8 @@ public class Datasets extends AbstractApiBean {
             return error(Response.Status.NOT_FOUND, "A dataset with the persistentId " + persistentId + " could not be found.");
         }
 
-        Either<DataverseError, InputStream> exportedDataset = exportService.exportDatasetVersion(dataset.getReleasedVersion(),
-                                                                                                 exporterConstant.get());
+        Either<DataverseError, String> exportedDataset = exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
+                                                                                                    exporterConstant.get());
 
         if (exportedDataset.isLeft()) {
             return error(Response.Status.FORBIDDEN, exportedDataset.getLeft().getErrorMsg());

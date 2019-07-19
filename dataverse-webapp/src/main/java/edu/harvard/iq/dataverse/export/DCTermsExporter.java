@@ -30,7 +30,7 @@ public class DCTermsExporter implements Exporter {
 
     @Override
     public String getProviderName() {
-        return "dcTerms";
+        return ExporterType.DCTERMS.toString();
     }
 
     @Override

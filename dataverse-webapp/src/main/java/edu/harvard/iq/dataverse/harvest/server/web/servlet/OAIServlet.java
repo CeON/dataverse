@@ -24,7 +24,7 @@ import com.lyncode.xoai.xml.XmlWriter;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.export.ExporterConstant;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.harvest.server.OAISetServiceBean;
@@ -129,7 +129,7 @@ public class OAIServlet extends HttpServlet {
 
     private void addSupportedMetadataFormats(Context context) {
 
-        Map<ExporterConstant, Exporter> exporters = exportService.getAllExporters();
+        Map<ExporterType, Exporter> exporters = exportService.getAllExporters();
 
         for (Exporter exporter : exporters.values()) {
 
