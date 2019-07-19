@@ -639,8 +639,8 @@
                         <p:tabView id="tabView" widgetVar="content" activeIndex="#{DatasetPage.selectedTabIndex}"
                                    rendered="#{empty DatasetPage.editMode}">
                             
-                            <p:tab id="dataFilesTab" title="#{bundle.files}" rendered="#{(!DatasetPage.workingVersion.deaccessioned or 
-                                                              (DatasetPage.workingVersion.deaccessioned and DatasetPage.canUpdateDataset()))}">
+                            <p:tab id="dataFilesTab" title="#{bundle.files}" rendered="#{!DatasetPage.workingVersion.deaccessioned or
+                                                              (DatasetPage.workingVersion.deaccessioned and DatasetPage.canUpdateDataset())}">
                                 <ui:include src="filesFragment.xhtml">
                                     <ui:param name="fileDownloadHelper" value="#{DatasetPage.fileDownloadHelper}"/>
                                 </ui:include>
