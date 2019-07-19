@@ -17,14 +17,10 @@
 <h:body>
     <ui:composition template="/dataverse_template.xhtml">
         <ui:param name="pageTitle" value="#{selectGuestbookPage.workingVersion.title} - #{selectGuestbookPage.dataset.owner.name}"/>
-<!--        <ui:param name="dataverse" value="#{DatasetPage.dataset.owner}"/>-->
         <ui:param name="dataset" value="#{selectGuestbookPage.dataset}"/>
         <ui:param name="showMessagePanel" value="#{true}"/>
         <ui:define name="body">
-            <o:importFunctions type="edu.harvard.iq.dataverse.util.MarkupChecker" />
             <f:metadata>
-                <o:importConstants type="edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType" var="restrictTypeEnum"/>
-                <o:importConstants type="edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType" var="termsOfUseTypeEnum"/>
                 <f:viewParam name="datasetId" value="#{selectGuestbookPage.datasetId}"/>
                 <f:viewParam name="persistentId" value="#{selectGuestbookPage.persistentId}"/>
                 <f:viewAction action="#{selectGuestbookPage.init}" rendered="true"/>
@@ -34,7 +30,7 @@
                 <!-- Edit editMode -->
                 <div class="button-block form-top">
                     <p:commandButton id="saveTop" value="#{bundle.saveChanges}"
-                                     onclick="checkNewlyRestricted();PF('blockSelectGuestbookForm').show();" />
+                                     onclick="checkNewlyRestricted();PF('lockSelectGuestbookForm').show();"  />
                     <p:commandButton id="cancelTop" value="#{bundle.cancel}"
                                      action="#{selectGuestbookPage.cancel}" />
                 </div>
@@ -47,16 +43,14 @@
                 </div>
                 <div class="panel-group">
                     <div class="panel panel-default" jsf:rendered="#{!settingsWrapper.rsyncOnly}">
-                        <div data-toggle="collapse" data-target="#panelCollapseGuestbook" class="panel-heading text-info">
-                            #{bundle['file.dataFilesTab.terms.list.guestbook']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
-                        </div>
                         <div id="panelCollapseGuestbook" class="collapse in">
                             <div class="panel-body">
                                 <div class="form-group">
                                     <label for="metadata_Guestbook" class="col-sm-3 control-label">
                                         #{bundle['file.dataFilesTab.terms.list.guestbook']}
                                         <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['file.dataFilesTab.terms.list.guestbook.title']}"></span>
+                                              data-toggle="tooltip" data-placement="auto right"
+                                              data-original-title="#{bundle['file.dataFilesTab.terms.list.guestbook.title']}"></span>
                                     </label>
                                     <div class="col-sm-9">
                                         <!-- Preview Guestbook from selectGuestbook page -->
@@ -121,8 +115,12 @@
 
                 <!-- Bottom action buttons -->
                 <div class="button-block">
-                    <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}" onclick="checkNewlyRestricted();PF('lockSelectGuestbookForm').show();" />
-                    <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}" action="#{selectGuestbookPage.cancel}" />
+                    <p:commandButton tabindex="1000" id="save"
+                                     value="#{bundle.saveChanges}"
+                                     onclick="checkNewlyRestricted();PF('lockSelectGuestbookForm').show();" />
+                    <p:commandButton tabindex="1000" id="cancel"
+                                     value="#{bundle.cancel}"
+                                     action="#{selectGuestbookPage.cancel}" />
                     <p:commandButton value="Direct" id="datasetSave"
                                      style="display:none"
                                      update=":selectGuestbookForm,:messagePanel"
