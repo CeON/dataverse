@@ -6,7 +6,6 @@ import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -471,10 +470,6 @@ public class Dataset extends DvObjectContainer {
 
     public Path getFileSystemDirectory(String filesRootDirectory) {
         Path studyDir = null;
-
-        if (StringUtils.isEmpty(filesRootDirectory)) {
-            filesRootDirectory = "/tmp/files";
-        }
 
         if (this.getAlternativePersistentIndentifiers() != null && !this.getAlternativePersistentIndentifiers().isEmpty()) {
             for (AlternativePersistentIdentifier api : this.getAlternativePersistentIndentifiers()) {

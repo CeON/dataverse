@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -85,7 +86,7 @@ public class DeleteDataFileCommand extends AbstractVoidCommand {
 
             if (FileUtil.isPackageFile(doomed)) {
                 try {
-                    String datasetDirectory = doomed.getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory")).toString();
+                    String datasetDirectory = doomed.getOwner().getFileSystemDirectory(SystemConfig.FILES_DIRECTORY).toString();
                     Path datasetDirectoryPath = Paths.get(datasetDirectory, doomed.getStorageIdentifier());
 
                     Files.walkFileTree(datasetDirectoryPath, new SimpleFileVisitor<Path>() {

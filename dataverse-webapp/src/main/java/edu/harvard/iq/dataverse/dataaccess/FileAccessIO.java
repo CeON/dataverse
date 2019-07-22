@@ -68,11 +68,13 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
 
     // "Direct" File Access IO, opened on a physical file not associated with
     // a specific DvObject
-    public FileAccessIO(String storageLocation) {
+    public FileAccessIO(String storageLocation, String filesDirectory) {
         physicalPath = Paths.get(storageLocation);
+        filesRootDirectory = Paths.get(filesDirectory);
     }
 
     private Path physicalPath = null;
+    private Path filesRootDirectory = null;
 
     @Override
     public void open(DataAccessOption... options) throws IOException {
@@ -576,7 +578,7 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
 
             baseName = this.getDataFile().getStorageIdentifier();
 
-            datasetDirectoryPath = this.getDataFile().getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory"));
+            datasetDirectoryPath = this.filesRootDirectory;
         }
 
         if (datasetDirectoryPath == null) {

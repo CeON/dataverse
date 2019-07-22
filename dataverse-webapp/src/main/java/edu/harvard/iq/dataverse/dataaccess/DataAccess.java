@@ -21,6 +21,7 @@
 package edu.harvard.iq.dataverse.dataaccess;
 
 import edu.harvard.iq.dataverse.DvObject;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import java.io.IOException;
 
@@ -48,7 +49,7 @@ public class DataAccess {
      */
     public StorageIO getDirectStorageIO(String storageLocation) throws IOException {
         if (storageLocation.startsWith("file://")) {
-            return new FileAccessIO(storageLocation.substring(7));
+            return new FileAccessIO(storageLocation.substring(7), SystemConfig.FILES_DIRECTORY);
         } else if (storageLocation.startsWith("swift://")) {
             return new SwiftAccessIO<>(storageLocation.substring(8));
         } else if (storageLocation.startsWith("s3://")) {
