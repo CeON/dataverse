@@ -11,11 +11,13 @@ import static org.hamcrest.Matchers.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +27,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileDifferenceItem;
+import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileTermDifferenceItem;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetReplaceFileItem;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
+import edu.harvard.iq.dataverse.license.License;
+import edu.harvard.iq.dataverse.license.LocaleText;
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
@@ -177,7 +184,9 @@ public class DatasetVersionDifferenceTest {
         assertEquals(0, diff.getChangedFileMetadata().size());
         assertEquals(0, diff.getDatasetFilesDiffList().size());
         assertEquals(0, diff.getDatasetFilesReplacementList().size());
+        assertEquals(0, diff.getDatasetFileTermsDiffList().size());
         assertEquals(0, diff.getRemovedFiles().size());
+        assertEquals(StringUtils.EMPTY, diff.getFileNote());
         
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
@@ -219,11 +228,12 @@ public class DatasetVersionDifferenceTest {
         assertEquals(1, diff.getDatasetFilesReplacementList().size());
         
         DatasetReplaceFileItem dataFileDiffReplacement = diff.getDatasetFilesReplacementList().get(0);
-        assertEquals(String.valueOf(dataFileToReplace.getId()), dataFileDiffReplacement.getFile1Id());
-        assertEquals(String.valueOf(dataFileReplacement.getId()), dataFileDiffReplacement.getFile2Id());
-        assertEquals("toreplace.txt", dataFileDiffReplacement.getFdi().getFileName1());
-        assertEquals("replacementFile.txt", dataFileDiffReplacement.getFdi().getFileName2());
-        
+        assertEquals(String.valueOf(dataFileToReplace.getId()), dataFileDiffReplacement.getFileSummary1().getFileId());
+        assertEquals(String.valueOf(dataFileReplacement.getId()), dataFileDiffReplacement.getFileSummary2().getFileId());
+        assertEquals("toreplace.txt", dataFileDiffReplacement.getMetadataDifference().getFileName1());
+        assertEquals("replacementFile.txt", dataFileDiffReplacement.getMetadataDifference().getFileName2());
+
+        assertEquals("Files (Replaced: 1)", diff.getFileNote());
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
@@ -231,6 +241,7 @@ public class DatasetVersionDifferenceTest {
         assertThat(diff.getAddedFiles(), is(empty()));
         assertThat(diff.getChangedFileMetadata(), is(empty()));
         assertThat(diff.getDatasetFilesDiffList(), is(empty()));
+        assertThat(diff.getDatasetFileTermsDiffList(), is(empty()));
         assertThat(diff.getRemovedFiles(), is(empty()));
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
@@ -269,17 +280,20 @@ public class DatasetVersionDifferenceTest {
         assertEquals(2, diff.getDatasetFilesDiffList().size());
         
         DatasetFileDifferenceItem fileDifference1 = diff.getDatasetFilesDiffList().get(0);
-        assertEquals("firstFile.txt", fileDifference1.getFileName1());
-        assertNull(fileDifference1.getFileName2());
+        assertEquals("firstFile.txt", fileDifference1.getDifference().getFileName1());
+        assertNull(fileDifference1.getDifference().getFileName2());
         
         DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(1);
-        assertEquals("secondFile.txt", fileDifference2.getFileName1());
-        assertNull(fileDifference2.getFileName2());
+        assertEquals("secondFile.txt", fileDifference2.getDifference().getFileName1());
+        assertNull(fileDifference2.getDifference().getFileName2());
         
         
         assertEquals(2, diff.getRemovedFiles().size());
         assertSame(v1FileMetadata1, diff.getRemovedFiles().get(0));
         assertSame(v1FileMetadata2, diff.getRemovedFiles().get(1));
+
+
+        assertEquals("Files (Removed: 2)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -287,6 +301,7 @@ public class DatasetVersionDifferenceTest {
         assertThat(diff.getDetailDataByBlock(), is(empty()));
         assertThat(diff.getAddedFiles(), is(empty()));
         assertThat(diff.getChangedFileMetadata(), is(empty()));
+        assertThat(diff.getDatasetFileTermsDiffList(), is(empty()));
         assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
@@ -325,17 +340,20 @@ public class DatasetVersionDifferenceTest {
         assertEquals(2, diff.getDatasetFilesDiffList().size());
         
         DatasetFileDifferenceItem fileDifference1 = diff.getDatasetFilesDiffList().get(0);
-        assertNull(fileDifference1.getFileName1());
-        assertEquals("firstFile.txt", fileDifference1.getFileName2());
+        assertNull(fileDifference1.getDifference().getFileName1());
+        assertEquals("firstFile.txt", fileDifference1.getDifference().getFileName2());
         
         DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(1);
-        assertNull(fileDifference2.getFileName1());
-        assertEquals("secondFile.txt", fileDifference2.getFileName2());
+        assertNull(fileDifference2.getDifference().getFileName1());
+        assertEquals("secondFile.txt", fileDifference2.getDifference().getFileName2());
         
         
         assertEquals(2, diff.getAddedFiles().size());
         assertSame(v2FileMetadata1, diff.getAddedFiles().get(0));
         assertSame(v2FileMetadata2, diff.getAddedFiles().get(1));
+
+
+        assertEquals("Files (Added: 2)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -343,6 +361,7 @@ public class DatasetVersionDifferenceTest {
         assertThat(diff.getDetailDataByBlock(), is(empty()));
         assertThat(diff.getRemovedFiles(), is(empty()));
         assertThat(diff.getChangedFileMetadata(), is(empty()));
+        assertThat(diff.getDatasetFileTermsDiffList(), is(empty()));
         assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
@@ -387,12 +406,15 @@ public class DatasetVersionDifferenceTest {
         assertEquals(1, diff.getDatasetFilesDiffList().size());
         
         DatasetFileDifferenceItem fileDifference2 = diff.getDatasetFilesDiffList().get(0);
-        assertEquals("secondFile.txt", fileDifference2.getFileName1());
-        assertEquals("secondFile (changed).txt", fileDifference2.getFileName2());
+        assertEquals("secondFile.txt", fileDifference2.getDifference().getFileName1());
+        assertEquals("secondFile (changed).txt", fileDifference2.getDifference().getFileName2());
 
         assertEquals(1, diff.getChangedFileMetadata().size());
         assertSame(v1FileMetadata2, diff.getChangedFileMetadata().get(0)._1());
         assertSame(v2FileMetadata2, diff.getChangedFileMetadata().get(0)._2());
+
+
+        assertEquals("Files (Changed metadata: 1 file)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -400,6 +422,75 @@ public class DatasetVersionDifferenceTest {
         assertThat(diff.getDetailDataByBlock(), is(empty()));
         assertThat(diff.getAddedFiles(), is(empty()));
         assertThat(diff.getRemovedFiles(), is(empty()));
+        assertThat(diff.getDatasetFileTermsDiffList(), is(empty()));
+        assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
+        assertSame(v1, diff.getOriginalVersion());
+        assertSame(v2, diff.getNewVersion());
+    }
+    
+    @Test
+    public void create__WITH_CHANGED_FILE_TERMS() throws IOException, JsonParseException {
+
+        // given
+        
+        DataFile dataFile1 = MocksFactory.makeDataFile();
+        dataFile1.getFileMetadatas().clear();
+        DataFile dataFile2 = MocksFactory.makeDataFile();
+        dataFile2.getFileMetadatas().clear();
+        
+        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v1.setDataset(dataset);
+        
+        FileMetadata v1FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
+        FileTermsOfUse v1File1Terms = buildLicenseTermsOfUse(80L, "CCO0", "Public Domain", v1FileMetadata1);
+        FileMetadata v1FileMetadata2 = buildFileMetadata(11L, "secondFile.txt", 1, dataFile2);
+        FileTermsOfUse v1File2Terms = buildLicenseTermsOfUse(81L, "Apache 2.0", "Apache License", v1FileMetadata2);
+        
+        v1.addFileMetadata(v1FileMetadata1);
+        v1.addFileMetadata(v1FileMetadata2);
+        
+        
+        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v2.setDataset(dataset);
+        
+        FileMetadata v2FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
+        FileTermsOfUse v2File1Terms = buildLicenseTermsOfUse(81L, "Apache 2.0", "Apache License", v2FileMetadata1);
+        FileMetadata v2FileMetadata2 = buildFileMetadata(11L, "secondFile.txt", 1, dataFile2);
+        FileTermsOfUse v2File2Terms = buildRestrictedTermsOfUse(RestrictType.NOT_FOR_REDISTRIBUTION, v2FileMetadata2);
+        
+        v2.addFileMetadata(v2FileMetadata1);
+        v2.addFileMetadata(v2FileMetadata2);
+        
+        
+        // when
+        
+        DatasetVersionDifference diff = new DatasetVersionDifference(v2, v1);
+        
+        
+        // then
+        
+        List<DatasetFileTermDifferenceItem> termsDiffs = diff.getDatasetFileTermsDiffList();
+        assertEquals(2, termsDiffs.size());
+        
+        assertEquals(String.valueOf(dataFile1.getId()), termsDiffs.get(0).getFileSummary().getFileId());
+        assertSame(v1File1Terms, termsDiffs.get(0).getTerms1());
+        assertSame(v2File1Terms, termsDiffs.get(0).getTerms2());
+        
+        assertEquals(String.valueOf(dataFile2.getId()), termsDiffs.get(1).getFileSummary().getFileId());
+        assertSame(v1File2Terms, termsDiffs.get(1).getTerms1());
+        assertSame(v2File2Terms, termsDiffs.get(1).getTerms2());
+        
+
+        assertEquals("Files (Changed licenses/terms of use: 2 files)", diff.getFileNote());
+        
+        
+        assertThat(diff.getBlockDataForNote(), is(empty()));
+        assertThat(diff.getSummaryDataForNote(), is(empty()));
+        assertThat(diff.getDetailDataByBlock(), is(empty()));
+        assertThat(diff.getAddedFiles(), is(empty()));
+        assertThat(diff.getRemovedFiles(), is(empty()));
+        assertThat(diff.getChangedFileMetadata(), is(empty()));
+        assertThat(diff.getDatasetFilesDiffList(), is(empty()));
         assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
@@ -446,5 +537,29 @@ public class DatasetVersionDifferenceTest {
         dataFile.getFileMetadatas().add(fileMetadata);
         
         return fileMetadata;
+    }
+    
+    private FileTermsOfUse buildLicenseTermsOfUse(Long licenseId, String licenseName, String licenseEnName, FileMetadata fileMetadata) {
+        FileTermsOfUse termsOfUse = new FileTermsOfUse();
+        License license = new License();
+        license.setId(licenseId);
+        license.setName(licenseName);
+        license.addLocalizedName(new LocaleText(Locale.ENGLISH, licenseEnName));
+        termsOfUse.setLicense(license);
+        
+        fileMetadata.setTermsOfUse(termsOfUse);
+        termsOfUse.setFileMetadata(fileMetadata);
+        
+        return termsOfUse;
+    }
+    
+    private FileTermsOfUse buildRestrictedTermsOfUse(RestrictType restrictType, FileMetadata fileMetadata) {
+        FileTermsOfUse termsOfUse = new FileTermsOfUse();
+        termsOfUse.setRestrictType(restrictType);
+        
+        fileMetadata.setTermsOfUse(termsOfUse);
+        termsOfUse.setFileMetadata(fileMetadata);
+        
+        return termsOfUse;
     }
 }

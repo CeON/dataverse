@@ -6,7 +6,8 @@
      xmlns:c="http://java.sun.com/jsp/jstl/core"
      xmlns:p="http://primefaces.org/ui"
      xmlns:o="http://omnifaces.org/ui"
-     xmlns:jsf="http://xmlns.jcp.org/jsf">
+     xmlns:jsf="http://xmlns.jcp.org/jsf"
+     xmlns:dv="http://dataverse.org/facelets">
 
     <ui:fragment rendered="#{widgetWrapper.widgetView}">
         <p class="help-block">
@@ -100,7 +101,8 @@
                         </ui:repeat>
                     </ui:fragment>
                     <ui:fragment rendered="#{!empty(versionSummary.differenceFromPreviousVersion.fileNote)}">
-                        <h:outputText styleClass="highlightBold" value="#{versionSummary.differenceFromPreviousVersion.fileNote}; " />
+                        <h:outputText styleClass="highlightBold" value="#{bundle['dataset.version.file.label']} " />
+                        <h:outputText value="#{versionSummary.differenceFromPreviousVersion.fileNote}; " />
                     </ui:fragment>
                 </ui:fragment>
                 <ui:fragment rendered="#{versionSummary.differenceFromPreviousVersion == null}">
@@ -185,75 +187,97 @@
                 </div>
             </ui:repeat>
         </ui:fragment>
-        <div class="panel panel-default" jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList)}">
-            <ui:fragment rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList)}">
+        <div class="panel panel-default" jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList) and
+                                                         !empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList)}">
             <div class="panel-heading text-info">
                 <h:outputText id="outputTextAddedRemoved" value="#{bundle['file.viewDiffDialog.files.header']}"/>
             </div>
-            </ui:fragment>
             <p:dataTable id="diffFilesDataTable" styleClass="dvnDifferanceTable"  value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList}" var="fileDiff"
-                         rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList)}">
+                    rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList)}">
                 <p:column styleClass="versionValue">
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']} #{fileDiff.fileId}"/>
-                    <br></br>
-                    <h:outputText value="#{fileDiff.fileChecksumType} #{fileDiff.fileChecksumValue}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']} #{fileDiff.fileSummary.fileId}"/>
+                    <br />
+                    <h:outputText value="#{fileDiff.fileSummary.fileChecksumType} #{fileDiff.fileSummary.fileChecksumValue}"/>
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{! fileDiff.file1Empty}">
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileDiff.fileName1}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileName1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileDiff.fileType1}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileType1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileDiff.fileSize1}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileSize1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileDiff.fileCat1}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileCat1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileDiff.fileDesc1}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileDesc1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileDiff.fileProvFree1}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileProvFree1 != null}"/>
+                <p:column styleClass="versionDetails" rendered="#{! fileDiff.difference.file1Empty}">
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileDiff.difference.fileName1}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileName1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileDiff.difference.fileType1}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileType1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileDiff.difference.fileSize1}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileSize1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileDiff.difference.fileCat1}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileCat1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileDiff.difference.fileDesc1}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileDesc1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileDiff.difference.fileProvFree1}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileProvFree1 != null}"/>
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{fileDiff.file1Empty}">
+                <p:column styleClass="versionDetails" rendered="#{fileDiff.difference.file1Empty}">
                     &#160;
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{! fileDiff.file2Empty}">
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileDiff.fileName2}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileName2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileDiff.fileType2}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileType2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileDiff.fileSize2}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileSize2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileDiff.fileCat2}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileCat2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileDiff.fileDesc2}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileDesc2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileDiff.fileProvFree2}" styleClass="diffDetailBlock" rendered="#{fileDiff.fileProvFree2 != null}"/>
+                <p:column styleClass="versionDetails" rendered="#{! fileDiff.difference.file2Empty}">
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileDiff.difference.fileName2}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileName2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileDiff.difference.fileType2}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileType2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileDiff.difference.fileSize2}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileSize2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileDiff.difference.fileCat2}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileCat2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileDiff.difference.fileDesc2}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileDesc2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileDiff.difference.fileProvFree2}" styleClass="diffDetailBlock" rendered="#{fileDiff.difference.fileProvFree2 != null}"/>
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{fileDiff.file2Empty}">
+                <p:column styleClass="versionDetails" rendered="#{fileDiff.difference.file2Empty}">
                     &#160;
                 </p:column>
             </p:dataTable>
-            <p:dataTable id="replacemetFilesDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable" value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList}" var="fileReplace"
-                         rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList)}">
+            
+            <p:dataTable id="replacemetFilesDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable"
+                            value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList}" var="fileReplace"
+                            rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList)}">
                 <p:column styleClass="versionValue">
                     <h:outputText value="#{bundle['file.viewDiffDialog.fileReplaced']}"/>
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{! fileReplace.fdi.file1Empty}">
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']}: #{fileReplace.file1Id}" styleClass="diffDetailBlock" rendered="#{fileReplace.file1Id != null}"/>
-                    <h:outputText value="#{fileReplace.file1ChecksumType}: #{fileReplace.file1ChecksumValue}" styleClass="diffDetailBlock" rendered="#{fileReplace.file1Id != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileReplace.fdi.fileName1}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileName1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileReplace.fdi.fileType1}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileType1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileReplace.fdi.fileSize1}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileSize1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileReplace.fdi.fileCat1}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileCat1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileReplace.fdi.fileDesc1}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileDesc1 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileReplace.fdi.fileProvFree1}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileProvFree1 != null}"/>
+                <p:column styleClass="versionDetails" rendered="#{! fileReplace.metadataDifference.file1Empty}">
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']}: #{fileReplace.fileSummary1.fileId}" styleClass="diffDetailBlock" rendered="#{fileReplace.fileSummary1.fileId != null}"/>
+                    <h:outputText value="#{fileReplace.fileSummary1.fileChecksumType}: #{fileReplace.fileSummary1.fileChecksumValue}" styleClass="diffDetailBlock" rendered="#{fileReplace.fileSummary1.fileId != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileReplace.metadataDifference.fileName1}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileName1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileReplace.metadataDifference.fileType1}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileType1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileReplace.metadataDifference.fileSize1}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileSize1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileReplace.metadataDifference.fileCat1}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileCat1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileReplace.metadataDifference.fileDesc1}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileDesc1 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileReplace.fdi.fileProvFree1}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileProvFree1 != null}"/>
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{fileReplace.fdi.file1Empty}">
+                <p:column styleClass="versionDetails" rendered="#{fileReplace.metadataDifference.file1Empty}">
                     &#160;
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{! fileReplace.fdi.file2Empty}">
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']}: #{fileReplace.file2Id}" styleClass="diffDetailBlock" rendered="#{fileReplace.file2Id != null}"/>
-                    <h:outputText value="#{fileReplace.file2ChecksumType}: #{fileReplace.file2ChecksumValue}" styleClass="diffDetailBlock" rendered="#{fileReplace.file2Id != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileReplace.fdi.fileName2}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileName2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileReplace.fdi.fileType2}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileType2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileReplace.fdi.fileSize2}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileSize2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileReplace.fdi.fileCat2}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileCat2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileReplace.fdi.fileDesc2}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileDesc2 != null}"/>
-                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileReplace.fdi.fileProvFree2}" styleClass="diffDetailBlock" rendered="#{fileReplace.fdi.fileProvFree2 != null}"/>
+                <p:column styleClass="versionDetails" rendered="#{! fileReplace.metadataDifference.file2Empty}">
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']}: #{fileReplace.fileSummary2.fileId}" styleClass="diffDetailBlock" rendered="#{fileReplace.fileSummary2.fileId != null}"/>
+                    <h:outputText value="#{fileReplace.fileSummary2.fileChecksumType}: #{fileReplace.fileSummary2.fileChecksumValue}" styleClass="diffDetailBlock" rendered="#{fileReplace.fileSummary2.fileId != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileName']}: #{fileReplace.metadataDifference.fileName2}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileName2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileType']}: #{fileReplace.metadataDifference.fileType2}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileType2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileSize']}: #{fileReplace.metadataDifference.fileSize2}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileSize2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.category']}: #{fileReplace.metadataDifference.fileCat2}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileCat2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.description']}: #{fileReplace.metadataDifference.fileDesc2}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileDesc2 != null}"/>
+                    <h:outputText value="#{bundle['file.viewDiffDialog.provDescription']}: #{fileReplace.metadataDifference.fileProvFree2}" styleClass="diffDetailBlock" rendered="#{fileReplace.metadataDifference.fileProvFree2 != null}"/>
                 </p:column>
-                <p:column styleClass="versionDetails" rendered="#{fileReplace.fdi.file2Empty}">
+                <p:column styleClass="versionDetails" rendered="#{fileReplace.metadataDifference.file2Empty}">
                     &#160;
                 </p:column>
             </p:dataTable>
         </div>
+        
+        <div class="panel panel-default" jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFileTermsDiffList)}">
+            <div class="panel-heading text-info">
+                <h:outputText value="#{bundle['file.viewDiffDialog.fileTerms.header']}"/>
+            </div>
+            <p:dataTable id="termsDiffDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable"
+                            value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFileTermsDiffList}" var="termsDiff">
+                <p:column styleClass="versionValue">
+                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']} #{termsDiff.fileSummary.fileId}"/>
+                    <br />
+                    <h:outputText value="#{termsDiff.fileSummary.fileChecksumType}: #{termsDiff.fileSummary.fileChecksumValue}"/>
+                </p:column>
+                <p:column styleClass="versionDetails">
+                    <dv:displayTermsOfUse termsOfUse="#{termsDiff.terms1}" />
+                </p:column>
+                <p:column styleClass="versionDetails">
+                    <dv:displayTermsOfUse termsOfUse="#{termsDiff.terms2}" />
+                </p:column>
+            </p:dataTable>
+        </div>
+        
         <div class="button-block margin-bottom">
             <p:commandButton value="#{bundle.done}" onclick="PF('detailsBlocks').hide();" type="button" />
         </div>
