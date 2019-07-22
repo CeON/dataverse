@@ -5,7 +5,7 @@ import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
-import edu.harvard.iq.dataverse.files.mimes.GeneralMimeType;
+import edu.harvard.iq.dataverse.files.mime.TextMimeType;
 import org.junit.Test;
 
 import javax.json.Json;
@@ -22,7 +22,7 @@ public class ExternalToolHandlerTest {
     public void testGetToolUrlWithOptionalQueryParameters() {
         ExternalTool.Type type = ExternalTool.Type.EXPLORE;
         String toolUrl = "http://example.com";
-        ExternalTool externalTool = new ExternalTool("displayName", "description", type, toolUrl, "{}", GeneralMimeType.TSV_ALT.getMimeType());
+        ExternalTool externalTool = new ExternalTool("displayName", "description", type, toolUrl, "{}", TextMimeType.TSV_ALT.getMimeType());
 
         // One query parameter, not a reserved word, no {fileId} (required) used.
         externalTool.setToolParameters(Json.createObjectBuilder()

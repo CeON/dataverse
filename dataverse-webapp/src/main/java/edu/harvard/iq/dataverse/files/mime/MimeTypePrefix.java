@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.files.mimes;
+package edu.harvard.iq.dataverse.files.mime;
 
 public enum MimeTypePrefix {
 
