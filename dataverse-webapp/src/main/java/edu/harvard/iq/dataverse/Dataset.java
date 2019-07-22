@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
@@ -20,8 +21,6 @@ import javax.persistence.OrderBy;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureParameter;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -85,10 +84,6 @@ public class Dataset extends DvObjectContainer {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.MERGE)
     @OrderBy("id")
     private List<DataFile> files = new ArrayList<>();
-
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date lastExportTime;
-
 
     @OneToMany(mappedBy = "dataset", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("versionNumber DESC, minorVersionNumber DESC")
@@ -205,14 +200,6 @@ public class Dataset extends DvObjectContainer {
 
     public boolean isLocked() {
         return !getLocks().isEmpty();
-    }
-
-    public Date getLastExportTime() {
-        return lastExportTime;
-    }
-
-    public void setLastExportTime(Date lastExportTime) {
-        this.lastExportTime = lastExportTime;
     }
 
     public Guestbook getGuestbook() {
@@ -774,7 +761,7 @@ public class Dataset extends DvObjectContainer {
      * @return A thumbnail of the dataset (may be {@code null}).
      */
     public DatasetThumbnail getDatasetThumbnail(DatasetVersion datasetVersion) {
-        return DatasetUtil.getThumbnail(this, datasetVersion);
+        return DatasetUtil.getThumbnail(this, datasetVersion, new DataAccess());
     }
 
 }

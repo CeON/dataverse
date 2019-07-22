@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.SwiftAccessIO;
@@ -35,9 +36,9 @@ import edu.harvard.iq.dataverse.engine.command.impl.RequestRsyncScriptCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.ReturnDatasetToAuthorCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.SubmitDatasetForReviewCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
-import edu.harvard.iq.dataverse.export.ExportException;
+import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.export.SchemaDotOrgExporter;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
@@ -64,6 +65,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Either;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -198,6 +200,8 @@ public class DatasetPage implements java.io.Serializable {
     SettingsWrapper settingsWrapper;
     @Inject
     ProvPopupFragmentBean provPopupFragmentBean;
+    @Inject
+    private ExportService exportService;
 
     private Dataset dataset = new Dataset();
     private EditMode editMode;
@@ -326,7 +330,7 @@ public class DatasetPage implements java.io.Serializable {
 
             thumbnailString = datasetThumbnail.getBase64image();
         } else {
-            thumbnailString = thumbnailServiceWrapper.getDatasetCardImageAsBase64Url(dataset, workingVersion.getId(), !workingVersion.isDraft());
+            thumbnailString = thumbnailServiceWrapper.getDatasetCardImageAsBase64Url(dataset, workingVersion.getId(), !workingVersion.isDraft(), new DataAccess());
             if (thumbnailString == null) {
                 thumbnailString = "";
                 return null;
@@ -543,7 +547,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public SwiftAccessIO getSwiftObject() {
         try {
-            StorageIO<DataFile> storageIO = getInitialDataFile() == null ? null : getInitialDataFile().getStorageIO();
+            StorageIO<DataFile> storageIO = getInitialDataFile() == null ? null : getInitialDataFile().getStorageIO(new DataAccess());
             if (storageIO != null && storageIO instanceof SwiftAccessIO) {
                 return (SwiftAccessIO) storageIO;
             } else {
@@ -668,7 +672,7 @@ public class DatasetPage implements java.io.Serializable {
     public String getComputeUrl(FileMetadata metadata) {
         SwiftAccessIO swiftObject = null;
         try {
-            StorageIO<DataFile> storageIO = metadata.getDataFile().getStorageIO();
+            StorageIO<DataFile> storageIO = metadata.getDataFile().getStorageIO(new DataAccess());
             if (storageIO != null && storageIO instanceof SwiftAccessIO) {
                 swiftObject = (SwiftAccessIO) storageIO;
                 swiftObject.open();
@@ -2110,7 +2114,7 @@ public class DatasetPage implements java.io.Serializable {
         setSelectedRestrictedFiles(new ArrayList<>());
         setTabularDataSelected(false);
         for (FileMetadata fmd : this.selectedFiles) {
-            if(fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED){
+            if (fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
                 getSelectedRestrictedFiles().add(fmd);
             } else {
                 getSelectedUnrestrictedFiles().add(fmd);
@@ -2382,7 +2386,7 @@ public class DatasetPage implements java.io.Serializable {
                         newFile.getFileMetadata().setTermsOfUse(termsOfUse);
                     }
 
-                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles);
+                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles, new DataAccess());
                     newFiles.clear();
 
                     // and another update command: 
@@ -2818,26 +2822,20 @@ public class DatasetPage implements java.io.Serializable {
 
     public List<String[]> getExporters() {
         List<String[]> retList = new ArrayList<>();
-        String myHostURL = getDataverseSiteUrl();
-        for (String[] provider : ExportService.getInstance(settingsService).getExportersLabels()) {
-            String formatName = provider[1];
-            String formatDisplayName = provider[0];
 
-            Exporter exporter = null;
-            try {
-                exporter = ExportService.getInstance(settingsService).getExporter(formatName);
-            } catch (ExportException ex) {
-                exporter = null;
-            }
-            if (exporter != null && exporter.isAvailableToUsers()) {
-                // Not all metadata exports should be presented to the web users!
-                // Some are only for harvesting clients.
+        Map<ExporterType, Exporter> exporters = exportService.getAllExporters();
+
+        for (Exporter exporter : exporters.values()) {
+
+            if (exporter.isAvailableToUsers()) {
+                String myHostURL = getDataverseSiteUrl();
 
                 String[] temp = new String[2];
-                temp[0] = formatDisplayName;
-                temp[1] = myHostURL + "/api/datasets/export?exporter=" + formatName + "&persistentId=" + dataset.getGlobalIdString();
+                temp[0] = exporter.getDisplayName();
+                temp[1] = myHostURL + "/api/datasets/export?exporter=" + exporter.getProviderName() + "&persistentId=" + dataset.getGlobalIdString();
                 retList.add(temp);
             }
+
         }
         return retList;
     }
@@ -3830,18 +3828,19 @@ public class DatasetPage implements java.io.Serializable {
 
     public String getJsonLd() {
         if (isThisLatestReleasedVersion()) {
-            ExportService instance = ExportService.getInstance(settingsService);
-            String jsonLd = instance.getExportAsString(dataset, SchemaDotOrgExporter.NAME);
-            if (jsonLd != null) {
-                logger.fine("Returning cached schema.org JSON-LD.");
-                return jsonLd;
-            } else {
-                logger.fine("No cached schema.org JSON-LD available. Going to the database.");
-                String jsonLdProduced = workingVersion.getJsonLd();
-                return jsonLdProduced != null ? jsonLdProduced : "";
+            Either<DataverseError, String> exportedDataset =
+                    exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
+                                                               ExporterType.SCHEMADOTORG);
+
+            if (exportedDataset.isLeft()) {
+                logger.fine(exportedDataset.getLeft().getErrorMsg());
+                String jsonLdProduced = workingVersion.getJsonLd(systemConfig.getDataverseSiteUrl());
+                return jsonLdProduced != null ? jsonLdProduced : StringUtils.EMPTY;
             }
+
+            return exportedDataset.get();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public void selectAllFiles() {

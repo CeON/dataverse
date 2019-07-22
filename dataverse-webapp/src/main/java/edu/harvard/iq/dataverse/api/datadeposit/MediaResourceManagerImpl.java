@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
@@ -17,7 +18,6 @@ import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.swordapp.server.AuthCredentials;
 import org.swordapp.server.Deposit;
@@ -39,7 +39,6 @@ import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -197,7 +196,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
                                     // longer exists in the database, before proceeding to 
                                     // delete the physical file)
                                     try {
-                                        dataFileService.finalizeFileDelete(fileIdLong, deleteStorageLocation);
+                                        dataFileService.finalizeFileDelete(fileIdLong, deleteStorageLocation, new DataAccess());
                                     } catch (IOException ioex) {
                                         logger.warning("Failed to delete the physical file associated with the deleted datafile id="
                                                                + fileIdLong + ", storage location: " + deleteStorageLocation);
@@ -301,11 +300,10 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
              * SimpleZip vs. other contentTypes.
              */
             String guessContentTypeForMe = null;
-            List<DataFile> dataFiles = new ArrayList<>();
+            List<DataFile> dataFiles;
             try {
                 try {
-                    dataFiles = FileUtil.createDataFiles(editVersion, deposit.getInputStream(), uploadedZipFilename, guessContentTypeForMe,
-                            settingsSvc, termsOfUseFactory, termsOfUseFormMapper);
+                    dataFiles = dataFileService.createDataFiles(editVersion, deposit.getInputStream(), uploadedZipFilename, guessContentTypeForMe);
                 } catch (EJBException ex) {
                     Throwable cause = ex.getCause();
                     if (cause != null) {
@@ -340,7 +338,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
                     throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "Unable to add file(s) to dataset: " + violation.getMessage() + " The invalid value was \"" + violation.getInvalidValue() + "\".");
                 } else {
 
-                    ingestService.saveAndAddFilesToDataset(editVersion, dataFiles);
+                    ingestService.saveAndAddFilesToDataset(editVersion, dataFiles, new DataAccess());
 
                 }
             } else {

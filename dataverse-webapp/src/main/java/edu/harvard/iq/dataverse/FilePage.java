@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.SwiftAccessIO;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
@@ -17,8 +18,8 @@ import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
-import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
@@ -46,6 +47,7 @@ import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -91,10 +93,8 @@ public class FilePage implements java.io.Serializable {
     GuestbookResponseServiceBean guestbookResponseService;
     @EJB
     AuthenticationServiceBean authService;
-
     @EJB
     SystemConfig systemConfig;
-
 
     @Inject
     DataverseSession session;
@@ -111,6 +111,8 @@ public class FilePage implements java.io.Serializable {
     FileDownloadHelper fileDownloadHelper;
     @Inject
     WorldMapPermissionHelper worldMapPermissionHelper;
+    @Inject
+    private ExportService exportService;
 
     public WorldMapPermissionHelper getWorldMapPermissionHelper() {
         return worldMapPermissionHelper;
@@ -272,26 +274,20 @@ public class FilePage implements java.io.Serializable {
 
     public List<String[]> getExporters() {
         List<String[]> retList = new ArrayList<>();
-        String myHostURL = systemConfig.getDataverseSiteUrl();
-        for (String[] provider : ExportService.getInstance(settingsService).getExportersLabels()) {
-            String formatName = provider[1];
-            String formatDisplayName = provider[0];
 
-            Exporter exporter = null;
-            try {
-                exporter = ExportService.getInstance(settingsService).getExporter(formatName);
-            } catch (ExportException ex) {
-                exporter = null;
-            }
-            if (exporter != null && exporter.isAvailableToUsers()) {
-                // Not all metadata exports should be presented to the web users!
-                // Some are only for harvesting clients.
+        Map<ExporterType, Exporter> exporters = exportService.getAllExporters();
+
+        for (Exporter exporter : exporters.values()) {
+
+            if (exporter.isAvailableToUsers()) {
+                String myHostURL = systemConfig.getDataverseSiteUrl();
 
                 String[] temp = new String[2];
-                temp[0] = formatDisplayName;
-                temp[1] = myHostURL + "/api/datasets/export?exporter=" + formatName + "&persistentId=" + fileMetadata.getDatasetVersion().getDataset().getGlobalIdString();
+                temp[0] = exporter.getDisplayName();
+                temp[1] = myHostURL + "/api/datasets/export?exporter=" + exporter.getProviderName() + "&persistentId=" + dataset.getGlobalIdString();
                 retList.add(temp);
             }
+
         }
         return retList;
     }
@@ -559,7 +555,7 @@ public class FilePage implements java.io.Serializable {
                     // longer exists in the database, before proceeding to 
                     // delete the physical file)
                     try {
-                        datafileService.finalizeFileDelete(deleteFileId, deleteStorageLocation);
+                        datafileService.finalizeFileDelete(deleteFileId, deleteStorageLocation, new DataAccess());
                     } catch (IOException ioex) {
                         logger.warning("Failed to delete the physical file associated with the deleted datafile id="
                                                + deleteFileId + ", storage location: " + deleteStorageLocation);
@@ -680,7 +676,7 @@ public class FilePage implements java.io.Serializable {
 
     public SwiftAccessIO getSwiftObject() {
         try {
-            StorageIO<DataFile> storageIO = getFile().getStorageIO();
+            StorageIO<DataFile> storageIO = getFile().getStorageIO(new DataAccess());
             if (storageIO != null && storageIO instanceof SwiftAccessIO) {
                 return (SwiftAccessIO) storageIO;
             } else {
@@ -830,7 +826,7 @@ public class FilePage implements java.io.Serializable {
 
     public String getPublicDownloadUrl() {
         try {
-            StorageIO<DataFile> storageIO = getFile().getStorageIO();
+            StorageIO<DataFile> storageIO = getFile().getStorageIO(new DataAccess());
             if (storageIO instanceof SwiftAccessIO) {
                 String fileDownloadUrl = null;
                 try {

@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -28,8 +29,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -510,100 +508,6 @@ public class DatasetServiceBean implements java.io.Serializable {
         return ret;
     }
 
-
-    // reExportAll *forces* a reexport on all published datasets; whether they 
-    // have the "last export" time stamp set or not. 
-    @Asynchronous
-    public void reExportAllAsync() {
-        exportAllDatasets(true);
-    }
-
-    public void reExportAll() {
-        exportAllDatasets(true);
-    }
-
-
-    // exportAll() will try to export the yet unexported datasets (it will honor
-    // and trust the "last export" time stamp).
-
-    @Asynchronous
-    public void exportAllAsync() {
-        exportAllDatasets(false);
-    }
-
-    public void exportAll() {
-        exportAllDatasets(false);
-    }
-
-    public void exportAllDatasets(boolean forceReExport) {
-        Integer countAll = 0;
-        Integer countSuccess = 0;
-        Integer countError = 0;
-        String logTimestamp = logFormatter.format(new Date());
-        Logger exportLogger = Logger.getLogger("edu.harvard.iq.dataverse.harvest.client.DatasetServiceBean." + "ExportAll" + logTimestamp);
-        String logFileName = "../logs" + File.separator + "export_" + logTimestamp + ".log";
-        FileHandler fileHandler;
-        boolean fileHandlerSuceeded;
-        try {
-            fileHandler = new FileHandler(logFileName);
-            exportLogger.setUseParentHandlers(false);
-            fileHandlerSuceeded = true;
-        } catch (IOException | SecurityException ex) {
-            Logger.getLogger(DatasetServiceBean.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        }
-
-        if (fileHandlerSuceeded) {
-            exportLogger.addHandler(fileHandler);
-        } else {
-            exportLogger = logger;
-        }
-
-        exportLogger.info("Starting an export all job");
-
-        for (Long datasetId : findAllLocalDatasetIds()) {
-            // Potentially, there's a godzillion datasets in this Dataverse. 
-            // This is why we go through the list of ids here, and instantiate 
-            // only one dataset at a time. 
-            Dataset dataset = this.find(datasetId);
-            if (dataset != null) {
-                // Accurate "is published?" test - ?
-                // Answer: Yes, it is! We can't trust dataset.isReleased() alone; because it is a dvobject method 
-                // that returns (publicationDate != null). And "publicationDate" is essentially
-                // "the first publication date"; that stays the same as versions get 
-                // published and/or deaccessioned. But in combination with !isDeaccessioned() 
-                // it is indeed an accurate test.
-                if (dataset.isReleased() && dataset.getReleasedVersion() != null && !dataset.isDeaccessioned()) {
-
-                    // can't trust dataset.getPublicationDate(), no. 
-                    Date publicationDate = dataset.getReleasedVersion().getReleaseTime(); // we know this dataset has a non-null released version! Maybe not - SEK 8/19 (We do now! :)
-                    if (forceReExport || (publicationDate != null
-                            && (dataset.getLastExportTime() == null
-                            || dataset.getLastExportTime().before(publicationDate)))) {
-                        countAll++;
-                        try {
-                            recordService.exportAllFormatsInNewTransaction(dataset);
-                            exportLogger.info("Success exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalIdString());
-                            countSuccess++;
-                        } catch (Exception ex) {
-                            exportLogger.info("Error exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalIdString() + "; " + ex.getMessage());
-                            countError++;
-                        }
-                    }
-                }
-            }
-        }
-        exportLogger.info("Datasets processed: " + countAll.toString());
-        exportLogger.info("Datasets exported successfully: " + countSuccess.toString());
-        exportLogger.info("Datasets failures: " + countError.toString());
-        exportLogger.info("Finished export-all job.");
-
-        if (fileHandlerSuceeded) {
-            fileHandler.close();
-        }
-
-    }
-
     public void updateLastExportTimeStamp(Long datasetId) {
         Date now = new Date();
         em.createNativeQuery("UPDATE Dataset SET lastExportTime='" + now.toString() + "' WHERE id=" + datasetId).executeUpdate();
@@ -618,7 +522,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.fine("In setNonDatasetFileAsThumbnail but inputStream is null! Returning null.");
             return null;
         }
-        dataset = DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnail(dataset, inputStream);
+        dataset = DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnail(dataset, inputStream, new DataAccess());
         dataset.setThumbnailFile(null);
         return merge(dataset);
     }
@@ -632,7 +536,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.fine("In setDatasetFileAsThumbnail but dataset is null! Returning null.");
             return null;
         }
-        DatasetUtil.deleteDatasetLogo(dataset);
+        DatasetUtil.deleteDatasetLogo(dataset, new DataAccess());
         dataset.setThumbnailFile(datasetFileThumbnailToSwitchTo);
         dataset.setUseGenericThumbnail(false);
         return merge(dataset);
@@ -643,7 +547,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.fine("In removeDatasetThumbnail but dataset is null! Returning null.");
             return null;
         }
-        DatasetUtil.deleteDatasetLogo(dataset);
+        DatasetUtil.deleteDatasetLogo(dataset, new DataAccess());
         dataset.setThumbnailFile(null);
         dataset.setUseGenericThumbnail(true);
         return merge(dataset);
