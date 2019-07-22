@@ -38,10 +38,6 @@
                 <!-- END Header / Button Panel -->
 
                 <!-- Tabs -->
-                <div class="text-right margin-bottom"
-                     jsf:rendered="#{dataverseSession.user.authenticated and !widgetWrapper.widgetView
-                        and permissionsWrapper.canIssueUpdateDatasetCommand(dataset)}">
-                </div>
                 <div class="panel-group">
                     <div class="panel panel-default" jsf:rendered="#{!settingsWrapper.rsyncOnly}">
                         <div id="panelCollapseGuestbook" class="collapse in">

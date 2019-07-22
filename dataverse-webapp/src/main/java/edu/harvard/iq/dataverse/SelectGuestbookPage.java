@@ -77,25 +77,8 @@ public class SelectGuestbookPage implements java.io.Serializable {
 
     // -------------------- LOGIC --------------------
     public String init() {
-        if (persistentId != null) {
-            dataset = datasetService.findByGlobalId(persistentId);
-        } else if (datasetId != null) {
-            dataset = datasetService.find(datasetId);
-        }
 
-        if (dataset == null) {
-            return permissionsWrapper.notFound();
-        }
-
-        // Check permisisons
-        if (!permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), dataset)) {
-            return permissionsWrapper.notAuthorized();
-        }
-        if (!dataset.getLocks().isEmpty()) {
-            return permissionsWrapper.notAuthorized();
-        }
-
-
+        dataset = datasetService.find(datasetId);
         workingVersion = dataset.getEditVersion();
         clone = workingVersion.cloneDatasetVersion();
         availableGuestbooks = dataset.getDataverseContext().getAvailableGuestbooks();
