@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +25,7 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 @Named("selectGuestbookPage")
 public class SelectGuestbookPage implements java.io.Serializable {
 
-    private static final Logger logger = Logger.getLogger(EditDatasetMetadataPage.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(SelectGuestbookPage.class.getCanonicalName());
 
     @EJB
     private DatasetServiceBean datasetService;
@@ -45,6 +46,7 @@ public class SelectGuestbookPage implements java.io.Serializable {
     private DatasetVersion workingVersion;
     private DatasetVersion clone;
     private Guestbook selectedGuestbook;
+    private List<Guestbook> availableGuestbooks;
 
     // -------------------- GETTERS --------------------
 
@@ -67,6 +69,10 @@ public class SelectGuestbookPage implements java.io.Serializable {
 
     public Guestbook getSelectedGuestbook() {
         return selectedGuestbook;
+    }
+
+    public List<Guestbook> getAvailableGuestbooks() {
+        return availableGuestbooks;
     }
 
     // -------------------- LOGIC --------------------
@@ -92,6 +98,7 @@ public class SelectGuestbookPage implements java.io.Serializable {
 
         workingVersion = dataset.getEditVersion();
         clone = workingVersion.cloneDatasetVersion();
+        availableGuestbooks = dataset.getDataverseContext().getAvailableGuestbooks();
 
         JH.addMessage(FacesMessage.SEVERITY_INFO,
                 BundleUtil.getStringFromBundle("dataset.message.editTerms.label"),

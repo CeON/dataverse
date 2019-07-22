@@ -58,7 +58,7 @@
                                         <ui:fragment rendered="true">
                                             <p class="help-block">#{bundle['file.dataFilesTab.terms.list.guestbook.select.tip']}</p>
 
-                                            <ui:fragment rendered="#{empty selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}">
+                                            <ui:fragment rendered="#{empty selectGuestbookPage.availableGuestbooks}">
                                                 <p class="help-block">
                                                     <h:outputFormat value="#{bundle['file.dataFilesTab.terms.list.guestbook.noAvailable.tip']}">
                                                         <f:param value="#{selectGuestbookPage.dataset.owner.name}"/>
@@ -66,15 +66,14 @@
                                                 </p>
                                             </ui:fragment>
 
-                                            <ui:fragment rendered="#{!empty selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}">
+                                            <ui:fragment rendered="#{!empty selectGuestbookPage.availableGuestbooks}">
                                                 <p:commandButton value="#{bundle['file.dataFilesTab.terms.list.guestbook.clearBtn']}"
                                                                  rendered="#{!empty selectGuestbookPage.dataset.guestbook}"
                                                                  update="guestbookTable" process="@this" actionListener="#{selectGuestbookPage.reset}"/>
                                                 <p:dataTable id="guestbookTable" styleClass="headerless-table margin-top"
-                                                             value="#{selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}"
+                                                             value="#{selectGuestbookPage.availableGuestbooks}"
                                                              var="guestbook"
                                                              widgetVar="guestbookTable"
-                                                             rendered="#{!empty selectGuestbookPage.dataset.dataverseContext.availableGuestbooks}"
                                                              rowIndexVar="rowNum" selection="#{selectGuestbookPage.dataset.guestbook}"
                                                              rowKey="#{guestbook}">
                                                     <p:column  selectionMode="single" class="col-select-width text-center" rendered="true"  />
