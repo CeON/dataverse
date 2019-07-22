@@ -123,8 +123,9 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
                 }
             } else if (isWriteAccess) {
                 // Creates a new directory as needed for a dataset.
-                if (dataFile.getOwner().getFileSystemDirectory() != null && !Files.exists(dataFile.getOwner().getFileSystemDirectory())) {
-                    Files.createDirectories(dataFile.getOwner().getFileSystemDirectory());
+                if (dataFile.getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory")) != null
+                        && !Files.exists(dataFile.getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory")))) {
+                    Files.createDirectories(dataFile.getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory")));
                 }
                 FileOutputStream fout = openLocalFileAsOutputStream();
 
@@ -159,8 +160,9 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
 //                this.setInputStream(fin);  
             } else if (isWriteAccess) {
                 //this checks whether a directory for a dataset exists 
-                if (dataset.getFileSystemDirectory() != null && !Files.exists(dataset.getFileSystemDirectory())) {
-                    Files.createDirectories(dataset.getFileSystemDirectory());
+                if (dataset.getFileSystemDirectory(System.getProperty("dataverse.files.directory")) != null
+                        && !Files.exists(dataset.getFileSystemDirectory(System.getProperty("dataverse.files.directory")))) {
+                    Files.createDirectories(dataset.getFileSystemDirectory(System.getProperty("dataverse.files.directory")));
                 }
                 dataset.setStorageIdentifier("file://" + dataset.getAuthority() + "/" + dataset.getIdentifier());
             }
@@ -534,9 +536,9 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
         Path datasetDirectoryPath = null;
 
         if (dvObject instanceof Dataset) {
-            datasetDirectoryPath = this.getDataset().getFileSystemDirectory();
+            datasetDirectoryPath = this.getDataset().getFileSystemDirectory(System.getProperty("dataverse.files.directory"));
         } else if (dvObject instanceof DataFile) {
-            datasetDirectoryPath = this.getDataFile().getOwner().getFileSystemDirectory();
+            datasetDirectoryPath = this.getDataFile().getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory"));
         } else if (dvObject instanceof Dataverse) {
             throw new IOException("FileAccessIO: Dataverses are not a supported dvObject");
         }
@@ -574,7 +576,7 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
 
             baseName = this.getDataFile().getStorageIdentifier();
 
-            datasetDirectoryPath = this.getDataFile().getOwner().getFileSystemDirectory();
+            datasetDirectoryPath = this.getDataFile().getOwner().getFileSystemDirectory(System.getProperty("dataverse.files.directory"));
         }
 
         if (datasetDirectoryPath == null) {
