@@ -12,10 +12,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,6 +75,23 @@ public class SelectGuestbookPage implements java.io.Serializable {
 
     // -------------------- LOGIC --------------------
     public String init() {
+        if (persistentId != null) {
+            dataset = datasetService.findByGlobalId(persistentId);
+        } else if (datasetId != null) {
+            dataset = datasetService.find(datasetId);
+        }
+
+        if (dataset == null) {
+            return permissionsWrapper.notFound();
+        }
+
+        // Check permisisons
+        if (!permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), dataset)) {
+            return permissionsWrapper.notAuthorized();
+        }
+        if (!dataset.getLocks().isEmpty()) {
+            return permissionsWrapper.notAuthorized();
+        }
 
         dataset = datasetService.find(datasetId);
         workingVersion = dataset.getEditVersion();
@@ -91,14 +106,6 @@ public class SelectGuestbookPage implements java.io.Serializable {
     }
 
     public String save() {
-
-        // Validate
-        Set<ConstraintViolation> constraintViolations = workingVersion.validate();
-        if (!constraintViolations.isEmpty()) {
-             JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.message.validationError"));
-
-            return StringUtils.EMPTY;
-        }
 
         try {
             UpdateDatasetVersionCommand cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest(), new ArrayList<>(), clone);
