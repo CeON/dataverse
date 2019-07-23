@@ -108,7 +108,7 @@ public class ExternalToolServiceBean {
     public static List<ExternalTool> findExternalToolsByFile(List<ExternalTool> allExternalTools, DataFile file) {
         List<ExternalTool> externalTools = new ArrayList<>();
         //Map tabular data to it's mimetype (the isTabularData() check assures that this code works the same as before, but it may need to change if tabular data is split into subtypes with differing mimetypes)
-        final String contentType = file.isTabularData() ? TextMimeType.TSV_ALT.getMimeType() : file.getContentType();
+        final String contentType = file.isTabularData() ? TextMimeType.TSV_ALT.getMimeValue() : file.getContentType();
         allExternalTools.forEach((externalTool) -> {
             //Match tool and file type 
             if (contentType.equals(externalTool.getContentType())) {
@@ -132,7 +132,7 @@ public class ExternalToolServiceBean {
         String contentType = getOptionalTopLevelField(jsonObject, CONTENT_TYPE);
         //Legacy support - assume tool manifests without any mimetype are for tabular data
         if (contentType == null) {
-            contentType = TextMimeType.TSV_ALT.getMimeType();
+            contentType = TextMimeType.TSV_ALT.getMimeValue();
         }
 
         // Allow IllegalArgumentException to bubble up from ExternalTool.Type.fromString

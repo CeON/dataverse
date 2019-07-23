@@ -206,7 +206,7 @@ public class FilePage implements java.io.Serializable {
             String contentType = file.getContentType();
             //For tabular data, indicate successful ingest by returning a contentType for the derived .tab file
             if (file.isTabularData()) {
-                contentType = TextMimeType.TSV_ALT.getMimeType();
+                contentType = TextMimeType.TSV_ALT.getMimeValue();
             }
             configureTools = externalToolService.findByType(ExternalTool.Type.CONFIGURE, contentType);
             exploreTools = externalToolService.findByType(ExternalTool.Type.EXPLORE, contentType);

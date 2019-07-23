@@ -1559,7 +1559,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             // Is this a FileReplaceOperation?  If so, then diverge!
             // -----------------------------------------------------------
             if (this.isFileReplaceOperation()) {
-                this.handleReplaceFileUpload(event, dropBoxStream, fileName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeType(), null, event);
+                this.handleReplaceFileUpload(event, dropBoxStream, fileName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue(), null, event);
                 this.setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
                 return;
             }

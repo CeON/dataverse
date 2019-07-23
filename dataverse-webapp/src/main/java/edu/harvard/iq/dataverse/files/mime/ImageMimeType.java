@@ -4,13 +4,13 @@ public enum ImageMimeType {
 
     FITSIMAGE("image/fits");
 
-    private String mimeType;
+    private String mimeValue;
 
     ImageMimeType(String mimeType) {
-        this.mimeType = mimeType;
+        this.mimeValue = mimeType;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getMimeValue() {
+        return mimeValue;
     }
 }

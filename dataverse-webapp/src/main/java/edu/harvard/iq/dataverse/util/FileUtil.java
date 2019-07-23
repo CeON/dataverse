@@ -548,11 +548,11 @@ public class FileUtil implements java.io.Serializable {
             return false;
         }
 
-        boolean isMimeAmongIngestableAppTypes = ApplicationMimeType.retriveIngestableMimes().stream()
-                .anyMatch(appMime -> appMime.getMimeType().equals(mimeType));
+        boolean isMimeAmongIngestableAppTypes = ApplicationMimeType.retrieveIngestableMimes().stream()
+                .anyMatch(appMime -> appMime.getMimeValue().equals(mimeType));
 
-        boolean isMimeAmongIngestableTextTypes = TextMimeType.retriveIngestableMimes().stream()
-                .anyMatch(appMime -> appMime.getMimeType().equals(mimeType));
+        boolean isMimeAmongIngestableTextTypes = TextMimeType.retrieveIngestableMimes().stream()
+                .anyMatch(appMime -> appMime.getMimeValue().equals(mimeType));
 
 
         return isMimeAmongIngestableAppTypes || isMimeAmongIngestableTextTypes;
@@ -841,7 +841,7 @@ public class FileUtil implements java.io.Serializable {
         // mime type for FITS is "application/fits", and problematic: then
         // the file is identified as an image, and the page will attempt to 
         // generate a preview - which of course is going to fail...
-        if (ImageMimeType.FITSIMAGE.getMimeType().equalsIgnoreCase(contentType)) {
+        if (ImageMimeType.FITSIMAGE.getMimeValue().equalsIgnoreCase(contentType)) {
             return false;
         }
         // besides most image/* types, we can generate thumbnails for
@@ -851,7 +851,7 @@ public class FileUtil implements java.io.Serializable {
                 (contentType.startsWith("image/") ||
                         contentType.equalsIgnoreCase("application/pdf") ||
                         (file.isTabularData() && file.hasGeospatialTag()) ||
-                        contentType.equalsIgnoreCase(ApplicationMimeType.GEO_SHAPE.getMimeType())));
+                        contentType.equalsIgnoreCase(ApplicationMimeType.GEO_SHAPE.getMimeValue())));
     }
     
     

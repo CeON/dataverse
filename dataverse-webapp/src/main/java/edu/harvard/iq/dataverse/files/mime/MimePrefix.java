@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.files.mime;
 
-public enum MimeTypePrefix {
+public enum MimePrefix {
 
     AUDIO("audio"),
     CODE("code"),
@@ -14,13 +14,13 @@ public enum MimeTypePrefix {
     PACKAGE("package"),
     OTHER("other");
 
-    private String prefix;
+    private String prefixValue;
 
-    MimeTypePrefix(String prefix) {
-        this.prefix = prefix;
+    MimePrefix(String prefix) {
+        this.prefixValue = prefix;
     }
 
-    public String getPrefix() {
-        return prefix;
+    public String getPrefixValue() {
+        return prefixValue;
     }
 }

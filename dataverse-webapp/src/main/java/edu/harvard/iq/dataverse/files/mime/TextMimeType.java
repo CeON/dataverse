@@ -17,17 +17,17 @@ public enum TextMimeType {
     SPSS_CCARD("text/x-spss-syntax"),
     SAS_SYNTAX("text/x-sas-syntax");
 
-    private String mimeType;
+    private String mimeValue;
 
     TextMimeType(String mimeType) {
-        this.mimeType = mimeType;
+        this.mimeValue = mimeType;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getMimeValue() {
+        return mimeValue;
     }
 
-    public static List<TextMimeType> retriveIngestableMimes() {
+    public static List<TextMimeType> retrieveIngestableMimes() {
         return Lists.newArrayList(TextMimeType.CSV,
                                   TextMimeType.CSV_ALT,
                                   TextMimeType.TSV,

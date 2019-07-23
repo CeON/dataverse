@@ -866,11 +866,11 @@ public class IngestServiceBean {
 
                 // and change the mime type to "Tabular Data" on the final datafile, 
                 // and replace (or add) the extension ".tab" to the filename: 
-                dataFile.setContentType(TextMimeType.TSV_ALT.getMimeType());
+                dataFile.setContentType(TextMimeType.TSV_ALT.getMimeValue());
                 IngestUtil.modifyExistingFilename(dataFile.getOwner().getLatestVersion(), dataFile.getFileMetadata(), FileUtil.replaceExtension(fileName, "tab"));
 
-                if (TextMimeType.CSV_ALT.getMimeType().equals(dataFile.getContentType())) {
-                    tabDataIngest.getDataTable().setOriginalFileFormat(TextMimeType.CSV.getMimeType());
+                if (TextMimeType.CSV_ALT.getMimeValue().equals(dataFile.getContentType())) {
+                    tabDataIngest.getDataTable().setOriginalFileFormat(TextMimeType.CSV.getMimeValue());
                 } else {
                     tabDataIngest.getDataTable().setOriginalFileFormat(originalContentType);
                 }
@@ -1059,29 +1059,29 @@ public class IngestServiceBean {
 
         TabularDataFileReader ingestPlugin = null;
 
-        if (mimeType.equals(ApplicationMimeType.STATA.getMimeType())) {
+        if (mimeType.equals(ApplicationMimeType.STATA.getMimeValue())) {
             ingestPlugin = new DTAFileReader(new DTAFileReaderSpi());
-        } else if (mimeType.equals(ApplicationMimeType.STATA13.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.STATA13.getMimeValue())) {
             ingestPlugin = new NewDTAFileReader(new DTAFileReaderSpi(), 117);
-        } else if (mimeType.equals(ApplicationMimeType.STATA14.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.STATA14.getMimeValue())) {
             ingestPlugin = new NewDTAFileReader(new DTAFileReaderSpi(), 118);
-        } else if (mimeType.equals(ApplicationMimeType.STATA15.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.STATA15.getMimeValue())) {
             ingestPlugin = new NewDTAFileReader(new DTAFileReaderSpi(), 119);
-        } else if (mimeType.equals(ApplicationMimeType.RDATA.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.RDATA.getMimeValue())) {
             ingestPlugin = new RDATAFileReader(new RDATAFileReaderSpi(),
                                                settingsService.getValueForKey(SettingsServiceBean.Key.RserveHost),
                                                settingsService.getValueForKey(SettingsServiceBean.Key.RserveUser),
                                                settingsService.getValueForKey(SettingsServiceBean.Key.RservePassword),
                                                settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.RservePort));
-        } else if (mimeType.equals(TextMimeType.CSV.getMimeType()) || mimeType.equals(TextMimeType.CSV_ALT.getMimeType())) {
+        } else if (mimeType.equals(TextMimeType.CSV.getMimeValue()) || mimeType.equals(TextMimeType.CSV_ALT.getMimeValue())) {
             ingestPlugin = new CSVFileReader(new CSVFileReaderSpi(), ',');
-        } else if (mimeType.equals(TextMimeType.TSV.getMimeType()) || mimeType.equals(TextMimeType.TSV_ALT.getMimeType())) {
+        } else if (mimeType.equals(TextMimeType.TSV.getMimeValue()) || mimeType.equals(TextMimeType.TSV_ALT.getMimeValue())) {
             ingestPlugin = new CSVFileReader(new CSVFileReaderSpi(), '\t');
-        } else if (mimeType.equals(ApplicationMimeType.XLSX.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.XLSX.getMimeValue())) {
             ingestPlugin = new XLSXFileReader(new XLSXFileReaderSpi());
-        } else if (mimeType.equals(ApplicationMimeType.SPSS_SAV.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.SPSS_SAV.getMimeValue())) {
             ingestPlugin = new SAVFileReader(new SAVFileReaderSpi());
-        } else if (mimeType.equals(ApplicationMimeType.SPSS_POR.getMimeType())) {
+        } else if (mimeType.equals(ApplicationMimeType.SPSS_POR.getMimeValue())) {
             ingestPlugin = new PORFileReader(new PORFileReaderSpi());
         }
 
@@ -1095,7 +1095,7 @@ public class IngestServiceBean {
          * for now - just a hardcoded list of mime types:
          *  -- L.A. 4.0 beta
          */
-        return dataFile.getContentType() != null && dataFile.getContentType().equals(ApplicationMimeType.FITS.getMimeType());
+        return dataFile.getContentType() != null && dataFile.getContentType().equals(ApplicationMimeType.FITS.getMimeValue());
     }
 
     /*
@@ -1675,7 +1675,7 @@ public class IngestServiceBean {
         if (dataFile != null && dataFile.isTabularData()) {
             String originalFormat = dataFile.getDataTable().getOriginalFileFormat();
             Long datatableId = dataFile.getDataTable().getId();
-            if (StringUtil.isEmpty(originalFormat) || originalFormat.equals(TextMimeType.TSV_ALT.getMimeType())) {
+            if (StringUtil.isEmpty(originalFormat) || originalFormat.equals(TextMimeType.TSV_ALT.getMimeValue())) {
 
                 // We need to determine the mime type of the saved original
                 // and save it in the database. 
@@ -1752,11 +1752,11 @@ public class IngestServiceBean {
                 // so if the FileUtil is telling us it's a "plain text" file at this point,
                 // it really means it must be a CSV file. 
                 if (fileTypeDetermined.startsWith("text/plain")) {
-                    fileTypeDetermined = TextMimeType.CSV.getMimeType();
+                    fileTypeDetermined = TextMimeType.CSV.getMimeValue();
                 }
                 // and, finally, if it is still "application/octet-stream", it must be Excel:
-                if (ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeType().equals(fileTypeDetermined)) {
-                    fileTypeDetermined = ApplicationMimeType.XLSX.getMimeType();
+                if (ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue().equals(fileTypeDetermined)) {
+                    fileTypeDetermined = ApplicationMimeType.XLSX.getMimeValue();
                 }
                 logger.info("Original file type determined: " + fileTypeDetermined + " (file id=" + fileId + ", datatable id=" + datatableId + "; file path: " + savedOriginalFile.getAbsolutePath() + ")");
 

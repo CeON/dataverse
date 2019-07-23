@@ -34,7 +34,7 @@ public class IngestServiceBeanTest {
         Mockito.when(settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.RservePort)).thenReturn(RSERVE_PORT);
 
         RDATAFileReader rdataFileReader =
-                (RDATAFileReader) ingestServiceBean.getTabDataReaderByMimeType(ApplicationMimeType.RDATA.getMimeType());
+                (RDATAFileReader) ingestServiceBean.getTabDataReaderByMimeType(ApplicationMimeType.RDATA.getMimeValue());
 
         //then
         Assert.assertEquals(RSERVE_HOST, rdataFileReader.getRserveHost());

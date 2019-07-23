@@ -27,17 +27,17 @@ public enum ApplicationMimeType {
     XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
     DOCUMENT_MSWORD_OPENXML("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-    private String mimeType;
+    private String mimeValue;
 
     ApplicationMimeType(String mimeType) {
-        this.mimeType = mimeType;
+        this.mimeValue = mimeType;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getMimeValue() {
+        return mimeValue;
     }
 
-    public static List<ApplicationMimeType> retriveIngestableMimes() {
+    public static List<ApplicationMimeType> retrieveIngestableMimes() {
         return Lists.newArrayList(ApplicationMimeType.STATA,
                                   ApplicationMimeType.STATA13,
                                   ApplicationMimeType.STATA14,
