@@ -25,10 +25,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
+import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFieldChangeCounts;
+import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFieldDiff;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileDifferenceItem;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileTermDifferenceItem;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetReplaceFileItem;
+import edu.harvard.iq.dataverse.DatasetVersionDifference.MetadataBlockChangeCounts;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.license.License;
@@ -139,29 +141,29 @@ public class DatasetVersionDifferenceTest {
         
         // then
         
-        List<Tuple4<MetadataBlock, Integer, Integer, Integer>> blockDataForNote = diff.getBlockDataForNote();
+        List<MetadataBlockChangeCounts> blockDataForNote = diff.getBlockDataForNote();
         assertEquals(1, blockDataForNote.size());
         
-        Tuple4<MetadataBlock, Integer, Integer, Integer> blockChange = blockDataForNote.get(0);
-        assertEquals("citation", blockChange._1().getName());
-        assertEquals(Integer.valueOf(1), blockChange._2()); // added
-        assertEquals(Integer.valueOf(1), blockChange._3()); // removed
-        assertEquals(Integer.valueOf(2), blockChange._4()); // changed
+        MetadataBlockChangeCounts blockChange = blockDataForNote.get(0);
+        assertEquals("citation", blockChange.getItem().getName());
+        assertEquals(1, blockChange.getAddedCount());
+        assertEquals(1, blockChange.getRemovedCount());
+        assertEquals(2, blockChange.getChangedCount());
         
-        List<Tuple4<DatasetFieldType, Integer, Integer, Integer>> summaryDataForNote = diff.getSummaryDataForNote();
+        List<DatasetFieldChangeCounts> summaryDataForNote = diff.getSummaryDataForNote();
         
         assertEquals(1, summaryDataForNote.size());
-        Tuple4<DatasetFieldType, Integer, Integer, Integer> summaryForNote = summaryDataForNote.get(0);
-        assertEquals("author", summaryForNote._1().getName());
-        assertEquals(Integer.valueOf(1), summaryForNote._2());
-        assertEquals(Integer.valueOf(0), summaryForNote._3());
-        assertEquals(Integer.valueOf(1), summaryForNote._4());
+        DatasetFieldChangeCounts summaryForNote = summaryDataForNote.get(0);
+        assertEquals("author", summaryForNote.getItem().getName());
+        assertEquals(1, summaryForNote.getAddedCount());
+        assertEquals(0, summaryForNote.getRemovedCount());
+        assertEquals(1, summaryForNote.getChangedCount());
         
         
-        List<List<Tuple2<DatasetField, DatasetField>>> detailDataByBlock = diff.getDetailDataByBlock();
+        List<List<DatasetFieldDiff>> detailDataByBlock = diff.getDetailDataByBlock();
         assertEquals(1, detailDataByBlock.size());
         
-        List<Tuple2<DatasetField, DatasetField>> detailData = detailDataByBlock.get(0);
+        List<DatasetFieldDiff> detailData = detailDataByBlock.get(0);
         
         assertEquals(4, detailData.size());
         
@@ -228,12 +230,12 @@ public class DatasetVersionDifferenceTest {
         assertEquals(1, diff.getDatasetFilesReplacementList().size());
         
         DatasetReplaceFileItem dataFileDiffReplacement = diff.getDatasetFilesReplacementList().get(0);
-        assertEquals(String.valueOf(dataFileToReplace.getId()), dataFileDiffReplacement.getFileSummary1().getFileId());
-        assertEquals(String.valueOf(dataFileReplacement.getId()), dataFileDiffReplacement.getFileSummary2().getFileId());
+        assertEquals(String.valueOf(dataFileToReplace.getId()), dataFileDiffReplacement.getOldFileSummary().getFileId());
+        assertEquals(String.valueOf(dataFileReplacement.getId()), dataFileDiffReplacement.getNewFileSummary().getFileId());
         assertEquals("toreplace.txt", dataFileDiffReplacement.getMetadataDifference().getFileName1());
         assertEquals("replacementFile.txt", dataFileDiffReplacement.getMetadataDifference().getFileName2());
 
-        assertEquals("Files (Replaced: 1)", diff.getFileNote());
+        assertEquals("(Replaced: 1)", diff.getFileNote());
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
@@ -293,7 +295,7 @@ public class DatasetVersionDifferenceTest {
         assertSame(v1FileMetadata2, diff.getRemovedFiles().get(1));
 
 
-        assertEquals("Files (Removed: 2)", diff.getFileNote());
+        assertEquals("(Removed: 2)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -353,7 +355,7 @@ public class DatasetVersionDifferenceTest {
         assertSame(v2FileMetadata2, diff.getAddedFiles().get(1));
 
 
-        assertEquals("Files (Added: 2)", diff.getFileNote());
+        assertEquals("(Added: 2)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -410,11 +412,11 @@ public class DatasetVersionDifferenceTest {
         assertEquals("secondFile (changed).txt", fileDifference2.getDifference().getFileName2());
 
         assertEquals(1, diff.getChangedFileMetadata().size());
-        assertSame(v1FileMetadata2, diff.getChangedFileMetadata().get(0)._1());
-        assertSame(v2FileMetadata2, diff.getChangedFileMetadata().get(0)._2());
+        assertSame(v1FileMetadata2, diff.getChangedFileMetadata().get(0).getOldValue());
+        assertSame(v2FileMetadata2, diff.getChangedFileMetadata().get(0).getNewValue());
 
 
-        assertEquals("Files (Changed metadata: 1 file)", diff.getFileNote());
+        assertEquals("(Changed metadata: 1 file)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -473,15 +475,15 @@ public class DatasetVersionDifferenceTest {
         assertEquals(2, termsDiffs.size());
         
         assertEquals(String.valueOf(dataFile1.getId()), termsDiffs.get(0).getFileSummary().getFileId());
-        assertSame(v1File1Terms, termsDiffs.get(0).getTerms1());
-        assertSame(v2File1Terms, termsDiffs.get(0).getTerms2());
+        assertSame(v1File1Terms, termsDiffs.get(0).getOldTerms());
+        assertSame(v2File1Terms, termsDiffs.get(0).getNewTerms());
         
         assertEquals(String.valueOf(dataFile2.getId()), termsDiffs.get(1).getFileSummary().getFileId());
-        assertSame(v1File2Terms, termsDiffs.get(1).getTerms1());
-        assertSame(v2File2Terms, termsDiffs.get(1).getTerms2());
+        assertSame(v1File2Terms, termsDiffs.get(1).getOldTerms());
+        assertSame(v2File2Terms, termsDiffs.get(1).getNewTerms());
         
 
-        assertEquals("Files (Changed licenses/terms of use: 2 files)", diff.getFileNote());
+        assertEquals("(Changed licenses/terms of use: 2 files)", diff.getFileNote());
         
         
         assertThat(diff.getBlockDataForNote(), is(empty()));
@@ -499,25 +501,25 @@ public class DatasetVersionDifferenceTest {
     
     // -------------------- PRIVATE --------------------
     
-    private void assertDatasetPrimitiveFieldChange(Tuple2<DatasetField, DatasetField> actualFieldChange,
+    private void assertDatasetPrimitiveFieldChange(DatasetFieldDiff actualFieldChange,
             String expectedFieldName, String expectedOldValue, String expectedNewValue) {
         
-        assertEquals(expectedFieldName, actualFieldChange._1().getDatasetFieldType().getName());
-        assertEquals(expectedFieldName, actualFieldChange._2().getDatasetFieldType().getName());
+        assertEquals(expectedFieldName, actualFieldChange.getOldValue().getDatasetFieldType().getName());
+        assertEquals(expectedFieldName, actualFieldChange.getNewValue().getDatasetFieldType().getName());
         
-        assertEquals(expectedOldValue, actualFieldChange._1().getRawValue());
-        assertEquals(expectedNewValue, actualFieldChange._2().getRawValue());
+        assertEquals(expectedOldValue, actualFieldChange.getOldValue().getRawValue());
+        assertEquals(expectedNewValue, actualFieldChange.getNewValue().getRawValue());
         
     }
     
-    private void assertDatasetCompoundFieldChange(Tuple2<DatasetField, DatasetField> actualFieldChange,
+    private void assertDatasetCompoundFieldChange(DatasetFieldDiff actualFieldChange,
             String expectedFieldName, String expectedOldValue, String expectedNewValue) {
         
-        assertEquals(expectedFieldName, actualFieldChange._1().getDatasetFieldType().getName());
-        assertEquals(expectedFieldName, actualFieldChange._2().getDatasetFieldType().getName());
+        assertEquals(expectedFieldName, actualFieldChange.getOldValue().getDatasetFieldType().getName());
+        assertEquals(expectedFieldName, actualFieldChange.getNewValue().getDatasetFieldType().getName());
         
-        assertEquals(expectedOldValue, actualFieldChange._1().getCompoundRawValue());
-        assertEquals(expectedNewValue, actualFieldChange._2().getCompoundRawValue());
+        assertEquals(expectedOldValue, actualFieldChange.getOldValue().getCompoundRawValue());
+        assertEquals(expectedNewValue, actualFieldChange.getNewValue().getCompoundRawValue());
         
     }
     

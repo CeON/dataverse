@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -15,8 +14,6 @@ import edu.harvard.iq.dataverse.DataFile.ChecksumType;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import io.vavr.Tuple2;
-import io.vavr.Tuple4;
 
 /**
  * @author skraffmiller
@@ -26,13 +23,13 @@ public final class DatasetVersionDifference {
     private DatasetVersion newVersion;
     private DatasetVersion originalVersion;
     
-    private List<List<Tuple2<DatasetField,DatasetField>>> detailDataByBlock = new ArrayList<>();
+    private List<List<DatasetFieldDiff>> detailDataByBlock = new ArrayList<>();
     
     private List<FileMetadata> addedFiles = new ArrayList<>();
     private List<FileMetadata> removedFiles = new ArrayList<>();
-    private List<Tuple2<FileMetadata, FileMetadata>> changedFileMetadata = new ArrayList<>();
-    private List<Tuple2<FileTermsOfUse, FileTermsOfUse>> changedFileTerms = new ArrayList<>();
-    private List<Tuple2<FileMetadata, FileMetadata>> replacedFiles = new ArrayList<>();
+    private List<FileMetadataDiff> changedFileMetadata = new ArrayList<>();
+    private List<TermsOfUseDiff> changedFileTerms = new ArrayList<>();
+    private List<FileMetadataDiff> replacedFiles = new ArrayList<>();
     
     
     private List<DatasetFileDifferenceItem> datasetFilesDiffList = new ArrayList<>();
@@ -40,8 +37,8 @@ public final class DatasetVersionDifference {
     private List<DatasetReplaceFileItem> datasetFilesReplacementList = new ArrayList<>();
     
     
-    private List<Tuple4<DatasetFieldType, Integer, Integer, Integer>> summaryDataForNote = new ArrayList<>();
-    private List<Tuple4<MetadataBlock, Integer, Integer, Integer>> blockDataForNote = new ArrayList<>();
+    private List<DatasetFieldChangeCounts> summaryDataForNote = new ArrayList<>();
+    private List<MetadataBlockChangeCounts> blockDataForNote = new ArrayList<>();
     private String fileNote = StringUtils.EMPTY;
     
     
@@ -82,10 +79,10 @@ public final class DatasetVersionDifference {
         
         //Sort within blocks by datasetfieldtype dispaly order then....
         //sort via metadatablock order - citation first...
-        for (List<Tuple2<DatasetField, DatasetField>> blockList : detailDataByBlock) {
-            Collections.sort(blockList, Comparator.comparing(x -> x._1().getDatasetFieldType().getDisplayOrder()));
+        for (List<DatasetFieldDiff> blockList : detailDataByBlock) {
+            Collections.sort(blockList, Comparator.comparing(x -> x.getOldValue().getDatasetFieldType().getDisplayOrder()));
         }
-        Collections.sort(detailDataByBlock, Comparator.comparing(x -> x.get(0)._1().getDatasetFieldType().getMetadataBlock().getId()));
+        Collections.sort(detailDataByBlock, Comparator.comparing(x -> x.get(0).getOldValue().getDatasetFieldType().getMetadataBlock().getId()));
         
         
         // files difference
@@ -96,10 +93,10 @@ public final class DatasetVersionDifference {
                 if (fmdo.getDataFile().equals(fmdn.getDataFile())) {
                     deleted = false;
                     if (!areFilesMetadataEqual(fmdo, fmdn)) {
-                        changedFileMetadata.add(new Tuple2<FileMetadata, FileMetadata>(fmdo, fmdn));
+                        changedFileMetadata.add(new FileMetadataDiff(fmdo, fmdn));
                     }
                     if (!areFileTermsEqual(fmdo.getTermsOfUse(), fmdn.getTermsOfUse())) {
-                        changedFileTerms.add(new Tuple2<>(fmdo.getTermsOfUse(), fmdn.getTermsOfUse()));
+                        changedFileTerms.add(new TermsOfUseDiff(fmdo.getTermsOfUse(), fmdn.getTermsOfUse()));
                     }
                     
                     break;
@@ -142,16 +139,14 @@ public final class DatasetVersionDifference {
      * between two dataset versions (includes added and
      * removed fields).
      * Changes are grouped by metadata blocks.
-     * First element in tuple points to old dataset field and
-     * Second element points to new dataset field.
      */
-    public List<List<Tuple2<DatasetField, DatasetField>>> getDetailDataByBlock() {
+    public List<List<DatasetFieldDiff>> getDetailDataByBlock() {
         return detailDataByBlock;
     }
 
     /**
      * Returns file metadata of files that have
-     * been added (exist only in old version)
+     * been added (that exists only in old version)
      */
     public List<FileMetadata> getAddedFiles() {
         return addedFiles;
@@ -159,7 +154,7 @@ public final class DatasetVersionDifference {
 
     /**
      * Returns file metadata of files that have
-     * been removed (exist only in new version)
+     * been removed (that exists only in new version)
      */
     public List<FileMetadata> getRemovedFiles() {
         return removedFiles;
@@ -168,10 +163,8 @@ public final class DatasetVersionDifference {
     /**
      * Returns files metadata that have been changed
      * between two dataset versions.
-     * First element in tuple points to old file metadata and
-     * second element points to new file metadata.
      */
-    public List<Tuple2<FileMetadata, FileMetadata>> getChangedFileMetadata() {
+    public List<FileMetadataDiff> getChangedFileMetadata() {
         return changedFileMetadata;
     }
     
@@ -204,38 +197,33 @@ public final class DatasetVersionDifference {
     }
 
     /**
-     * Returns statistical summary of dataset fields that changed
-     * between two versions.
-     * Every item in returned list contains tuple with number of
-     * changes on field with type equal to first element in tuple.
+     * Returns statistical summary of changes between two versions
+     * in dataset fields.
      * <p>
-     * For example if tuple is:
-     * <code>([DatasetFieldType[author]], 3, 5, 1)</code>
+     * For example if element on returned list is:
+     * <code>[[DatasetFieldType[author]], 3, 5, 1]</code>
      * that means that 3 authors were added; 5 was removed and in 1 author some metadata was changed.
      * <p>
      * Note that only fields with {@link DatasetFieldType#isDisplayOnCreate()} flag
      * are included in returned summary.
      */
-    public List<Tuple4<DatasetFieldType, Integer, Integer, Integer>> getSummaryDataForNote() {
+    public List<DatasetFieldChangeCounts> getSummaryDataForNote() {
         return summaryDataForNote;
     }
 
     /**
-     * Returns statistical summary of dataset fields that changed
-     * between two versions.
-     * Every item in returned list contains tuple with number
-     * of changes in all fields within metadata block equal to
-     * first element in tuple.
+     * Returns statistical summary of changes between two versions
+     * in dataset fields inside metadata block.
      * <p>
-     * For example if tuple is:
-     * <code>([MetadataBlock[citation]], 3, 5, 1)</code>
+     * For example if element on returned list is:
+     * <code>[[MetadataBlock[citation]], addedCount=3, removedCount=5, changedCount=1]</code>
      * that means that 3 field values were added to fields within
      * citation block; 5 was removed and 1 field was changed.
      * <p>
      * Note that only fields without {@link DatasetFieldType#isDisplayOnCreate()} flag
      * are included in returned summary.
      */
-    public List<Tuple4<MetadataBlock, Integer, Integer, Integer>> getBlockDataForNote() {
+    public List<MetadataBlockChangeCounts> getBlockDataForNote() {
         return blockDataForNote;
     }
     
@@ -260,32 +248,34 @@ public final class DatasetVersionDifference {
 
         //Metadata differences displayed by Metdata block
         if (!this.detailDataByBlock.isEmpty()) {
-            for (List<Tuple2<DatasetField, DatasetField>> blocks : detailDataByBlock) {
+            for (List<DatasetFieldDiff> blocks : detailDataByBlock) {
                 groupString = System.lineSeparator() + " Metadata Block";
                 
-                String blockDisplay = " " + blocks.get(0)._1().getDatasetFieldType().getMetadataBlock().getName() + ": " + System.lineSeparator();
+                String blockDisplay = " " + blocks.get(0).getOldValue().getDatasetFieldType().getMetadataBlock().getName() + ": " + System.lineSeparator();
                 groupString += blockDisplay;
-                for (Tuple2<DatasetField, DatasetField> dsfArray : blocks) {
+                for (DatasetFieldDiff dsfArray : blocks) {
                     valueString = " Field: ";
-                    String title = dsfArray._1().getDatasetFieldType().getName();
+                    String title = dsfArray.getOldValue().getDatasetFieldType().getName();
                     valueString += title;
                     String oldValue = " Changed From: ";
-
-                    if (!dsfArray._1().isEmpty()) {
-                        if (dsfArray._1().getDatasetFieldType().isPrimitive()) {
-                            oldValue += dsfArray._1().getRawValue();
+                    
+                    DatasetField oldField = dsfArray.getOldValue();
+                    if (!oldField.isEmpty()) {
+                        if (oldField.getDatasetFieldType().isPrimitive()) {
+                            oldValue += oldField.getRawValue();
                         } else {
-                            oldValue += dsfArray._1().getCompoundRawValue();
+                            oldValue += oldField.getCompoundRawValue();
                         }
                     }
                     valueString += oldValue;
 
+                    DatasetField newField = dsfArray.getNewValue();
                     String newValue = " To: ";
-                    if (!dsfArray._2().isEmpty()) {
-                        if (dsfArray._2().getDatasetFieldType().isPrimitive()) {
-                            newValue += dsfArray._2().getRawValue();
+                    if (!newField.isEmpty()) {
+                        if (newField.getDatasetFieldType().isPrimitive()) {
+                            newValue += newField.getRawValue();
                         } else {
-                            newValue += dsfArray._2().getCompoundRawValue();
+                            newValue += newField.getCompoundRawValue();
                         }
 
                     }
@@ -380,20 +370,16 @@ public final class DatasetVersionDifference {
             for (FileMetadata removed : removedFiles) {
                 DataFile test = removed.getDataFile();
                 if (test.getId().equals(replacedId)) {
-                    replacedFiles.add(new Tuple2<FileMetadata, FileMetadata>(removed, added));
+                    replacedFiles.add(new FileMetadataDiff(removed, added));
                 }
             }
         }
         replacedFiles.stream().forEach(replaced -> {
-            removedFiles.remove(replaced._1());
-            addedFiles.remove(replaced._2());
+            removedFiles.remove(replaced.getOldValue());
+            addedFiles.remove(replaced.getNewValue());
         });
     }
 
-
-    private void addToList(List<Tuple2<DatasetField, DatasetField>> listIn, DatasetField dsfo, DatasetField dsfn) {
-        listIn.add(new Tuple2<>(dsfo, dsfn));
-    }
 
     private void addToSummary(DatasetField dsfo, DatasetField dsfn) {
         if (dsfo == null) {
@@ -404,43 +390,48 @@ public final class DatasetVersionDifference {
             dsfn = new DatasetField();
             dsfn.setDatasetFieldType(dsfo.getDatasetFieldType());
         }
-        boolean addedToAll = false;
-        for (List<Tuple2<DatasetField, DatasetField>> blockList : detailDataByBlock) {
-            Tuple2<DatasetField, DatasetField> dsft = blockList.get(0);
-            if (dsft._1().getDatasetFieldType().getMetadataBlock().equals(dsfo.getDatasetFieldType().getMetadataBlock())) {
-                addToList(blockList, dsfo, dsfn);
-                addedToAll = true;
+        MetadataBlock blockToUpdate = dsfo.getDatasetFieldType().getMetadataBlock();
+        List<DatasetFieldDiff> blockListDiffToUpdate = extractOrCreateDiffForBlock(blockToUpdate);
+        
+        blockListDiffToUpdate.add(new DatasetFieldDiff(dsfo, dsfn));
+    }
+
+    private List<DatasetFieldDiff> extractOrCreateDiffForBlock(MetadataBlock blockToUpdate) {
+        for (List<DatasetFieldDiff> blockListDiff : detailDataByBlock) {
+            MetadataBlock block = blockListDiff.get(0).getOldValue().getDatasetFieldType().getMetadataBlock();
+            if (block.equals(blockToUpdate)) {
+                return blockListDiff;
             }
         }
-        if (!addedToAll) {
-            List<Tuple2<DatasetField, DatasetField>> newList = new ArrayList<>();
-            addToList(newList, dsfo, dsfn);
-            detailDataByBlock.add(newList);
-        }
+        List<DatasetFieldDiff> newBlockListDiff = new ArrayList<>();
+        detailDataByBlock.add(newBlockListDiff);
+        return newBlockListDiff;
     }
 
     private void updateBlockSummary(MetadataBlock metadataBlock, int added, int deleted, int changed) {
-        int indexToUpdate = -1;
         
         for (int i=0; i<blockDataForNote.size(); ++i) {
-            MetadataBlock metadataBlockFromBlockData = blockDataForNote.get(i)._1();
+            MetadataBlock metadataBlockFromBlockData = blockDataForNote.get(i).getItem();
             if (metadataBlockFromBlockData.equals(metadataBlock)) {
-                indexToUpdate = i;
-                break;
+                blockDataForNote.get(i).incrementAdded(added);
+                blockDataForNote.get(i).incrementRemoved(deleted);
+                blockDataForNote.get(i).incrementChanged(changed);
+                return;
             }
         }
-        
-        if (indexToUpdate != -1) {
-            Tuple4<MetadataBlock, Integer, Integer, Integer> blockList = blockDataForNote.remove(indexToUpdate);
-            blockDataForNote.add(new Tuple4<>(blockList._1(), blockList._2() + added, blockList._3() + deleted, blockList._4() + changed));
-            return;
-        }
-        blockDataForNote.add(new Tuple4<>(metadataBlock, added, deleted, changed));
-
+        MetadataBlockChangeCounts changeCounts = new MetadataBlockChangeCounts(metadataBlock);
+        changeCounts.incrementAdded(added);
+        changeCounts.incrementRemoved(deleted);
+        changeCounts.incrementChanged(changed);
+        blockDataForNote.add(changeCounts);
     }
 
     private void addToNoteSummary(DatasetFieldType dsft, int added, int deleted, int changed) {
-        summaryDataForNote.add(new Tuple4<>(dsft, added, deleted, changed));
+        DatasetFieldChangeCounts counts = new DatasetFieldChangeCounts(dsft);
+        counts.incrementAdded(added);
+        counts.incrementRemoved(deleted);
+        counts.incrementChanged(changed);
+        summaryDataForNote.add(counts);
     }
 
     private boolean areFilesMetadataEqual(FileMetadata fmdo, FileMetadata fmdn) {
@@ -606,7 +597,7 @@ public final class DatasetVersionDifference {
     private void initDatasetFilesDifferencesList() {
         
         replacedFiles.stream()
-            .map((replacedPair) -> buildDatasetReplaceFileItem(replacedPair._1(), replacedPair._2()))
+            .map((replacedPair) -> buildDatasetReplaceFileItem(replacedPair.getOldValue(), replacedPair.getNewValue()))
             .forEach(datasetFilesReplacementList::add);
         
         for (FileMetadata addedFile: addedFiles) {
@@ -615,15 +606,15 @@ public final class DatasetVersionDifference {
         for (FileMetadata removedFile: removedFiles) {
             datasetFilesDiffList.add(buildDatasetFileDifferenceItem(removedFile, null));
         }
-        for (Tuple2<FileMetadata, FileMetadata> changedPair: changedFileMetadata) {
-            FileMetadata originalMetadata = changedPair._1();
-            FileMetadata newMetadata = changedPair._2();
+        for (FileMetadataDiff changedPair: changedFileMetadata) {
+            FileMetadata originalMetadata = changedPair.getOldValue();
+            FileMetadata newMetadata = changedPair.getNewValue();
             datasetFilesDiffList.add(buildDatasetFileDifferenceItem(originalMetadata, newMetadata));
         }
         
-        for (Tuple2<FileTermsOfUse, FileTermsOfUse> changedTermsPair: changedFileTerms) {
-            FileTermsOfUse originalTerms = changedTermsPair._1();
-            FileTermsOfUse newTerms = changedTermsPair._2();
+        for (TermsOfUseDiff changedTermsPair: changedFileTerms) {
+            FileTermsOfUse originalTerms = changedTermsPair.getOldValue();
+            FileTermsOfUse newTerms = changedTermsPair.getNewValue();
             DataFile dataFile = originalTerms.getFileMetadata().getDataFile();
             
             datasetFileTermsDiffList.add(new DatasetFileTermDifferenceItem(
@@ -805,24 +796,24 @@ public final class DatasetVersionDifference {
 
     public class DatasetReplaceFileItem {
 
-        private FileSummary fileSummary1;
-        private FileSummary fileSummary2;
+        private FileSummary oldFileSummary;
+        private FileSummary newFileSummary;
         
         private FileMetadataDifferenceItem metadataDifference;
 
-        public DatasetReplaceFileItem(FileSummary fileSummary1, FileSummary fileSummary2,
+        public DatasetReplaceFileItem(FileSummary oldFileSummary, FileSummary newFileSummary,
                 FileMetadataDifferenceItem metadataDifference) {
-            this.fileSummary1 = fileSummary1;
-            this.fileSummary2 = fileSummary2;
+            this.oldFileSummary = oldFileSummary;
+            this.newFileSummary = newFileSummary;
             this.metadataDifference = metadataDifference;
         }
 
-        public FileSummary getFileSummary1() {
-            return fileSummary1;
+        public FileSummary getOldFileSummary() {
+            return oldFileSummary;
         }
 
-        public FileSummary getFileSummary2() {
-            return fileSummary2;
+        public FileSummary getNewFileSummary() {
+            return newFileSummary;
         }
 
         public FileMetadataDifferenceItem getMetadataDifference() {
@@ -834,25 +825,25 @@ public final class DatasetVersionDifference {
 
         private FileSummary fileSummary;
         
-        private FileTermsOfUse terms1;
-        private FileTermsOfUse terms2;
+        private FileTermsOfUse oldTerms;
+        private FileTermsOfUse newTerms;
         
-        public DatasetFileTermDifferenceItem(FileSummary fileSummary, FileTermsOfUse terms1, FileTermsOfUse terms2) {
+        public DatasetFileTermDifferenceItem(FileSummary fileSummary, FileTermsOfUse oldTerms, FileTermsOfUse newTerms) {
             this.fileSummary = fileSummary;
-            this.terms1 = terms1;
-            this.terms2 = terms2;
+            this.oldTerms = oldTerms;
+            this.newTerms = newTerms;
         }
 
         public FileSummary getFileSummary() {
             return fileSummary;
         }
 
-        public FileTermsOfUse getTerms1() {
-            return terms1;
+        public FileTermsOfUse getOldTerms() {
+            return oldTerms;
         }
 
-        public FileTermsOfUse getTerms2() {
-            return terms2;
+        public FileTermsOfUse getNewTerms() {
+            return newTerms;
         }
     }
 
@@ -1028,6 +1019,108 @@ public final class DatasetVersionDifference {
         }
         public String getFileChecksumValue() {
             return fileChecksumValue;
+        }
+    }
+    
+    public static class TermsOfUseDiff extends ItemDiff<FileTermsOfUse> {
+
+        public TermsOfUseDiff(FileTermsOfUse oldValue, FileTermsOfUse newValue) {
+            super(oldValue, newValue);
+        }
+        
+    }
+    
+    public static class FileMetadataDiff extends ItemDiff<FileMetadata> {
+
+        public FileMetadataDiff(FileMetadata oldValue, FileMetadata newValue) {
+            super(oldValue, newValue);
+        }
+        
+    }
+    
+    public static class DatasetFieldDiff extends ItemDiff<DatasetField> {
+
+        public DatasetFieldDiff(DatasetField oldValue, DatasetField newValue) {
+            super(oldValue, newValue);
+        }
+        
+    }
+    
+    public static class ItemDiff<T> {
+        private T oldValue;
+        private T newValue;
+        
+        // -------------------- CONSTRUCTORS --------------------
+        
+        public ItemDiff(T oldValue, T newValue) {
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+        }
+
+        // -------------------- GETTERS --------------------
+        
+        public T getOldValue() {
+            return oldValue;
+        }
+
+        public T getNewValue() {
+            return newValue;
+        }
+    }
+    
+    
+    public static class MetadataBlockChangeCounts extends ChangeCounts<MetadataBlock> {
+
+        public MetadataBlockChangeCounts(MetadataBlock item) {
+            super(item);
+        }
+        
+    }
+    
+    public static class DatasetFieldChangeCounts extends ChangeCounts<DatasetFieldType> {
+
+        public DatasetFieldChangeCounts(DatasetFieldType item) {
+            super(item);
+        }
+    }
+    
+    public static class ChangeCounts<T> {
+        private T item;
+        private int addedCount;
+        private int removedCount;
+        private int changedCount;
+        
+        // -------------------- CONSTRUCTORS --------------------
+        
+        public ChangeCounts(T item) {
+            this.item = item;
+        }
+        
+        // -------------------- GETTERS --------------------
+        
+        public T getItem() {
+            return item;
+        }
+        public int getAddedCount() {
+            return addedCount;
+        }
+        public int getRemovedCount() {
+            return removedCount;
+        }
+        public int getChangedCount() {
+            return changedCount;
+        }
+        
+        // -------------------- LOGIC --------------------
+        
+        public void incrementAdded(int count) {
+            addedCount += count;
+        }
+        public void incrementRemoved(int count) {
+            removedCount += count;
+        }
+        public void incrementChanged(int count) {
+            changedCount += count;
         }
     }
 }
