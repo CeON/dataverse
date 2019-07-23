@@ -126,7 +126,7 @@ public class ExportServiceTest {
     }
 
     @Test
-    @DisplayName("export DatasetVersion as string for ddi")
+    @DisplayName("export DatasetVersion as string for ddi without email")
     public void exportDatasetVersionAsString_forDdiWithoutEmail() throws IOException, JsonParseException {
         //given
         enableExcludingEmails();
