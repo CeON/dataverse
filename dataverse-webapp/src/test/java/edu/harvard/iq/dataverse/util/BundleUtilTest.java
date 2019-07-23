@@ -69,12 +69,12 @@ public class BundleUtilTest {
 
     @Test
     public void testStringFromPropertyFile() {
-        assertEquals("ZIP", BundleUtil.getStringFromPropertyFile("application/zip", "MimeTypeFacets"));
+        assertEquals("ZIP", BundleUtil.getStringFromPropertyFile("application/zip", "MimeTypeFacets", BundleUtil.getCurrentLocale()));
     }
 
     @Test
     public void testStringFromPropertyFileException() {
-        String stringFromPropertyFile = BundleUtil.getStringFromPropertyFile("FAKE", "MimeTypeFacets");
+        String stringFromPropertyFile = BundleUtil.getStringFromPropertyFile("FAKE", "MimeTypeFacets", BundleUtil.getCurrentLocale());
         Assert.assertEquals(StringUtils.EMPTY, stringFromPropertyFile);
     }
 }

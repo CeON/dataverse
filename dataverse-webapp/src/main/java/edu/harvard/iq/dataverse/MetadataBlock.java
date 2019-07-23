@@ -22,10 +22,6 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.Objects;
 
-import static edu.harvard.iq.dataverse.util.BundleUtil.getStringFromBundle;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
 /**
  * @author skraffmiller
  */
@@ -193,7 +189,7 @@ public class MetadataBlock implements Serializable {
 
     public String getLocaleDisplayName() {
         try {
-            return BundleUtil.getStringFromPropertyFile("metadatablock.displayName", getName());
+            return BundleUtil.getStringFromPropertyFile("metadatablock.displayName", getName(), BundleUtil.getCurrentLocale());
         } catch (MissingResourceException e) {
             return displayName;
         }
