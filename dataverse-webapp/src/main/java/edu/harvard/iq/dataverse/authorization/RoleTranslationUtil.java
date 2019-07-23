@@ -17,7 +17,7 @@ public class RoleTranslationUtil {
         if (alias != null) {
             try {
                 String key = "role." + alias.toLowerCase() + ".name";
-                String localeName = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles", BundleUtil.getCurrentLocale());
+                String localeName = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
                 if (localeName == null) {
                     return name;
                 } else {
@@ -41,7 +41,7 @@ public class RoleTranslationUtil {
         if (alias != null) {
             String key = "role." + alias.toLowerCase() + ".description";
             try {
-                String localeDescription = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles", BundleUtil.getCurrentLocale());
+                String localeDescription = BundleUtil.getStringFromPropertyFile(key, "BuiltInRoles");
                 if (localeDescription == null) {
                     return description;
                 } else {

@@ -27,17 +27,18 @@ public class BundleUtil {
     private static final Set<String> INTERNAL_BUNDLE_NAMES = Sets.newHashSet(
             DEFAULT_BUNDLE_FILE, "BuiltInRoles", "MimeTypeDisplay", "MimeTypeFacets", "ValidationMessages");
 
+    // -------------------- LOGIC --------------------
 
     public static String getStringFromBundle(String key) {
         return getStringFromPropertyFile(key, DEFAULT_BUNDLE_FILE, getCurrentLocale());
     }
 
-    public static String getStringFromBundleForLocale(String key, Locale locale) {
+    public static String getStringFromBundle(String key, Locale locale) {
         return getStringFromPropertyFile(key, DEFAULT_BUNDLE_FILE, locale);
     }
 
     public static String getStringFromBundle(String key, List<String> arguments) {
-        String stringFromPropertyFile = getStringFromPropertyFile(key, DEFAULT_BUNDLE_FILE, getCurrentLocale());
+        String stringFromPropertyFile = getStringFromPropertyFile(key, DEFAULT_BUNDLE_FILE);
 
         if (arguments != null) {
             return MessageFormat.format(stringFromPropertyFile, arguments.toArray());
@@ -63,6 +64,17 @@ public class BundleUtil {
         }
 
         return displayNameFromExternalBundle.orElseGet(() -> getStringFromInternalBundle(bundleKey, bundleName, locale));
+    }
+
+    public static String getStringFromPropertyFile(String bundleKey, String bundleName) throws MissingResourceException {
+        Optional<String> displayNameFromExternalBundle = Optional.empty();
+
+        if ((!DefaultMetadataBlocks.METADATA_BLOCK_NAMES.contains(bundleName) && !INTERNAL_BUNDLE_NAMES.contains(bundleName))
+                && System.getProperty("dataverse.lang.directory") != null) {
+            displayNameFromExternalBundle = getStringFromExternalBundle(bundleKey, bundleName, getCurrentLocale());
+        }
+
+        return displayNameFromExternalBundle.orElseGet(() -> getStringFromInternalBundle(bundleKey, bundleName, getCurrentLocale()));
     }
 
     public static Locale getCurrentLocale() {

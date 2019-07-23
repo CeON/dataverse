@@ -201,7 +201,7 @@ public class FileUtil implements java.io.Serializable {
                 fileType = fileType.substring(0, fileType.indexOf(";"));
             }
             try {
-                return BundleUtil.getStringFromPropertyFile(fileType, "MimeTypeDisplay", BundleUtil.getCurrentLocale());
+                return BundleUtil.getStringFromPropertyFile(fileType, "MimeTypeDisplay");
             } catch (MissingResourceException e) {
                 return fileType;
             }
@@ -219,7 +219,7 @@ public class FileUtil implements java.io.Serializable {
             }
 
             try {
-                return BundleUtil.getStringFromPropertyFile(fileType, "MimeTypeFacets", BundleUtil.getCurrentLocale());
+                return BundleUtil.getStringFromPropertyFile(fileType, "MimeTypeFacets");
             } catch (MissingResourceException e) {
                 // if there's no defined "facet-friendly" form of this mime type
                 // we'll truncate the available type by "/", e.g., all the 
@@ -239,7 +239,7 @@ public class FileUtil implements java.io.Serializable {
             }
         } else {
             try {
-                return BundleUtil.getStringFromPropertyFile("application/octet-stream", "MimeTypeFacets", BundleUtil.getCurrentLocale());
+                return BundleUtil.getStringFromPropertyFile("application/octet-stream", "MimeTypeFacets");
             } catch (MissingResourceException ex) {
                 logger.warning("Could not find \"" + fileType + "\" in bundle file: ");
                 logger.log(Level.CONFIG, ex.getMessage(), ex);
@@ -260,7 +260,7 @@ public class FileUtil implements java.io.Serializable {
                 fileType = fileType.substring(0, fileType.indexOf(";"));
             }
             try {
-                return BundleUtil.getStringFromPropertyFile(fileType, "MimeTypeDisplay", BundleUtil.getCurrentLocale());
+                return BundleUtil.getStringFromPropertyFile(fileType, "MimeTypeDisplay");
             } catch (MissingResourceException e) {
                 return fileType;
             }
