@@ -49,7 +49,7 @@ public class DataAccess {
      */
     public StorageIO getDirectStorageIO(String storageLocation) throws IOException {
         if (storageLocation.startsWith("file://")) {
-            return new FileAccessIO(storageLocation.substring(7), SystemConfig.FILES_DIRECTORY);
+            return new FileAccessIO(storageLocation.substring(7), SystemConfig.getDataverseSiteUrlStatic());
         } else if (storageLocation.startsWith("swift://")) {
             return new SwiftAccessIO<>(storageLocation.substring(8));
         } else if (storageLocation.startsWith("s3://")) {
