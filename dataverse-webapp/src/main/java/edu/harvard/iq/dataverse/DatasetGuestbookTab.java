@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @ViewScoped
 @Named("DatasetGuestbookTab")
-public class DatasetGuestbookTabBean implements Serializable {
+public class DatasetGuestbookTab implements Serializable {
 
     @Inject
     PermissionsWrapper permissionsWrapper;
