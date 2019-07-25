@@ -11,14 +11,10 @@ import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequiredPermissions(Permission.EditDataset)
@@ -55,9 +51,6 @@ public class UpdateDatasetThumbnailCommand extends AbstractCommand<DatasetThumbn
             logger.info(message);
             throw new IllegalCommandException(message, this);
         }
-//        if (true) {
-//            throw new CommandException("Just testing what an error would look like in the GUI.", this);
-//        }
         if (userIntent == null) {
             throw new IllegalCommandException("No changes to save.", this);
         }
@@ -71,19 +64,16 @@ public class UpdateDatasetThumbnailCommand extends AbstractCommand<DatasetThumbn
                 if (datasetFileThumbnailToSwitchTo == null) {
                     throw new CommandException("Could not find file based on id supplied: " + dataFileIdSupplied + ".", this);
                 }
-                Dataset ds1 = ctxt.datasets().setDatasetFileAsThumbnail(dataset, datasetFileThumbnailToSwitchTo);
-                DatasetThumbnail datasetThumbnail = ds1.getDatasetThumbnail();
-                if (datasetThumbnail != null) {
-                    DataFile dataFile = datasetThumbnail.getDataFile();
-                    if (dataFile != null) {
-                        if (dataFile.getId().equals(dataFileIdSupplied)) {
-                            return datasetThumbnail;
-                        } else {
-                            throw new CommandException("Dataset thumbnail is should be based on file id " + dataFile.getId() + " but instead it is " + dataFileIdSupplied + ".", this);
-                        }
+                Dataset ds1 = ctxt.datasetThumbnails().setDatasetFileAsThumbnail(dataset, datasetFileThumbnailToSwitchTo);
+                DatasetThumbnail datasetThumbnail = ctxt.datasetThumbnails().getThumbnailBase64(ds1).get();
+
+                DataFile dataFile = datasetThumbnail.getDataFile();
+                if (dataFile != null) {
+                    if (dataFile.getId().equals(dataFileIdSupplied)) {
+                        return datasetThumbnail;
+                    } else {
+                        throw new CommandException("Dataset thumbnail is should be based on file id " + dataFile.getId() + " but instead it is " + dataFileIdSupplied + ".", this);
                     }
-                } else {
-                    throw new CommandException("Dataset thumbnail is unexpectedly absent.", this);
                 }
 
             case setNonDatasetFileAsThumbnail:
@@ -93,38 +83,16 @@ public class UpdateDatasetThumbnailCommand extends AbstractCommand<DatasetThumbn
                 } catch (IOException ex) {
                     throw new CommandException("In setNonDatasetFileAsThumbnail caught exception calling inputStreamToFile: " + ex, this);
                 }
-                if (uploadedFile == null) {
-                    throw new CommandException("In setNonDatasetFileAsThumbnail uploadedFile was null.", this);
-                }
-                long uploadLogoSizeLimit = ctxt.systemConfig().getUploadLogoSizeLimit();
-                if (uploadedFile.length() > uploadLogoSizeLimit) {
-                    throw new IllegalCommandException("File is larger than maximum size: " + uploadLogoSizeLimit + ".", this);
-                }
-                FileInputStream fileAsStream = null;
-                try {
-                    fileAsStream = new FileInputStream(uploadedFile);
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(UpdateDatasetThumbnailCommand.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                Dataset datasetWithNewThumbnail = ctxt.datasets().setNonDatasetFileAsThumbnail(dataset, fileAsStream);
-                IOUtils.closeQuietly(fileAsStream);
-                if (datasetWithNewThumbnail != null) {
-                    return datasetWithNewThumbnail.getDatasetThumbnail();
-                } else {
-                    return null;
-                }
-
+                Dataset datasetWithNewThumbnail = ctxt.datasetThumbnails().setNonDatasetFileAsThumbnail(dataset, uploadedFile);
+                DatasetThumbnail nonDatasetFileThumbnail = ctxt.datasetThumbnails().getThumbnailBase64(datasetWithNewThumbnail).get();
+                return nonDatasetFileThumbnail;
             case removeThumbnail:
-                Dataset ds2 = ctxt.datasets().removeDatasetThumbnail(dataset);
-                DatasetThumbnail datasetThumbnail2 = ds2.getDatasetThumbnail();
-                if (datasetThumbnail2 == null) {
-                    return null;
-                } else {
+                Dataset ds2 = ctxt.datasetThumbnails().removeDatasetThumbnail(dataset);
+                if (ctxt.datasetThumbnails().getThumbnailBase64(ds2).isPresent()) {
                     throw new CommandException("User wanted to remove the thumbnail it still has one!", this);
                 }
             default:
                 throw new IllegalCommandException("Whatever you are trying to do to the dataset thumbnail is not supported.", this);
         }
     }
-
 }

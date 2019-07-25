@@ -39,6 +39,7 @@ import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.TabularSubsetGenerator;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.datavariable.SummaryStatistic;
 import edu.harvard.iq.dataverse.datavariable.VariableCategory;
@@ -65,6 +66,8 @@ import edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.sav.SAVFileReade
 import edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.xlsx.XLSXFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.xlsx.XLSXFileReaderSpi;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.thumbnail.TemporaryThumbnailService;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -78,7 +81,7 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -95,8 +98,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -121,7 +122,6 @@ import java.util.logging.Logger;
  * New service for handling ingest tasks
  */
 @Stateless
-@ManagedBean
 public class IngestServiceBean {
     private static final Logger logger = Logger.getLogger(IngestServiceBean.class.getCanonicalName());
     @EJB
@@ -137,6 +137,11 @@ public class IngestServiceBean {
 
     @EJB
     private SettingsServiceBean settingsService;
+    
+    @Inject
+    private TemporaryThumbnailService temporaryThumbnailService;
+    @Inject
+    private DataFileThumbnailService dataFileThumbnailService;
 
     @Resource(mappedName = "jms/DataverseIngest")
     Queue queue;
@@ -253,44 +258,17 @@ public class IngestServiceBean {
                 // we may as well save them, by moving these generated images to the permanent 
                 // dataset directory. We should also remember to delete any such files in the
                 // temp directory:
-                List<Path> generatedTempFiles = listGeneratedTempFiles(Paths.get(FileUtil.getFilesTempDirectory()), storageId);
-                if (generatedTempFiles != null) {
-                    for (Path generated : generatedTempFiles) {
-                        if (savedSuccess) { // no need to try to save this aux file permanently, if we've failed to save the main file!
-                            logger.fine("(Will also try to permanently save generated thumbnail file " + generated.toString() + ")");
-                            try {
-                                //Files.copy(generated, Paths.get(dataset.getFileSystemDirectory().toString(), generated.getFileName().toString()));
-                                int i = generated.toString().lastIndexOf("thumb");
-                                if (i > 1) {
-                                    String extensionTag = generated.toString().substring(i);
-                                    storageIO.savePathAsAux(generated, extensionTag);
-                                    logger.fine("Saved generated thumbnail as aux object. \"preview available\" status: " + dataFile.isPreviewImageAvailable());
-                                } else {
-                                    logger.warning("Generated thumbnail file name does not match the expected pattern: " + generated.toString());
-                                }
-
-                            } catch (IOException ioex) {
-                                logger.warning("Failed to save generated file " + generated.toString());
-                            }
-                        }
-
-                        // ... but we definitely want to delete it:
-                        try {
-                            Files.delete(generated);
-                        } catch (IOException ioex) {
-                            logger.warning("Failed to delete generated file " + generated.toString());
-                        }
+                Collection<Thumbnail> generatedTempFiles = temporaryThumbnailService.listThumbnails(storageId);
+                if (savedSuccess) { // no need to try to save this aux file permanently, if we've failed to save the main file!
+                    
+                    for (Thumbnail generated : generatedTempFiles) {
+                        logger.fine("(Will also try to permanently save generated thumbnail file " + generated.toString() + ")");
+                        
+                        dataFileThumbnailService.saveThumbnail(dataFile, generated);
                     }
+                    
                 }
-
-                // ... and let's delete the main temp file:
-                try {
-                    logger.fine("Will attempt to delete the temp file " + tempLocationPath.toString());
-                    Files.delete(tempLocationPath);
-                } catch (IOException ex) {
-                    // (non-fatal - it's just a temp file.)
-                    logger.warning("Failed to delete temp file " + tempLocationPath.toString());
-                }
+                temporaryThumbnailService.removeGenerated(storageId);
 
                 if (unattached) {
                     dataFile.setOwner(null);
@@ -371,33 +349,6 @@ public class IngestServiceBean {
         }
 
         return ret;
-    }
-
-    public List<Path> listGeneratedTempFiles(Path tempDirectory, String baseName) {
-        List<Path> generatedFiles = new ArrayList<>();
-
-        // for example, <filename>.thumb64 or <filename>.thumb400.
-
-        if (baseName == null || baseName.equals("")) {
-            return null;
-        }
-
-        DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
-            @Override
-            public boolean accept(Path file) throws IOException {
-                return (file.getFileName() != null
-                        && file.getFileName().toString().startsWith(baseName + ".thumb"));
-            }
-        };
-
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(tempDirectory, filter)) {
-            for (Path filePath : dirStream) {
-                generatedFiles.add(filePath);
-            }
-        } catch (IOException ex) {
-        }
-
-        return generatedFiles;
     }
 
 

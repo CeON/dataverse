@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static edu.harvard.iq.dataverse.dataset.DatasetUtil.deleteDatasetLogo;
-
 /**
  * Same as {@link DeleteDatasetCommand}, but does not stop if the dataset is
  * published. This command is reserved for super-users, if at all.
@@ -56,10 +54,10 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
                                           this, Collections.singleton(Permission.DeleteDatasetDraft), doomed);
         }
 
-        // If there is a dedicated thumbnail DataFile, it needs to be reset
+        // If there is a thumbnail of dataset then remove it, it needs to be reset
+        // If dataset have thumbnail from DataFile then we need to do that
         // explicitly, or we'll get a constraint violation when deleting:
-        doomed.setThumbnailFile(null);
-        final Dataset managedDoomed = ctxt.em().merge(doomed);
+        final Dataset managedDoomed = ctxt.datasetThumbnails().removeDatasetThumbnail(doomed);
 
         List<String> datasetAndFileSolrIdsToDelete = new ArrayList<>();
         // files need to iterate through and remove 'by hand' to avoid
@@ -77,9 +75,6 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
             dfIt.remove();
         }
-
-        //also, lets delete the uploaded thumbnails!
-        deleteDatasetLogo(doomed, new DataAccess());
 
 
         // ASSIGNMENTS

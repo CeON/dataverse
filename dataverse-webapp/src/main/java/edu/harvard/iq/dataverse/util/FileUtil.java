@@ -820,67 +820,6 @@ public class FileUtil implements java.io.Serializable {
         }
     }
 
-    /*
-     * This method tells you if thumbnail generation is *supported*
-     * on this type of file. i.e., if true, it does not guarantee that a thumbnail
-     * can/will be generated; but it means that we can try.
-     */
-    public static boolean isThumbnailSupported(DataFile file) {
-        if (file == null) {
-            return false;
-        }
-
-        if (file.isHarvested() || "".equals(file.getStorageIdentifier())) {
-            return false;
-        }
-
-        String contentType = file.getContentType();
-
-        // Some browsers (Chrome?) seem to identify FITS files as mime
-        // type "image/fits" on upload; this is both incorrect (the official
-        // mime type for FITS is "application/fits", and problematic: then
-        // the file is identified as an image, and the page will attempt to 
-        // generate a preview - which of course is going to fail...
-        if (ImageMimeType.FITSIMAGE.getMimeValue().equalsIgnoreCase(contentType)) {
-            return false;
-        }
-        // besides most image/* types, we can generate thumbnails for
-        // pdf and "world map" files:
-
-        return (contentType != null &&
-                (contentType.startsWith("image/") ||
-                        contentType.equalsIgnoreCase("application/pdf") ||
-                        (file.isTabularData() && file.hasGeospatialTag()) ||
-                        contentType.equalsIgnoreCase(ApplicationMimeType.GEO_SHAPE.getMimeValue())));
-    }
-    
-    
-    /* 
-     * The method below appears to be unnecessary; 
-     * it duplicates the method generateImageThumbnailFromFileAsBase64() from ImageThumbConverter;
-     * plus it creates an unnecessary temp file copy of the source file.    
-    public static String rescaleImage(File file) throws IOException {
-        if (file == null) {
-            logger.info("file was null!!");
-            return null;
-        }
-        File tmpFile = File.createTempFile("tempFileToRescale", ".tmp");
-        BufferedImage fullSizeImage = ImageIO.read(file);
-        if (fullSizeImage == null) {
-            logger.info("fullSizeImage was null!");
-            return null;
-        }
-        int width = fullSizeImage.getWidth();
-        int height = fullSizeImage.getHeight();
-        FileChannel src = new FileInputStream(file).getChannel();
-        FileChannel dest = new FileOutputStream(tmpFile).getChannel();
-        dest.transferFrom(src, 0, src.size());
-        String pathToResizedFile = ImageThumbConverter.rescaleImage(fullSizeImage, width, height, ImageThumbConverter.DEFAULT_CARDIMAGE_SIZE, tmpFile.getAbsolutePath());
-        File resizedFile = new File(pathToResizedFile);
-        return ImageThumbConverter.getImageAsBase64FromFile(resizedFile);
-    }
-    */
-
     public static boolean isPackageFile(DataFile dataFile) {
         return DataFileServiceBean.MIME_TYPE_PACKAGE_FILE.equalsIgnoreCase(dataFile.getContentType());
     }

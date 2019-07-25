@@ -7,12 +7,13 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServi
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.SwiftAccessIO;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
@@ -58,6 +59,9 @@ import edu.harvard.iq.dataverse.search.SearchFilesServiceBean;
 import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail;
+import edu.harvard.iq.dataverse.thumbnail.ThumbnailUtil;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail.ThumbnailSize;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
@@ -202,6 +206,10 @@ public class DatasetPage implements java.io.Serializable {
     ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     private ExportService exportService;
+    @Inject
+    private DataFileThumbnailService dataFileThumbnailService;
+    @Inject
+    private DatasetThumbnailService datasetThumbnailService;
 
     private Dataset dataset = new Dataset();
     private EditMode editMode;
@@ -303,46 +311,11 @@ public class DatasetPage implements java.io.Serializable {
     // or scaled down uploaded "logo" file, or randomly selected
     // image datafile from this dataset. 
     public String getThumbnailString() {
-        // This method gets called 30 (!) times, just to load the page!
-        // - so let's cache that string the first time it's called. 
-
-        if (thumbnailString != null) {
-            if ("".equals(thumbnailString)) {
-                return null;
-            }
-            return thumbnailString;
-        }
-
-        if (!readOnly) {
-            DatasetThumbnail datasetThumbnail = dataset.getDatasetThumbnail();
-            if (datasetThumbnail == null) {
-                thumbnailString = "";
-                return null;
-            }
-
-            if (datasetThumbnail.isFromDataFile()) {
-                if (!datasetThumbnail.getDataFile().equals(dataset.getThumbnailFile())) {
-                    datasetService.assignDatasetThumbnailByNativeQuery(dataset, datasetThumbnail.getDataFile());
-                    // refresh the dataset:
-                    dataset = datasetService.find(dataset.getId());
-                }
-            }
-
-            thumbnailString = datasetThumbnail.getBase64image();
-        } else {
-            thumbnailString = thumbnailServiceWrapper.getDatasetCardImageAsBase64Url(dataset, workingVersion.getId(), !workingVersion.isDraft(), new DataAccess());
-            if (thumbnailString == null) {
-                thumbnailString = "";
-                return null;
-            }
-
-
-        }
         return thumbnailString;
     }
 
     public void setThumbnailString(String thumbnailString) {
-        //Dummy method
+        this.thumbnailString = thumbnailString;
     }
 
     public boolean isRemoveUnusedTags() {
@@ -763,31 +736,26 @@ public class DatasetPage implements java.io.Serializable {
         Long dataFileId = fileMetadata.getDataFile().getId();
 
         if (datafileThumbnailsMap.containsKey(dataFileId)) {
-            return !"".equals(datafileThumbnailsMap.get(dataFileId));
-        }
-
-        if (!FileUtil.isThumbnailSupported(fileMetadata.getDataFile())) {
-            datafileThumbnailsMap.put(dataFileId, "");
-            return false;
+            return datafileThumbnailsMap.get(dataFileId) != null;
         }
 
         if (!this.fileDownloadHelper.canDownloadFile(fileMetadata)) {
-            datafileThumbnailsMap.put(dataFileId, "");
+            datafileThumbnailsMap.put(dataFileId, null);
             return false;
         }
 
-
-        String thumbnailAsBase64 = ImageThumbConverter.getImageThumbnailAsBase64(fileMetadata.getDataFile(), ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-
-
-        //if (datafileService.isThumbnailAvailable(fileMetadata.getDataFile())) {
-        if (!StringUtil.isEmpty(thumbnailAsBase64)) {
-            datafileThumbnailsMap.put(dataFileId, thumbnailAsBase64);
-            return true;
+        if (!dataFileThumbnailService.isThumbnailAvailable(fileMetadata.getDataFile())) {
+            datafileThumbnailsMap.put(dataFileId, null);
+            return false;
         }
+        
+        Thumbnail thumbnail = dataFileThumbnailService.getThumbnail(fileMetadata.getDataFile(), ThumbnailSize.DEFAULT);
+        String thumbnailAsBase64 = ThumbnailUtil.thumbnailAsBase64(thumbnail);
 
-        datafileThumbnailsMap.put(dataFileId, "");
-        return false;
+
+        datafileThumbnailsMap.put(dataFileId, thumbnailAsBase64);
+        
+        return !StringUtil.isEmpty(thumbnailAsBase64);
 
     }
 
@@ -1337,6 +1305,8 @@ public class DatasetPage implements java.io.Serializable {
             // init the citation
             displayCitation = dataset.getCitation(true, workingVersion);
 
+            datasetThumbnailService.getThumbnailBase64(dataset)
+                .ifPresent(thumbnail -> thumbnailString = thumbnail.getBase64image());
 
             if (initFull) {
                 // init the list of FileMetadatas
@@ -2253,19 +2223,8 @@ public class DatasetPage implements java.io.Serializable {
 
                         if (fmd.getDataFile().equals(dataset.getThumbnailFile())) {
                             dataset.setThumbnailFile(null);
+                            dataset.setUseGenericThumbnail(true);
                         }
-                        /* It should not be possible to get here if this file 
-                           is not in fact released! - so the code block below 
-                           is not needed.
-                        //if not published then delete identifier
-                        if (!fmd.getDataFile().isReleased()){
-                            try{
-                                commandEngine.submit(new DeleteDataFileCommand(fmd.getDataFile(), dvRequestService.getDataverseRequest()));
-                            } catch (CommandException e){
-                                 //this command is here to delete the identifier of unreleased files
-                                 //if it fails then a reserved identifier may still be present on the remote provider
-                            }                           
-                        } */
                         fmit.remove();
                         break;
                     }
@@ -2868,90 +2827,6 @@ public class DatasetPage implements java.io.Serializable {
 
     public void clearFileMetadataSelected() {
         fileMetadataSelected = null;
-    }
-
-    public boolean isDesignatedDatasetThumbnail(FileMetadata fileMetadata) {
-        if (fileMetadata != null) {
-            if (fileMetadata.getDataFile() != null) {
-                if (fileMetadata.getDataFile().getId() != null) {
-                    if (fileMetadata.getDataFile().getOwner() != null) {
-                        return fileMetadata.getDataFile().equals(fileMetadata.getDataFile().getOwner().getThumbnailFile());
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /*
-     * Items for the "Designated this image as the Dataset thumbnail:
-     */
-
-    private FileMetadata fileMetadataSelectedForThumbnailPopup = null;
-
-    public void setFileMetadataSelectedForThumbnailPopup(FileMetadata fm) {
-        fileMetadataSelectedForThumbnailPopup = fm;
-        alreadyDesignatedAsDatasetThumbnail = getUseAsDatasetThumbnail();
-
-    }
-
-    public FileMetadata getFileMetadataSelectedForThumbnailPopup() {
-        return fileMetadataSelectedForThumbnailPopup;
-    }
-
-    public void clearFileMetadataSelectedForThumbnailPopup() {
-        fileMetadataSelectedForThumbnailPopup = null;
-    }
-
-    private boolean alreadyDesignatedAsDatasetThumbnail = false;
-
-    public boolean getUseAsDatasetThumbnail() {
-
-        if (fileMetadataSelectedForThumbnailPopup != null) {
-            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
-                if (fileMetadataSelectedForThumbnailPopup.getDataFile().getId() != null) {
-                    if (fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner() != null) {
-                        return fileMetadataSelectedForThumbnailPopup.getDataFile().equals(fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner().getThumbnailFile());
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
-    public void setUseAsDatasetThumbnail(boolean useAsThumbnail) {
-        if (fileMetadataSelectedForThumbnailPopup != null) {
-            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
-                if (fileMetadataSelectedForThumbnailPopup.getDataFile().getId() != null) { // ?
-                    if (fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner() != null) {
-                        if (useAsThumbnail) {
-                            fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner().setThumbnailFile(fileMetadataSelectedForThumbnailPopup.getDataFile());
-                        } else if (getUseAsDatasetThumbnail()) {
-                            fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner().setThumbnailFile(null);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void saveAsDesignatedThumbnail() {
-        // We don't need to do anything specific to save this setting, because
-        // the setUseAsDatasetThumbnail() method, above, has already updated the
-        // file object appropriately. 
-        // However, once the "save" button is pressed, we want to show a success message, if this is 
-        // a new image has been designated as such:
-        if (getUseAsDatasetThumbnail() && !alreadyDesignatedAsDatasetThumbnail) {
-            String successMessage = BundleUtil.getStringFromBundle("file.assignedDataverseImage.success");
-            logger.fine(successMessage);
-            successMessage = successMessage.replace("{0}", fileMetadataSelectedForThumbnailPopup.getLabel());
-            JsfHelper.addFlashMessage(successMessage);
-        }
-
-        // And reset the selected fileMetadata:
-
-        fileMetadataSelectedForThumbnailPopup = null;
     }
 
     /*

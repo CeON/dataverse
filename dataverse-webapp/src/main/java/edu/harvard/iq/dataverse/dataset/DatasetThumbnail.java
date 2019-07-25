@@ -6,12 +6,22 @@ public class DatasetThumbnail {
 
     private final String base64image;
     private final DataFile dataFile;
+    private final String filename;
 
-    public DatasetThumbnail(String base64image, DataFile dataFile) {
+    // -------------------- CONSTRUCTORS --------------------
+    
+    public DatasetThumbnail(String base64image) {
+        this(base64image, null, null);
+    }
+    
+    public DatasetThumbnail(String base64image, DataFile dataFile, String filename) {
         this.base64image = base64image;
         this.dataFile = dataFile;
+        this.filename = filename;
     }
 
+    // -------------------- GETTERS --------------------
+    
     public String getBase64image() {
         return base64image;
     }
@@ -25,10 +35,6 @@ public class DatasetThumbnail {
     }
 
     public String getFilename() {
-        if (dataFile != null) {
-            return dataFile.getDisplayName();
-        } else {
-            return null;
-        }
+        return filename;
     }
 }

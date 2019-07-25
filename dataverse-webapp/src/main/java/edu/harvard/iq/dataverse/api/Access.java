@@ -37,11 +37,13 @@ import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.DataAccessRequest;
 import edu.harvard.iq.dataverse.dataaccess.DataFileZipper;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataaccess.OptionalAccessService;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
+import edu.harvard.iq.dataverse.dataverse.DataverseThumbnailService;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.AssignRoleCommand;
@@ -52,6 +54,8 @@ import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.files.extension.FileExtension;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.thumbnail.ThumbnailUtil;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail.ThumbnailSize;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -98,13 +102,6 @@ import java.util.logging.Logger;
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
-/*
-    Custom API exceptions [NOT YET IMPLEMENTED]
-import edu.harvard.iq.dataverse.api.exceptions.NotFoundException;
-import edu.harvard.iq.dataverse.api.exceptions.ServiceUnavailableException;
-import edu.harvard.iq.dataverse.api.exceptions.PermissionDeniedException;
-import edu.harvard.iq.dataverse.api.exceptions.AuthorizationRequiredException;
-*/
 
 /**
  * @author Leonid Andreev
@@ -149,6 +146,13 @@ public class Access extends AbstractApiBean {
     UserNotificationServiceBean userNotificationService;
     @Inject
     PermissionsWrapper permissionsWrapper;
+    
+    @Inject
+    private DataFileThumbnailService dataFileThumbnailService;
+    @Inject
+    private DatasetThumbnailService datasetThumbnailService;
+    @Inject
+    private DataverseThumbnailService dataverseThumbnailService;
 
 
     private static final String API_KEY_HEADER = "X-Dataverse-key";
@@ -260,7 +264,7 @@ public class Access extends AbstractApiBean {
         DownloadInfo dInfo = new DownloadInfo(df);
 
         logger.fine("checking if thumbnails are supported on this file.");
-        if (FileUtil.isThumbnailSupported(df)) {
+        if (dataFileThumbnailService.isThumbnailAvailable(df)) {
             dInfo.addServiceAvailable(new OptionalAccessService("thumbnail", "image/png", "imageThumb=true", "Image Thumbnail (64x64)"));
         }
 
@@ -672,29 +676,8 @@ public class Access extends AbstractApiBean {
             logger.warning("Preview: datafile service could not locate a DataFile object for id " + fileId + "!");
             return null;
         }
-
-        StorageIO<DataFile> thumbnailDataAccess = null;
-
-        try {
-            StorageIO<DataFile> dataAccess = df.getStorageIO(new DataAccess());
-            if (dataAccess != null) { // && dataAccess.isLocalFile()) {
-                dataAccess.open();
-
-                if ("application/pdf".equalsIgnoreCase(df.getContentType())
-                        || df.isImage()
-                        || "application/zipped-shapefile".equalsIgnoreCase(df.getContentType())) {
-
-                    thumbnailDataAccess = ImageThumbConverter.getImageThumbnailAsInputStream(dataAccess, 48);
-                    if (thumbnailDataAccess != null && thumbnailDataAccess.getInputStream() != null) {
-                        return thumbnailDataAccess.getInputStream();
-                    }
-                }
-            }
-        } catch (IOException ioEx) {
-            return null;
-        }
-
-        return null;
+        
+        return ThumbnailUtil.thumbnailAsInputStream(dataFileThumbnailService.getThumbnail(df, ThumbnailSize.CARD));
     }
 
     // Note:
@@ -712,43 +695,9 @@ public class Access extends AbstractApiBean {
             return null;
         }
 
-        //String imageThumbFileName = null; 
-        StorageIO thumbnailDataAccess = null;
-
-        // First, check if this dataset has a designated thumbnail image: 
-
-        if (datasetVersion.getDataset() != null) {
-
-            DataFile logoDataFile = datasetVersion.getDataset().getThumbnailFile();
-            if (logoDataFile != null) {
-
-                try {
-                    StorageIO<DataFile> dataAccess = logoDataFile.getStorageIO(new DataAccess());
-                    if (dataAccess != null) { // && dataAccess.isLocalFile()) {
-                        dataAccess.open();
-                        thumbnailDataAccess = ImageThumbConverter.getImageThumbnailAsInputStream(dataAccess, 48);
-                    }
-                    if (thumbnailDataAccess != null && thumbnailDataAccess.getInputStream() != null) {
-                        return thumbnailDataAccess.getInputStream();
-                    }
-                } catch (IOException ioEx) {
-                    thumbnailDataAccess = null;
-                }
-            }
-
-
-            // If not, we'll try to use one of the files in this dataset version:
-            /*
-            if (thumbnailDataAccess == null) {
-
-                if (!datasetVersion.getDataset().isHarvested()) {
-                    thumbnailDataAccess = getThumbnailForDatasetVersion(datasetVersion); 
-                }
-            }*/
-
-        }
-
-        return null;
+        Dataset dataset = datasetThumbnailService.autoSelectThumbnailFromDataFiles(datasetVersion.getDataset(), datasetVersion);
+        
+        return ThumbnailUtil.thumbnailBase64AsInputStream(datasetThumbnailService.getThumbnailBase64(dataset).get().getBase64image());
     }
 
     @Path("dvCardImage/{dataverseId}")
@@ -764,152 +713,8 @@ public class Access extends AbstractApiBean {
             return null;
         }
 
-        String imageThumbFileName = null;
-
-        // First, check if the dataverse has a defined logo: 
-
-        if (dataverse.getDataverseTheme() != null && dataverse.getDataverseTheme().getLogo() != null && !dataverse.getDataverseTheme().getLogo().equals("")) {
-            File dataverseLogoFile = getLogo(dataverse);
-            if (dataverseLogoFile != null) {
-                logger.fine("dvCardImage: logo file found");
-                String logoThumbNailPath = null;
-                InputStream in = null;
-
-                try {
-                    if (dataverseLogoFile.exists()) {
-                        logoThumbNailPath = ImageThumbConverter.generateImageThumbnailFromFile(dataverseLogoFile.getAbsolutePath(), 48);
-                        if (logoThumbNailPath != null) {
-                            in = new FileInputStream(logoThumbNailPath);
-                        }
-                    }
-                } catch (Exception ex) {
-                    in = null;
-                }
-                if (in != null) {
-                    logger.fine("dvCardImage: successfully obtained thumbnail for dataverse logo.");
-                    return in;
-                }
-            }
-        }
-
-        // If there's no uploaded logo for this dataverse, go through its 
-        // [released] datasets and see if any of them have card images:
-
-        // TODO: figure out if we want to be doing this! 
-        // (efficiency considerations...) -- L.A. 4.0 
-        // And we definitely don't want to be doing this for harvested 
-        // dataverses:
-        /*
-        StorageIO thumbnailDataAccess = null; 
-        
-        if (!dataverse.isHarvested()) {
-            for (Dataset dataset : datasetService.findPublishedByOwnerId(dataverseId)) {
-                logger.info("dvCardImage: checking dataset "+dataset.getGlobalId());
-                if (dataset != null) {
-                    DatasetVersion releasedVersion = dataset.getReleasedVersion();
-                    logger.info("dvCardImage: obtained released version "+releasedVersion.getTitle());
-                    thumbnailDataAccess = getThumbnailForDatasetVersion(releasedVersion); 
-                    if (thumbnailDataAccess != null) {
-                        logger.info("dvCardImage: obtained thumbnail for the version.");
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if (thumbnailDataAccess != null && thumbnailDataAccess.getInputStream() != null) {
-            return thumbnailDataAccess.getInputStream();
-        }
-        */
-        return null;
+        return ThumbnailUtil.thumbnailAsInputStream(dataverseThumbnailService.getDataverseLogoThumbnail(dataverse.getId()));
     }
-
-    // helper methods:
-
-    // What the method below does - going through all the files in the version -
-    // is too expensive! Instead we are now selecting an available thumbnail and
-    // giving the dataset card a direct link to that file thumbnail. -- L.A., 4.2.2
-    /*
-    private StorageIO getThumbnailForDatasetVersion(DatasetVersion datasetVersion) {
-        logger.info("entering getThumbnailForDatasetVersion()");
-        StorageIO thumbnailDataAccess = null;
-        if (datasetVersion != null) {
-            List<FileMetadata> fileMetadatas = datasetVersion.getFileMetadatas();
-
-            for (FileMetadata fileMetadata : fileMetadatas) {
-                DataFile dataFile = fileMetadata.getDataFile();
-                logger.info("looking at file "+fileMetadata.getLabel()+" , file type "+dataFile.getContentType());
-
-                if (dataFile != null && dataFile.isImage()) {
-
-                    try {
-                        StorageIO dataAccess = dataFile.getStorageIO();
-                        if (dataAccess != null && dataAccess.isLocalFile()) {
-                            dataAccess.open();
-
-                            thumbnailDataAccess = ImageThumbConverter.getImageThumb((FileAccessIO) dataAccess, 48);
-                        }
-                    } catch (IOException ioEx) {
-                        thumbnailDataAccess = null;
-                    }
-                }
-                if (thumbnailDataAccess != null) {
-                    logger.info("successfully generated thumbnail, returning.");
-                    break;
-                }
-            }
-        }
-        return thumbnailDataAccess;
-    }
-    */
-    // TODO: 
-    // put this method into the dataverseservice; use it there
-    // -- L.A. 4.0 beta14
-
-    private File getLogo(Dataverse dataverse) {
-        if (dataverse.getId() == null) {
-            return null;
-        }
-
-        DataverseTheme theme = dataverse.getDataverseTheme();
-        if (theme != null && theme.getLogo() != null && !theme.getLogo().equals("")) {
-            Properties p = System.getProperties();
-            String domainRoot = p.getProperty("com.sun.aas.instanceRoot");
-
-            if (domainRoot != null && !"".equals(domainRoot)) {
-                return new File(domainRoot + File.separator +
-                                        "docroot" + File.separator +
-                                        "logos" + File.separator +
-                                        dataverse.getLogoOwnerId() + File.separator +
-                                        theme.getLogo());
-            }
-        }
-
-        return null;
-    }
-    
-    /* 
-        removing: 
-    private String getWebappImageResource(String imageName) {
-        String imageFilePath = null;
-        String persistenceFilePath = null;
-        java.net.URL persistenceFileUrl = Thread.currentThread().getContextClassLoader().getResource("META-INF/persistence.xml");
-        
-        if (persistenceFileUrl != null) {
-            persistenceFilePath = persistenceFileUrl.getDataFile();
-            if (persistenceFilePath != null) {
-                persistenceFilePath = persistenceFilePath.replaceFirst("/[^/]*$", "/");
-                imageFilePath = persistenceFilePath + "../../../resources/images/" + imageName;
-                return imageFilePath; 
-            }
-            logger.warning("Null file path representation of the location of persistence.xml in the webapp root directory!"); 
-        } else {
-            logger.warning("Could not find the location of persistence.xml in the webapp root directory!");
-        }
-
-        return null;
-    }
-    */
 
     /**
      * Allow (or disallow) access requests to Dataset

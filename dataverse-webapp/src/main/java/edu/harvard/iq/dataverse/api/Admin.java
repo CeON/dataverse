@@ -40,6 +40,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.DataAccessOption;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -85,6 +86,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -128,6 +130,8 @@ public class Admin extends AbstractApiBean {
     GroupServiceBean groupService;
     @EJB
     SettingsServiceBean settingsService;
+    @Inject
+    private DatasetThumbnailService datasetThumbnailService;
 
     // Make the session available
     @Inject
@@ -1046,12 +1050,13 @@ public class Admin extends AbstractApiBean {
             return error(Response.Status.NOT_FOUND, "Could not find dataset based on id supplied: " + idSupplied + ".");
         }
         JsonObjectBuilder data = Json.createObjectBuilder();
-        DatasetThumbnail datasetThumbnail = dataset.getDatasetThumbnail();
         data.add("isUseGenericThumbnail", dataset.isUseGenericThumbnail());
-        data.add("datasetLogoPresent", DatasetUtil.isDatasetLogoPresent(dataset, new DataAccess()));
-        if (datasetThumbnail != null) {
-            data.add("datasetThumbnailBase64image", datasetThumbnail.getBase64image());
-            DataFile dataFile = datasetThumbnail.getDataFile();
+        data.add("datasetLogoPresent", datasetThumbnailService.isDatasetLogoPresent(dataset));
+        
+        Optional<DatasetThumbnail> datasetThumbnail = datasetThumbnailService.getThumbnailBase64(dataset);
+        if (datasetThumbnail.isPresent()) {
+            data.add("datasetThumbnailBase64image", datasetThumbnail.get().getBase64image());
+            DataFile dataFile = datasetThumbnail.get().getDataFile();
             if (dataFile != null) {
                 /**
                  * @todo Change this from a String to a long.

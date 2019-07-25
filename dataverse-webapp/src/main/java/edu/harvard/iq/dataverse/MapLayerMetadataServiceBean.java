@@ -12,6 +12,10 @@ import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailGenerator;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail.ThumbnailSize;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapToken;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
@@ -43,16 +47,22 @@ public class MapLayerMetadataServiceBean {
     private EntityManager em;
 
     @EJB
-    DataFileServiceBean dataFileService;
+    private DataFileServiceBean dataFileService;
 
     @EJB
-    PermissionServiceBean permissionService;
+    private DataFileThumbnailService dataFileThumbnailService;
+    
+    @EJB
+    private DataFileThumbnailGenerator dataFileThumbnailGenerator;
+    
+    @EJB
+    private PermissionServiceBean permissionService;
 
     @EJB
-    SystemConfig systemConfig;
+    private SystemConfig systemConfig;
 
     @EJB
-    WorldMapTokenServiceBean tokenServiceBean;
+    private WorldMapTokenServiceBean tokenServiceBean;
 
     private static final Logger logger = Logger.getLogger(MapLayerMetadataServiceBean.class.getCanonicalName());
 
@@ -173,72 +183,24 @@ public class MapLayerMetadataServiceBean {
             return false;
         }
 
-        // Set the preview image available flag to false
-        dataFile.setPreviewImageAvailable(false);
+        dataFileThumbnailService.removeThumbnails(dataFile);
         dataFile = dataFileService.save(dataFile);
-
 
         try {
             StorageIO<DataFile> storageIO = dataFile.getStorageIO(new DataAccess());
-
-            if (storageIO == null) {
-                logger.warning("Null storageIO in deleteOlderMapThumbnails()");
-                return false;
-            }
             storageIO.open();
             List<String> cachedObjectsTags = storageIO.listAuxObjects();
 
             if (cachedObjectsTags != null) {
                 String iconBaseTag = "img";
-                String iconThumbTagPrefix = "thumb";
                 for (String cachedFileTag : cachedObjectsTags) {
                     logger.info("found AUX tag: " + cachedFileTag);
-                    if (iconBaseTag.equals(cachedFileTag) || cachedFileTag.startsWith(iconThumbTagPrefix)) {
+                    if (iconBaseTag.equals(cachedFileTag)) {
                         logger.info("deleting cached AUX object " + cachedFileTag);
                         storageIO.deleteAuxObject(cachedFileTag);
                     }
                 }
             }
-            /*
-             * Below is the old-style code that was assuming that all the files are 
-             * stored on a local filesystem. The StorageIO code, above, should 
-             * be used instead for all the operations on the physical files associated
-             * with DataFiles. 
-            // Get the parent directory
-            //
-            Path fileDirname = dataAccess.getFileSystemPath().getParent();
-            if (fileDirname == null){
-                logger.warning("DataFile directory has null path.  Directory path: " + dataAccess.getFileSystemPath().toString());
-                return false;
-            }
-        
-            // Verify that the directory exists
-            //
-            File fileDirectory = new File(fileDirname.normalize().toString());
-            if (!(fileDirectory.isDirectory())){
-                logger.warning("DataFile directory is not actually a directory.  Directory path: " + fileDirectory.toString());
-                return false;            
-            }
-        
-            /* Iterate through directory and delete any ".img" files for this DataFile
-           
-                Example:
-                Datafile name: 14a5e4abf7d-e7eebfb6474d
-                Types of files that would be deleted (if they exist):
-                    14a5e4abf7d-e7eebfb6474d.img
-                    14a5e4abf7d-e7eebfb6474d.img.thumb64
-                    14a5e4abf7d-e7eebfb6474d.img.thumb400
-            *//*
-            String iconBaseFilename = dataAccess.getFileSystemPath().toString() +  ".img";
-            String iconThumbFilename = dataAccess.getFileSystemPath().toString() +  ".thumb";
-        
-            for (File singleFile : fileDirectory.listFiles()) {
-                if (singleFile.toString().startsWith(iconBaseFilename) || singleFile.toString().startsWith(iconThumbFilename)) {
-                    //logger.info("file found: " + singleFile.toString());
-                    singleFile.delete();
-                    //results.add(file.getName());
-                }
-            }*/
         } catch (IOException ioEx) {
             logger.warning("IOException in deleteOlderMapThumbnails(): " + ioEx.getMessage());
             return false;
@@ -323,6 +285,9 @@ public class MapLayerMetadataServiceBean {
             logger.warning("Failed to save WorldMap-generated image; " + ioex.getMessage());
             return false;
         }
+
+        List<Thumbnail> thumbnails = dataFileThumbnailGenerator.generateThumbnailAllSizes(mapLayerMetadata.getDataFile());
+        dataFileThumbnailService.saveThumbnails(mapLayerMetadata.getDataFile(), thumbnails);
 
         logger.info("Done");
         return true;

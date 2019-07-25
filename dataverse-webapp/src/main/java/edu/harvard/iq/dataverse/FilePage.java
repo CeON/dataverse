@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.SwiftAccessIO;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -76,6 +77,7 @@ public class FilePage implements java.io.Serializable {
     private String persistentId;
     private List<ExternalTool> configureTools;
     private List<ExternalTool> exploreTools;
+    private boolean thumbnailAvailable;
 
     @EJB
     DataFileServiceBean datafileService;
@@ -113,6 +115,8 @@ public class FilePage implements java.io.Serializable {
     WorldMapPermissionHelper worldMapPermissionHelper;
     @Inject
     private ExportService exportService;
+    @Inject
+    private DataFileThumbnailService dataFileThumbnailService;
 
     public WorldMapPermissionHelper getWorldMapPermissionHelper() {
         return worldMapPermissionHelper;
@@ -210,6 +214,14 @@ public class FilePage implements java.io.Serializable {
             }
             configureTools = externalToolService.findByType(ExternalTool.Type.CONFIGURE, contentType);
             exploreTools = externalToolService.findByType(ExternalTool.Type.EXPLORE, contentType);
+            
+            
+            if (fileDownloadHelper.canDownloadFile(fileMetadata)) {
+                thumbnailAvailable = dataFileThumbnailService.isThumbnailAvailable(fileMetadata.getDataFile());
+            } else {
+                thumbnailAvailable = true;
+            }
+            
 
         } else {
 
@@ -573,27 +585,7 @@ public class FilePage implements java.io.Serializable {
         return "";
     }
 
-    private Boolean thumbnailAvailable = null;
-
-    public boolean isThumbnailAvailable(FileMetadata fileMetadata) {
-        // new and optimized logic: 
-        // - check download permission here (should be cached - so it's free!)
-        // - only then ask the file service if the thumbnail is available/exists.
-        // the service itself no longer checks download permissions.
-        // (Also, cache the result the first time the check is performed... 
-        // remember - methods referenced in "rendered=..." attributes are 
-        // called *multiple* times as the page is loading!)
-
-        if (thumbnailAvailable != null) {
-            return thumbnailAvailable;
-        }
-
-        if (!fileDownloadHelper.canDownloadFile(fileMetadata)) {
-            thumbnailAvailable = false;
-        } else {
-            thumbnailAvailable = datafileService.isThumbnailAvailable(fileMetadata.getDataFile());
-        }
-
+    public boolean isThumbnailAvailable() {
         return thumbnailAvailable;
     }
 

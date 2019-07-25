@@ -4,7 +4,9 @@ import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.engine.TestCommandContext;
 import edu.harvard.iq.dataverse.engine.TestDataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -14,6 +16,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -63,14 +68,30 @@ public class UpdateDatasetThumbnailCommandTest {
             public DatasetServiceBean datasets() {
                 return new DatasetServiceBean() {
 
-                    @Override
-                    public Dataset setDatasetFileAsThumbnail(Dataset dataset, DataFile datasetFileThumbnailToSwitchTo) {
-                        return dataset;
-                    }
+//                    @Override
+//                    public Dataset setDatasetFileAsThumbnail(Dataset dataset, DataFile datasetFileThumbnailToSwitchTo) {
+//                        return dataset;
+//                    }
 
                 };
             }
 
+            @Override
+            public DatasetThumbnailService datasetThumbnails() {
+                return new DatasetThumbnailService() {
+                    
+                    @Override
+                    public Dataset setDatasetFileAsThumbnail(Dataset dataset, DataFile datasetFileThumbnailToSwitchTo) {
+                        return dataset;
+                    }
+                    
+                    @Override
+                    public Optional<DatasetThumbnail> getThumbnailBase64(Dataset dataset) {
+                        return Optional.empty();
+                    }
+                };
+            };
+            
             @Override
             public SystemConfig systemConfig() {
                 return new SystemConfig() {
@@ -151,12 +172,12 @@ public class UpdateDatasetThumbnailCommandTest {
 
     @Test
     public void testSetDatasetFileAsThumbnailFileThumbnailUnexpectedlyAbsent() {
-        String expected = "Dataset thumbnail is unexpectedly absent.";
+        String expected = "No value present";
         String actual = null;
         DatasetThumbnail datasetThumbnail = null;
         try {
             datasetThumbnail = testEngine.submit(new UpdateDatasetThumbnailCommand(null, dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, thumbnailUnexpectedlyAbsent, null));
-        } catch (CommandException ex) {
+        } catch (CommandException | NoSuchElementException ex) {
             actual = ex.getMessage();
         }
         assertEquals(expected, actual);

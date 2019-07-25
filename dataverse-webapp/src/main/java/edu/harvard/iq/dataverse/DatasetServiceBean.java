@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.FinalizeDatasetPublicationCommand;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
+import edu.harvard.iq.dataverse.qualifiers.ProductionBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
@@ -48,6 +49,7 @@ import java.util.logging.Logger;
 
 @Stateless
 @Named
+@ProductionBean
 public class DatasetServiceBean implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetServiceBean.class.getCanonicalName());
@@ -511,64 +513,6 @@ public class DatasetServiceBean implements java.io.Serializable {
     public void updateLastExportTimeStamp(Long datasetId) {
         Date now = new Date();
         em.createNativeQuery("UPDATE Dataset SET lastExportTime='" + now.toString() + "' WHERE id=" + datasetId).executeUpdate();
-    }
-
-    public Dataset setNonDatasetFileAsThumbnail(Dataset dataset, InputStream inputStream) {
-        if (dataset == null) {
-            logger.fine("In setNonDatasetFileAsThumbnail but dataset is null! Returning null.");
-            return null;
-        }
-        if (inputStream == null) {
-            logger.fine("In setNonDatasetFileAsThumbnail but inputStream is null! Returning null.");
-            return null;
-        }
-        dataset = DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnail(dataset, inputStream, new DataAccess());
-        dataset.setThumbnailFile(null);
-        return merge(dataset);
-    }
-
-    public Dataset setDatasetFileAsThumbnail(Dataset dataset, DataFile datasetFileThumbnailToSwitchTo) {
-        if (dataset == null) {
-            logger.fine("In setDatasetFileAsThumbnail but dataset is null! Returning null.");
-            return null;
-        }
-        if (datasetFileThumbnailToSwitchTo == null) {
-            logger.fine("In setDatasetFileAsThumbnail but dataset is null! Returning null.");
-            return null;
-        }
-        DatasetUtil.deleteDatasetLogo(dataset, new DataAccess());
-        dataset.setThumbnailFile(datasetFileThumbnailToSwitchTo);
-        dataset.setUseGenericThumbnail(false);
-        return merge(dataset);
-    }
-
-    public Dataset removeDatasetThumbnail(Dataset dataset) {
-        if (dataset == null) {
-            logger.fine("In removeDatasetThumbnail but dataset is null! Returning null.");
-            return null;
-        }
-        DatasetUtil.deleteDatasetLogo(dataset, new DataAccess());
-        dataset.setThumbnailFile(null);
-        dataset.setUseGenericThumbnail(true);
-        return merge(dataset);
-    }
-
-    // persist assigned thumbnail in a single one-field-update query:
-    // (the point is to avoid doing an em.merge() on an entire dataset object...)
-    public void assignDatasetThumbnailByNativeQuery(Long datasetId, Long dataFileId) {
-        try {
-            em.createNativeQuery("UPDATE dataset SET thumbnailfile_id=" + dataFileId + " WHERE id=" + datasetId).executeUpdate();
-        } catch (Exception ex) {
-            // it's ok to just ignore... 
-        }
-    }
-
-    public void assignDatasetThumbnailByNativeQuery(Dataset dataset, DataFile dataFile) {
-        try {
-            em.createNativeQuery("UPDATE dataset SET thumbnailfile_id=" + dataFile.getId() + " WHERE id=" + dataset.getId()).executeUpdate();
-        } catch (Exception ex) {
-            // it's ok to just ignore... 
-        }
     }
 
     public WorkflowComment addWorkflowComment(WorkflowComment workflowComment) {

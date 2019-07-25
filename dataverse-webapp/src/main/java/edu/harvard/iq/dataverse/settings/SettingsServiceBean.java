@@ -444,12 +444,22 @@ public class SettingsServiceBean {
         RestrictedAccessTermsOfUseActive,
 
         /**
-         * Size limits for generating thumbnails on the fly
+         * Size limits (in bytes) for generating thumbnails on the fly
          * (i.e., we'll attempt to generate a thumbnail on the fly if the
          * size of the file is less than this)
+         * -1 means that thumbnail generating is disabled
+         * 0 means no limit
          */
         ThumbnailImageSizeLimit,
         ThumbnailPDFSizeLimit,
+        
+        /**
+         * Path to ImageMagick convert executable
+         * <p>
+         * ImageMagick currently is used to generate
+         * thumbnails from pdf files
+         */
+        ImageMagickConvertBinPath,
 
         DropboxKey,
         DoiBaseUrlString,

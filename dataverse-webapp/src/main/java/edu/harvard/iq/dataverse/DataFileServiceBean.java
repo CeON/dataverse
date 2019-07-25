@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datasetutility.FileExceedsMaxSizeException;
 import edu.harvard.iq.dataverse.files.mime.ApplicationMimeType;
@@ -667,60 +666,6 @@ public class DataFileServiceBean implements java.io.Serializable {
 
     public boolean isSpssSavFile(DataFile file) {
         return (file != null) && ApplicationMimeType.SPSS_SAV.getMimeValue().equalsIgnoreCase(file.getContentType());
-    }
-    
-    /*
-    public boolean isSpssPorFile (FileMetadata fileMetadata) {
-        if (fileMetadata != null && fileMetadata.getDataFile() != null) {
-            return isSpssPorFile(fileMetadata.getDataFile());
-        }
-        return false; 
-    }
-    */
-
-    /*
-     * This method will return true if the thumbnail is *actually available* and
-     * ready to be downloaded. (it will try to generate a thumbnail for supported
-     * file types, if not yet available)
-     */
-    public boolean isThumbnailAvailable(DataFile file) {
-        if (file == null) {
-            return false;
-        }
-
-        // If this file already has the "thumbnail generated" flag set,
-        // we'll just trust that:
-        if (file.isPreviewImageAvailable()) {
-            logger.fine("returning true");
-            return true;
-        }
-
-        // If thumbnails are not even supported for this class of files, 
-        // there's notthing to talk about:      
-        if (!FileUtil.isThumbnailSupported(file)) {
-            return false;
-        }
-        
-        /*
-         Checking the permission here was resulting in extra queries; 
-         it is now the responsibility of the client - such as the DatasetPage - 
-         to make sure the permission check out, before calling this method.
-         (or *after* calling this method? - checking permissions costs db 
-         queries; checking if the thumbnail is available may cost cpu time, if 
-         it has to be generated on the fly - so you have to figure out which 
-         is more important... 
-        
-        */
-
-
-        if (ImageThumbConverter.isThumbnailAvailable(file)) {
-            file = this.find(file.getId());
-            file.setPreviewImageAvailable(true);
-            this.save(file);
-            return true;
-        }
-
-        return false;
     }
 
     public String getFileClass(DataFile file) {

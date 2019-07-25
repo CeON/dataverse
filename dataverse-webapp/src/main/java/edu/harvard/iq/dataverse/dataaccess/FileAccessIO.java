@@ -233,10 +233,6 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
         if (isWriteAccessRequested(options)) {
             FileOutputStream auxOut = new FileOutputStream(auxPath.toFile());
 
-            if (auxOut == null) {
-                throw new IOException("Failed to open Auxiliary File " + dvObject.getStorageIdentifier() + "." + auxItemTag + " for writing.");
-            }
-
             return auxOut.getChannel();
         }
 
@@ -248,10 +244,6 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
         }
 
         FileInputStream auxIn = new FileInputStream(auxPath.toFile());
-
-        if (auxIn == null) {
-            throw new IOException("Failed to open Auxiliary File " + dvObject.getStorageIdentifier() + "." + auxItemTag + " for reading");
-        }
 
         return auxIn.getChannel();
 
@@ -365,10 +357,6 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
 
         List<Path> cachedFiles = listCachedFiles();
 
-        if (cachedFiles == null) {
-            return null;
-        }
-
         List<String> cachedFileNames = new ArrayList<>();
         String baseName = this.getDataFile().getStorageIdentifier() + ".";
         for (Path auxPath : cachedFiles) {
@@ -387,10 +375,6 @@ public class FileAccessIO<T extends DvObject> extends StorageIO<T> {
     @Override
     public void deleteAllAuxObjects() throws IOException {
         List<Path> cachedFiles = listCachedFiles();
-
-        if (cachedFiles == null) {
-            return;
-        }
 
         for (Path auxPath : cachedFiles) {
             Files.delete(auxPath);

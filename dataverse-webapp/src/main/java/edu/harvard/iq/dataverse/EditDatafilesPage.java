@@ -4,10 +4,11 @@ import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
+import edu.harvard.iq.dataverse.datafile.DataFileThumbnailService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.FileReplaceException;
 import edu.harvard.iq.dataverse.datasetutility.FileReplacePageHelper;
@@ -33,6 +34,9 @@ import edu.harvard.iq.dataverse.search.FileView;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
+import edu.harvard.iq.dataverse.thumbnail.TemporaryThumbnailService;
+import edu.harvard.iq.dataverse.thumbnail.ThumbnailUtil;
+import edu.harvard.iq.dataverse.thumbnail.Thumbnail.ThumbnailSize;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
@@ -135,6 +139,13 @@ public class EditDatafilesPage implements java.io.Serializable {
     ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     SettingsWrapper settingsWrapper;
+    
+    @Inject
+    private DataFileThumbnailService dataFileThumbnailService;
+    @Inject
+    private TemporaryThumbnailService temporaryThumbnailService;
+    @Inject
+    private DatasetThumbnailService datasetThumbnailService;
 
     @Inject
     private TermsOfUseFactory termsOfUseFactory;
@@ -854,18 +865,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         // local filesystem:
 
         try {
-            List<Path> generatedTempFiles = ingestService.listGeneratedTempFiles(
-                    Paths.get(FileUtil.getFilesTempDirectory()), dataFile.getStorageIdentifier());
-            if (generatedTempFiles != null) {
-                for (Path generated : generatedTempFiles) {
-                    logger.fine("(Deleting generated thumbnail file " + generated.toString() + ")");
-                    try {
-                        Files.delete(generated);
-                    } catch (IOException ioex) {
-                        logger.warning("Failed to delete generated file " + generated.toString());
-                    }
-                }
-            }
+            temporaryThumbnailService.removeGenerated(dataFile.getStorageIdentifier());
             Files.delete(Paths.get(FileUtil.getFilesTempDirectory() + "/" + dataFile.getStorageIdentifier()));
         } catch (IOException ioEx) {
             // safe to ignore - it's just a temp file.
@@ -2037,9 +2037,8 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // But let's check if its filename is a duplicate of another 
                 // file already uploaded, or already in the dataset:
                 dataFile.getFileMetadata().setLabel(duplicateFilenameCheck(dataFile.getFileMetadata()));
-                if (isTemporaryPreviewAvailable(dataFile.getStorageIdentifier(), dataFile.getContentType())) {
-                    dataFile.setPreviewImageAvailable(true);
-                }
+                
+                generateTemporaryThumbnail(dataFile);
                 uploadedFiles.add(dataFile);
                 // We are NOT adding the fileMetadata to the list that is being used
                 // to render the page; we'll do that once we know that all the individual uploads
@@ -2126,42 +2125,19 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     private Map<String, String> temporaryThumbnailsMap = new HashMap<>();
 
-    public boolean isTemporaryPreviewAvailable(String fileSystemId, String mimeType) {
-        if (temporaryThumbnailsMap.get(fileSystemId) != null && !temporaryThumbnailsMap.get(fileSystemId).isEmpty()) {
-            return true;
+    private void generateTemporaryThumbnail(DataFile dataFile) {
+        String storageId = dataFile.getStorageIdentifier();
+        String fileContentType = dataFile.getContentType();
+        
+        File sourceTempFile = new File(FileUtil.getFilesTempDirectory(), storageId);
+        
+        
+        if (temporaryThumbnailService.generateDefaultThumbnails(sourceTempFile, fileContentType, storageId)) {
+            String previewAsBase64 = ThumbnailUtil.thumbnailAsBase64(temporaryThumbnailService.getThumbnail(storageId, ThumbnailSize.DEFAULT));
+            temporaryThumbnailsMap.put(storageId, previewAsBase64);
+            
+            dataFile.setPreviewImageAvailable(true);
         }
-
-        if ("".equals(temporaryThumbnailsMap.get(fileSystemId))) {
-            // we've already looked once - and there's no thumbnail.
-            return false;
-        }
-
-        String filesRootDirectory = systemConfig.getFilesDirectory();
-        String fileSystemName = filesRootDirectory + "/temp/" + fileSystemId;
-
-        String imageThumbFileName = null;
-
-        // ATTENTION! TODO: the current version of the method below may not be checking if files are already cached!
-        if ("application/pdf".equals(mimeType)) {
-            imageThumbFileName = ImageThumbConverter.generatePDFThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-        } else if (mimeType != null && mimeType.startsWith("image/")) {
-            imageThumbFileName = ImageThumbConverter.generateImageThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-        }
-
-        if (imageThumbFileName != null) {
-            File imageThumbFile = new File(imageThumbFileName);
-            if (imageThumbFile.exists()) {
-                String previewAsBase64 = ImageThumbConverter.getImageAsBase64FromFile(imageThumbFile);
-                if (previewAsBase64 != null) {
-                    temporaryThumbnailsMap.put(fileSystemId, previewAsBase64);
-                    return true;
-                } else {
-                    temporaryThumbnailsMap.put(fileSystemId, "");
-                }
-            }
-        }
-
-        return false;
     }
 
     public String getTemporaryPreviewAsBase64(String fileSystemId) {
@@ -2254,8 +2230,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (!fileDownloadHelper.canDownloadFile(fileMetadata)) {
             return false;
         }
-
-        return datafileService.isThumbnailAvailable(fileMetadata.getDataFile());
+        return dataFileThumbnailService.isThumbnailAvailable(fileMetadata.getDataFile());
     }
 
 
@@ -2389,7 +2364,7 @@ public class EditDatafilesPage implements java.io.Serializable {
          * review before clicking "Save Changes".
          */
         try {
-            DatasetThumbnail datasetThumbnail = commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(), dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, fileMetadataSelectedForThumbnailPopup.getDataFile().getId(), null));
+            commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(), dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, fileMetadataSelectedForThumbnailPopup.getDataFile().getId(), null));
             // look up the dataset again because the UpdateDatasetThumbnailCommand mutates (merges) the dataset
             dataset = datasetService.find(dataset.getId());
         } catch (CommandException ex) {
@@ -2400,8 +2375,9 @@ public class EditDatafilesPage implements java.io.Serializable {
     }
 
     public boolean isThumbnailIsFromDatasetLogoRatherThanDatafile() {
-        DatasetThumbnail datasetThumbnail = dataset.getDatasetThumbnail();
-        return datasetThumbnail != null && !datasetThumbnail.isFromDataFile();
+        return datasetThumbnailService.getThumbnailBase64(dataset)
+                .map(t -> !t.isFromDataFile())
+                .orElse(false);
     }
 
     /*

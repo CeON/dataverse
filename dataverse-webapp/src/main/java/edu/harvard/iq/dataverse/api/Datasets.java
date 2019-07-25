@@ -33,6 +33,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.DataFileTagException;
@@ -84,6 +85,7 @@ import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.thumbnail.ThumbnailUtil;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
@@ -191,6 +193,9 @@ public class Datasets extends AbstractApiBean {
 
     @Inject
     private TermsOfUseFormMapper termsOfUseFormMapper;
+    
+    @Inject
+    private DatasetThumbnailService datasetThumbnailService;
 
     @Inject
     private ExportService exportService;
@@ -1144,8 +1149,8 @@ public class Datasets extends AbstractApiBean {
                 return error(Response.Status.FORBIDDEN, "You are not permitted to list dataset thumbnail candidates.");
             }
             JsonArrayBuilder data = Json.createArrayBuilder();
-            boolean considerDatasetLogoAsCandidate = true;
-            for (DatasetThumbnail datasetThumbnail : DatasetUtil.getThumbnailCandidates(dataset, considerDatasetLogoAsCandidate, new DataAccess())) {
+            
+            for (DatasetThumbnail datasetThumbnail : datasetThumbnailService.getThumbnailCandidates(dataset, true)) {
                 JsonObjectBuilder candidate = Json.createObjectBuilder();
                 String base64image = datasetThumbnail.getBase64image();
                 if (base64image != null) {
@@ -1170,11 +1175,12 @@ public class Datasets extends AbstractApiBean {
     public Response getDatasetThumbnail(@PathParam("id") String idSupplied) {
         try {
             Dataset dataset = findDatasetOrDie(idSupplied);
-            InputStream is = DatasetUtil.getThumbnailAsInputStream(dataset);
-            if (is == null) {
+            Optional<DatasetThumbnail> thumbnail = datasetThumbnailService.getThumbnailBase64(dataset);
+            
+            if (!thumbnail.isPresent()) {
                 return notFound("Thumbnail not available");
             }
-            return Response.ok(is).build();
+            return Response.ok(ThumbnailUtil.thumbnailBase64AsInputStream(thumbnail.get().getBase64image())).build();
         } catch (WrappedResponse wr) {
             return notFound("Thumbnail not available");
         }

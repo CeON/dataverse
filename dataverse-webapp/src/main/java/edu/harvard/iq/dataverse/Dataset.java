@@ -748,20 +748,4 @@ public class Dataset extends DvObjectContainer {
         return equals(other) || equals(other.getOwner());
     }
 
-    public DatasetThumbnail getDatasetThumbnail() {
-        return DatasetUtil.getThumbnail(this);
-    }
-
-    /**
-     * Handle the case where we also have the datasetVersionId.
-     * This saves trying to find the latestDatasetVersion, and
-     * other costly queries, etc.
-     *
-     * @param datasetVersion
-     * @return A thumbnail of the dataset (may be {@code null}).
-     */
-    public DatasetThumbnail getDatasetThumbnail(DatasetVersion datasetVersion) {
-        return DatasetUtil.getThumbnail(this, datasetVersion, new DataAccess());
-    }
-
 }

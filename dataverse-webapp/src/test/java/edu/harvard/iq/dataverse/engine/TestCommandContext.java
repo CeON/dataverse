@@ -28,6 +28,7 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroup
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.bannersandmessages.messages.DataverseTextMessageServiceBean;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleServiceBean;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.pidproviders.FakePidProviderServiceBean;
@@ -255,6 +256,11 @@ public class TestCommandContext implements CommandContext {
 
     @Override
     public DataverseTextMessageServiceBean dataverseTextMessages() {
+        return null;
+    }
+
+    @Override
+    public DatasetThumbnailService datasetThumbnails() {
         return null;
     }
 }
