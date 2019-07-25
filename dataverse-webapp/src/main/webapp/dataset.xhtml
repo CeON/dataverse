@@ -69,7 +69,7 @@
                     <f:viewParam name="fileSortOrder" value="#{DatasetPage.fileSortOrder}"/>
                     <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                     <f:viewAction action="#{DatasetPage.init}" rendered="true"/>
-                    <f:viewAction action="#{GuestbookTab.init(DatasetPage.dataset)}" />
+                    <f:viewAction action="#{DatasetGuestbookTab.init(DatasetPage.dataset)}" />
                     <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(DatasetPage.dataset)}"/>
                     <f:viewAction action="#{EditDatafilesPage.initCreateMode(DatasetPage.editMode, DatasetPage.workingVersion, DatasetPage.newFiles, DatasetPage.selectedFiles)}"/>
                     <f:viewAction action="#{datasetVersionsTab.init(DatasetPage.dataset)}"/>

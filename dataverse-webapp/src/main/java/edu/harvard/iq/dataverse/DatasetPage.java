@@ -1239,7 +1239,7 @@ public class DatasetPage implements java.io.Serializable {
 
             // ---------------------------------------
             // Set the workingVersion and Dataset
-            // ---------------------------------------           df
+            // ---------------------------------------           
             if (persistentId != null) {
                 logger.fine("initializing DatasetPage with persistent ID " + persistentId);
                 // Set Working Version and Dataset by PersistentID

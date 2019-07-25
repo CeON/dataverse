@@ -6,26 +6,28 @@ import javax.inject.Named;
 import java.io.Serializable;
 
 @ViewScoped
-@Named("GuestbookTab")
-public class GuestbookTabBackingBean implements Serializable {
+@Named("DatasetGuestbookTab")
+public class DatasetGuestbookTabBean implements Serializable {
 
     @Inject
     PermissionsWrapper permissionsWrapper;
 
-    private Guestbook selectedGuestbook;
+    private Guestbook guestbook;
     private boolean canIssueUpdateDatasetCommand;
     private int dataverseGuestbooksCount;
     private String ownerName;
 
     public void init(Dataset dataset) {
-        selectedGuestbook = dataset.getGuestbook();
+        guestbook = dataset.getGuestbook();
         canIssueUpdateDatasetCommand = permissionsWrapper.canIssueUpdateDatasetCommand(dataset);
         dataverseGuestbooksCount = dataset.getDataverseContext().getAvailableGuestbooks().size();
         ownerName = dataset.getOwner().getName();
     }
 
-    public Guestbook getSelectedGuestbook() {
-        return selectedGuestbook;
+    // -------------------- GETTERS --------------------
+
+    public Guestbook getGuestbook() {
+        return guestbook;
     }
 
     public boolean isCanIssueUpdateDatasetCommand() {
