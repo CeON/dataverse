@@ -114,16 +114,6 @@ public class DataverseSession implements Serializable {
         return permissionsService.userOn(user, d);
     }
 
-    public String getLocaleLanguageShortName() {
-        Set<Map.Entry<String,String>> languages = settingsWrapper.getConfiguredLocales().entrySet();
-        for(Map.Entry<String,String> lang : languages) {
-            if(this.getLocaleTitle().equals(lang.getValue())) {
-                return lang.getKey();
-            }
-        }
-        return StringUtils.EMPTY;
-    }
-
     // -------------------- PRIVATE --------------------
 
     /**
