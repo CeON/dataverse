@@ -82,7 +82,8 @@ public class ExportService {
 
         if (loadedExporter.isPresent()) {
 
-            String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion))
+            String exportedDataset = Try.of(() -> loadedExporter.get()
+                    .exportDataset(datasetVersion, settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls)))
                     .onFailure(Throwable::printStackTrace)
                     .getOrElse(StringUtils.EMPTY);
 

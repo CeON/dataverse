@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static edu.harvard.iq.dataverse.util.SystemConfig.FILES_HIDE_SCHEMA_DOT_ORG_DOWNLOAD_URLS;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -257,8 +256,9 @@ public class SchemaDotOrgExporterTest {
         dataverse.setName("LibraScholar");
         dataset.setOwner(dataverse);
         boolean hideFileUrls = false;
+        String hideFileUrlsString="false";
         if (hideFileUrls) {
-            System.setProperty(FILES_HIDE_SCHEMA_DOT_ORG_DOWNLOAD_URLS, "true");
+            hideFileUrlsString="true";
         }
 
         FileMetadata fmd = MocksFactory.makeFileMetadata(10L, "README.md", 0);
@@ -278,7 +278,7 @@ public class SchemaDotOrgExporterTest {
         dataFile.setOwner(dataset);
         version.setFileMetadatas(fileMetadatas);
 
-        String jsonLd = schemaDotOrgExporter.exportDataset(version);
+        String jsonLd = schemaDotOrgExporter.exportDataset(version, hideFileUrlsString);
         String prettyJson = JsonUtil.prettyPrint(jsonLd);
         System.out.println("schema.org JSON-LD: " + prettyJson);
         JsonReader jsonReader2 = Json.createReader(new StringReader(jsonLd));

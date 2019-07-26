@@ -49,7 +49,7 @@ public class DDIExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) throws ExportException {
+    public String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();

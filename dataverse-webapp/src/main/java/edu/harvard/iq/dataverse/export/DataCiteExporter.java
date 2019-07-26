@@ -31,7 +31,7 @@ public class DataCiteExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) {
+    public String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) {
         Map<String, String> metadata = new DataCitation(version).getDataCiteMetadata();
 
         return DOIDataCiteRegisterService.getMetadataFromDvObject(

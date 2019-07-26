@@ -75,8 +75,8 @@ public class SchemaDotOrgExporter implements Exporter {
     // -------------------- LOGIC --------------------
 
     @Override
-    public String exportDataset(DatasetVersion version) {
-        return version.getJsonLd(dataverseSiteUrlStatic);
+    public String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) {
+        return version.getJsonLd(dataverseSiteUrlStatic, HideSchemaDotOrgDownloadUrls);
     }
 
     @Override

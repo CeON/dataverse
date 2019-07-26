@@ -34,7 +34,7 @@ public class JSONExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version) throws ExportException {
+    public String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) throws ExportException {
         try {
             JsonObjectBuilder jsonObjectBuilder = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport);
 

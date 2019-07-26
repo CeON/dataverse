@@ -32,7 +32,7 @@ public class OAI_OREExporter implements Exporter {
     // -------------------- LOGIC --------------------
 
     @Override
-    public String exportDataset(DatasetVersion version) {
+    public String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             new OREMap(version, excludeEmailFromExport, dataverseSiteUrl, modificationDate)
                     .writeOREMap(byteArrayOutputStream);
