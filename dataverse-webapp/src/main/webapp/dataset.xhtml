@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:o="http://omnifaces.org/ui"
-      xmlns:dv="http://dataverse.org/facelets"
+      xmlns:dv="http://dataverse.org/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core"
 >
 
     <!--@elvariable id="dataset" type="edu.harvard.iq.dataverse.Dataset"-->
@@ -40,7 +39,6 @@
 	    </ui:define>
 	    <ui:define name="jsonld_header">
                 <script type="application/ld+json">
-                    <h:outputText value="#{DatasetPage.jsonLd}"/>
                 </script>
 	    </ui:define>
 	    <ui:define name="og_header">
@@ -70,6 +68,8 @@
                     <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                     <f:viewAction action="#{DatasetPage.init}" rendered="true"/>
                     <f:viewAction action="#{DatasetGuestbookTab.init(DatasetPage.dataset)}" />
+                    <f:viewAction
+                            action="#{DatasetMetadataTab.init(DatasetPage.workingVersion, DatasetPage.dataset, DatasetPage.editMode, DatasetPage.locked)}"/>
                     <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(DatasetPage.dataset)}"/>
                     <f:viewAction action="#{EditDatafilesPage.initCreateMode(DatasetPage.editMode, DatasetPage.workingVersion, DatasetPage.newFiles, DatasetPage.selectedFiles)}"/>
                     <f:viewAction action="#{datasetVersionsTab.init(DatasetPage.dataset)}"/>
@@ -651,39 +651,7 @@
 
                             <!-- 4.2.1: the 3 tabs below - metadata, terms and versions: these account for ~100 queries total -->
                             <!-- a lot of these however, are repeated queries on AuthenticatedUser and RoleAssignment; once these are optimized, the tabs will become very cheap. -->
-                            <p:tab id="metadataMapTab" title="#{bundle['file.dataFilesTab.metadata.header']}"
-                                        rendered="#{(!DatasetPage.workingVersion.deaccessioned or (DatasetPage.workingVersion.deaccessioned and DatasetPage.canUpdateDataset())) 
-                                             and (empty DatasetPage.editMode)}">
-
-                                <div class="button-block tab-header margin-bottom text-right">
-                                    <p:link styleClass="btn btn-default btn-access" disabled="#{DatasetPage.locked}"
-                                                    outcome="editDatasetMetadata"
-                                                    rendered="#{!widgetWrapper.widgetView and DatasetPage.sessionUserAuthenticated
-                                                               and DatasetPage.canUpdateDataset() and !DatasetPage.dataset.deaccessioned}">
-                                        <f:param name="datasetId" value="#{DatasetPage.dataset.id}" />
-                                        <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
-                                    </p:link>
-                                    <div class="btn-group" jsf:rendered="#{DatasetPage.dataset.released and !DatasetPage.dataset.deaccessioned}" >
-                                        <button class="btn btn-default btn-export dropdown-toggle" type="button" styleClass="btn btn-default" data-toggle="dropdown">
-                                            <span class="glyphicon glyphicon-export"/> #{bundle['dataset.exportBtn']} <span class="caret"/></button>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <ui:repeat var="exporter" value="#{DatasetPage.exporters}">
-                                                <li>
-                                                    <h:outputLink value="#{exporter[1]}" target="_blank">
-                                                        <h:outputText value="#{exporter[0]}"/>
-                                                    </h:outputLink>
-                                                </li>  
-                                            </ui:repeat>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <ui:include src="viewMetadata.xhtml">
-                                    <ui:param name="metadataBlocks" value="#{DatasetPage.datasetVersionUI.metadataBlocksForView.entrySet().toArray()}"/>
-                                    <ui:param name="globalId" value="#{DatasetPage.dataset.globalIdString}"/>
-                                    <ui:param name="altPID" value="#{DatasetPage.dataset.alternativePersistentIdentifier}"/>
-                                    <ui:param name="publicationDate" value="#{DatasetPage.dataset.publicationDate != null ? DatasetPage.dataset.publicationDateFormattedYYYYMMDD : ''}"/>
-                                </ui:include>
-                            </p:tab>
+                            <ui:include src="metadataTab.xhtml"/>
 
                             <!-- 4.2.1: see comment above -->
                             <p:tab id="termsTab" title="#{bundle['file.dataFilesTab.terms.list.guestbook']}"
