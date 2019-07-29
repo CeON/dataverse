@@ -29,7 +29,7 @@ public class DatasetMetadataTab implements Serializable {
     private SystemConfig systemConfig;
 
     private Dataset dataset;
-    private boolean isLocked;
+    private boolean isDatasetLocked;
     private Map<MetadataBlock, List<DatasetField>> metadataBlocks;
 
     // -------------------- CONSTRUCTORS --------------------
@@ -55,10 +55,13 @@ public class DatasetMetadataTab implements Serializable {
         return dataset;
     }
 
-    public boolean isLocked() {
-        return isLocked;
+    public boolean isDatasetLocked() {
+        return isDatasetLocked;
     }
 
+    /**
+     * Metadata blocks meant for view.
+     */
     public Map<MetadataBlock, List<DatasetField>> getMetadataBlocks() {
         return metadataBlocks;
     }
@@ -66,10 +69,10 @@ public class DatasetMetadataTab implements Serializable {
     // -------------------- LOGIC --------------------
 
     public void init(Dataset dataset,
-                     boolean isLocked,
+                     boolean isDatasetLocked,
                      Map<MetadataBlock, List<DatasetField>> metadataBlocks) {
         this.dataset = dataset;
-        this.isLocked = isLocked;
+        this.isDatasetLocked = isDatasetLocked;
         this.metadataBlocks = metadataBlocks;
     }
 

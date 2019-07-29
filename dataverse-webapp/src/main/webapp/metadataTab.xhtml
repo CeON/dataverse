@@ -7,7 +7,7 @@
 >
 
     <div class="button-block tab-header margin-bottom text-right">
-        <p:link styleClass="btn btn-default btn-access" disabled="#{DatasetMetadataTab.locked}"
+        <p:link styleClass="btn btn-default btn-access" disabled="#{DatasetMetadataTab.datasetLocked}"
                 outcome="editDatasetMetadata"
                 rendered="#{!widgetWrapper.widgetView and dataverseSession.getUser().isAuthenticated()
                                                                and DatasetMetadataTab.canUpdateDataset() and !DatasetMetadataTab.dataset.deaccessioned}">
