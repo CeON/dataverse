@@ -257,9 +257,6 @@ public class SchemaDotOrgExporterTest {
         dataset.setOwner(dataverse);
         boolean hideFileUrls = false;
         String hideFileUrlsString="false";
-        if (hideFileUrls) {
-            hideFileUrlsString="true";
-        }
 
         FileMetadata fmd = MocksFactory.makeFileMetadata(10L, "README.md", 0);
         DataFile dataFile = new DataFile();

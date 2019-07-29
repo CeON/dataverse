@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
  */
 public interface Exporter {
 
-    String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) throws ExportException;
+    String exportDataset(DatasetVersion version) throws ExportException;
 
     String getProviderName();
 

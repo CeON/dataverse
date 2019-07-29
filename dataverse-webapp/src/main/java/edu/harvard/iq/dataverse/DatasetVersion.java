@@ -1586,7 +1586,7 @@ public class DatasetVersion implements Serializable {
      * We call the export format "Schema.org JSON-LD" and extensive Javadoc can
      * be found in {@link SchemaDotOrgExporter}.
      */
-    public String getJsonLd(String dataverseSiteUrl, String HideSchemaDotOrgDownloadUrls) {
+    public String getJsonLd(String dataverseSiteUrl, String hideSchemaDotOrgDownloadUrls) {
         // We show published datasets only for "datePublished" field below.
         if (!this.isPublished()) {
             return "";
@@ -1832,7 +1832,7 @@ public class DatasetVersion implements Serializable {
                 fileObject.add("description", fileMetadata.getDescription());
                 fileObject.add("@id", filePidUrlAsString);
                 fileObject.add("identifier", filePidUrlAsString);
-                if (HideSchemaDotOrgDownloadUrls != null && HideSchemaDotOrgDownloadUrls.equals("true")) {
+                if (hideSchemaDotOrgDownloadUrls != null && hideSchemaDotOrgDownloadUrls.equals("true")) {
                     // no-op
                 } else {
                     if (FileUtil.isPubliclyDownloadable(fileMetadata)) {

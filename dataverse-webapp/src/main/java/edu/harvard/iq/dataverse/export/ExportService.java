@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
 import javax.inject.Inject;
+import javax.xml.validation.Schema;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,10 +83,18 @@ public class ExportService {
 
         if (loadedExporter.isPresent()) {
 
-            String exportedDataset = Try.of(() -> loadedExporter.get()
-                    .exportDataset(datasetVersion, settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls)))
-                    .onFailure(Throwable::printStackTrace)
-                    .getOrElse(StringUtils.EMPTY);
+            String exportedDataset;
+            if(loadedExporter.get().getClass() != SchemaDotOrgExporter.class ) {
+                exportedDataset = Try.of(() -> loadedExporter.get()
+                        .exportDataset(datasetVersion))
+                        .onFailure(Throwable::printStackTrace)
+                        .getOrElse(StringUtils.EMPTY);
+            } else {
+                exportedDataset = Try.of(() -> ((SchemaDotOrgExporter) loadedExporter.get())
+                        .exportDataset(datasetVersion, settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls)))
+                        .onFailure(Throwable::printStackTrace)
+                        .getOrElse(StringUtils.EMPTY);
+            }
 
             return exportedDataset.isEmpty() ?
                     Either.left(new DataverseError("Failed to export the dataset as " + exporter)) :

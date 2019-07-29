@@ -39,7 +39,7 @@ public class DCTermsExporter implements Exporter {
     }
 
     @Override
-    public String exportDataset(DatasetVersion version, String HideSchemaDotOrgDownloadUrls) throws ExportException {
+    public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             JsonObject datasetAsJson = JsonPrinter.jsonAsDatasetDto(version, excludeEmailFromExport)
                     .build();
