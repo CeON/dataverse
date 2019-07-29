@@ -62,7 +62,8 @@ public class ExportService {
 
         exporters.put(ExporterType.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
 
-        exporters.put(ExporterType.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl()));
+        exporters.put(ExporterType.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl(),
+                settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls)));
 
         exporters.put(ExporterType.OPENAIRE, new OpenAireExporter(isEmailExcludedFromExport));
 
@@ -83,18 +84,10 @@ public class ExportService {
 
         if (loadedExporter.isPresent()) {
 
-            String exportedDataset;
-            if(loadedExporter.get().getClass() != SchemaDotOrgExporter.class ) {
-                exportedDataset = Try.of(() -> loadedExporter.get()
-                        .exportDataset(datasetVersion))
-                        .onFailure(Throwable::printStackTrace)
-                        .getOrElse(StringUtils.EMPTY);
-            } else {
-                exportedDataset = Try.of(() -> ((SchemaDotOrgExporter) loadedExporter.get())
-                        .exportDataset(datasetVersion, settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls)))
-                        .onFailure(Throwable::printStackTrace)
-                        .getOrElse(StringUtils.EMPTY);
-            }
+            String exportedDataset = Try.of(() -> loadedExporter.get()
+                    .exportDataset(datasetVersion))
+                    .onFailure(Throwable::printStackTrace)
+                    .getOrElse(StringUtils.EMPTY);
 
             return exportedDataset.isEmpty() ?
                     Either.left(new DataverseError("Failed to export the dataset as " + exporter)) :

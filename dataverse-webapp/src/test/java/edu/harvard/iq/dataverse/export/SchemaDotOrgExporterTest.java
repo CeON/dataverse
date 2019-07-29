@@ -47,7 +47,7 @@ public class SchemaDotOrgExporterTest {
     DDIExporterTest.MockDatasetFieldSvc datasetFieldTypeSvc = null;
 
     public SchemaDotOrgExporterTest() {
-        schemaDotOrgExporter = new SchemaDotOrgExporter("https://librascholar.org");
+        schemaDotOrgExporter = new SchemaDotOrgExporter("https://librascholar.org", "false");
     }
 
     @BeforeClass
@@ -255,8 +255,6 @@ public class SchemaDotOrgExporterTest {
         Dataverse dataverse = new Dataverse();
         dataverse.setName("LibraScholar");
         dataset.setOwner(dataverse);
-        boolean hideFileUrls = false;
-        String hideFileUrlsString="false";
 
         FileMetadata fmd = MocksFactory.makeFileMetadata(10L, "README.md", 0);
         DataFile dataFile = new DataFile();
@@ -275,7 +273,7 @@ public class SchemaDotOrgExporterTest {
         dataFile.setOwner(dataset);
         version.setFileMetadatas(fileMetadatas);
 
-        String jsonLd = schemaDotOrgExporter.exportDataset(version, hideFileUrlsString);
+        String jsonLd = schemaDotOrgExporter.exportDataset(version);
         String prettyJson = JsonUtil.prettyPrint(jsonLd);
         System.out.println("schema.org JSON-LD: " + prettyJson);
         JsonReader jsonReader2 = Json.createReader(new StringReader(jsonLd));
