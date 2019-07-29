@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.dataset.tab;
 
 import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetPage;
-import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
@@ -11,12 +11,13 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 
-import javax.faces.bean.ViewScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ViewScoped
 @Named("DatasetMetadataTab")
@@ -27,12 +28,15 @@ public class DatasetMetadataTab implements Serializable {
     private ExportService exportService;
     private SystemConfig systemConfig;
 
-    private DatasetVersion currentDatasetVersion;
     private Dataset dataset;
-    private DatasetPage.EditMode currentEditMode;
     private boolean isLocked;
+    private Map<MetadataBlock, List<DatasetField>> metadataBlocks;
 
     // -------------------- CONSTRUCTORS --------------------
+
+    @Deprecated /*JEE requirement */
+    DatasetMetadataTab() {
+    }
 
     @Inject
     public DatasetMetadataTab(PermissionsWrapper permissionsWrapper,
@@ -47,14 +51,6 @@ public class DatasetMetadataTab implements Serializable {
 
     // -------------------- GETTERS --------------------
 
-    public DatasetPage.EditMode getCurrentEditMode() {
-        return currentEditMode;
-    }
-
-    public DatasetVersion getCurrentDatasetVersion() {
-        return currentDatasetVersion;
-    }
-
     public Dataset getDataset() {
         return dataset;
     }
@@ -63,23 +59,27 @@ public class DatasetMetadataTab implements Serializable {
         return isLocked;
     }
 
+    public Map<MetadataBlock, List<DatasetField>> getMetadataBlocks() {
+        return metadataBlocks;
+    }
+
     // -------------------- LOGIC --------------------
 
-    public void init(DatasetVersion currentDatasetVersion,
-                     Dataset dataset,
-                     DatasetPage.EditMode currentEditMode,
-                     boolean isLocked) {
-        this.currentDatasetVersion = currentDatasetVersion;
+    public void init(Dataset dataset,
+                     boolean isLocked,
+                     Map<MetadataBlock, List<DatasetField>> metadataBlocks) {
         this.dataset = dataset;
-        this.currentEditMode = currentEditMode;
         this.isLocked = isLocked;
+        this.metadataBlocks = metadataBlocks;
     }
 
     public boolean canUpdateDataset() {
         return permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), this.dataset);
     }
 
-
+    /**
+     * Extracts exporters display name and redirect url.
+     */
     public List<Tuple2<String, String>> getExportersDisplayNameAndURL() {
         List<Tuple2<String, String>> exportersInfo = new ArrayList<>();
 
