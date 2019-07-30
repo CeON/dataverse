@@ -43,6 +43,11 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
             }
         }
 
+        String setting = ctxt.settings().getValueForKey(SettingsServiceBean.Key.FQDN);
+        requestedSettings.put(setting, ctxt.settings().get(setting));
+        setting = ctxt.settings().getValueForKey(SettingsServiceBean.Key.SiteUrl);
+        requestedSettings.put(setting, ctxt.settings().get(setting));
+
         AuthenticatedUser user = getRequest().getAuthenticatedUser();
         ApiToken token = ctxt.authentication().findApiTokenByUser(user);
         if ((token == null) || (token.getExpireTime().before(new Date()))) {

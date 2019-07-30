@@ -198,11 +198,11 @@ public class SystemConfig {
      * by the Settings Service configuration.
      */
     public String getDataverseSiteUrl() {
-        String hostUrl = System.getProperty(SITE_URL);
+        String hostUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
         if (hostUrl != null && !"".equals(hostUrl)) {
             return hostUrl;
         }
-        String hostName = getFqdn();
+        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
         if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();
@@ -212,10 +212,6 @@ public class SystemConfig {
         }
         hostUrl = "https://" + hostName;
         return hostUrl;
-    }
-
-    public String getFqdn() {
-        return System.getProperty(SystemConfig.FQDN);
     }
 
     public String getFilesDirectory() {
@@ -234,12 +230,12 @@ public class SystemConfig {
         return filesDirectory;
     }
 
-    public static String getDataverseSiteUrlStatic() {
-        String hostUrl = System.getProperty(SITE_URL);
+    public static String getDataverseSiteUrlStatic(String Fqdn, String SiteUrl) {
+        String hostUrl = SiteUrl;
         if (hostUrl != null && !"".equals(hostUrl)) {
             return hostUrl;
         }
-        String hostName = System.getProperty(FQDN);
+        String hostName = Fqdn;
         if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();

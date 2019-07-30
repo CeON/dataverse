@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.api.datadeposit;
 
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.commons.lang.StringUtils;
 import org.swordapp.server.SwordError;
@@ -20,7 +21,7 @@ public class UrlManagerServiceBean {
     private UrlManager urlManager = new UrlManager();
 
     @Inject
-    private SystemConfig systemConfig;
+    SettingsServiceBean settingsService;
 
     // -------------------- GETTERS --------------------
     public UrlManager getUrlManager() {
@@ -172,7 +173,7 @@ public class UrlManagerServiceBean {
             optionalPort = ":" + port;
         }
         String requestedHostname = u.getHost();
-        String hostName = systemConfig.getFqdn();
+        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
         if (hostName == null) {
             hostName = "localhost";
         }

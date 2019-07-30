@@ -51,14 +51,16 @@ public class ExportService {
     @PostConstruct
     void loadAllExporters() {
         boolean isEmailExcludedFromExport = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport);
+        String fqdn = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
+        String siteUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
 
-        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport, fqdn, siteUrl));
 
         exporters.put(ExporterType.DATACITE, new DataCiteExporter());
 
         exporters.put(ExporterType.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport, fqdn, siteUrl));
 
         exporters.put(ExporterType.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
 

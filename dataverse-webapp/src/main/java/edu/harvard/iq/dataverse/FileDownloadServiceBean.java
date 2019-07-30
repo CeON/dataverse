@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.CreateGuestbookResponseComma
 import edu.harvard.iq.dataverse.engine.command.impl.RequestAccessCommand;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolHandler;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import org.primefaces.PrimeFaces;
 
@@ -47,15 +48,9 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     @EJB
     GuestbookResponseServiceBean guestbookResponseService;
     @EJB
-    DatasetServiceBean datasetService;
-    @EJB
-    DatasetVersionServiceBean datasetVersionService;
-    @EJB
     DataFileServiceBean datafileService;
     @EJB
     PermissionServiceBean permissionService;
-    @EJB
-    DataverseServiceBean dataverseService;
     @EJB
     UserNotificationServiceBean userNotificationService;
     @EJB
@@ -73,7 +68,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     @Inject
     WorldMapPermissionHelper worldMapPermissionHelper;
     @Inject
-    FileDownloadHelper fileDownloadHelper;
+    SettingsServiceBean settingsService;
 
     private static final Logger logger = Logger.getLogger(FileDownloadServiceBean.class.getCanonicalName());
 
@@ -246,7 +241,9 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         ExternalToolHandler externalToolHandler = new ExternalToolHandler(externalTool, dataFile, apiToken);
         // Back when we only had TwoRavens, the downloadType was always "Explore". Now we persist the name of the tool (i.e. "TwoRavens", "Data Explorer", etc.)
         guestbookResponse.setDownloadtype(externalTool.getDisplayName());
-        String toolUrl = externalToolHandler.getToolUrlWithQueryParams();
+        String toolUrl = externalToolHandler.getToolUrlWithQueryParams(
+                settingsService.getValueForKey(SettingsServiceBean.Key.FQDN),
+                settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl));
         logger.fine("Exploring with " + toolUrl);
         PrimeFaces.current().executeScript("window.open('" + toolUrl + "', target='_blank');");
         // This is the old logic from TwoRavens, null checks and all.
