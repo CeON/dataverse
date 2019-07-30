@@ -139,11 +139,6 @@ public class ExplicitGroup implements Group, java.io.Serializable {
     }
 
     public Set<ExplicitGroup> getContainedExplicitGroups() {
-//        if (getGroupProvider() != null) {
-//            for (ExplicitGroup g : containedExplicitGroups) {
-//                g.setProvider(getGroupProvider());
-//            }
-//        }
         return containedExplicitGroups;
     }
 
