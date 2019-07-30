@@ -17,6 +17,8 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
  */
 public final class AllUsers implements Group {
 
+    public static final String GROUP_TYPE = "builtIn";
+
     public static final AllUsers instance = new AllUsers();
 
     private final String identifier = ":AllUsers";
@@ -34,18 +36,8 @@ public final class AllUsers implements Group {
     }
 
     @Override
-    public boolean contains(DataverseRequest ra) {
-        return (ra.getUser() instanceof User);
-    }
-
-    @Override
     public boolean isEditable() {
         return false;
-    }
-
-    @Override
-    public GroupProvider getGroupProvider() {
-        return BuiltInGroupsProvider.get();
     }
 
     @Override
@@ -60,7 +52,7 @@ public final class AllUsers implements Group {
 
     @Override
     public String getAlias() {
-        return getGroupProvider().getGroupProviderAlias() + Group.PATH_SEPARATOR + "all-users";
+        return GROUP_TYPE.toLowerCase() + Group.PATH_SEPARATOR + "all-users";
     }
 
     @Override
