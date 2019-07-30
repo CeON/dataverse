@@ -34,22 +34,6 @@ public class SystemConfig {
     public static final String DATAVERSE_PATH = "/dataverse/";
 
     /**
-     * A JVM option for the advertised fully qualified domain name (hostname) of
-     * the Dataverse installation, such as "dataverse.example.com", which may
-     * differ from the hostname that the server knows itself as.
-     * <p>
-     * The equivalent in DVN 3.x was "dvn.inetAddress".
-     */
-    public static final String FQDN = "dataverse.fqdn";
-
-    /**
-     * A JVM option for specifying the "official" URL of the site.
-     * Unlike the FQDN option above, this would be a complete URL,
-     * with the protocol, port number etc.
-     */
-    public static final String SITE_URL = "dataverse.siteUrl";
-
-    /**
      * A JVM option for where files are stored on the file system.
      */
     public static final String FILES_DIRECTORY = "dataverse.files.directory";
@@ -252,7 +236,7 @@ public class SystemConfig {
      */
     public String getDataverseServer() {
         // still reliese on a JVM option: 
-        String fqdn = System.getProperty(FQDN);
+        String fqdn = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
         if (fqdn == null) {
             try {
                 fqdn = InetAddress.getLocalHost().getCanonicalHostName();

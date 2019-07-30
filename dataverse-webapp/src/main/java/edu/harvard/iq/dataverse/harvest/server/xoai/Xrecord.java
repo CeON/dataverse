@@ -16,8 +16,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static com.lyncode.xoai.xml.XmlWriter.defaultContext;
-import static edu.harvard.iq.dataverse.util.SystemConfig.FQDN;
-import static edu.harvard.iq.dataverse.util.SystemConfig.SITE_URL;
 
 /**
  * @author Leonid Andreev
@@ -64,7 +62,8 @@ public class Xrecord extends Record {
         return this;
     }
 
-    public void writeToStream(OutputStream outputStream, ExportService exportService) throws IOException {
+    public void writeToStream(OutputStream outputStream, ExportService exportService, String Fqdn, String SiteUrl)
+            throws IOException {
         outputStream.flush();
 
         String headerString = itemHeaderToString(this.header);
@@ -95,7 +94,7 @@ public class Xrecord extends Record {
                 }
                 outputStream.write(METADATA_END_ELEMENT.getBytes());
             } else {
-                outputStream.write(customMetadataExtensionRef(this.dataset.getGlobalIdString()).getBytes());
+                outputStream.write(customMetadataExtensionRef(this.dataset.getGlobalIdString(), Fqdn, SiteUrl).getBytes());
             }
         }
         outputStream.flush();
@@ -129,10 +128,10 @@ public class Xrecord extends Record {
         }
     }
 
-    private String customMetadataExtensionRef(String identifier) {
+    private String customMetadataExtensionRef(String identifier, String Fqdn, String SiteUrl) {
         String ret = "<" + METADATA_FIELD
                 + " directApiCall=\""
-                + getDataverseSiteUrl()
+                + getDataverseSiteUrl(Fqdn, SiteUrl)
                 + DATAVERSE_EXTENDED_METADATA_API
                 + "?exporter="
                 + DATAVERSE_EXTENDED_METADATA_FORMAT
@@ -148,12 +147,12 @@ public class Xrecord extends Record {
         return DATAVERSE_EXTENDED_METADATA_FORMAT.equals(formatName);
     }
 
-    private String getDataverseSiteUrl() {
-        String hostUrl = System.getProperty(SITE_URL);
+    private String getDataverseSiteUrl(String Fqdn, String SiteUrl) {
+        String hostUrl = SiteUrl;
         if (hostUrl != null && !"".equals(hostUrl)) {
             return hostUrl;
         }
-        String hostName = System.getProperty(FQDN);
+        String hostName = Fqdn;
         if (hostName == null) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();

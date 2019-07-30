@@ -288,7 +288,9 @@ public class OAIServlet extends HttpServlet {
 
         outputStream.flush();
 
-        ((XlistRecords) verb).writeToStream(outputStream, exportService);
+        ((XlistRecords) verb).writeToStream(outputStream, exportService,
+                settingsService.getValueForKey(SettingsServiceBean.Key.FQDN),
+                settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl));
 
         outputStream.write(("</" + verb.getType().displayName() + ">").getBytes());
         outputStream.write(("</" + OAI_PMH + ">\n").getBytes());
@@ -318,7 +320,9 @@ public class OAIServlet extends HttpServlet {
 
         outputStream.flush();
 
-        ((XgetRecord) verb).writeToStream(outputStream, exportService);
+        ((XgetRecord) verb).writeToStream(outputStream, exportService,
+                settingsService.getValueForKey(SettingsServiceBean.Key.FQDN),
+                settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl));
 
         outputStream.write(("</" + verb.getType().displayName() + ">").getBytes());
         outputStream.write(("</" + OAI_PMH + ">\n").getBytes());
