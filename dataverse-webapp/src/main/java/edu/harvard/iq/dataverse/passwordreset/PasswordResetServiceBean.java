@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
+import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -49,7 +50,7 @@ public class PasswordResetServiceBean {
     private SystemConfig systemConfig;
 
     @Inject
-    SettingsServiceBean settingsService;
+    private SettingsServiceBean settingsService;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -110,7 +111,7 @@ public class PasswordResetServiceBean {
         // default to localhost
         String finalHostname = "localhost";
         String configuredHostname = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (configuredHostname != null) {
+        if (StringUtils.isNotBlank(configuredHostname)) {
             if (configuredHostname.equals("localhost")) {
                 // must be a dev environment
                 finalHostname = "localhost:8181";

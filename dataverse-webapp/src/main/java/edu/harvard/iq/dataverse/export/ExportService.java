@@ -54,13 +54,13 @@ public class ExportService {
         String fqdn = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
         String siteUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
 
-        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport, fqdn, siteUrl));
+        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl()));
 
         exporters.put(ExporterType.DATACITE, new DataCiteExporter());
 
         exporters.put(ExporterType.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport, fqdn, siteUrl));
+        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl()));
 
         exporters.put(ExporterType.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
 

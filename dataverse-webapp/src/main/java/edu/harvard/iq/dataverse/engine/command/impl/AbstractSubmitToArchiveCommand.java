@@ -43,10 +43,8 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
             }
         }
 
-        String setting = ctxt.settings().getValueForKey(SettingsServiceBean.Key.FQDN);
-        requestedSettings.put(setting, ctxt.settings().get(setting));
-        setting = ctxt.settings().getValueForKey(SettingsServiceBean.Key.SiteUrl);
-        requestedSettings.put(setting, ctxt.settings().get(setting));
+        requestedSettings.put("dataverseUrl", ctxt.systemConfig().getDataverseSiteUrl());
+
 
         AuthenticatedUser user = getRequest().getAuthenticatedUser();
         ApiToken token = ctxt.authentication().findApiTokenByUser(user);

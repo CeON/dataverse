@@ -183,11 +183,11 @@ public class SystemConfig {
      */
     public String getDataverseSiteUrl() {
         String hostUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
-        if (hostUrl != null && !"".equals(hostUrl)) {
+        if (StringUtils.isNotBlank(hostUrl)) {
             return hostUrl;
         }
         String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (hostName == null) {
+        if (StringUtils.isNotBlank(hostName)) {
             try {
                 hostName = InetAddress.getLocalHost().getCanonicalHostName();
             } catch (UnknownHostException e) {
@@ -213,24 +213,6 @@ public class SystemConfig {
         }
         return filesDirectory;
     }
-
-    public static String getDataverseSiteUrlStatic(String Fqdn, String SiteUrl) {
-        String hostUrl = SiteUrl;
-        if (hostUrl != null && !"".equals(hostUrl)) {
-            return hostUrl;
-        }
-        String hostName = Fqdn;
-        if (hostName == null) {
-            try {
-                hostName = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                return null;
-            }
-        }
-        hostUrl = "https://" + hostName;
-        return hostUrl;
-    }
-
     /**
      * The "official" server's fully-qualified domain name:
      */

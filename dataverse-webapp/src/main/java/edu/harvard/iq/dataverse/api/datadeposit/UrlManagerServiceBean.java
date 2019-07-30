@@ -21,7 +21,7 @@ public class UrlManagerServiceBean {
     private UrlManager urlManager = new UrlManager();
 
     @Inject
-    SettingsServiceBean settingsService;
+    private SettingsServiceBean settingsService;
 
     // -------------------- GETTERS --------------------
     public UrlManager getUrlManager() {
@@ -174,9 +174,7 @@ public class UrlManagerServiceBean {
         }
         String requestedHostname = u.getHost();
         String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (hostName == null) {
-            hostName = "localhost";
-        }
+
         /**
          * @todo should this be configurable? In dev it's convenient to override
          * the JVM option and force traffic to localhost.

@@ -42,8 +42,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
     private static final String DURACLOUD_PORT = ":DuraCloudPort";
     private static final String DURACLOUD_HOST = ":DuraCloudHost";
     private static final String DURACLOUD_CONTEXT = ":DuraCloudContext";
-    private static final String FQDN = "FQDN";
-    private static final String SITE_URL = "SiteUrl";
+    private static final String DATAVERSE_URL = "dataverseUrl";
 
     public DuraCloudSubmitToArchiveCommand(DataverseRequest aRequest, DatasetVersion version) {
         super(aRequest, version);
@@ -55,8 +54,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
         String port = requestedSettings.get(DURACLOUD_PORT) != null ? requestedSettings.get(DURACLOUD_PORT) : DEFAULT_PORT;
         String dpnContext = requestedSettings.get(DURACLOUD_CONTEXT) != null ? requestedSettings.get(DURACLOUD_CONTEXT) : DEFAULT_CONTEXT;
         String host = requestedSettings.get(DURACLOUD_HOST);
-        String fqdn = requestedSettings.get(FQDN);
-        String siteUrl = requestedSettings.get(SITE_URL);
+        String dataverseUrl = requestedSettings.get(DATAVERSE_URL);
         if (host != null) {
             Dataset dataset = dv.getDataset();
             if (dataset.getLockFor(Reason.pidRegister) == null) {
@@ -125,7 +123,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                             new Thread(() -> {
                                 try (PipedOutputStream out = new PipedOutputStream(in)) {
                                     // Generate bag
-                                    BagGenerator bagger = new BagGenerator(new OREMap(dv, false, SystemConfig.getDataverseSiteUrlStatic(fqdn, siteUrl), LocalDate.now()), dataciteXml);
+                                    BagGenerator bagger = new BagGenerator(new OREMap(dv, false, dataverseUrl, LocalDate.now()), dataciteXml);
                                     bagger.setAuthenticationKey(token.getTokenString());
                                     bagger.generateBag(out);
                                 } catch (Exception e) {

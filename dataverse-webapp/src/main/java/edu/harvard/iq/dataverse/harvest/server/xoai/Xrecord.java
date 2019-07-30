@@ -62,7 +62,7 @@ public class Xrecord extends Record {
         return this;
     }
 
-    public void writeToStream(OutputStream outputStream, ExportService exportService, String Fqdn, String SiteUrl)
+    public void writeToStream(OutputStream outputStream, ExportService exportService, String dataverseUrl)
             throws IOException {
         outputStream.flush();
 
@@ -94,7 +94,7 @@ public class Xrecord extends Record {
                 }
                 outputStream.write(METADATA_END_ELEMENT.getBytes());
             } else {
-                outputStream.write(customMetadataExtensionRef(this.dataset.getGlobalIdString(), Fqdn, SiteUrl).getBytes());
+                outputStream.write(customMetadataExtensionRef(this.dataset.getGlobalIdString(), dataverseUrl).getBytes());
             }
         }
         outputStream.flush();
@@ -128,10 +128,10 @@ public class Xrecord extends Record {
         }
     }
 
-    private String customMetadataExtensionRef(String identifier, String Fqdn, String SiteUrl) {
+    private String customMetadataExtensionRef(String identifier, String dataverseUrl) {
         String ret = "<" + METADATA_FIELD
                 + " directApiCall=\""
-                + getDataverseSiteUrl(Fqdn, SiteUrl)
+                + dataverseUrl
                 + DATAVERSE_EXTENDED_METADATA_API
                 + "?exporter="
                 + DATAVERSE_EXTENDED_METADATA_FORMAT
@@ -145,22 +145,5 @@ public class Xrecord extends Record {
 
     private boolean isExtendedDataverseMetadataMode(String formatName) {
         return DATAVERSE_EXTENDED_METADATA_FORMAT.equals(formatName);
-    }
-
-    private String getDataverseSiteUrl(String Fqdn, String SiteUrl) {
-        String hostUrl = SiteUrl;
-        if (hostUrl != null && !"".equals(hostUrl)) {
-            return hostUrl;
-        }
-        String hostName = Fqdn;
-        if (hostName == null) {
-            try {
-                hostName = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                return null;
-            }
-        }
-        hostUrl = "https://" + hostName;
-        return hostUrl;
     }
 }

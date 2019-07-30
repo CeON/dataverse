@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.sitemap;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
@@ -13,13 +14,11 @@ import java.util.List;
 public class SiteMapServiceBean {
 
     @Inject
-    SettingsServiceBean settingsService;
+    private SystemConfig systemConfig;
 
     @Asynchronous
     public void updateSiteMap(List<Dataverse> dataverses, List<Dataset> datasets) {
-        SiteMapUtil.updateSiteMap(dataverses, datasets,
-                settingsService.getValueForKey(SettingsServiceBean.Key.FQDN),
-                settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl));
+        SiteMapUtil.updateSiteMap(dataverses, datasets, systemConfig.getDataverseSiteUrl());
     }
 
 }

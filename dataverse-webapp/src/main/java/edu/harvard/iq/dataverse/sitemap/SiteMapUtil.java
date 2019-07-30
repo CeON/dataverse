@@ -54,7 +54,7 @@ public class SiteMapUtil {
      * can manage the whole thing for you."
      * https://github.com/dfabulich/sitemapgen4j
      */
-    public static void updateSiteMap(List<Dataverse> dataverses, List<Dataset> datasets, String Fqdn, String SiteUrl) {
+    public static void updateSiteMap(List<Dataverse> dataverses, List<Dataset> datasets, String dataverseUrl) {
 
         logger.info("BEGIN updateSiteMap");
 
@@ -92,7 +92,7 @@ public class SiteMapUtil {
 
             Element loc = document.createElement("loc");
             String dataverseAlias = dataverse.getAlias();
-            loc.appendChild(document.createTextNode(SystemConfig.getDataverseSiteUrlStatic(Fqdn, SiteUrl) + "/dataverse/" + dataverseAlias));
+            loc.appendChild(document.createTextNode(dataverseUrl + "/dataverse/" + dataverseAlias));
             url.appendChild(loc);
 
             Element lastmod = document.createElement("lastmod");
@@ -116,7 +116,7 @@ public class SiteMapUtil {
 
             Element loc = document.createElement("loc");
             String datasetPid = dataset.getGlobalId().asString();
-            loc.appendChild(document.createTextNode(SystemConfig.getDataverseSiteUrlStatic(Fqdn, SiteUrl) + "/dataset.xhtml?persistentId=" + datasetPid));
+            loc.appendChild(document.createTextNode(dataverseUrl + "/dataset.xhtml?persistentId=" + datasetPid));
             url.appendChild(loc);
 
             Element lastmod = document.createElement("lastmod");

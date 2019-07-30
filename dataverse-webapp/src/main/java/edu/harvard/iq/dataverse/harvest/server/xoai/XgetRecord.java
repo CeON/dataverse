@@ -32,7 +32,7 @@ public class XgetRecord extends GetRecord {
         super(record);
     }
 
-    public void writeToStream(OutputStream outputStream, ExportService exportService, String Fqdn, String SiteUrl) throws IOException {
+    public void writeToStream(OutputStream outputStream, ExportService exportService, String dataverseUrl) throws IOException {
 
         if (this.getRecord() == null) {
             throw new IOException("XgetRecord: null Record");
@@ -42,7 +42,7 @@ public class XgetRecord extends GetRecord {
         outputStream.write(RECORD_START_ELEMENT.getBytes());
         outputStream.flush();
 
-        xrecord.writeToStream(outputStream, exportService, Fqdn, SiteUrl);
+        xrecord.writeToStream(outputStream, exportService, dataverseUrl);
 
         outputStream.write(RECORD_CLOSE_ELEMENT.getBytes());
         outputStream.flush();

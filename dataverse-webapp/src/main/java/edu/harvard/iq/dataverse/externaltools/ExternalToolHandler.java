@@ -59,7 +59,7 @@ public class ExternalToolHandler {
     }
 
     // TODO: rename to handleRequest() to someday handle sending headers as well as query parameters.
-    public String getQueryParametersForUrl(String Fqdn, String SiteUrl) {
+    public String getQueryParametersForUrl(String dataverseUrl) {
         String toolParameters = externalTool.getToolParameters();
         JsonReader jsonReader = Json.createReader(new StringReader(toolParameters));
         JsonObject obj = jsonReader.readObject();
@@ -71,7 +71,7 @@ public class ExternalToolHandler {
         queryParams.getValuesAs(JsonObject.class).forEach((queryParam) -> {
             queryParam.keySet().forEach((key) -> {
                 String value = queryParam.getString(key);
-                String param = getQueryParam(key, value, Fqdn, SiteUrl);
+                String param = getQueryParam(key, value, dataverseUrl);
                 if (param != null && !param.isEmpty()) {
                     params.add(param);
                 }
@@ -80,14 +80,14 @@ public class ExternalToolHandler {
         return "?" + String.join("&", params);
     }
 
-    private String getQueryParam(String key, String value, String Fqdn, String SiteUrl) {
+    private String getQueryParam(String key, String value, String dataverseUrl) {
         ReservedWord reservedWord = ReservedWord.fromString(value);
         switch (reservedWord) {
             case FILE_ID:
                 // getDataFile is never null because of the constructor
                 return key + "=" + getDataFile().getId();
             case SITE_URL:
-                return key + "=" + SystemConfig.getDataverseSiteUrlStatic(Fqdn, SiteUrl);
+                return key + "=" + dataverseUrl;
             case API_TOKEN:
                 String apiTokenString = null;
                 ApiToken theApiToken = getApiToken();
@@ -116,8 +116,8 @@ public class ExternalToolHandler {
         return null;
     }
 
-    public String getToolUrlWithQueryParams(String Fqdn, String SiteUrl) {
-        return externalTool.getToolUrl() + getQueryParametersForUrl(Fqdn, SiteUrl);
+    public String getToolUrlWithQueryParams(String dataverseUrl) {
+        return externalTool.getToolUrl() + getQueryParametersForUrl(dataverseUrl);
     }
 
     public ExternalTool getExternalTool() {
