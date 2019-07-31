@@ -3757,7 +3757,8 @@ public class DatasetPage implements java.io.Serializable {
 
             if (exportedDataset.isLeft()) {
                 logger.fine(exportedDataset.getLeft().getErrorMsg());
-                String jsonLdProduced = workingVersion.getJsonLd(systemConfig.getDataverseSiteUrl());
+                String jsonLdProduced = workingVersion.getJsonLd(systemConfig.getDataverseSiteUrl(),
+                        settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls));
                 return jsonLdProduced != null ? jsonLdProduced : StringUtils.EMPTY;
             }
 
