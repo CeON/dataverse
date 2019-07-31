@@ -12,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.MissingResourceException;
@@ -204,7 +206,12 @@ public class SystemConfig {
      * The "official" server's fully-qualified domain name:
      */
     public String getDataverseServer() {
-        return settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
+        try {
+            return new URL(settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl)).getHost();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return "localhost";
+        }
     }
 
     public String getGuidesBaseUrl() {

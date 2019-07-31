@@ -477,15 +477,6 @@ public class SettingsServiceBean {
         HideSchemaDotOrgDownloadUrls,
 
         /**
-         * A JVM option for the advertised fully qualified domain name (hostname) of
-         * the Dataverse installation, such as "dataverse.example.com", which may
-         * differ from the hostname that the server knows itself as.
-         * <p>
-         * The equivalent in DVN 3.x was "dvn.inetAddress".
-         */
-        FQDN,
-
-        /**
          * A JVM option for specifying the "official" URL of the site.
          * Unlike the FQDN option above, this would be a complete URL,
          * with the protocol, port number etc.

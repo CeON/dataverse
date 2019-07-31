@@ -23,6 +23,9 @@ public class UrlManagerServiceBean {
     @Inject
     private SettingsServiceBean settingsService;
 
+    @Inject
+    private SystemConfig systemConfig;
+
     // -------------------- GETTERS --------------------
     public UrlManager getUrlManager() {
         return urlManager;
@@ -173,7 +176,7 @@ public class UrlManagerServiceBean {
             optionalPort = ":" + port;
         }
         String requestedHostname = u.getHost();
-        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
+        String hostName = systemConfig.getDataverseServer();
 
         /**
          * @todo should this be configurable? In dev it's convenient to override
