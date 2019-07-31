@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import org.primefaces.PrimeFaces;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -82,11 +81,10 @@ public class DatasetMetadataTab implements Serializable {
     }
 
     /**
-     * Updates the dataset lock state and refreshes button in metadataTab xhtml.
+     * Updates the dataset lock state.
      */
     public boolean updateDatasetLockState(boolean isDatasetLocked) {
         this.isDatasetLocked = isDatasetLocked;
-        PrimeFaces.current().ajax().update("datasetForm:tabView:editMetadataButton");
         return isDatasetLocked;
     }
 
