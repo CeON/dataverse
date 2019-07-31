@@ -51,8 +51,6 @@ public class ExportService {
     @PostConstruct
     void loadAllExporters() {
         boolean isEmailExcludedFromExport = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport);
-        String fqdn = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        String siteUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
 
         exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl()));
 

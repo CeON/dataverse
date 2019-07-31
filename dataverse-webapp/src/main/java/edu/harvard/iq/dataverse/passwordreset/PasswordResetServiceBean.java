@@ -109,22 +109,16 @@ public class PasswordResetServiceBean {
 
     private String createResetUrl(PasswordResetData passwordResetData) {
         // default to localhost
-        String finalHostname = "localhost";
+        String finalHostname;
         String configuredHostname = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (StringUtils.isNotBlank(configuredHostname)) {
-            if (configuredHostname.equals("localhost")) {
-                // must be a dev environment
-                finalHostname = "localhost:8181";
-            } else {
-                finalHostname = configuredHostname;
-            }
+
+        if (configuredHostname.equals("localhost")) {
+            // must be a dev environment
+            finalHostname = "localhost:8181";
         } else {
-            try {
-                finalHostname = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException ex) {
-                // just use the dev address
-            }
+            finalHostname = configuredHostname;
         }
+
         return "https://" + finalHostname + "/passwordreset.xhtml?token=" + passwordResetData.getToken();
     }
 

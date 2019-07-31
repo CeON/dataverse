@@ -182,20 +182,7 @@ public class SystemConfig {
      * by the Settings Service configuration.
      */
     public String getDataverseSiteUrl() {
-        String hostUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
-        if (StringUtils.isNotBlank(hostUrl)) {
-            return hostUrl;
-        }
-        String hostName = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (StringUtils.isNotBlank(hostName)) {
-            try {
-                hostName = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                return null;
-            }
-        }
-        hostUrl = "https://" + hostName;
-        return hostUrl;
+        return settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
     }
 
     public String getFilesDirectory() {
@@ -217,16 +204,7 @@ public class SystemConfig {
      * The "official" server's fully-qualified domain name:
      */
     public String getDataverseServer() {
-        // still reliese on a JVM option: 
-        String fqdn = settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
-        if (fqdn == null) {
-            try {
-                fqdn = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                return null;
-            }
-        }
-        return fqdn;
+        return settingsService.getValueForKey(SettingsServiceBean.Key.FQDN);
     }
 
     public String getGuidesBaseUrl() {
