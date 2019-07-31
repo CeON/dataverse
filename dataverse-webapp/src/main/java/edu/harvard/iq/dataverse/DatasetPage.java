@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
+import edu.harvard.iq.dataverse.dataset.tab.DatasetMetadataTab;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.engine.command.Command;
@@ -201,6 +202,8 @@ public class DatasetPage implements java.io.Serializable {
     ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     private ExportService exportService;
+    @Inject
+    private DatasetMetadataTab metadataTab;
 
     private Dataset dataset = new Dataset();
     private EditMode editMode;
@@ -1868,6 +1871,7 @@ public class DatasetPage implements java.io.Serializable {
 
         displayCitation = dataset.getCitation(true, workingVersion);
         stateChanged = false;
+        metadataTab.updateDatasetLockState(isLocked());
     }
 
     public String deleteDataset() {
@@ -2489,18 +2493,16 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public void refreshAllLocks() {
-        //RequestContext requestContext = RequestContext.getCurrentInstance();
+
         logger.fine("checking all locks");
         if (isStillLockedForAnyReason()) {
             logger.fine("(still locked)");
         } else {
-            // OK, the dataset is no longer locked. 
-            // let's tell the page to refresh:
+
             logger.fine("no longer locked!");
             stateChanged = true;
             lockedFromEditsVar = null;
             lockedFromDownloadVar = null;
-            //requestContext.execute("refreshPage();");
         }
     }
 

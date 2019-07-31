@@ -7,10 +7,10 @@
 >
 
     <div class="button-block tab-header margin-bottom text-right">
-        <p:link styleClass="btn btn-default btn-access" disabled="#{DatasetMetadataTab.datasetLocked}"
+        <p:link id="editMetadataButton" styleClass="btn btn-default btn-access"
+                disabled="#{DatasetMetadataTab.datasetLocked}"
                 outcome="editDatasetMetadata"
-                rendered="#{!widgetWrapper.widgetView and dataverseSession.getUser().isAuthenticated()
-                                                               and DatasetMetadataTab.canUpdateDataset() and !DatasetMetadataTab.dataset.deaccessioned}">
+                rendered="#{!widgetWrapper.widgetView and DatasetMetadataTab.canUpdateDataset() and !DatasetMetadataTab.dataset.deaccessioned}">
             <f:param name="datasetId" value="#{DatasetMetadataTab.dataset.id}"/>
             <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
         </p:link>
@@ -36,7 +36,6 @@
                   value="#{DatasetMetadataTab.metadataBlocks.entrySet().toArray()}"/>
         <ui:param name="globalId" value="#{DatasetMetadataTab.dataset.globalIdString}"/>
         <ui:param name="altPID" value="#{DatasetMetadataTab.dataset.alternativePersistentIdentifier}"/>
-        <ui:param name="publicationDate"
-                  value="#{DatasetMetadataTab.dataset.publicationDate != null ? DatasetMetadataTab.dataset.publicationDateFormattedYYYYMMDD : ''}"/>
+        <ui:param name="publicationDate" value="#{DatasetMetadataTab.dataset.publicationDateFormattedYYYYMMDD}"/>
     </ui:include>
 </ui:composition>
