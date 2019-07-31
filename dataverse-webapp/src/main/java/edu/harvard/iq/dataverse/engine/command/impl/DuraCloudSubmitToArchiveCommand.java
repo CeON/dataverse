@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.bagit.BagGenerator;
 import edu.harvard.iq.dataverse.util.bagit.OREMap;
@@ -42,7 +43,6 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
     private static final String DURACLOUD_PORT = ":DuraCloudPort";
     private static final String DURACLOUD_HOST = ":DuraCloudHost";
     private static final String DURACLOUD_CONTEXT = ":DuraCloudContext";
-    private static final String DATAVERSE_URL = "dataverseUrl";
 
     public DuraCloudSubmitToArchiveCommand(DataverseRequest aRequest, DatasetVersion version) {
         super(aRequest, version);
@@ -54,7 +54,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
         String port = requestedSettings.get(DURACLOUD_PORT) != null ? requestedSettings.get(DURACLOUD_PORT) : DEFAULT_PORT;
         String dpnContext = requestedSettings.get(DURACLOUD_CONTEXT) != null ? requestedSettings.get(DURACLOUD_CONTEXT) : DEFAULT_CONTEXT;
         String host = requestedSettings.get(DURACLOUD_HOST);
-        String dataverseUrl = requestedSettings.get(DATAVERSE_URL);
+        String dataverseUrl = requestedSettings.get(SettingsServiceBean.Key.SiteUrl.toString());
         if (host != null) {
             Dataset dataset = dv.getDataset();
             if (dataset.getLockFor(Reason.pidRegister) == null) {

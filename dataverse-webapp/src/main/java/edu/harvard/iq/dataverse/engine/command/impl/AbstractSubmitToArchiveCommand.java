@@ -43,7 +43,7 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
             }
         }
 
-        requestedSettings.put("dataverseUrl", ctxt.systemConfig().getDataverseSiteUrl());
+        requestedSettings.put(SettingsServiceBean.Key.SiteUrl.toString(), ctxt.systemConfig().getDataverseSiteUrl());
 
 
         AuthenticatedUser user = getRequest().getAuthenticatedUser();

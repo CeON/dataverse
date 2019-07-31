@@ -175,14 +175,6 @@ public class SystemConfig {
         return settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.MinutesUntilPasswordResetTokenExpires);
     }
 
-    /**
-     * The "official", designated URL of the site;
-     * can be defined as a complete URL; or derived from the
-     * "official" hostname. If none of these options is set,
-     * defaults to the InetAddress.getLocalHOst() and https;
-     * These are legacy JVM options. Will be eventualy replaced
-     * by the Settings Service configuration.
-     */
     public String getDataverseSiteUrl() {
         return settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
     }
