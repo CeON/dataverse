@@ -5,12 +5,13 @@ import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.api.ApiBlockingFilter;
 import edu.harvard.iq.dataverse.persistence.Setting;
 import edu.harvard.iq.dataverse.persistence.SettingDao;
-import edu.harvard.iq.dataverse.qualifiers.ProductionBean;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,6 @@ import java.util.logging.Logger;
  * @see FileBasedSettingsFetcher
  */
 @Stateless
-@ProductionBean
 public class SettingsServiceBean {
 
     /**
@@ -46,16 +46,6 @@ public class SettingsServiceBean {
          * Defines a public installation -- all datafiles are unrestricted
          */
         PublicInstall,
-        /**
-         * Sets the name of your cloud computing environment.
-         * For example, "Massachusetts Open Cloud"
-         */
-        CloudEnvironmentName,
-        /**
-         * Defines the base for a computing environment URL.
-         * The container name will be appended to this on the "Compute" button
-         */
-        ComputeBaseUrl,
         /**
          * Enables the provenance collection popup.
          * Allows users to store their provenance json and description
@@ -468,7 +458,21 @@ public class SettingsServiceBean {
         RservePort,
         RserveUser,
         RservePassword,
-        RserveTempDir;
+        RserveTempDir,
+
+        /**
+         * Some installations may not want download URLs to their files to be
+         * available in Schema.org JSON-LD output.
+         */
+        HideSchemaDotOrgDownloadUrls,
+
+        /**
+         * A JVM option for specifying the "official" URL of the site.
+         * Unlike the FQDN option above, this would be a complete URL,
+         * with the protocol, port number etc.
+         */
+        SiteUrl
+        ;
 
         @Override
         public String toString() {
@@ -509,7 +513,6 @@ public class SettingsServiceBean {
     public String getValueForKey(Key key) {
         return get(key.toString());
     }
-
 
     /**
      * Attempt to convert the value to an integer

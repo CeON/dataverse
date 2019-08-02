@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.export;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
-import edu.harvard.iq.dataverse.qualifiers.ProductionBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Either;
@@ -13,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
 import javax.inject.Inject;
+import javax.xml.validation.Schema;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class ExportService {
     }
 
     @Inject
-    public ExportService(@ProductionBean SettingsServiceBean settingsService,
+    public ExportService(SettingsServiceBean settingsService,
                          SystemConfig systemConfig) {
         this.settingsService = settingsService;
         this.systemConfig = systemConfig;
@@ -52,17 +52,18 @@ public class ExportService {
     void loadAllExporters() {
         boolean isEmailExcludedFromExport = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport);
 
-        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.DDI, new DDIExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl()));
 
         exporters.put(ExporterType.DATACITE, new DataCiteExporter());
 
         exporters.put(ExporterType.DCTERMS, new DCTermsExporter(isEmailExcludedFromExport));
 
-        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport));
+        exporters.put(ExporterType.OAIDDI, new OAI_DDIExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl()));
 
         exporters.put(ExporterType.OAIORE, new OAI_OREExporter(isEmailExcludedFromExport, systemConfig.getDataverseSiteUrl(), currentDate));
 
-        exporters.put(ExporterType.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl()));
+        exporters.put(ExporterType.SCHEMADOTORG, new SchemaDotOrgExporter(systemConfig.getDataverseSiteUrl(),
+                settingsService.getValueForKey(SettingsServiceBean.Key.HideSchemaDotOrgDownloadUrls)));
 
         exporters.put(ExporterType.OPENAIRE, new OpenAireExporter(isEmailExcludedFromExport));
 
@@ -83,7 +84,8 @@ public class ExportService {
 
         if (loadedExporter.isPresent()) {
 
-            String exportedDataset = Try.of(() -> loadedExporter.get().exportDataset(datasetVersion))
+            String exportedDataset = Try.of(() -> loadedExporter.get()
+                    .exportDataset(datasetVersion))
                     .onFailure(Throwable::printStackTrace)
                     .getOrElse(StringUtils.EMPTY);
 

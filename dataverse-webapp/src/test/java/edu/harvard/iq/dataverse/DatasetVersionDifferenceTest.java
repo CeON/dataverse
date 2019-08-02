@@ -1,30 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-
-import javax.json.Json;
-import javax.json.JsonObject;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFieldChangeCounts;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFieldDiff;
 import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileDifferenceItem;
@@ -38,8 +13,33 @@ import edu.harvard.iq.dataverse.license.LocaleText;
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
-import io.vavr.Tuple2;
-import io.vavr.Tuple4;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -181,7 +181,8 @@ public class DatasetVersionDifferenceTest {
         assertDatasetPrimitiveFieldChange(detailData.get(3), "subject",
                 "chemistry", "agricultural_sciences; arts_and_humanities");
         
-        
+
+        assertFalse(diff.isEmpty());
         assertEquals(0, diff.getAddedFiles().size());
         assertEquals(0, diff.getChangedFileMetadata().size());
         assertEquals(0, diff.getDatasetFilesDiffList().size());
@@ -237,6 +238,7 @@ public class DatasetVersionDifferenceTest {
 
         assertEquals("(Replaced: 1)", diff.getFileNote());
         
+        assertFalse(diff.isEmpty());
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
         assertThat(diff.getDetailDataByBlock(), is(empty()));
@@ -297,7 +299,7 @@ public class DatasetVersionDifferenceTest {
 
         assertEquals("(Removed: 2)", diff.getFileNote());
         
-        
+        assertFalse(diff.isEmpty());
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
         assertThat(diff.getDetailDataByBlock(), is(empty()));
@@ -357,7 +359,7 @@ public class DatasetVersionDifferenceTest {
 
         assertEquals("(Added: 2)", diff.getFileNote());
         
-        
+        assertFalse(diff.isEmpty());
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
         assertThat(diff.getDetailDataByBlock(), is(empty()));
@@ -418,7 +420,7 @@ public class DatasetVersionDifferenceTest {
 
         assertEquals("(Changed metadata: 1 file)", diff.getFileNote());
         
-        
+        assertFalse(diff.isEmpty());
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
         assertThat(diff.getDetailDataByBlock(), is(empty()));
@@ -496,6 +498,26 @@ public class DatasetVersionDifferenceTest {
         assertThat(diff.getDatasetFilesReplacementList(), is(empty()));
         assertSame(v1, diff.getOriginalVersion());
         assertSame(v2, diff.getNewVersion());
+    }
+
+    @Test
+    public void create_WITH_NO_DIFFERENCES() throws IOException, JsonParseException {
+        // given
+
+        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v1.setDataset(dataset);
+
+        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        v2.setDataset(dataset);
+
+        // when
+
+        DatasetVersionDifference diff = new DatasetVersionDifference(v2, v1);
+
+        // then
+
+        assertTrue(diff.isEmpty());
+        assertFalse(diff.isNotEmpty());
     }
     
     

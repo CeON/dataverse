@@ -25,15 +25,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-//import java.io.FileNotFoundException;
-//import org.apache.commons.httpclient.Header;
-//import org.apache.commons.httpclient.methods.GetMethod;
-
 /**
  * @author oscardssmith
  */
 public class StorageIOTest {
-    StorageIO<Dataset> instance = new FileAccessIO<>();
+    StorageIO<Dataset> instance = new FileAccessIO<>("/tmp/files/tmp/dataset/Dataset");
 
     @Test
     public void testGetChannel() throws IOException {
@@ -81,8 +77,8 @@ public class StorageIOTest {
         } catch (ClassCastException ex) {
             assertEquals(ex.getMessage(), "edu.harvard.iq.dataverse.Dataset cannot be cast to edu.harvard.iq.dataverse.Dataverse");
         }
-        assertEquals(new DataFile(), new FileAccessIO<>(new DataFile()).getDataFile());
-        assertEquals(new Dataverse(), new FileAccessIO<>(new Dataverse()).getDataverse());
+        assertEquals(new DataFile(), new FileAccessIO<>(new DataFile(), null).getDataFile());
+        assertEquals(new Dataverse(), new FileAccessIO<>(new Dataverse(), null).getDataverse());
     }
 
     @Test
@@ -92,13 +88,6 @@ public class StorageIOTest {
         instance.setRequest(req);
         assertEquals(req, instance.getRequest());
     }
-
-    /*@Test
-    public void testStatus() {
-        assertEquals(0, instance.getStatus());
-        instance.setStatus(1);
-        assertEquals(1, instance.getStatus());
-    }*/
 
     @Test
     public void testSize() {
@@ -159,49 +148,6 @@ public class StorageIOTest {
         instance.setRemoteUrl("Test");
         assertEquals("Test", instance.getRemoteUrl());
     }
-
-    @Test
-    public void testSwiftContainerName() {
-        assertEquals(null, instance.getSwiftContainerName());
-        instance.setSwiftContainerName("Swift");
-        assertEquals("Swift", instance.getSwiftContainerName());
-    }
-
-    /*
-    @Test
-    public void testHTTPMethod() {
-        assertEquals(null, instance.getHTTPMethod());
-        GetMethod method = new GetMethod();
-        instance.setHTTPMethod(method);
-        assertEquals(method, instance.getHTTPMethod());
-        instance.releaseConnection();
-    }
-
-    @Test
-    public void testResponseHeaders() {
-        assertArrayEquals(null, instance.getResponseHeaders());
-        Header[] headers = new Header[]{new Header("Test", ""), new Header()};
-        instance.setResponseHeaders(headers);
-        assertArrayEquals(headers, instance.getResponseHeaders());
-    }
-
-    @Test
-    public void testFileLocation() {
-        assertEquals(true, instance.isLocalFile());
-        instance.setIsLocalFile(false);
-        assertEquals(false, instance.isLocalFile());
-
-        assertEquals(false, instance.isRemoteAccess());
-        instance.setIsRemoteAccess(true);
-        assertEquals(true, instance.isRemoteAccess());
-    }
-
-    @Test
-    public void testHttpAccess() {
-        assertEquals(false, instance.isHttpAccess());
-        instance.setIsHttpAccess(true);
-        assertEquals(true, instance.isHttpAccess());
-    }*/
 
     @Test
     public void testDownloadSupported() {
