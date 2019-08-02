@@ -3,9 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.mail;
 
 import com.sun.mail.smtp.SMTPSendFailedException;
+import edu.harvard.iq.dataverse.DataFile;
+import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
+import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DvObject;
+import edu.harvard.iq.dataverse.EMailValidator;
+import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.RoleAssignment;
+import edu.harvard.iq.dataverse.UserNotification;
+import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
@@ -37,7 +52,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -77,40 +91,10 @@ public class MailServiceBean implements java.io.Serializable {
     public MailServiceBean() {
     }
 
-    public void sendMail(String host, String reply, String to, String subject, String messageText) {
-        Properties props = System.getProperties();
-        props.put("mail.smtp.host", host);
-        Session session = Session.getDefaultInstance(props, null);
-
-        try {
-            MimeMessage msg = new MimeMessage(session);
-            String[] recipientStrings = to.split(",");
-            InternetAddress[] recipients = new InternetAddress[recipientStrings.length];
-            try {
-                InternetAddress fromAddress = getSystemAddress();
-                fromAddress.setPersonal(BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
-                        fromAddress.getPersonal(), reply)), charset);
-                msg.setFrom(fromAddress);
-                msg.setReplyTo(new Address[]{new InternetAddress(reply, charset)});
-                for (int i = 0; i < recipients.length; i++) {
-                    recipients[i] = new InternetAddress(recipientStrings[i], "", charset);
-                }
-            } catch (UnsupportedEncodingException ex) {
-                logger.severe(ex.getMessage());
-            }
-            msg.setRecipients(Message.RecipientType.TO, recipients);
-            msg.setSubject(subject, charset);
-            msg.setText(messageText, charset);
-            Transport.send(msg, recipients);
-        } catch (AddressException ae) {
-            ae.printStackTrace(System.out);
-        } catch (MessagingException me) {
-            me.printStackTrace(System.out);
-        }
-    }
-
     @Resource(name = "mail/notifyMailSession")
     private Session session;
+
+    // -------------------- LOGIC --------------------
 
     public boolean sendSystemEmail(String to, String subject, String messageText) {
 
@@ -156,17 +140,35 @@ public class MailServiceBean implements java.io.Serializable {
         return sent;
     }
 
-    private InternetAddress getSystemAddress() {
-        String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
-        return MailUtil.parseSystemAddress(systemEmail);
-    }
-
-    //@Resource(name="mail/notifyMailSession")
     public void sendMail(String from, String to, String subject, String messageText) {
         sendMail(from, to, subject, messageText, new HashMap<>());
     }
 
-    public void sendMail(String reply, String to, String subject, String messageText, Map<Object, Object> extraHeaders) {
+    public Boolean sendNotificationEmail(UserNotification notification, String comment, AuthenticatedUser requestor) {
+
+        boolean retval = false;
+        String emailAddress = getUserEmailAddress(notification);
+        if (emailAddress != null) {
+            Object objectOfNotification = getObjectOfNotification(notification);
+            if (objectOfNotification != null) {
+                String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
+                String rootDataverseName = dataverseService.findRootDataverse().getName();
+                String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, rootDataverseName, objectOfNotification);
+                if (!(messageText.isEmpty() || subjectText.isEmpty())) {
+                    retval = sendSystemEmail(emailAddress, subjectText, messageText);
+                } else {
+                    logger.warning("Skipping " + notification.getType() + " notification, because couldn't get valid message");
+                }
+            } else {
+                logger.warning("Skipping " + notification.getType() + " notification, because no valid Object was found");
+            }
+        } else {
+            logger.warning("Skipping " + notification.getType() + " notification, because email address is null");
+        }
+        return retval;
+    }
+
+    private void sendMail(String reply, String to, String subject, String messageText, Map<Object, Object> extraHeaders) {
         try {
             MimeMessage msg = new MimeMessage(session);
             //Always send from system address to avoid email being blocked
@@ -201,45 +203,14 @@ public class MailServiceBean implements java.io.Serializable {
             }
 
             Transport.send(msg);
-        } catch (AddressException ae) {
+        } catch (MessagingException ae) {
             ae.printStackTrace(System.out);
-        } catch (MessagingException me) {
-            me.printStackTrace(System.out);
         }
     }
 
-    public Boolean sendNotificationEmail(UserNotification notification) {
-        return sendNotificationEmail(notification, "");
-    }
-
-
-    public Boolean sendNotificationEmail(UserNotification notification, String comment) {
-        return sendNotificationEmail(notification, comment, null);
-    }
-
-
-    public Boolean sendNotificationEmail(UserNotification notification, String comment, AuthenticatedUser requestor) {
-
-        boolean retval = false;
-        String emailAddress = getUserEmailAddress(notification);
-        if (emailAddress != null) {
-            Object objectOfNotification = getObjectOfNotification(notification);
-            if (objectOfNotification != null) {
-                String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
-                String rootDataverseName = dataverseService.findRootDataverse().getName();
-                String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, rootDataverseName, objectOfNotification);
-                if (!(messageText.isEmpty() || subjectText.isEmpty())) {
-                    retval = sendSystemEmail(emailAddress, subjectText, messageText);
-                } else {
-                    logger.warning("Skipping " + notification.getType() + " notification, because couldn't get valid message");
-                }
-            } else {
-                logger.warning("Skipping " + notification.getType() + " notification, because no valid Object was found");
-            }
-        } else {
-            logger.warning("Skipping " + notification.getType() + " notification, because email address is null");
-        }
-        return retval;
+    private InternetAddress getSystemAddress() {
+        String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
+        return MailUtil.parseSystemAddress(systemEmail);
     }
 
     private String getDatasetManageFileAccessLink(DataFile datafile) {
@@ -319,18 +290,7 @@ public class MailServiceBean implements java.io.Serializable {
         return "";
     }
 
-    public String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject) {
-
-        return getMessageTextBasedOnNotification(userNotification, targetObject, "");
-
-    }
-
-    public String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject, String comment) {
-        return getMessageTextBasedOnNotification(userNotification, targetObject, comment, null);
-
-    }
-
-    public String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject, String comment, AuthenticatedUser requestor) {
+    private String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject, String comment, AuthenticatedUser requestor) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
         DatasetVersion version;
@@ -570,7 +530,6 @@ public class MailServiceBean implements java.io.Serializable {
         }
         return null;
     }
-
 
     private String getUserEmailAddress(UserNotification notification) {
         if (notification != null) {

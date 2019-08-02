@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.UserNotification.Type;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.mail.MailServiceBean;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
