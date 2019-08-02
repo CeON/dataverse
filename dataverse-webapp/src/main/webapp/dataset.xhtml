@@ -164,9 +164,11 @@
                                                                 and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                 and DatasetPage.canUpdateDataset()
                                                                 and !permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
-                                        <button type="button"
+                                        <button id="sentToReviewButton"
+                                                type="button"
                                                 class="btn btn-default btn-access #{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
-                                                onclick="PF('inreview').show()">
+                                                onclick="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'return false;' : 'sentToReview();'}"
+                                            >
                                             <span class="glyphicon glyphicon-globe"/> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn']}
                                         </button>
                                     </ui:fragment>
@@ -1540,6 +1542,10 @@
 
                 function checkNewlyRestricted() {
                     $('button[id$="datasetSave"]').trigger('click');
+                }
+
+                function sentToReview() {
+                    PF('inreview').show();
                 }
             </script>
         </ui:define>
