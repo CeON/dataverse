@@ -7,8 +7,8 @@ import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.DvObjectType;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
-import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
@@ -17,7 +17,9 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
+import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import io.vavr.Tuple;
 import io.vavr.control.Either;
 import org.primefaces.model.DualListModel;
 
@@ -108,7 +110,7 @@ public class DataverseSaver {
 
         executorService.execute(() ->
                                         userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
-                                                                                 UserNotification.Type.CREATEDV, dataverse.getId()));
+                                                                                 NotificationType.CREATEDV, Tuple.of(dataverse.getId(), DvObjectType.DATAVERSE)));
 
         executorService.shutdown();
     }

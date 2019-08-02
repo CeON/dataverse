@@ -6,9 +6,10 @@
 
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.UserNotification.Type;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.mail.MailServiceBean;
+import edu.harvard.iq.dataverse.notification.NotificationType;
+import io.vavr.Tuple2;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -76,20 +77,26 @@ public class UserNotificationServiceBean {
         em.remove(em.merge(userNotification));
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId) {
-        sendNotification(dataverseUser, sendDate, type, objectId, "");
+    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, DvObjectType> dvObjectIdAndType) {
+        sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, "");
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId, String comment) {
-        sendNotification(dataverseUser, sendDate, type, objectId, comment, null);
+    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, DvObjectType> dvObjectIdAndType, String comment) {
+        sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, comment, null);
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId, String comment, AuthenticatedUser requestor) {
+    public void sendNotification(AuthenticatedUser dataverseUser,
+                                 Timestamp sendDate,
+                                 NotificationType type,
+                                 Tuple2<Long, DvObjectType> dvObjectIdAndType,
+                                 String comment,
+                                 AuthenticatedUser requestor) {
+
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
-        userNotification.setObjectId(objectId);
+        userNotification.setObjectId(dvObjectIdAndType._1());
         userNotification.setRequestor(requestor);
 
         if (mailService.sendNotificationEmail(userNotification, comment, requestor)) {

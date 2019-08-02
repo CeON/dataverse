@@ -48,6 +48,7 @@ import edu.harvard.iq.dataverse.license.LicenseDAO;
 import edu.harvard.iq.dataverse.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
+import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
@@ -63,6 +64,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.Tuple;
 import io.vavr.control.Either;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.io.IOUtils;
@@ -104,7 +106,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -2085,7 +2086,7 @@ public class DatasetPage implements java.io.Serializable {
             dataset = commandEngine.submit(cmd);
             if (editMode == EditMode.CREATE) {
                 if (session.getUser() instanceof AuthenticatedUser) {
-                    userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataset.getCreateDate(), UserNotification.Type.CREATEDS, dataset.getLatestVersion().getId());
+                    userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataset.getCreateDate(), NotificationType.CREATEDS, Tuple.of(dataset.getLatestVersion().getId(), DvObjectType.DATASET_VERSION));
                 }
             }
             logger.fine("Successfully executed SaveDatasetCommand.");

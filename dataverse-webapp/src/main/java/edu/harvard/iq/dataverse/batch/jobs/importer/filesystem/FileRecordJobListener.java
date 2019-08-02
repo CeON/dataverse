@@ -26,9 +26,9 @@ import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetLock;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.DvObjectType;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -39,7 +39,9 @@ import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.Tuple;
 import org.apache.commons.io.IOUtils;
 
 import javax.batch.api.BatchProperty;
@@ -76,7 +78,7 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
 
     public static final String SEP = System.getProperty("file.separator");
 
-    private static final UserNotification.Type notifyType = UserNotification.Type.FILESYSTEMIMPORT;
+    private static final NotificationType notifyType = NotificationType.FILESYSTEMIMPORT;
 
     @Inject
     private JobContext jobContext;
@@ -314,16 +316,16 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
                 // [1] save json log to file
                 LoggingUtil.saveJsonLog(jobJson, logDir, jobId);
                 // [2] send user notifications - to all authors
-                notificationServiceBean.sendNotification(user, timestamp, notifyType, datasetVersionId);
+                notificationServiceBean.sendNotification(user, timestamp, notifyType, Tuple.of(datasetVersionId, DvObjectType.DATASET_VERSION));
                 Map<String, AuthenticatedUser> distinctAuthors = permissionServiceBean.getDistinctUsersWithPermissionOn(Permission.EditDataset, dataset);
                 distinctAuthors.values().forEach((value) -> {
-                    notificationServiceBean.sendNotification(value, new Timestamp(new Date().getTime()), notifyType, datasetVersionId);
+                    notificationServiceBean.sendNotification(value, new Timestamp(new Date().getTime()), notifyType, Tuple.of(datasetVersionId, DvObjectType.DATASET_VERSION));
                 });
                 // [3] send SuperUser notification
                 List<AuthenticatedUser> superUsers = authenticationServiceBean.findSuperUsers();
                 if (superUsers != null && !superUsers.isEmpty()) {
                     superUsers.forEach((au) -> {
-                        notificationServiceBean.sendNotification(au, timestamp, notifyType, datasetVersionId);
+                        notificationServiceBean.sendNotification(au, timestamp, notifyType, Tuple.of(datasetVersionId, DvObjectType.DATASET_VERSION));
                     });
                 }
                 // [4] action log: store location of the full log to avoid truncation issues

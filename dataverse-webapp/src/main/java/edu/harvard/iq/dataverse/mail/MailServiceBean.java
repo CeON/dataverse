@@ -5,7 +5,7 @@
  */
 package edu.harvard.iq.dataverse.mail;
 
-import com.sun.mail.smtp.SMTPSendFailedException;
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.Dataset;
@@ -15,12 +15,10 @@ import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DvObject;
-import edu.harvard.iq.dataverse.EMailValidator;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.RoleAssignment;
 import edu.harvard.iq.dataverse.UserNotification;
-import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
@@ -31,27 +29,24 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
+import org.simplejavamail.email.Email;
+import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.mailer.Mailer;
+import org.simplejavamail.mailer.MailerBuilder;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import javax.inject.Inject;
 import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -60,8 +55,7 @@ import java.util.logging.Logger;
  */
 @Stateless
 public class MailServiceBean implements java.io.Serializable {
-    @EJB
-    UserNotificationServiceBean userNotificationService;
+
     @EJB
     DataverseServiceBean dataverseService;
     @EJB
@@ -81,6 +75,11 @@ public class MailServiceBean implements java.io.Serializable {
     @EJB
     ConfirmEmailServiceBean confirmEmailService;
 
+    @Inject
+    private MailMessageCreator mailMessageCreator;
+
+    private Mailer mailSender;
+
     private static final Logger logger = Logger.getLogger(MailServiceBean.class.getCanonicalName());
 
     private static final String charset = "UTF-8";
@@ -94,118 +93,72 @@ public class MailServiceBean implements java.io.Serializable {
     @Resource(name = "mail/notifyMailSession")
     private Session session;
 
+    // -------------------- CONSTRUCTORS --------------------
+
+    @PostConstruct
+    public void prepareMailSession() {
+        mailSender = MailerBuilder
+                .usingSession(session)
+                .withDebugLogging(true)
+                .buildMailer();
+    }
+
     // -------------------- LOGIC --------------------
-
-    public boolean sendSystemEmail(String to, String subject, String messageText) {
-
-        boolean sent = false;
-        String rootDataverseName = dataverseService.findRootDataverse().getName();
-        InternetAddress systemAddress = getSystemAddress();
-        String body = messageText + BundleUtil.getStringFromBundle("notification.email.closing", Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(systemAddress), BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName)));
-        logger.fine("Sending email to " + to + ". Subject: <<<" + subject + ">>>. Body: " + body);
-        try {
-            MimeMessage msg = new MimeMessage(session);
-            if (systemAddress != null) {
-                msg.setFrom(systemAddress);
-                msg.setSentDate(new Date());
-                String[] recipientStrings = to.split(",");
-                InternetAddress[] recipients = new InternetAddress[recipientStrings.length];
-                for (int i = 0; i < recipients.length; i++) {
-                    try {
-                        recipients[i] = new InternetAddress(recipientStrings[i], "", charset);
-                    } catch (UnsupportedEncodingException ex) {
-                        logger.severe(ex.getMessage());
-                    }
-                }
-                msg.setRecipients(Message.RecipientType.TO, recipients);
-                msg.setSubject(subject, charset);
-                msg.setText(body, charset);
-                try {
-                    Transport.send(msg, recipients);
-                    sent = true;
-                } catch (SMTPSendFailedException ssfe) {
-                    logger.warning("Failed to send mail to: " + to);
-                    logger.warning("SMTPSendFailedException Message: " + ssfe);
-                }
-            } else {
-                logger.fine("Skipping sending mail to " + to + ", because the \"no-reply\" address not set (" + Key.SystemEmail + " setting).");
-            }
-        } catch (AddressException ae) {
-            logger.warning("Failed to send mail to " + to);
-            ae.printStackTrace(System.out);
-        } catch (MessagingException me) {
-            logger.warning("Failed to send mail to " + to);
-            me.printStackTrace(System.out);
-        }
-        return sent;
-    }
-
-    public void sendMail(String from, String to, String subject, String messageText) {
-        sendMail(from, to, subject, messageText, new HashMap<>());
-    }
 
     public Boolean sendNotificationEmail(UserNotification notification, String comment, AuthenticatedUser requestor) {
 
         boolean retval = false;
         String emailAddress = getUserEmailAddress(notification);
-        if (emailAddress != null) {
-            Object objectOfNotification = getObjectOfNotification(notification);
-            if (objectOfNotification != null) {
-                String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
-                String rootDataverseName = dataverseService.findRootDataverse().getName();
-                String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, rootDataverseName, objectOfNotification);
-                if (!(messageText.isEmpty() || subjectText.isEmpty())) {
-                    retval = sendSystemEmail(emailAddress, subjectText, messageText);
-                } else {
-                    logger.warning("Skipping " + notification.getType() + " notification, because couldn't get valid message");
-                }
+
+        Object objectOfNotification = getObjectOfNotification(notification);
+
+        if (objectOfNotification != null) {
+            String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
+            String rootDataverseName = dataverseService.findRootDataverse().getName();
+            String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, rootDataverseName, objectOfNotification);
+            if (!(messageText.isEmpty() || subjectText.isEmpty())) {
+                retval = sendSystemEmail(emailAddress, subjectText, messageText);
             } else {
-                logger.warning("Skipping " + notification.getType() + " notification, because no valid Object was found");
+                logger.warning("Skipping " + notification.getType() + " notification, because couldn't get valid message");
             }
         } else {
-            logger.warning("Skipping " + notification.getType() + " notification, because email address is null");
+            logger.warning("Skipping " + notification.getType() + " notification, because no valid Object was found");
         }
+
         return retval;
     }
 
-    private void sendMail(String reply, String to, String subject, String messageText, Map<Object, Object> extraHeaders) {
-        try {
-            MimeMessage msg = new MimeMessage(session);
-            //Always send from system address to avoid email being blocked
-            InternetAddress fromAddress = getSystemAddress();
-            try {
-                fromAddress.setPersonal(BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
-                        fromAddress.getPersonal(), reply)), charset);
-            } catch (UnsupportedEncodingException ex) {
-                logger.severe(ex.getMessage());
-            }
-            msg.setFrom(fromAddress);
-            if (EMailValidator.isEmailValid(reply, null)) {
-                //But set the reply-to address to direct replies to the requested 'from' party if it is a valid email address
-                msg.setReplyTo(new Address[]{new InternetAddress(reply)});
-            } else {
-                //Otherwise include the invalid 'from' address in the message
-                messageText = "From: " + reply + "\n\n" + messageText;
-            }
-            msg.setSentDate(new Date());
-            msg.setRecipients(Message.RecipientType.TO,
-                              InternetAddress.parse(to, false));
-            msg.setSubject(subject, charset);
-            msg.setText(messageText, charset);
+    public boolean sendSystemEmail(String to, String subject, String messageText) {
 
-            if (extraHeaders != null) {
-                for (Object key : extraHeaders.keySet()) {
-                    String headerName = key.toString();
-                    String headerValue = extraHeaders.get(key).toString();
+        String message = mailMessageCreator.createMailBodyMessage(messageText, dataverseService.findRootDataverse().getName(), getSystemAddress());
 
-                    msg.addHeader(headerName, headerValue);
-                }
-            }
+        Email email = EmailBuilder.startingBlank()
+                .from(getSystemAddress())
+                .withRecipients(mailMessageCreator.createRecipients(to, ""))
+                .withSubject(subject)
+                .appendText(message)
+                .buildEmail();
 
-            Transport.send(msg);
-        } catch (MessagingException ae) {
-            ae.printStackTrace(System.out);
-        }
+        return Try.run(() -> mailSender.sendMail(email))
+                .map(emailSent -> true)
+                .onFailure(Throwable::printStackTrace)
+                .getOrElse(false);
+    }
+
+    public boolean sendMail(String reply, String to, String subject, String messageText) {
+
+        Email email = EmailBuilder.startingBlank()
+                .from(getSystemAddress())
+                .withRecipients(mailMessageCreator.createRecipients(to, mailMessageCreator.createRecipientName(reply, getSystemAddress())))
+                .withSubject(subject)
+                .withReplyTo(reply)
+                .appendText(messageText)
+                .buildEmail();
+
+        return Try.run(() -> mailSender.sendMail(email))
+                .map(emailSent -> true)
+                .onFailure(Throwable::printStackTrace)
+                .getOrElse(false);
     }
 
     private InternetAddress getSystemAddress() {
@@ -311,7 +264,7 @@ public class MailServiceBean implements java.io.Serializable {
                 dvObjTypeStr = getDvObjectTypeString(dvObj);
 
                 pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
-                String[] paramArrayAssignRole = {joinedRoleNames, dvObjTypeStr, dvObj.getDisplayName(), dvObjURL};
+                List<String> paramArrayAssignRole = Lists.newArrayList(joinedRoleNames, dvObjTypeStr, dvObj.getDisplayName(), dvObjURL);
                 messageText += MessageFormat.format(pattern, paramArrayAssignRole);
                 if (joinedRoleNames.contains("File Downloader")) {
                     if (dvObjTypeStr.equals("dataset")) {
@@ -502,14 +455,14 @@ public class MailServiceBean implements java.io.Serializable {
                     return dataverse;
                 }
 
-                Dataset dataset = datasetService.find(userNotification.getObjectId());
-                return dataset;
+                return datasetService.find(userNotification.getObjectId());
             case CREATEDV:
                 return dataverseService.find(userNotification.getObjectId());
             case REQUESTFILEACCESS:
                 return dataFileService.find(userNotification.getObjectId());
             case GRANTFILEACCESS:
             case REJECTFILEACCESS:
+            case CHECKSUMFAIL:
                 return datasetService.find(userNotification.getObjectId());
             case MAPLAYERDELETEFAILED:
                 return dataFileService.findFileMetadata(userNotification.getObjectId());
@@ -518,15 +471,11 @@ public class MailServiceBean implements java.io.Serializable {
             case SUBMITTEDDS:
             case PUBLISHEDDS:
             case RETURNEDDS:
+            case FILESYSTEMIMPORT:
+            case CHECKSUMIMPORT:
                 return versionService.find(userNotification.getObjectId());
             case CREATEACC:
                 return userNotification.getUser();
-            case CHECKSUMFAIL:
-                return datasetService.find(userNotification.getObjectId());
-            case FILESYSTEMIMPORT:
-                return versionService.find(userNotification.getObjectId());
-            case CHECKSUMIMPORT:
-                return versionService.find(userNotification.getObjectId());
         }
         return null;
     }

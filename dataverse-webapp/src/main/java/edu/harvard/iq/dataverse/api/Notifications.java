@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.UserNotification;
-import edu.harvard.iq.dataverse.UserNotification.Type;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
+import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.workflows.WorkflowUtil;
 
@@ -42,7 +42,7 @@ public class Notifications extends AbstractApiBean {
         for (UserNotification notification : notifications) {
             NullSafeJsonBuilder notificationObjectBuilder = jsonObjectBuilder();
             JsonArrayBuilder reasonsForReturn = Json.createArrayBuilder();
-            Type type = notification.getType();
+            NotificationType type = notification.getType();
             notificationObjectBuilder.add("id", notification.getId());
             notificationObjectBuilder.add("type", type.toString());
             /* FIXME - Re-add reasons for return if/when they are added to the notifications page.

@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,7 +33,7 @@ public class MailUtil {
     }
 
     public static String getSubjectTextBasedOnNotification(UserNotification userNotification, String rootDataverseName, Object objectOfNotification) {
-        List<String> rootDvNameAsList = Arrays.asList(BrandingUtil.getInstallationBrandName(rootDataverseName));
+        List<String> rootDvNameAsList = Collections.singletonList(BrandingUtil.getInstallationBrandName(rootDataverseName));
         switch (userNotification.getType()) {
             case ASSIGNROLE:
                 return BundleUtil.getStringFromBundle("notification.email.assign.role.subject", rootDvNameAsList);
@@ -66,7 +66,7 @@ public class MailUtil {
             case FILESYSTEMIMPORT:
                 try {
                     DatasetVersion version = (DatasetVersion) objectOfNotification;
-                    List<String> dsNameAsList = Arrays.asList(version.getDataset().getDisplayName());
+                    List<String> dsNameAsList = Collections.singletonList(version.getDataset().getDisplayName());
                     return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject", dsNameAsList);
                 } catch (Exception e) {
                     return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject", rootDvNameAsList);

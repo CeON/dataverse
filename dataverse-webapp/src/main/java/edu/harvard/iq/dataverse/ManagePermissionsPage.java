@@ -17,9 +17,12 @@ import edu.harvard.iq.dataverse.engine.command.impl.AssignRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseDefaultContributorRoleCommand;
+import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.ejb.EJB;
@@ -199,7 +202,7 @@ public class ManagePermissionsPage implements java.io.Serializable {
             commandEngine.submit(new RevokeRoleCommand(ra, dvRequestService.getDataverseRequest()));
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("permission.roleWasRemoved", Arrays.asList(ra.getRole().getName(), roleAssigneeService.getRoleAssignee(ra.getAssigneeIdentifier()).getDisplayInfo().getTitle())));
             RoleAssignee assignee = roleAssigneeService.getRoleAssignee(ra.getAssigneeIdentifier());
-            notifyRoleChange(assignee, UserNotification.Type.REVOKEROLE);
+            notifyRoleChange(assignee, NotificationType.REVOKEROLE);
         } catch (PermissionException ex) {
             JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("permission.roleNotAbleToBeRemoved"), BundleUtil.getStringFromBundle("permission.permissionsMissing", Arrays.asList(ex.getRequiredPermissions().toString())));
         } catch (CommandException ex) {
@@ -464,19 +467,31 @@ public class ManagePermissionsPage implements java.io.Serializable {
      * @param ra   The {@code RoleAssignee} to be notified.
      * @param type The type of notification.
      */
-    private void notifyRoleChange(RoleAssignee ra, UserNotification.Type type) {
+    private void notifyRoleChange(RoleAssignee ra, NotificationType type) {
         if (ra instanceof AuthenticatedUser) {
-            userNotificationService.sendNotification((AuthenticatedUser) ra, new Timestamp(new Date().getTime()), type, dvObject.getId());
+            userNotificationService.sendNotification((AuthenticatedUser) ra, new Timestamp(new Date().getTime()), type, determinateObjectType(dvObject));
         } else if (ra instanceof ExplicitGroup) {
             ExplicitGroup eg = (ExplicitGroup) ra;
             Set<String> explicitGroupMembers = eg.getContainedRoleAssgineeIdentifiers();
             for (String id : explicitGroupMembers) {
                 RoleAssignee explicitGroupMember = roleAssigneeService.getRoleAssignee(id);
                 if (explicitGroupMember instanceof AuthenticatedUser) {
-                    userNotificationService.sendNotification((AuthenticatedUser) explicitGroupMember, new Timestamp(new Date().getTime()), type, dvObject.getId());
+                    userNotificationService.sendNotification((AuthenticatedUser) explicitGroupMember, new Timestamp(new Date().getTime()), type, determinateObjectType(dvObject));
                 }
             }
         }
+    }
+
+    private Tuple2<Long, DvObjectType> determinateObjectType(DvObject dvObject) {
+
+        if (dvObject instanceof Dataverse) {
+            return Tuple.of(dvObject.getId(), DvObjectType.DATAVERSE);
+        }
+        if (dvObject instanceof Dataset) {
+            return Tuple.of(dvObject.getId(), DvObjectType.DATASET);
+        }
+
+        return Tuple.of(dvObject.getId(), DvObjectType.DATAFILE);
     }
 
     private void assignRole(RoleAssignee ra, DataverseRole r) {
@@ -491,7 +506,7 @@ public class ManagePermissionsPage implements java.io.Serializable {
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("permission.roleAssignedToFor", args));
             // don't notify if role = file downloader and object is not released
             if (!(r.getAlias().equals(DataverseRole.FILE_DOWNLOADER) && !dvObject.isReleased())) {
-                notifyRoleChange(ra, UserNotification.Type.ASSIGNROLE);
+                notifyRoleChange(ra, NotificationType.ASSIGNROLE);
             }
 
         } catch (PermissionException ex) {

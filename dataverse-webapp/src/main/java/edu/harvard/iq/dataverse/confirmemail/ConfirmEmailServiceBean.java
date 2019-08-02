@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.mail.MailServiceBean;
+import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.MailUtil;
@@ -119,7 +120,7 @@ public class ConfirmEmailServiceBean {
                     String rootDataverseName = rootDataverse.getName();
                     // FIXME: consider refactoring this into MailServiceBean.sendNotificationEmail. CONFIRMEMAIL may be the only type where we don't want an in-app notification.
                     UserNotification userNotification = new UserNotification();
-                    userNotification.setType(UserNotification.Type.CONFIRMEMAIL);
+                    userNotification.setType(NotificationType.CONFIRMEMAIL);
                     String subject = MailUtil.getSubjectTextBasedOnNotification(userNotification, rootDataverseName, null);
                     logger.fine("sending email to " + toAddress + " with this subject: " + subject);
                     mailService.sendSystemEmail(toAddress, subject, messageBody);
