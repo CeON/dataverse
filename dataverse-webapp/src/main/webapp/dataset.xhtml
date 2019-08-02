@@ -164,11 +164,9 @@
                                                                 and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                 and DatasetPage.canUpdateDataset()
                                                                 and !permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
-                                        <button id="sentToReviewButton"
-                                                type="button"
+                                        <button type="button"
                                                 class="btn btn-default btn-access #{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
-                                                onclick="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'return false;' : 'sentToReview();'}"
-                                            >
+                                                onclick="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'return false;' : 'sentToReview();'}">
                                             <span class="glyphicon glyphicon-globe"/> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn']}
                                         </button>
                                     </ui:fragment>
@@ -1544,6 +1542,7 @@
                     $('button[id$="datasetSave"]').trigger('click');
                 }
 
+                /* using this function to prevent syntax errors on conditionally deciding onclick action */
                 function sentToReview() {
                     PF('inreview').show();
                 }
