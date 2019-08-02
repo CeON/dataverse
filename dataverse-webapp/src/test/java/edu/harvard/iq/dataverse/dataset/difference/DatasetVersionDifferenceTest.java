@@ -1,11 +1,14 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.dataset.difference;
 
-import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFieldChangeCounts;
-import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFieldDiff;
-import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileDifferenceItem;
-import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetFileTermDifferenceItem;
-import edu.harvard.iq.dataverse.DatasetVersionDifference.DatasetReplaceFileItem;
-import edu.harvard.iq.dataverse.DatasetVersionDifference.MetadataBlockChangeCounts;
+import edu.harvard.iq.dataverse.DataFile;
+import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
+import edu.harvard.iq.dataverse.DatasetFieldType;
+import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.FieldType;
+import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.MetadataBlock;
+import edu.harvard.iq.dataverse.dataset.difference.DatasetVersionDifference;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.license.License;

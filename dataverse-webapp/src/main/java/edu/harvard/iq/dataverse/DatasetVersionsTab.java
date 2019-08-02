@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.dataset.difference.DatasetVersionDifference;
 import org.primefaces.context.RequestContext;
 
 import javax.ejb.EJB;

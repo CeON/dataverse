@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
+import edu.harvard.iq.dataverse.dataset.difference.DatasetVersionDifference;
 import edu.harvard.iq.dataverse.ingest.IngestUtil;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;

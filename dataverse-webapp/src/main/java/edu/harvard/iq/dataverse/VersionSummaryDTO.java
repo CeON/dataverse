@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.dataset.difference.DatasetVersionDifference;
+
 /**
  * Model class with dataset version summary.
  * It is used to present list of dataset versions

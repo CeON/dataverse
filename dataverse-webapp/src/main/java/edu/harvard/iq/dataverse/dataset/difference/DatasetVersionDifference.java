@@ -1,6 +1,12 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.dataset.difference;
 
-import edu.harvard.iq.dataverse.DataFile.ChecksumType;
+import edu.harvard.iq.dataverse.DataFile;
+import edu.harvard.iq.dataverse.DatasetField;
+import edu.harvard.iq.dataverse.DatasetFieldCompoundValue;
+import edu.harvard.iq.dataverse.DatasetFieldType;
+import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
@@ -295,12 +301,12 @@ public final class DatasetVersionDifference {
                 FileMetadataDifferenceItem metadataDiff = item.getDifference();
                 itemDiff = "File ID: " + item.getFileSummary().getFileId();
 
-                itemDiff += buildValuesDiffString("Name", metadataDiff.fileName1, metadataDiff.fileName2);
-                itemDiff += buildValuesDiffString("Type", metadataDiff.fileType1, metadataDiff.fileType2);
-                itemDiff += buildValuesDiffString("Size", metadataDiff.fileSize1, metadataDiff.fileSize2);
-                itemDiff += buildValuesDiffString("Tag(s)", metadataDiff.fileCat1, metadataDiff.fileCat2);
-                itemDiff += buildValuesDiffString("Description", metadataDiff.fileDesc1, metadataDiff.fileDesc1);
-                itemDiff += buildValuesDiffString("Provenance Description", metadataDiff.fileProvFree1, metadataDiff.fileProvFree2);
+                itemDiff += buildValuesDiffString("Name", metadataDiff.getFileName1(), metadataDiff.getFileName2());
+                itemDiff += buildValuesDiffString("Type", metadataDiff.getFileType1(), metadataDiff.getFileType2());
+                itemDiff += buildValuesDiffString("Size", metadataDiff.getFileSize1(), metadataDiff.getFileSize2());
+                itemDiff += buildValuesDiffString("Tag(s)", metadataDiff.getFileCat1(), metadataDiff.getFileCat2());
+                itemDiff += buildValuesDiffString("Description", metadataDiff.getFileDesc1(), metadataDiff.getFileDesc1());
+                itemDiff += buildValuesDiffString("Provenance Description", metadataDiff.getFileProvFree1(), metadataDiff.getFileProvFree2());
 
                 fileDiff += itemDiff;
             }
@@ -314,12 +320,12 @@ public final class DatasetVersionDifference {
             for (DatasetReplaceFileItem item : this.getDatasetFilesReplacementList()) {
                 FileMetadataDifferenceItem metadataDiff = item.getMetadataDifference();
                 itemDiff = "";
-                itemDiff += buildValuesDiffString("Name", metadataDiff.fileName1, metadataDiff.fileName2);
-                itemDiff += buildValuesDiffString("Type", metadataDiff.fileType1, metadataDiff.fileType2);
-                itemDiff += buildValuesDiffString("Size", metadataDiff.fileSize1, metadataDiff.fileSize2);
-                itemDiff += buildValuesDiffString("Tag(s)", metadataDiff.fileCat1, metadataDiff.fileCat2);
-                itemDiff += buildValuesDiffString("Description", metadataDiff.fileDesc1, metadataDiff.fileDesc2);
-                itemDiff += buildValuesDiffString("Provenance Description", metadataDiff.fileProvFree1, metadataDiff.fileProvFree2);
+                itemDiff += buildValuesDiffString("Name", metadataDiff.getFileName1(), metadataDiff.getFileName2());
+                itemDiff += buildValuesDiffString("Type", metadataDiff.getFileType1(), metadataDiff.getFileType2());
+                itemDiff += buildValuesDiffString("Size", metadataDiff.getFileSize1(), metadataDiff.getFileSize2());
+                itemDiff += buildValuesDiffString("Tag(s)", metadataDiff.getFileCat1(), metadataDiff.getFileCat2());
+                itemDiff += buildValuesDiffString("Description", metadataDiff.getFileDesc1(), metadataDiff.getFileDesc2());
+                itemDiff += buildValuesDiffString("Provenance Description", metadataDiff.getFileProvFree1(), metadataDiff.getFileProvFree2());
                 fileReplaced += itemDiff;
             }
             retVal += fileReplaced;
@@ -738,396 +744,5 @@ public final class DatasetVersionDifference {
         return System.lineSeparator() + " " + valueType + ": " +
             StringUtils.defaultString(val1, "N/A") + " : " + StringUtils.defaultString(val2, "N/A ");
     }
-    
-    
-    // -------------------- INNER CLASSES --------------------
-    
-    public class DifferenceSummaryItem {
-        private String displayName;
-        private int changed;
-        private int added;
-        private int deleted;
-        private int replaced;
-        private boolean multiple;
 
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public void setDisplayName(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public int getChanged() {
-            return changed;
-        }
-
-        public void setChanged(int changed) {
-            this.changed = changed;
-        }
-
-        public int getAdded() {
-            return added;
-        }
-
-        public void setAdded(int added) {
-            this.added = added;
-        }
-
-        public int getDeleted() {
-            return deleted;
-        }
-
-        public void setDeleted(int deleted) {
-            this.deleted = deleted;
-        }
-
-        public int getReplaced() {
-            return replaced;
-        }
-
-        public void setReplaced(int replaced) {
-            this.replaced = replaced;
-        }
-
-        public boolean isMultiple() {
-            return multiple;
-        }
-
-        public void setMultiple(boolean multiple) {
-            this.multiple = multiple;
-        }
-
-
-    }
-
-    public class DatasetReplaceFileItem {
-
-        private FileSummary oldFileSummary;
-        private FileSummary newFileSummary;
-        
-        private FileMetadataDifferenceItem metadataDifference;
-
-        public DatasetReplaceFileItem(FileSummary oldFileSummary, FileSummary newFileSummary,
-                FileMetadataDifferenceItem metadataDifference) {
-            this.oldFileSummary = oldFileSummary;
-            this.newFileSummary = newFileSummary;
-            this.metadataDifference = metadataDifference;
-        }
-
-        public FileSummary getOldFileSummary() {
-            return oldFileSummary;
-        }
-
-        public FileSummary getNewFileSummary() {
-            return newFileSummary;
-        }
-
-        public FileMetadataDifferenceItem getMetadataDifference() {
-            return metadataDifference;
-        }
-    }
-
-    public class DatasetFileTermDifferenceItem {
-
-        private FileSummary fileSummary;
-        
-        private FileTermsOfUse oldTerms;
-        private FileTermsOfUse newTerms;
-        
-        public DatasetFileTermDifferenceItem(FileSummary fileSummary, FileTermsOfUse oldTerms, FileTermsOfUse newTerms) {
-            this.fileSummary = fileSummary;
-            this.oldTerms = oldTerms;
-            this.newTerms = newTerms;
-        }
-
-        public FileSummary getFileSummary() {
-            return fileSummary;
-        }
-
-        public FileTermsOfUse getOldTerms() {
-            return oldTerms;
-        }
-
-        public FileTermsOfUse getNewTerms() {
-            return newTerms;
-        }
-    }
-
-    public class DatasetFileDifferenceItem {
-        
-        private FileSummary fileSummary;
-        private FileMetadataDifferenceItem difference;
-        
-        public DatasetFileDifferenceItem(FileSummary fileSummary, FileMetadataDifferenceItem difference) {
-            this.fileSummary = fileSummary;
-            this.difference = difference;
-        }
-
-        public FileSummary getFileSummary() {
-            return fileSummary;
-        }
-
-        public FileMetadataDifferenceItem getDifference() {
-            return difference;
-        }
-    }
-    
-    public class FileMetadataDifferenceItem {
-        
-        private String fileName1;
-        private String fileType1;
-        private String fileSize1;
-        private String fileCat1;
-        private String fileDesc1;
-        private String fileProvFree1;
-
-        private String fileName2;
-        private String fileType2;
-        private String fileSize2;
-        private String fileCat2;
-        private String fileDesc2;
-        private String fileProvFree2;
-
-        public String getFileProvFree1() {
-            return fileProvFree1;
-        }
-
-        public void setFileProvFree1(String fileProvFree1) {
-            this.fileProvFree1 = fileProvFree1;
-        }
-
-        public String getFileProvFree2() {
-            return fileProvFree2;
-        }
-
-        public void setFileProvFree2(String fileProvFree2) {
-            this.fileProvFree2 = fileProvFree2;
-        }
-
-        private boolean file1Empty = false;
-        private boolean file2Empty = false;
-
-        public String getFileName1() {
-            return fileName1;
-        }
-
-        public void setFileName1(String fn) {
-            this.fileName1 = fn;
-        }
-
-        public String getFileType1() {
-            return fileType1;
-        }
-
-        public void setFileType1(String ft) {
-            this.fileType1 = ft;
-        }
-
-        public String getFileSize1() {
-            return fileSize1;
-        }
-
-        public void setFileSize1(String fs) {
-            this.fileSize1 = fs;
-        }
-
-        public String getFileCat1() {
-            return fileCat1;
-        }
-
-        public void setFileCat1(String fc) {
-            this.fileCat1 = fc;
-        }
-
-        public String getFileDesc1() {
-            return fileDesc1;
-        }
-
-        public void setFileDesc1(String fd) {
-            this.fileDesc1 = fd;
-        }
-
-        public String getFileName2() {
-            return fileName2;
-        }
-
-        public void setFileName2(String fn) {
-            this.fileName2 = fn;
-        }
-
-        public String getFileType2() {
-            return fileType2;
-        }
-
-        public void setFileType2(String ft) {
-            this.fileType2 = ft;
-        }
-
-        public String getFileSize2() {
-            return fileSize2;
-        }
-
-        public void setFileSize2(String fs) {
-            this.fileSize2 = fs;
-        }
-
-        public String getFileCat2() {
-            return fileCat2;
-        }
-
-        public void setFileCat2(String fc) {
-            this.fileCat2 = fc;
-        }
-
-        public String getFileDesc2() {
-            return fileDesc2;
-        }
-
-        public void setFileDesc2(String fd) {
-            this.fileDesc2 = fd;
-        }
-
-        public boolean isFile1Empty() {
-            return file1Empty;
-        }
-
-        public boolean isFile2Empty() {
-            return file2Empty;
-        }
-
-        public void setFile1Empty(boolean state) {
-            file1Empty = state;
-        }
-
-        public void setFile2Empty(boolean state) {
-            file2Empty = state;
-        }
-
-    }
-    
-    public class FileSummary {
-
-        private String fileId;
-        private DataFile.ChecksumType fileChecksumType;
-        private String fileChecksumValue;
-        
-        public FileSummary(String fileId, ChecksumType fileChecksumType, String fileChecksumValue) {
-            this.fileId = fileId;
-            this.fileChecksumType = fileChecksumType;
-            this.fileChecksumValue = fileChecksumValue;
-        }
-        
-        public String getFileId() {
-            return fileId;
-        }
-        public DataFile.ChecksumType getFileChecksumType() {
-            return fileChecksumType;
-        }
-        public String getFileChecksumValue() {
-            return fileChecksumValue;
-        }
-    }
-    
-    public static class TermsOfUseDiff extends ItemDiff<FileTermsOfUse> {
-
-        public TermsOfUseDiff(FileTermsOfUse oldValue, FileTermsOfUse newValue) {
-            super(oldValue, newValue);
-        }
-        
-    }
-    
-    public static class FileMetadataDiff extends ItemDiff<FileMetadata> {
-
-        public FileMetadataDiff(FileMetadata oldValue, FileMetadata newValue) {
-            super(oldValue, newValue);
-        }
-        
-    }
-    
-    public static class DatasetFieldDiff extends ItemDiff<DatasetField> {
-
-        public DatasetFieldDiff(DatasetField oldValue, DatasetField newValue) {
-            super(oldValue, newValue);
-        }
-        
-    }
-    
-    public static class ItemDiff<T> {
-        private T oldValue;
-        private T newValue;
-        
-        // -------------------- CONSTRUCTORS --------------------
-        
-        public ItemDiff(T oldValue, T newValue) {
-            this.oldValue = oldValue;
-            this.newValue = newValue;
-        }
-
-        // -------------------- GETTERS --------------------
-        
-        public T getOldValue() {
-            return oldValue;
-        }
-
-        public T getNewValue() {
-            return newValue;
-        }
-    }
-    
-    
-    public static class MetadataBlockChangeCounts extends ChangeCounts<MetadataBlock> {
-
-        public MetadataBlockChangeCounts(MetadataBlock item) {
-            super(item);
-        }
-        
-    }
-    
-    public static class DatasetFieldChangeCounts extends ChangeCounts<DatasetFieldType> {
-
-        public DatasetFieldChangeCounts(DatasetFieldType item) {
-            super(item);
-        }
-    }
-    
-    public static class ChangeCounts<T> {
-        private T item;
-        private int addedCount;
-        private int removedCount;
-        private int changedCount;
-        
-        // -------------------- CONSTRUCTORS --------------------
-        
-        public ChangeCounts(T item) {
-            this.item = item;
-        }
-        
-        // -------------------- GETTERS --------------------
-        
-        public T getItem() {
-            return item;
-        }
-        public int getAddedCount() {
-            return addedCount;
-        }
-        public int getRemovedCount() {
-            return removedCount;
-        }
-        public int getChangedCount() {
-            return changedCount;
-        }
-        
-        // -------------------- LOGIC --------------------
-        
-        public void incrementAdded(int count) {
-            addedCount += count;
-        }
-        public void incrementRemoved(int count) {
-            removedCount += count;
-        }
-        public void incrementChanged(int count) {
-            changedCount += count;
-        }
-    }
 }
