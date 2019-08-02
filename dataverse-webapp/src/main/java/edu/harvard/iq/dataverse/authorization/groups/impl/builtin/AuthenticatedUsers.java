@@ -6,7 +6,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 
 public class AuthenticatedUsers implements Group {
 
-    public static final String GROUP_TYPE = "builtIn";
+    public static final String GROUP_TYPE = "builtin";
 
     private static final AuthenticatedUsers instance = new AuthenticatedUsers();
 
@@ -34,7 +34,7 @@ public class AuthenticatedUsers implements Group {
 
     @Override
     public String getAlias() {
-        return GROUP_TYPE.toLowerCase() + Group.PATH_SEPARATOR + "authenticated-users";
+        return GROUP_TYPE + Group.PATH_SEPARATOR + "authenticated-users";
     }
 
     @Override

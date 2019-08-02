@@ -111,6 +111,7 @@ public class ExplicitGroupProvider implements GroupProvider<ExplicitGroup> {
     }
     
     
+    @Override
     public boolean contains(DataverseRequest req, ExplicitGroup explicitGroup) {
         return containsDirectly(req, explicitGroup) || containsIndirectly(req, explicitGroup);
     }
@@ -120,7 +121,7 @@ public class ExplicitGroupProvider implements GroupProvider<ExplicitGroup> {
      * @param req
      * @return {@code true} iff the request is contained in the group or in an included non-explicit group.
      */
-    protected boolean containsDirectly(DataverseRequest req, ExplicitGroup explicitGroup) {
+    private boolean containsDirectly(DataverseRequest req, ExplicitGroup explicitGroup) {
         User ra = req.getUser();
         if (ra instanceof AuthenticatedUser) {
             AuthenticatedUser au = (AuthenticatedUser) ra;
@@ -162,6 +163,13 @@ public class ExplicitGroupProvider implements GroupProvider<ExplicitGroup> {
         return false;
     }
     
+    /**
+     * Returns true if {@link DataverseRequest} is part of the given {@link Group}
+     * according to other group providers
+     * <p>
+     * otherGroupProviders is map with values: <code>{<group_class>: <provider_for_group_with_that_class>}</code>
+     * so unchecked casting should be ok
+     */
     @SuppressWarnings("unchecked")
     private <T extends Group> boolean otherGroupProviderContains(DataverseRequest req, Group group, Class<T> groupClass) {
         GroupProvider<T> providerForGroup = (GroupProvider<T>) otherGroupProviders.get(groupClass);
