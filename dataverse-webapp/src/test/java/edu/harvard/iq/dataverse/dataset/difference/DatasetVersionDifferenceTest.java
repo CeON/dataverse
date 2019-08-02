@@ -490,7 +490,7 @@ public class DatasetVersionDifferenceTest {
 
         assertEquals("(Changed licenses/terms of use: 2 files)", diff.getFileNote());
         
-        
+        assertFalse(diff.isEmpty());
         assertThat(diff.getBlockDataForNote(), is(empty()));
         assertThat(diff.getSummaryDataForNote(), is(empty()));
         assertThat(diff.getDetailDataByBlock(), is(empty()));

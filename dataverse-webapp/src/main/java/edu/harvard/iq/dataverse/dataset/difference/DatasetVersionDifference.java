@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DatasetFieldCompoundValue;
@@ -335,7 +336,8 @@ public final class DatasetVersionDifference {
     }
 
     public boolean isEmpty() {
-        return (detailDataByBlock.size() + addedFiles.size() + removedFiles.size() + replacedFiles.size() + changedFileMetadata.size()) == 0;
+        return (detailDataByBlock.size() + addedFiles.size() + removedFiles.size() +
+                replacedFiles.size() + changedFileMetadata.size() + changedFileTerms.size()) == 0;
     }
 
     public boolean isNotEmpty() {
