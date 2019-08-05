@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.mail.MailServiceBean;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import io.vavr.Tuple2;
 
@@ -77,18 +78,18 @@ public class UserNotificationServiceBean {
         em.remove(em.merge(userNotification));
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, DvObjectType> dvObjectIdAndType) {
+    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, NotificationObjectType> dvObjectIdAndType) {
         sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, "");
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, DvObjectType> dvObjectIdAndType, String comment) {
+    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, NotificationObjectType> dvObjectIdAndType, String comment) {
         sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, comment, null);
     }
 
     public void sendNotification(AuthenticatedUser dataverseUser,
                                  Timestamp sendDate,
                                  NotificationType type,
-                                 Tuple2<Long, DvObjectType> dvObjectIdAndType,
+                                 Tuple2<Long, NotificationObjectType> dvObjectIdAndType,
                                  String comment,
                                  AuthenticatedUser requestor) {
 
@@ -99,7 +100,7 @@ public class UserNotificationServiceBean {
         userNotification.setObjectId(dvObjectIdAndType._1());
         userNotification.setRequestor(requestor);
 
-        if (mailService.sendNotificationEmail(userNotification, comment, requestor)) {
+        if (mailService.sendNotificationEmail(userNotification, requestor)) {
             logger.fine("email was sent");
             userNotification.setEmailed(true);
             save(userNotification);

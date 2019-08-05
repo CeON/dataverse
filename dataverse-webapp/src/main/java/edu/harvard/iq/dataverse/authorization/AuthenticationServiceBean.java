@@ -23,8 +23,8 @@ import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationP
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProviderFactory;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
-import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
+import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailData;
+import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.passwordreset.PasswordResetData;
 import edu.harvard.iq.dataverse.passwordreset.PasswordResetServiceBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;

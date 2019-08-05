@@ -15,7 +15,6 @@ import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.DvObjectType;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.MetadataBlockDao;
@@ -81,6 +80,7 @@ import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
@@ -1346,12 +1346,12 @@ public class Datasets extends AbstractApiBean {
             } else if ("validation failed".equals(statusMessageFromDcm)) {
                 Map<String, AuthenticatedUser> distinctAuthors = permissionService.getDistinctUsersWithPermissionOn(Permission.EditDataset, dataset);
                 distinctAuthors.values().forEach((value) -> {
-                    userNotificationService.sendNotification(value, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL, Tuple.of(dataset.getId(), DvObjectType.DATASET));
+                    userNotificationService.sendNotification(value, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL, Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
                 });
                 List<AuthenticatedUser> superUsers = authenticationServiceBean.findSuperUsers();
                 if (superUsers != null && !superUsers.isEmpty()) {
                     superUsers.forEach((au) -> {
-                        userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL, Tuple.of(dataset.getId(), DvObjectType.DATASET));
+                        userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL, Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
                     });
                 }
                 return ok("User notified about checksum validation failure.");

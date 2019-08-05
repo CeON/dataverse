@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.confirmemail;
+package edu.harvard.iq.dataverse.mail.confirmemail;
 
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
@@ -6,15 +6,16 @@ import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.mail.MailMessageCreator;
 import edu.harvard.iq.dataverse.mail.MailServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -49,6 +50,9 @@ public class ConfirmEmailServiceBean {
 
     @EJB
     DataverseServiceBean dataverseService;
+
+    @Inject
+    private MailMessageCreator mailMessageCreator;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -121,7 +125,7 @@ public class ConfirmEmailServiceBean {
                     // FIXME: consider refactoring this into MailServiceBean.sendNotificationEmail. CONFIRMEMAIL may be the only type where we don't want an in-app notification.
                     UserNotification userNotification = new UserNotification();
                     userNotification.setType(NotificationType.CONFIRMEMAIL);
-                    String subject = MailUtil.getSubjectTextBasedOnNotification(userNotification, rootDataverseName, null);
+                    String subject = mailMessageCreator.getSubjectText(userNotification.getType(), rootDataverseName);
                     logger.fine("sending email to " + toAddress + " with this subject: " + subject);
                     mailService.sendSystemEmail(toAddress, subject, messageBody);
                 }

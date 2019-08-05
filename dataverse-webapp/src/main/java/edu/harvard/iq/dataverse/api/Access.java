@@ -19,7 +19,6 @@ import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DataverseTheme;
-import edu.harvard.iq.dataverse.DvObjectType;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.GuestbookResponse;
 import edu.harvard.iq.dataverse.GuestbookResponseServiceBean;
@@ -51,6 +50,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.files.extension.FileExtension;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
@@ -1119,7 +1119,7 @@ public class Access extends AbstractApiBean {
 
         try {
             AuthenticatedUser au = (AuthenticatedUser) ra;
-            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS, Tuple.of(dataFile.getOwner().getId(), DvObjectType.DATAFILE));
+            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS, Tuple.of(dataFile.getOwner().getId(), NotificationObjectType.DATAFILE));
         } catch (ClassCastException e) {
             //nothing to do here - can only send a notification to an authenticated user
         }
@@ -1248,7 +1248,7 @@ public class Access extends AbstractApiBean {
 
             try {
                 AuthenticatedUser au = (AuthenticatedUser) ra;
-                userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS, Tuple.of(dataFile.getOwner().getId(), DvObjectType.DATASET));
+                userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS, Tuple.of(dataFile.getOwner().getId(), NotificationObjectType.DATASET));
             } catch (ClassCastException e) {
                 //nothing to do here - can only send a notification to an authenticated user
             }

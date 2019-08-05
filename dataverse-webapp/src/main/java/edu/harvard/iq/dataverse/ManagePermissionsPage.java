@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.AssignRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseDefaultContributorRoleCommand;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -482,16 +483,16 @@ public class ManagePermissionsPage implements java.io.Serializable {
         }
     }
 
-    private Tuple2<Long, DvObjectType> determinateObjectType(DvObject dvObject) {
+    private Tuple2<Long, NotificationObjectType> determinateObjectType(DvObject dvObject) {
 
         if (dvObject instanceof Dataverse) {
-            return Tuple.of(dvObject.getId(), DvObjectType.DATAVERSE);
+            return Tuple.of(dvObject.getId(), NotificationObjectType.DATAVERSE);
         }
         if (dvObject instanceof Dataset) {
-            return Tuple.of(dvObject.getId(), DvObjectType.DATASET);
+            return Tuple.of(dvObject.getId(), NotificationObjectType.DATASET);
         }
 
-        return Tuple.of(dvObject.getId(), DvObjectType.DATAFILE);
+        return Tuple.of(dvObject.getId(), NotificationObjectType.DATAFILE);
     }
 
     private void assignRole(RoleAssignee ra, DataverseRole r) {

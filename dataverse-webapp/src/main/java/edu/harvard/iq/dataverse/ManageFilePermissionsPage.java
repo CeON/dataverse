@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.engine.command.impl.AssignRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
 import edu.harvard.iq.dataverse.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -345,7 +346,7 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
 
             if (sendNotification) {
                 for (AuthenticatedUser au : roleAssigneeService.getExplicitUsers(roleAssignee)) {
-                    userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS, Tuple.of(dataset.getId(), DvObjectType.DATASET));
+                    userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS, Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
                 }
             }
         }
@@ -374,7 +375,7 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
         }
         if (actionPerformed) {
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("permission.fileAccessGranted", Arrays.asList(au.getDisplayInfo().getTitle())));
-            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS, Tuple.of(dataset.getId(), DvObjectType.DATASET));
+            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS, Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
             initMaps();
         }
 
@@ -399,7 +400,7 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
 
         if (actionPerformed) {
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("permission.fileAccessRejected", Arrays.asList(au.getDisplayInfo().getTitle())));
-            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS, Tuple.of(dataset.getId(), DvObjectType.DATASET));
+            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS, Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
             initMaps();
         }
     }

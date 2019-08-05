@@ -31,7 +31,6 @@ import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
-import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleServiceBean;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -40,6 +39,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException
 import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.locality.StorageSiteServiceBean;
+import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.metrics.MetricsServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
