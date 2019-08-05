@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
-import edu.harvard.iq.dataverse.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 
 /**
  * Class that contains number of dataset field values that

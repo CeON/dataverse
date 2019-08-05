@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
-import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.DataFile.ChecksumType;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFile.ChecksumType;
 
 /**
  * Summary of a file with properties that can't

@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
-import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 
 /**
  * Difference in file metadata of replaced file between two

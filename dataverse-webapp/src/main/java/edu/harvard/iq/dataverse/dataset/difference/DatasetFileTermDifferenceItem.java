@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 
 /**
  * Difference in terms of use of file between two

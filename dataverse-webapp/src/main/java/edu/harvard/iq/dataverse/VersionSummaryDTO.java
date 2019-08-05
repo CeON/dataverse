@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.dataset.difference.DatasetVersionDifference;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 
 /**
  * Model class with dataset version summary.
