@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.util;
 
 import edu.harvard.iq.dataverse.UserNotification;
+import edu.harvard.iq.dataverse.mail.MailMessageCreator;
 import edu.harvard.iq.dataverse.notification.NotificationType;
 import org.junit.Before;
 import org.junit.Test;

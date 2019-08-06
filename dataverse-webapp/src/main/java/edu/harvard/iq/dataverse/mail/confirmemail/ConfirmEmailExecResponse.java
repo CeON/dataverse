@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.mail.confirmemail;
 
+import edu.harvard.iq.dataverse.persistence.user.ConfirmEmailData;
+
 /**
  * @author bsilverstein
  */

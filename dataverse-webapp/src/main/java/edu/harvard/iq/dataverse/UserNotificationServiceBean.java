@@ -100,13 +100,13 @@ public class UserNotificationServiceBean {
         userNotification.setObjectId(dvObjectIdAndType._1());
         userNotification.setRequestor(requestor);
 
-        if (mailService.sendNotificationEmail(userNotification, requestor)) {
+        /*if (mailService.sendNotificationEmail(userNotification, requestor)) {
             logger.fine("email was sent");
             userNotification.setEmailed(true);
             save(userNotification);
         } else {
             logger.fine("email was not sent");
             save(userNotification);
-        }
+        }*/
     }
 }

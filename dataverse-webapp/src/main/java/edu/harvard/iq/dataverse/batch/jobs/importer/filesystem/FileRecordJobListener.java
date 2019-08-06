@@ -22,26 +22,24 @@ package edu.harvard.iq.dataverse.batch.jobs.importer.filesystem;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetLock;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.authorization.Permission;
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.batch.entities.JobExecutionEntity;
 import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
-import edu.harvard.iq.dataverse.notification.NotificationObjectType;
-import edu.harvard.iq.dataverse.notification.NotificationType;
+import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.Permission;
+import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import io.vavr.Tuple;
 import org.apache.commons.io.IOUtils;
 
 import javax.batch.api.BatchProperty;
@@ -78,7 +76,7 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
 
     public static final String SEP = System.getProperty("file.separator");
 
-    private static final NotificationType notifyType = NotificationType.FILESYSTEMIMPORT;
+    private static final UserNotification.Type notifyType = UserNotification.Type.FILESYSTEMIMPORT;
 
     @Inject
     private JobContext jobContext;
@@ -316,16 +314,16 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
                 // [1] save json log to file
                 LoggingUtil.saveJsonLog(jobJson, logDir, jobId);
                 // [2] send user notifications - to all authors
-                notificationServiceBean.sendNotification(user, timestamp, notifyType, Tuple.of(datasetVersionId, NotificationObjectType.DATASET_VERSION));
+                notificationServiceBean.sendNotification(user, timestamp, notifyType, datasetVersionId);
                 Map<String, AuthenticatedUser> distinctAuthors = permissionServiceBean.getDistinctUsersWithPermissionOn(Permission.EditDataset, dataset);
                 distinctAuthors.values().forEach((value) -> {
-                    notificationServiceBean.sendNotification(value, new Timestamp(new Date().getTime()), notifyType, Tuple.of(datasetVersionId, NotificationObjectType.DATASET_VERSION));
+                    notificationServiceBean.sendNotification(value, new Timestamp(new Date().getTime()), notifyType, datasetVersionId);
                 });
                 // [3] send SuperUser notification
                 List<AuthenticatedUser> superUsers = authenticationServiceBean.findSuperUsers();
                 if (superUsers != null && !superUsers.isEmpty()) {
                     superUsers.forEach((au) -> {
-                        notificationServiceBean.sendNotification(au, timestamp, notifyType, Tuple.of(datasetVersionId, NotificationObjectType.DATASET_VERSION));
+                        notificationServiceBean.sendNotification(au, timestamp, notifyType, datasetVersionId);
                     });
                 }
                 // [4] action log: store location of the full log to avoid truncation issues

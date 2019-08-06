@@ -20,13 +20,17 @@ import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationType;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.apache.commons.lang.StringUtils;
 import org.simplejavamail.email.Recipient;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import java.text.MessageFormat;
@@ -42,6 +46,8 @@ import static edu.harvard.iq.dataverse.notification.NotificationType.FILESYSTEMI
 
 @Stateless
 public class MailMessageCreator {
+
+    private SettingsServiceBean settingsService;
 
     private SystemConfig systemConfig;
 
@@ -60,6 +66,21 @@ public class MailMessageCreator {
     private ConfirmEmailServiceBean confirmEmailService;
 
     private static final Logger logger = Logger.getLogger(MailMessageCreator.class.getCanonicalName());
+
+    @Inject
+    public MailMessageCreator(SettingsServiceBean settingsService, SystemConfig systemConfig, PermissionServiceBean permissionService,
+                              GroupServiceBean groupService, DataverseServiceBean dataverseService, DataFileServiceBean dataFileService,
+                              DatasetServiceBean datasetService, DatasetVersionServiceBean versionService, ConfirmEmailServiceBean confirmEmailService) {
+        this.settingsService = settingsService;
+        this.systemConfig = systemConfig;
+        this.permissionService = permissionService;
+        this.groupService = groupService;
+        this.dataverseService = dataverseService;
+        this.dataFileService = dataFileService;
+        this.datasetService = datasetService;
+        this.versionService = versionService;
+        this.confirmEmailService = confirmEmailService;
+    }
 
     String createMailBodyMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
 
@@ -84,32 +105,42 @@ public class MailMessageCreator {
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAVERSE) {
             Dataverse dataverse = dataverseService.find(notificationDto.getDvObjectId());
             String message = dataverseMessage(notificationDto, dataverse);
+
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET) {
             Dataset dataset = datasetService.find(notificationDto.getDvObjectId());
+            String message = datasetMessage(notificationDto, dataset);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET_VERSION) {
             DatasetVersion datasetVersion = versionService.find(notificationDto.getDvObjectId());
+            String message = datasetVersionMessage(notificationDto, datasetVersion, requestor);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAFILE) {
             DataFile dataFile = dataFileService.find(notificationDto.getDvObjectId());
+            String message = dataFileMessage(notificationDto, dataFile, requestor);
 
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.AUTHENTICATED_USER) {
             AuthenticatedUser user = notificationDto.getUser();
+            InternetAddress systemEmail = MailUtil.parseSystemAddress(settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail));
+            String rootDataverseName = dataverseService.findRootDataverse().getName();
+
+            String message = authenticatedUserMessage(notificationDto, rootDataverseName, systemEmail);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.FILEMETADATA) {
             FileMetadata fileMetadata = dataFileService.findFileMetadata(notificationDto.getDvObjectId());
+            String message = fileMetadataMessage(notificationDto, fileMetadata);
         }
 
+        return Tuple.of(StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
-    String dataverseMessage(EmailNotificationDto notificationDto, Dataverse dataverse) {
+    private String dataverseMessage(EmailNotificationDto notificationDto, Dataverse dataverse) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
         String objectType = notificationDto.getNotificationObjectType().toString().toLowerCase();
@@ -126,7 +157,6 @@ public class MailMessageCreator {
                 if (joinedRoleNames.contains("File Downloader")) {
                     pattern = BundleUtil.getStringFromBundle("notification.access.granted.fileDownloader.additionalDataverse");
                     messageText += MessageFormat.format(pattern, " ");
-
                 }
 
                 return messageText;
@@ -152,21 +182,36 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    String datasetMessage(EmailNotificationDto notificationDto, Dataset dataset) {
+    private String datasetMessage(EmailNotificationDto notificationDto, Dataset dataset) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
+        String objectType = notificationDto.getNotificationObjectType().toString().toLowerCase();
         String pattern;
 
         switch (notificationDto.getNotificationType()) {
+            case ASSIGNROLE:
+
+                String joinedRoleNames = getRoleStringFromUser(notificationDto.getUser(), dataset);
+                pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
+
+                messageText += MessageFormat.format(pattern,
+                                                    Lists.newArrayList(joinedRoleNames, objectType, dataset.getDisplayName(), getDatasetLink(dataset)));
+
+                if (joinedRoleNames.contains("File Downloader")) {
+                    pattern = BundleUtil.getStringFromBundle("notification.access.granted.fileDownloader.additionalDataverse");
+                    messageText += MessageFormat.format(pattern, " ");
+                }
+
+                return messageText;
             case GRANTFILEACCESS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.grantFileAccess");
-                String[] paramArrayGrantFileAccess = {dataset.getDisplayName(), getDatasetLink(dataset)};
-                messageText += MessageFormat.format(pattern, paramArrayGrantFileAccess);
+                messageText += MessageFormat.format(pattern,
+                                                    Lists.newArrayList(dataset.getDisplayName(), getDatasetLink(dataset)));
                 return messageText;
             case REJECTFILEACCESS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.rejectFileAccess");
-                String[] paramArrayRejectFileAccess = {dataset.getDisplayName(), getDatasetLink(dataset)};
-                messageText += MessageFormat.format(pattern, paramArrayRejectFileAccess);
+                messageText += MessageFormat.format(pattern,
+                                                    Lists.newArrayList(dataset.getDisplayName(), getDatasetLink(dataset)));
                 return messageText;
             case CHECKSUMFAIL:
                 String checksumFailMsg = BundleUtil.getStringFromBundle("notification.checksumfail", Arrays.asList(
@@ -179,7 +224,7 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version, AuthenticatedUser requestor) {
+    private String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version, AuthenticatedUser requestor) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
         String pattern;
@@ -248,7 +293,7 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    String dataFileMessage(EmailNotificationDto notificationDto, DataFile dataFile, AuthenticatedUser requestor) {
+    private String dataFileMessage(EmailNotificationDto notificationDto, DataFile dataFile, AuthenticatedUser requestor) {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
 
         if (notificationDto.getNotificationType() == NotificationType.REQUESTFILEACCESS) {
@@ -265,7 +310,7 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    String fileMetadataMessage(EmailNotificationDto notificationDto, FileMetadata fileMetadata) {
+    private String fileMetadataMessage(EmailNotificationDto notificationDto, FileMetadata fileMetadata) {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
 
         if (notificationDto.getNotificationType() == NotificationType.MAPLAYERDELETEFAILED) {
@@ -280,7 +325,7 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    String authenticatedUserMessage(EmailNotificationDto notificationDto, String rootDataverseName, InternetAddress systemAddress) {
+    private String authenticatedUserMessage(EmailNotificationDto notificationDto, String rootDataverseName, InternetAddress systemAddress) {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
 
         if (notificationDto.getNotificationType() == NotificationType.CREATEACC) {
