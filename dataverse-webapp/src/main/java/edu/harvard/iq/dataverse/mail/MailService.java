@@ -5,19 +5,12 @@
  */
 package edu.harvard.iq.dataverse.mail;
 
-import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.UserNotification;
-import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
+import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
 import edu.harvard.iq.dataverse.util.MailUtil;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple2;
 import io.vavr.control.Try;
 import org.simplejavamail.email.Email;
@@ -27,7 +20,6 @@ import org.simplejavamail.mailer.MailerBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.Session;
@@ -38,46 +30,32 @@ import java.util.logging.Logger;
  * original author: roberttreacy
  */
 @Stateless
-public class MailServiceBean implements java.io.Serializable {
+public class MailService implements java.io.Serializable {
 
-    @EJB
-    DataverseServiceBean dataverseService;
-    @EJB
-    DataFileServiceBean dataFileService;
-    @EJB
-    DatasetServiceBean datasetService;
-    @EJB
-    DatasetVersionServiceBean versionService;
-    @EJB
-    SystemConfig systemConfig;
-    @EJB
-    SettingsServiceBean settingsService;
-    @EJB
-    PermissionServiceBean permissionService;
-    @EJB
-    GroupServiceBean groupService;
-    @EJB
-    ConfirmEmailServiceBean confirmEmailService;
-
-    @Inject
+    private DataverseServiceBean dataverseService;
+    private SettingsServiceBean settingsService;
     private MailMessageCreator mailMessageCreator;
 
     private Mailer mailSender;
 
-    private static final Logger logger = Logger.getLogger(MailServiceBean.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(MailService.class.getCanonicalName());
 
-    private static final String charset = "UTF-8";
-
-    /**
-     * Creates a new instance of MailServiceBean
-     */
-    public MailServiceBean() {
-    }
 
     @Resource(name = "mail/notifyMailSession")
     private Session session;
 
     // -------------------- CONSTRUCTORS --------------------
+
+    @Deprecated /* JEE requirement */
+    MailService() {
+    }
+
+    @Inject
+    public MailService(DataverseServiceBean dataverseService, SettingsServiceBean settingsService, MailMessageCreator mailMessageCreator) {
+        this.dataverseService = dataverseService;
+        this.settingsService = settingsService;
+        this.mailMessageCreator = mailMessageCreator;
+    }
 
     @PostConstruct
     public void prepareMailSession() {
@@ -91,15 +69,21 @@ public class MailServiceBean implements java.io.Serializable {
 
     public Boolean sendNotificationEmail(EmailNotificationDto notification, AuthenticatedUser requestor) {
 
-        String emailAddress = notification.getUserEmail();
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, requestor);
+        String userEmail = notification.getUserEmail();
+        String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
 
-        return sendSystemEmail(emailAddress, messageAndSubject._2(), messageAndSubject._1());
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, requestor, systemEmail);
+
+        if (messageAndSubject._1().isEmpty() || messageAndSubject._2().isEmpty()) {
+            return false;
+        }
+
+        return sendSystemEmail(userEmail, messageAndSubject._2(), messageAndSubject._1());
     }
 
     public boolean sendSystemEmail(String to, String subject, String messageText) {
 
-        String message = mailMessageCreator.createMailBodyMessage(messageText, dataverseService.findRootDataverse().getName(), getSystemAddress());
+        String message = mailMessageCreator.createMailFooterMessage(messageText, dataverseService.findRootDataverse().getName(), getSystemAddress());
 
         Email email = EmailBuilder.startingBlank()
                 .from(getSystemAddress())
@@ -130,25 +114,16 @@ public class MailServiceBean implements java.io.Serializable {
                 .getOrElse(false);
     }
 
+    // -------------------- PRIVATE --------------------
+
     private InternetAddress getSystemAddress() {
         String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
         return MailUtil.parseSystemAddress(systemEmail);
     }
 
-    private String getUserEmailAddress(UserNotification notification) {
-        if (notification != null) {
-            if (notification.getUser() != null) {
-                if (notification.getUser().getDisplayInfo() != null) {
-                    if (notification.getUser().getDisplayInfo().getEmailAddress() != null) {
-                        logger.fine("Email address: " + notification.getUser().getDisplayInfo().getEmailAddress());
-                        return notification.getUser().getDisplayInfo().getEmailAddress();
-                    }
-                }
-            }
-        }
+    // -------------------- SETTERS --------------------
 
-        logger.fine("no email address");
-        return null;
+    void setMailSender(Mailer mailSender) {
+        this.mailSender = mailSender;
     }
-
 }

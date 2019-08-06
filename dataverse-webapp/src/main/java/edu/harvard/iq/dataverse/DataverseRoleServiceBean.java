@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-//import javax.validation.constraints.NotNull;
 
 /**
  * @author michael
@@ -50,6 +49,10 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
     @EJB
     IndexAsync indexAsync;
 
+    public <T> T asd(Class<T> type, long id) {
+        return em.find(type, id);
+    }
+
     public DataverseRole save(DataverseRole aRole) {
         if (aRole.getId() == null) {
             em.persist(aRole);
@@ -70,6 +73,7 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
     }
 
     public RoleAssignment save(RoleAssignment assignment) {
+        RoleAssignment asd = asd(assignment.getClass(), 1L);
         return save(assignment, true);
     }
 

@@ -6,11 +6,13 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import edu.harvard.iq.dataverse.persistence.user.UserNotification;
+import io.vavr.Tuple;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -57,7 +59,8 @@ public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Datase
 
         List<AuthenticatedUser> authUsers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         for (AuthenticatedUser au : authUsers) {
-            ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), UserNotification.Type.SUBMITTEDDS, savedDataset.getLatestVersion().getId(), "", requestor);
+            ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
+                                                  Tuple.of(savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION), "", requestor);
         }
 
         //  TODO: What should we do with the indexing result? Print it to the log?

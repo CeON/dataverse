@@ -4,16 +4,18 @@
  * and open the template in the editor.
  */
 
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.notification;
 
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.mail.MailServiceBean;
-import edu.harvard.iq.dataverse.notification.NotificationObjectType;
-import edu.harvard.iq.dataverse.notification.NotificationType;
+import edu.harvard.iq.dataverse.mail.MailService;
+import edu.harvard.iq.dataverse.notification.dto.EmailNotificationMapper;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
+import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import io.vavr.Tuple2;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -31,7 +33,10 @@ public class UserNotificationServiceBean {
     private static final Logger logger = Logger.getLogger(UserNotificationServiceBean.class.getCanonicalName());
 
     @EJB
-    MailServiceBean mailService;
+    MailService mailService;
+    @Inject
+    private EmailNotificationMapper mailMapper;
+
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
 
@@ -78,6 +83,15 @@ public class UserNotificationServiceBean {
         em.remove(em.merge(userNotification));
     }
 
+    public void sendNotificationWithoutEmail(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type) {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUser(dataverseUser);
+        userNotification.setSendDate(sendDate);
+        userNotification.setType(type);
+
+        save(userNotification);
+    }
+
     public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, NotificationObjectType> dvObjectIdAndType) {
         sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, "");
     }
@@ -100,13 +114,13 @@ public class UserNotificationServiceBean {
         userNotification.setObjectId(dvObjectIdAndType._1());
         userNotification.setRequestor(requestor);
 
-        /*if (mailService.sendNotificationEmail(userNotification, requestor)) {
+        if (mailService.sendNotificationEmail(mailMapper.toDto(userNotification, dvObjectIdAndType), requestor)) {
             logger.fine("email was sent");
             userNotification.setEmailed(true);
             save(userNotification);
         } else {
             logger.fine("email was not sent");
             save(userNotification);
-        }*/
+        }
     }
 }

@@ -1,29 +1,24 @@
 package edu.harvard.iq.dataverse.mail;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
-import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.DvObject;
-import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.RoleAssignment;
-import edu.harvard.iq.dataverse.authorization.groups.Group;
-import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.branding.BrandingUtil;
+import edu.harvard.iq.dataverse.common.BrandingUtil;
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
-import edu.harvard.iq.dataverse.notification.NotificationType;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.Lazy;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.apache.commons.lang.StringUtils;
@@ -34,55 +29,48 @@ import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static edu.harvard.iq.dataverse.notification.NotificationType.FILESYSTEMIMPORT;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.FILESYSTEMIMPORT;
 
+/**
+ * Class takes care of creating text templates for emails.
+ */
 @Stateless
 public class MailMessageCreator {
-
-    private SettingsServiceBean settingsService;
 
     private SystemConfig systemConfig;
 
     private PermissionServiceBean permissionService;
 
-    private GroupServiceBean groupService;
-
     private DataverseServiceBean dataverseService;
-
-    private DataFileServiceBean dataFileService;
-
-    private DatasetServiceBean datasetService;
-
-    private DatasetVersionServiceBean versionService;
 
     private ConfirmEmailServiceBean confirmEmailService;
 
+    private GenericDao genericDao;
+
     private static final Logger logger = Logger.getLogger(MailMessageCreator.class.getCanonicalName());
 
+    // -------------------- CONSTRUCTORS --------------------
+
     @Inject
-    public MailMessageCreator(SettingsServiceBean settingsService, SystemConfig systemConfig, PermissionServiceBean permissionService,
-                              GroupServiceBean groupService, DataverseServiceBean dataverseService, DataFileServiceBean dataFileService,
-                              DatasetServiceBean datasetService, DatasetVersionServiceBean versionService, ConfirmEmailServiceBean confirmEmailService) {
-        this.settingsService = settingsService;
+    public MailMessageCreator(SystemConfig systemConfig, PermissionServiceBean permissionService,
+                              DataverseServiceBean dataverseService, ConfirmEmailServiceBean confirmEmailService,
+                              GenericDao genericDao) {
         this.systemConfig = systemConfig;
         this.permissionService = permissionService;
-        this.groupService = groupService;
         this.dataverseService = dataverseService;
-        this.dataFileService = dataFileService;
-        this.datasetService = datasetService;
-        this.versionService = versionService;
         this.confirmEmailService = confirmEmailService;
+        this.genericDao = genericDao;
     }
 
-    String createMailBodyMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
+    // -------------------- LOGIC --------------------
+
+    String createMailFooterMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
 
         return messageText + BundleUtil.getStringFromBundle("notification.email.closing",
                                                             Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(systemAddress),
@@ -100,45 +88,64 @@ public class MailMessageCreator {
                 .collect(Collectors.toList());
     }
 
-    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, AuthenticatedUser requestor) {
+    Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, AuthenticatedUser requestor, String systemEmail) {
+        Lazy<String> rootDataverseName = Lazy.of(() -> dataverseService.findRootDataverse().getName());
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAVERSE) {
             Dataverse dataverse = dataverseService.find(notificationDto.getDvObjectId());
             String message = dataverseMessage(notificationDto, dataverse);
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
 
+            return Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET) {
-            Dataset dataset = datasetService.find(notificationDto.getDvObjectId());
+            Dataset dataset = genericDao.find(notificationDto.getDvObjectId(), Dataset.class);
             String message = datasetMessage(notificationDto, dataset);
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
+
+            return Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET_VERSION) {
-            DatasetVersion datasetVersion = versionService.find(notificationDto.getDvObjectId());
+            DatasetVersion datasetVersion = genericDao.find(notificationDto.getDvObjectId(), DatasetVersion.class);
             String message = datasetVersionMessage(notificationDto, datasetVersion, requestor);
+
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
+
+            return subject.isEmpty() ?
+                    Tuple.of(message, subject) :
+                    Tuple.of(message, getSubjectTextForDatasetVersion(notificationDto.getNotificationType(), rootDataverseName.get(), datasetVersion));
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAFILE) {
-            DataFile dataFile = dataFileService.find(notificationDto.getDvObjectId());
+            DataFile dataFile = genericDao.find(notificationDto.getDvObjectId(), DataFile.class);
             String message = dataFileMessage(notificationDto, dataFile, requestor);
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
 
+            return Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.AUTHENTICATED_USER) {
-            AuthenticatedUser user = notificationDto.getUser();
-            InternetAddress systemEmail = MailUtil.parseSystemAddress(settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail));
-            String rootDataverseName = dataverseService.findRootDataverse().getName();
 
-            String message = authenticatedUserMessage(notificationDto, rootDataverseName, systemEmail);
+            String message = authenticatedUserMessage(notificationDto, rootDataverseName.get(), MailUtil.parseSystemAddress(systemEmail));
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
+
+            return Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.FILEMETADATA) {
-            FileMetadata fileMetadata = dataFileService.findFileMetadata(notificationDto.getDvObjectId());
+            FileMetadata fileMetadata = genericDao.find(notificationDto.getDvObjectId(), FileMetadata.class);
             String message = fileMetadataMessage(notificationDto, fileMetadata);
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
+
+            return Tuple.of(message, subject);
         }
 
         return Tuple.of(StringUtils.EMPTY, StringUtils.EMPTY);
     }
+
+    // -------------------- PRIVATE --------------------
 
     private String dataverseMessage(EmailNotificationDto notificationDto, Dataverse dataverse) {
 
@@ -148,13 +155,13 @@ public class MailMessageCreator {
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
 
-                String joinedRoleNames = getRoleStringFromUser(notificationDto.getUser(), dataverse);
+                String joinedRoleNames = permissionService.getRoleStringFromUser(notificationDto.getUser(), dataverse);
                 String pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
 
                 messageText += MessageFormat.format(pattern,
                                                     Lists.newArrayList(joinedRoleNames, objectType, dataverse.getDisplayName(), getDataverseLink(dataverse)));
 
-                if (joinedRoleNames.contains("File Downloader")) {
+                if (joinedRoleNames.contains("fileDownloader")) {
                     pattern = BundleUtil.getStringFromBundle("notification.access.granted.fileDownloader.additionalDataverse");
                     messageText += MessageFormat.format(pattern, " ");
                 }
@@ -191,7 +198,7 @@ public class MailMessageCreator {
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
 
-                String joinedRoleNames = getRoleStringFromUser(notificationDto.getUser(), dataset);
+                String joinedRoleNames = permissionService.getRoleStringFromUser(notificationDto.getUser(), dataset);
                 pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
 
                 messageText += MessageFormat.format(pattern,
@@ -214,7 +221,7 @@ public class MailMessageCreator {
                                                     Lists.newArrayList(dataset.getDisplayName(), getDatasetLink(dataset)));
                 return messageText;
             case CHECKSUMFAIL:
-                String checksumFailMsg = BundleUtil.getStringFromBundle("notification.checksumfail", Arrays.asList(
+                String checksumFailMsg = BundleUtil.getStringFromBundle("notification.checksumfail", Collections.singletonList(
                         dataset.getGlobalIdString()
                 ));
                 logger.fine("checksumFailMsg: " + checksumFailMsg);
@@ -318,8 +325,8 @@ public class MailMessageCreator {
             DatasetVersion version = fileMetadata.getDatasetVersion();
             String pattern = BundleUtil.getStringFromBundle("notification.email.maplayer.deletefailed.text");
 
-            String[] paramArrayMapLayerDelete = {fileMetadata.getLabel(), getDatasetLink(version.getDataset())};
-            messageText += MessageFormat.format(pattern, paramArrayMapLayerDelete);
+            messageText += MessageFormat.format(pattern,
+                                                Lists.newArrayList(fileMetadata.getLabel(), getDatasetLink(version.getDataset())));
             return messageText;
         }
         return StringUtils.EMPTY;
@@ -346,21 +353,7 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private String getSubjectTextForDatasetVersion(NotificationType notificationType, String rootDataverseName, DatasetVersion datasetVersion) {
-
-        if (notificationType == FILESYSTEMIMPORT) {
-            try {
-                List<String> dsNameAsList = Collections.singletonList(datasetVersion.getDataset().getDisplayName());
-                return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject", dsNameAsList);
-            } catch (Exception e) {
-                return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject", Collections.singletonList(rootDataverseName));
-            }
-        }
-
-        return StringUtils.EMPTY;
-    }
-
-    public String getSubjectText(NotificationType notificationType, String rootDataverseName) {
+    private String getSubjectText(NotificationType notificationType, String rootDataverseName) {
         List<String> rootDvNameAsList = Collections.singletonList(rootDataverseName);
         switch (notificationType) {
             case ASSIGNROLE:
@@ -399,6 +392,20 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
+    private String getSubjectTextForDatasetVersion(NotificationType notificationType, String rootDataverseName, DatasetVersion datasetVersion) {
+
+        if (notificationType == FILESYSTEMIMPORT) {
+            try {
+                List<String> dsNameAsList = Collections.singletonList(datasetVersion.getDataset().getDisplayName());
+                return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject", dsNameAsList);
+            } catch (Exception e) {
+                return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject", Collections.singletonList(rootDataverseName));
+            }
+        }
+
+        return StringUtils.EMPTY;
+    }
+
     private String getDatasetManageFileAccessLink(DataFile datafile) {
         return systemConfig.getDataverseSiteUrl() + "/permissions-manage-files.xhtml?id=" + datafile.getOwner().getId();
     }
@@ -413,32 +420,6 @@ public class MailMessageCreator {
 
     private String getDataverseLink(Dataverse dataverse) {
         return systemConfig.getDataverseSiteUrl() + "/dataverse/" + dataverse.getAlias();
-    }
-
-    /**
-     * Returns a '/'-separated string of roles that are effective for {@code au}
-     * over {@code dvObj}. Traverses the containment hierarchy of the {@code d}.
-     * Takes into consideration all groups that {@code au} is part of.
-     *
-     * @param au    The authenticated user whose role assignments we look for.
-     * @param dvObj The Dataverse object over which the roles are assigned
-     * @return A set of all the role assignments for {@code ra} over {@code d}.
-     */
-    private String getRoleStringFromUser(AuthenticatedUser au, DvObject dvObj) {
-        // Find user's role(s) for given dataverse/dataset
-        Set<RoleAssignment> roles = permissionService.assignmentsFor(au, dvObj);
-        List<String> roleNames = new ArrayList<>();
-
-        // Include roles derived from a user's groups
-        Set<Group> groupsUserBelongsTo = groupService.groupsFor(au, dvObj);
-        for (Group g : groupsUserBelongsTo) {
-            roles.addAll(permissionService.assignmentsFor(g, dvObj));
-        }
-
-        for (RoleAssignment ra : roles) {
-            roleNames.add(ra.getRole().getName());
-        }
-        return StringUtils.join(roleNames, "/");
     }
 
 }

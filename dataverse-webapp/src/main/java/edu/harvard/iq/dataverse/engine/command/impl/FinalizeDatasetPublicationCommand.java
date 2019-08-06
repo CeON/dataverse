@@ -7,8 +7,7 @@ import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.export.ExportException;
-import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
@@ -18,11 +17,12 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersionUser;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
+import io.vavr.Tuple;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -258,7 +258,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                         // We are not going to treat it as a fatal condition and bail out, 
                         // but we will send a notification to the user, warning them about
                         // the layer still being out there, un-deleted:
-                        ctxt.notifications().sendNotification(authenticatedUser, getTimestamp(), UserNotification.Type.MAPLAYERDELETEFAILED, dataFile.getFileMetadata().getId());
+                        ctxt.notifications().sendNotification(authenticatedUser, getTimestamp(), NotificationType.MAPLAYERDELETEFAILED, Tuple.of(dataFile.getFileMetadata().getId(), NotificationObjectType.FILEMETADATA));
                     }
 
                 }
@@ -280,7 +280,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                 .filter(ra -> ra.getRole().permissions().contains(Permission.DownloadFile))
                 .flatMap(ra -> ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier())).stream())
                 .distinct() // prevent double-send
-                .forEach(au -> ctxt.notifications().sendNotification(au, getTimestamp(), UserNotification.Type.GRANTFILEACCESS, getDataset().getId()));
+                .forEach(au -> ctxt.notifications().sendNotification(au, getTimestamp(), NotificationType.GRANTFILEACCESS, Tuple.of(getDataset().getId(), NotificationObjectType.DATASET)));
     }
 
     private void notifyUsersDatasetPublish(CommandContext ctxt, DvObject subject) {
@@ -289,7 +289,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                 .flatMap(ra -> ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier())).stream())
                 .distinct() // prevent double-send
                 //.forEach( au -> ctxt.notifications().sendNotification(au, timestamp, messageType, theDataset.getId()) ); //not sure why this line doesn't work instead
-                .forEach(au -> ctxt.notifications().sendNotification(au, getTimestamp(), UserNotification.Type.PUBLISHEDDS, getDataset().getLatestVersion().getId()));
+                .forEach(au -> ctxt.notifications().sendNotification(au, getTimestamp(), NotificationType.PUBLISHEDDS, Tuple.of(getDataset().getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION)));
     }
 
 }

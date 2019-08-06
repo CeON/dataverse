@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.notification;
+package edu.harvard.iq.dataverse.persistence.user;
 
 public enum NotificationType {
     ASSIGNROLE, REVOKEROLE, CREATEDV, CREATEDS, CREATEACC, MAPLAYERUPDATED, MAPLAYERDELETEFAILED, SUBMITTEDDS,
