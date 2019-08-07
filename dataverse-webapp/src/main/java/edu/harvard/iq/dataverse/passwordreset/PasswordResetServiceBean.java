@@ -132,7 +132,7 @@ public class PasswordResetServiceBean {
         try {
             String toAddress = authUser.getEmail();
             String subject = BundleUtil.getStringFromBundle("notification.email.passwordReset.subject");
-            mailService.sendSystemEmail(toAddress, subject, messageBody);
+            mailService.sendMail(toAddress, subject, messageBody);
         } catch (Exception ex) {
             /**
              * @todo get more specific about the exception that's thrown
@@ -264,7 +264,7 @@ public class PasswordResetServiceBean {
             String messageBody = "Hi " + authUser.getName() + ",\n\n"
                     + "Your Dataverse account password was successfully changed.\n\n"
                     + "Please contact us if you did not request this password reset or need further help.\n\n";
-            mailService.sendSystemEmail(toAddress, subject, messageBody);
+            mailService.sendMail(toAddress, subject, messageBody);
             return new PasswordChangeAttemptResponse(true, messageSummary, messageDetail);
         } else {
             messageSummary = messageSummaryFail;

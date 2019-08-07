@@ -79,7 +79,7 @@ public class MailServiceBeanTest {
     @Test
     public void sendSystemEmail() {
         //when
-        boolean emailSent = mailService.sendSystemEmail("test@email.com", "Nice Subject", "Nice message");
+        boolean emailSent = mailService.sendMail("test@email.com", "Nice Subject", "Nice message");
 
         //then
         Assert.assertTrue(emailSent);
@@ -104,7 +104,7 @@ public class MailServiceBeanTest {
         makeSmtpThrowException();
 
         //when
-        boolean emailSent = mailService.sendSystemEmail("test@email.com", "Nice Subject", "Nice message");
+        boolean emailSent = mailService.sendMail("test@email.com", "Nice Subject", "Nice message");
 
         //then
         Assert.assertFalse(emailSent);

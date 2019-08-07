@@ -10,9 +10,9 @@ import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
-import edu.harvard.iq.dataverse.util.MailUtil;
 import io.vavr.Tuple2;
 import io.vavr.control.Try;
+import org.apache.commons.lang.StringUtils;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.Mailer;
@@ -24,11 +24,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
- * original author: roberttreacy
+ * Service responsible for mail sending.
  */
 @Stateless
 public class MailService implements java.io.Serializable {
@@ -68,6 +69,11 @@ public class MailService implements java.io.Serializable {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Gathers template messages for given notification and sends email.
+     *
+     * @return true if email was sent or false if some error occurred and email could not be sent.
+     */
     public Boolean sendNotificationEmail(EmailNotificationDto notification, Optional<AuthenticatedUser> requestor) {
 
         String userEmail = notification.getUserEmail();
@@ -79,16 +85,21 @@ public class MailService implements java.io.Serializable {
             return false;
         }
 
-        return sendSystemEmail(userEmail, messageAndSubject._2(), messageAndSubject._1());
+        return sendMail(userEmail, messageAndSubject._2(), messageAndSubject._1());
     }
 
-    public boolean sendSystemEmail(String to, String subject, String messageText) {
+    /**
+     * Sends email(s).
+     *
+     * @param recipientsEmails - comma separated emails.
+     */
+    public boolean sendMail(String recipientsEmails, String subject, String messageText) {
 
         String message = mailMessageCreator.createMailFooterMessage(messageText, dataverseService.findRootDataverse().getName(), getSystemAddress());
 
         Email email = EmailBuilder.startingBlank()
                 .from(getSystemAddress())
-                .withRecipients(mailMessageCreator.createRecipients(to, ""))
+                .withRecipients(mailMessageCreator.createRecipients(recipientsEmails, StringUtils.EMPTY))
                 .withSubject(subject)
                 .appendText(message)
                 .buildEmail();
@@ -99,13 +110,18 @@ public class MailService implements java.io.Serializable {
                 .getOrElse(false);
     }
 
-    public boolean sendMail(String reply, String to, String subject, String messageText) {
+    /**
+     * Sends email(s) with replay email.
+     *
+     * @param recipientsEmails - comma separated emails.
+     */
+    public boolean sendMail(String replyEmail, String recipientsEmails, String subject, String messageText) {
 
         Email email = EmailBuilder.startingBlank()
                 .from(getSystemAddress())
-                .withRecipients(mailMessageCreator.createRecipients(to, mailMessageCreator.createRecipientName(reply, getSystemAddress())))
+                .withRecipients(mailMessageCreator.createRecipients(recipientsEmails, StringUtils.EMPTY))
                 .withSubject(subject)
-                .withReplyTo(reply)
+                .withReplyTo(replyEmail)
                 .appendText(messageText)
                 .buildEmail();
 
@@ -119,7 +135,9 @@ public class MailService implements java.io.Serializable {
 
     private InternetAddress getSystemAddress() {
         String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
-        return MailUtil.parseSystemAddress(systemEmail);
+
+        return Try.of(() -> new InternetAddress(systemEmail, StringUtils.EMPTY, StandardCharsets.UTF_8.name()))
+                .getOrElseThrow(throwable -> new IllegalArgumentException("Email will not be sent due to invalid email: " + systemEmail));
     }
 
     // -------------------- SETTERS --------------------

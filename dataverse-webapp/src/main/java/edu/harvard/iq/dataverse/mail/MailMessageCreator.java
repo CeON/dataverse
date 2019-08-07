@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.mail;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
@@ -74,6 +73,9 @@ public class MailMessageCreator {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Creates footer for email message.
+     */
     public String createMailFooterMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
 
         return messageText + BundleUtil.getStringFromBundle("notification.email.closing",
@@ -81,22 +83,22 @@ public class MailMessageCreator {
                                                                           BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName)));
     }
 
-    public String createRecipientName(String reply, InternetAddress systemAddress) {
-        return BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
-                systemAddress.getPersonal(), reply));
-    }
-
-    public List<Recipient> createRecipients(String to, String recipientName) {
-        return Arrays.stream(to.split(","))
-                .map(recipient -> new Recipient(recipientName, recipient, Message.RecipientType.TO))
+    /**
+     * Divides recipientsEmails into multiple recipients with their own emails.
+     *
+     * @param recipientsEmails - comma separated emails.
+     * @param recipientsName   - common name for all recipients, usually it is blank since it is only visible in email header.
+     */
+    public List<Recipient> createRecipients(String recipientsEmails, String recipientsName) {
+        return Arrays.stream(recipientsEmails.split(","))
+                .map(recipient -> new Recipient(recipientsName, recipient, Message.RecipientType.TO))
                 .collect(Collectors.toList());
     }
 
-    public Dataverse testMethod() {
-        Lazy<Dataverse> of = Lazy.of(() -> dataverseService.findRootDataverse());
-        return of.get();
-    }
-
+    /**
+     * Retrives message and subject template based on {@link NotificationObjectType} and {@link NotificationType}.
+     * @return message and subject or blank tuple if notificationType didn't match any template.
+     */
     public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, Optional<AuthenticatedUser> requestor, String systemEmail) {
         Lazy<String> rootDataverseName = Lazy.of(() -> dataverseService.findRootDataverse().getName());
 
@@ -159,7 +161,7 @@ public class MailMessageCreator {
     private String dataverseMessage(EmailNotificationDto notificationDto, Dataverse dataverse) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
-        String objectType = notificationDto.getNotificationObjectType().toString().toLowerCase();
+        String objectType = NotificationObjectType.DATAVERSE.toString().toLowerCase();
 
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
@@ -168,7 +170,7 @@ public class MailMessageCreator {
                 String pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
 
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(joinedRoleNames, objectType, dataverse.getDisplayName(), getDataverseLink(dataverse)));
+                                                    joinedRoleNames, objectType, dataverse.getDisplayName(), getDataverseLink(dataverse));
 
                 if (joinedRoleNames.contains("fileDownloader")) {
                     pattern = BundleUtil.getStringFromBundle("notification.access.granted.fileDownloader.additionalDataverse");
@@ -178,7 +180,7 @@ public class MailMessageCreator {
                 return messageText;
             case REVOKEROLE:
                 messageText += MessageFormat.format(BundleUtil.getStringFromBundle("notification.email.revokeRole"),
-                                                    Lists.newArrayList(objectType, dataverse.getDisplayName(), getDataverseLink(dataverse)));
+                                                    objectType, dataverse.getDisplayName(), getDataverseLink(dataverse));
                 return messageText;
             case CREATEDV:
                 Dataverse parentDataverse = dataverse.getOwner();
@@ -211,7 +213,7 @@ public class MailMessageCreator {
                 pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
 
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(joinedRoleNames, objectType, dataset.getDisplayName(), getDatasetLink(dataset)));
+                                                    joinedRoleNames, objectType, dataset.getDisplayName(), getDatasetLink(dataset));
 
                 if (joinedRoleNames.contains("File Downloader")) {
                     pattern = BundleUtil.getStringFromBundle("notification.access.granted.fileDownloader.additionalDataverse");
@@ -222,12 +224,12 @@ public class MailMessageCreator {
             case GRANTFILEACCESS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.grantFileAccess");
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(dataset.getDisplayName(), getDatasetLink(dataset)));
+                                                    dataset.getDisplayName(), getDatasetLink(dataset));
                 return messageText;
             case REJECTFILEACCESS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.rejectFileAccess");
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(dataset.getDisplayName(), getDatasetLink(dataset)));
+                                                    dataset.getDisplayName(), getDatasetLink(dataset));
                 return messageText;
             case CHECKSUMFAIL:
                 String checksumFailMsg = BundleUtil.getStringFromBundle("notification.checksumfail", Collections.singletonList(
@@ -260,7 +262,7 @@ public class MailMessageCreator {
             case MAPLAYERUPDATED:
                 pattern = BundleUtil.getStringFromBundle("notification.email.worldMap.added");
 
-                messageText += MessageFormat.format(pattern, Lists.newArrayList(version.getDataset().getDisplayName(), getDatasetLink(version.getDataset())));
+                messageText += MessageFormat.format(pattern, version.getDataset().getDisplayName(), getDatasetLink(version.getDataset()));
                 return messageText;
             case SUBMITTEDDS:
 
@@ -273,23 +275,23 @@ public class MailMessageCreator {
                 pattern = BundleUtil.getStringFromBundle("notification.email.wasSubmittedForReview");
 
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(version.getDataset().getDisplayName(), getDatasetDraftLink(version.getDataset()),
-                                                                       version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()),
-                                                                       requestorName, requestorEmail));
+                                                    version.getDataset().getDisplayName(), getDatasetDraftLink(version.getDataset()),
+                                                    version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()),
+                                                    requestorName, requestorEmail);
                 return messageText;
             case PUBLISHEDDS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.wasPublished");
 
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(version.getDataset().getDisplayName(), getDatasetLink(version.getDataset()),
-                                                                       version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner())));
+                                                    version.getDataset().getDisplayName(), getDatasetLink(version.getDataset()),
+                                                    version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()));
                 return messageText;
             case RETURNEDDS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.wasReturnedByReviewer");
 
                 messageText += MessageFormat.format(pattern,
-                                                    Lists.newArrayList(version.getDataset().getDisplayName(), getDatasetDraftLink(version.getDataset()),
-                                                                       version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()), ""));
+                                                    version.getDataset().getDisplayName(), getDatasetDraftLink(version.getDataset()),
+                                                    version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()), "");
                 return messageText;
             case FILESYSTEMIMPORT:
 
@@ -327,8 +329,8 @@ public class MailMessageCreator {
                     .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
 
             messageText += MessageFormat.format(pattern,
-                                                Lists.newArrayList(dataFile.getOwner().getDisplayName(), requestorName,
-                                                                   requestorEmail, getDatasetManageFileAccessLink(dataFile)));
+                                                dataFile.getOwner().getDisplayName(), requestorName,
+                                                requestorEmail, getDatasetManageFileAccessLink(dataFile));
             return messageText;
         }
         return StringUtils.EMPTY;
@@ -343,7 +345,7 @@ public class MailMessageCreator {
             String pattern = BundleUtil.getStringFromBundle("notification.email.maplayer.deletefailed.text");
 
             messageText += MessageFormat.format(pattern,
-                                                Lists.newArrayList(fileMetadata.getLabel(), getDatasetLink(version.getDataset())));
+                                                fileMetadata.getLabel(), getDatasetLink(version.getDataset()));
             return messageText;
         }
         return StringUtils.EMPTY;

@@ -124,7 +124,7 @@ public class ConfirmEmailServiceBean {
                     userNotification.setType(NotificationType.CONFIRMEMAIL);
                     String subject = BundleUtil.getStringFromBundle("notification.email.verifyEmail.subject", Lists.newArrayList(rootDataverseName));
                     logger.fine("sending email to " + toAddress + " with this subject: " + subject);
-                    mailService.sendSystemEmail(toAddress, subject, messageBody);
+                    mailService.sendMail(toAddress, subject, messageBody);
                 }
             } catch (Exception e) {
                 logger.info("The root dataverse is not present. Don't send a notification to dataverseAdmin.");
