@@ -20,6 +20,7 @@ import org.mockito.quality.Strictness;
 import org.simplejavamail.mailer.Mailer;
 
 import javax.mail.internet.InternetAddress;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,7 +47,7 @@ public class MailServiceBeanTest {
     public void prepare() {
         Mockito.when(settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail)).thenReturn("test@email.com");
         Mockito.when(mailMessageCreator.getMessageAndSubject(any(EmailNotificationDto.class),
-                                                             any(AuthenticatedUser.class),
+                                                             any(),
                                                              anyString()))
                 .thenReturn(Tuple.of("Nice Message", "Nice Subject"));
 
@@ -69,7 +70,7 @@ public class MailServiceBeanTest {
         EmailNotificationDto testEmailNotificationDto = createTestEmailNotificationDto();
 
         //when
-        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, new AuthenticatedUser());
+        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, Optional.of(new AuthenticatedUser()));
 
         //then
         Assert.assertTrue(emailSent);
@@ -91,7 +92,7 @@ public class MailServiceBeanTest {
         EmailNotificationDto testEmailNotificationDto = createTestEmailNotificationDto();
 
         //when
-        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, new AuthenticatedUser());
+        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, Optional.of(new AuthenticatedUser()));
 
         //then
         Assert.assertFalse(emailSent);

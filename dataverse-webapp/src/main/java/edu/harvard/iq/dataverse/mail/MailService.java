@@ -24,6 +24,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -67,14 +68,14 @@ public class MailService implements java.io.Serializable {
 
     // -------------------- LOGIC --------------------
 
-    public Boolean sendNotificationEmail(EmailNotificationDto notification, AuthenticatedUser requestor) {
+    public Boolean sendNotificationEmail(EmailNotificationDto notification, Optional<AuthenticatedUser> requestor) {
 
         String userEmail = notification.getUserEmail();
         String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
 
         Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, requestor, systemEmail);
 
-        if (messageAndSubject._1().isEmpty() || messageAndSubject._2().isEmpty()) {
+        if (messageAndSubject._1().isEmpty() && messageAndSubject._2().isEmpty()) {
             return false;
         }
 

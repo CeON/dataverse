@@ -32,6 +32,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,9 @@ public class MailMessageCreator {
     private static final Logger logger = Logger.getLogger(MailMessageCreator.class.getCanonicalName());
 
     // -------------------- CONSTRUCTORS --------------------
+    @Deprecated /* JEE requirement */
+    MailMessageCreator() {
+    }
 
     @Inject
     public MailMessageCreator(SystemConfig systemConfig, PermissionServiceBean permissionService,
@@ -70,25 +74,30 @@ public class MailMessageCreator {
 
     // -------------------- LOGIC --------------------
 
-    String createMailFooterMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
+    public String createMailFooterMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
 
         return messageText + BundleUtil.getStringFromBundle("notification.email.closing",
                                                             Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(systemAddress),
                                                                           BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName)));
     }
 
-    String createRecipientName(String reply, InternetAddress systemAddress) {
+    public String createRecipientName(String reply, InternetAddress systemAddress) {
         return BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
                 systemAddress.getPersonal(), reply));
     }
 
-    List<Recipient> createRecipients(String to, String recipientName) {
+    public List<Recipient> createRecipients(String to, String recipientName) {
         return Arrays.stream(to.split(","))
                 .map(recipient -> new Recipient(recipientName, recipient, Message.RecipientType.TO))
                 .collect(Collectors.toList());
     }
 
-    Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, AuthenticatedUser requestor, String systemEmail) {
+    public Dataverse testMethod() {
+        Lazy<Dataverse> of = Lazy.of(() -> dataverseService.findRootDataverse());
+        return of.get();
+    }
+
+    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, Optional<AuthenticatedUser> requestor, String systemEmail) {
         Lazy<String> rootDataverseName = Lazy.of(() -> dataverseService.findRootDataverse().getName());
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAVERSE) {
@@ -114,8 +123,8 @@ public class MailMessageCreator {
             String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
 
             return subject.isEmpty() ?
-                    Tuple.of(message, subject) :
-                    Tuple.of(message, getSubjectTextForDatasetVersion(notificationDto.getNotificationType(), rootDataverseName.get(), datasetVersion));
+                    Tuple.of(message, getSubjectTextForDatasetVersion(notificationDto.getNotificationType(), rootDataverseName.get(), datasetVersion)) :
+                    Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAFILE) {
@@ -231,7 +240,7 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version, AuthenticatedUser requestor) {
+    private String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version, Optional<AuthenticatedUser> requestor) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
         String pattern;
@@ -255,8 +264,12 @@ public class MailMessageCreator {
                 return messageText;
             case SUBMITTEDDS:
 
-                String requestorName = (requestor.getLastName() != null && requestor.getLastName() != null) ? requestor.getFirstName() + " " + requestor.getLastName() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
-                String requestorEmail = requestor.getEmail() != null ? requestor.getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
+                String requestorName = requestor.map(authenticatedUser -> authenticatedUser.getFirstName() + " " + authenticatedUser.getLastName())
+                        .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
+
+                String requestorEmail = requestor.map(AuthenticatedUser::getEmail)
+                        .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
+
                 pattern = BundleUtil.getStringFromBundle("notification.email.wasSubmittedForReview");
 
                 messageText += MessageFormat.format(pattern,
@@ -300,14 +313,18 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private String dataFileMessage(EmailNotificationDto notificationDto, DataFile dataFile, AuthenticatedUser requestor) {
+    private String dataFileMessage(EmailNotificationDto notificationDto, DataFile dataFile, Optional<AuthenticatedUser> requestor) {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
 
         if (notificationDto.getNotificationType() == NotificationType.REQUESTFILEACCESS) {
 
             String pattern = BundleUtil.getStringFromBundle("notification.email.requestFileAccess");
-            String requestorName = (requestor.getLastName() != null && requestor.getLastName() != null) ? requestor.getFirstName() + " " + requestor.getLastName() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
-            String requestorEmail = requestor.getEmail() != null ? requestor.getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
+
+            String requestorName = requestor.map(authenticatedUser -> authenticatedUser.getFirstName() + " " + authenticatedUser.getLastName())
+                    .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
+
+            String requestorEmail = requestor.map(AuthenticatedUser::getEmail)
+                    .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
 
             messageText += MessageFormat.format(pattern,
                                                 Lists.newArrayList(dataFile.getOwner().getDisplayName(), requestorName,

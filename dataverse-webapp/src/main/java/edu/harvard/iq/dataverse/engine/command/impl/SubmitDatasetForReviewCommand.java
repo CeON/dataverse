@@ -17,6 +17,7 @@ import io.vavr.Tuple;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 
 @RequiredPermissions(Permission.EditDataset)
@@ -60,7 +61,7 @@ public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Datase
         List<AuthenticatedUser> authUsers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         for (AuthenticatedUser au : authUsers) {
             ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
-                                                  Tuple.of(savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION), "", requestor);
+                                                  Tuple.of(savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION), "", Optional.ofNullable(requestor));
         }
 
         //  TODO: What should we do with the indexing result? Print it to the log?

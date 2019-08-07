@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -467,7 +468,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
 
         Stream.concat(usersWithManageDsPerm, usersWithManageMinorDsPerm).distinct().forEach((au) ->
                                                                                                     userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REQUESTFILEACCESS,
-                                                                                                                                             Tuple.of(fileId, NotificationObjectType.DATAFILE), null, requestor));
+                                                                                                                                             Tuple.of(fileId, NotificationObjectType.DATAFILE), null, Optional.of(requestor)));
     }
 
 

@@ -22,6 +22,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -97,7 +98,7 @@ public class UserNotificationServiceBean {
     }
 
     public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, NotificationObjectType> dvObjectIdAndType, String comment) {
-        sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, comment, null);
+        sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, comment, Optional.empty());
     }
 
     public void sendNotification(AuthenticatedUser dataverseUser,
@@ -105,14 +106,15 @@ public class UserNotificationServiceBean {
                                  NotificationType type,
                                  Tuple2<Long, NotificationObjectType> dvObjectIdAndType,
                                  String comment,
-                                 AuthenticatedUser requestor) {
+                                 Optional<AuthenticatedUser> requestor) {
 
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectIdAndType._1());
-        userNotification.setRequestor(requestor);
+
+        requestor.ifPresent(userNotification::setRequestor);
 
         if (mailService.sendNotificationEmail(mailMapper.toDto(userNotification, dvObjectIdAndType), requestor)) {
             logger.fine("email was sent");
