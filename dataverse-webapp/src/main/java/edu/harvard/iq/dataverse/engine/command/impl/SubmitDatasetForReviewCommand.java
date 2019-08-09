@@ -12,12 +12,11 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import io.vavr.Tuple;
+import io.vavr.control.Option;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Future;
 
 @RequiredPermissions(Permission.EditDataset)
@@ -60,8 +59,12 @@ public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Datase
 
         List<AuthenticatedUser> authUsers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         for (AuthenticatedUser au : authUsers) {
-            ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
-                                                  Tuple.of(savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION), "", Optional.ofNullable(requestor));
+
+            Option.of(requestor)
+                    .peek(user -> ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
+                                                                        savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, requestor))
+                    .onEmpty(() -> ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
+                                                                         savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION));
         }
 
         //  TODO: What should we do with the indexing result? Print it to the log?

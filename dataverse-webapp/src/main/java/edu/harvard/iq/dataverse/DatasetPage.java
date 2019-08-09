@@ -81,7 +81,6 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import io.vavr.Tuple;
 import io.vavr.control.Either;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.io.IOUtils;
@@ -1433,23 +1432,7 @@ public class DatasetPage implements java.io.Serializable {
             logger.log(Level.SEVERE, "sendBackToContributor: {0}", message);
             JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.reject.failure", Collections.singletonList(message)));
         }
-        
-        /* 
-         The notifications below are redundant, since the ReturnDatasetToAuthorCommand
-         sends them already. - L.A. Sep. 7 2017
-         
-        List<AuthenticatedUser> authUsers = permissionService.getUsersWithPermissionOn(Permission.PublishDataset, dataset);
-        List<AuthenticatedUser> editUsers = permissionService.getUsersWithPermissionOn(Permission.EditDataset, dataset);
 
-        editUsers.removeAll(authUsers);
-        new HashSet<>(editUsers).forEach( au -> 
-            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), 
-                                                     NotificationType.RETURNEDDS, dataset.getLatestVersion().getId())
-        );
-        */
-
-        //FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "DatasetSubmitted", "This dataset has been sent back to the contributor.");
-        //FacesContext.getCurrentInstance().addMessage(null, message);
         return returnToLatestVersion();
     }
 
@@ -2103,7 +2086,7 @@ public class DatasetPage implements java.io.Serializable {
             dataset = commandEngine.submit(cmd);
             if (editMode == EditMode.CREATE) {
                 if (session.getUser() instanceof AuthenticatedUser) {
-                    userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataset.getCreateDate(), NotificationType.CREATEDS, Tuple.of(dataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION));
+                    userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataset.getCreateDate(), NotificationType.CREATEDS, dataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION);
                 }
             }
             logger.fine("Successfully executed SaveDatasetCommand.");

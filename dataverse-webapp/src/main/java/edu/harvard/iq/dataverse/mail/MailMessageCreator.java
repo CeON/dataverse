@@ -31,7 +31,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -99,7 +98,7 @@ public class MailMessageCreator {
      * Retrives message and subject template based on {@link NotificationObjectType} and {@link NotificationType}.
      * @return message and subject or blank tuple if notificationType didn't match any template.
      */
-    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, Optional<AuthenticatedUser> requestor, String systemEmail) {
+    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, String systemEmail) {
         Lazy<String> rootDataverseName = Lazy.of(() -> dataverseService.findRootDataverse().getName());
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAVERSE) {
@@ -120,21 +119,13 @@ public class MailMessageCreator {
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET_VERSION) {
             DatasetVersion datasetVersion = genericDao.find(notificationDto.getDvObjectId(), DatasetVersion.class);
-            String message = datasetVersionMessage(notificationDto, datasetVersion, requestor);
+            String message = datasetVersionMessage(notificationDto, datasetVersion);
 
             String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
 
             return subject.isEmpty() ?
                     Tuple.of(message, getSubjectTextForDatasetVersion(notificationDto.getNotificationType(), rootDataverseName.get(), datasetVersion)) :
                     Tuple.of(message, subject);
-        }
-
-        if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAFILE) {
-            DataFile dataFile = genericDao.find(notificationDto.getDvObjectId(), DataFile.class);
-            String message = dataFileMessage(notificationDto, dataFile, requestor);
-            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
-
-            return Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.AUTHENTICATED_USER) {
@@ -156,6 +147,36 @@ public class MailMessageCreator {
         return Tuple.of(StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
+    /**
+     * Retrives message and subject template based on {@link NotificationObjectType} and {@link NotificationType} which requires requester.
+     *
+     * @return message and subject or blank tuple if notificationType didn't match any template.
+     */
+    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, AuthenticatedUser requester) {
+        Lazy<String> rootDataverseName = Lazy.of(() -> dataverseService.findRootDataverse().getName());
+
+        if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET_VERSION) {
+            DatasetVersion datasetVersion = genericDao.find(notificationDto.getDvObjectId(), DatasetVersion.class);
+            String message = datasetVersionMessage(notificationDto, datasetVersion, requester);
+
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
+
+            return subject.isEmpty() ?
+                    Tuple.of(message, getSubjectTextForDatasetVersion(notificationDto.getNotificationType(), rootDataverseName.get(), datasetVersion)) :
+                    Tuple.of(message, subject);
+        }
+
+        if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAFILE) {
+            DataFile dataFile = genericDao.find(notificationDto.getDvObjectId(), DataFile.class);
+            String message = dataFileMessage(notificationDto, dataFile, requester);
+            String subject = getSubjectText(notificationDto.getNotificationType(), rootDataverseName.get());
+
+            return Tuple.of(message, subject);
+        }
+
+        return Tuple.of(StringUtils.EMPTY, StringUtils.EMPTY);
+    }
+
     // -------------------- PRIVATE --------------------
 
     private String dataverseMessage(EmailNotificationDto notificationDto, Dataverse dataverse) {
@@ -166,7 +187,10 @@ public class MailMessageCreator {
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
 
-                String joinedRoleNames = permissionService.getRoleStringFromUser(notificationDto.getUser(), dataverse);
+                String joinedRoleNames = permissionService.getRolesOfUser(notificationDto.getUser(), dataverse).stream()
+                        .map(roleAssignment -> roleAssignment.getRole().getAlias())
+                        .collect(Collectors.joining("/"));
+
                 String pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
 
                 messageText += MessageFormat.format(pattern,
@@ -209,7 +233,10 @@ public class MailMessageCreator {
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
 
-                String joinedRoleNames = permissionService.getRoleStringFromUser(notificationDto.getUser(), dataset);
+                String joinedRoleNames = permissionService.getRolesOfUser(notificationDto.getUser(), dataset).stream()
+                        .map(roleAssignment -> roleAssignment.getRole().getAlias())
+                        .collect(Collectors.joining("/"));
+
                 pattern = BundleUtil.getStringFromBundle("notification.email.assignRole");
 
                 messageText += MessageFormat.format(pattern,
@@ -242,7 +269,28 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version, Optional<AuthenticatedUser> requestor) {
+    private String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version, AuthenticatedUser requestor) {
+        String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
+
+        if (notificationDto.getNotificationType() == NotificationType.SUBMITTEDDS) {
+
+            String requestorName = requestor.getFirstName() + " " + requestor.getLastName();
+
+            String requestorEmail = requestor.getEmail();
+
+            String pattern = BundleUtil.getStringFromBundle("notification.email.wasSubmittedForReview");
+
+            messageText += MessageFormat.format(pattern,
+                                                version.getDataset().getDisplayName(), getDatasetDraftLink(version.getDataset()),
+                                                version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()),
+                                                requestorName, requestorEmail);
+            return messageText;
+        }
+
+        return StringUtils.EMPTY;
+    }
+
+    private String datasetVersionMessage(EmailNotificationDto notificationDto, DatasetVersion version) {
 
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
         String pattern;
@@ -263,21 +311,6 @@ public class MailMessageCreator {
                 pattern = BundleUtil.getStringFromBundle("notification.email.worldMap.added");
 
                 messageText += MessageFormat.format(pattern, version.getDataset().getDisplayName(), getDatasetLink(version.getDataset()));
-                return messageText;
-            case SUBMITTEDDS:
-
-                String requestorName = requestor.map(authenticatedUser -> authenticatedUser.getFirstName() + " " + authenticatedUser.getLastName())
-                        .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
-
-                String requestorEmail = requestor.map(AuthenticatedUser::getEmail)
-                        .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
-
-                pattern = BundleUtil.getStringFromBundle("notification.email.wasSubmittedForReview");
-
-                messageText += MessageFormat.format(pattern,
-                                                    version.getDataset().getDisplayName(), getDatasetDraftLink(version.getDataset()),
-                                                    version.getDataset().getOwner().getDisplayName(), getDataverseLink(version.getDataset().getOwner()),
-                                                    requestorName, requestorEmail);
                 return messageText;
             case PUBLISHEDDS:
                 pattern = BundleUtil.getStringFromBundle("notification.email.wasPublished");
@@ -315,18 +348,16 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private String dataFileMessage(EmailNotificationDto notificationDto, DataFile dataFile, Optional<AuthenticatedUser> requestor) {
+    private String dataFileMessage(EmailNotificationDto notificationDto, DataFile dataFile, AuthenticatedUser requestor) {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting");
 
         if (notificationDto.getNotificationType() == NotificationType.REQUESTFILEACCESS) {
 
             String pattern = BundleUtil.getStringFromBundle("notification.email.requestFileAccess");
 
-            String requestorName = requestor.map(authenticatedUser -> authenticatedUser.getFirstName() + " " + authenticatedUser.getLastName())
-                    .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
+            String requestorName = requestor.getFirstName() + " " + requestor.getLastName();
 
-            String requestorEmail = requestor.map(AuthenticatedUser::getEmail)
-                    .orElseGet(() -> BundleUtil.getStringFromBundle("notification.email.info.unavailable"));
+            String requestorEmail = requestor.getEmail();
 
             messageText += MessageFormat.format(pattern,
                                                 dataFile.getOwner().getDisplayName(), requestorName,

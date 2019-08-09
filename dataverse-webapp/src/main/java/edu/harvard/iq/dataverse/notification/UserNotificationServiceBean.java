@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.notification.dto.EmailNotificationMapper;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
-import io.vavr.Tuple2;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -22,7 +21,6 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -93,30 +91,43 @@ public class UserNotificationServiceBean {
         save(userNotification);
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, NotificationObjectType> dvObjectIdAndType) {
-        sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, "");
-    }
-
-    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, Tuple2<Long, NotificationObjectType> dvObjectIdAndType, String comment) {
-        sendNotification(dataverseUser, sendDate, type, dvObjectIdAndType, comment, Optional.empty());
-    }
-
     public void sendNotification(AuthenticatedUser dataverseUser,
                                  Timestamp sendDate,
                                  NotificationType type,
-                                 Tuple2<Long, NotificationObjectType> dvObjectIdAndType,
-                                 String comment,
-                                 Optional<AuthenticatedUser> requestor) {
+                                 long dvObjectId,
+                                 NotificationObjectType notificationObjectType) {
 
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
-        userNotification.setObjectId(dvObjectIdAndType._1());
+        userNotification.setObjectId(dvObjectId);
 
-        requestor.ifPresent(userNotification::setRequestor);
+        if (mailService.sendNotificationEmail(mailMapper.toDto(userNotification, dvObjectId, notificationObjectType))) {
+            logger.fine("email was sent");
+            userNotification.setEmailed(true);
+            save(userNotification);
+        } else {
+            logger.fine("email was not sent");
+            save(userNotification);
+        }
+    }
 
-        if (mailService.sendNotificationEmail(mailMapper.toDto(userNotification, dvObjectIdAndType), requestor)) {
+    public void sendNotification(AuthenticatedUser dataverseUser,
+                                 Timestamp sendDate,
+                                 NotificationType type,
+                                 long dvObjectId,
+                                 NotificationObjectType notificationObjectType,
+                                 AuthenticatedUser requestor) {
+
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUser(dataverseUser);
+        userNotification.setSendDate(sendDate);
+        userNotification.setType(type);
+        userNotification.setObjectId(dvObjectId);
+        userNotification.setRequestor(requestor);
+
+        if (mailService.sendNotificationEmail(mailMapper.toDto(userNotification, dvObjectId, notificationObjectType), requestor)) {
             logger.fine("email was sent");
             userNotification.setEmailed(true);
             save(userNotification);

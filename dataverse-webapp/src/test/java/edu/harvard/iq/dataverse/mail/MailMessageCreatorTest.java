@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.mail;
 
+import com.google.common.collect.Sets;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
@@ -9,7 +10,9 @@ import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
+import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple2;
@@ -27,12 +30,11 @@ import org.simplejavamail.email.Recipient;
 
 import javax.mail.internet.InternetAddress;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class MailMessageCreatorTest {
+public class MailMessageCreatorTest {
 
     private MailMessageCreator mailMessageCreator;
 
@@ -56,17 +58,17 @@ class MailMessageCreatorTest {
     private static String SITEURL = "http://localhost:8080";
     private static String ROOTDVNAME = "Root";
     private static String SYSTEMEMAIL = "test@icm.pl";
-    private static String ADMIN = "Admin";
 
     private Dataverse testDataverse = createTestDataverse();
 
     @BeforeEach
     void prepare() {
 
-        Dataverse rootDataverse = new Dataverse();
-        rootDataverse.setName(ROOTDVNAME);
+        Dataverse rootDataverse = createRootDataverse(ROOTDVNAME);
 
-        Mockito.when(permissionService.getRoleStringFromUser(Mockito.any(), Mockito.any(Dataverse.class))).thenReturn(ADMIN);
+        RoleAssignment roleAssignment = createRoleAssignment();
+
+        Mockito.when(permissionService.getRolesOfUser(Mockito.any(), Mockito.any(Dataverse.class))).thenReturn(Sets.newHashSet(roleAssignment));
         Mockito.when(dataverseService.findRootDataverse()).thenReturn(rootDataverse);
         Mockito.when(dataverseService.find(createDataverseEmailNotificationDto().getDvObjectId())).thenReturn(testDataverse);
         Mockito.when(systemConfig.getDataverseSiteUrl()).thenReturn(SITEURL);
@@ -77,7 +79,7 @@ class MailMessageCreatorTest {
     }
 
     @Test
-    void createMailFooterMessage() {
+    public void createMailFooterMessage() {
         //given
         InternetAddress systemEmail = MailUtil.parseSystemAddress(SYSTEMEMAIL);
         String messageText = "Nice message";
@@ -91,7 +93,7 @@ class MailMessageCreatorTest {
     }
 
     @Test
-    void createRecipients() {
+    public void createRecipients() {
         //given
         String emailRecipients = "mietek@icm.pl,janusz@icm.pl,zdzichu@icm.pl";
 
@@ -115,10 +117,23 @@ class MailMessageCreatorTest {
         EmailNotificationDto testEmailNotificationDto = createDataverseEmailNotificationDto();
 
         //when
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, Optional.empty(), "test@icm.pl");
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, "test@icm.pl");
 
         //then
         Assert.assertEquals(getCreateDataverseMessage(), messageAndSubject._1);
+        Assert.assertEquals(getCreateDataverseSubject(), messageAndSubject._2);
+    }
+
+    @Test
+    public void getMessageAndSubject_ForCreateDataverse_WrongArgument() {
+        //given
+        EmailNotificationDto testEmailNotificationDto = createIncorrectNotificationDto();
+
+        //when
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, "test@icm.pl");
+
+        //then
+        Assert.assertEquals(StringUtils.EMPTY, messageAndSubject._1);
         Assert.assertEquals(getCreateDataverseSubject(), messageAndSubject._2);
     }
 
@@ -128,9 +143,10 @@ class MailMessageCreatorTest {
         EmailNotificationDto testEmailNotificationDto = createAssignRoleEmailNotificationDto();
 
         //when
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, Optional.empty(), "test@icm.pl");
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, "test@icm.pl");
 
         //then
+        String ADMIN = "admin";
         Assert.assertEquals(getAssignRoleMessage(ADMIN, "dataverse"), messageAndSubject._1);
         Assert.assertEquals(getAssignRoleSubject(), messageAndSubject._2);
     }
@@ -163,8 +179,7 @@ class MailMessageCreatorTest {
     }
 
     private Dataverse createTestDataverse() {
-        Dataverse dataverse = new Dataverse();
-        dataverse.setName("NICE DATAVERSE");
+        Dataverse dataverse = createRootDataverse("NICE DATAVERSE");
         dataverse.setAlias("nicedataverse");
 
         return dataverse;
@@ -178,11 +193,41 @@ class MailMessageCreatorTest {
                                         new AuthenticatedUser());
     }
 
+    private EmailNotificationDto createIncorrectNotificationDto() {
+        return new EmailNotificationDto("useremail@test.com",
+                                        NotificationType.CREATEDV,
+                                        1L,
+                                        NotificationObjectType.AUTHENTICATED_USER,
+                                        new AuthenticatedUser());
+    }
+
     private EmailNotificationDto createAssignRoleEmailNotificationDto() {
         return new EmailNotificationDto("useremail@test.com",
                                         NotificationType.ASSIGNROLE,
                                         1L,
                                         NotificationObjectType.DATAVERSE,
                                         new AuthenticatedUser());
+    }
+
+    private EmailNotificationDto createRequestFileAccessNotificationDto() {
+        return new EmailNotificationDto("useremail@test.com",
+                                        NotificationType.REQUESTFILEACCESS,
+                                        1L,
+                                        NotificationObjectType.DATAFILE,
+                                        new AuthenticatedUser());
+    }
+
+    private Dataverse createRootDataverse(String rootdvname) {
+        Dataverse rootDataverse = new Dataverse();
+        rootDataverse.setName(rootdvname);
+        return rootDataverse;
+    }
+
+    private RoleAssignment createRoleAssignment() {
+        RoleAssignment roleAssignment = new RoleAssignment();
+        DataverseRole dataverseRole = new DataverseRole();
+        dataverseRole.setAlias(DataverseRole.ADMIN);
+        roleAssignment.setRole(dataverseRole);
+        return roleAssignment;
     }
 }

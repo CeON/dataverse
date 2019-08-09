@@ -20,14 +20,13 @@ import org.mockito.quality.Strictness;
 import org.simplejavamail.mailer.Mailer;
 
 import javax.mail.internet.InternetAddress;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class MailServiceBeanTest {
+public class MailServiceTest {
 
     private MailService mailService;
 
@@ -47,8 +46,7 @@ public class MailServiceBeanTest {
     public void prepare() {
         Mockito.when(settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail)).thenReturn("test@email.com");
         Mockito.when(mailMessageCreator.getMessageAndSubject(any(EmailNotificationDto.class),
-                                                             any(),
-                                                             anyString()))
+                                                             any(AuthenticatedUser.class)))
                 .thenReturn(Tuple.of("Nice Message", "Nice Subject"));
 
         Mockito.when(mailMessageCreator.createMailFooterMessage(anyString(), anyString(), any(InternetAddress.class)))
@@ -70,7 +68,7 @@ public class MailServiceBeanTest {
         EmailNotificationDto testEmailNotificationDto = createTestEmailNotificationDto();
 
         //when
-        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, Optional.of(new AuthenticatedUser()));
+        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, new AuthenticatedUser());
 
         //then
         Assert.assertTrue(emailSent);
@@ -92,7 +90,7 @@ public class MailServiceBeanTest {
         EmailNotificationDto testEmailNotificationDto = createTestEmailNotificationDto();
 
         //when
-        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, Optional.of(new AuthenticatedUser()));
+        Boolean emailSent = mailService.sendNotificationEmail(testEmailNotificationDto, new AuthenticatedUser());
 
         //then
         Assert.assertFalse(emailSent);

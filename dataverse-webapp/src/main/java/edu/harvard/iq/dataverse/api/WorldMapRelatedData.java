@@ -27,7 +27,6 @@ import edu.harvard.iq.dataverse.persistence.worldmap.WorldMapToken;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.worldmapauth.TokenApplicationTypeServiceBean;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
-import io.vavr.Tuple;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -632,7 +631,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
 
         // notify user
         userNotificationService.sendNotification(dvUser, wmToken.getCurrentTimestamp(), NotificationType.MAPLAYERUPDATED,
-                                                 Tuple.of(dfile.getOwner().getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION));
+                                                 dfile.getOwner().getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION);
 
         // ------------------------------------------
         // Retrieve a PNG representation from WorldMap

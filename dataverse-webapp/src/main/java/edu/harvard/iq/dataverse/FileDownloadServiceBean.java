@@ -22,7 +22,6 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import io.vavr.Tuple;
 import org.primefaces.PrimeFaces;
 
 import javax.ejb.EJB;
@@ -40,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -468,7 +466,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
 
         Stream.concat(usersWithManageDsPerm, usersWithManageMinorDsPerm).distinct().forEach((au) ->
                                                                                                     userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REQUESTFILEACCESS,
-                                                                                                                                             Tuple.of(fileId, NotificationObjectType.DATAFILE), null, Optional.of(requestor)));
+                                                                                                                                             fileId, NotificationObjectType.DATAFILE, requestor));
     }
 
 

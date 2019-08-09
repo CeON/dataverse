@@ -57,7 +57,6 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
-import io.vavr.Tuple;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -1120,7 +1119,7 @@ public class Access extends AbstractApiBean {
         try {
             AuthenticatedUser au = (AuthenticatedUser) ra;
             userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS,
-                                                     Tuple.of(dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER));
+                                                     dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER);
         } catch (ClassCastException e) {
             //nothing to do here - can only send a notification to an authenticated user
         }
@@ -1250,7 +1249,7 @@ public class Access extends AbstractApiBean {
             try {
                 AuthenticatedUser au = (AuthenticatedUser) ra;
                 userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS,
-                                                         Tuple.of(dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER));
+                                                         dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER);
             } catch (ClassCastException e) {
                 //nothing to do here - can only send a notification to an authenticated user
             }

@@ -90,7 +90,6 @@ import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
-import io.vavr.Tuple;
 import io.vavr.control.Either;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -1347,12 +1346,12 @@ public class Datasets extends AbstractApiBean {
                 Map<String, AuthenticatedUser> distinctAuthors = permissionService.getDistinctUsersWithPermissionOn(Permission.EditDataset, dataset);
                 distinctAuthors.values().forEach((value) -> {
                     userNotificationService.sendNotification(value, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL,
-                                                             Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
+                                                             dataset.getId(), NotificationObjectType.DATASET);
                 });
                 List<AuthenticatedUser> superUsers = authenticationServiceBean.findSuperUsers();
                 if (superUsers != null && !superUsers.isEmpty()) {
                     superUsers.forEach((au) -> {
-                        userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL, Tuple.of(dataset.getId(), NotificationObjectType.DATASET));
+                        userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.CHECKSUMFAIL, dataset.getId(), NotificationObjectType.DATASET);
                     });
                 }
                 return ok("User notified about checksum validation failure.");

@@ -19,7 +19,6 @@ import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLev
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import io.vavr.Tuple;
 import io.vavr.control.Either;
 import org.primefaces.model.DualListModel;
 
@@ -111,7 +110,7 @@ public class DataverseSaver {
         executorService.execute(() ->
                                         userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
                                                                                  NotificationType.CREATEDV,
-                                                                                 Tuple.of(dataverse.getId(), NotificationObjectType.DATASET)));
+                                                                                 dataverse.getId(), NotificationObjectType.DATASET));
 
         executorService.shutdown();
     }

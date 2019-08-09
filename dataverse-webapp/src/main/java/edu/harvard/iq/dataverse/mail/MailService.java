@@ -24,8 +24,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -74,12 +72,30 @@ public class MailService implements java.io.Serializable {
      *
      * @return true if email was sent or false if some error occurred and email could not be sent.
      */
-    public Boolean sendNotificationEmail(EmailNotificationDto notification, Optional<AuthenticatedUser> requestor) {
+    public Boolean sendNotificationEmail(EmailNotificationDto notification) {
 
         String userEmail = notification.getUserEmail();
         String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
 
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, requestor, systemEmail);
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, systemEmail);
+
+        if (messageAndSubject._1().isEmpty() || messageAndSubject._2().isEmpty()) {
+            return false;
+        }
+
+        return sendMail(userEmail, messageAndSubject._2(), messageAndSubject._1());
+    }
+
+    /**
+     * Gathers template messages for given notification and sends email.
+     *
+     * @return true if email was sent or false if some error occurred and email could not be sent.
+     */
+    public Boolean sendNotificationEmail(EmailNotificationDto notification, AuthenticatedUser requestor) {
+
+        String userEmail = notification.getUserEmail();
+
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, requestor);
 
         if (messageAndSubject._1().isEmpty() && messageAndSubject._2().isEmpty()) {
             return false;
@@ -136,7 +152,7 @@ public class MailService implements java.io.Serializable {
     private InternetAddress getSystemAddress() {
         String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
 
-        return Try.of(() -> new InternetAddress(systemEmail, StringUtils.EMPTY, StandardCharsets.UTF_8.name()))
+        return Try.of(() -> new InternetAddress(systemEmail))
                 .getOrElseThrow(throwable -> new IllegalArgumentException("Email will not be sent due to invalid email: " + systemEmail));
     }
 

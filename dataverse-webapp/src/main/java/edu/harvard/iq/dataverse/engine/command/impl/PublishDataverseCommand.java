@@ -13,7 +13,6 @@ import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.search.IndexResponse;
-import io.vavr.Tuple;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -49,7 +48,7 @@ public class PublishDataverseCommand extends AbstractCommand<Dataverse> {
             if (ra.getRole().permissions().contains(Permission.DownloadFile)) {
                 for (AuthenticatedUser au : ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier()))) {
                     ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.ASSIGNROLE,
-                                                          Tuple.of(dataverse.getId(), NotificationObjectType.DATAVERSE));
+                                                          dataverse.getId(), NotificationObjectType.DATAVERSE);
                 }
             }
         }

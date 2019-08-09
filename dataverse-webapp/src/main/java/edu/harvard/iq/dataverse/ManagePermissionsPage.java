@@ -28,8 +28,6 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssigneeDisplayInfo;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.ejb.EJB;
@@ -476,29 +474,29 @@ public class ManagePermissionsPage implements java.io.Serializable {
      */
     private void notifyRoleChange(RoleAssignee ra, NotificationType type) {
         if (ra instanceof AuthenticatedUser) {
-            userNotificationService.sendNotification((AuthenticatedUser) ra, new Timestamp(new Date().getTime()), type, determinateObjectType(dvObject));
+            userNotificationService.sendNotification((AuthenticatedUser) ra, new Timestamp(new Date().getTime()), type, dvObject.getId(), determinateObjectType(dvObject));
         } else if (ra instanceof ExplicitGroup) {
             ExplicitGroup eg = (ExplicitGroup) ra;
             Set<String> explicitGroupMembers = eg.getContainedRoleAssgineeIdentifiers();
             for (String id : explicitGroupMembers) {
                 RoleAssignee explicitGroupMember = roleAssigneeService.getRoleAssignee(id);
                 if (explicitGroupMember instanceof AuthenticatedUser) {
-                    userNotificationService.sendNotification((AuthenticatedUser) explicitGroupMember, new Timestamp(new Date().getTime()), type, determinateObjectType(dvObject));
+                    userNotificationService.sendNotification((AuthenticatedUser) explicitGroupMember, new Timestamp(new Date().getTime()), type, dvObject.getId(), determinateObjectType(dvObject));
                 }
             }
         }
     }
 
-    private Tuple2<Long, NotificationObjectType> determinateObjectType(DvObject dvObject) {
+    private NotificationObjectType determinateObjectType(DvObject dvObject) {
 
         if (dvObject instanceof Dataverse) {
-            return Tuple.of(dvObject.getId(), NotificationObjectType.DATAVERSE);
+            return NotificationObjectType.DATAVERSE;
         }
         if (dvObject instanceof Dataset) {
-            return Tuple.of(dvObject.getId(), NotificationObjectType.DATASET);
+            return NotificationObjectType.DATASET;
         }
 
-        return Tuple.of(dvObject.getId(), NotificationObjectType.DATAFILE);
+        return NotificationObjectType.DATAFILE;
     }
 
     private void assignRole(RoleAssignee ra, DataverseRole r) {

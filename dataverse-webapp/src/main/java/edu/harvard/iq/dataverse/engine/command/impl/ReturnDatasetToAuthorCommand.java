@@ -13,7 +13,6 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowComment;
-import io.vavr.Tuple;
 
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class ReturnDatasetToAuthorCommand extends AbstractDatasetCommand<Dataset
         authors.removeAll(reviewers);
         for (AuthenticatedUser au : authors) {
             ctxt.notifications().sendNotification(au, getTimestamp(), NotificationType.RETURNEDDS,
-                                                  Tuple.of(savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION), comment);
+                                                  savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION);
         }
 
 

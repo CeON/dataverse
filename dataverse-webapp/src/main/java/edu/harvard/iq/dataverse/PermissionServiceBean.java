@@ -27,7 +27,6 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -36,7 +35,6 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -801,7 +799,7 @@ public class PermissionServiceBean {
 
 
     /**
-     * Returns a '/'-separated string of roles that are effective for {@code au}
+     * Returns roles that are effective for {@code au}
      * over {@code dvObj}. Traverses the containment hierarchy of the {@code d}.
      * Takes into consideration all groups that {@code au} is part of.
      *
@@ -809,21 +807,16 @@ public class PermissionServiceBean {
      * @param dvObj The Dataverse object over which the roles are assigned
      * @return A set of all the role assignments for {@code ra} over {@code d}.
      */
-    public String getRoleStringFromUser(AuthenticatedUser au, DvObject dvObj) {
-        // Find user's role(s) for given dataverse/dataset
-        Set<RoleAssignment> roles = assignmentsFor(au, dvObj);
-        List<String> roleNames = new ArrayList<>();
+    public Set<RoleAssignment> getRolesOfUser(AuthenticatedUser au, DvObject dvObj) {
 
-        // Include roles derived from a user's groups
+        Set<RoleAssignment> roles = assignmentsFor(au, dvObj);
+
         Set<Group> groupsUserBelongsTo = groupService.groupsFor(au, dvObj);
         for (Group g : groupsUserBelongsTo) {
             roles.addAll(assignmentsFor(g, dvObj));
         }
 
-        for (RoleAssignment ra : roles) {
-            roleNames.add(ra.getRole().getAlias());
-        }
-        return StringUtils.join(roleNames, "/");
+        return roles;
     }
 
 }
