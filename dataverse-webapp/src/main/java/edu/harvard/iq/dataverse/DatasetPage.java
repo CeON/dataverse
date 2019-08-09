@@ -43,7 +43,7 @@ import edu.harvard.iq.dataverse.license.LicenseDAO;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
-import edu.harvard.iq.dataverse.notification.UserNotificationServiceBean;
+import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
@@ -168,7 +168,7 @@ public class DatasetPage implements java.io.Serializable {
     @Inject
     DataverseSession session;
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    UserNotificationService userNotificationService;
     @EJB
     MapLayerMetadataServiceBean mapLayerMetadataService;
     @EJB

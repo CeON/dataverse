@@ -11,7 +11,7 @@ import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationFailedExc
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.notification.UserNotificationServiceBean;
+import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
 import edu.harvard.iq.dataverse.persistence.config.ValidateEmail;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -61,7 +61,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
     BuiltinUserServiceBean builtinUserSvc;
 
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    UserNotificationService userNotificationService;
 
     @EJB
     SystemConfig systemConfig;

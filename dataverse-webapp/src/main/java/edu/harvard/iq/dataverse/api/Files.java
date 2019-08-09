@@ -19,13 +19,13 @@ import edu.harvard.iq.dataverse.engine.command.impl.UningestFileCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
-import edu.harvard.iq.dataverse.notification.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.User;
+import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -67,7 +67,7 @@ public class Files extends AbstractApiBean {
     @EJB
     EjbDataverseEngine commandEngine;
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    UserNotificationDao userNotificationDao;
     @EJB
     SystemConfig systemConfig;
     @EJB

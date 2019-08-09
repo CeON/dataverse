@@ -12,7 +12,7 @@ import edu.harvard.iq.dataverse.MapLayerMetadataServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
-import edu.harvard.iq.dataverse.notification.UserNotificationServiceBean;
+import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
@@ -99,7 +99,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
     DataFileServiceBean dataFileService;
 
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    UserNotificationService userNotificationService;
 
     @EJB
     WorldMapTokenServiceBean tokenServiceBean;
