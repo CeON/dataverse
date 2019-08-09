@@ -60,10 +60,16 @@
 
                     <ui:include src="editFilesFragment.xhtml">
                         <ui:param name="editDatafilesPage" value="true"/>
+                        <ui:param name="datasetPage" value="false"/>
                         <ui:param name="createDataset" value="false"/>
                         <ui:param name="showFileButtonUpdate" value="true"/>
                         <ui:param name="version" value="#{EditDatafilesPage.workingVersion}"/>
                         <ui:param name="lockedFromEdits" value="#{EditDatafilesPage.lockedFromEdits}"/>
+                        <ui:param name="fileUploadFragment" value="#{EditDatafilesPage.showFileUploadFragment()}"/>
+                        <ui:param name="fileUploadMultiple" value="#{EditDatafilesPage.allowMultipleFileUpload()}" />
+                        <ui:param name="fileUploadDisabled" value="#{!EditDatafilesPage.showFileUploadComponent()}" />
+                        <ui:param name="filesTableEmptyMessage" value="#{EditDatafilesPage.showFileUploadFragment()}" />
+                        <ui:param name="fileTermsOfUse" value="#{EditDatafilesPage.mode eq 'UPLOAD'}" />
                         </ui:include>
                     </div>
 
