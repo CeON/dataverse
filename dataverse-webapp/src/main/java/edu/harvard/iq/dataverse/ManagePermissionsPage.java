@@ -474,14 +474,14 @@ public class ManagePermissionsPage implements java.io.Serializable {
      */
     private void notifyRoleChange(RoleAssignee ra, NotificationType type) {
         if (ra instanceof AuthenticatedUser) {
-            userNotificationService.sendNotification((AuthenticatedUser) ra, new Timestamp(new Date().getTime()), type, dvObject.getId(), determinateObjectType(dvObject));
+            userNotificationService.sendNotificationWithEmail((AuthenticatedUser) ra, new Timestamp(new Date().getTime()), type, dvObject.getId(), determinateObjectType(dvObject));
         } else if (ra instanceof ExplicitGroup) {
             ExplicitGroup eg = (ExplicitGroup) ra;
             Set<String> explicitGroupMembers = eg.getContainedRoleAssgineeIdentifiers();
             for (String id : explicitGroupMembers) {
                 RoleAssignee explicitGroupMember = roleAssigneeService.getRoleAssignee(id);
                 if (explicitGroupMember instanceof AuthenticatedUser) {
-                    userNotificationService.sendNotification((AuthenticatedUser) explicitGroupMember, new Timestamp(new Date().getTime()), type, dvObject.getId(), determinateObjectType(dvObject));
+                    userNotificationService.sendNotificationWithEmail((AuthenticatedUser) explicitGroupMember, new Timestamp(new Date().getTime()), type, dvObject.getId(), determinateObjectType(dvObject));
                 }
             }
         }

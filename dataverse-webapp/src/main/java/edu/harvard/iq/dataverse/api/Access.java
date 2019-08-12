@@ -1118,8 +1118,8 @@ public class Access extends AbstractApiBean {
 
         try {
             AuthenticatedUser au = (AuthenticatedUser) ra;
-            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS,
-                                                     dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER);
+            userNotificationService.sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.GRANTFILEACCESS,
+                                                              dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER);
         } catch (ClassCastException e) {
             //nothing to do here - can only send a notification to an authenticated user
         }
@@ -1248,8 +1248,8 @@ public class Access extends AbstractApiBean {
 
             try {
                 AuthenticatedUser au = (AuthenticatedUser) ra;
-                userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS,
-                                                         dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER);
+                userNotificationService.sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.REJECTFILEACCESS,
+                                                                  dataFile.getOwner().getId(), NotificationObjectType.AUTHENTICATED_USER);
             } catch (ClassCastException e) {
                 //nothing to do here - can only send a notification to an authenticated user
             }

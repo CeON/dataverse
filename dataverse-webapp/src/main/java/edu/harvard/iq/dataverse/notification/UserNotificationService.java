@@ -39,26 +39,22 @@ public class UserNotificationService {
 
     // -------------------- LOGIC --------------------
 
-    public void sendNotificationWithoutEmail(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type) {
+    public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type) {
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
 
-        userNotificationDao.update(userNotification);
+        userNotificationDao.save(userNotification);
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser,
-                                 Timestamp sendDate,
-                                 NotificationType type,
-                                 long dvObjectId,
-                                 NotificationObjectType notificationObjectType) {
+    public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
+                                          Timestamp sendDate,
+                                          NotificationType type,
+                                          long dvObjectId,
+                                          NotificationObjectType notificationObjectType) {
 
-        UserNotification userNotification = new UserNotification();
-        userNotification.setUser(dataverseUser);
-        userNotification.setSendDate(sendDate);
-        userNotification.setType(type);
-        userNotification.setObjectId(dvObjectId);
+        UserNotification userNotification = createUserNotification(dataverseUser, sendDate, type, dvObjectId);
 
         userNotificationDao.save(userNotification);
         userNotificationDao.flush();
@@ -68,19 +64,14 @@ public class UserNotificationService {
         executorService.submit(() -> sendEmail(emailNotificationDto));
     }
 
-    public void sendNotification(AuthenticatedUser dataverseUser,
-                                 Timestamp sendDate,
-                                 NotificationType type,
-                                 long dvObjectId,
-                                 NotificationObjectType notificationObjectType,
-                                 AuthenticatedUser requestor) {
+    public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
+                                          Timestamp sendDate,
+                                          NotificationType type,
+                                          long dvObjectId,
+                                          NotificationObjectType notificationObjectType,
+                                          AuthenticatedUser requestor) {
 
-        UserNotification userNotification = new UserNotification();
-        userNotification.setUser(dataverseUser);
-        userNotification.setSendDate(sendDate);
-        userNotification.setType(type);
-        userNotification.setObjectId(dvObjectId);
-        userNotification.setRequestor(requestor);
+        UserNotification userNotification = createUserNotification(dataverseUser, sendDate, type, dvObjectId, requestor);
 
         userNotificationDao.save(userNotification);
         userNotificationDao.flush();
@@ -92,19 +83,43 @@ public class UserNotificationService {
 
     // -------------------- PRIVATE --------------------
 
-    private void sendEmail(EmailNotificationDto emailNotificationDto, AuthenticatedUser requester) {
+    private boolean sendEmail(EmailNotificationDto emailNotificationDto, AuthenticatedUser requester) {
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto, requester);
 
         if (emailSent) {
             userNotificationDao.updateEmailSent(emailNotificationDto.getUserNotificationId());
         }
+
+        return emailSent;
     }
 
-    private void sendEmail(EmailNotificationDto emailNotificationDto) {
+    private boolean sendEmail(EmailNotificationDto emailNotificationDto) {
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto);
 
         if (emailSent) {
             userNotificationDao.updateEmailSent(emailNotificationDto.getUserNotificationId());
         }
+
+        return emailSent;
+    }
+
+    private UserNotification createUserNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type,
+                                                    long dvObjectId, AuthenticatedUser requestor) {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUser(dataverseUser);
+        userNotification.setSendDate(sendDate);
+        userNotification.setType(type);
+        userNotification.setObjectId(dvObjectId);
+        userNotification.setRequestor(requestor);
+        return userNotification;
+    }
+
+    private UserNotification createUserNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, long dvObjectId) {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUser(dataverseUser);
+        userNotification.setSendDate(sendDate);
+        userNotification.setType(type);
+        userNotification.setObjectId(dvObjectId);
+        return userNotification;
     }
 }

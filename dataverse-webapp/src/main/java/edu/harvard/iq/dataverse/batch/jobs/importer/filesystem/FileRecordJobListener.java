@@ -315,16 +315,16 @@ public class FileRecordJobListener implements ItemReadListener, StepListener, Jo
                 // [1] save json log to file
                 LoggingUtil.saveJsonLog(jobJson, logDir, jobId);
                 // [2] send user notifications - to all authors
-                userNotificationService.sendNotification(user, timestamp, notifyType, datasetVersionId, NotificationObjectType.DATASET_VERSION);
+                userNotificationService.sendNotificationWithEmail(user, timestamp, notifyType, datasetVersionId, NotificationObjectType.DATASET_VERSION);
                 Map<String, AuthenticatedUser> distinctAuthors = permissionServiceBean.getDistinctUsersWithPermissionOn(Permission.EditDataset, dataset);
                 distinctAuthors.values().forEach((value) -> {
-                    userNotificationService.sendNotification(value, new Timestamp(new Date().getTime()), notifyType, datasetVersionId, NotificationObjectType.DATASET_VERSION);
+                    userNotificationService.sendNotificationWithEmail(value, new Timestamp(new Date().getTime()), notifyType, datasetVersionId, NotificationObjectType.DATASET_VERSION);
                 });
                 // [3] send SuperUser notification
                 List<AuthenticatedUser> superUsers = authenticationServiceBean.findSuperUsers();
                 if (superUsers != null && !superUsers.isEmpty()) {
                     superUsers.forEach((au) -> {
-                        userNotificationService.sendNotification(au, timestamp, notifyType, datasetVersionId, NotificationObjectType.DATASET_VERSION);
+                        userNotificationService.sendNotificationWithEmail(au, timestamp, notifyType, datasetVersionId, NotificationObjectType.DATASET_VERSION);
                     });
                 }
                 // [4] action log: store location of the full log to avoid truncation issues

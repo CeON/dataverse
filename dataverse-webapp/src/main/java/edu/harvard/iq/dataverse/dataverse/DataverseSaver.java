@@ -108,9 +108,9 @@ public class DataverseSaver {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         executorService.execute(() ->
-                                        userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
-                                                                                 NotificationType.CREATEDV,
-                                                                                 dataverse.getId(), NotificationObjectType.DATASET));
+                                        userNotificationService.sendNotificationWithEmail((AuthenticatedUser) user, dataverse.getCreateDate(),
+                                                                                          NotificationType.CREATEDV,
+                                                                                          dataverse.getId(), NotificationObjectType.DATASET));
 
         executorService.shutdown();
     }

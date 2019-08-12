@@ -306,9 +306,9 @@ public class Shib implements java.io.Serializable {
              * @todo Move this to
              * AuthenticationServiceBean.createAuthenticatedUser
              */
-            userNotificationService.sendNotificationWithoutEmail(au,
-                                                                 new Timestamp(new Date().getTime()),
-                                                                 NotificationType.CREATEACC);
+            userNotificationService.sendNotification(au,
+                                                     new Timestamp(new Date().getTime()),
+                                                     NotificationType.CREATEACC);
             return "/dataverseuser.xhtml?selectTab=accountInfo&faces-redirect=true";
         } else {
             JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("shib.createUser.fail"));

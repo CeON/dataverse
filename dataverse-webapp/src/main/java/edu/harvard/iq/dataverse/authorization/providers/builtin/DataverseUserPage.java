@@ -337,9 +337,9 @@ public class DataverseUserPage implements java.io.Serializable {
              * @todo Move this to
              * AuthenticationServiceBean.createAuthenticatedUser
              */
-            userNotificationService.sendNotificationWithoutEmail(au,
-                                                                 new Timestamp(new Date().getTime()),
-                                                                 NotificationType.FILESYSTEMIMPORT.CREATEACC);
+            userNotificationService.sendNotification(au,
+                                                     new Timestamp(new Date().getTime()),
+                                                     NotificationType.FILESYSTEMIMPORT.CREATEACC);
 
             // go back to where user came from
 

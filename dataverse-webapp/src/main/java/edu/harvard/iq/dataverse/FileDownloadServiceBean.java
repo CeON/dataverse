@@ -465,8 +465,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         Stream<AuthenticatedUser> usersWithManageMinorDsPerm = permissionService.getUsersWithPermissionOn(Permission.ManageMinorDatasetPermissions, dataset).stream();
 
         Stream.concat(usersWithManageDsPerm, usersWithManageMinorDsPerm).distinct().forEach((au) ->
-                                                                                                    userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), NotificationType.REQUESTFILEACCESS,
-                                                                                                                                             fileId, NotificationObjectType.DATAFILE, requestor));
+                                                                                                    userNotificationService.sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.REQUESTFILEACCESS,
+                                                                                                                                                      fileId, NotificationObjectType.DATAFILE, requestor));
     }
 
 

@@ -196,9 +196,9 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
         /**
          * @todo Move this to AuthenticationServiceBean.createAuthenticatedUser
          */
-        userNotificationService.sendNotificationWithoutEmail(user,
-                                                             new Timestamp(new Date().getTime()),
-                                                             NotificationType.CREATEACC);
+        userNotificationService.sendNotification(user,
+                                                 new Timestamp(new Date().getTime()),
+                                                 NotificationType.CREATEACC);
 
         final OAuth2TokenData tokenData = newUser.getTokenData();
         tokenData.setUser(user);

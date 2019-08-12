@@ -630,8 +630,8 @@ public class WorldMapRelatedData extends AbstractApiBean {
 
 
         // notify user
-        userNotificationService.sendNotification(dvUser, wmToken.getCurrentTimestamp(), NotificationType.MAPLAYERUPDATED,
-                                                 dfile.getOwner().getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION);
+        userNotificationService.sendNotificationWithEmail(dvUser, wmToken.getCurrentTimestamp(), NotificationType.MAPLAYERUPDATED,
+                                                          dfile.getOwner().getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION);
 
         // ------------------------------------------
         // Retrieve a PNG representation from WorldMap
