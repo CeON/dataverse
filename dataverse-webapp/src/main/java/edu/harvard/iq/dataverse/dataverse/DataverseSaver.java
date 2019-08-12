@@ -25,8 +25,6 @@ import org.primefaces.model.DualListModel;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -105,13 +103,10 @@ public class DataverseSaver {
     // -------------------- PRIVATE --------------------
 
     private void sendSuccessNotificationAsync(Dataverse dataverse, User user) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-        executorService.execute(() ->
-                                        userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
-                                                                                 NotificationType.CREATEDV,
-                                                                                 dataverse.getId(), NotificationObjectType.DATASET));
+        userNotificationService.sendNotification((AuthenticatedUser) user, dataverse.getCreateDate(),
+                                                 NotificationType.CREATEDV,
+                                                 dataverse.getId(), NotificationObjectType.DATAVERSE);
 
-        executorService.shutdown();
     }
 }

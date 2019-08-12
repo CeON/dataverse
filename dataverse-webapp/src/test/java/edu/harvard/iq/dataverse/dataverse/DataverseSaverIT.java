@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.dataverse;
 
+import com.github.sleroy.fakesmtp.core.ServerConfiguration;
+import com.github.sleroy.junit.mail.server.test.FakeSmtpRule;
 import com.google.api.client.util.Lists;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
@@ -16,6 +18,7 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -48,6 +51,9 @@ public class DataverseSaverIT extends ArquillianDeployment {
     @Inject
     private DataverseServiceBean dataverseServiceBean;
 
+    @Rule
+    public FakeSmtpRule smtpServer = new FakeSmtpRule(ServerConfiguration.create().port(2525).charset("UTF-8"));
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -70,6 +76,7 @@ public class DataverseSaverIT extends ArquillianDeployment {
         //then
         Assert.assertTrue(savedDataverse.isRight());
         Assert.assertEquals(2, dataverseServiceBean.findAll().size());
+
     }
 
     @Test
