@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.dataverse;
 
-import com.github.sleroy.fakesmtp.core.ServerConfiguration;
-import com.github.sleroy.junit.mail.server.test.FakeSmtpRule;
 import com.google.api.client.util.Lists;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
@@ -18,7 +16,6 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,6 +25,8 @@ import org.primefaces.model.DualListModel;
 
 import javax.ejb.AsyncResult;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,6 +37,9 @@ import static org.mockito.Mockito.when;
 @RunWith(DataverseArquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 public class DataverseSaverIT extends ArquillianDeployment {
+
+    @PersistenceContext(unitName = "VDCNet-ejbPU")
+    private EntityManager em;
 
     @Inject
     private DataverseSaver dataverseSaver;
@@ -51,9 +53,6 @@ public class DataverseSaverIT extends ArquillianDeployment {
     @Inject
     private DataverseServiceBean dataverseServiceBean;
 
-    @Rule
-    public FakeSmtpRule smtpServer = new FakeSmtpRule(ServerConfiguration.create().port(2525).charset("UTF-8"));
-
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -62,7 +61,9 @@ public class DataverseSaverIT extends ArquillianDeployment {
         when(indexServiceBean.indexDataverse(Mockito.any(Dataverse.class)))
                 .thenReturn(new AsyncResult<>("NICE"));
 
-        dataverseSession.setUser(createUser());
+        AuthenticatedUser user = createUser();
+        em.persist(user);
+        dataverseSession.setUser(user);
     }
 
     @Test
@@ -76,6 +77,8 @@ public class DataverseSaverIT extends ArquillianDeployment {
         //then
         Assert.assertTrue(savedDataverse.isRight());
         Assert.assertEquals(2, dataverseServiceBean.findAll().size());
+        Assert.assertTrue(smtpServer.mailBox().stream()
+                                  .anyMatch(emailModel -> emailModel.getSubject().contains("Your dataverse has been created")));
 
     }
 

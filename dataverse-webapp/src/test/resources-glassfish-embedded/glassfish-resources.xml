@@ -17,7 +17,7 @@
         <property name="createDatabase" value="create"/>
     </jdbc-connection-pool>
     
-    <mail-resource host="localhost" from="test@gmail.com" user="tester"
+    <mail-resource host="localhost" from="systemEmail" user="tester"
                    jndi-name="mail/notifyMailSession">
         <property name="mail.smtp.port" value="2525"/>
     </mail-resource>
