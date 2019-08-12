@@ -515,7 +515,7 @@ public class DataverseUserPage implements java.io.Serializable {
             userNotification.setDisplayAsRead(userNotification.isReadNotification());
             if (userNotification.isReadNotification() == false) {
                 userNotification.setReadNotification(true);
-                userNotificationDao.update(userNotification);
+                userNotificationDao.merge(userNotification);
             }
         }
     }

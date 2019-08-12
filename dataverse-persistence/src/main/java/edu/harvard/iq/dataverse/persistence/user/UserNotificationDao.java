@@ -57,7 +57,7 @@ public class UserNotificationDao {
         em.persist(userNotification);
     }
 
-    public UserNotification update(UserNotification userNotification) {
+    public UserNotification merge(UserNotification userNotification) {
         return em.merge(userNotification);
     }
 

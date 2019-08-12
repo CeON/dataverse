@@ -62,9 +62,8 @@ public class UserNotificationService {
                                           long dvObjectId,
                                           NotificationObjectType notificationObjectType) {
 
-        UserNotification userNotification = createUserNotification(dataverseUser, sendDate, type, dvObjectId);
+        UserNotification userNotification = sendNotification(dataverseUser, sendDate, type, dvObjectId);
 
-        userNotificationDao.save(userNotification);
         userNotificationDao.flush();
 
         EmailNotificationDto emailNotificationDto = mailMapper.toDto(userNotification, dvObjectId, notificationObjectType);
@@ -83,9 +82,8 @@ public class UserNotificationService {
                                           NotificationObjectType notificationObjectType,
                                           AuthenticatedUser requestor) {
 
-        UserNotification userNotification = createUserNotification(dataverseUser, sendDate, type, dvObjectId, requestor);
+        UserNotification userNotification = sendNotification(dataverseUser, sendDate, type, dvObjectId, requestor);
 
-        userNotificationDao.save(userNotification);
         userNotificationDao.flush();
 
         EmailNotificationDto emailNotificationDto = mailMapper.toDto(userNotification, dvObjectId, notificationObjectType);
@@ -115,23 +113,29 @@ public class UserNotificationService {
         return emailSent;
     }
 
-    private UserNotification createUserNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type,
-                                                    long dvObjectId, AuthenticatedUser requestor) {
+    private UserNotification sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type,
+                                              long dvObjectId, AuthenticatedUser requestor) {
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectId);
         userNotification.setRequestor(requestor);
+
+        userNotificationDao.save(userNotification);
+
         return userNotification;
     }
 
-    private UserNotification createUserNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, long dvObjectId) {
+    private UserNotification sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, long dvObjectId) {
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectId);
+
+        userNotificationDao.save(userNotification);
+
         return userNotification;
     }
 
