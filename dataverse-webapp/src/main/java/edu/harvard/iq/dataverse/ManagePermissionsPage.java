@@ -487,7 +487,7 @@ public class ManagePermissionsPage implements java.io.Serializable {
         }
     }
 
-    private NotificationObjectType determinateObjectType(DvObject dvObject) {
+    private NotificationObjectType determineObjectType(DvObject dvObject) {
 
         if (dvObject instanceof Dataverse) {
             return NotificationObjectType.DATAVERSE;
