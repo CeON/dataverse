@@ -14,6 +14,9 @@ import java.sql.Timestamp;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Class responsible for managing user notifications.
+ */
 @Stateless
 public class UserNotificationService {
 
@@ -39,15 +42,20 @@ public class UserNotificationService {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Saves notification to database, hereby sends notification to users dashboard.
+     */
     public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type) {
-        UserNotification userNotification = new UserNotification();
-        userNotification.setUser(dataverseUser);
-        userNotification.setSendDate(sendDate);
-        userNotification.setType(type);
+        UserNotification userNotification = createUserNotification(dataverseUser, sendDate, type);
 
         userNotificationDao.save(userNotification);
     }
 
+    /**
+     * Saves notification to database, then sends email asynchronously.
+     *
+     * @param notificationObjectType - type has to match correct #{@link NotificationType}
+     */
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
                                           Timestamp sendDate,
                                           NotificationType type,
@@ -64,6 +72,10 @@ public class UserNotificationService {
         executorService.submit(() -> sendEmail(emailNotificationDto));
     }
 
+    /**
+     * Saves notification to database, then sends email asynchronously.
+     * @param notificationObjectType - type has to match correct #{@link NotificationType}
+     */
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
                                           Timestamp sendDate,
                                           NotificationType type,
@@ -120,6 +132,14 @@ public class UserNotificationService {
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectId);
+        return userNotification;
+    }
+
+    private UserNotification createUserNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type) {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUser(dataverseUser);
+        userNotification.setSendDate(sendDate);
+        userNotification.setType(type);
         return userNotification;
     }
 }
