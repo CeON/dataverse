@@ -26,7 +26,7 @@ public class ArquillianDeployment {
     @Rule
     public FakeSmtpRule smtpServer = new FakeSmtpRule(ServerConfiguration.create()
                                                               .port(2525)
-                                                              .relayDomains("gmail.com", "mailinator.com")
+                                                              .relayDomains("gmail.com")
                                                               .charset("UTF-8"));
     @Deployment
     public static Archive<?> createDeployment() {
