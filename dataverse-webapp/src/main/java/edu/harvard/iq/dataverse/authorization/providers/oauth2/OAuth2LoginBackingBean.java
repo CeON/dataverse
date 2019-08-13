@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ import static java.util.stream.Collectors.toList;
 public class OAuth2LoginBackingBean implements Serializable {
 
     private static final Logger logger = Logger.getLogger(OAuth2LoginBackingBean.class.getName());
-    private static final long STATE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in msec
+    private static final long STATE_TIMEOUT = TimeUnit.MINUTES.toMillis(15); // 15 minutes in msec
     private int responseCode;
     private String responseBody;
     private Optional<String> redirectPage;
