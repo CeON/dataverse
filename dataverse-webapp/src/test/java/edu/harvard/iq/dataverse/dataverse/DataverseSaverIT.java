@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.GuestUser;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import io.vavr.control.Either;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -24,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import org.primefaces.model.DualListModel;
 
 import javax.ejb.AsyncResult;
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -83,6 +85,21 @@ public class DataverseSaverIT extends ArquillianDeployment {
     }
 
     @Test
+    public void saveNewDataverse_WithWrongUser() {
+        //given
+        Dataverse dataverse = prepareDataverse();
+        dataverseSession.setUser(GuestUser.get());
+
+        //when
+        Either<DataverseError, Dataverse> savedDataverse = dataverseSaver.saveNewDataverse(Lists.newArrayList(), dataverse, new DualListModel<>());
+
+        //then
+        Assert.assertTrue(savedDataverse.isLeft());
+        Assert.assertEquals(1, dataverseServiceBean.findAll().size());
+
+    }
+
+    @Test
     public void saveEditedDataverse() {
         //given
         Dataverse dataverse = dataverseServiceBean.findRootDataverse();
@@ -94,6 +111,20 @@ public class DataverseSaverIT extends ArquillianDeployment {
 
         //then
         Assert.assertNotEquals(oldDataverseName, updatedDataverse.get().getName());
+
+    }
+
+    @Test(expected = EJBTransactionRolledbackException.class)
+    public void saveEditedDataverse_WithNonExistingDataverse() {
+        //given
+        Dataverse dataverse = new Dataverse();
+
+        //when
+        Either<DataverseError, Dataverse> updatedDataverse = dataverseSaver.saveEditedDataverse(Lists.newArrayList(), dataverse, new DualListModel<>());
+
+        //then
+        Assert.assertTrue(updatedDataverse.isLeft());
+        Assert.assertEquals(1, dataverseServiceBean.findAll().size());
 
     }
 
