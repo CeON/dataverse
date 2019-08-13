@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toList;
 public class OAuth2LoginBackingBean implements Serializable {
 
     private static final Logger logger = Logger.getLogger(OAuth2LoginBackingBean.class.getName());
-    private static final long STATE_TIMEOUT = TimeUnit.MINUTES.toMillis(15); // 15 minutes in msec
+    private static final long STATE_TIMEOUT = TimeUnit.MINUTES.toMillis(15);
     private int responseCode;
     private String responseBody;
     private Optional<String> redirectPage;
