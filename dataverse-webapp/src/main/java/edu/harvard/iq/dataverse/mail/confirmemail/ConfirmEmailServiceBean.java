@@ -1,16 +1,17 @@
-package edu.harvard.iq.dataverse.confirmemail;
+package edu.harvard.iq.dataverse.mail.confirmemail;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.MailServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.mail.MailService;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.ConfirmEmailData;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import javax.ejb.EJB;
@@ -39,7 +40,7 @@ public class ConfirmEmailServiceBean {
     AuthenticationServiceBean dataverseUserService;
 
     @EJB
-    MailServiceBean mailService;
+    MailService mailService;
 
     @EJB
     SettingsServiceBean settingsService;
@@ -112,7 +113,6 @@ public class ConfirmEmailServiceBean {
         ));
         logger.log(Level.FINE, "messageBody:{0}", messageBody);
 
-        try {
             String toAddress = aUser.getEmail();
             try {
                 Dataverse rootDataverse = dataverseService.findRootDataverse();
@@ -120,22 +120,19 @@ public class ConfirmEmailServiceBean {
                     String rootDataverseName = rootDataverse.getName();
                     // FIXME: consider refactoring this into MailServiceBean.sendNotificationEmail. CONFIRMEMAIL may be the only type where we don't want an in-app notification.
                     UserNotification userNotification = new UserNotification();
-                    userNotification.setType(UserNotification.Type.CONFIRMEMAIL);
-                    String subject = MailUtil.getSubjectTextBasedOnNotification(userNotification, rootDataverseName, null);
+                    userNotification.setType(NotificationType.CONFIRMEMAIL);
+                    String subject = BundleUtil.getStringFromBundle("notification.email.verifyEmail.subject", Lists.newArrayList(rootDataverseName));
                     logger.fine("sending email to " + toAddress + " with this subject: " + subject);
-                    mailService.sendSystemEmail(toAddress, subject, messageBody);
+                    boolean emailSent = mailService.sendMail(toAddress, subject, messageBody);
+
+                    if (!emailSent) {
+                        throw new ConfirmEmailException("Problem sending email confirmation link possibily due to mail server not being configured.");
+                    }
                 }
             } catch (Exception e) {
                 logger.info("The root dataverse is not present. Don't send a notification to dataverseAdmin.");
             }
-        } catch (Exception ex) {
-            /**
-             * @todo get more specific about the exception that's thrown when
-             * `asadmin create-javamail-resource` (or equivalent) hasn't been
-             * run.
-             */
-            throw new ConfirmEmailException("Problem sending email confirmation link possibily due to mail server not being configured.");
-        }
+
         logger.log(Level.FINE, "attempted to send mail to {0}", aUser.getEmail());
     }
 
