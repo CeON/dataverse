@@ -431,7 +431,7 @@
                                             <h:outputText value="#{bundle['file.delete']}"/> 
                                         </p:commandLink>
                                     </li>
-                                    <li jsf:rendered="#{datasetPage}">
+                                    <li jsf:rendered="#{isDatasetSection}">
                                         <p:commandLink  onclick="checkFilesForLicenseEdit();" >
                                             <h:outputText value="#{bundle['file.license']}"/>
                                         </p:commandLink>
@@ -921,7 +921,7 @@
 
                 },
                 linkType: "direct",
-                multiselect: "#{datasetPage || EditDatafilesPage.allowMultipleFileUpload()}",
+                multiselect: "#{isMultiplyFilesUploadAllowed}",
             };
             Dropbox.choose(options);
         }
