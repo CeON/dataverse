@@ -62,12 +62,11 @@
                         <ui:param name="showFileButtonUpdate" value="true"/>
                         <ui:param name="version" value="#{EditDatafilesPage.workingVersion}"/>
                         <ui:param name="lockedFromEdits" value="#{EditDatafilesPage.lockedFromEdits}"/>
-                        <ui:param name="fileUploadFragment" value="#{EditDatafilesPage.showFileUploadFragment()}"/>
-                        <ui:param name="fileUploadMultiple" value="#{EditDatafilesPage.allowMultipleFileUpload()}" />
+                        <ui:param name="showFileUpload" value="#{EditDatafilesPage.showFileUploadFragment()}"/>
+                        <ui:param name="isMultiplyFilesUploadAllowed" value="#{EditDatafilesPage.allowMultipleFileUpload()}" />
                         <ui:param name="fileUploadDisabled" value="#{!EditDatafilesPage.showFileUploadComponent()}" />
-                        <ui:param name="filesTableEmptyMessage" value="#{EditDatafilesPage.showFileUploadFragment()}" />
-                        <ui:param name="fileTermsOfUse" value="#{EditDatafilesPage.mode eq 'UPLOAD'}" />
-                        <ui:param name="openEditFilesPageCommand2" value="" />
+                        <ui:param name="isUploadPermited" value="#{EditDatafilesPage.mode eq 'UPLOAD'}" />
+                        <ui:param name="redirectToEditdataFiles" value="" />
                         </ui:include>
                     </div>
 
