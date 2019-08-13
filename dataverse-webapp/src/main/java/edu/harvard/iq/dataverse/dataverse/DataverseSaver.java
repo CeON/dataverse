@@ -66,9 +66,9 @@ public class DataverseSaver {
                 return Either.left(new DataverseError(ex, BundleUtil.getStringFromBundle("dataverse.create.failure")));
             }
 
-            userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataverse.getCreateDate(),
-                                                     NotificationType.CREATEDV,
-                                                     dataverse.getId(), NotificationObjectType.DATAVERSE);
+            userNotificationService.sendNotificationWithEmail((AuthenticatedUser) session.getUser(), dataverse.getCreateDate(),
+                                                              NotificationType.CREATEDV,
+                                                              dataverse.getId(), NotificationObjectType.DATAVERSE);
         } else {
             return Either.left(new DataverseError(BundleUtil.getStringFromBundle("dataverse.create.authenticatedUsersOnly")));
         }
