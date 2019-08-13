@@ -12,6 +12,7 @@ import javax.ejb.EJB;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -33,10 +34,11 @@ import static java.util.stream.Collectors.toList;
  * @author michael
  */
 @ViewScoped
+@Named("OAuth2Page")
 public class OAuth2LoginBackingBean implements Serializable {
 
     private static final Logger logger = Logger.getLogger(OAuth2LoginBackingBean.class.getName());
-    private static final long STATE_TIMEOUT = 1000 * 60 * 15; // 15 minutes in msec
+    private static final long STATE_TIMEOUT = 15 * 60 * 1000; // 15 minutes in msec
     private int responseCode;
     private String responseBody;
     private Optional<String> redirectPage;
