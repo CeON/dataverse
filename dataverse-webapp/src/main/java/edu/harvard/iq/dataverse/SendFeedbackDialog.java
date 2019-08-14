@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.common.BrandingUtil;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.feedback.Feedback;
 import edu.harvard.iq.dataverse.feedback.FeedbackUtil;
+import edu.harvard.iq.dataverse.mail.MailService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.MailUtil;
@@ -72,7 +73,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
     private InternetAddress systemAddress;
 
     @EJB
-    MailServiceBean mailService;
+    MailService mailService;
 
     @EJB
     SettingsServiceBean settingsService;
@@ -211,7 +212,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         }
         for (Feedback feedback : feedbacks) {
             logger.fine("sending feedback: " + feedback);
-            mailService.sendMail(feedback.getFromEmail(), feedback.getToEmail(), feedback.getSubject(), feedback.getBody());
+            mailService.sendMailAsync(feedback.getFromEmail(), feedback.getToEmail(), feedback.getSubject(), feedback.getBody());
         }
         return null;
     }

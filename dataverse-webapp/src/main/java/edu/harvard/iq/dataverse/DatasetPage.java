@@ -3,9 +3,9 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
-import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
@@ -37,11 +37,12 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
-import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
+import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
@@ -53,6 +54,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import edu.harvard.iq.dataverse.persistence.datafile.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.persistence.datafile.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
@@ -63,9 +65,9 @@ import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
-import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
@@ -139,8 +141,7 @@ public class DatasetPage implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
 
     public enum EditMode {
-
-        CREATE, INFO, FILE
+        CREATE
     }
 
 
@@ -167,7 +168,7 @@ public class DatasetPage implements java.io.Serializable {
     @Inject
     DataverseSession session;
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    UserNotificationService userNotificationService;
     @EJB
     MapLayerMetadataServiceBean mapLayerMetadataService;
     @EJB
@@ -1395,12 +1396,6 @@ public class DatasetPage implements java.io.Serializable {
         }
         workingVersion = dataset.getEditVersion();
         clone = workingVersion.cloneDatasetVersion();
-        if (editMode == EditMode.INFO) {
-            // ?
-        } else if (editMode == EditMode.FILE) {
-            // JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.message.editFiles"));
-            // FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Upload + Edit Dataset Files", " - You can drag and drop your files from your desktop, directly into the upload widget."));
-        }
         this.readOnly = false;
     }
 
@@ -1431,23 +1426,7 @@ public class DatasetPage implements java.io.Serializable {
             logger.log(Level.SEVERE, "sendBackToContributor: {0}", message);
             JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.reject.failure", Collections.singletonList(message)));
         }
-        
-        /* 
-         The notifications below are redundant, since the ReturnDatasetToAuthorCommand
-         sends them already. - L.A. Sep. 7 2017
-         
-        List<AuthenticatedUser> authUsers = permissionService.getUsersWithPermissionOn(Permission.PublishDataset, dataset);
-        List<AuthenticatedUser> editUsers = permissionService.getUsersWithPermissionOn(Permission.EditDataset, dataset);
 
-        editUsers.removeAll(authUsers);
-        new HashSet<>(editUsers).forEach( au -> 
-            userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()), 
-                                                     UserNotification.Type.RETURNEDDS, dataset.getLatestVersion().getId())
-        );
-        */
-
-        //FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "DatasetSubmitted", "This dataset has been sent back to the contributor.");
-        //FacesContext.getCurrentInstance().addMessage(null, message);
         return returnToLatestVersion();
     }
 
@@ -2101,7 +2080,7 @@ public class DatasetPage implements java.io.Serializable {
             dataset = commandEngine.submit(cmd);
             if (editMode == EditMode.CREATE) {
                 if (session.getUser() instanceof AuthenticatedUser) {
-                    userNotificationService.sendNotification((AuthenticatedUser) session.getUser(), dataset.getCreateDate(), UserNotification.Type.CREATEDS, dataset.getLatestVersion().getId());
+                    userNotificationService.sendNotificationWithEmail((AuthenticatedUser) session.getUser(), dataset.getCreateDate(), NotificationType.CREATEDS, dataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION);
                 }
             }
             logger.fine("Successfully executed SaveDatasetCommand.");
@@ -2187,9 +2166,6 @@ public class DatasetPage implements java.io.Serializable {
                     JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess"));
                 }
             }
-            if (editMode.equals(EditMode.FILE)) {
-                JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.filesSuccess"));
-            }
 
         } else {
             // must have been a bulk file update or delete:
@@ -2228,20 +2204,12 @@ public class DatasetPage implements java.io.Serializable {
             // that must have been a bulk file update or delete:
             if (bulkFileDeleteInProgress) {
                 JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.message.bulkFileDeleteFailure"));
-
             } else {
                 JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.message.filesFailure"));
             }
         } else {
-
-            if (editMode.equals(EditMode.CREATE)) {
-                JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createFailure"));
-            }
-            if (editMode.equals(EditMode.FILE)) {
-                JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.message.filesFailure"));
-            }
+            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createFailure"));
         }
-
         bulkFileDeleteInProgress = false;
     }
 

@@ -398,6 +398,18 @@
             <artifactId>tika-parsers</artifactId>
             <version>1.19</version>
         </dependency>
+        <dependency>
+            <groupId>org.simplejavamail</groupId>
+            <artifactId>simple-java-mail</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.sleroy</groupId>
+            <artifactId>fakesmtp-junit-runner</artifactId>
+            <version>0.1.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

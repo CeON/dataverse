@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthTestDataServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthUtil;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
@@ -12,12 +11,13 @@ import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationFailedExc
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
 import edu.harvard.iq.dataverse.persistence.config.ValidateEmail;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserDisplayInfo;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.OAuth2TokenData;
-import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.settings.InstallationConfigService;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -61,7 +61,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
     BuiltinUserServiceBean builtinUserSvc;
 
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    UserNotificationService userNotificationService;
 
     @EJB
     SystemConfig systemConfig;
@@ -198,7 +198,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
          */
         userNotificationService.sendNotification(user,
                                                  new Timestamp(new Date().getTime()),
-                                                 UserNotification.Type.CREATEACC, null);
+                                                 NotificationType.CREATEACC);
 
         final OAuth2TokenData tokenData = newUser.getTokenData();
         tokenData.setUser(user);

@@ -7,7 +7,6 @@ import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
-import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthUtil;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
@@ -15,10 +14,11 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailException;
-import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
-import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailUtil;
+import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailException;
+import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
+import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailUtil;
 import edu.harvard.iq.dataverse.mydata.MyDataPage;
+import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -30,9 +30,11 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
 import edu.harvard.iq.dataverse.persistence.user.ConfirmEmailData;
+import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.UserNameValidator;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
+import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -83,7 +85,9 @@ public class DataverseUserPage implements java.io.Serializable {
     @EJB
     DataverseServiceBean dataverseService;
     @EJB
-    UserNotificationServiceBean userNotificationService;
+    private UserNotificationService userNotificationService;
+    @EJB
+    private UserNotificationDao userNotificationDao;
     @EJB
     UserServiceBean userService;
     @EJB
@@ -165,7 +169,7 @@ public class DataverseUserPage implements java.io.Serializable {
         if (session.getUser().isAuthenticated()) {
             setCurrentUser((AuthenticatedUser) session.getUser());
             userAuthProvider = authenticationService.lookupProvider(currentUser);
-            notificationsList = userNotificationService.findByUser(currentUser.getId());
+            notificationsList = userNotificationDao.findByUser(currentUser.getId());
 
             switch (selectTab) {
                 case "notifications":
@@ -335,7 +339,7 @@ public class DataverseUserPage implements java.io.Serializable {
              */
             userNotificationService.sendNotification(au,
                                                      new Timestamp(new Date().getTime()),
-                                                     UserNotification.Type.CREATEACC, null);
+                                                     NotificationType.FILESYSTEMIMPORT.CREATEACC);
 
             // go back to where user came from
 
@@ -404,8 +408,8 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String remove(Long notificationId) {
-        UserNotification userNotification = userNotificationService.find(notificationId);
-        userNotificationService.delete(userNotification);
+        UserNotification userNotification = userNotificationDao.find(notificationId);
+        userNotificationDao.delete(userNotification);
         for (UserNotification uNotification : notificationsList) {
             if (Objects.equals(uNotification.getId(), userNotification.getId())) {
                 notificationsList.remove(uNotification);
@@ -511,7 +515,7 @@ public class DataverseUserPage implements java.io.Serializable {
             userNotification.setDisplayAsRead(userNotification.isReadNotification());
             if (userNotification.isReadNotification() == false) {
                 userNotification.setReadNotification(true);
-                userNotificationService.save(userNotification);
+                userNotificationDao.merge(userNotification);
             }
         }
     }
