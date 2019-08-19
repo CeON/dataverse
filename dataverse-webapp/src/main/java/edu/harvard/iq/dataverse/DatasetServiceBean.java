@@ -674,6 +674,24 @@ public class DatasetServiceBean implements java.io.Serializable {
         }
     }
 
+    /**
+     *
+     * @param dataset
+     * @return true if dataset is In Review locked state
+     */
+    public boolean isInReview(Dataset dataset) {
+        List<DatasetLock> locks = em.createNamedQuery("DatasetLock.getLocksByDatasetId", DatasetLock.class)
+                .setParameter("datasetId", dataset.getId())
+                .getResultList();
+
+        for(DatasetLock lock : locks) {
+            if(lock.getReason().equals(DatasetLock.Reason.InReview)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean isDataFilePIDSequentialDependent() {
         String doiIdentifierType = settingsService.getValueForKey(SettingsServiceBean.Key.IdentifierGenerationStyle);
         String doiDataFileFormat = settingsService.getValueForKey(SettingsServiceBean.Key.DataFilePIDFormat);

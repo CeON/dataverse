@@ -519,6 +519,13 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (!permissionService.on(dataset).has(Permission.EditDataset)) {
             return permissionsWrapper.notAuthorized();
         }
+        if (!dataset.getLocks().isEmpty()
+                && !(datasetService.isInReview(dataset)
+                && permissionService.on(dataset).has(Permission.EditDataset)
+                && permissionService.on(dataset).has(Permission.PublishDataset))) {
+
+            return permissionsWrapper.notAuthorized();
+        }
 
         // TODO: Think about why this call to populateFileMetadatas was added. It seems like it isn't needed after all.
 //        populateFileMetadatas();

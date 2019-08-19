@@ -43,6 +43,8 @@ public class PermissionsWrapper implements java.io.Serializable {
 
     @Inject
     DataverseRequestServiceBean dvRequestService;
+    @Inject
+    private DatasetServiceBean datasetService;
 
     private final Map<Long, Map<Class<? extends Command<?>>, Boolean>> commandMap = new HashMap<>();
 
@@ -114,6 +116,13 @@ public class PermissionsWrapper implements java.io.Serializable {
 
     public boolean canEditDataverseTextMessagesAndBanners(Long dataverseId) {
         return permissionService.isUserCanEditDataverseTextMessagesAndBanners(dataverseId);
+    }
+
+    public boolean canEditDatasetInReview(Dataset dataset) {
+        return !dataset.getLocks().isEmpty()
+                && datasetService.isInReview(dataset)
+                && permissionService.on(dataset).has(Permission.EditDataset)
+                && permissionService.on(dataset).has(Permission.PublishDataset);
     }
 
     public boolean canManagePermissions(DvObject dvo) {

@@ -82,6 +82,8 @@ public class ManagePermissionsPage implements java.io.Serializable {
     DataverseRequestServiceBean dvRequestService;
     @Inject
     PermissionsWrapper permissionsWrapper;
+    @Inject
+    private DatasetServiceBean datasetService;
 
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
@@ -126,6 +128,13 @@ public class ManagePermissionsPage implements java.io.Serializable {
 
         if (!isAllowedToManageDataverseOrDataset(checkPermissionsdvObject)) {
             return permissionsWrapper.notAuthorized();
+        }
+
+        if(dvObject instanceof Dataset || dvObject instanceof DataFile) {
+            Dataset dataset = dvObject instanceof Dataset ? (Dataset) dvObject : ((DataFile) dvObject).getOwner();
+            if (!permissionsWrapper.canEditDatasetInReview(dataset)) {
+                return permissionsWrapper.notAuthorized();
+            }
         }
 
         // initialize the configure settings
