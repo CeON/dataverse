@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
+
+<h:head>
+</h:head>
+
+<h:body>
+    <ui:composition template="/dataverse_template.xhtml">
+        <ui:param name="pageTitle"
+                  value="#{FilePage.fileMetadata.dataFile.displayName} - #{FilePage.file.owner.owner.displayName}"/>
+        <ui:param name="dataverse" value="#{FilePage.file.owner.owner}"/>
+        <ui:param name="showMessagePanel" value="#{true}"/>
+        <ui:define name="body">
+            <f:metadata>
+                <o:importConstants
+                        type="edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType"
+                        var="restrictTypeEnum"/>
+                <o:importConstants
+                        type="edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType"
+                        var="termsOfUseTypeEnum"/>
+                <f:viewParam name="dataset" value="#{ReplaceDatafilesPage.dataset}"/>
+                <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
+                <f:viewAction action="#{ReplaceDatafilesPage.init}"/>
+                <f:viewAction
+                        action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(FilePage.fileMetadata)}"/>
+            </f:metadata>
+            <h:form id="replaceFileForm">
+
+                <div id="contentTabs">
+
+                    <ui:include src="editFilesFragment.xhtml">
+                        <ui:param name="editDatafilesPage" value="true"/>
+                        <ui:param name="isDatasetSection" value="false"/>
+                        <ui:param name="createDataset" value="false"/>
+                        <ui:param name="showFileButtonUpdate" value="true"/>
+                        <ui:param name="version" value="#{EditDatafilesPage.workingVersion}"/>
+                        <ui:param name="lockedFromEdits" value="#{EditDatafilesPage.lockedFromEdits}"/>
+                        <ui:param name="showFileUpload" value="true"/>
+                        <ui:param name="isMultiplyFilesUploadAllowed" value="false"/>
+                        <ui:param name="fileUploadDisabled"
+                                  value="#{!ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"/>
+                        <ui:param name="isUploadPermited" value="false"/>
+                        <ui:param name="redirectToEditdataFiles" value=""/>
+                    </ui:include>
+                </div>
+
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>
