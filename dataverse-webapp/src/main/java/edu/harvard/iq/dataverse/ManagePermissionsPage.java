@@ -132,7 +132,7 @@ public class ManagePermissionsPage implements java.io.Serializable {
 
         if(dvObject instanceof Dataset || dvObject instanceof DataFile) {
             Dataset dataset = dvObject instanceof Dataset ? (Dataset) dvObject : ((DataFile) dvObject).getOwner();
-            if (!permissionsWrapper.canEditDatasetInReview(dataset)) {
+            if (datasetService.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
                 return permissionsWrapper.notAuthorized();
             }
         }

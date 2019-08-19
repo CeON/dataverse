@@ -106,8 +106,10 @@ public class EditDatasetMetadataPage implements Serializable {
         if (!permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), dataset)) {
             return permissionsWrapper.notAuthorized();
         }
-        // Locked dataset can be edited if it's InReview by a user with edit and publish permissions
-        if (!permissionsWrapper.canEditDatasetInReview(dataset)) {
+        /**
+         * Locked dataset can be edited if it's InReview by a user with edit and publish permissions
+         */
+        if (datasetService.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
             return permissionsWrapper.notAuthorized();
         }
 

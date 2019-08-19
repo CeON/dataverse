@@ -680,6 +680,10 @@ public class DatasetServiceBean implements java.io.Serializable {
      * @return true if dataset is In Review locked state
      */
     public boolean isInReview(Dataset dataset) {
+        if(dataset.getLocks().isEmpty()) {
+            return false;
+        }
+
         List<DatasetLock> locks = em.createNamedQuery("DatasetLock.getLocksByDatasetId", DatasetLock.class)
                 .setParameter("datasetId", dataset.getId())
                 .getResultList();

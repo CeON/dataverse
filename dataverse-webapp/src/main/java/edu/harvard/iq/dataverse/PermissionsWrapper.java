@@ -43,8 +43,6 @@ public class PermissionsWrapper implements java.io.Serializable {
 
     @Inject
     DataverseRequestServiceBean dvRequestService;
-    @Inject
-    private DatasetServiceBean datasetService;
 
     private final Map<Long, Map<Class<? extends Command<?>>, Boolean>> commandMap = new HashMap<>();
 
@@ -118,13 +116,6 @@ public class PermissionsWrapper implements java.io.Serializable {
         return permissionService.isUserCanEditDataverseTextMessagesAndBanners(dataverseId);
     }
 
-    public boolean canEditDatasetInReview(Dataset dataset) {
-        return !dataset.getLocks().isEmpty()
-                && datasetService.isInReview(dataset)
-                && permissionService.on(dataset).has(Permission.EditDataset)
-                && permissionService.on(dataset).has(Permission.PublishDataset);
-    }
-
     public boolean canManagePermissions(DvObject dvo) {
         if (dvo == null || (dvo.getId() == null)) {
             return false;
@@ -165,6 +156,9 @@ public class PermissionsWrapper implements java.io.Serializable {
         return doesSessionUserHaveDataSetPermission(dr, dataset, Permission.EditDataset);
     }
 
+    public boolean canUpdateAndPublishDataset(DataverseRequest dr, Dataset dataset) {
+        return canUpdateDataset(dr, dataset) && canIssuePublishDatasetCommand(dataset);
+    }
 
     /**
      * (Using Raman's implementation in DatasetPage - moving it here, so that
