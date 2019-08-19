@@ -675,8 +675,6 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
 
     /**
-     *
-     * @param dataset
      * @return true if dataset is In Review locked state
      */
     public boolean isInReview(Dataset dataset) {
