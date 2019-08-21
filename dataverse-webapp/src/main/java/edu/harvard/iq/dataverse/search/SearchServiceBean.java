@@ -777,8 +777,6 @@ public class SearchServiceBean {
         solrQueryResponse.setTypeFacetCategories(typeFacetCategories);
         solrQueryResponse.setNumResultsFound(queryResponse.getResults().getNumFound());
         solrQueryResponse.setResultsStart(queryResponse.getResults().getStart());
-        solrQueryResponse.setDatasetfieldFriendlyNamesBySolrField(datasetfieldFriendlyNamesBySolrField);
-        solrQueryResponse.setStaticSolrFieldFriendlyNamesBySolrField(staticSolrFieldFriendlyNamesBySolrField);
         String[] filterQueriesArray = solrQuery.getFilterQueries();
         if (filterQueriesArray != null) {
             // null check added because these tests were failing: mvn test -Dtest=SearchIT

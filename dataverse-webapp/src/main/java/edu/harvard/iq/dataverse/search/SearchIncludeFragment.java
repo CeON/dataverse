@@ -64,7 +64,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     ThumbnailServiceWrapper thumbnailServiceWrapper;
     @Inject
     WidgetWrapper widgetWrapper;
-    @Inject
+    @EJB
     private DatasetFieldServiceBean datasetFieldService;
 
     private String browseModeString = "browse";
@@ -88,17 +88,14 @@ public class SearchIncludeFragment implements java.io.Serializable {
     private String dataverseAlias;
     private Dataverse dataverse;
     private String dataversePath = null;
-    // commenting out dataverseSubtreeContext. it was not well-loved in the GUI
-//    private String dataverseSubtreeContext;
+
     private String selectedTypesString;
     private List<String> selectedTypesList = new ArrayList<>();
     private String selectedTypesHumanReadable;
     private String searchFieldType = SearchFields.TYPE;
     private String searchFieldSubtree = SearchFields.SUBTREE;
-    //    private String searchFieldHostDataverse = SearchFields.HOST_DATAVERSE;
     private String searchFieldNameSort = SearchFields.NAME_SORT;
     private String searchFieldRelevance = SearchFields.RELEVANCE;
-    //    private String searchFieldReleaseDate = SearchFields.RELEASE_DATE_YYYY;
     private String searchFieldReleaseOrCreateDate = SearchFields.RELEASE_OR_CREATE_DATE;
     final private String ASCENDING = SortOrder.asc.toString();
     final private String DESCENDING = SortOrder.desc.toString();
@@ -111,14 +108,11 @@ public class SearchIncludeFragment implements java.io.Serializable {
     private int paginationGuiStart = 1;
     private int paginationGuiEnd = 10;
     private int paginationGuiRows = 10;
-    Map<String, String> datasetfieldFriendlyNamesBySolrField = new HashMap<>();
-    Map<String, String> staticSolrFieldFriendlyNamesBySolrField = new HashMap<>();
     private boolean solrIsDown = false;
     private Map<String, Integer> numberOfFacets = new HashMap<>();
     private boolean debug = false;
-    //    private boolean showUnpublished;
+
     List<String> filterQueriesDebug = new ArrayList<>();
-    //    private Map<String, String> friendlyName = new HashMap<>();
     private String errorFromSolr;
     private SearchException searchException;
     private boolean rootDv = false;
@@ -343,8 +337,6 @@ public class SearchIncludeFragment implements java.io.Serializable {
             this.facetCategoryList = solrQueryResponse.getFacetCategoryList();
             this.searchResultsList = solrQueryResponse.getSolrSearchResults();
             this.searchResultsCount = solrQueryResponse.getNumResultsFound().intValue();
-            this.datasetfieldFriendlyNamesBySolrField = solrQueryResponse.getDatasetfieldFriendlyNamesBySolrField();
-            this.staticSolrFieldFriendlyNamesBySolrField = solrQueryResponse.getStaticSolrFieldFriendlyNamesBySolrField();
             this.filterQueriesDebug = solrQueryResponse.getFilterQueriesActual();
             this.errorFromSolr = solrQueryResponse.getError();
             paginationGuiStart = paginationStart + 1;
@@ -995,15 +987,12 @@ public class SearchIncludeFragment implements java.io.Serializable {
     public List<String> getFriendlyNamesFromFilterQuery(String filterQuery) {
 
 
-        if ((filterQuery == null) ||
-                (datasetfieldFriendlyNamesBySolrField == null) ||
-                (staticSolrFieldFriendlyNamesBySolrField == null)) {
+        if (filterQuery == null) {
             return null;
         }
 
         String[] parts = filterQuery.split(":");
         if (parts.length != 2) {
-            //logger.log(Level.INFO, "String array has {0} part(s).  Should have 2: {1}", new Object[]{parts.length, filterQuery});
             return null;
         }
         String key = parts[0];
@@ -1011,33 +1000,11 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
         List<String> friendlyNames = new ArrayList<>();
 
-        String datasetfieldFriendyName = datasetfieldFriendlyNamesBySolrField.get(key);
-        if (datasetfieldFriendyName != null) {
-            friendlyNames.add(datasetfieldFriendyName);
-        } else {
-            String nonDatasetSolrField = staticSolrFieldFriendlyNamesBySolrField.get(key);
-            if (nonDatasetSolrField != null) {
-                friendlyNames.add(nonDatasetSolrField);
-            }
-//            else if (key.equals(SearchFields.PUBLICATION_STATUS)) {
-//                /**
-//                 * @todo Refactor this quick fix for
-//                 * https://github.com/IQSS/dataverse/issues/618 . We really need
-//                 * to get rid of all the reflection that's happening with
-//                 * solrQueryResponse.getStaticSolrFieldFriendlyNamesBySolrField()
-//                 * and
-//                 */
-//                friendlyNames.add(BundleUtil.getStringFromBundle("facets.search.fieldtype.publicationStatus.label"));
-//            }
-            else {
-                // meh. better than nuthin'
-                friendlyNames.add(key);
-            }
-        }
-        String noLeadingQuote = value.replaceAll("^\"", "");
-        String noTrailingQuote = noLeadingQuote.replaceAll("\"$", "");
-        String valueWithoutQuotes = searchService.getLocaleFacetName(noTrailingQuote, datasetFieldService.findAllOrderedByName());
-        friendlyNames.add(valueWithoutQuotes);
+        friendlyNames.add(searchService.getLocaleFacetName(key, datasetFieldService.findAllOrderedByName()));
+
+        String valStr = searchService.getLocaleFacetName(value.replaceAll("^\"", "").replaceAll("\"$", ""),
+                    datasetFieldService.findAllOrderedByName());
+        friendlyNames.add(valStr);
         return friendlyNames;
     }
 
