@@ -121,19 +121,19 @@ public class Dataverse extends DvObjectContainer {
     public String getFriendlyCategoryName() {
         switch (this.dataverseType) {
             case RESEARCHERS:
-                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.researchers");
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.researcher");
             case RESEARCH_PROJECTS:
-                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.researchProjects");
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.research_project");
             case JOURNALS:
-                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.journals");
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.journal");
             case ORGANIZATIONS_INSTITUTIONS:
-                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.organizationsAndInsitutions");
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.organization_or_institution");
             case TEACHING_COURSES:
-                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.teachingCourses");
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.teaching_course");
             case LABORATORY:
                 return BundleUtil.getStringFromBundle("dataverse.type.selectTab.laboratory");
             case RESEARCH_GROUP:
-                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.researchGroup");
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.research_group");
             case DEPARTMENT:
                 return BundleUtil.getStringFromBundle("dataverse.type.selectTab.department");
             case UNCATEGORIZED:

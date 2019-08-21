@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.search;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
@@ -8,6 +9,7 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.ThumbnailServiceWrapper;
 import edu.harvard.iq.dataverse.WidgetWrapper;
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -62,6 +64,8 @@ public class SearchIncludeFragment implements java.io.Serializable {
     ThumbnailServiceWrapper thumbnailServiceWrapper;
     @Inject
     WidgetWrapper widgetWrapper;
+    @Inject
+    private DatasetFieldServiceBean datasetFieldService;
 
     private String browseModeString = "browse";
     private String searchModeString = "search";
@@ -1014,23 +1018,25 @@ public class SearchIncludeFragment implements java.io.Serializable {
             String nonDatasetSolrField = staticSolrFieldFriendlyNamesBySolrField.get(key);
             if (nonDatasetSolrField != null) {
                 friendlyNames.add(nonDatasetSolrField);
-            } else if (key.equals(SearchFields.PUBLICATION_STATUS)) {
-                /**
-                 * @todo Refactor this quick fix for
-                 * https://github.com/IQSS/dataverse/issues/618 . We really need
-                 * to get rid of all the reflection that's happening with
-                 * solrQueryResponse.getStaticSolrFieldFriendlyNamesBySolrField()
-                 * and
-                 */
-                friendlyNames.add("Publication Status");
-            } else {
+            }
+//            else if (key.equals(SearchFields.PUBLICATION_STATUS)) {
+//                /**
+//                 * @todo Refactor this quick fix for
+//                 * https://github.com/IQSS/dataverse/issues/618 . We really need
+//                 * to get rid of all the reflection that's happening with
+//                 * solrQueryResponse.getStaticSolrFieldFriendlyNamesBySolrField()
+//                 * and
+//                 */
+//                friendlyNames.add(BundleUtil.getStringFromBundle("facets.search.fieldtype.publicationStatus.label"));
+//            }
+            else {
                 // meh. better than nuthin'
                 friendlyNames.add(key);
             }
         }
         String noLeadingQuote = value.replaceAll("^\"", "");
         String noTrailingQuote = noLeadingQuote.replaceAll("\"$", "");
-        String valueWithoutQuotes = noTrailingQuote;
+        String valueWithoutQuotes = searchService.getLocaleFacetName(noTrailingQuote, datasetFieldService.findAllOrderedByName());
         friendlyNames.add(valueWithoutQuotes);
         return friendlyNames;
     }
