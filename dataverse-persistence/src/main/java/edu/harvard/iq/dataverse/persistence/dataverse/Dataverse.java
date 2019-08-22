@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -143,13 +144,38 @@ public class Dataverse extends DvObjectContainer {
         }
     }
 
-    public String getIndexableCategoryName() {
-        String friendlyName = getFriendlyCategoryName();
-        if (friendlyName.equals(uncategorizedString)) {
-            return null;
-        } else {
-            return friendlyName;
+    private String getCategoryNameForIndex() {
+        switch (this.dataverseType) {
+            case RESEARCHERS:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.researcher", Locale.ENGLISH);
+            case RESEARCH_PROJECTS:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.research_project", Locale.ENGLISH);
+            case JOURNALS:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.journal", Locale.ENGLISH);
+            case ORGANIZATIONS_INSTITUTIONS:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.organization_or_institution", Locale.ENGLISH);
+            case TEACHING_COURSES:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.teaching_course", Locale.ENGLISH);
+            case LABORATORY:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.laboratory", Locale.ENGLISH);
+            case RESEARCH_GROUP:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.research_group", Locale.ENGLISH);
+            case DEPARTMENT:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.department", Locale.ENGLISH);
+            case UNCATEGORIZED:
+                return BundleUtil.getStringFromBundle("dataverse.type.selectTab.uncategorized", Locale.ENGLISH);
+            default:
+                return "";
         }
+    }
+
+    public String getIndexableCategoryName() {
+        return getCategoryNameForIndex();
+//        if (friendlyName.equals(uncategorizedString)) {
+//            return null;
+//        } else {
+//            return friendlyName;
+//        }
     }
 
     private String affiliation;
