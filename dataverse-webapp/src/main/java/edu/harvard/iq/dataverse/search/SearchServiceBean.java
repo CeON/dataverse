@@ -817,11 +817,7 @@ public class SearchServiceBean {
          * with "AllUsers" group or not? If so, uncomment the allUsersString
          * stuff below.
          */
-//        String allUsersString = IndexServiceBean.getGroupPrefix() + AllUsers.get().getAlias();
-//        String publicOnly = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":(" + IndexServiceBean.getPublicGroupString() + " OR " + allUsersString + ")";
         String publicOnly = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":(" + IndexServiceBean.getPublicGroupString() + ")";
-//        String publicOnly = "{!join from=" + SearchFields.GROUPS + " to=" + SearchFields.PERMS + "}id:" + IndexServiceBean.getPublicGroupString();
-        // initialize to public only to be safe
         String dangerZoneNoSolrJoin = null;
 
         if (user instanceof PrivateUrlUser) {

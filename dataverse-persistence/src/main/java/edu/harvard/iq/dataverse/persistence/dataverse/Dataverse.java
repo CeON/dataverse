@@ -171,11 +171,6 @@ public class Dataverse extends DvObjectContainer {
 
     public String getIndexableCategoryName() {
         return getCategoryNameForIndex();
-//        if (friendlyName.equals(uncategorizedString)) {
-//            return null;
-//        } else {
-//            return friendlyName;
-//        }
     }
 
     private String affiliation;
