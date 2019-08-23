@@ -1,23 +1,28 @@
 package edu.harvard.iq.dataverse;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.FileReplaceException;
 import edu.harvard.iq.dataverse.datasetutility.FileReplacePageHelper;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,16 +34,49 @@ public class ReplaceDatafilesPage implements Serializable {
 
     private PermissionsWrapper permissionsWrapper;
     private PermissionServiceBean permissionService;
+    private DatasetServiceBean datasetService;
     private DataFileServiceBean datafileService;
     private IngestServiceBean ingestService;
     private EjbDataverseEngine commandEngine;
     private DataverseRequestServiceBean dvRequestService;
 
+    private long datasetId;
+    private long fileId;
     private Dataset dataset;
     private DataFile fileToBeReplaced;
     private FileReplacePageHelper fileReplacePageHelper;
 
-    // -------------------- GETTERS --------------------
+    // -------------------- CONSTRUCTORS --------------------
+
+    @Deprecated /* JEE requirement*/
+    public ReplaceDatafilesPage() {
+    }
+
+    @Inject
+    public ReplaceDatafilesPage(PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService, DatasetServiceBean datasetService,
+                                DataFileServiceBean datafileService, IngestServiceBean ingestService, EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService) {
+        this.permissionsWrapper = permissionsWrapper;
+        this.permissionService = permissionService;
+        this.datasetService = datasetService;
+        this.datafileService = datafileService;
+        this.ingestService = ingestService;
+        this.commandEngine = commandEngine;
+        this.dvRequestService = dvRequestService;
+    }
+
+// -------------------- GETTERS --------------------
+
+    public long getDatasetId() {
+        return datasetId;
+    }
+
+    public long getFileId() {
+        return fileId;
+    }
+
+    public DataFile getFileToBeReplaced() {
+        return fileToBeReplaced;
+    }
 
     public Dataset getDataset() {
         return dataset;
@@ -51,15 +89,13 @@ public class ReplaceDatafilesPage implements Serializable {
     // -------------------- LOGIC --------------------
 
     public String init() {
-        String permissionError = checkPermissions();
+        dataset = datasetService.find(datasetId);
+        fileToBeReplaced = datafileService.find(fileId);
+
+        String permissionError = checkPermissions(dataset, fileToBeReplaced);
 
         if (!permissionError.isEmpty()) {
             return permissionError;
-        }
-
-        DataFile fileToReplace = loadFileToReplace();
-        if (fileToReplace == null) {
-            return permissionsWrapper.notFound();
         }
 
 
@@ -71,9 +107,7 @@ public class ReplaceDatafilesPage implements Serializable {
 
         fileReplacePageHelper = new FileReplacePageHelper(addReplaceFileHelper,
                                                           dataset,
-                                                          fileToReplace);
-
-        fileToBeReplaced = fileToReplace;
+                                                          fileToBeReplaced);
 
         return StringUtils.EMPTY;
     }
@@ -95,7 +129,7 @@ public class ReplaceDatafilesPage implements Serializable {
      * @return
      * @throws FileReplaceException
      */
-    public String saveReplacementFile() throws FileReplaceException {
+    private String saveReplacementFile() throws FileReplaceException {
 
         if (!fileReplacePageHelper.wasPhase1Successful()) {
             throw new FileReplaceException("Save should only be called when a replacement file has been chosen.  (Phase 1 has to have completed)");
@@ -117,9 +151,36 @@ public class ReplaceDatafilesPage implements Serializable {
 
     }
 
+    public List<FileMetadata> getFileMetadatas() {
+
+        if (fileReplacePageHelper.wasPhase1Successful()) {
+            logger.fine("Replace: File metadatas 'list' of 1 from the fileReplacePageHelper.");
+            return fileReplacePageHelper.getNewFileMetadatasBeforeSave();
+        }
+
+        return Lists.newArrayList();
+    }
+
+    public boolean isLockedFromEdits() {
+
+        return Try.of(() -> permissionService.checkEditDatasetLock(dataset, dvRequestService.getDataverseRequest(),
+                                                                   new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest())))
+                .getOrElse(true);
+    }
+
+    public String returnToFileLandingPage() {
+        Long fileId = fileReplacePageHelper.getFileToReplace().getId();
+
+        if (dataset.getLatestVersion().isDraft()) {
+            return "/file.xhtml?fileId=" + fileId + "&version=DRAFT&faces-redirect=true";
+        }
+        return "/file.xhtml?fileId=" + fileId + "&faces-redirect=true";
+
+    }
+
     // -------------------- PRIVATE --------------------
 
-    private String checkPermissions() {
+    private String checkPermissions(Dataset dataset, DataFile fileToBeReplaced) {
 
         if (dataset == null || dataset.isHarvested()) {
             return permissionsWrapper.notFound();
@@ -135,6 +196,10 @@ public class ReplaceDatafilesPage implements Serializable {
             return permissionsWrapper.notAuthorized();
         }
 
+        if (fileToBeReplaced == null) {
+            return permissionsWrapper.notFound();
+        }
+
         return StringUtils.EMPTY;
     }
 
@@ -147,24 +212,17 @@ public class ReplaceDatafilesPage implements Serializable {
         return "/file.xhtml?fileId=" + newFile.getId() + "&version=DRAFT&faces-redirect=true";
     }
 
-
-    private DataFile loadFileToReplace() {
-
-        Map<String, String> params = FacesContext.getCurrentInstance().
-                getExternalContext().getRequestParameterMap();
-
-        String fid = params.get("fid");
-
-        if (StringUtils.isNumeric(fid)) {
-            return datafileService.find(Long.parseLong(fid));
-        }
-        return null;
-
-    }
-
     // -------------------- SETTERS --------------------
 
     public void setDataset(Dataset dataset) {
         this.dataset = dataset;
+    }
+
+    public void setDatasetId(long datasetId) {
+        this.datasetId = datasetId;
+    }
+
+    public void setFileId(long fileId) {
+        this.fileId = fileId;
     }
 }

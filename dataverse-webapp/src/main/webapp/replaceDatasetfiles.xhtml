@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:o="http://omnifaces.org/ui"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
@@ -19,37 +20,159 @@
         <ui:param name="showMessagePanel" value="#{true}"/>
         <ui:define name="body">
             <f:metadata>
-                <o:importConstants
-                        type="edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType"
-                        var="restrictTypeEnum"/>
-                <o:importConstants
-                        type="edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType"
-                        var="termsOfUseTypeEnum"/>
-                <f:viewParam name="dataset" value="#{ReplaceDatafilesPage.dataset}"/>
+                <f:viewParam name="datasetId" value="#{ReplaceDatafilesPage.datasetId}"/>
+                <f:viewParam name="fileId" value="#{ReplaceDatafilesPage.fileId}"/>
                 <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                 <f:viewAction action="#{ReplaceDatafilesPage.init}"/>
-                <f:viewAction
-                        action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(FilePage.fileMetadata)}"/>
+                <!--<f:viewAction
+                        action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(FilePage.fileMetadata)}"/>-->
             </f:metadata>
             <h:form id="replaceFileForm">
+                <ui:fragment>
+                    <div id="file-replace-original-block" class="col-sm-12">
+                        <label class="col-sm-2 control-label">
+                            <span>#{bundle['file.replace.original']}</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <ui:include src="file-info-fragment.xhtml">
+                                <ui:param name="fileMetadata"
+                                          value="#{ReplaceDatafilesPage.fileToBeReplaced.fileMetadata}"/>
+                            </ui:include>
+                        </div>
+                    </div>
+                </ui:fragment>
+
+                <o:importConstants
+                        type="edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key"
+                        var="settingEnum"/>
 
                 <div id="contentTabs">
+                    <div data-widget="content"
+                         class="ui-tabs ui-widget ui-widget-content ui-corner-all ui-hidden-container ui-tabs-top"
+                         id="datasetForm:tabView">
+                        <ul role="tablist"
+                            class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+                            <li aria-expanded="true" role="tab"
+                                class="ui-state-default ui-tabs-selected ui-state-active ui-corner-top">
+                                <a href="#datasetForm:tabView:dataFilesTab">#{bundle['files']}</a>
+                            </li>
+                        </ul>
+                        <div class="ui-tabs-panels">
+                            <div aria-hidden="false" role="tabpanel"
+                                 class="ui-tabs-panel ui-widget-content ui-corner-bottom"
+                                 id="datasetForm:tabView:dataFilesTab">
+                                <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}"
+                                     class="panel panel-default">
+                                    <div role="tab" id="headingHTTP" data-toggle="collapse"
+                                         data-target="#panelCollapseHTTP"
+                                         class="panel-heading text-info" aria-expanded="true"
+                                         aria-controls="panelCollapseHTTP">
+                                        #{bundle['file.fromHTTP']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                                    </div>
+                                    <div id="panelCollapseHTTP" class="panel-collapse collapse in" role="tabpanel"
+                                         aria-labelledby="headingHTTP">
+                                        <!--<div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackage"
+                                             jsf:rendered="#{EditDatafilesPage.workingVersion.hasPackageFile and !EditDatafilesPage.dataset.released}">
+                                            <p class="help-block">
+                                                <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                            </p>
+                                        </div>
+                                        <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackagePublished">
+                                            <p class="help-block">
+                                                <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                                <h:outputText class="text-warning"
+                                                              value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
+                                            </p>
+                                        </div>-->
+                                        <div class="panel-body" jsf:id="contentOfHttpPanel">
+                                            <p class="help-block">
+                                                <h:outputFormat value="#{bundle['file.selectToAdd.tipMoreInformation']}"
+                                                                escape="false">
+                                                    <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
+                                                    <f:param value="#{settingsWrapper.guidesVersion}"/>
+                                                </h:outputFormat><!--
+                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipLimit']}" escape="false"
+                                        rendered="#{!EditDatafilesPage.unlimitedUploadFileSize}">
+                            <f:param value="#{EditDatafilesPage.humanMaxFileUploadSize}"/>
+                        </h:outputFormat>-->
+                                            </p>
 
-                    <ui:include src="editFilesFragment.xhtml">
-                        <ui:param name="editDatafilesPage" value="true"/>
-                        <ui:param name="isDatasetSection" value="false"/>
-                        <ui:param name="createDataset" value="false"/>
-                        <ui:param name="showFileButtonUpdate" value="true"/>
-                        <ui:param name="version" value="#{EditDatafilesPage.workingVersion}"/>
-                        <ui:param name="lockedFromEdits" value="#{EditDatafilesPage.lockedFromEdits}"/>
-                        <ui:param name="showFileUpload" value="true"/>
-                        <ui:param name="isMultiplyFilesUploadAllowed" value="false"/>
-                        <ui:param name="fileUploadDisabled"
-                                  value="#{!ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"/>
-                        <ui:param name="isUploadPermited" value="false"/>
-                        <ui:param name="redirectToEditdataFiles" value=""/>
-                    </ui:include>
+                                            <script>
+                                                function uploadWidgetDropMsg() {
+                                                    var fileUpload = $('div[id$="fileUpload"] div.ui-fileupload-content');
+                                                    if ($(fileUpload).children('#dragdropMsg').length === 0) {
+                                                        $(fileUpload).prepend('<div id="dragdropMsg">#{bundle['
+                                                        file.selectToAdd.dragdropMsg
+                                                        ']}</div>'
+                                                    )
+                                                        ;
+                                                    }
+                                                }
+
+                                                function dropBoxUploadFinished(fileupload) {
+                                                    $('button[id$="dropBoxUploadFinished"]').trigger('click');
+                                                }
+
+                                                function uploadWidgetDropRemoveMsg() {
+                                                    $('div[id$="fileUpload"] div.ui-fileupload-content div#dragdropMsg').remove();
+                                                }
+
+                                                $(document).ready(function () {
+                                                    uploadWidgetDropMsg();
+                                                });
+                                            </script>
+
+                                            <p:fileUpload id="fileUpload"
+                                                          dragDropSupport="true"
+                                                          auto="true"
+                                                          disabled="#{ReplaceDatafilesPage.lockedFromEdits || !ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"
+                                                          fileUploadListener="#{EditDatafilesPage.handleFileUpload}"
+                                                          update=":replaceFileForm"
+                                                          label="#{bundle['file.selectToAddBtn']}"
+                                                          oncomplete="javascript:bind_bsui_components();uploadFinished(PF('fileUploadWidget'));"
+                                                          onstart="javascript:uploadWidgetDropRemoveMsg();uploadStarted();"
+                                                          onerror="javascript:uploadFailure();"
+                                                          sizeLimit="#{settingsWrapper.getSettingValue(settingEnum.MaxFileUploadSizeInBytes)}"
+                                                          fileLimit="#{settingsWrapper.getSettingValue(settingEnum.MultipleUploadFilesLimit)}"
+                                                          invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}"
+                                                          sequential="true"
+                                                          widgetVar="fileUploadWidget"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <p:fragment id="editDataFilesButtons">
+                    <div class="button-block">
+                        <p:outputPanel id="filesButtons">
+                            <div jsf:rendered="#{!(empty ReplaceDatafilesPage.fileMetadatas)}">
+                                <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}"
+                                                 onclick="checkNewlyRestricted();PF('blockFileForm').show();"/>
+                                <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}"
+                                                 action="#{ReplaceDatafilesPage.returnToFileLandingPage()}"
+                                                 process="@this" update="@form"
+                                                 oncomplete="javascript:bind_bsui_components();">
+                                </p:commandButton>
+                                <p:commandButton value="Direct" id="datasetSave"
+                                                 style="display:none"
+                                                 update=":datasetForm,:messagePanel"
+                                                 oncomplete="javascript:bind_bsui_components();$(document).scrollTop(0);"
+                                                 action="#{ReplaceDatafilesPage.saveReplacement()}"/>
+                            </div>
+                            <div jsf:rendered="#{empty ReplaceDatafilesPage.fileMetadatas}">
+                                <p:commandButton tabindex="1000" id="doneFilesButton" value="#{bundle.done}"
+                                                 action="#{ReplaceDatafilesPage.returnToFileLandingPage()}"
+                                                 process="@this" update="@form"
+                                                 oncomplete="javascript:bind_bsui_components();">
+                                </p:commandButton>
+
+                            </div>
+                        </p:outputPanel>
+                    </div>
+                </p:fragment>
 
             </h:form>
         </ui:define>
