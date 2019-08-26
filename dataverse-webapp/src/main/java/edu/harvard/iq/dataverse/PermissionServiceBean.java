@@ -798,7 +798,6 @@ public class PermissionServiceBean {
         return (isUserAdminForDataverse(user, dataverse) || user.isSuperuser()) && dataverse.isAllowMessagesBanners();
     }
 
-
     /**
      * Returns roles that are effective for {@code au}
      * over {@code dvObj}. Traverses the containment hierarchy of the {@code d}.
