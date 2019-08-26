@@ -94,7 +94,7 @@ public class SettingsWrapper implements java.io.Serializable {
         return !getDropBoxKey().isEmpty();
     }
 
-    public String getSettingValue(SettingsServiceBean.Key key) {
+    public String getEnumSettingValue(SettingsServiceBean.Key key) {
         return getSettingValue(key.toString());
     }
 

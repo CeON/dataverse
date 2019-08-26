@@ -67,6 +67,7 @@ public class ReplaceDatafilesPage implements Serializable {
     private List<DataFile> newFiles = new ArrayList<>();
     private List<String> categoriesByName = new ArrayList<>();
     private List<FileMetadata> fileMetadatas = new ArrayList<>();
+    private List<FileMetadata> selectedFiles;
     private String[] selectedTags = {};
     private String[] selectedTabFileTags = {};
     private FileMetadata fileMetadataSelectedForTagsPopup;
@@ -75,6 +76,7 @@ public class ReplaceDatafilesPage implements Serializable {
     private boolean uploadInProgress;
     private String uploadSuccessMessage;
     private String uploadWarningMessage;
+    private String warningMessageForPopUp;
     private boolean alreadyDesignatedAsDatasetThumbnail;
     private FileMetadata fileMetadataSelectedForIngestOptionsPopup;
 
@@ -108,6 +110,10 @@ public class ReplaceDatafilesPage implements Serializable {
         return fileId;
     }
 
+    public String getWarningMessageForPopUp() {
+        return warningMessageForPopUp;
+    }
+
     public DataFile getFileToBeReplaced() {
         return fileToBeReplaced;
     }
@@ -118,6 +124,10 @@ public class ReplaceDatafilesPage implements Serializable {
 
     public FileReplacePageHelper getFileReplacePageHelper() {
         return fileReplacePageHelper;
+    }
+
+    public List<FileMetadata> getSelectedFiles() {
+        return selectedFiles;
     }
 
     // -------------------- LOGIC --------------------
@@ -159,6 +169,31 @@ public class ReplaceDatafilesPage implements Serializable {
             RequestContext.getCurrentInstance().update("datasetForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
         }
+
+    }
+
+    public void deleteFiles() {
+
+        try {
+            deleteReplacementFile();
+        } catch (FileReplaceException ex) {
+            Logger.getLogger(EditDatafilesPage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+    }
+
+    public void deleteReplacementFile() throws FileReplaceException {
+
+        if (!fileReplacePageHelper.wasPhase1Successful()) {
+            throw new FileReplaceException("Should only be called if Phase 1 was successful");
+        }
+
+        fileReplacePageHelper.resetReplaceFileHelper();
+
+        String successMessage = BundleUtil.getStringFromBundle("file.deleted.replacement.success");
+        logger.fine(successMessage);
+        JsfHelper.addFlashMessage(successMessage);
 
     }
 
@@ -310,6 +345,12 @@ public class ReplaceDatafilesPage implements Serializable {
         uploadSuccessMessage = null;
     }
 
+    public void uploadStarted() {
+        logger.fine("upload started");
+
+        uploadInProgress = true;
+    }
+
     public String getTemporaryPreviewAsBase64(String fileSystemId) {
         return temporaryThumbnailsMap.get(fileSystemId);
     }
@@ -420,7 +461,7 @@ public class ReplaceDatafilesPage implements Serializable {
              */
             if (fileReplacePageHelper.hasContentTypeWarning()) {
                 //Add warning to popup instead of page for Content Type Difference
-                //setWarningMessageForPopUp(fileReplacePageHelper.getContentTypeWarning());
+                warningMessageForPopUp = fileReplacePageHelper.getContentTypeWarning();
                 /*
                     Note on the info messages - upload errors, warnings and success messages:
                     Instead of trying to display the message here (commented out code below),
@@ -529,5 +570,9 @@ public class ReplaceDatafilesPage implements Serializable {
 
     public void setFileId(long fileId) {
         this.fileId = fileId;
+    }
+
+    public void setSelectedFiles(List<FileMetadata> selectedFiles) {
+        this.selectedFiles = selectedFiles;
     }
 }
