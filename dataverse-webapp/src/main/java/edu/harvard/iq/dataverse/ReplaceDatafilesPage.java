@@ -2,7 +2,7 @@ package edu.harvard.iq.dataverse;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
+import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
@@ -11,13 +11,17 @@ import edu.harvard.iq.dataverse.datasetutility.FileReplacePageHelper;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Try;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
@@ -25,14 +29,20 @@ import org.primefaces.model.UploadedFile;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.event.FacesEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,30 +65,26 @@ public class ReplaceDatafilesPage implements Serializable {
     private EjbDataverseEngine commandEngine;
     private DataverseRequestServiceBean dvRequestService;
     private SystemConfig systemConfig;
+    private SettingsServiceBean settingsService;
 
     private long datasetId;
     private long fileId;
-    private String uploadComponentId;
     private Dataset dataset;
     private DataFile fileToBeReplaced;
     private FileReplacePageHelper fileReplacePageHelper;
     private Map<String, String> temporaryThumbnailsMap = new HashMap<>();
-    private List<DataFile> uploadedFiles = new ArrayList<>();
-    private List<DataFile> newFiles = new ArrayList<>();
     private List<String> categoriesByName = new ArrayList<>();
-    private List<FileMetadata> fileMetadatas = new ArrayList<>();
     private List<FileMetadata> selectedFiles;
     private String[] selectedTags = {};
     private String[] selectedTabFileTags = {};
+    private List<String> tabFileTags;
     private FileMetadata fileMetadataSelectedForTagsPopup;
     private List<String> tabFileTagsByName;
     private FileMetadata fileMetadataSelectedForThumbnailPopup;
     private boolean uploadInProgress;
-    private String uploadSuccessMessage;
-    private String uploadWarningMessage;
     private String warningMessageForPopUp;
-    private boolean alreadyDesignatedAsDatasetThumbnail;
-    private FileMetadata fileMetadataSelectedForIngestOptionsPopup;
+    private String newCategoryName;
+    private String dropBoxSelection = "";
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -89,7 +95,8 @@ public class ReplaceDatafilesPage implements Serializable {
     @Inject
     public ReplaceDatafilesPage(PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService,
                                 DatasetServiceBean datasetService, DataFileServiceBean datafileService, IngestServiceBean ingestService,
-                                EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService, SystemConfig systemConfig) {
+                                EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService, SystemConfig systemConfig,
+                                SettingsServiceBean settingsService) {
         this.permissionsWrapper = permissionsWrapper;
         this.permissionService = permissionService;
         this.datasetService = datasetService;
@@ -98,6 +105,7 @@ public class ReplaceDatafilesPage implements Serializable {
         this.commandEngine = commandEngine;
         this.dvRequestService = dvRequestService;
         this.systemConfig = systemConfig;
+        this.settingsService = settingsService;
     }
 
     // -------------------- GETTERS --------------------
@@ -110,8 +118,39 @@ public class ReplaceDatafilesPage implements Serializable {
         return fileId;
     }
 
+    public List<String> getTabFileTags() {
+        if (tabFileTags == null) {
+            tabFileTags = DataFileTag.listTags();
+        }
+        return tabFileTags;
+    }
+
+    public FileMetadata getFileMetadataSelectedForTagsPopup() {
+        return fileMetadataSelectedForTagsPopup;
+    }
+
+    public String getDropBoxSelection() {
+        return dropBoxSelection;
+    }
+
+    public String getNewCategoryName() {
+        return newCategoryName;
+    }
+
     public String getWarningMessageForPopUp() {
         return warningMessageForPopUp;
+    }
+
+    public String[] getSelectedTags() {
+        return selectedTags;
+    }
+
+    public String[] getSelectedTabFileTags() {
+        return selectedTabFileTags;
+    }
+
+    public List<String> getCategoriesByName() {
+        return categoriesByName;
     }
 
     public DataFile getFileToBeReplaced() {
@@ -166,7 +205,7 @@ public class ReplaceDatafilesPage implements Serializable {
 
         if (fileReplacePageHelper.hasContentTypeWarning()) {
             RequestContext context = RequestContext.getCurrentInstance();
-            RequestContext.getCurrentInstance().update("datasetForm:fileTypeDifferentPopup");
+            RequestContext.getCurrentInstance().update("replaceFileForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
         }
 
@@ -194,6 +233,77 @@ public class ReplaceDatafilesPage implements Serializable {
         String successMessage = BundleUtil.getStringFromBundle("file.deleted.replacement.success");
         logger.fine(successMessage);
         JsfHelper.addFlashMessage(successMessage);
+
+    }
+
+    public void handleDropBoxUpload(ActionEvent event) {
+        if (!uploadInProgress) {
+            uploadInProgress = true;
+        }
+        logger.fine("handleDropBoxUpload");
+
+        // -----------------------------------------------------------
+        // Read JSON object from the output of the DropBox Chooser:
+        // -----------------------------------------------------------
+        JsonReader dbJsonReader = Json.createReader(new StringReader(dropBoxSelection));
+        JsonArray dbArray = dbJsonReader.readArray();
+        dbJsonReader.close();
+
+        // -----------------------------------------------------------
+        // Iterate through the Dropbox file information (JSON)
+        // -----------------------------------------------------------
+        DataFile dFile = null;
+        GetMethod dropBoxMethod = null;
+        String localWarningMessage = null;
+        for (int i = 0; i < dbArray.size(); i++) {
+            JsonObject dbObject = dbArray.getJsonObject(i);
+
+            // -----------------------------------------------------------
+            // Parse information for a single file
+            // -----------------------------------------------------------
+            String fileLink = dbObject.getString("link");
+            String fileName = dbObject.getString("name");
+            int fileSize = dbObject.getInt("bytes");
+
+            logger.fine("DropBox url: " + fileLink + ", filename: " + fileName + ", size: " + fileSize);
+
+
+            /* ----------------------------
+                Check file size
+                - Max size NOT specified in db: default is unlimited
+                - Max size specified in db: check too make sure file is within limits
+            // ---------------------------- */
+            Long fileUploadLimit = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaxFileUploadSizeInBytes);
+
+            if ((fileUploadLimit != null) && (fileSize > fileUploadLimit)) {
+                String warningMessage = "Dropbox file \"" + fileName + "\" exceeded the limit of " + fileSize + " bytes and was not uploaded.";
+                //msg(warningMessage);
+                //FacesContext.getCurrentInstance().addMessage(event.getComponent().getClientId(), new FacesMessage(FacesMessage.SEVERITY_ERROR, "upload failure", warningMessage));
+                if (localWarningMessage == null) {
+                    localWarningMessage = warningMessage;
+                } else {
+                    localWarningMessage = localWarningMessage.concat("; " + warningMessage);
+                }
+                continue; // skip to next file, and add error mesage
+            }
+
+
+            dropBoxMethod = new GetMethod(fileLink);
+
+            // -----------------------------------------------------------
+            // Download the file
+            // -----------------------------------------------------------
+            InputStream dropBoxStream = this.getDropBoxInputStream(fileLink, dropBoxMethod);
+            if (dropBoxStream == null) {
+                logger.severe("Could not retrieve dropgox input stream for: " + fileLink);
+                continue;  // Error skip this file
+            }
+
+            handleReplaceFileUpload(event, dropBoxStream, fileName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue());
+            setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
+            return;
+
+        }
 
     }
 
@@ -236,6 +346,45 @@ public class ReplaceDatafilesPage implements Serializable {
 
     }
 
+    public void saveFileTagsAndCategories() {
+        if (fileMetadataSelectedForTagsPopup == null) {
+            logger.fine("No FileMetadata selected for the categories popup");
+            return;
+        }
+        // 1. File categories:
+        /*
+        In order to get the cancel button to work we had to separate the selected tags
+        from the file metadata and re-add them on save
+
+        */
+
+        fileMetadataSelectedForTagsPopup.setCategories(new ArrayList<>());
+
+        // New, custom file category (if specified):
+        if (newCategoryName != null) {
+            logger.fine("Adding new category, " + newCategoryName + " for file " + fileMetadataSelectedForTagsPopup.getLabel());
+            fileMetadataSelectedForTagsPopup.addCategoryByName(newCategoryName);
+        } else {
+            logger.fine("no category specified");
+        }
+        newCategoryName = null;
+
+        // File Categories selected from the list of existing categories:
+        if (selectedTags != null) {
+            for (String selectedTag : selectedTags) {
+
+                fileMetadataSelectedForTagsPopup.addCategoryByName(selectedTag);
+            }
+        }
+
+        fileMetadataSelectedForTagsPopup = null;
+
+    }
+
+    public void clearFileMetadataSelectedForTagsPopup() {
+        fileMetadataSelectedForTagsPopup = null;
+    }
+
     public List<FileMetadata> getFileMetadatas() {
 
         if (fileReplacePageHelper.wasPhase1Successful()) {
@@ -244,44 +393,6 @@ public class ReplaceDatafilesPage implements Serializable {
         }
 
         return Lists.newArrayList();
-    }
-
-    public boolean isTemporaryPreviewAvailable(String fileSystemId, String mimeType) {
-        if (temporaryThumbnailsMap.get(fileSystemId) != null && !temporaryThumbnailsMap.get(fileSystemId).isEmpty()) {
-            return true;
-        }
-
-        if ("".equals(temporaryThumbnailsMap.get(fileSystemId))) {
-            // we've already looked once - and there's no thumbnail.
-            return false;
-        }
-
-        String filesRootDirectory = systemConfig.getFilesDirectory();
-        String fileSystemName = filesRootDirectory + "/temp/" + fileSystemId;
-
-        String imageThumbFileName = null;
-
-        // ATTENTION! TODO: the current version of the method below may not be checking if files are already cached!
-        if ("application/pdf".equals(mimeType)) {
-            imageThumbFileName = ImageThumbConverter.generatePDFThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-        } else if (mimeType != null && mimeType.startsWith("image/")) {
-            imageThumbFileName = ImageThumbConverter.generateImageThumbnailFromFile(fileSystemName, ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-        }
-
-        if (imageThumbFileName != null) {
-            File imageThumbFile = new File(imageThumbFileName);
-            if (imageThumbFile.exists()) {
-                String previewAsBase64 = ImageThumbConverter.getImageAsBase64FromFile(imageThumbFile);
-                if (previewAsBase64 != null) {
-                    temporaryThumbnailsMap.put(fileSystemId, previewAsBase64);
-                    return true;
-                } else {
-                    temporaryThumbnailsMap.put(fileSystemId, "");
-                }
-            }
-        }
-
-        return false;
     }
 
     public void uploadFinished() {
@@ -308,23 +419,8 @@ public class ReplaceDatafilesPage implements Serializable {
         // to the full list of new files, and the list of filemetadatas
         // used to render the page:
 
-        for (DataFile dataFile : uploadedFiles) {
-            fileMetadatas.add(dataFile.getFileMetadata());
-            newFiles.add(dataFile);
-        }
         if (uploadInProgress) {
-            uploadedFiles = new ArrayList<>();
             uploadInProgress = false;
-        }
-        // refresh the warning message below the upload component, if exists:
-        if (uploadComponentId != null) {
-            if (uploadWarningMessage != null) {
-
-                FacesContext.getCurrentInstance().addMessage(uploadComponentId, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.file.uploadWarning"), uploadWarningMessage));
-
-            } else if (uploadSuccessMessage != null) {
-                FacesContext.getCurrentInstance().addMessage(uploadComponentId, new FacesMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.file.uploadWorked"), uploadSuccessMessage));
-            }
         }
 
         if (fileReplacePageHelper.hasContentTypeWarning()) {
@@ -332,17 +428,6 @@ public class ReplaceDatafilesPage implements Serializable {
             RequestContext.getCurrentInstance().update("datasetForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
         }
-
-        // We clear the following duplicate warning labels, because we want to
-        // only inform the user of the duplicates dropped in the current upload
-        // attempt - for ex., one batch of drag-and-dropped files, or a single
-        // file uploaded through the file chooser.
-        /*dupeFileNamesExisting = null;
-        dupeFileNamesNew = null;
-        multipleDupesExisting = false;
-        multipleDupesNew = false;*/
-        uploadWarningMessage = null;
-        uploadSuccessMessage = null;
     }
 
     public void uploadStarted() {
@@ -373,6 +458,27 @@ public class ReplaceDatafilesPage implements Serializable {
         refreshTabFileTagsByName();
     }
 
+    public String saveNewCategory() {
+
+        if (newCategoryName != null && !newCategoryName.isEmpty()) {
+            categoriesByName.add(newCategoryName);
+        }
+        //Now increase size of selectedTags and add new category
+        String[] temp = new String[selectedTags.length + 1];
+        System.arraycopy(selectedTags, 0, temp, 0, selectedTags.length);
+        selectedTags = temp;
+        selectedTags[selectedTags.length - 1] = newCategoryName;
+        //Blank out added category
+        newCategoryName = "";
+        return "";
+    }
+
+    public void handleFileCategoriesSelection(final AjaxBehaviorEvent event) {
+        if (selectedTags != null) {
+            selectedTags = selectedTags.clone();
+        }
+    }
+
     /**
      * @param fm
      * @todo For consistency, we should disallow users from setting the
@@ -383,13 +489,7 @@ public class ReplaceDatafilesPage implements Serializable {
      */
     public void setFileMetadataSelectedForThumbnailPopup(FileMetadata fm) {
         fileMetadataSelectedForThumbnailPopup = fm;
-        alreadyDesignatedAsDatasetThumbnail = getUseAsDatasetThumbnail();
 
-    }
-
-    public boolean getUseAsDatasetThumbnail() {
-
-        return isDesignatedDatasetThumbnail(fileMetadataSelectedForThumbnailPopup);
     }
 
     public boolean isThumbnailIsFromDatasetLogoRatherThanDatafile() {
@@ -398,7 +498,6 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     public void setFileMetadataSelectedForIngestOptionsPopup(FileMetadata fm) {
-        fileMetadataSelectedForIngestOptionsPopup = fm;
     }
 
     public boolean isLockedFromEdits() {
@@ -443,14 +542,37 @@ public class ReplaceDatafilesPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
+    private InputStream getDropBoxInputStream(String fileLink, GetMethod dropBoxMethod) {
+
+        if (fileLink == null) {
+            return null;
+        }
+
+        // -----------------------------------------------------------
+        // Make http call, download the file:
+        // -----------------------------------------------------------
+        int status = 0;
+
+        try {
+            status = new HttpClient().executeMethod(dropBoxMethod);
+            if (status == 200) {
+                return dropBoxMethod.getResponseBodyAsStream();
+            }
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Failed to access DropBox url: {0}!", fileLink);
+            return null;
+        }
+
+        logger.log(Level.WARNING, "Failed to get DropBox InputStream for file: {0}", fileLink);
+        return null;
+    }
+
     private void handleReplaceFileUpload(FacesEvent event, InputStream inputStream,
                                          String fileName,
                                          String contentType
     ) {
 
         fileReplacePageHelper.resetReplaceFileHelper();
-
-        String clientId = event.getComponent().getClientId();
 
         if (fileReplacePageHelper.handleNativeFileUpload(inputStream,
                                                          fileName,
@@ -490,16 +612,12 @@ public class ReplaceDatafilesPage implements Serializable {
             // -- L.A. 4.6.1
             //uploadSuccessMessage = "Hey! It worked!";
 
-        } else {
-            uploadWarningMessage = fileReplacePageHelper.getErrorMessages();
         }
     }
 
     private void refreshCategoriesByName() {
         categoriesByName = new ArrayList<>();
-        for (String category : dataset.getCategoriesByName()) {
-            categoriesByName.add(category);
-        }
+        categoriesByName.addAll(dataset.getCategoriesByName());
         refreshSelectedTags();
     }
 
@@ -574,5 +692,17 @@ public class ReplaceDatafilesPage implements Serializable {
 
     public void setSelectedFiles(List<FileMetadata> selectedFiles) {
         this.selectedFiles = selectedFiles;
+    }
+
+    public void setSelectedTags(String[] selectedTags) {
+        this.selectedTags = selectedTags;
+    }
+
+    public void setNewCategoryName(String newCategoryName) {
+        this.newCategoryName = newCategoryName;
+    }
+
+    public void setDropBoxSelection(String dropBoxSelection) {
+        this.dropBoxSelection = dropBoxSelection;
     }
 }
