@@ -80,7 +80,6 @@ public class ReplaceDatafilesPage implements Serializable {
     private List<String> tabFileTags;
     private FileMetadata fileMetadataSelectedForTagsPopup;
     private List<String> tabFileTagsByName;
-    private FileMetadata fileMetadataSelectedForThumbnailPopup;
     private boolean uploadInProgress;
     private String warningMessageForPopUp;
     private String newCategoryName;
@@ -318,34 +317,6 @@ public class ReplaceDatafilesPage implements Serializable {
         }
     }
 
-    /**
-     * Save for File Replace operations
-     *
-     * @return
-     * @throws FileReplaceException
-     */
-    private String saveReplacementFile() throws FileReplaceException {
-
-        if (!fileReplacePageHelper.wasPhase1Successful()) {
-            throw new FileReplaceException("Save should only be called when a replacement file has been chosen.  (Phase 1 has to have completed)");
-
-        }
-
-        if (fileReplacePageHelper.runSaveReplacementFile_Phase2()) {
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.replaceSuccess"));
-
-            return returnToFileLandingPageAfterReplace(fileReplacePageHelper.getFirstNewlyAddedFile());
-        } else {
-
-            String errMsg = fileReplacePageHelper.getErrorMessages();
-
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.save.fail"), errMsg));
-            logger.severe("Dataset save failed for replace operation: " + errMsg);
-            return StringUtils.EMPTY;
-        }
-
-    }
-
     public void saveFileTagsAndCategories() {
         if (fileMetadataSelectedForTagsPopup == null) {
             logger.fine("No FileMetadata selected for the categories popup");
@@ -488,7 +459,6 @@ public class ReplaceDatafilesPage implements Serializable {
      * Java since it's getting long and a bit complicated.
      */
     public void setFileMetadataSelectedForThumbnailPopup(FileMetadata fm) {
-        fileMetadataSelectedForThumbnailPopup = fm;
 
     }
 
@@ -565,6 +535,34 @@ public class ReplaceDatafilesPage implements Serializable {
 
         logger.log(Level.WARNING, "Failed to get DropBox InputStream for file: {0}", fileLink);
         return null;
+    }
+
+    /**
+     * Save for File Replace operations
+     *
+     * @return
+     * @throws FileReplaceException
+     */
+    private String saveReplacementFile() throws FileReplaceException {
+
+        if (!fileReplacePageHelper.wasPhase1Successful()) {
+            throw new FileReplaceException("Save should only be called when a replacement file has been chosen.  (Phase 1 has to have completed)");
+
+        }
+
+        if (fileReplacePageHelper.runSaveReplacementFile_Phase2()) {
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.replaceSuccess"));
+
+            return returnToFileLandingPageAfterReplace(fileReplacePageHelper.getFirstNewlyAddedFile());
+        } else {
+
+            String errMsg = fileReplacePageHelper.getErrorMessages();
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.save.fail"), errMsg));
+            logger.severe("Dataset save failed for replace operation: " + errMsg);
+            return StringUtils.EMPTY;
+        }
+
     }
 
     private void handleReplaceFileUpload(FacesEvent event, InputStream inputStream,
@@ -668,7 +666,7 @@ public class ReplaceDatafilesPage implements Serializable {
         if (newFile == null) {
             throw new NullPointerException("newFile cannot be null!");
         }
-        //Long datasetVersionId = newFile.getOwner().getLatestVersion().getId();
+
         return "/file.xhtml?fileId=" + newFile.getId() + "&version=DRAFT&faces-redirect=true";
     }
 
