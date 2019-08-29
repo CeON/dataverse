@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.ThumbnailServiceWrapper;
 import edu.harvard.iq.dataverse.WidgetWrapper;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
@@ -36,10 +37,12 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.naming.directory.SearchResult;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -85,6 +88,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private DataFileServiceBean dataFileService;
     @Inject
     private WidgetWrapper widgetWrapper;
+    @Inject
+    private PermissionsWrapper permissionsWrapper;
 
     private String browseModeString = "browse";
     private String searchModeString = "search";
@@ -276,6 +281,14 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public void setFacetCategoryList(List<FacetCategory> facetCategoryList) {
         this.facetCategoryList = facetCategoryList;
+    }
+
+    public String getUserIdentifier() {
+        return userIdentifier;
+    }
+
+    public void setUserIdentifier(String userIdentifier) {
+        this.userIdentifier = userIdentifier;
     }
 
     public List<SolrSearchResult> getSearchResultsList() {
@@ -983,8 +996,20 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     }
 
+    public String getAuthUserIdentifier() {
+        if (this.authUser == null) {
+            return null;
+        }
+        return MyDataUtil.formatUserIdentifierForMyDataForm(this.authUser.getIdentifier());
+    }
 
     public String retrieveMyData() {
+        if ((session.getUser() != null) && (session.getUser().isAuthenticated())) {
+            authUser = (AuthenticatedUser) session.getUser();
+        } else {
+            return permissionsWrapper.notAuthorized();
+            // redirect to login OR give some type ‘you must be logged in message'
+        }
 
         // wildcard/browse (*) unless user supplies a query
         if (this.query == null) {
@@ -1040,10 +1065,12 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
         if ((session.getUser() != null) && (session.getUser().isAuthenticated())) {
             authUser = (AuthenticatedUser) session.getUser();
-
+            if(userIdentifier == null || userIdentifier.isEmpty()) {
+                userIdentifier = authUser.getUserIdentifier();
+            }
             // If person is a superuser, see if a userIdentifier has been specified
             // and use that instead
-            if ((authUser.isSuperuser()) && (userIdentifier != null) && (!userIdentifier.isEmpty())) {
+            if (authUser.isSuperuser()) {
                 searchUser = getUserFromIdentifier(userIdentifier);
                 if (searchUser != null) {
                     authUser = searchUser;
