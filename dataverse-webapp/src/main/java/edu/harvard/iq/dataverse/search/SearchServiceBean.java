@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
@@ -639,7 +640,7 @@ public class SearchServiceBean {
 //                logger.info("field: " + facetField.getName() + " " + facetFieldCount.getName() + " (" + facetFieldCount.getCount() + ")");
                 if (facetFieldCount.getCount() > 0) {
                     FacetLabel facetLabel = new FacetLabel(facetFieldCount.getName(),
-                            getLocaleFacetName(facetFieldCount.getName(), datasetFieldService.findAllOrderedByName()),
+                            getLocaleFacetName(facetFieldCount.getName()),
                             facetFieldCount.getCount());
                     // quote field facets
                     facetLabel.setFilterQuery(facetField.getName() + ":\"" + facetFieldCount.getName() + "\"");
@@ -707,7 +708,7 @@ public class SearchServiceBean {
                         stringBuilder.append(getCapitalizedName(part.toLowerCase()) + " ");
                     }
                     String friendlyNameWithTrailingSpace = stringBuilder.toString();
-                    String friendlyName = getLocaleFacetName(friendlyNameWithTrailingSpace.replaceAll(" $", ""), datasetFieldService.findAllOrderedByName());
+                    String friendlyName = getLocaleFacetName(friendlyNameWithTrailingSpace.replaceAll(" $", ""));
                     facetCategory.setFriendlyName(friendlyName);
 //                    logger.info("adding <<<" + staticSearchField + ":" + friendlyName + ">>>");
                     staticSolrFieldFriendlyNamesBySolrField.put(staticSearchField, friendlyName);
@@ -949,8 +950,12 @@ public class SearchServiceBean {
 
     }
 
+    public String getLocaleFacetName(String name) {
+        return getLocaleFacetName(name, datasetFieldService.findAllOrderedByName());
+    }
+
     public String getLocaleFacetName(String name, List<DatasetFieldType> datasetFields ) {
-        final String key = StringUtils.stripAccents(name.toLowerCase().replace(" ", "_"));
+        final String key = toBundleNameFormat(name);
         try {
             String displayName = getStringFromBundle(format("facets.search.fieldtype.%s.label", name));
             if(isNotBlank(displayName)) {
@@ -976,6 +981,15 @@ public class SearchServiceBean {
             return name;
         }
         return name;
+    }
+
+    /**
+     * if exist, multi word bundle names are connected with underscores and formatted toLowerCase
+     * @param name text for which we want to create its bundle name
+     * @return text with replaced spaces with underscores, and leading/trailing whitespaces removed, toLowerCased
+     */
+    private String toBundleNameFormat(String name) {
+        return StringUtils.stripAccents(name.toLowerCase().replace(" ", "_"));
     }
 
 }

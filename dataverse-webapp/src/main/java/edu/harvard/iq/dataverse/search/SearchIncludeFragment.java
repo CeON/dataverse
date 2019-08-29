@@ -1000,11 +1000,10 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
         List<String> friendlyNames = new ArrayList<>();
 
-        friendlyNames.add(searchService.getLocaleFacetName(key, datasetFieldService.findAllOrderedByName()));
+        friendlyNames.add(searchService.getLocaleFacetName(key));
 
-        String valStr = searchService.getLocaleFacetName(value.replaceAll("^\"", "").replaceAll("\"$", ""),
-                    datasetFieldService.findAllOrderedByName());
-        friendlyNames.add(valStr);
+        String localizedFacetName = searchService.getLocaleFacetName(value.replaceAll("^\"", "").replaceAll("\"$", ""));
+        friendlyNames.add(localizedFacetName);
         return friendlyNames;
     }
 
