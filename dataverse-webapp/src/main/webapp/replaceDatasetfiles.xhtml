@@ -121,6 +121,24 @@
                                                           invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}"
                                                           sequential="true"
                                                           widgetVar="fileUploadWidget"/>
+
+                                            <script>
+
+                                                function uploadWidgetDropMsg() {
+                                                    var fileUpload = $('div[id$="fileUpload"] div.ui-fileupload-content');
+                                                    if ($(fileUpload).children('#dragdropMsg').length === 0) {
+                                                        $(fileUpload).prepend('<div id="dragdropMsg">#{bundle['
+                                                        file.selectToAdd.dragdropMsg
+                                                        ']}</div>'
+                                                    )
+                                                        ;
+                                                    }
+                                                }
+
+                                                $(document).ready(function () {
+                                                    uploadWidgetDropMsg();
+                                                });
+                                            </script>
                                         </div>
 
                                         <div jsf:id="dropboxBlock"
