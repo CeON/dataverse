@@ -1,15 +1,19 @@
 package edu.harvard.iq.dataverse.search;
 
+import edu.harvard.iq.dataverse.mydata.RoleTagRetriever;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FacetField;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class SolrQueryResponse {
 
@@ -213,4 +217,37 @@ public class SolrQueryResponse {
         return solrQuery;
     }
 
+    public SolrQueryResponse rebuildForRolesFilters(List<String> roleFilters, RoleTagRetriever roleTagRetriever) {
+        List<Long> entitiesFilteredByRole = new ArrayList<>();
+        for(Long entityId : roleTagRetriever.getFinalIdToRolesHash().keySet()) {
+            if(roleTagRetriever.getFinalIdToRolesHash().get(entityId).stream().anyMatch(roleFilters::contains)) {
+                entitiesFilteredByRole.add(entityId);
+            }
+        }
+
+        List<SolrSearchResult> filteredResults = new ArrayList<>();
+        for(SolrSearchResult result : this.getSolrSearchResults()) {
+             if(entitiesFilteredByRole.contains(result.getEntityId())) {
+                 filteredResults.add(result);
+             }
+        }
+        this.setSolrSearchResults(filteredResults);
+        this.setNumResultsFound((long) filteredResults.size());
+
+        for(FacetLabel facetLabel : this.getTypeFacetCategories().get(0).getFacetLabel()) {
+            facetLabel.setCount(filteredResults.stream().filter((e) -> e.getType().equals(facetLabel.getName())).count());
+        }
+
+        for(FacetCategory fc : this.getFacetCategoryList()) {
+            if(fc.getName().equals(SearchFields.PUBLICATION_STATUS)) {
+                this.setFacetCategoryList(Arrays.asList(fc));
+                break;
+            }
+        }
+        for(FacetLabel facetLabel : this.getFacetCategoryList().get(0).getFacetLabel()) {
+            facetLabel.setCount(filteredResults.stream().filter(e -> e.getPublicationStatuses().contains(facetLabel.getName())).count());
+        }
+
+        return this;
+    }
 }

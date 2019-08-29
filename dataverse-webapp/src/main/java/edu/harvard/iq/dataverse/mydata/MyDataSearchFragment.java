@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.ThumbnailServiceWrapper;
+import edu.harvard.iq.dataverse.WidgetWrapper;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.DataverseRolePermissionHelper;
@@ -82,6 +83,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private DatasetVersionServiceBean datasetVersionService;
     @EJB
     private DataFileServiceBean dataFileService;
+    @Inject
+    private WidgetWrapper widgetWrapper;
 
     private String browseModeString = "browse";
     private String searchModeString = "search";
@@ -101,6 +104,13 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private String fq7;
     private String fq8;
     private String fq9;
+    private List<String> roleFilters = new ArrayList<>();
+    private String rf0;
+    private String rf1;
+    private String rf2;
+    private String rf3;
+    private String rf4;
+    private String rf5;
     private Dataverse dataverse;
     private String dataversePath = null;
     private String selectedTypesString;
@@ -363,6 +373,60 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     public void setFq9(String fq9) {
         this.fq9 = fq9;
     }
+
+
+    public void setRf0(String rf0) {
+        this.rf0 = rf0;
+    }
+
+    public void setRf1(String rf1) {
+        this.rf1 = rf1;
+    }
+
+    public void setRf2(String rf2) {
+        this.rf2 = rf2;
+    }
+
+    public void setRf3(String rf3) {
+        this.rf3 = rf3;
+    }
+
+    public void setRf4(String rf4) {
+        this.rf4 = rf4;
+    }
+
+    public void setRf5(String rf5) {
+        this.rf5 = rf5;
+    }
+
+    public List<String> getRoleFilters() {
+        return roleFilters;
+    }
+
+    public String getRf0() {
+        return rf0;
+    }
+
+    public String getRf1() {
+        return rf1;
+    }
+
+    public String getRf2() {
+        return rf2;
+    }
+
+    public String getRf3() {
+        return rf3;
+    }
+
+    public String getRf4() {
+        return rf4;
+    }
+
+    public String getRf5() {
+        return rf5;
+    }
+
 
     public Dataverse getDataverse() {
         return dataverse;
@@ -907,6 +971,18 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         asc, desc
     }
 
+    public String searchRedirect(String dataverseRedirectPage) {
+        dataverseRedirectPage = StringUtils.isBlank(dataverseRedirectPage) ? "/dataverseuser.xhtml?selectTab=dataRelatedToMe" : dataverseRedirectPage;
+
+        String qParam = "";
+        if (query != null) {
+            qParam = "&q=" + query;
+        }
+
+        return widgetWrapper.wrapURL(dataverseRedirectPage + "?faces-redirect=true&q=" + qParam);
+
+    }
+
 
     public String retrieveMyData() {
 
@@ -947,6 +1023,13 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         for (String fq : Arrays.asList(fq0, fq1, fq2, fq3, fq4, fq5, fq6, fq7, fq8, fq9)) {
             if (fq != null) {
                 filterQueries.add(fq);
+            }
+        }
+
+        roleFilters = new ArrayList<>();
+        for (String rf : Arrays.asList(rf0, rf1, rf2, rf3, rf4, rf5)) {
+            if (rf != null) {
+                roleFilters.add(rf);
             }
         }
 
@@ -1077,6 +1160,20 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             return "Sorry!  There was an error with the search service." +  " Sorry!  There was a SOLR Error";
         }
         if (!solrIsDown) {
+            roleTagRetriever = new RoleTagRetriever(this.rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
+            roleTagRetriever.loadRoles(dataverseRequest, solrQueryResponse);
+
+            List<String> roles = new ArrayList<>();
+            for(SolrSearchResult dvObjId : solrQueryResponse.getSolrSearchResults()) {
+                roles.addAll(roleTagRetriever.getRolesForCard(dvObjId.getEntityId()));
+            }
+            myRoles = roles.stream().distinct().collect(Collectors.toList());
+
+            List<Long> entitiesFilteredByRole = new ArrayList<>();
+            if(!roleFilters.isEmpty()) {
+                solrQueryResponse = solrQueryResponse.rebuildForRolesFilters(roleFilters, roleTagRetriever);
+            }
+
             for(FacetCategory facetCat : solrQueryResponse.getFacetCategoryList()) {
                 if(facetCat.getName().equals("publicationStatus")) {
                     this.facetCategoryList.add(facetCat);
@@ -1092,6 +1189,18 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             paginationGuiStart = paginationStart + 1;
             paginationGuiEnd = Math.min(page * paginationGuiRows, searchResultsCount);
             List<SolrSearchResult> searchResults = solrQueryResponse.getSolrSearchResults();
+
+            // populate preview counts: https://redmine.hmdc.harvard.edu/issues/3560
+            previewCountbyType.put("dataverses", 0L);
+            previewCountbyType.put("datasets", 0L);
+            previewCountbyType.put("files", 0L);
+            if (solrQueryResponse != null) {
+                for (FacetCategory facetCategory : solrQueryResponse.getTypeFacetCategories()) {
+                    for (FacetLabel facetLabel : facetCategory.getFacetLabel()) {
+                        previewCountbyType.put(facetLabel.getName(), facetLabel.getCount());
+                    }
+                }
+            }
 
             /**
              * @todo consider creating Java objects called DatasetCard,
@@ -1117,28 +1226,18 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                 // (we'll review this later!)
 
                 if (solrSearchResult.getType().equals("dataverses")) {
-                    //logger.info("XXRESULT: dataverse: "+solrSearchResult.getEntityId());
                     dataverseService.populateDvSearchCard(solrSearchResult);
-
-                    /*
-                    Dataverses cannot be harvested yet.
-                    if (isHarvestedDataverse(solrSearchResult.getEntityId())) {
-                        solrSearchResult.setHarvested(true);
-                    }*/
 
                 } else if (solrSearchResult.getType().equals("datasets")) {
                     //logger.info("XXRESULT: dataset: "+solrSearchResult.getEntityId());
                     datasetVersionService.populateDatasetSearchCard(solrSearchResult);
 
-                    // @todo - the 3 lines below, should they be moved inside
-                    // searchServiceBean.search()?
                     String deaccesssionReason = solrSearchResult.getDeaccessionReason();
                     if (deaccesssionReason != null) {
                         solrSearchResult.setDescriptionNoSnippet(deaccesssionReason);
                     }
 
                 } else if (solrSearchResult.getType().equals("files")) {
-                    //logger.info("XXRESULT: datafile: "+solrSearchResult.getEntityId());
                     dataFileService.populateFileSearchCard(solrSearchResult);
 
                     /**
@@ -1146,27 +1245,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                      */
                 }
             }
-            // populate preview counts: https://redmine.hmdc.harvard.edu/issues/3560
-            previewCountbyType.put("dataverses", 0L);
-            previewCountbyType.put("datasets", 0L);
-            previewCountbyType.put("files", 0L);
-            if (solrQueryResponse != null) {
-                for (FacetCategory facetCategory : solrQueryResponse.getTypeFacetCategories()) {
-                    for (FacetLabel facetLabel : facetCategory.getFacetLabel()) {
-                        previewCountbyType.put(facetLabel.getName(), facetLabel.getCount());
-                    }
-                }
-            }
         }
-
-        roleTagRetriever = new RoleTagRetriever(this.rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
-        roleTagRetriever.loadRoles(dataverseRequest, solrQueryResponse);
-
-        List<String> roles = new ArrayList<>();
-        for(SolrSearchResult dvObjId : solrQueryResponse.getSolrSearchResults()) {
-            roles.addAll(roleTagRetriever.getRolesForCard(dvObjId.getEntityId()));
-        }
-        myRoles = roles.stream().distinct().collect(Collectors.toList());
 
         return StringUtils.EMPTY;
     }

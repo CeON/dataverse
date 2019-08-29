@@ -28,6 +28,18 @@
             
             &#160; <a id="btn_find_my_data" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>#{bundle['find']}</a>
         </div>
+
+        <div class="#{widgetWrapper.widgetView ? 'col-sm-12' : 'col-sm-8'}">
+            <h:form>
+                <p:inputText id="searchBasic" styleClass="search-input" size="40" value="#{MyDataSearchFragment.query}" onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"/>
+                <p:watermark for="searchBasic" value="#{bundle['mydataFragment.search']}"/>
+                <p:commandLink id="searchbutton" styleClass="btn btn-default" action="#{MyDataSearchFragment.searchRedirect(dataverseRedirectPage)}">
+                    <span class="glyphicon glyphicon-search"/> #{bundle['dataverse.search.btn.find']}
+                </p:commandLink>
+                <p:remoteCommand name="submitsearch" action="#{SearchIncludeFragment.searchRedirect(dataverseRedirectPage)}"/>
+            </h:form>
+        </div>
+
         <ui:fragment rendered="#{MyDataPage.isSuperuser()}">
         <div class="col-xs-4 pull-right text-right" style="margin-right:30px;margin-bottom:0;padding:8px 6px;background:none;">
             #{bundle['mydataFragment.resultsByUserName']}
@@ -207,50 +219,38 @@
 
             <!--ROLES-->
             <h:form id="rolesForm" rendered="#{MyDataSearchFragment.searchResultsCount > 0}">
+                <div>
                     <h:outputText value="Roles" styleClass="facetCategoryName"/>
                     <p:dataList id="rolesList" value="#{MyDataSearchFragment.myRoles}" var="role" rows="#{MyDataSearchFragment.myRoles.size()}">
-                        <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{!MyDataSearchFragment.filterQueries.contains(role)}" styleClass="facetLink">
+                        <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{!MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink">
                             <h:outputFormat value="#{role}">
 <!--                                <f:param value="#{facetLabel.count}"/>-->
                             </h:outputFormat>
                             <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                            <f:param name="fq#{MyDataSearchFragment.filterQueries.size()}" value="#{role}"/>
-                            <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                            <f:param name="rf#{MyDataSearchFragment.roleFilters.size()}" value="#{role}"/>
+                            <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
+                                <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
                             </c:forEach>
                             <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                             <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                             <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         </h:outputLink>
 
-                        <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{MyDataSearchFragment.filterQueries.contains(role)}" styleClass="facetLink facetSelected">
+                        <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink facetSelected">
                             <h:outputFormat value="#{role}">
 <!--                                <f:param value="#{facetLabel.count}"/>-->
                             </h:outputFormat>
                             <span class="glyphicon glyphicon-remove"></span>
                             <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                            <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedFilterQuery}' disable="#{clickedFilterQuery == role}"/>
+                            <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
+                                <f:param name="rf#{status.index}" value='#{clickedRoleFilter}' disable="#{clickedRoleFilter == role}"/>
                             </c:forEach>
                             <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                             <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                             <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         </h:outputLink>
                     </p:dataList>
-                    <ui:fragment rendered="#{role != MyDataSearchFragment.searchFieldType and role != MyDataSearchFragment.searchFieldSubtree}">
-                        <p:panelGrid styleClass="facetsMoreLess" columns="2"
-                                     rendered="#{(MyDataSearchFragment.myRoles.size() lt MyDataSearchFragment.myRoles.size()) or (MyDataSearchFragment.myRoles.size() gt 5)}">
-                            <ui:fragment>
-                                <p:commandLink
-                                               update="rolesList" rendered="#{MyDataSearchFragment.myRoles.size() gt 5}">#{bundle.less}</p:commandLink>
-                            </ui:fragment>
-                            <ui:fragment>
-                                <p:commandLink
-                                               update="rolesList"
-                                               rendered="#{MyDataSearchFragment.myRoles.size() lt MyDataSearchFragment.myRoles.size()}">#{bundle.more}</p:commandLink>
-                            </ui:fragment>
-                        </p:panelGrid>
-                    </ui:fragment>
+                </div>
             </h:form>
 
 
