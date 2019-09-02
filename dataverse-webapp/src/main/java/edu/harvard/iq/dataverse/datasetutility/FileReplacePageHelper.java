@@ -97,20 +97,6 @@ public class FileReplacePageHelper {
 
         phase1Success = false;
 
-        // Preliminary sanity check
-        //
-        if (inputStream == null) {
-            throw new NullPointerException("inputStream cannot be null");
-        }
-        if (fileName == null) {
-            throw new NullPointerException("fileName cannot be null");
-        }
-        if (fileContentType == null) {
-            throw new NullPointerException("fileContentType cannot be null");
-        }
-
-        // Run 1st phase of replace
-        //
         replaceFileHelper.runReplaceFromUI_Phase1(fileToReplace.getId(),
                                                   fileName,
                                                   fileContentType,

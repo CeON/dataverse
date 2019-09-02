@@ -5,9 +5,8 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
-import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.FileReplaceException;
-import edu.harvard.iq.dataverse.datasetutility.FileReplacePageHelper;
+import edu.harvard.iq.dataverse.datasetutility.ReplaceFileHandler;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -23,7 +22,6 @@ import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -48,6 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,12 +65,13 @@ public class ReplaceDatafilesPage implements Serializable {
     private DataverseRequestServiceBean dvRequestService;
     private SystemConfig systemConfig;
     private SettingsServiceBean settingsService;
+    private ReplaceFileHandler replaceFileHandler;
 
     private long datasetId;
     private long fileId;
     private Dataset dataset;
     private DataFile fileToBeReplaced;
-    private FileReplacePageHelper fileReplacePageHelper;
+    private DataFile fileToBeSaved;
     private Map<String, String> temporaryThumbnailsMap = new HashMap<>();
     private List<String> categoriesByName = new ArrayList<>();
     private List<FileMetadata> selectedFiles;
@@ -92,10 +92,11 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     @Inject
-    public ReplaceDatafilesPage(PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService,
+    public ReplaceDatafilesPage(ReplaceFileHandler replaceFileHandler, PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService,
                                 DatasetServiceBean datasetService, DataFileServiceBean datafileService, IngestServiceBean ingestService,
                                 EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService, SystemConfig systemConfig,
                                 SettingsServiceBean settingsService) {
+        this.replaceFileHandler = replaceFileHandler;
         this.permissionsWrapper = permissionsWrapper;
         this.permissionService = permissionService;
         this.datasetService = datasetService;
@@ -111,6 +112,10 @@ public class ReplaceDatafilesPage implements Serializable {
 
     public long getDatasetId() {
         return datasetId;
+    }
+
+    public DataFile getFileToBeSaved() {
+        return fileToBeSaved;
     }
 
     public long getFileId() {
@@ -160,10 +165,6 @@ public class ReplaceDatafilesPage implements Serializable {
         return dataset;
     }
 
-    public FileReplacePageHelper getFileReplacePageHelper() {
-        return fileReplacePageHelper;
-    }
-
     public List<FileMetadata> getSelectedFiles() {
         return selectedFiles;
     }
@@ -180,17 +181,6 @@ public class ReplaceDatafilesPage implements Serializable {
             return permissionError;
         }
 
-
-        AddReplaceFileHelper addReplaceFileHelper = new AddReplaceFileHelper(dvRequestService.getDataverseRequest(),
-                                                                             ingestService,
-                                                                             datafileService,
-                                                                             permissionService,
-                                                                             commandEngine);
-
-        fileReplacePageHelper = new FileReplacePageHelper(addReplaceFileHelper,
-                                                          dataset,
-                                                          fileToBeReplaced);
-
         return StringUtils.EMPTY;
     }
 
@@ -198,15 +188,15 @@ public class ReplaceDatafilesPage implements Serializable {
 
         UploadedFile uFile = event.getFile();
 
-        handleReplaceFileUpload(event, uFile.getInputstream(),
+        handleReplaceFileUpload(uFile.getContents(),
                                 uFile.getFileName(),
                                 uFile.getContentType());
 
-        if (fileReplacePageHelper.hasContentTypeWarning()) {
+        /*if (fileReplacePageHelper.hasContentTypeWarning()) {
             RequestContext context = RequestContext.getCurrentInstance();
             RequestContext.getCurrentInstance().update("replaceFileForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
-        }
+        }*/
 
     }
 
@@ -223,11 +213,11 @@ public class ReplaceDatafilesPage implements Serializable {
 
     public void deleteReplacementFile() throws FileReplaceException {
 
-        if (!fileReplacePageHelper.wasPhase1Successful()) {
+        /*if (!fileReplacePageHelper.wasPhase1Successful()) {
             throw new FileReplaceException("Should only be called if Phase 1 was successful");
         }
 
-        fileReplacePageHelper.resetReplaceFileHelper();
+        fileReplacePageHelper.resetReplaceFileHelper();*/
 
         String successMessage = BundleUtil.getStringFromBundle("file.deleted.replacement.success");
         logger.fine(successMessage);
@@ -299,7 +289,7 @@ public class ReplaceDatafilesPage implements Serializable {
             }
 
             handleReplaceFileUpload(event, dropBoxStream, fileName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue());
-            setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
+            //setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
             return;
 
         }
@@ -358,9 +348,9 @@ public class ReplaceDatafilesPage implements Serializable {
 
     public List<FileMetadata> getFileMetadatas() {
 
-        if (fileReplacePageHelper.wasPhase1Successful()) {
+        if (fileToBeSaved != null) {
             logger.fine("Replace: File metadatas 'list' of 1 from the fileReplacePageHelper.");
-            return fileReplacePageHelper.getNewFileMetadatasBeforeSave();
+            return Lists.newArrayList(fileToBeSaved.getFileMetadata());
         }
 
         return Lists.newArrayList();
@@ -394,11 +384,11 @@ public class ReplaceDatafilesPage implements Serializable {
             uploadInProgress = false;
         }
 
-        if (fileReplacePageHelper.hasContentTypeWarning()) {
+        /*if (fileReplacePageHelper.hasContentTypeWarning()) {
             RequestContext context = RequestContext.getCurrentInstance();
             RequestContext.getCurrentInstance().update("datasetForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
-        }
+        }*/
     }
 
     public void uploadStarted() {
@@ -478,7 +468,7 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     public String returnToFileLandingPage() {
-        Long fileId = fileReplacePageHelper.getFileToReplace().getId();
+        Long fileId = fileToBeReplaced.getId();
 
         if (dataset.getLatestVersion().isDraft()) {
             return "/file.xhtml?fileId=" + fileId + "&version=DRAFT&faces-redirect=true";
@@ -496,6 +486,15 @@ public class ReplaceDatafilesPage implements Serializable {
         }
 
         DatasetVersion workingVersion = dataset.getEditVersion();
+
+        Optional<DataFile> isFileInDataset = workingVersion.getFileMetadatas().stream()
+                .map(FileMetadata::getDataFile)
+                .filter(dataFile -> dataFile.equals(fileToBeReplaced))
+                .findAny();
+
+        if (!isFileInDataset.isPresent()) {
+            permissionsWrapper.notAuthorized();
+        }
 
         if (!workingVersion.isDraft()) {
             return permissionsWrapper.notFound();
@@ -545,23 +544,18 @@ public class ReplaceDatafilesPage implements Serializable {
      */
     private String saveReplacementFile() throws FileReplaceException {
 
-        if (!fileReplacePageHelper.wasPhase1Successful()) {
-            throw new FileReplaceException("Save should only be called when a replacement file has been chosen.  (Phase 1 has to have completed)");
+            replaceFileHandler.replaceFile(fileToBeReplaced, dataset, fileToBeSaved);
 
-        }
-
-        if (fileReplacePageHelper.runSaveReplacementFile_Phase2()) {
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.replaceSuccess"));
 
-            return returnToFileLandingPageAfterReplace(fileReplacePageHelper.getFirstNewlyAddedFile());
-        } else {
+            return returnToFileLandingPageAfterReplace(fileToBeSaved);
 
-            String errMsg = fileReplacePageHelper.getErrorMessages();
+            /*String errMsg = "";//fileReplacePageHelper.getErrorMessages();
 
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.save.fail"), errMsg));
             logger.severe("Dataset save failed for replace operation: " + errMsg);
-            return StringUtils.EMPTY;
-        }
+            return StringUtils.EMPTY;*/
+
 
     }
 
@@ -570,47 +564,15 @@ public class ReplaceDatafilesPage implements Serializable {
                                          String contentType
     ) {
 
-        fileReplacePageHelper.resetReplaceFileHelper();
+    }
 
-        if (fileReplacePageHelper.handleNativeFileUpload(inputStream,
-                                                         fileName,
-                                                         contentType)) {
+    private DataFile handleReplaceFileUpload(byte[] fileContent,
+                                             String fileName,
+                                             String contentType) {
 
-            /**
-             * If the file content type changed, let the user know
-             */
-            if (fileReplacePageHelper.hasContentTypeWarning()) {
-                //Add warning to popup instead of page for Content Type Difference
-                warningMessageForPopUp = fileReplacePageHelper.getContentTypeWarning();
-                /*
-                    Note on the info messages - upload errors, warnings and success messages:
-                    Instead of trying to display the message here (commented out code below),
-                    we only save the message, as a string - and it will be displayed by
-                    the uploadFinished() method, triggered next, after the upload event
-                    is processed and, as the name suggests, finished.
-                    This is done in 2 stages like this so that when the upload component
-                    is called for large numbers of files, in multiple mode, the page could
-                    be updated and re-rendered just once, after all the uploads are finished -
-                    and not after each individual upload. Of course for the "replace" upload
-                    there is always only one... but we have to use this scheme for
-                    consistency. -- L.A. 4.6.1
+        fileToBeSaved = replaceFileHandler.createDataFile(dataset, fileContent, fileName, contentType);
 
-                */
-                //FacesContext.getCurrentInstance().addMessage(
-                //        uploadComponentId,
-                //        new FacesMessage(FacesMessage.SEVERITY_ERROR, "upload warning", uploadWarningMessage));
-            }
-            // See the comment above, on how upload messages are displayed.
-
-            // Commented out the success message below - since we probably don't
-            // need it - the state of the page will indicate the success fairly
-            // unambiguously: the primefaces upload and the dropbox upload components
-            // will become disabled, and the uploaded file will appear on the page.
-            // But feel free to un-comment it, if you feel it could be useful.
-            // -- L.A. 4.6.1
-            //uploadSuccessMessage = "Hey! It worked!";
-
-        }
+        return fileToBeSaved;
     }
 
     private void refreshCategoriesByName() {

@@ -394,14 +394,8 @@ public class AddReplaceFileHelper {
         initErrorHandling();
         this.currentOperation = FILE_REPLACE_FORCE_OPERATION;
 
-        if (oldFileId == null) {
-            this.addErrorSevere(getBundleErr("existing_file_to_replace_id_is_null"));
-            return false;
-        }
 
 
-        // Loads local variable "fileToReplace"
-        //
         if (!this.step_005_loadFileToReplaceById(oldFileId)) {
             return false;
         }
@@ -1469,7 +1463,7 @@ public class AddReplaceFileHelper {
         // (1) Remove all new FileMetadata objects
         // -----------------------------------------------------------                        
         //Iterator<FileMetadata> fmIt = dataset.getEditVersion().getFileMetadatas().iterator();//  
-        Iterator<FileMetadata> fmIt = workingVersion.getFileMetadatas().iterator(); //dataset.getEditVersion().getFileMetadatas().iterator();//  
+        Iterator<FileMetadata> fmIt = workingVersion.getFileMetadatas().iterator(); //dataset.getEditVersion().getFileMetadatas().iterator();//
         while (fmIt.hasNext()) {
             FileMetadata fm = fmIt.next();
             if (fm.getDataFile().getId() == null) {

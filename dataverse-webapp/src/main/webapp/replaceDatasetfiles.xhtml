@@ -109,7 +109,7 @@
                                             <p:fileUpload id="fileUpload"
                                                           dragDropSupport="true"
                                                           auto="true"
-                                                          disabled="#{ReplaceDatafilesPage.lockedFromEdits || !ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"
+                                                          disabled="#{ReplaceDatafilesPage.lockedFromEdits || ReplaceDatafilesPage.fileToBeSaved != null}"
                                                           fileUploadListener="#{ReplaceDatafilesPage.handleFileUpload}"
                                                           update=":replaceFileForm"
                                                           label="#{bundle['file.selectToAddBtn']}"
@@ -149,7 +149,7 @@
                                                              oncomplete="javascript:dropBoxUploadFinished();"
                                                              update="@none" style="display:none;"/>
                                             <p:commandButton id="dropBoxUserButton"
-                                                             disabled="#{ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"
+                                                             disabled="#{ReplaceDatafilesPage.fileToBeSaved != null}"
                                                              value="#{bundle['file.fromDropbox']}"
                                                              onclick="openDropboxChooser();" icon="dropin-btn-status"/>
                                             <p:message for="dropBoxButton" id="dropBoxUploadMessage" display="text"
@@ -180,7 +180,7 @@
                                                  selection="#{ReplaceDatafilesPage.selectedFiles}"
                                                  var="fileMetadata"
                                                  widgetVar="filesTable"
-                                                 emptyMessage="#{ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent() ? bundle['file.noUploadedFiles.tip'] : bundle['file.noSelectedFiles.tip']}">
+                                                 emptyMessage="#{ReplaceDatafilesPage.fileToBeSaved != null ? bundle['file.noUploadedFiles.tip'] : bundle['file.noSelectedFiles.tip']}">
                                         <f:facet name="header">
                                             <div jsf:id="filesHeaderBlock" class="row">
                                                 <div id="filesHeaderCount" class="col-xs-6 text-left">
