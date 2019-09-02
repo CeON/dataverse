@@ -1,8 +1,16 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.datafile.page;
 
 import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.EditDatafilesPage;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
+import edu.harvard.iq.dataverse.datafile.UploadHandler;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
@@ -66,6 +74,7 @@ public class ReplaceDatafilesPage implements Serializable {
     private DataverseRequestServiceBean dvRequestService;
     private SystemConfig systemConfig;
     private SettingsServiceBean settingsService;
+    private UploadHandler uploadHandler;
 
     private long datasetId;
     private long fileId;
@@ -80,7 +89,6 @@ public class ReplaceDatafilesPage implements Serializable {
     private List<String> tabFileTags;
     private FileMetadata fileMetadataSelectedForTagsPopup;
     private List<String> tabFileTagsByName;
-    private boolean uploadInProgress;
     private String warningMessageForPopUp;
     private String newCategoryName;
     private String dropBoxSelection = "";
@@ -92,10 +100,11 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     @Inject
-    public ReplaceDatafilesPage(PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService,
+    public ReplaceDatafilesPage(UploadHandler uploadHandler, PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService,
                                 DatasetServiceBean datasetService, DataFileServiceBean datafileService, IngestServiceBean ingestService,
                                 EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService, SystemConfig systemConfig,
                                 SettingsServiceBean settingsService) {
+        this.uploadHandler = uploadHandler;
         this.permissionsWrapper = permissionsWrapper;
         this.permissionService = permissionService;
         this.datasetService = datasetService;
@@ -194,6 +203,10 @@ public class ReplaceDatafilesPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
+    public String dropboxKey(){
+        return settingsService.getValueForKey(SettingsServiceBean.Key.DropboxKey);
+    }
+
     public void handleFileUpload(FileUploadEvent event) throws IOException {
 
         UploadedFile uFile = event.getFile();
@@ -236,10 +249,6 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     public void handleDropBoxUpload(ActionEvent event) {
-        if (!uploadInProgress) {
-            uploadInProgress = true;
-        }
-        logger.fine("handleDropBoxUpload");
 
         // -----------------------------------------------------------
         // Read JSON object from the output of the DropBox Chooser:
@@ -390,21 +399,11 @@ public class ReplaceDatafilesPage implements Serializable {
         // to the full list of new files, and the list of filemetadatas
         // used to render the page:
 
-        if (uploadInProgress) {
-            uploadInProgress = false;
-        }
-
         if (fileReplacePageHelper.hasContentTypeWarning()) {
             RequestContext context = RequestContext.getCurrentInstance();
             RequestContext.getCurrentInstance().update("datasetForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
         }
-    }
-
-    public void uploadStarted() {
-        logger.fine("upload started");
-
-        uploadInProgress = true;
     }
 
     public String getTemporaryPreviewAsBase64(String fileSystemId) {

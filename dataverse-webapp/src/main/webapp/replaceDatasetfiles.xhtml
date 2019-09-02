@@ -114,7 +114,6 @@
                                                           update=":replaceFileForm"
                                                           label="#{bundle['file.selectToAddBtn']}"
                                                           oncomplete="javascript:bind_bsui_components();uploadFinished(PF('fileUploadWidget'));"
-                                                          onstart="#{ReplaceDatafilesPage.uploadStarted()}"
                                                           onerror="uploadFailure();"
                                                           sizeLimit="#{settingsWrapper.getEnumSettingValue(settingEnum.MaxFileUploadSizeInBytes)}"
                                                           fileLimit="#{settingsWrapper.getEnumSettingValue(settingEnum.MultipleUploadFilesLimit)}"
@@ -149,7 +148,7 @@
                                                              oncomplete="javascript:dropBoxUploadFinished();"
                                                              update="@none" style="display:none;"/>
                                             <p:commandButton id="dropBoxUserButton"
-                                                             disabled="#{ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"
+                                                             disabled="#{!ReplaceDatafilesPage.fileReplacePageHelper.showFileUploadComponent()}"
                                                              value="#{bundle['file.fromDropbox']}"
                                                              onclick="openDropboxChooser();" icon="dropin-btn-status"/>
                                             <p:message for="dropBoxButton" id="dropBoxUploadMessage" display="text"
@@ -559,6 +558,8 @@
                 </p:dialog>
                 <ui:include rendered="#{settingsWrapper.provCollectionEnabled}" src="provenance-popups-fragment.xhtml"/>
 
+                <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/dropins.js"
+                        id="dropboxjs" data-app-key="#{ReplaceDatafilesPage.dropboxKey()}"></script>
                 <script type="text/javascript">
 
                     function deleteFinished() {
