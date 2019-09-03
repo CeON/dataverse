@@ -22,6 +22,7 @@ import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
+import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -184,7 +185,7 @@ public class ReplaceDatafilesPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
-    public void handleFileUpload(FileUploadEvent event) throws IOException {
+    public void handleFileUpload(FileUploadEvent event) {
 
         UploadedFile uFile = event.getFile();
 
@@ -192,35 +193,24 @@ public class ReplaceDatafilesPage implements Serializable {
                                 uFile.getFileName(),
                                 uFile.getContentType());
 
-        /*if (fileReplacePageHelper.hasContentTypeWarning()) {
+        if (!uFile.getContentType().equals(fileToBeReplaced.getContentType())){
             RequestContext context = RequestContext.getCurrentInstance();
-            RequestContext.getCurrentInstance().update("replaceFileForm:fileTypeDifferentPopup");
+            context.update("replaceFileForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
-        }*/
+        }
 
     }
 
     public void deleteFiles() {
-
-        try {
-            deleteReplacementFile();
-        } catch (FileReplaceException ex) {
-            Logger.getLogger(EditDatafilesPage.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-
+        deleteReplacementFile();
     }
 
-    public void deleteReplacementFile() throws FileReplaceException {
+    public void deleteReplacementFile() {
 
-        /*if (!fileReplacePageHelper.wasPhase1Successful()) {
-            throw new FileReplaceException("Should only be called if Phase 1 was successful");
-        }
-
-        fileReplacePageHelper.resetReplaceFileHelper();*/
+        fileToBeSaved = null;
 
         String successMessage = BundleUtil.getStringFromBundle("file.deleted.replacement.success");
-        logger.fine(successMessage);
+        logger.info(successMessage);
         JsfHelper.addFlashMessage(successMessage);
 
     }
@@ -229,7 +219,7 @@ public class ReplaceDatafilesPage implements Serializable {
         if (!uploadInProgress) {
             uploadInProgress = true;
         }
-        logger.fine("handleDropBoxUpload");
+        logger.info("handleDropBoxUpload");
 
         // -----------------------------------------------------------
         // Read JSON object from the output of the DropBox Chooser:
@@ -297,14 +287,7 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     public String saveReplacement() {
-        try {
-            return saveReplacementFile();
-        } catch (FileReplaceException ex) {
-            String errMsg = ex.getMessage();
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.save.fail"), errMsg));
-            logger.log(Level.SEVERE, "Dataset save failed for replace operation: {0}", errMsg);
-            return StringUtils.EMPTY;
-        }
+        return saveReplacementFile();
     }
 
     public void saveFileTagsAndCategories() {
@@ -542,21 +525,21 @@ public class ReplaceDatafilesPage implements Serializable {
      * @return
      * @throws FileReplaceException
      */
-    private String saveReplacementFile() throws FileReplaceException {
+    private String saveReplacementFile() {
 
-            replaceFileHandler.replaceFile(fileToBeReplaced, dataset, fileToBeSaved);
+        Try<DataFile> replacedFileOperation = Try.of(() -> replaceFileHandler.replaceFile(fileToBeReplaced, dataset, fileToBeSaved));
 
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.replaceSuccess"));
+        if (replacedFileOperation.isFailure()) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                                                                BundleUtil.getStringFromBundle("dataset.save.fail"),
+                                                                                ""));
+            logger.severe("Dataset save failed for replace operation" + fileToBeReplaced.getDisplayName());
+            return StringUtils.EMPTY;
+        }
 
-            return returnToFileLandingPageAfterReplace(fileToBeSaved);
+        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.replaceSuccess"));
 
-            /*String errMsg = "";//fileReplacePageHelper.getErrorMessages();
-
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.save.fail"), errMsg));
-            logger.severe("Dataset save failed for replace operation: " + errMsg);
-            return StringUtils.EMPTY;*/
-
-
+        return returnToFileLandingPageAfterReplace(replacedFileOperation.get());
     }
 
     private void handleReplaceFileUpload(FacesEvent event, InputStream inputStream,
@@ -571,6 +554,10 @@ public class ReplaceDatafilesPage implements Serializable {
                                              String contentType) {
 
         fileToBeSaved = replaceFileHandler.createDataFile(dataset, fileContent, fileName, contentType);
+
+        if (fileToBeSaved.getChecksumValue().equals(fileToBeReplaced.getChecksumValue())) {
+
+        }
 
         return fileToBeSaved;
     }
@@ -624,10 +611,6 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     private String returnToFileLandingPageAfterReplace(DataFile newFile) {
-
-        if (newFile == null) {
-            throw new NullPointerException("newFile cannot be null!");
-        }
 
         return "/file.xhtml?fileId=" + newFile.getId() + "&version=DRAFT&faces-redirect=true";
     }

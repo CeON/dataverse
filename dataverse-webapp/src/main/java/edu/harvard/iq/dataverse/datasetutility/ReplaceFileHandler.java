@@ -10,17 +10,20 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Stateless
@@ -33,6 +36,7 @@ public class ReplaceFileHandler implements Serializable {
     private EjbDataverseEngine commandEngine;
     private DataverseRequestServiceBean dvRequestService;
 
+    @Deprecated
     public ReplaceFileHandler() {
     }
 
@@ -48,28 +52,30 @@ public class ReplaceFileHandler implements Serializable {
     // -------------------- LOGIC --------------------
 
     public DataFile createDataFile(Dataset dataset,
-                               byte[] newFileContent,
-                               String newFileName,
-                               String newFileContentType) {
+                                   byte[] newFileContent,
+                                   String newFileName,
+                                   String newFileContentType) {
 
         DatasetVersion datasetDraft = dataset.getEditVersion();
 
         return createDataFile(dataset, newFileContent, newFileName, newFileContentType, datasetDraft);
     }
 
-    public void replaceFile(DataFile fileToBeReplaced,
-                            Dataset dataset,
-                            DataFile newFile) {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public DataFile replaceFile(DataFile fileToBeReplaced,
+                                Dataset dataset,
+                                DataFile newFile) {
 
         DataverseRequest dataverseRequest = dvRequestService.getDataverseRequest();
-        DatasetVersion datasetDraft = dataset.getEditVersion();
+        DatasetVersion editableDatasetDraft = dataset.getEditVersion();
+        DatasetVersion originalDataset = editableDatasetDraft.cloneDatasetVersion();
 
-        ingestService.saveAndAddFilesToDataset(datasetDraft, Lists.newArrayList(newFile), new DataAccess());
+        ingestService.saveAndAddFilesToDataset(editableDatasetDraft, Lists.newArrayList(newFile), new DataAccess());
 
-        deleteFileFromEntities(datasetDraft, fileToBeReplaced);
+        deleteFileFromEntities(editableDatasetDraft, fileToBeReplaced);
 
         if (!StringUtils.isEmpty(fileToBeReplaced.getUnf())) {
-            ingestService.recalculateDatasetVersionUNF(datasetDraft);
+            ingestService.recalculateDatasetVersionUNF(editableDatasetDraft);
         }
 
         if (fileToBeReplaced.getRootDataFileId().equals(DataFile.ROOT_DATAFILE_ID_DEFAULT)) {
@@ -77,19 +83,39 @@ public class ReplaceFileHandler implements Serializable {
             datafileService.save(fileToBeReplaced);
         }
 
-        UpdateDatasetVersionCommand updateCmd = new UpdateDatasetVersionCommand(dataset,
-                                                                                dataverseRequest,
-                                                                                datasetDraft.cloneDatasetVersion());
-        updateCmd.setValidateLenient(true);
-
-        Try.of(() -> commandEngine.submit(updateCmd))
-                .onFailure(throwable -> logger.log(Level.FINE," ",throwable))
-                .getOrElseThrow(() -> new RuntimeException(BundleUtil.getStringFromBundle("file.addreplace.error.add.add_file_error")));
+        updateDatasetWithNewFile(dataset, dataverseRequest, originalDataset);
 
         ingestService.startIngestJobsForDataset(dataset, dataverseRequest.getAuthenticatedUser());
 
+        return getNewDatafile(editableDatasetDraft, newFile)
+                .orElseGet(DataFile::new);
     }
 
+    private Dataset updateDatasetWithNewFile(Dataset dataset,
+                                             DataverseRequest dataverseRequest,
+                                             DatasetVersion originalDataset) {
+        UpdateDatasetVersionCommand updateCmd = new UpdateDatasetVersionCommand(dataset,
+                                                                                dataverseRequest,
+                                                                                originalDataset);
+        updateCmd.setValidateLenient(true);
+
+        return Try.of(() -> commandEngine.submit(updateCmd))
+                .getOrElseThrow(throwable -> new RuntimeException(throwable));
+    }
+
+
+    // -------------------- PRIVATE --------------------
+
+    private Optional<DataFile> getNewDatafile(DatasetVersion datasetVersion, DataFile fileToBeSaved) {
+
+        for (FileMetadata fileMetadata : datasetVersion.getFileMetadatas()) {
+            if (fileMetadata.getLabel().equals(fileToBeSaved.getDisplayName())) {
+                return Optional.of(fileMetadata.getDataFile());
+            }
+        }
+
+        return Optional.empty();
+    }
 
     private DataFile createDataFile(Dataset dataset, byte[] newFileContent, String newFileName, String newFileContentType, DatasetVersion datasetDraft) {
         List<DataFile> dataFile = Try.of(() -> datafileService.createDataFiles(datasetDraft,
@@ -101,8 +127,6 @@ public class ReplaceFileHandler implements Serializable {
                                                                           + " " + throwable.getMessage()));
         return dataFile.get(0);
     }
-
-    // -------------------- PRIVATE --------------------
 
     private boolean cleanupTemporaryDatasetFiles(DatasetVersion datasetVersion, Dataset dataset) {
         boolean draftCleaned = datasetVersion.getFileMetadatas().removeIf(fm -> fm.getDataFile().getId() == null);
