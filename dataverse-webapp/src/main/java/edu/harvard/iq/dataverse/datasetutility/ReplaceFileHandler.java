@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
-import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
@@ -17,8 +16,6 @@ import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -26,6 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+/**
+ * Class designed to help with replacing file in dataset.
+ */
 @Stateless
 public class ReplaceFileHandler implements Serializable {
 
@@ -51,26 +51,44 @@ public class ReplaceFileHandler implements Serializable {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Class designed to create #{@link DataFile} from uploaded file.
+     *
+     * @throws IllegalArgumentException if contentType is fits-gzipped or zip
+     * @return created #{@link DataFile}
+     */
     public DataFile createDataFile(Dataset dataset,
                                    byte[] newFileContent,
                                    String newFileName,
                                    String newFileContentType) {
+
+        if (newFileContentType.equals("application/fits-gzipped") || newFileContentType.equals("application/zip")){
+            throw new IllegalArgumentException("Zipped files are not supported!");
+        }
 
         DatasetVersion datasetDraft = dataset.getEditVersion();
 
         return createDataFile(dataset, newFileContent, newFileName, newFileContentType, datasetDraft);
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    /**
+     * Method that handles file replacement.
+     * Main steps:
+     * - Adds new file to dataset
+     * - Removes the old file from entities
+     * - Sends update dataset command
+     * - Starts ingest job
+     *
+     * @return File that was successfully added to dataset
+     */
     public DataFile replaceFile(DataFile fileToBeReplaced,
                                 Dataset dataset,
                                 DataFile newFile) {
 
-        DataverseRequest dataverseRequest = dvRequestService.getDataverseRequest();
         DatasetVersion editableDatasetDraft = dataset.getEditVersion();
         DatasetVersion originalDataset = editableDatasetDraft.cloneDatasetVersion();
 
-        ingestService.saveAndAddFilesToDataset(editableDatasetDraft, Lists.newArrayList(newFile), new DataAccess());
+        integrateFileWithDataset(newFile, editableDatasetDraft);
 
         deleteFileFromEntities(editableDatasetDraft, fileToBeReplaced);
 
@@ -83,17 +101,20 @@ public class ReplaceFileHandler implements Serializable {
             datafileService.save(fileToBeReplaced);
         }
 
-        updateDatasetWithNewFile(dataset, dataverseRequest, originalDataset);
+        updateDataset(dataset, dvRequestService.getDataverseRequest(), originalDataset);
 
-        ingestService.startIngestJobsForDataset(dataset, dataverseRequest.getAuthenticatedUser());
+        ingestService.startIngestJobsForDataset(dataset, dvRequestService.getDataverseRequest().getAuthenticatedUser());
 
         return getNewDatafile(editableDatasetDraft, newFile)
                 .orElseGet(DataFile::new);
     }
 
-    private Dataset updateDatasetWithNewFile(Dataset dataset,
-                                             DataverseRequest dataverseRequest,
-                                             DatasetVersion originalDataset) {
+    // -------------------- PRIVATE --------------------
+
+    private Dataset updateDataset(Dataset dataset,
+                                  DataverseRequest dataverseRequest,
+                                  DatasetVersion originalDataset) {
+
         UpdateDatasetVersionCommand updateCmd = new UpdateDatasetVersionCommand(dataset,
                                                                                 dataverseRequest,
                                                                                 originalDataset);
@@ -102,9 +123,6 @@ public class ReplaceFileHandler implements Serializable {
         return Try.of(() -> commandEngine.submit(updateCmd))
                 .getOrElseThrow(throwable -> new RuntimeException(throwable));
     }
-
-
-    // -------------------- PRIVATE --------------------
 
     private Optional<DataFile> getNewDatafile(DatasetVersion datasetVersion, DataFile fileToBeSaved) {
 
@@ -117,14 +135,19 @@ public class ReplaceFileHandler implements Serializable {
         return Optional.empty();
     }
 
+    /**
+     * Handles creating {@link DataFile}.
+     *
+     * @return created {@link DataFile}, it returns first element from list since
+     * there is no method for creating single file.
+     */
     private DataFile createDataFile(Dataset dataset, byte[] newFileContent, String newFileName, String newFileContentType, DatasetVersion datasetDraft) {
         List<DataFile> dataFile = Try.of(() -> datafileService.createDataFiles(datasetDraft,
                                                                                new ByteArrayInputStream(newFileContent),
                                                                                newFileName,
                                                                                newFileContentType))
                 .onFailure(throwable -> cleanupTemporaryDatasetFiles(datasetDraft, dataset))
-                .getOrElseThrow(throwable -> new RuntimeException(BundleUtil.getStringFromBundle("file.addreplace.error.ingest_create_file_err")
-                                                                          + " " + throwable.getMessage()));
+                .getOrElseThrow(throwable -> new RuntimeException(throwable));
         return dataFile.get(0);
     }
 
@@ -143,5 +166,9 @@ public class ReplaceFileHandler implements Serializable {
 
         return datasetVersion.getFileMetadatas().removeIf(fileMetadata -> fileMetadata.getDataFile().equals(fileToRemove));
 
+    }
+
+    private void integrateFileWithDataset(DataFile newFile, DatasetVersion editableDatasetDraft) {
+        ingestService.saveAndAddFilesToDataset(editableDatasetDraft, Lists.newArrayList(newFile), new DataAccess());
     }
 }

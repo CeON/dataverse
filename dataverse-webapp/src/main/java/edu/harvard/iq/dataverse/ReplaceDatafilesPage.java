@@ -8,7 +8,6 @@ import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.datasetutility.FileReplaceException;
 import edu.harvard.iq.dataverse.datasetutility.ReplaceFileHandler;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
-import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -17,11 +16,11 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
+import org.primefaces.PrimeFaces;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -30,7 +29,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.event.FacesEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,7 +37,6 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -51,6 +48,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+
 @ViewScoped
 @Named("ReplaceDatafilesPage")
 public class ReplaceDatafilesPage implements Serializable {
@@ -61,10 +60,7 @@ public class ReplaceDatafilesPage implements Serializable {
     private PermissionServiceBean permissionService;
     private DatasetServiceBean datasetService;
     private DataFileServiceBean datafileService;
-    private IngestServiceBean ingestService;
-    private EjbDataverseEngine commandEngine;
     private DataverseRequestServiceBean dvRequestService;
-    private SystemConfig systemConfig;
     private SettingsServiceBean settingsService;
     private ReplaceFileHandler replaceFileHandler;
 
@@ -94,18 +90,14 @@ public class ReplaceDatafilesPage implements Serializable {
 
     @Inject
     public ReplaceDatafilesPage(ReplaceFileHandler replaceFileHandler, PermissionsWrapper permissionsWrapper, PermissionServiceBean permissionService,
-                                DatasetServiceBean datasetService, DataFileServiceBean datafileService, IngestServiceBean ingestService,
-                                EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService, SystemConfig systemConfig,
+                                DatasetServiceBean datasetService, DataFileServiceBean datafileService, DataverseRequestServiceBean dvRequestService,
                                 SettingsServiceBean settingsService) {
         this.replaceFileHandler = replaceFileHandler;
         this.permissionsWrapper = permissionsWrapper;
         this.permissionService = permissionService;
         this.datasetService = datasetService;
         this.datafileService = datafileService;
-        this.ingestService = ingestService;
-        this.commandEngine = commandEngine;
         this.dvRequestService = dvRequestService;
-        this.systemConfig = systemConfig;
         this.settingsService = settingsService;
     }
 
@@ -185,20 +177,43 @@ public class ReplaceDatafilesPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
-    public void handleFileUpload(FileUploadEvent event) {
+    public String handleFileUpload(FileUploadEvent event) {
 
         UploadedFile uFile = event.getFile();
 
-        handleReplaceFileUpload(uFile.getContents(),
-                                uFile.getFileName(),
-                                uFile.getContentType());
+        Try<DataFile> dataFile = Try.of(() -> replaceFileHandler.createDataFile(dataset,
+                                                                                uFile.getContents(),
+                                                                                uFile.getFileName(),
+                                                                                uFile.getContentType()));
 
-        if (!uFile.getContentType().equals(fileToBeReplaced.getContentType())){
+        if (isUploadedFileContainsErrors(dataFile)) {
+            return StringUtils.EMPTY;
+        }
+
+        fileToBeSaved = dataFile.get();
+
+        if (!uFile.getContentType().equals(fileToBeReplaced.getContentType())) {
             RequestContext context = RequestContext.getCurrentInstance();
             context.update("replaceFileForm:fileTypeDifferentPopup");
             context.execute("PF('fileTypeDifferentPopup').show();");
         }
 
+        return StringUtils.EMPTY;
+    }
+
+    public boolean isUploadedFileContainsErrors(Try<DataFile> uploadedFile) {
+
+        if (uploadedFile.isFailure()) {
+            JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("file.addreplace.error.file_is_zip"));
+            return true;
+        }
+
+        if (uploadedFile.get().getChecksumValue().equals(fileToBeReplaced.getChecksumValue())) {
+            JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("file.addreplace.error.replace.new_file_same_as_replacement"));
+            return true;
+        }
+
+        return false;
     }
 
     public void deleteFiles() {
@@ -215,7 +230,7 @@ public class ReplaceDatafilesPage implements Serializable {
 
     }
 
-    public void handleDropBoxUpload(ActionEvent event) {
+    public String handleDropBoxUpload(ActionEvent event) {
         if (!uploadInProgress) {
             uploadInProgress = true;
         }
@@ -272,18 +287,28 @@ public class ReplaceDatafilesPage implements Serializable {
             // -----------------------------------------------------------
             // Download the file
             // -----------------------------------------------------------
-            InputStream dropBoxStream = this.getDropBoxInputStream(fileLink, dropBoxMethod);
-            if (dropBoxStream == null) {
+            byte[] dropBoxContent = this.getDropBoxContent(fileLink, dropBoxMethod);
+            if (dropBoxContent == null) {
                 logger.severe("Could not retrieve dropgox input stream for: " + fileLink);
                 continue;  // Error skip this file
             }
 
-            handleReplaceFileUpload(event, dropBoxStream, fileName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue());
-            //setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
-            return;
+            Try<DataFile> dataFile = Try.of(() -> replaceFileHandler.createDataFile(dataset,
+                                                                                    dropBoxContent,
+                                                                                    fileName,
+                                                                                    ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue()));
+
+            if (isUploadedFileContainsErrors(dataFile)) {
+                return StringUtils.EMPTY;
+            }
+
+            fileToBeSaved = dataFile.get();
+
+            setFileMetadataSelectedForTagsPopup(fileToBeSaved.getFileMetadata());
 
         }
 
+        return StringUtils.EMPTY;
     }
 
     public String saveReplacement() {
@@ -340,38 +365,7 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     public void uploadFinished() {
-        // This method is triggered from the page, by the <p:upload ... onComplete=...
-        // attribute.
-        // Note that its behavior is different from that of of <p:upload ... onStart=...
-        // that's triggered only once, even for a multiple file upload. In contrast,
-        // onComplete=... gets executed for each of the completed multiple upload events.
-        // So when you drag-and-drop a bunch of files, you CANNOT rely on onComplete=...
-        // to notify the page when the batch finishes uploading! There IS a way
-        // to detect ALL the current uploads completing: the p:upload widget has
-        // the property "files", that contains the list of all the files currently
-        // uploading; so checking on the size of the list tells you if any uploads
-        // are still in progress. Once it's zero, you know it's all done.
-        // This is super important - because if the user is uploading 1000 files
-        // via drag-and-drop, you don't want to re-render the entire page each
-        // time every single of the 1000 uploads finishes!
-        // (check editFilesFragment.xhtml for the exact code handling this; and
-        // http://stackoverflow.com/questions/20747201/when-multiple-upload-is-finished-in-pfileupload
-        // for more info). -- 4.6
-        logger.fine("upload finished");
-
-        // Add the file(s) added during this last upload event, single or multiple,
-        // to the full list of new files, and the list of filemetadatas
-        // used to render the page:
-
-        if (uploadInProgress) {
-            uploadInProgress = false;
-        }
-
-        /*if (fileReplacePageHelper.hasContentTypeWarning()) {
-            RequestContext context = RequestContext.getCurrentInstance();
-            RequestContext.getCurrentInstance().update("datasetForm:fileTypeDifferentPopup");
-            context.execute("PF('fileTypeDifferentPopup').show();");
-        }*/
+        PrimeFaces.current().ajax().update(":messagePanel");
     }
 
     public void uploadStarted() {
@@ -450,6 +444,13 @@ public class ReplaceDatafilesPage implements Serializable {
                 .getOrElse(true);
     }
 
+    public String getDifferentContentTypeMessage() {
+        String fileToBeSavedType = fileToBeSaved == null ? "" : fileToBeSaved.getFriendlyType();
+
+        return BundleUtil.getStringFromBundle("file.addreplace.error.replace.new_file_has_different_content_type",
+                                              fileToBeReplaced.getFriendlyType(), fileToBeSavedType);
+    }
+
     public String returnToFileLandingPage() {
         Long fileId = fileToBeReplaced.getId();
 
@@ -494,7 +495,7 @@ public class ReplaceDatafilesPage implements Serializable {
         return StringUtils.EMPTY;
     }
 
-    private InputStream getDropBoxInputStream(String fileLink, GetMethod dropBoxMethod) {
+    private byte[] getDropBoxContent(String fileLink, GetMethod dropBoxMethod) {
 
         if (fileLink == null) {
             return null;
@@ -508,7 +509,7 @@ public class ReplaceDatafilesPage implements Serializable {
         try {
             status = new HttpClient().executeMethod(dropBoxMethod);
             if (status == 200) {
-                return dropBoxMethod.getResponseBodyAsStream();
+                return dropBoxMethod.getResponseBody();
             }
         } catch (IOException ex) {
             logger.log(Level.WARNING, "Failed to access DropBox url: {0}!", fileLink);
@@ -540,26 +541,6 @@ public class ReplaceDatafilesPage implements Serializable {
         JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.replaceSuccess"));
 
         return returnToFileLandingPageAfterReplace(replacedFileOperation.get());
-    }
-
-    private void handleReplaceFileUpload(FacesEvent event, InputStream inputStream,
-                                         String fileName,
-                                         String contentType
-    ) {
-
-    }
-
-    private DataFile handleReplaceFileUpload(byte[] fileContent,
-                                             String fileName,
-                                             String contentType) {
-
-        fileToBeSaved = replaceFileHandler.createDataFile(dataset, fileContent, fileName, contentType);
-
-        if (fileToBeSaved.getChecksumValue().equals(fileToBeReplaced.getChecksumValue())) {
-
-        }
-
-        return fileToBeSaved;
     }
 
     private void refreshCategoriesByName() {
