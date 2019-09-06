@@ -58,7 +58,7 @@ public class ReplaceFileHandlerTest {
     }
 
     @Test
-    public void createDataFile_FailsWithZip() {
+    public void createDataFile_shouldFailWithZip() {
         //given
         Dataset dataset = new Dataset();
         String fileName = "testFile";

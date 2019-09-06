@@ -21,15 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * Class designed to help with replacing file in dataset.
  */
 @Stateless
 public class ReplaceFileHandler implements Serializable {
-
-    private static final Logger logger = Logger.getLogger(ReplaceFileHandler.class.getCanonicalName());
 
     private IngestServiceBean ingestService;
     private DataFileServiceBean datafileService;

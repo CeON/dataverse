@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -471,12 +470,7 @@ public class ReplaceDatafilesPage implements Serializable {
 
         DatasetVersion workingVersion = dataset.getEditVersion();
 
-        Optional<DataFile> isFileInDataset = workingVersion.getFileMetadatas().stream()
-                .map(FileMetadata::getDataFile)
-                .filter(dataFile -> dataFile.equals(fileToBeReplaced))
-                .findAny();
-
-        if (!isFileInDataset.isPresent()) {
+        if (!isFileInDataset(workingVersion, fileToBeReplaced)) {
             permissionsWrapper.notAuthorized();
         }
 
@@ -493,6 +487,16 @@ public class ReplaceDatafilesPage implements Serializable {
         }
 
         return StringUtils.EMPTY;
+    }
+
+    private boolean isFileInDataset(DatasetVersion datasetVersion, DataFile fileToCheck) {
+        for (FileMetadata fileMetadata : datasetVersion.getFileMetadatas()) {
+            if (fileMetadata.getDataFile().equals(fileToCheck)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private byte[] getDropBoxContent(String fileLink, GetMethod dropBoxMethod) {
