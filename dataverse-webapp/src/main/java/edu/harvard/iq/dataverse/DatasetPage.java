@@ -20,6 +20,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.CuratePublishedDatasetVersio
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeletePrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DestroyDatasetCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.GetLatestPublishedDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.GetPrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.LinkDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDatasetCommand;
@@ -29,6 +30,9 @@ import edu.harvard.iq.dataverse.engine.command.impl.RequestRsyncScriptCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.ReturnDatasetToAuthorCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.SubmitDatasetForReviewCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.error.DataverseError;
+import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
@@ -65,7 +69,9 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Either;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.CloseEvent;
 import org.primefaces.event.data.PageEvent;
@@ -166,6 +172,8 @@ public class DatasetPage implements java.io.Serializable {
     ThumbnailServiceWrapper thumbnailServiceWrapper;
     @Inject
     ProvPopupFragmentBean provPopupFragmentBean;
+    @Inject
+    private ExportService exportService;
     @Inject
     private DatasetMetadataTab metadataTab;
 
@@ -340,6 +348,48 @@ public class DatasetPage implements java.io.Serializable {
         }
 
         return retList;
+    }
+
+    private Boolean thisLatestReleasedVersion = null;
+
+    public String getJsonLd() {
+        if (isThisLatestReleasedVersion()) {
+            Either<DataverseError, String> exportedDataset =
+                    exportService.exportDatasetVersionAsString(dataset.getReleasedVersion(),
+                                                               ExporterType.SCHEMADOTORG);
+
+            if (exportedDataset.isLeft()) {
+                logger.fine(exportedDataset.getLeft().getErrorMsg());
+                return StringUtils.EMPTY;
+            }
+
+            return exportedDataset.get();
+        }
+        return StringUtils.EMPTY;
+    }
+
+    public boolean isThisLatestReleasedVersion() {
+        if (thisLatestReleasedVersion != null) {
+            return thisLatestReleasedVersion;
+        }
+
+        if (!workingVersion.isPublished()) {
+            thisLatestReleasedVersion = false;
+            return false;
+        }
+
+        DatasetVersion latestPublishedVersion = null;
+        Command<DatasetVersion> cmd = new GetLatestPublishedDatasetVersionCommand(dvRequestService.getDataverseRequest(), dataset);
+        try {
+            latestPublishedVersion = commandEngine.submit(cmd);
+        } catch (Exception ex) {
+            // whatever...
+        }
+
+        thisLatestReleasedVersion = workingVersion.equals(latestPublishedVersion);
+
+        return thisLatestReleasedVersion;
+
     }
 
     public String getDataverseSiteUrl() {
@@ -1716,11 +1766,11 @@ public class DatasetPage implements java.io.Serializable {
                         newFile.getFileMetadata().setTermsOfUse(termsOfUse);
                     }
 
-                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles, new DataAccess());
+                    ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles, new DataAccess());
                     newFiles.clear();
 
                     // and another update command: 
-                    boolean addFilesSuccess = false;
+                    boolean addFilesSuccess;
                     cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest(), new ArrayList<FileMetadata>());
                     try {
                         dataset = commandEngine.submit(cmd);
