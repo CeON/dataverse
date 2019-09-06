@@ -24,6 +24,7 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
@@ -154,59 +155,33 @@ public class CreateDatasetPage implements Serializable {
         resetDatasetFields();
     }
     
-    
     public String save() {
-        // Validate
+        
         Set<ConstraintViolation> constraintViolations = workingVersion.validate();
         if (!constraintViolations.isEmpty()) {
             JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.message.validationError"));
             return StringUtils.EMPTY;
         }
         
-        mapTermsOfUseInNewFiles();
+        mapTermsOfUseInFiles(newFiles);
         
+        Try<Dataset> createDatasetOperation = Try.of(() -> datasetSaver.createDataset(dataset, selectedTemplate))
+            .onFailure(NotAuthenticatedException.class, 
+                    ex -> handleErrorMessage(BundleUtil.getStringFromBundle("dataset.create.authenticatedUsersOnly"), ex))
+            .onFailure(EJBException.class, 
+                    ex -> handleErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createFailure"), ex))
+            .onFailure(CommandException.class, 
+                    ex -> handleErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createFailure"), ex));
         
-        try {
-            datasetSaver.createDataset(dataset, selectedTemplate);
-            
-        } catch (NotAuthenticatedException ex) {
-            logger.log(Level.SEVERE, "Attempt to create dataset by not authenticated user: " + ex.getMessage(), ex);
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataset.create.authenticatedUsersOnly"));
-            return StringUtils.EMPTY;
-        } catch (EJBException | CommandException ex) {
-            logger.log(Level.SEVERE, "Exception when attempting to create the dataset: " + ex.getMessage(), ex);
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createFailure"));
+        if (createDatasetOperation.isFailure()) {
             return StringUtils.EMPTY;
         }
         
         
-        AddFilesResult addFilesResult;
-        try {
-            addFilesResult = datasetSaver.addFilesToDataset(dataset.getId(), newFiles);
-            dataset = addFilesResult.getDataset();
-        } catch (Exception e) {
-            JsfHelper.addFlashWarningMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess.failedToSaveFiles"));
-            return returnToDraftVersion();
-        }
-        
-        int filesToSave = newFiles.size();
-        int savedFiles = filesToSave - addFilesResult.getNotSavedFilesCount();
-        
-        
-        if (filesToSave == savedFiles) {
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess"));
-        } else if (savedFiles == 0) {
-            JsfHelper.addFlashWarningMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess.failedToSaveFiles"));
-        } else {
-            String partialSuccessMessage = BundleUtil.getStringFromBundle("dataset.message.createSuccess.partialSuccessSavingFiles",
-                    savedFiles, filesToSave);
-            JsfHelper.addFlashWarningMessage(partialSuccessMessage);
-        }
-
-        if (addFilesResult.isHasProvenanceErrors()) {
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("file.metadataTab.provenance.error"));
-        }
-        
+        Try.of(() -> datasetSaver.addFilesToDataset(dataset.getId(), newFiles))
+            .onFailure(ex -> handleErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess.failedToSaveFiles"), ex))
+            .onSuccess(addFilesResult -> handleSuccessOrPartialSuccessMessages(newFiles.size(), addFilesResult))
+            .onSuccess(addFilesResult -> dataset = addFilesResult.getDataset());
         
         return returnToDraftVersion();
     }
@@ -227,7 +202,6 @@ public class CreateDatasetPage implements Serializable {
         workingVersion.initDefaultValues();
         
         if (selectedTemplate != null) {
-            //then create new working version from the selected template
             workingVersion.updateDefaultValuesFromTemplate(selectedTemplate);
         }
         
@@ -239,13 +213,36 @@ public class CreateDatasetPage implements Serializable {
         }
     }
 
-    private void mapTermsOfUseInNewFiles() {
-        for (DataFile newFile : newFiles) {
-            TermsOfUseForm termsOfUseForm = newFile.getFileMetadata().getTermsOfUseForm();
+    private void mapTermsOfUseInFiles(List<DataFile> files) {
+        for (DataFile file : files) {
+            TermsOfUseForm termsOfUseForm = file.getFileMetadata().getTermsOfUseForm();
             FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
 
-            newFile.getFileMetadata().setTermsOfUse(termsOfUse);
+            file.getFileMetadata().setTermsOfUse(termsOfUse);
         }
+    }
+
+    private void handleSuccessOrPartialSuccessMessages(int filesToSaveCount, AddFilesResult addFilesResult) {
+        int savedFilesCount = filesToSaveCount - addFilesResult.getNotSavedFilesCount();
+        
+        if (filesToSaveCount == savedFilesCount) {
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess"));
+        } else if (savedFilesCount == 0) {
+            JsfHelper.addFlashWarningMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess.failedToSaveFiles"));
+        } else {
+            String partialSuccessMessage = BundleUtil.getStringFromBundle("dataset.message.createSuccess.partialSuccessSavingFiles",
+                    savedFilesCount, filesToSaveCount);
+            JsfHelper.addFlashWarningMessage(partialSuccessMessage);
+        }
+
+        if (addFilesResult.isHasProvenanceErrors()) {
+            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("file.metadataTab.provenance.error"));
+        }
+    }
+    
+    private void handleErrorMessage(String messageToUser, Throwable ex) {
+        logger.log(Level.SEVERE, ex.getMessage(), ex);
+        JsfHelper.addFlashErrorMessage(messageToUser);
     }
 
     private String returnToDraftVersion() {

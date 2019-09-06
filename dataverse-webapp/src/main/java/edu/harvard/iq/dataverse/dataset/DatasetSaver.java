@@ -22,7 +22,6 @@ import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -35,26 +34,37 @@ public class DatasetSaver {
 
     private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
     
-    @EJB
+    
     private EjbDataverseEngine commandEngine;
-    @EJB
     private UserNotificationService userNotificationService;
-    @EJB
     private DatasetServiceBean datasetService;
-    @Inject
     private DataverseSession session;
-    @Inject
     private DataverseRequestServiceBean dvRequestService;
-    @EJB
     private IngestServiceBean ingestService;
-    @EJB
     private SettingsServiceBean settingsService;
-    @Inject
     private ProvPopupFragmentBean provPopupFragmentBean;
+    
+    
+    // -------------------- CONSTRUCTORS --------------------
+    
+    @Inject
+    public DatasetSaver(EjbDataverseEngine commandEngine, UserNotificationService userNotificationService,
+            DatasetServiceBean datasetService, DataverseSession session, DataverseRequestServiceBean dvRequestService,
+            IngestServiceBean ingestService, SettingsServiceBean settingsService,
+            ProvPopupFragmentBean provPopupFragmentBean) {
+        this.commandEngine = commandEngine;
+        this.userNotificationService = userNotificationService;
+        this.datasetService = datasetService;
+        this.session = session;
+        this.dvRequestService = dvRequestService;
+        this.ingestService = ingestService;
+        this.settingsService = settingsService;
+        this.provPopupFragmentBean = provPopupFragmentBean;
+    }
 
 
     // -------------------- LOGIC --------------------
-    
+
     public Dataset createDataset(Dataset dataset, Template usedTemplate) throws CommandException {
 
         AuthenticatedUser user = retrieveAuthenticatedUser();

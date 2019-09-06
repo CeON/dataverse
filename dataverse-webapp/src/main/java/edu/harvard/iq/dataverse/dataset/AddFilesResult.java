@@ -28,6 +28,10 @@ public class AddFilesResult {
         return notSavedFilesCount;
     }
 
+    /**
+     * Returns true if there was an error while saving provenance json files
+     * associated with some of the added data files in dataset
+     */
     public boolean isHasProvenanceErrors() {
         return hasProvenanceErrors;
     }

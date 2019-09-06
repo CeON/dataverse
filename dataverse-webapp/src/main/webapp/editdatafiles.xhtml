@@ -58,14 +58,13 @@
                         <div  class="button-block">
                             <p:outputPanel id="filesButtons" >
                                 <div jsf:rendered="#{!(empty EditDatafilesPage.fileMetadatas and (datasetPage || EditDatafilesPage.showFileUploadFragment()))}">
-                                    <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}" onclick="clickDatasetSaveButton();PF('blockFileForm').show();" />
+                                    <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}"
+                                            onclick="PF('blockFileForm').show();"
+                                            action="#{EditDatafilesPage.save}"
+                                            update="@form,:messagePanel"
+                                            oncomplete="javascript:bind_bsui_components();$(document).scrollTop(0);" />
                                     <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}" action="#{EditDatafilesPage.cancel}" process="@this" update="@form" oncomplete="javascript:bind_bsui_components();">
                                     </p:commandButton>
-                                    <p:commandButton value="Direct" id="datasetSave"
-                                                     style="display:none"
-                                                     update=":datasetForm,:messagePanel"
-                                                     oncomplete="javascript:bind_bsui_components();$(document).scrollTop(0);"
-                                                     action="#{EditDatafilesPage.save}" />
                                 </div>
                                 <div jsf:rendered="#{empty EditDatafilesPage.fileMetadatas and (datasetPage || EditDatafilesPage.showFileUploadFragment())}">
                                     <p:commandButton tabindex="1000" id="doneFilesButton" value="#{bundle.done}" action="#{EditDatafilesPage.cancel}" process="@this" update="@form" oncomplete="javascript:bind_bsui_components();">
@@ -81,14 +80,6 @@
                 </h:form>
                 
                 <p:blockUI block="datasetForm" widgetVar="blockFileForm"/>
-
-                <script type="text/javascript">
-                
-                    function clickDatasetSaveButton() {
-                        $('button[id$="datasetSave"]').trigger('click');
-                    }
-                
-                </script>
                 
             </ui:define>
         </ui:composition>
