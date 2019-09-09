@@ -291,10 +291,6 @@ public class DatasetPage implements java.io.Serializable {
         this.removeUnusedTags = removeUnusedTags;
     }
 
-    private List<FileMetadata> fileMetadatas;
-    private String fileSortField;
-    private String fileSortOrder;
-
     private String fileLabelSearchTerm;
 
     public String getFileLabelSearchTerm() {
@@ -718,8 +714,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String init(boolean initFull) {
-        //System.out.println("_YE_OLDE_QUERY_COUNTER_");  // for debug purposes
-        Long maxFileUploadSizeInBytes = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaxFileUploadSizeInBytes);
+
         setDataverseSiteUrl(systemConfig.getDataverseSiteUrl());
 
         guestbookResponse = new GuestbookResponse();
@@ -2067,23 +2062,6 @@ public class DatasetPage implements java.io.Serializable {
         return settingsService.isTrueForKey(SettingsServiceBean.Key.DatasetPublishPopupCustomTextOnAllVersions);
     }
 
-    /*
-     * Items for the "Designated this image as the Dataset thumbnail:
-     */
-
-    private FileMetadata fileMetadataSelectedForThumbnailPopup = null;
-
-
-    /*
-     * Items for the "Tags (Categories)" popup.
-     *
-     */
-    private FileMetadata fileMetadataSelectedForTagsPopup = null;
-
-    public void clearFileMetadataSelectedForTagsPopup() {
-        fileMetadataSelectedForTagsPopup = null;
-    }
-
     private List<String> categoriesByName;
 
     public void setCategoriesByName(List<String> dummy) {
@@ -2448,31 +2426,7 @@ public class DatasetPage implements java.io.Serializable {
         return false;
     }
 
-    public String getFileSortField() {
-        return fileSortField;
-    }
-
-    public void setFileSortField(String fileSortField) {
-        this.fileSortField = fileSortField;
-    }
-
-    public String getFileSortOrder() {
-        return fileSortOrder;
-    }
-
-    public void setFileSortOrder(String fileSortOrder) {
-        this.fileSortOrder = fileSortOrder;
-    }
-
-    public List<FileMetadata> getFileMetadatas() {
-        if (isSortButtonEnabled()) {
-            return fileMetadatas;
-        } else {
-            return new ArrayList<>();
-        }
-    }
-
-    PrivateUrl privateUrl;
+    private PrivateUrl privateUrl;
 
     public PrivateUrl getPrivateUrl() {
         return privateUrl;
