@@ -5,12 +5,15 @@ import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataset.file.ReplaceFileHandler;
+import edu.harvard.iq.dataverse.dataset.file.exception.FileReplaceException;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.group.IPv4Address;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import org.junit.Assert;
@@ -23,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,8 +55,8 @@ public class ReplaceFileHandlerTest {
         testDataset = new Dataset();
 
         when(dataverseRequestServiceBean.getDataverseRequest()).thenReturn(new DataverseRequest(new AuthenticatedUser(), new IPv4Address(111)));
-        when(ingestService.saveAndAddFilesToDataset(testDataset.getEditVersion(), Lists.newArrayList(generateNewFile(testDataset)), new DataAccess()))
-                .then(invocation -> fillDatasetWithFile(testDataset, generateNewFile(testDataset)));
+        when(ingestService.saveAndAddFilesToDataset(any(DatasetVersion.class), any(), any(DataAccess.class)))
+                .thenReturn(Lists.newArrayList(new DataFile()));
 
         replaceFileHandler = new ReplaceFileHandler(ingestService, dataFileServiceBean, ejbDataverseEngine, dataverseRequestServiceBean);
     }
@@ -65,7 +69,7 @@ public class ReplaceFileHandlerTest {
         String fileContentType = "application/zip";
 
         //then
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(FileReplaceException.class,
                                 () -> replaceFileHandler.createDataFile(dataset, new byte[0], fileName, fileContentType));
 
     }
@@ -84,12 +88,6 @@ public class ReplaceFileHandlerTest {
         Assert.assertEquals(newFile.getFileMetadata().getLabel(), addedFile.getFileMetadata().getLabel());
         Assert.assertFalse(dataset.getEditVersion().getFileMetadatas().contains(fileToBeReplaced.getFileMetadata()));
 
-    }
-
-    private Dataset fillDatasetWithFile(Dataset dataset, DataFile dataFile){
-        dataset.getEditVersion().setFileMetadatas(dataFile.getFileMetadatas());
-
-        return dataset;
     }
 
     private DataFile generateFileToBeReplaced(Dataset fileOwner) {

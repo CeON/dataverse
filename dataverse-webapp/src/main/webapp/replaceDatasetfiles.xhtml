@@ -160,12 +160,11 @@
                                         <p:message for="fileUpload" id="uploadMessage" display="text"/>
 
                                         <p:commandButton id="AllUploadsFinished"
-                                                         action="#{ReplaceDatafilesPage.uploadFinished()}"
-                                                         update=":replaceFileForm:filesTable, :#{p:resolveClientId('messagePanel', view)}"
+                                                         update=":replaceFileForm:filesTable, :messagePanel"
                                                          style="display:none"/>
                                         <p:commandButton id="dropBoxUploadFinished"
-                                                         action="#{ReplaceDatafilesPage.uploadFinished()}"
-                                                         update=":replaceFileForm:filesTable" style="display:none"/>
+                                                         update=":replaceFileForm:filesTable, :messagePanel"
+                                                         style="display:none"/>
 
 
                                     </div>

@@ -1,12 +1,16 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.dataset.file;
 
 import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
-import edu.harvard.iq.dataverse.datasetutility.FileReplaceException;
-import edu.harvard.iq.dataverse.datasetutility.ReplaceFileHandler;
+import edu.harvard.iq.dataverse.dataset.file.exception.FileReplaceException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
@@ -20,7 +24,6 @@ import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
-import org.primefaces.PrimeFaces;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -37,6 +40,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -203,7 +207,12 @@ public class ReplaceDatafilesPage implements Serializable {
     public boolean isUploadedFileContainsErrors(Try<DataFile> uploadedFile) {
 
         if (uploadedFile.isFailure()) {
-            JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("file.addreplace.error.file_is_zip"));
+
+            if (uploadedFile.getCause() instanceof FileReplaceException) {
+                JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("file.addreplace.error.file_is_zip"));
+            } else {
+                JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("file.addreplace.error.generic"));
+            }
             return true;
         }
 
@@ -286,7 +295,7 @@ public class ReplaceDatafilesPage implements Serializable {
             // -----------------------------------------------------------
             // Download the file
             // -----------------------------------------------------------
-            byte[] dropBoxContent = this.getDropBoxContent(fileLink, dropBoxMethod);
+            InputStream dropBoxContent = this.getDropBoxContent(fileLink, dropBoxMethod);
             if (dropBoxContent == null) {
                 logger.severe("Could not retrieve dropgox input stream for: " + fileLink);
                 continue;  // Error skip this file
@@ -361,10 +370,6 @@ public class ReplaceDatafilesPage implements Serializable {
         }
 
         return Lists.newArrayList();
-    }
-
-    public void uploadFinished() {
-        PrimeFaces.current().ajax().update(":messagePanel");
     }
 
     public void uploadStarted() {
@@ -471,7 +476,7 @@ public class ReplaceDatafilesPage implements Serializable {
         DatasetVersion workingVersion = dataset.getEditVersion();
 
         if (!isFileInDataset(workingVersion, fileToBeReplaced)) {
-            permissionsWrapper.notAuthorized();
+            return permissionsWrapper.notAuthorized();
         }
 
         if (!workingVersion.isDraft()) {
@@ -499,7 +504,7 @@ public class ReplaceDatafilesPage implements Serializable {
         return false;
     }
 
-    private byte[] getDropBoxContent(String fileLink, GetMethod dropBoxMethod) {
+    private InputStream getDropBoxContent(String fileLink, GetMethod dropBoxMethod) {
 
         if (fileLink == null) {
             return null;
@@ -513,7 +518,7 @@ public class ReplaceDatafilesPage implements Serializable {
         try {
             status = new HttpClient().executeMethod(dropBoxMethod);
             if (status == 200) {
-                return dropBoxMethod.getResponseBody();
+                return dropBoxMethod.getResponseBodyAsStream();
             }
         } catch (IOException ex) {
             logger.log(Level.WARNING, "Failed to access DropBox url: {0}!", fileLink);
@@ -526,9 +531,6 @@ public class ReplaceDatafilesPage implements Serializable {
 
     /**
      * Save for File Replace operations
-     *
-     * @return
-     * @throws FileReplaceException
      */
     private String saveReplacementFile() {
 

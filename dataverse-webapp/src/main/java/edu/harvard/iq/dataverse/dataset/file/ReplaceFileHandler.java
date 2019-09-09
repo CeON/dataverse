@@ -1,10 +1,11 @@
-package edu.harvard.iq.dataverse.datasetutility;
+package edu.harvard.iq.dataverse.dataset.file;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataset.file.exception.FileReplaceException;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
@@ -18,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +62,20 @@ public class ReplaceFileHandler implements Serializable {
                                    String newFileContentType) {
 
         if (newFileContentType.equals("application/fits-gzipped") || newFileContentType.equals("application/zip")){
+            throw new FileReplaceException("Zipped files are not supported!");
+        }
+
+        DatasetVersion datasetDraft = dataset.getEditVersion();
+
+        return createDataFile(dataset, newFileContent, newFileName, newFileContentType, datasetDraft);
+    }
+
+    public DataFile createDataFile(Dataset dataset,
+                                   InputStream newFileContent,
+                                   String newFileName,
+                                   String newFileContentType) {
+
+        if (newFileContentType.equals("application/fits-gzipped") || newFileContentType.equals("application/zip")) {
             throw new IllegalArgumentException("Zipped files are not supported!");
         }
 
@@ -85,7 +101,11 @@ public class ReplaceFileHandler implements Serializable {
         DatasetVersion editableDatasetDraft = dataset.getEditVersion();
         DatasetVersion originalDataset = editableDatasetDraft.cloneDatasetVersion();
 
-        integrateFileWithDataset(newFile, editableDatasetDraft);
+        List<DataFile> integratedFiles = integrateFileWithDataset(newFile, editableDatasetDraft);
+
+        if (integratedFiles.isEmpty()) {
+            throw new RuntimeException("There was a problem with saving file");
+        }
 
         deleteFileFromEntities(editableDatasetDraft, fileToBeReplaced);
 
@@ -148,9 +168,23 @@ public class ReplaceFileHandler implements Serializable {
         return dataFile.get(0);
     }
 
+    private DataFile createDataFile(Dataset dataset, InputStream newFileContent, String newFileName, String newFileContentType, DatasetVersion datasetDraft) {
+        List<DataFile> dataFile = Try.of(() -> datafileService.createDataFiles(datasetDraft,
+                                                                               newFileContent,
+                                                                               newFileName,
+                                                                               newFileContentType))
+                .onFailure(throwable -> cleanupTemporaryDatasetFiles(datasetDraft, dataset))
+                .getOrElseThrow(throwable -> new RuntimeException(throwable));
+        return dataFile.get(0);
+    }
+
     private boolean cleanupTemporaryDatasetFiles(DatasetVersion datasetVersion, Dataset dataset) {
         boolean draftCleaned = datasetVersion.getFileMetadatas().removeIf(fm -> fm.getDataFile().getId() == null);
         boolean datasetCleaned = dataset.getFiles().removeIf(dataFile -> dataFile.getId() == null);
+
+        if (dataset.getLatestVersion().getId() == null) {
+            dataset.getVersions().remove(0);
+        }
 
         return draftCleaned && datasetCleaned;
     }
@@ -165,7 +199,7 @@ public class ReplaceFileHandler implements Serializable {
 
     }
 
-    private void integrateFileWithDataset(DataFile newFile, DatasetVersion editableDatasetDraft) {
-        ingestService.saveAndAddFilesToDataset(editableDatasetDraft, Lists.newArrayList(newFile), new DataAccess());
+    private List<DataFile> integrateFileWithDataset(DataFile newFile, DatasetVersion editableDatasetDraft) {
+        return ingestService.saveAndAddFilesToDataset(editableDatasetDraft, Lists.newArrayList(newFile), new DataAccess());
     }
 }
