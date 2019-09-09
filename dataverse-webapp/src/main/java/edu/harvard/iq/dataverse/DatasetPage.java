@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.DatasetVersionUI.MetadataBlocksMode;
-import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
@@ -36,8 +35,6 @@ import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
-import edu.harvard.iq.dataverse.notification.NotificationObjectType;
-import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
@@ -47,30 +44,30 @@ import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.persistence.datafile.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Either;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.context.RequestContext;
-import org.primefaces.event.CloseEvent;
 import org.primefaces.event.data.PageEvent;
 
 import javax.ejb.EJB;
@@ -80,7 +77,6 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.event.ValueChangeEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -88,12 +84,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -103,7 +96,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
@@ -340,6 +332,9 @@ public class DatasetPage implements java.io.Serializable {
 
     private Boolean thisLatestReleasedVersion = null;
 
+    /**
+     * Used in dataset.xhmtl
+     */
     public String getJsonLd() {
         if (isThisLatestReleasedVersion()) {
             Either<DataverseError, String> exportedDataset =
@@ -386,14 +381,6 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setDataverseSiteUrl(String dataverseSiteUrl) {
         this.dataverseSiteUrl = dataverseSiteUrl;
-    }
-
-    public List<DataFile> getNewFiles() {
-        return newFiles;
-    }
-
-    public void setNewFiles(List<DataFile> newFiles) {
-        this.newFiles = newFiles;
     }
 
     private Map<Long, String> datafileThumbnailsMap = new HashMap<>();
@@ -586,129 +573,6 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setDatasetNextMinorVersion(String datasetNextMinorVersion) {
         this.datasetNextMinorVersion = datasetNextMinorVersion;
-    }
-
-    public List<Template> getDataverseTemplates() {
-        return dataverseTemplates;
-    }
-
-    public void setDataverseTemplates(List<Template> dataverseTemplates) {
-        this.dataverseTemplates = dataverseTemplates;
-    }
-
-    public Template getSelectedTemplate() {
-        return selectedTemplate;
-    }
-
-    public void setSelectedTemplate(Template selectedTemplate) {
-        this.selectedTemplate = selectedTemplate;
-    }
-
-    public void updateSelectedTemplate(ValueChangeEvent event) {
-
-        selectedTemplate = (Template) event.getNewValue();
-        if (selectedTemplate != null) {
-            //then create new working version from the selected template
-            workingVersion.updateDefaultValuesFromTemplate(selectedTemplate);
-            updateDatasetFieldInputLevels();
-        } else {
-            workingVersion.initDefaultValues();
-            updateDatasetFieldInputLevels();
-        }
-        resetVersionUI();
-    }
-
-    /***
-     *
-     * Note: Updated to retrieve DataverseFieldTypeInputLevel objects in single query
-     *
-     */
-    private void updateDatasetFieldInputLevels() {
-        // OPTIMIZATION (?): replaced "dataverseService.find(ownerId)" with
-        // simply dataset.getOwner()... saves us a few lookups.
-        // TODO: could there possibly be any reason we want to look this
-        // dataverse up by the id here?? -- L.A. 4.2.1
-        Long dvIdForInputLevel = dataset.getOwner().getMetadataRootId();
-        
-        List<DatasetField> datasetFields = workingVersion.getFlatDatasetFields();
-        List<Long> datasetFieldTypeIds = new ArrayList<>();
-        
-        for (DatasetField dsf: datasetFields) {
-            datasetFieldTypeIds.add(dsf.getDatasetFieldType().getId());
-        }
-        
-        List<Long> fieldTypeIdsToHide = dataverseFieldTypeInputLevelService
-                .findByDataverseIdAndDatasetFieldTypeIdList(dvIdForInputLevel, datasetFieldTypeIds).stream()
-                .filter(inputLevel -> !inputLevel.isInclude())
-                .map(inputLevel -> inputLevel.getDatasetFieldType().getId())
-                .collect(Collectors.toList());
-        
-        
-        for (DatasetField dsf: datasetFields) {
-            dsf.setInclude(true);
-            if (fieldTypeIdsToHide.contains(dsf.getDatasetFieldType().getId())) {
-                dsf.setInclude(false);
-            }
-        }
-    }
-
-    public boolean isShapefileType(FileMetadata fm) {
-        if (fm == null) {
-            return false;
-        }
-        if (fm.getDataFile() == null) {
-            return false;
-        }
-
-        return fm.getDataFile().isShapefileType();
-    }
-
-    /*
-     Check if the FileMetadata.dataFile has an associated MapLayerMetadata object
-
-     The MapLayerMetadata objects have been fetched at page inception by "loadMapLayerMetadataLookup()"
-     */
-    public boolean hasMapLayerMetadata(FileMetadata fm) {
-        if (fm == null) {
-            return false;
-        }
-        if (fm.getDataFile() == null) {
-            return false;
-        }
-        return doesDataFileHaveMapLayerMetadata(fm.getDataFile());
-    }
-
-    /**
-     * Check if a DataFile has an associated MapLayerMetadata object
-     * <p>
-     * The MapLayerMetadata objects have been fetched at page inception by
-     * "loadMapLayerMetadataLookup()"
-     */
-    private boolean doesDataFileHaveMapLayerMetadata(DataFile df) {
-        if (df == null) {
-            return false;
-        }
-        if (df.getId() == null) {
-            return false;
-        }
-        return this.mapLayerMetadataLookup.containsKey(df.getId());
-    }
-
-    /**
-     * Using a DataFile id, retrieve an associated MapLayerMetadata object
-     * <p>
-     * The MapLayerMetadata objects have been fetched at page inception by
-     * "loadMapLayerMetadataLookup()"
-     */
-    public MapLayerMetadata getMapLayerMetadata(DataFile df) {
-        if (df == null) {
-            return null;
-        }
-        return this.mapLayerMetadataLookup.get(df.getId());
-    }
-
-    public void handleChangeButton() {
-
     }
 
     /**
@@ -947,10 +811,6 @@ public class DatasetPage implements java.io.Serializable {
     }
 
 
-    public boolean isReadOnly() {
-        return readOnly;
-    }
-
     private boolean bulkUpdateCheckVersion() {
         return workingVersion.isReleased();
     }
@@ -978,40 +838,6 @@ public class DatasetPage implements java.io.Serializable {
             selectedFiles.add(fmdn);
         }
         readOnly = false;
-    }
-
-    public void testSelectedFilesForMapData() {
-        setSelectedFilesHasMapLayer(false);
-        for (FileMetadata fmd : selectedFiles) {
-            if (worldMapPermissionHelper.hasMapLayerMetadata(fmd)) {
-                setSelectedFilesHasMapLayer(true);
-                return; //only need one for warning message
-            }
-        }
-    }
-
-    private boolean selectedFilesHasMapLayer;
-
-    public boolean isSelectedFilesHasMapLayer() {
-        return selectedFilesHasMapLayer;
-    }
-
-    public void setSelectedFilesHasMapLayer(boolean selectedFilesHasMapLayer) {
-        this.selectedFilesHasMapLayer = selectedFilesHasMapLayer;
-    }
-
-    private Integer chunkSize = 25;
-
-    public Integer getChunkSize() {
-        return chunkSize;
-    }
-
-    public void setChunkSize(Integer chunkSize) {
-        this.chunkSize = chunkSize;
-    }
-
-    public void viewAllButtonPress() {
-        setChunkSize(fileMetadatasSearch.size());
     }
 
     public String releaseDraft() {
@@ -1505,7 +1331,7 @@ public class DatasetPage implements java.io.Serializable {
     private String linkingDataverseErrorMessage = "";
 
 
-    UIInput selectedLinkingDataverseMenu;
+    private UIInput selectedLinkingDataverseMenu;
 
     public UIInput getSelectedDataverseMenu() {
         return selectedLinkingDataverseMenu;
@@ -1730,18 +1556,6 @@ public class DatasetPage implements java.io.Serializable {
             lockedFromDownloadVar = null;
         }
     }
-
-    /* 
-
-    public boolean isLockedInProgress() {
-        if (dataset != null) {
-            logger.log(Level.FINE, "checking lock status of dataset {0}", dataset.getId());
-            if (dataset.isLocked()) {
-                return true;
-            }
-        }
-        return false;
-    }*/
 
     public boolean isDatasetLockedInWorkflow() {
         return (dataset != null) && dataset.isLockedFor(DatasetLock.Reason.Workflow);
@@ -2271,15 +2085,6 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    public boolean isSortButtonEnabled() {
-        /**
-         * @todo The "Sort" Button seems to stop responding to mouse clicks
-         * after a while so it can't be shipped in 4.2 and will be deferred, to
-         * be picked up in https://github.com/IQSS/dataverse/issues/2506
-         */
-        return false;
-    }
-
     private PrivateUrl privateUrl;
 
     public PrivateUrl getPrivateUrl() {
@@ -2296,7 +2101,7 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    boolean privateUrlWasJustCreated;
+    private boolean privateUrlWasJustCreated;
 
     public boolean isPrivateUrlWasJustCreated() {
         return privateUrlWasJustCreated;
@@ -2435,22 +2240,6 @@ public class DatasetPage implements java.io.Serializable {
             logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", dataset.getId());
         }
 
-    }
-
-    public void closeRsyncScriptPopup(CloseEvent event) {
-        finishRsyncScriptAction();
-    }
-
-    public String finishRsyncScriptAction() {
-        // This method is called when the user clicks on "Close" in the "Rsync Upload" 
-        // popup. If they have successfully downloaded the rsync script, the 
-        // dataset should now be locked; which means we should put up the 
-        // "dcm upload in progress" message - that will be shown on the page 
-        // until the rsync upload is completed and the dataset is unlocked. 
-        if (isLocked()) {
-            JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("file.rsyncUpload.inProgressMessage.summary"), BundleUtil.getStringFromBundle("file.rsyncUpload.inProgressMessage.details"));
-        }
-        return "";
     }
 
     /**
