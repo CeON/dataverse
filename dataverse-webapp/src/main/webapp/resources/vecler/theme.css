@@ -58,7 +58,7 @@
 
 
 body {
-	font-family: "Roboto Regular";
+	font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 15px;
 }
 
@@ -98,7 +98,7 @@ body {
 }
 
 .ui-widget {
-	font-family: "Roboto Regular";
+	font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /* Main page */
