@@ -817,15 +817,22 @@ sub setup_glassfish {
 # add a check.
 
     print "\nInstalling the Glassfish PostgresQL driver... ";
-#    system( "/bin/cp", "pgdriver/" . $postgres_jdbc, $glassfish_dir . "/glassfish/lib" );
     my $pgdriver_success = copy("pgdriver/" . $postgres_jdbc, $glassfish_dir . "/glassfish/lib" );
 
-    unless ($pgdriver_success) 
+    unless ($pgdriver_success)
     {
 	print "\n*********************\n";
 	print "ERROR! Failed to copy the postgres driver into " . $glassfish_dir . "/glassfish/lib - check the directory permissions!\n";
 	exit 1;
     }
+
+	print "\nUpgrading eclipselink to v2.6.8 ... ";
+
+	my @jpafiles = glob("eclipselink/*.jar");
+
+	for my $file (@jpafiles) {
+		copy($file, $glassfish_dir . "/glassfish/modules") or die "\nCopy failed for file: $file";
+	}
 
 # more diagnostics needed?
 
