@@ -537,35 +537,35 @@
                 }
 
                 function addCarouselClassName() {
-                    let owlItemCount = document.querySelectorAll(".owl-item").length;
-                    let owlWrapperClasses = document.querySelector("#carouselBlocksWrapper").classList;
+                    var owlItemCount = document.querySelectorAll(".owl-item").length;
+                    var owlWrapper = $("#carouselBlocksWrapper");
 
                     // check if the navigation buttons are necessary
                     if ((window.innerWidth <= itemsTablet[0] && owlItemCount > itemsTablet[1])
                          || (window.innerWidth <= itemsDesktopSmall[0] && owlItemCount > itemsDesktopSmall[1])
                          || owlItemCount > itemsDesktop[1]) {
-                        owlWrapperClasses.remove("owl-hide-navigation");
+                        owlWrapper.removeClass("owl-hide-navigation");
                     }
                     else {
-                        owlWrapperClasses.add("owl-hide-navigation");
+                        owlWrapper.addClass("owl-hide-navigation");
                     }
                     
                     // check if the navigation buttons are outside the viewing area
-                    if (!owlWrapperClasses.contains("owl-hide-navigation") && (window.innerWidth < ($("#search-row-panel").outerWidth() + 2*($(".customNavigation").outerWidth() + 24)))) {
-                        owlWrapperClasses.add("owl-shrink-container");
+                    if (!owlWrapper.hasClass("owl-hide-navigation") && (window.innerWidth < ($("#search-row-panel").outerWidth() + 2*($(".customNavigation").outerWidth() + 24)))) {
+                        owlWrapper.addClass("owl-shrink-container");
                     }
                     else {
-                        owlWrapperClasses.remove("owl-shrink-container");
+                        owlWrapper.removeClass("owl-shrink-container");
                     }
                     
                     // check if the elements need to be centered
                     if ((window.innerWidth <= itemsTablet[0] && owlItemCount < itemsTablet[1])
                          || (window.innerWidth <= itemsDesktopSmall[0] && owlItemCount < itemsDesktopSmall[1])
                          || (window.innerWidth > itemsDesktopSmall[0] && owlItemCount < itemsDesktop[1])) {
-                        owlWrapperClasses.add("owl-center-elements");
+                        owlWrapper.addClass("owl-center-elements");
                     }
                     else {
-                        owlWrapperClasses.remove("owl-center-elements");
+                        owlWrapper.removeClass("owl-center-elements");
                     }
                 }
 
