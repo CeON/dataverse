@@ -619,7 +619,7 @@
                     </p:fragment>
 
                     <p:tabView id="tabView" widgetVar="content" activeIndex="#{DatasetPage.selectedTabIndex}"
-                                   dynamic="true">
+                                   dynamic="true" onTabShow="bind_bsui_components();">
 
                         <p:tab id="dataFilesTab" title="#{bundle.files}" rendered="#{!DatasetPage.workingVersion.deaccessioned or
                                                               (DatasetPage.workingVersion.deaccessioned and DatasetPage.canUpdateDataset())}">

@@ -117,6 +117,13 @@
                 bind_bsui_components();
             });
 
+            var originalPrimeFacesAjaxUtilsSend = PrimeFaces.ajax.Request.send;
+            PrimeFaces.ajax.Request.send = function(cfg) {
+                if (!cfg.oncomplete) {
+                    cfg.oncomplete = bind_bsui_components();
+                }
+                originalPrimeFacesAjaxUtilsSend.apply(this, arguments);
+            };
             
             //]]>
         </script>
