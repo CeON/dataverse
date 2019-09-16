@@ -828,11 +828,14 @@ sub setup_glassfish {
 
 	print "\nUpgrading eclipselink to v2.6.8 ... ";
 
-	my @jpafiles = glob("eclipselink/*.jar");
+	my @fixedFiles = glob("glassfishfix/*.jar");
 
-	for my $file (@jpafiles) {
-		copy($file, $glassfish_dir . "/glassfish/modules") or die "\nCopy failed for file: $file";
-	}
+    	for my $file (@fixedFiles) {
+    		copy($file, $glassfish_dir . "/glassfish/modules") or die "\nCopy failed for file: $file";
+    	}
+
+    	unlink $glassfish_dir . "/glassfish/modules/org.eclipse.persistence.moxy.jar" or die "\n moxy file couldn't be deleted";
+
 
 # more diagnostics needed?
 
