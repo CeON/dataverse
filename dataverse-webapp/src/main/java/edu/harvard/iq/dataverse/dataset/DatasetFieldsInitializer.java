@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import org.apache.commons.collections4.SetUtils;
 
 import javax.ejb.Stateless;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
@@ -23,9 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * @author skraffmiller
- */
+
 @Stateless
 public class DatasetFieldsInitializer {
     
