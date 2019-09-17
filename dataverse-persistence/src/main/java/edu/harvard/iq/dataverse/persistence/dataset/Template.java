@@ -22,13 +22,8 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author skraffmiller
@@ -44,12 +39,9 @@ public class Template implements Serializable {
     public Template() {
 
     }
-
-    //Constructor for create
     public Template(Dataverse dataverseIn) {
         dataverse = dataverseIn;
         datasetFields = initDatasetFields();
-        initMetadataBlocksForCreate();
     }
 
     public Long getId() {
@@ -108,17 +100,15 @@ public class Template implements Serializable {
     }
 
     @OneToMany(mappedBy = "template", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    //@OrderBy("datasetField.displayOrder") 
     private List<DatasetField> datasetFields = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(nullable = true)
+    private Dataverse dataverse;
 
     public List<DatasetField> getDatasetFields() {
         return datasetFields;
     }
-
-    @Transient
-    private Map<MetadataBlock, List<DatasetField>> metadataBlocksForView = new HashMap<>();
-    @Transient
-    private Map<MetadataBlock, List<DatasetField>> metadataBlocksForEdit = new HashMap<>();
 
     @Transient
     private boolean isDefaultForDataverse;
@@ -141,27 +131,6 @@ public class Template implements Serializable {
     public void setDataversesHasAsDefault(List<Dataverse> dataversesHasAsDefault) {
         this.dataversesHasAsDefault = dataversesHasAsDefault;
     }
-
-
-    public Map<MetadataBlock, List<DatasetField>> getMetadataBlocksForView() {
-        return metadataBlocksForView;
-    }
-
-    public void setMetadataBlocksForView(Map<MetadataBlock, List<DatasetField>> metadataBlocksForView) {
-        this.metadataBlocksForView = metadataBlocksForView;
-    }
-
-    public Map<MetadataBlock, List<DatasetField>> getMetadataBlocksForEdit() {
-        return metadataBlocksForEdit;
-    }
-
-    public void setMetadataBlocksForEdit(Map<MetadataBlock, List<DatasetField>> metadataBlocksForEdit) {
-        this.metadataBlocksForEdit = metadataBlocksForEdit;
-    }
-
-    @ManyToOne
-    @JoinColumn(nullable = true)
-    private Dataverse dataverse;
 
     public Dataverse getDataverse() {
         return dataverse;
@@ -200,89 +169,16 @@ public class Template implements Serializable {
             }
         }
 
-        //sort via display order on dataset field
-        Collections.sort(retList, new Comparator<DatasetField>() {
-            public int compare(DatasetField d1, DatasetField d2) {
-                int a = d1.getDatasetFieldType().getDisplayOrder();
-                int b = d2.getDatasetFieldType().getDisplayOrder();
-                return Integer.valueOf(a).compareTo(Integer.valueOf(b));
-            }
-        });
-
         return sortDatasetFields(retList);
     }
 
     private List<DatasetField> sortDatasetFields(List<DatasetField> dsfList) {
-        Collections.sort(dsfList, new Comparator<DatasetField>() {
-            public int compare(DatasetField d1, DatasetField d2) {
-                int a = d1.getDatasetFieldType().getDisplayOrder();
-                int b = d2.getDatasetFieldType().getDisplayOrder();
-                return Integer.valueOf(a).compareTo(Integer.valueOf(b));
-            }
+        dsfList.sort((dsf1, dsf2) -> {
+            int dsf1Order = dsf1.getDatasetFieldType().getDisplayOrder();
+            int dsf2Order = dsf2.getDatasetFieldType().getDisplayOrder();
+            return Integer.compare(dsf1Order, dsf2Order);
         });
         return dsfList;
-    }
-
-    private void initMetadataBlocksForCreate() {
-        metadataBlocksForView.clear();
-        metadataBlocksForEdit.clear();
-        for (MetadataBlock mdb : this.getDataverse().getRootMetadataBlocks()) {
-            List<DatasetField> datasetFieldsForView = new ArrayList<>();
-            List<DatasetField> datasetFieldsForEdit = new ArrayList<>();
-            for (DatasetField dsf : this.getDatasetFields()) {
-
-                if (dsf.getDatasetFieldType().getMetadataBlock().equals(mdb)) {
-                    datasetFieldsForEdit.add(dsf);
-                }
-            }
-
-            if (!datasetFieldsForView.isEmpty()) {
-                metadataBlocksForView.put(mdb, sortDatasetFields(datasetFieldsForView));
-            }
-            if (!datasetFieldsForEdit.isEmpty()) {
-                metadataBlocksForEdit.put(mdb, sortDatasetFields(datasetFieldsForEdit));
-            }
-        }
-    }
-
-    public void setMetadataValueBlocks() {
-        //TODO: A lot of clean up on the logic of this method
-        metadataBlocksForView.clear();
-        metadataBlocksForEdit.clear();
-        List<DatasetField> filledInFields = this.getDatasetFields();
-
-
-        List<MetadataBlock> actualMDB = new ArrayList<>();
-
-        actualMDB.addAll(this.getDataverse().getRootMetadataBlocks());
-        for (DatasetField dsfv : filledInFields) {
-            if (!dsfv.isEmptyForDisplay()) {
-                MetadataBlock mdbTest = dsfv.getDatasetFieldType().getMetadataBlock();
-                if (!actualMDB.contains(mdbTest)) {
-                    actualMDB.add(mdbTest);
-                }
-            }
-        }
-
-        for (MetadataBlock mdb : actualMDB) {
-            List<DatasetField> datasetFieldsForView = new ArrayList<>();
-            List<DatasetField> datasetFieldsForEdit = new ArrayList<>();
-            for (DatasetField dsf : this.getDatasetFields()) {
-                if (dsf.getDatasetFieldType().getMetadataBlock().equals(mdb)) {
-                    datasetFieldsForEdit.add(dsf);
-                    if (!dsf.isEmpty()) {
-                        datasetFieldsForView.add(dsf);
-                    }
-                }
-            }
-
-            if (!datasetFieldsForView.isEmpty()) {
-                metadataBlocksForView.put(mdb, sortDatasetFields(datasetFieldsForView));
-            }
-            if (!datasetFieldsForEdit.isEmpty()) {
-                metadataBlocksForEdit.put(mdb, sortDatasetFields(datasetFieldsForEdit));
-            }
-        }
     }
 
     // TODO: clean up init methods and get them to work, cascading all the way down.
@@ -335,10 +231,6 @@ public class Template implements Serializable {
             dsf.setTemplate(this);
         }
         this.datasetFields = datasetFields;
-    }
-
-    public List<DatasetField> getFlatDatasetFields() {
-        return DatasetFieldUtil.getFlatDatasetFields(datasetFields);
     }
 
     @Override
