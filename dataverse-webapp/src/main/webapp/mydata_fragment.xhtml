@@ -1,13 +1,13 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-     xmlns:h="http://java.sun.com/jsf/html"
-     xmlns:f="http://java.sun.com/jsf/core"
-     xmlns:ui="http://java.sun.com/jsf/facelets"
-     xmlns:c="http://java.sun.com/jsp/jstl/core"
-     xmlns:p="http://primefaces.org/ui"
-     xmlns:o="http://omnifaces.org/ui"
-     xmlns:jsf="http://xmlns.jcp.org/jsf">
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:o="http://omnifaces.org/ui"
+                xmlns:jsf="http://xmlns.jcp.org/jsf">
 
-    <c:set var="page" value="/dataverseuser.xhtml"/>
+    <c:set var="page" value="/dataverseuser.xhtml?selectTab=dataRelatedToMe"/>
 
     <div class="row">
         <div class="col-xs-12">
@@ -16,21 +16,14 @@
             </p>
         </div>
     </div>
-    
-    <div class="row" id="my_data_filter_column2">
-        <div class="col-xs-7"  style="padding:10px 30px;">
-            <input type="text"
-                   size="40"
-                   class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all search-input"
-                   name="mydata_search_term"
-                   id="mydata_search_term"
-                   placeholder="#{bundle['mydataFragment.search']}" />
-            
-            &#160; <a id="btn_find_my_data" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>#{bundle['find']}</a>
-        </div>
 
+
+<!-- start: panel -->
+
+    <div class="row" id="my_data_filter_column2">
+        <h:form>
         <div class="#{widgetWrapper.widgetView ? 'col-sm-12' : 'col-sm-8'}">
-            <h:form>
+
                 <p:inputText id="searchBasic" styleClass="search-input"
                              size="40"
                              value="#{MyDataSearchFragment.query}"
@@ -39,49 +32,27 @@
                 <p:commandLink id="searchbutton" styleClass="btn btn-default" action="#{MyDataSearchFragment.searchRedirect(dataverseRedirectPage)}">
                     <span class="glyphicon glyphicon-search"/> #{bundle['dataverse.search.btn.find']}
                 </p:commandLink>
-                <p:remoteCommand name="submitsearch" action="#{MyDataSearchFragment.searchRedirect(dataverseRedirectPage)}"/>
-            </h:form>
         </div>
-
-        <ui:fragment rendered="#{MyDataPage.isSuperuser()}">
-        <div class="col-xs-4 pull-right text-right" style="margin-right:30px;margin-bottom:0;padding:8px 6px;background:none;">
-            #{bundle['mydataFragment.resultsByUserName']}
-            <input type="text"
-                   name="userIdentifier"
-                   id="userIdentifier"
-                   value="#{MyDataPage.getAuthUserIdentifier()}"
-                   class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" />
-           
-        </div>
-        </ui:fragment>
 
         <div class="col-xs-4 pull-right text-right #{widgetWrapper.widgetView ? 'col-sm-12' : 'col-sm-8'}"
-             style="margin-right:30px;margin-bottom:0;padding:8px 6px;background:none;">
+             jsf:rendered="#{MyDataSearchFragment.isSuperuser()}">
             #{bundle['mydataFragment.resultsByUserName']}
-            <h:form>
-                <p:inputText id="searchUserId" styleClass="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" size="25"
-                             value="#{MyDataSearchFragment.userIdentifier}"
-                             onkeypress="if (event.keyCode == 13) { submitUsersearch(); return false; }"/>
-                <p:commandLink id="searchUserIdbutton" styleClass="btn btn-default" action="#{MyDataSearchFragment.searchRedirect(dataverseRedirectPage)}">
-                    <span class="glyphicon glyphicon-search"/> #{bundle['dataverse.search.btn.find']}
-                </p:commandLink>
-                <p:remoteCommand name="submitUsersearch"
-                                 value="#{widgetWrapper.wrapURL(page)}"
-                                 action="#{MyDataSearchFragment.searchRedirect(dataverseRedirectPage)}"/>
-            </h:form>
+                <p:inputText id="searchUserId"
+                             styleClass="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all"
+                             size="25"
+                             value="#{MyDataSearchFragment.searchUserId}"
+                             onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"/>
+                <p:watermark for="searchUserId" value="#{MyDataSearchFragment.searchUserId}"/>
         </div>
-
+            <p:remoteCommand name="submitsearch"
+                             action="#{MyDataSearchFragment.searchRedirect(dataverseRedirectPage)}"/>
+        </h:form>
     </div>
-
-    <!-- start: panel -->
-    <div class="panel panel-default">
-        <!-- start: panel body -->
-        <div class="panel-body clearfix">
-
-
+<!-- start: panel body -->
+<div class="panel-body clearfix">
 
     <!-- Search Results / SOLR IS UP -->
-    <div id="search-row-panel" class="row row-offcanvas row-offcanvas-left" jsf:rendered="#{!MyDataSearchFragment.solrIsDown}">
+    <div id="search-row-panel" class="row row-offcanvas row-offcanvas-left" >
         <div id="dv-sidebar" class="col-sm-4 col-md-3 sidebar-offcanvas">
             <!--TYPE FACET (DATAVERSES, DATASETS, FILES)-->
             <h:form id="facetType">
@@ -92,12 +63,12 @@
                                   disabled="#{MyDataSearchFragment.getNewSelectedTypes('dataverses') == null}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                         <f:param name="types" value="#{MyDataSearchFragment.getNewSelectedTypes('dataverses')}"/>
-                        <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -110,12 +81,12 @@
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" disabled="#{false}" styleClass="facetTypeLink chkbox-label-margin #{MyDataSearchFragment.selectedTypesList.contains('dataverses') ? 'facetSelected': ''}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                         <f:param name="types" value="dataverses"/>
-                        <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -123,8 +94,9 @@
 
                         <i class="icon-dataverse text-icon-inline"></i>
 
-                        <h:outputFormat styleClass="facetTypeDataverse" value="#{bundle['dataverse.results.types.dataverses']} &#40;{0}&#41;">
-                            <f:param value="#{MyDataSearchFragment.facetCountDataverses}"/>
+                        <h:outputFormat styleClass="facetTypeDataverse"
+                                        value="#{bundle['dataverse.results.types.dataverses']} #{MyDataSearchFragment.selectedTypesList.contains('dataverses') ? '&#40;{0}&#41;': ''}">
+                            <f:param value="#{MyDataSearchFragment.facetCountDataverses != null ? MyDataSearchFragment.facetCountDataverses : 0}"/>
                         </h:outputFormat>
                     </h:outputLink>
                 </div>
@@ -135,12 +107,12 @@
                                   disabled="#{MyDataSearchFragment.getNewSelectedTypes('datasets') == null}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                         <f:param name="types" value="#{MyDataSearchFragment.getNewSelectedTypes('datasets')}"/>
-                        <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -153,12 +125,12 @@
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" disabled="#{false}" styleClass="facetTypeLink chkbox-label-margin #{MyDataSearchFragment.selectedTypesList.contains('datasets') ? 'facetSelected': ''}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                         <f:param name="types" value="datasets"/>
-                        <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -166,8 +138,9 @@
 
                         <i class="icon-dataset text-icon-inline"></i>
 
-                        <h:outputFormat styleClass="facetTypeDataset" value="#{bundle['dataverse.results.types.datasets']} &#40;{0}&#41;">
-                            <f:param value="#{MyDataSearchFragment.facetCountDatasets}"/>
+                        <h:outputFormat styleClass="facetTypeDataset"
+                                        value="#{bundle['dataverse.results.types.datasets']} #{MyDataSearchFragment.selectedTypesList.contains('datasets') ? '&#40;{0}&#41;': ''}">
+                            <f:param value="#{MyDataSearchFragment.facetCountDatasets != null ? MyDataSearchFragment.facetCountDatasets : 0}"/>
                         </h:outputFormat>
                     </h:outputLink>
                 </div>
@@ -178,12 +151,12 @@
                                   disabled="#{MyDataSearchFragment.getNewSelectedTypes('files') == null}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                         <f:param name="types" value="#{MyDataSearchFragment.getNewSelectedTypes('files')}"/>
-                        <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -195,12 +168,12 @@
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" disabled="#{false}" styleClass="facetTypeLink chkbox-label-margin #{MyDataSearchFragment.selectedTypesList.contains('files') ? 'facetSelected': ''}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                         <f:param name="types" value="files"/>
-                        <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -208,8 +181,9 @@
 
                         <i class="icon-file text-icon-inline"></i>
 
-                        <h:outputFormat styleClass="facetTypeFile" value="#{bundle['dataverse.results.types.files']} &#40;{0}&#41;">
-                            <f:param value="#{MyDataSearchFragment.facetCountFiles}"/>
+                        <h:outputFormat styleClass="facetTypeFile"
+                                        value="#{bundle['dataverse.results.types.files']} #{MyDataSearchFragment.selectedTypesList.contains('files') ? '&#40;{0}&#41;': ''}">
+                            <f:param value="#{MyDataSearchFragment.facetCountFiles != null ? MyDataSearchFragment.facetCountFiles : 0}"/>
                         </h:outputFormat>
                     </h:outputLink>
                 </div>
@@ -230,10 +204,10 @@
                                 <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                             </c:forEach>
                             <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                                <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                             </c:forEach>
                             <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                            <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                            <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                             <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                             <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         </h:outputLink>
@@ -248,58 +222,54 @@
                                 <f:param name="fq#{status.index}" value='#{clickedFilterQuery}' disable="#{clickedFilterQuery == facetLabel.filterQuery}"/>
                             </c:forEach>
                             <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
+                                <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                             </c:forEach>
                             <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                            <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
+                            <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                             <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                             <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         </h:outputLink>
                     </p:dataList>
+
+                    <!--ROLES-->
+                    <h:form id="rolesForm" rendered="#{MyDataSearchFragment.searchResultsCount > 0}">
+                        <h:outputText value="#{bundle['dashboard.list_users.tbl_header.roles']}" styleClass="facetCategoryName"/>
+                        <p:dataList id="rolesList" value="#{MyDataSearchFragment.myRoles}" var="role" rows="#{MyDataSearchFragment.myRoles.size()}">
+                            <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{!MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink">
+                                <h:outputFormat value="#{role}" />
+                                <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                <f:param name="rf#{MyDataSearchFragment.roleFilters.size()}" value="#{role}"/>
+                                <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                    <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                </c:forEach>
+                                <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
+                                    <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
+                                </c:forEach>
+                                <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
+                                <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                            </h:outputLink>
+
+                            <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink facetSelected">
+                                <h:outputFormat value="#{role}" />
+                                <span class="glyphicon glyphicon-remove"></span>
+                                <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                    <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                </c:forEach>
+                                <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
+                                    <f:param name="rf#{status.index}" value='#{clickedRoleFilter}' disable="#{clickedRoleFilter == role}"/>
+                                </c:forEach>
+                                <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
+                                <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                            </h:outputLink>
+                        </p:dataList>
+                    </h:form>
                 </p:dataList>
             </h:form>
-
-            <!--ROLES-->
-            <h:form id="rolesForm" rendered="#{MyDataSearchFragment.searchResultsCount > 0}">
-                <div>
-                    <h:outputText value="Roles" styleClass="facetCategoryName"/>
-                    <p:dataList id="rolesList" value="#{MyDataSearchFragment.myRoles}" var="role" rows="#{MyDataSearchFragment.myRoles.size()}">
-                        <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{!MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink">
-                            <h:outputFormat value="#{role}" />
-                            <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                            <f:param name="rf#{MyDataSearchFragment.roleFilters.size()}" value="#{role}"/>
-                            <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                            </c:forEach>
-                            <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedRoleFilter}'/>
-                            </c:forEach>
-                            <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                            <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
-                            <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                            <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
-                        </h:outputLink>
-
-                        <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink facetSelected">
-                            <h:outputFormat value="#{role}" />
-                            <span class="glyphicon glyphicon-remove"></span>
-                            <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                            <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                            </c:forEach>
-                            <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
-                                <f:param name="rf#{status.index}" value='#{clickedRoleFilter}' disable="#{clickedRoleFilter == role}"/>
-                            </c:forEach>
-                            <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                            <f:param name="uId" value="#{MyDataSearchFragment.userIdentifier}"/>
-                            <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                            <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
-                        </h:outputLink>
-                    </p:dataList>
-                </div>
-            </h:form>
-
-
         </div>
         <div id="dv-main" class="col-sm-8 col-md-9">
             <!--DEBUG BEGIN-->
@@ -320,17 +290,18 @@
             </p>
 
             <!-- Message for zero results -->
-            <div id="emptyResults" class="emptyResults bg-warning" jsf:rendered="#{(MyDataSearchFragment.searchResultsList.size() == 0) and (!MyDataSearchFragment.wasSolrErrorEncountered())}">
+            <div id="emptyResults" class="emptyResults bg-warning"
+                 jsf:rendered="#{(MyDataSearchFragment.searchResultsList.size() == 0) and (!MyDataSearchFragment.wasSolrErrorEncountered())}">
                 <ui:fragment rendered="#{MyDataSearchFragment.mode == MyDataSearchFragment.searchModeString}">
                     <!--THIS IS EMPTY / SEARCH-->
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses eq 0 and MyDataSearchFragment.facetCountDatasets eq 0 and MyDataSearchFragment.facetCountFiles eq 0}">
+                    <ui:fragment rendered="#{MyDataSearchFragment.searchResultsList.size() eq 0}">
                         <!--SEARCH ZERO COUNTS-->
                         <p><h:outputFormat value="#{bundle['dataverse.results.empty.zero']}" escape="false">
                             <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
                             <f:param value="#{settingsWrapper.guidesVersion}"/>
                         </h:outputFormat></p>
                     </ui:fragment>
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses gt 0 or MyDataSearchFragment.facetCountDatasets gt 0 or MyDataSearchFragment.facetCountFiles gt 0}">
+                    <ui:fragment rendered="#{MyDataSearchFragment.searchResultsList.size() gt 0}">
                         <!--SEARCH HIDDEN-->
                         <p><h:outputFormat value="#{bundle['dataverse.results.empty.hidden']}" escape="false">
                             <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
@@ -346,39 +317,10 @@
                         </div>
                     </ui:fragment>
                 </ui:fragment>
-                <ui:fragment rendered="#{!dataverseSession.user.authenticated and MyDataSearchFragment.mode == MyDataSearchFragment.browseModeString}">
-                    <!--THIS IS EMPTY / BROWSE / GUEST-->
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses eq 0 and MyDataSearchFragment.facetCountDatasets eq 0 and MyDataSearchFragment.facetCountFiles eq 0}">
-                        <!--BROWSE GUEST ZERO COUNTS-->
-                        <p>
-                            <h:outputFormat value="#{bundle['dataverse.results.empty.browse.guest.zero']}" escape="false">
-                                <f:param value="#{navigationWrapper.redirectPage}"/>
-                            </h:outputFormat>
-                        </p>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses gt 0 or MyDataSearchFragment.facetCountDatasets gt 0 or MyDataSearchFragment.facetCountFiles gt 0}">
-                        <!--BROWSE GUEST HIDDEN-->
-                        <p>
-                            <h:outputFormat value="#{bundle['dataverse.results.empty.browse.guest.hidden']}" escape="false">
-                                <f:param value="#{navigationWrapper.redirectPage}"/>
-                            </h:outputFormat>
-                        </p>
-                    </ui:fragment>
-                </ui:fragment>
-                <ui:fragment rendered="#{dataverseSession.user.authenticated and !(permissionsWrapper.canIssueCreateDataverseCommand(MyDataSearchFragment.dataverse) or permissionsWrapper.canIssueCreateDatasetCommand(MyDataSearchFragment.dataverse)) and MyDataSearchFragment.mode == MyDataSearchFragment.browseModeString}">
-                    <!--THIS IS EMPTY / BROWSE / LOGGED IN / NO PERMS-->
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses eq 0 and MyDataSearchFragment.facetCountDatasets eq 0 and MyDataSearchFragment.facetCountFiles eq 0}">
-                        <!--BROWSE NO_ADD_BUTTON ZERO COUNTS-->
-                        <p>#{bundle['dataverse.results.empty.browse.loggedin.noperms.zero']}</p>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses gt 0 or MyDataSearchFragment.facetCountDatasets gt 0 or MyDataSearchFragment.facetCountFiles gt 0}">
-                        <!--BROWSE NO_ADD_BUTTON HIDDEN-->
-                        <p>#{bundle['dataverse.results.empty.browse.loggedin.noperms.hidden']}</p>
-                    </ui:fragment>
-                </ui:fragment>
-                <ui:fragment rendered="#{dataverseSession.user.authenticated and (permissionsWrapper.canIssueCreateDataverseCommand(MyDataSearchFragment.dataverse) or permissionsWrapper.canIssueCreateDatasetCommand(MyDataSearchFragment.dataverse)) and MyDataSearchFragment.mode == MyDataSearchFragment.browseModeString}">
+                <ui:fragment rendered="#{dataverseSession.user.authenticated 
+                                        and MyDataSearchFragment.mode == MyDataSearchFragment.browseModeString}">
                     <!--THIS IS EMPTY / BROWSE / LOGGED IN / PERMS-->
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses eq 0 and MyDataSearchFragment.facetCountDatasets eq 0 and MyDataSearchFragment.facetCountFiles eq 0}">
+                    <ui:fragment rendered="#{MyDataSearchFragment.searchResultsList.size() eq 0}">
                         <!--BROWSE CAN_ADD ZERO COUNTS-->
                         <p>
                             <h:outputFormat value="#{dataverseRedirectPage == 'dataverseuser.xhtml' ? bundle['account.results.empty.browse.loggedin.perms.zero'] : bundle['dataverse.results.empty.browse.loggedin.perms.zero']}" escape="false">
@@ -387,26 +329,15 @@
                             </h:outputFormat>
                         </p>
                     </ui:fragment>
-                    <ui:fragment rendered="#{MyDataSearchFragment.facetCountDataverses gt 0 or MyDataSearchFragment.facetCountDatasets gt 0 or MyDataSearchFragment.facetCountFiles gt 0}">
+                    <ui:fragment rendered="#{MyDataSearchFragment.searchResultsList.size() gt 0}">
                         <!--BROWSE CAN_ADD HIDDEN-->
                         <p>#{bundle['dataverse.results.empty.browse.loggedin.perms.hidden']}</p>
                     </ui:fragment>
                 </ui:fragment>
+
             </div>
 
-            <div id="resultsFacetsTopBlock" jsf:rendered="#{!empty MyDataSearchFragment.filterQueries}">
-                <ui:fragment rendered="#{(MyDataSearchFragment.wasSolrErrorEncountered())}">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="bg-danger padding-12 margin-top margin-bottom">
-                                <p><h:outputFormat value=" #{bundle['dataverse.search.facet.error']}" escape="false">
-                                    <f:param value="#{MyDataSearchFragment.dataverse.alias}"/>
-                                </h:outputFormat></p>
-                            </div>
-                        </div>
-                    </div>
-                </ui:fragment>
-
+            <div id="resultsFacetsTopBlock" jsf:rendered="#{!empty MyDataSearchFragment.filterQueries or !empty MyDataSearchFragment.roleFilters}">
                 <ui:repeat value="#{MyDataSearchFragment.filterQueries}" var="filterQuery" rendered="#{!MyDataSearchFragment.wasSolrErrorEncountered()}">
                     <ui:param name="friendlyNames" value="#{MyDataSearchFragment.getFriendlyNamesFromFilterQuery(filterQuery)}"/>
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" styleClass="facetLink facetSelected" rendered="#{not empty friendlyNames}">
@@ -415,14 +346,35 @@
                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}' disable="#{clickedFilterQuery == filterQuery}"/>
                         </c:forEach>
+                        <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
+                        </c:forEach>
                         <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
+                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                    </h:outputLink>
+                </ui:repeat>
+                <ui:repeat value="#{MyDataSearchFragment.roleFilters}" var="roleFilter" rendered="#{!MyDataSearchFragment.wasSolrErrorEncountered()}">
+                    <ui:param name="friendlyNames" value="#{roleFilter}}"/>
+                    <h:outputLink value="#{widgetWrapper.wrapURL(page)}" styleClass="facetLink facetSelected">
+                        <h:outputText value="Role: #{roleFilter}"/> <span class="glyphicon glyphicon-remove"></span>
+                        <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                        <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                            <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                        </c:forEach>
+                        <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
+                            <f:param name="rf#{status.index}" value='#{clickedRoleFilter}' disable="#{clickedRoleFilter == roleFilter}"/>
+                        </c:forEach>
+                        <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                        <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                     </h:outputLink>
                 </ui:repeat>
             </div>
 
-            <div id="resultsCountPaginatorBlock" class="row" jsf:rendered="#{MyDataSearchFragment.searchResultsCount > 0}">
+            <div id="resultsCountPaginatorBlock" class="row" jsf:rendered="#{MyDataSearchFragment.searchResultsList.size() gt 0}">
                 <!-- RESULTS COUNT -->
                 <div class="results-count col-xs-6">
                     <h:outputFormat value="#{bundle['dataverse.results.count.toofresults']}">
@@ -430,84 +382,6 @@
                         <f:param value="#{MyDataSearchFragment.paginationGuiEnd}"/>
                         <f:param value="#{MyDataSearchFragment.searchResultsCount}"/>
                     </h:outputFormat>
-                </div>
-                <!-- SORT + PAGINATOR -->
-                <div class="results-sort-pagination col-xs-6">
-                    <!-- SORT BY -->
-                    <div class="btn-group pull-right">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <span class="glyphicon glyphicon-sort"/> #{bundle['dataverse.results.btn.sort']} <span class="caret"/>
-                        </button>
-                        <ul class="dropdown-menu pull-right text-left" role="menu">
-                            <li>
-                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameAZ']}" styleClass="#{MyDataSearchFragment.sortedByNameAsc ? 'highlightBold' : ''}"/>
-                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                                    </c:forEach>
-                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="page" value="1"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.searchFieldNameSort}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.ASCENDING}"/>
-                                </h:outputLink>
-                            </li>
-                            <li>
-                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameZA']}" styleClass="#{MyDataSearchFragment.sortedByNameDesc ? 'highlightBold' : ''}"/>
-                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                                    </c:forEach>
-                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="page" value="1"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.searchFieldNameSort}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.DESCENDING}"/>
-                                </h:outputLink>
-                            </li>
-                            <li>
-                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.newest']}" styleClass="#{MyDataSearchFragment.sortedByReleaseDateDesc? 'highlightBold' : ''}"/>
-                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                                    </c:forEach>
-                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="page" value="1"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.searchFieldReleaseOrCreateDate}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.DESCENDING}"/>
-                                </h:outputLink>
-                            </li>
-                            <li>
-                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.oldest']}" styleClass="#{MyDataSearchFragment.sortedByReleaseDateAsc? 'highlightBold' : ''}"/>
-                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                                    </c:forEach>
-                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="page" value="1"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.searchFieldReleaseOrCreateDate}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.ASCENDING}"/>
-                                </h:outputLink>
-                            </li>
-                            <ui:fragment rendered="#{MyDataSearchFragment.mode == MyDataSearchFragment.searchModeString}">
-                                <li>
-                                    <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
-                                        <h:outputText value="#{bundle['dataverse.results.btn.sort.option.relevance']}" styleClass="#{MyDataSearchFragment.sortedByRelevance ? 'highlightBold' : ''}"/>
-                                        <f:param name="q" value="#{MyDataSearchFragment.query}"/>
-                                        <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
-                                            <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
-                                        </c:forEach>
-                                        <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                        <f:param name="page" value="1"/>
-                                        <f:param name="sort" value="#{MyDataSearchFragment.searchFieldRelevance}"/>
-                                        <f:param name="order" value="#{MyDataSearchFragment.DESCENDING}"/>
-                                    </h:outputLink>
-                                </li>
-                            </ui:fragment>
-                        </ul>
-                    </div>
                 </div>
             </div>
 
@@ -535,8 +409,11 @@
                             <h:outputText value="(#{result.dataverseAffiliation})" styleClass="text-muted" style="margin-left: .5em;" rendered="#{!empty result.dataverseAffiliation and result.dataverseAffiliationHighlightSnippet == null}"/>
                             <h:outputText value="(#{result.dataverseAffiliationHighlightSnippet})" styleClass="text-muted" style="margin-left: .5em;" rendered="#{result.dataverseAffiliationHighlightSnippet != null}" escape="false"/>
                             <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{result.draftState}"/>
-                            <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.published']}" styleClass="label label-success" rendered="#{result.publishedState}"/>
+                            <ui:repeat value="#{MyDataSearchFragment.getRolesForEntity(result.entityId)}" var="role">
+                                <h:outputText value="#{role}" styleClass="label label-info"/>
+                            </ui:repeat>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <h:outputLink value="#{!MyDataSearchFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!MyDataSearchFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
@@ -594,7 +471,10 @@
                             <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{result.inReviewState}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{result.deaccessionedState}"/>
-                            <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.published']}" styleClass="label label-success" rendered="#{result.publishedState}"/>
+                            <ui:repeat value="#{MyDataSearchFragment.getRolesForEntity(result.entityId)}" var="role">
+                                <h:outputText value="#{role}" styleClass="label label-info"/>
+                            </ui:repeat>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <a href="#{!MyDataSearchFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!MyDataSearchFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
@@ -659,7 +539,10 @@
                             <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{result.draftState}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{result.inReviewState}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
-                            <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.published']}" styleClass="label label-success" rendered="#{result.publishedState}"/>
+                            <ui:repeat value="#{MyDataSearchFragment.getRolesForEntity(result.entityId)}" var="role">
+                                <h:outputText value="#{role}" styleClass="label label-info"/>
+                            </ui:repeat>
                         </div>
 
                         <div class="card-preview-icon-block text-center">
@@ -724,97 +607,93 @@
                 </h:column>
             </h:dataTable>
             <!-- BOTTOM PAGINATOR -->
-            <ui:include src="search-include-pager.xhtml"></ui:include>
+                <!-- PAGINATOR -->
+                <ui:fragment rendered="#{MyDataSearchFragment.totalPages != 1}">
+                    <o:importFunctions type="java.lang.Math" />
+                    <div class="results-sort-pagination results-bottom text-center">
+                        <!--<div class="pagination pull-right">-->
+                        <ul class="pagination">
+                            <!--should take you to page 1-->
+                            <li class="#{MyDataSearchFragment.page == '1' ? 'disabled' : ''}">
+                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
+                                    <h:outputText value="&#171;"/>
+                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                    </c:forEach>
+                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                                    <f:param name="page" value="1"/>
+                                </h:outputLink>
+                            </li>
+                            <li class="#{MyDataSearchFragment.page == '1' ? 'disabled' : ''}">
+                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
+                                    <h:outputText value="&lt; #{bundle.previous}"/>
+                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                    </c:forEach>
+                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                                    <f:param name="page" value="#{Math:max(1,MyDataSearchFragment.page-1).intValue()}"/>
+                                </h:outputLink>
+                            </li>
+                            <c:forEach begin="#{Math:max(1,MyDataSearchFragment.page-Math:max(2,MyDataSearchFragment.page-MyDataSearchFragment.totalPages+4))}"
+                                       end="#{Math:min(MyDataSearchFragment.totalPages,MyDataSearchFragment.page+Math:max(2,5-MyDataSearchFragment.page))}"
+                                       varStatus="pageStatus">
+                                <li class="#{MyDataSearchFragment.page == pageStatus.index ? 'active' : ''}">
+                                    <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
+                                        <h:outputText value="#{pageStatus.index}">
+                                            <f:convertNumber pattern="###,###" />
+                                        </h:outputText>
+                                        <span class="#{MyDataSearchFragment.page == pageStatus.index ? 'sr-only' : ''}">
+                                                <h:outputText value="#{MyDataSearchFragment.page == pageStatus.index ? bundle['dataverse.results.paginator.current'] : ''}"/>
+                                            </span>
+                                        <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                        <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                            <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                        </c:forEach>
+                                        <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                                        <f:param name="page" value="#{pageStatus.index}"/>
+                                    </h:outputLink>
+                                </li>
+                            </c:forEach>
+                            <li class="#{MyDataSearchFragment.page == MyDataSearchFragment.totalPages ? 'disabled' : ''}">
+                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
+                                    <h:outputText value="#{bundle.next} &gt;"/>
+                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                    </c:forEach>
+                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                                    <f:param name="page" value="#{Math:min(MyDataSearchFragment.page+1,MyDataSearchFragment.totalPages).intValue()}"/>
+                                </h:outputLink>
+                            </li>
+                            <li class="#{MyDataSearchFragment.page == MyDataSearchFragment.totalPages ? 'disabled' : ''}">
+                                <h:outputLink value="#{widgetWrapper.wrapURL(page)}">
+                                    <h:outputText value="&#187;"/>
+                                    <f:param name="q" value="#{MyDataSearchFragment.query}"/>
+                                    <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
+                                        <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                    </c:forEach>
+                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
+                                    <f:param name="page" value="#{MyDataSearchFragment.totalPages}"/>
+                                    <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                                </h:outputLink>
+                            </li>
+                        </ul>
+                    </div>
+                </ui:fragment>
         </div>
     </div>
 
-    <!-- start: row -->
-    <div class="row">
-        <!-- start filter column -->
-        <div class="col-xs-3" id="my_data_filter_column">
-            <!--form id="mydata_filter_form" name="mydata_filter_form"-->
-            <input type="hidden" name="selected_page" id="selected_page" value="1" />
-                       
-            <!-- start dvobject checkboxes -->
-            <div id="div_dvobject_types" style="padding-bottom:10px;">
-                <div class="checkbox" style="margin-top:3px;margin-bottom:0;">
-                    <input style="margin-left:0;" name="dvobject_types" id="id_cbox_dv_dataverse" type="checkbox" value="Dataverse" checked="checked" />
-                    <label class="facetTypeLabel">
-                        <a class="mydata_dvobject_label"><i class="icon-dataverse text-icon-inline"></i>
-                            <span class="facetTypeDataverse">#{bundle['dataverse.results.types.dataverses']}</span> <span id="id_dataverses_count"></span>
-                        </a>
-                    </label>
-                </div>
-                <div class="checkbox" style="margin-top:3px;margin-bottom:0;">
-                    <input style="margin-left:0;" name="dvobject_types" id="id_cbox_dv_dataset" type="checkbox" value="Dataset" checked="checked" />
-                    <label class="facetTypeLabel">
-                        <a class="mydata_dvobject_label"><i class="icon-dataset text-icon-inline"></i>
-                            <span class="facetTypeDataset">#{bundle['dataverse.results.types.datasets']}</span> <span id="id_datasets_count"></span></a>
-                    </label>
-                </div>
-                <div class="checkbox" style="margin-top:3px;margin-bottom:0;">
-                    <input style="margin-left:0;" name="dvobject_types" id="id_cbox_dv_file" type="checkbox" value="DataFile" />
-                    <label class="facetTypeLabel">
-                        <a class="mydata_dvobject_label"><i class="icon-file text-icon-inline"></i>
-                            <span class="facetTypeFile">#{bundle['dataverse.results.types.files']}</span> <span id="id_files_count"></span></a>
-                    </label>
-                </div>
-            </div>
-            <!-- end dvobject checkboxes -->
-            <!-- start: publish states -->
-            <b>#{bundle['mydataFragment.publicationStatus']}</b>
-            <div id="div_published_states" style="border-bottom:1px solid #ddd; padding-bottom:8px; margin-bottom:0.5em;">
-                <ui:repeat value="#{MyDataPage.publishedStatesForMyDataPage}" var="pstate">
-                     <div class="checkbox" style="margin-top:3px;margin-bottom:0;">
-                            <input style="margin-left:0;" name="published_states" id="id_cbox_#{pstate[1]}" type="checkbox" value="#{pstate[0]}" checked="checked"  />
-                        <label>
-                            <a class="mydata_pubstate_label"> #{bundle[pstate[0]]} <span id="id_#{pstate[1]}_count"></span></a>
-                        </label>
-                    </div>                   
-                </ui:repeat>
-            </div>
-            <!-- end: publish states -->
-            <!-- start: role states -->
-            <b>#{bundle['mydataFragment.roles']}</b>
-            <div id="div_role_states" style="border-bottom:1px solid #ddd; padding-bottom:8px; margin-bottom:0.5em;">
-            <ui:repeat value="#{MyDataPage.roleInfoForCheckboxes}" var="roleInfoList">
-                <div class="checkbox" style="margin-top:3px;margin-bottom:0;">
-                    <input style="margin-left:0;" name="role_ids" id="id_cbox_#{roleInfoList[2]}" type="checkbox" value="#{roleInfoList[0]}" checked="checked" />
-                    <label>
-                        <a class="mydata_role_label">#{roleInfoList[1]}</a>
-                    </label>                    
-                </div>    
-            </ui:repeat>
-            </div>
-           <!-- end: role states -->
-             <!--/form>-->
-            <div id="div-search-params" class="well" style="display:none;"></div>
-        </div><!-- end: filter column -->
-        <!-- start: workspace column -->
-        <div class="col-xs-9">
-            <div id="div-pagination"></div>
-            <!--<div id="div-test-json" class="well">(pagination)</div>-->
-            <div id="div-result-message"></div>
-            <div id="resultsTable"><div id="div-card-results"></div></div>
-            <div id="div-more-cards-link" class="text-center" style="display:none;">
-                <a id="lnk_add_more_cards" class="btn btn-default">#{bundle['mydataFragment.moreResults']}</a>
-            </div> 
-            
-            <div id="div-json-results"></div>
-        </div>
-        <!-- end: workspace column -->
-    </div><!-- end row -->
-    <script src="#{resource['js/nunjucks.js']}?version=#{systemConfig.getVersion()}"></script>
-    <script> 
-        <ui:remove>This variable is needed by mydata.js to make the ajax call</ui:remove>
-        var RETRIEVE_DATA_API_PATH = '#{MyDataPage.retrieveDataFullAPIPath}';
-    </script>
-    <script src="#{resource['js/mydata.js']}?version=#{systemConfig.getVersion()}b"></script>
-    <script>            
-          $(document).ready(function() {
-             init_mydata_page(); // source: mydata.js 
-           });
-    </script>
 </div><!-- end panel body -->
-</div><!-- end panel -->
+
 </ui:composition>

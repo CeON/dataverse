@@ -28,7 +28,6 @@ import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
-import edu.harvard.iq.dataverse.search.SearchIncludeFragment;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
 import edu.harvard.iq.dataverse.search.SolrQueryResponse;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
@@ -37,12 +36,9 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
-import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.naming.directory.SearchResult;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -95,6 +91,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private String searchModeString = "search";
     private String mode;
     private String query;
+    private String searchUserId;
     private List<String> filterQueries = new ArrayList<>();
     private List<FacetCategory> facetCategoryList = new ArrayList<>();
     private List<SolrSearchResult> searchResultsList = new ArrayList<>();
@@ -136,8 +133,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private SortOrder sortOrder;
     private int page = 1;
     private int paginationGuiStart = 1;
-    private int paginationGuiEnd = 100;
-    private int paginationGuiRows = 100;
+    private int paginationGuiEnd = 10;
+    private int paginationGuiRows = 10;
     Map<String, String> datasetfieldFriendlyNamesBySolrField = new HashMap<>();
     Map<String, String> staticSolrFieldFriendlyNamesBySolrField = new HashMap<>();
     private boolean solrIsDown = false;
@@ -155,9 +152,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private RoleTagRetriever roleTagRetriever;
     private DataverseRolePermissionHelper rolePermissionHelper;
     private String errorFromSolr;
-    private String userIdentifier;
     private List<String> myRoles;
-    private List<String> selectedRoles;
+
 
 
     /**
@@ -197,6 +193,14 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public List<String> getMyRoles() {
         return myRoles;
+    }
+
+    public String getSearchUserId() {
+        return searchUserId;
+    }
+
+    public void setSearchUserId(String searchUserId) {
+        this.searchUserId = searchUserId;
     }
 
     public String getMode() {
@@ -281,14 +285,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public void setFacetCategoryList(List<FacetCategory> facetCategoryList) {
         this.facetCategoryList = facetCategoryList;
-    }
-
-    public String getUserIdentifier() {
-        return userIdentifier;
-    }
-
-    public void setUserIdentifier(String userIdentifier) {
-        this.userIdentifier = userIdentifier;
     }
 
     public List<SolrSearchResult> getSearchResultsList() {
@@ -991,8 +987,11 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         if (query != null) {
             qParam = "&q=" + query;
         }
+        if(searchUserId != null) {
+            qParam += "&uId=" + searchUserId;
+        }
 
-        return widgetWrapper.wrapURL(dataverseRedirectPage + "?faces-redirect=true&q=" + qParam);
+        return widgetWrapper.wrapURL(dataverseRedirectPage + "?faces-redirect=true" + qParam);
 
     }
 
@@ -1006,6 +1005,22 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     public String retrieveMyData() {
         if ((session.getUser() != null) && (session.getUser().isAuthenticated())) {
             authUser = (AuthenticatedUser) session.getUser();
+            if(searchUserId == null || searchUserId.isEmpty()) {
+                searchUserId = getAuthUserIdentifier();
+            }
+            // If person is a superuser, see if a userIdentifier has been specified
+            // and use that instead
+            // For, superusers, the searchUser may differ from the authUser
+            //
+            AuthenticatedUser searchUser;
+            if (authUser.isSuperuser()) {
+                searchUser = getUserFromIdentifier(searchUserId);
+                if (searchUser != null) {
+                    authUser = searchUser;
+                } else {
+                    return "No user found for: \"" + searchUserId + "\"";
+                }
+            }
         } else {
             return permissionsWrapper.notAuthorized();
             // redirect to login OR give some type ‘you must be logged in message'
@@ -1058,27 +1073,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             }
         }
 
-
-        // For, superusers, the searchUser may differ from the authUser
-        //
-        AuthenticatedUser searchUser = null;
-
-        if ((session.getUser() != null) && (session.getUser().isAuthenticated())) {
-            authUser = (AuthenticatedUser) session.getUser();
-            if(userIdentifier == null || userIdentifier.isEmpty()) {
-                userIdentifier = authUser.getUserIdentifier();
-            }
-            // If person is a superuser, see if a userIdentifier has been specified
-            // and use that instead
-            if (authUser.isSuperuser()) {
-                searchUser = getUserFromIdentifier(userIdentifier);
-                if (searchUser != null) {
-                    authUser = searchUser;
-                } else {
-                    return "No user found for: \"" + userIdentifier + "\"";
-                }
-            }
-        }
 
         roleList = dataverseRoleService.findAll();
         rolePermissionHelper = new DataverseRolePermissionHelper(roleList);
@@ -1152,13 +1146,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         // ---------------------------------
         int paginationStart = (page - 1) * paginationGuiRows;
 
-        // Default the searchUser to the authUser.
-        // The exception: for logged-in superusers, the searchUser may differ from the authUser
-        //
-        if (searchUser == null) {
-            searchUser = authUser;
-        }
-
         try {
             solrQueryResponse = searchService.search(
                     dataverseRequest,
@@ -1169,7 +1156,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                     SortBy.DESCENDING,
                     paginationStart,
                     true,
-                    SearchConstants.NUM_SOLR_DOCS_TO_RETRIEVE * 100
+                    SearchConstants.NUM_SOLR_DOCS_TO_RETRIEVE
             );
 
             if (this.solrQueryResponse.getNumResultsFound() == 0) {
@@ -1184,7 +1171,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         }
 
         if (solrQueryResponse == null) {
-            return "Sorry!  There was an error with the search service." +  " Sorry!  There was a SOLR Error";
+            return "Sorry!  There was an error with the search service. Sorry! There was a SOLR Error";
         }
         if (!solrIsDown) {
             roleTagRetriever = new RoleTagRetriever(this.rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
@@ -1196,9 +1183,26 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             }
             myRoles = roles.stream().distinct().collect(Collectors.toList());
 
-            List<Long> entitiesFilteredByRole = new ArrayList<>();
             if(!roleFilters.isEmpty()) {
-                solrQueryResponse = solrQueryResponse.rebuildForRolesFilters(roleFilters, roleTagRetriever);
+                try {
+                    SolrQueryResponse helpSolrQueryResponse = searchService.search(
+                            dataverseRequest,
+                            null,
+                            searchTerm,
+                            filterQueriesFinal,
+                            SearchFields.RELEASE_OR_CREATE_DATE,
+                            SortBy.DESCENDING,
+                            paginationStart,
+                            true,
+                            Integer.MAX_VALUE
+                    );
+
+                    roleTagRetriever.loadRoles(dataverseRequest, helpSolrQueryResponse);
+                    solrQueryResponse = helpSolrQueryResponse.rebuildForRolesFilters(roleFilters, roleTagRetriever);
+                } catch (SearchException ex) {
+                    solrQueryResponse = null;
+                    logger.severe("Solr SearchException: " + ex.getMessage());
+                }
             }
 
             for(FacetCategory facetCat : solrQueryResponse.getFacetCategoryList()) {
@@ -1303,6 +1307,10 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             return null;
         }
         return authenticationService.getAuthenticatedUser(userIdentifier);
+    }
+
+    public List<String> getRolesForEntity(long id) {
+        return roleTagRetriever.getFinalIdToRolesHash().get(id);
     }
 
 }
