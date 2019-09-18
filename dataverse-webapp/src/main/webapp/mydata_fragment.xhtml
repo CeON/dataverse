@@ -621,6 +621,9 @@
                                     <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                                     </c:forEach>
+                                    <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="role">
+                                        <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
+                                    </c:forEach>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                     <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                                     <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -633,6 +636,9 @@
                                     <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                                     <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                    </c:forEach>
+                                    <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="role">
+                                        <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
                                     </c:forEach>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                     <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
@@ -655,6 +661,9 @@
                                         <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                                         </c:forEach>
+                                        <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="role">
+                                            <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
+                                        </c:forEach>
                                         <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                         <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                                         <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -669,6 +678,9 @@
                                     <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
                                     </c:forEach>
+                                    <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="role">
+                                        <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
+                                    </c:forEach>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                     <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                                     <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
@@ -681,6 +693,9 @@
                                     <f:param name="q" value="#{MyDataSearchFragment.query}"/>
                                     <c:forEach items="#{MyDataSearchFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                                    </c:forEach>
+                                    <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="role">
+                                        <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
                                     </c:forEach>
                                     <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
                                     <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>

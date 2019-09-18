@@ -154,26 +154,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private String errorFromSolr;
     private List<String> myRoles;
 
-
-
-    /**
-     * Used for capturing errors that happen during solr query
-     * Added to catch exceptions when parsing the solr query string
-     *
-     * @return
-     */
-    public boolean wasSolrErrorEncountered() {
-
-        if (this.solrErrorEncountered) {
-            return true;
-        }
-        if (!this.hasValidFilterQueries()) {
-            setSolrErrorEncountered(true);
-            return true;
-        }
-        return solrErrorEncountered;
-    }
-
     /**
      * Set the solrErrorEncountered flag
      *
@@ -183,206 +163,34 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         this.solrErrorEncountered = val;
     }
 
-    public String getBrowseModeString() {
-        return browseModeString;
-    }
-
-    public String getSearchModeString() {
-        return searchModeString;
-    }
-
-    public List<String> getMyRoles() {
-        return myRoles;
-    }
-
-    public String getSearchUserId() {
-        return searchUserId;
-    }
-
+    // -------------------- SETTERS --------------------
     public void setSearchUserId(String searchUserId) {
         this.searchUserId = searchUserId;
-    }
-
-    public String getMode() {
-        // enum would be prefered but we can't reference enums from JSF:
-        // http://stackoverflow.com/questions/2524420/how-to-testing-for-enum-equality-in-jsf/2524901#2524901
-        return mode;
-    }
-
-    public int getNumberOfFacets(String name, int defaultValue) {
-        Integer numFacets = numberOfFacets.get(name);
-        if (numFacets == null) {
-            numberOfFacets.put(name, defaultValue);
-            numFacets = defaultValue;
-        }
-        return numFacets;
-    }
-
-    public void incrementFacets(String name, int incrementNum) {
-        Integer numFacets = numberOfFacets.get(name);
-        if (numFacets == null) {
-            numFacets = incrementNum;
-        }
-        numberOfFacets.put(name, numFacets + incrementNum);
-    }
-
-    // http://stackoverflow.com/questions/1515437/java-function-for-arrays-like-phps-join/1515548#1515548
-    String combine(String[] s, String glue) {
-        int k = s.length;
-        if (k == 0) {
-            return null;
-        }
-        StringBuilder out = new StringBuilder();
-        out.append(s[0]);
-        for (int x = 1; x < k; ++x) {
-            out.append(glue).append(s[x]);
-        }
-        return out.toString();
-    }
-
-    private Long findFacetCountByType(String type) {
-        return previewCountbyType.get(type);
-    }
-
-    private String getCreatedOrReleasedDate(DvObject dvObject, Date date) {
-        // the hedge is for https://redmine.hmdc.harvard.edu/issues/3806
-        String hedge = "";
-        if (dvObject instanceof Dataverse) {
-            hedge = "";
-        } else if (dvObject instanceof Dataset) {
-            hedge = " maybe";
-        } else if (dvObject instanceof DataFile) {
-            hedge = " maybe";
-        } else {
-            hedge = " what object is this?";
-        }
-        if (dvObject.isReleased()) {
-            return date + " released" + hedge;
-        } else {
-            return date + " created" + hedge;
-        }
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public List<String> getFilterQueries() {
-        return filterQueries;
     }
 
     public void setFilterQueries(List<String> filterQueries) {
         this.filterQueries = filterQueries;
     }
 
-    public List<FacetCategory> getFacetCategoryList() {
-        return facetCategoryList;
-    }
-
     public void setFacetCategoryList(List<FacetCategory> facetCategoryList) {
         this.facetCategoryList = facetCategoryList;
     }
 
-    public List<SolrSearchResult> getSearchResultsList() {
-        return searchResultsList;
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     public void setSearchResultsList(List<SolrSearchResult> searchResultsList) {
         this.searchResultsList = searchResultsList;
     }
 
-    public int getSearchResultsCount() {
-        return searchResultsCount;
-    }
-
     public void setSearchResultsCount(int searchResultsCount) {
         this.searchResultsCount = searchResultsCount;
     }
 
-    public String getFq0() {
-        return fq0;
+    public void setDataverse(Dataverse dataverse) {
+        this.dataverse = dataverse;
     }
-
-    public void setFq0(String fq0) {
-        this.fq0 = fq0;
-    }
-
-    public String getFq1() {
-        return fq1;
-    }
-
-    public void setFq1(String fq1) {
-        this.fq1 = fq1;
-    }
-
-    public String getFq2() {
-        return fq2;
-    }
-
-    public void setFq2(String fq2) {
-        this.fq2 = fq2;
-    }
-
-    public String getFq3() {
-        return fq3;
-    }
-
-    public void setFq3(String fq3) {
-        this.fq3 = fq3;
-    }
-
-    public String getFq4() {
-        return fq4;
-    }
-
-    public void setFq4(String fq4) {
-        this.fq4 = fq4;
-    }
-
-    public String getFq5() {
-        return fq5;
-    }
-
-    public void setFq5(String fq5) {
-        this.fq5 = fq5;
-    }
-
-    public String getFq6() {
-        return fq6;
-    }
-
-    public void setFq6(String fq6) {
-        this.fq6 = fq6;
-    }
-
-    public String getFq7() {
-        return fq7;
-    }
-
-    public void setFq7(String fq7) {
-        this.fq7 = fq7;
-    }
-
-    public String getFq8() {
-        return fq8;
-    }
-
-    public void setFq8(String fq8) {
-        this.fq8 = fq8;
-    }
-
-    public String getFq9() {
-        return fq9;
-    }
-
-    public void setFq9(String fq9) {
-        this.fq9 = fq9;
-    }
-
 
     public void setRf0(String rf0) {
         this.rf0 = rf0;
@@ -406,6 +214,95 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public void setRf5(String rf5) {
         this.rf5 = rf5;
+    }
+
+    public void setFq0(String fq0) {
+        this.fq0 = fq0;
+    }
+
+    public void setFq1(String fq1) {
+        this.fq1 = fq1;
+    }
+
+    public void setFq2(String fq2) {
+        this.fq2 = fq2;
+    }
+
+    public void setFq3(String fq3) {
+        this.fq3 = fq3;
+    }
+
+    public void setFq4(String fq4) {
+        this.fq4 = fq4;
+    }
+
+    public void setFq5(String fq5) {
+        this.fq5 = fq5;
+    }
+
+    public void setFq6(String fq6) {
+        this.fq6 = fq6;
+    }
+
+    public void setFq7(String fq7) {
+        this.fq7 = fq7;
+    }
+
+    public void setFq8(String fq8) {
+        this.fq8 = fq8;
+    }
+
+    public void setFq9(String fq9) {
+        this.fq9 = fq9;
+    }
+
+    public void setSelectedTypesString(String selectedTypesString) {
+        this.selectedTypesString = selectedTypesString;
+    }
+
+    public void setSelectedTypesList(List<String> selectedTypesList) {
+        this.selectedTypesList = selectedTypesList;
+    }
+
+    // -------------------- GETTERS --------------------
+    public String getBrowseModeString() {
+        return browseModeString;
+    }
+
+    public String getSearchModeString() {
+        return searchModeString;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public List<String> getMyRoles() {
+        return myRoles;
+    }
+
+    public String getSearchUserId() {
+        return searchUserId;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public List<String> getFilterQueries() {
+        return filterQueries;
+    }
+
+    public List<FacetCategory> getFacetCategoryList() {
+        return facetCategoryList;
+    }
+
+    public List<SolrSearchResult> getSearchResultsList() {
+        return searchResultsList;
+    }
+
+    public int getSearchResultsCount() {
+        return searchResultsCount;
     }
 
     public List<String> getRoleFilters() {
@@ -436,29 +333,56 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         return rf5;
     }
 
+    public String getFq0() {
+        return fq0;
+    }
+
+    public String getFq1() {
+        return fq1;
+    }
+
+    public String getFq2() {
+        return fq2;
+    }
+
+    public String getFq3() {
+        return fq3;
+    }
+
+    public String getFq4() {
+        return fq4;
+    }
+
+    public String getFq5() {
+        return fq5;
+    }
+
+    public String getFq6() {
+        return fq6;
+    }
+
+    public String getFq7() {
+        return fq7;
+    }
+
+    public String getFq8() {
+        return fq8;
+    }
+
+    public String getFq9() {
+        return fq9;
+    }
 
     public Dataverse getDataverse() {
         return dataverse;
-    }
-
-    public void setDataverse(Dataverse dataverse) {
-        this.dataverse = dataverse;
     }
 
     public String getSelectedTypesString() {
         return selectedTypesString;
     }
 
-    public void setSelectedTypesString(String selectedTypesString) {
-        this.selectedTypesString = selectedTypesString;
-    }
-
     public List<String> getSelectedTypesList() {
         return selectedTypesList;
-    }
-
-    public void setSelectedTypesList(List<String> selectedTypesList) {
-        this.selectedTypesList = selectedTypesList;
     }
 
     public String getSelectedTypesHumanReadable() {
@@ -649,25 +573,12 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         this.paginationGuiRows = paginationGuiRows;
     }
 
-    public boolean isSolrIsDown() {
-        return solrIsDown;
-    }
-
     public void setSolrIsDown(boolean solrIsDown) {
         this.solrIsDown = solrIsDown;
     }
 
-    public boolean isRootDv() {
-        return rootDv;
-    }
-
     public void setRootDv(boolean rootDv) {
         this.rootDv = rootDv;
-    }
-
-    public boolean isDebug() {
-        return (debug && session.getUser().isSuperuser())
-                || settingsService.isTrue(":Debug");
     }
 
     public void setDebug(boolean debug) {
@@ -676,22 +587,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public List<String> getFilterQueriesDebug() {
         return filterQueriesDebug;
-    }
-
-    public boolean userLoggedIn() {
-        return session.getUser().isAuthenticated();
-    }
-
-    public boolean publishedSelected() {
-        String expected = SearchFields.PUBLICATION_STATUS + ":\"" + getPUBLISHED() + "\"";
-        logger.fine("published expected: " + expected + " actual: " + selectedTypesList);
-        return filterQueries.contains(SearchFields.PUBLICATION_STATUS + ":\"" + getPUBLISHED() + "\"");
-    }
-
-    public boolean unpublishedSelected() {
-        String expected = SearchFields.PUBLICATION_STATUS + ":\"" + getUNPUBLISHED() + "\"";
-        logger.fine("unpublished expected: " + expected + " actual: " + selectedTypesList);
-        return filterQueries.contains(SearchFields.PUBLICATION_STATUS + ":\"" + getUNPUBLISHED() + "\"");
     }
 
     public String getPUBLISHED() {
@@ -712,6 +607,69 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public String getDEACCESSIONED() {
         return IndexServiceBean.getDEACCESSIONED_STRING();
+    }
+
+    public String getErrorFromSolr() {
+        return errorFromSolr;
+    }
+
+    // -------------------- LOGIC --------------------
+    public int getNumberOfFacets(String name, int defaultValue) {
+        Integer numFacets = numberOfFacets.get(name);
+        if (numFacets == null) {
+            numberOfFacets.put(name, defaultValue);
+            numFacets = defaultValue;
+        }
+        return numFacets;
+    }
+
+    /**
+     * Used for capturing errors that happen during solr query
+     * Added to catch exceptions when parsing the solr query string
+     *
+     * @return
+     */
+    public boolean wasSolrErrorEncountered() {
+
+        if (this.solrErrorEncountered) {
+            return true;
+        }
+        if (!this.hasValidFilterQueries()) {
+            setSolrErrorEncountered(true);
+            return true;
+        }
+        return solrErrorEncountered;
+    }
+
+    String combine(String[] s, String glue) {
+        int k = s.length;
+        if (k == 0) {
+            return null;
+        }
+        StringBuilder out = new StringBuilder();
+        out.append(s[0]);
+        for (int x = 1; x < k; ++x) {
+            out.append(glue).append(s[x]);
+        }
+        return out.toString();
+    }
+
+    private Long findFacetCountByType(String type) {
+        return previewCountbyType.get(type);
+    }
+
+    public boolean isSolrIsDown() {
+        return solrIsDown;
+    }
+
+
+    public boolean isRootDv() {
+        return rootDv;
+    }
+
+    public boolean isDebug() {
+        return (debug && session.getUser().isSuperuser())
+                || settingsService.isTrue(":Debug");
     }
 
 
@@ -810,10 +768,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     }
 
-    public String getErrorFromSolr() {
-        return errorFromSolr;
-    }
-
     public boolean isTabular(DataFile datafile) {
 
         if (datafile == null) {
@@ -877,15 +831,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
         Set<Long> harvestedDatasetIds = null;
         for (SolrSearchResult result : searchResultsList) {
-            //logger.info("checking DisplayImage for the search result " + i++);
             if (result.getType().equals("dataverses")) {
-                /**
-                 * @todo Someday we should probably revert this setImageUrl to
-                 * the original meaning "image_url" to address this issue:
-                 * `image_url` from Search API results no longer yields a
-                 * downloadable image -
-                 * https://github.com/IQSS/dataverse/issues/3616
-                 */
                 result.setImageUrl(thumbnailServiceWrapper.getDataverseCardImageAsBase64Url(result));
             } else if (result.getType().equals("datasets")) {
                 if (result.getEntity() != null) {
@@ -1174,14 +1120,30 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             return "Sorry!  There was an error with the search service. Sorry! There was a SOLR Error";
         }
         if (!solrIsDown) {
-            roleTagRetriever = new RoleTagRetriever(this.rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
-            roleTagRetriever.loadRoles(dataverseRequest, solrQueryResponse);
+            // we need to populate roleTagRetriver object with roles for all objects and not only for those from current page (int.max_value)
+            try {
+                SolrQueryResponse fullSolrQueryResponse = searchService.search(
+                        dataverseRequest,
+                        null,
+                        searchTerm,
+                        filterQueriesFinal,
+                        SearchFields.RELEASE_OR_CREATE_DATE,
+                        SortBy.DESCENDING,
+                        0,
+                        true,
+                        1000
+                );
+                roleTagRetriever = new RoleTagRetriever(this.rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
+                roleTagRetriever.loadRoles(dataverseRequest, fullSolrQueryResponse);
 
-            List<String> roles = new ArrayList<>();
-            for(SolrSearchResult dvObjId : solrQueryResponse.getSolrSearchResults()) {
-                roles.addAll(roleTagRetriever.getRolesForCard(dvObjId.getEntityId()));
+                List<String> roles = new ArrayList<>();
+                for(SolrSearchResult dvObjId : fullSolrQueryResponse.getSolrSearchResults()) {
+                    roles.addAll(roleTagRetriever.getRolesForCard(dvObjId.getEntityId()));
+                }
+                myRoles = roles.stream().distinct().collect(Collectors.toList());
+            } catch (SearchException ex) {
+                logger.severe("Solr SearchException: " + ex.getMessage());
             }
-            myRoles = roles.stream().distinct().collect(Collectors.toList());
 
             if(!roleFilters.isEmpty()) {
                 try {
@@ -1194,11 +1156,13 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                             SortBy.DESCENDING,
                             paginationStart,
                             true,
-                            Integer.MAX_VALUE
+                            SearchConstants.NUM_SOLR_DOCS_TO_RETRIEVE,
+                            true,
+                            getEntitiesIdsNotFilteredByRoles(roleFilters, roleTagRetriever)
                     );
 
                     roleTagRetriever.loadRoles(dataverseRequest, helpSolrQueryResponse);
-                    solrQueryResponse = helpSolrQueryResponse.rebuildForRolesFilters(roleFilters, roleTagRetriever);
+                    solrQueryResponse = helpSolrQueryResponse; // helpSolrQueryResponse.rebuildForRolesFilters(roleFilters, roleTagRetriever);
                 } catch (SearchException ex) {
                     solrQueryResponse = null;
                     logger.severe("Solr SearchException: " + ex.getMessage());
@@ -1281,6 +1245,24 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         return StringUtils.EMPTY;
     }
 
+    public boolean isSuperuser() {
+        return (session.getUser() != null) && session.getUser().isSuperuser();
+    }
+
+    public List<String> getRolesForEntity(long id) {
+        return roleTagRetriever.getFinalIdToRolesHash().get(id);
+    }
+    // -------------------- PRIVATE ---------------------
+    private List<Long> getEntitiesIdsNotFilteredByRoles(List<String> roleFilters, RoleTagRetriever roleTagRetriever) {
+        List<Long> entitiesFilteredByRole = new ArrayList<>();
+        for(Long entityId : roleTagRetriever.getFinalIdToRolesHash().keySet()) {
+            if(roleTagRetriever.getFinalIdToRolesHash().get(entityId).stream().anyMatch(roleFilters::contains)) {
+                entitiesFilteredByRole.add(entityId);
+            }
+        }
+        return entitiesFilteredByRole;
+    }
+
     private List<String> toMyDataFinderFormat(List<String> selectedTypesList) {
         List<String> myDataFinderTypes = new ArrayList<>();
         for(String type : selectedTypesList) {
@@ -1297,10 +1279,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         return myDataFinderTypes;
     }
 
-    public boolean isSuperuser() {
-        return (session.getUser() != null) && session.getUser().isSuperuser();
-    }
-
     private AuthenticatedUser getUserFromIdentifier(String userIdentifier) {
 
         if ((userIdentifier == null) || (userIdentifier.isEmpty())) {
@@ -1308,9 +1286,4 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         }
         return authenticationService.getAuthenticatedUser(userIdentifier);
     }
-
-    public List<String> getRolesForEntity(long id) {
-        return roleTagRetriever.getFinalIdToRolesHash().get(id);
-    }
-
 }
