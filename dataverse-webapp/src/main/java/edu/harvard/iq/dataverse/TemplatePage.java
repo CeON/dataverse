@@ -125,7 +125,7 @@ public class TemplatePage implements java.io.Serializable {
             template = templateService.find(templateId);
             template.setDataverse(dataverse);
 
-            List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse);
+            List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
             template.setDatasetFields(dsfForEdit);
             mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(dsfForEdit);
 
@@ -145,7 +145,7 @@ public class TemplatePage implements java.io.Serializable {
             terms.setLicense(TermsOfUseAndAccess.License.CC0);
             template.setTermsOfUseAndAccess(terms);
 
-            List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse);
+            List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
             template.setDatasetFields(datasetFields);
             mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(datasetFields);
         } else {
