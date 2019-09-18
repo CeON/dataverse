@@ -126,6 +126,7 @@ public class TemplatePage implements java.io.Serializable {
             template.setDataverse(dataverse);
 
             List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse);
+            template.setDatasetFields(dsfForEdit);
             mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(dsfForEdit);
 
             if (template.getTermsOfUseAndAccess() == null) {
@@ -145,6 +146,7 @@ public class TemplatePage implements java.io.Serializable {
             template.setTermsOfUseAndAccess(terms);
 
             List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse);
+            template.setDatasetFields(datasetFields);
             mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(datasetFields);
         } else {
             throw new RuntimeException("On Template page without id or ownerid."); // improve error handling

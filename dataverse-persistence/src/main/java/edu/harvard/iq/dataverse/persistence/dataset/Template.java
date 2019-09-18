@@ -41,7 +41,6 @@ public class Template implements Serializable {
     }
     public Template(Dataverse dataverseIn) {
         dataverse = dataverseIn;
-        datasetFields = initDatasetFields();
     }
 
     public Long getId() {
@@ -138,74 +137,6 @@ public class Template implements Serializable {
 
     public void setDataverse(Dataverse dataverse) {
         this.dataverse = dataverse;
-    }
-
-    private List<DatasetField> initDatasetFields() {
-        //retList - Return List of values
-        List<DatasetField> retList = new ArrayList<>();
-        for (DatasetField dsf : this.getDatasetFields()) {
-            retList.add(initDatasetField(dsf));
-        }
-
-        //Test to see that there are values for 
-        // all fields in this dataset via metadata blocks
-        //only add if not added above
-        for (MetadataBlock mdb : this.getDataverse().getRootMetadataBlocks()) {
-            for (DatasetFieldType dsfType : mdb.getDatasetFieldTypes()) {
-                if (!dsfType.isSubField()) {
-                    boolean add = true;
-                    //don't add if already added as a val
-                    for (DatasetField dsf : retList) {
-                        if (dsfType.equals(dsf.getDatasetFieldType())) {
-                            add = false;
-                            break;
-                        }
-                    }
-
-                    if (add) {
-                        retList.add(DatasetField.createNewEmptyDatasetField(dsfType, this));
-                    }
-                }
-            }
-        }
-
-        return sortDatasetFields(retList);
-    }
-
-    private List<DatasetField> sortDatasetFields(List<DatasetField> dsfList) {
-        dsfList.sort((dsf1, dsf2) -> {
-            int dsf1Order = dsf1.getDatasetFieldType().getDisplayOrder();
-            int dsf2Order = dsf2.getDatasetFieldType().getDisplayOrder();
-            return Integer.compare(dsf1Order, dsf2Order);
-        });
-        return dsfList;
-    }
-
-    // TODO: clean up init methods and get them to work, cascading all the way down.
-    // right now, only work for one level of compound objects
-    private DatasetField initDatasetField(DatasetField dsf) {
-        if (dsf.getDatasetFieldType().isCompound()) {
-            for (DatasetFieldCompoundValue cv : dsf.getDatasetFieldCompoundValues()) {
-                // for each compound value; check the datasetfieldTypes associated with its type
-                for (DatasetFieldType dsfType : dsf.getDatasetFieldType().getChildDatasetFieldTypes()) {
-                    boolean add = true;
-                    for (DatasetField subfield : cv.getChildDatasetFields()) {
-                        if (dsfType.equals(subfield.getDatasetFieldType())) {
-                            add = false;
-                            break;
-                        }
-                    }
-
-                    if (add) {
-                        cv.getChildDatasetFields().add(DatasetField.createNewEmptyChildDatasetField(dsfType, cv));
-                    }
-                }
-
-                sortDatasetFields(cv.getChildDatasetFields());
-            }
-        }
-
-        return dsf;
     }
 
     public Template cloneNewTemplate(Template source) {
