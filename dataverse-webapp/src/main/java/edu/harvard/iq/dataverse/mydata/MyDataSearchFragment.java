@@ -117,152 +117,31 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private String dataversePath = null;
     private String selectedTypesString;
     private List<String> selectedTypesList = new ArrayList<>();
-    private String selectedTypesHumanReadable;
-    private String searchFieldType = SearchFields.TYPE;
-    private String searchFieldSubtree = SearchFields.SUBTREE;
 
-    private String searchFieldNameSort = SearchFields.NAME_SORT;
-    private String searchFieldRelevance = SearchFields.RELEVANCE;
-
-    private String searchFieldReleaseOrCreateDate = SearchFields.RELEASE_OR_CREATE_DATE;
     final private String ASCENDING = SortOrder.asc.toString();
     final private String DESCENDING = SortOrder.desc.toString();
     private String typeFilterQuery;
-    Map<String, Long> previewCountbyType = new HashMap<>();
+    private Map<String, Long> previewCountbyType = new HashMap<>();
     private String sortField;
     private SortOrder sortOrder;
     private int page = 1;
     private int paginationGuiStart = 1;
     private int paginationGuiEnd = 10;
     private int paginationGuiRows = 10;
-    Map<String, String> datasetfieldFriendlyNamesBySolrField = new HashMap<>();
-    Map<String, String> staticSolrFieldFriendlyNamesBySolrField = new HashMap<>();
+    private Map<String, String> datasetfieldFriendlyNamesBySolrField = new HashMap<>();
+    private Map<String, String> staticSolrFieldFriendlyNamesBySolrField = new HashMap<>();
     private boolean solrIsDown = false;
     private Map<String, Integer> numberOfFacets = new HashMap<>();
     private boolean debug = false;
 
-    List<String> filterQueriesDebug = new ArrayList<>();
+    private List<String> filterQueriesDebug = new ArrayList<>();
 
     private boolean rootDv = false;
     private boolean solrErrorEncountered = false;
-    private SolrQueryResponse solrQueryResponse;
-    private MyDataFinder myDataFinder;
     private AuthenticatedUser authUser = null;
-    private List<DataverseRole> roleList;
     private RoleTagRetriever roleTagRetriever;
-    private DataverseRolePermissionHelper rolePermissionHelper;
     private String errorFromSolr;
     private List<String> myRoles;
-
-    /**
-     * Set the solrErrorEncountered flag
-     *
-     * @param val
-     */
-    public void setSolrErrorEncountered(boolean val) {
-        this.solrErrorEncountered = val;
-    }
-
-    // -------------------- SETTERS --------------------
-    public void setSearchUserId(String searchUserId) {
-        this.searchUserId = searchUserId;
-    }
-
-    public void setFilterQueries(List<String> filterQueries) {
-        this.filterQueries = filterQueries;
-    }
-
-    public void setFacetCategoryList(List<FacetCategory> facetCategoryList) {
-        this.facetCategoryList = facetCategoryList;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public void setSearchResultsList(List<SolrSearchResult> searchResultsList) {
-        this.searchResultsList = searchResultsList;
-    }
-
-    public void setSearchResultsCount(int searchResultsCount) {
-        this.searchResultsCount = searchResultsCount;
-    }
-
-    public void setDataverse(Dataverse dataverse) {
-        this.dataverse = dataverse;
-    }
-
-    public void setRf0(String rf0) {
-        this.rf0 = rf0;
-    }
-
-    public void setRf1(String rf1) {
-        this.rf1 = rf1;
-    }
-
-    public void setRf2(String rf2) {
-        this.rf2 = rf2;
-    }
-
-    public void setRf3(String rf3) {
-        this.rf3 = rf3;
-    }
-
-    public void setRf4(String rf4) {
-        this.rf4 = rf4;
-    }
-
-    public void setRf5(String rf5) {
-        this.rf5 = rf5;
-    }
-
-    public void setFq0(String fq0) {
-        this.fq0 = fq0;
-    }
-
-    public void setFq1(String fq1) {
-        this.fq1 = fq1;
-    }
-
-    public void setFq2(String fq2) {
-        this.fq2 = fq2;
-    }
-
-    public void setFq3(String fq3) {
-        this.fq3 = fq3;
-    }
-
-    public void setFq4(String fq4) {
-        this.fq4 = fq4;
-    }
-
-    public void setFq5(String fq5) {
-        this.fq5 = fq5;
-    }
-
-    public void setFq6(String fq6) {
-        this.fq6 = fq6;
-    }
-
-    public void setFq7(String fq7) {
-        this.fq7 = fq7;
-    }
-
-    public void setFq8(String fq8) {
-        this.fq8 = fq8;
-    }
-
-    public void setFq9(String fq9) {
-        this.fq9 = fq9;
-    }
-
-    public void setSelectedTypesString(String selectedTypesString) {
-        this.selectedTypesString = selectedTypesString;
-    }
-
-    public void setSelectedTypesList(List<String> selectedTypesList) {
-        this.selectedTypesList = selectedTypesList;
-    }
 
     // -------------------- GETTERS --------------------
     public String getBrowseModeString() {
@@ -385,38 +264,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         return selectedTypesList;
     }
 
-    public String getSelectedTypesHumanReadable() {
-        return selectedTypesHumanReadable;
-    }
-
-    public void setSelectedTypesHumanReadable(String selectedTypesHumanReadable) {
-        this.selectedTypesHumanReadable = selectedTypesHumanReadable;
-    }
-
-    public String getSearchFieldType() {
-        return searchFieldType;
-    }
-
-    public void setSearchFieldType(String searchFieldType) {
-        this.searchFieldType = searchFieldType;
-    }
-
-    public String getSearchFieldSubtree() {
-        return searchFieldSubtree;
-    }
-
-    public void setSearchFieldSubtree(String searchFieldSubtree) {
-        this.searchFieldSubtree = searchFieldSubtree;
-    }
-
-    public String getTypeFilterQuery() {
-        return typeFilterQuery;
-    }
-
-    public void setTypeFilterQuery(String typeFilterQuery) {
-        this.typeFilterQuery = typeFilterQuery;
-    }
-
     public Long getFacetCountDatasets() {
         return findFacetCountByType("datasets");
     }
@@ -427,26 +274,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public Long getFacetCountFiles() {
         return findFacetCountByType("files");
-    }
-
-    public String getSearchFieldRelevance() {
-        return searchFieldRelevance;
-    }
-
-    public void setSearchFieldRelevance(String searchFieldRelevance) {
-        this.searchFieldRelevance = searchFieldRelevance;
-    }
-
-    public String getSearchFieldNameSort() {
-        return searchFieldNameSort;
-    }
-
-    public void setSearchFieldNameSort(String searchFieldNameSort) {
-        this.searchFieldNameSort = searchFieldNameSort;
-    }
-
-    public String getSearchFieldReleaseOrCreateDate() {
-        return searchFieldReleaseOrCreateDate;
     }
 
     public String getASCENDING() {
@@ -474,24 +301,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     }
 
     /**
-     * Allow only valid values to be set.
-     * <p>
-     * Rather than passing in a String and converting it to an enum in this
-     * method we could write a converter:
-     * http://stackoverflow.com/questions/8609378/jsf-2-0-view-parameters-to-pass-objects
-     */
-    public void setSortOrder(String sortOrderSupplied) {
-        if (sortOrderSupplied != null) {
-            if (sortOrderSupplied.equals(SortOrder.asc.toString())) {
-                this.sortOrder = SortOrder.asc;
-            }
-            if (sortOrderSupplied.equals(SortOrder.desc.toString())) {
-                this.sortOrder = SortOrder.desc;
-            }
-        }
-    }
-
-    /**
      * @todo this method doesn't seem to be in use and can probably be deleted.
      */
     @Deprecated
@@ -512,36 +321,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         return friendlySortField + friendlySortOrder;
     }
 
-    public String getCurrentSort() {
-        return sortField + ":" + sortOrder;
-    }
-
-    public boolean isSortedByNameAsc() {
-        return getCurrentSort().equals(searchFieldNameSort + ":" + ASCENDING);
-    }
-
-    public boolean isSortedByNameDesc() {
-        return getCurrentSort().equals(searchFieldNameSort + ":" + DESCENDING);
-    }
-
-    public boolean isSortedByReleaseDateAsc() {
-        return getCurrentSort().equals(searchFieldReleaseOrCreateDate + ":" + ASCENDING);
-    }
-
-    public boolean isSortedByReleaseDateDesc() {
-        return getCurrentSort().equals(searchFieldReleaseOrCreateDate + ":" + DESCENDING);
-    }
-
-    public boolean isSortedByRelevance() {
-        return getCurrentSort().equals(searchFieldRelevance + ":" + DESCENDING);
-    }
-
     public int getPage() {
         return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
     }
 
     // helper method
@@ -553,36 +334,12 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         return paginationGuiStart;
     }
 
-    public void setPaginationGuiStart(int paginationGuiStart) {
-        this.paginationGuiStart = paginationGuiStart;
-    }
-
     public int getPaginationGuiEnd() {
         return paginationGuiEnd;
     }
 
-    public void setPaginationGuiEnd(int paginationGuiEnd) {
-        this.paginationGuiEnd = paginationGuiEnd;
-    }
-
     public int getPaginationGuiRows() {
         return paginationGuiRows;
-    }
-
-    public void setPaginationGuiRows(int paginationGuiRows) {
-        this.paginationGuiRows = paginationGuiRows;
-    }
-
-    public void setSolrIsDown(boolean solrIsDown) {
-        this.solrIsDown = solrIsDown;
-    }
-
-    public void setRootDv(boolean rootDv) {
-        this.rootDv = rootDv;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
     }
 
     public List<String> getFilterQueriesDebug() {
@@ -984,6 +741,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         if (mode.equals(browseModeString)) {
             searchTerm = "*";
             if (sortField == null) {
+                String searchFieldReleaseOrCreateDate = SearchFields.RELEASE_OR_CREATE_DATE;
                 sortField = searchFieldReleaseOrCreateDate;
             }
             if (sortOrder == null) {
@@ -995,6 +753,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         } else if (mode.equals(searchModeString)) {
             searchTerm = query;
             if (sortField == null) {
+                String searchFieldRelevance = SearchFields.RELEVANCE;
                 sortField = searchFieldRelevance;
             }
             if (sortOrder == null) {
@@ -1020,8 +779,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         }
 
 
-        roleList = dataverseRoleService.findAll();
-        rolePermissionHelper = new DataverseRolePermissionHelper(roleList);
+        List<DataverseRole> roleList = dataverseRoleService.findAll();
+        DataverseRolePermissionHelper rolePermissionHelper = new DataverseRolePermissionHelper(roleList);
 
         List<String> pub_states = new ArrayList<>();
         for(String filter : filterQueries) {
@@ -1046,7 +805,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
         List<String> filterQueriesFinalAllTypes = new ArrayList<>();
         String[] arr = selectedTypesList.toArray(new String[selectedTypesList.size()]);
-        selectedTypesHumanReadable = combine(arr, " OR ");
+        String selectedTypesHumanReadable = combine(arr, " OR ");
         if (!selectedTypesHumanReadable.isEmpty()) {
             typeFilterQuery = SearchFields.TYPE + ":(" + selectedTypesHumanReadable + ")";
         }
@@ -1060,15 +819,15 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         // ---------------------------------
         // (2) Initialize MyDataFinder and check for Errors
         // ---------------------------------
-        myDataFinder = new MyDataFinder(rolePermissionHelper,
+        MyDataFinder myDataFinder = new MyDataFinder(rolePermissionHelper,
                 roleAssigneeSvc,
                 dvObjectServiceBean,
                 groupService);
-        this.myDataFinder.runFindDataSteps(filterParams);
+        myDataFinder.runFindDataSteps(filterParams);
         if (myDataFinder.hasError()) {
             return myDataFinder.getErrorMessage() + myDataFinder.getErrorMessage();
         }
-        List<String> filterQueries = this.myDataFinder.getSolrFilterQueries();
+        List<String> filterQueries = myDataFinder.getSolrFilterQueries();
         if (filterQueries == null) {
             logger.fine("No ids found for this search");
             return DataRetrieverAPI.MSG_NO_RESULTS_FOUND;
@@ -1092,6 +851,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         // ---------------------------------
         int paginationStart = (page - 1) * paginationGuiRows;
 
+        SolrQueryResponse solrQueryResponse;
         try {
             solrQueryResponse = searchService.search(
                     dataverseRequest,
@@ -1105,7 +865,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                     SearchConstants.NUM_SOLR_DOCS_TO_RETRIEVE
             );
 
-            if (this.solrQueryResponse.getNumResultsFound() == 0) {
+            if (solrQueryResponse.getNumResultsFound() == 0) {
                 this.solrIsDown = true;
                 this.errorFromSolr = solrQueryResponse.getError();
                 return DataRetrieverAPI.MSG_NO_RESULTS_FOUND;
@@ -1133,7 +893,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                         true,
                         1000
                 );
-                roleTagRetriever = new RoleTagRetriever(this.rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
+                roleTagRetriever = new RoleTagRetriever(rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
                 roleTagRetriever.loadRoles(dataverseRequest, fullSolrQueryResponse);
 
                 List<String> roles = new ArrayList<>();
@@ -1252,6 +1012,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     public List<String> getRolesForEntity(long id) {
         return roleTagRetriever.getFinalIdToRolesHash().get(id);
     }
+
     // -------------------- PRIVATE ---------------------
     private List<Long> getEntitiesIdsNotFilteredByRoles(List<String> roleFilters, RoleTagRetriever roleTagRetriever) {
         List<Long> entitiesFilteredByRole = new ArrayList<>();
@@ -1285,5 +1046,139 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
             return null;
         }
         return authenticationService.getAuthenticatedUser(userIdentifier);
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setSolrErrorEncountered(boolean val) {
+        this.solrErrorEncountered = val;
+    }
+
+    public void setSearchUserId(String searchUserId) {
+        this.searchUserId = searchUserId;
+    }
+
+    public void setFilterQueries(List<String> filterQueries) {
+        this.filterQueries = filterQueries;
+    }
+
+    public void setFacetCategoryList(List<FacetCategory> facetCategoryList) {
+        this.facetCategoryList = facetCategoryList;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public void setSearchResultsList(List<SolrSearchResult> searchResultsList) {
+        this.searchResultsList = searchResultsList;
+    }
+
+    public void setSearchResultsCount(int searchResultsCount) {
+        this.searchResultsCount = searchResultsCount;
+    }
+
+    public void setDataverse(Dataverse dataverse) {
+        this.dataverse = dataverse;
+    }
+
+    public void setRf0(String rf0) {
+        this.rf0 = rf0;
+    }
+
+    public void setRf1(String rf1) {
+        this.rf1 = rf1;
+    }
+
+    public void setRf2(String rf2) {
+        this.rf2 = rf2;
+    }
+
+    public void setRf3(String rf3) {
+        this.rf3 = rf3;
+    }
+
+    public void setRf4(String rf4) {
+        this.rf4 = rf4;
+    }
+
+    public void setRf5(String rf5) {
+        this.rf5 = rf5;
+    }
+
+    public void setFq0(String fq0) {
+        this.fq0 = fq0;
+    }
+
+    public void setFq1(String fq1) {
+        this.fq1 = fq1;
+    }
+
+    public void setFq2(String fq2) {
+        this.fq2 = fq2;
+    }
+
+    public void setFq3(String fq3) {
+        this.fq3 = fq3;
+    }
+
+    public void setFq4(String fq4) {
+        this.fq4 = fq4;
+    }
+
+    public void setFq5(String fq5) {
+        this.fq5 = fq5;
+    }
+
+    public void setFq6(String fq6) {
+        this.fq6 = fq6;
+    }
+
+    public void setFq7(String fq7) {
+        this.fq7 = fq7;
+    }
+
+    public void setFq8(String fq8) {
+        this.fq8 = fq8;
+    }
+
+    public void setFq9(String fq9) {
+        this.fq9 = fq9;
+    }
+
+    public void setSelectedTypesString(String selectedTypesString) {
+        this.selectedTypesString = selectedTypesString;
+    }
+
+    public void setSelectedTypesList(List<String> selectedTypesList) {
+        this.selectedTypesList = selectedTypesList;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void setPaginationGuiStart(int paginationGuiStart) {
+        this.paginationGuiStart = paginationGuiStart;
+    }
+
+    public void setPaginationGuiEnd(int paginationGuiEnd) {
+        this.paginationGuiEnd = paginationGuiEnd;
+    }
+
+    public void setPaginationGuiRows(int paginationGuiRows) {
+        this.paginationGuiRows = paginationGuiRows;
+    }
+
+    public void setSolrIsDown(boolean solrIsDown) {
+        this.solrIsDown = solrIsDown;
+    }
+
+    public void setRootDv(boolean rootDv) {
+        this.rootDv = rootDv;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }
