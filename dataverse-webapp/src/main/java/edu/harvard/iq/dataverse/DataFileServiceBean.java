@@ -43,6 +43,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
+import javax.validation.ConstraintViolationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -526,7 +527,14 @@ public class DataFileServiceBean implements java.io.Serializable {
     public DataFile save(DataFile dataFile) {
 
         if (dataFile.isMergeable()) {
-            DataFile savedDataFile = em.merge(dataFile);
+            DataFile savedDataFile = new DataFile();
+            try {
+                savedDataFile = em.merge(dataFile);
+            } catch(ConstraintViolationException er) {
+                System.out.println("VALIDATION ERROR: " + er.getMessage());
+                System.out.println("Validations: " + er.getConstraintViolations());
+                er.getConstraintViolations().forEach(err->logger.log(Level.SEVERE,err.toString()));
+            }
             return savedDataFile;
         } else {
             throw new IllegalArgumentException("This DataFile object has been set to NOT MERGEABLE; please ensure a MERGEABLE object is passed to the save method.");
