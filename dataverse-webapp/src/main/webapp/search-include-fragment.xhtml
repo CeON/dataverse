@@ -445,7 +445,7 @@
                         <h:outputText value="score: #{result.score}" rendered="#{SearchIncludeFragment.mode == SearchIncludeFragment.searchModeString}"/>
                     </ui:fragment>
                     <!--DATAVERSE CARDS-->
-                    <div class="dataverseResult clearfix" jsf:rendered="#{result.type == 'dataverses'}">
+                    <div class="dataverseResult clearfix #{result.unpublishedState ? 'unpublished' : ''}" jsf:rendered="#{result.type == 'dataverses'}">
                         <div class="card-preview-icon-block text-center">
                             <h:outputLink value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
                                 <h:graphicImage value="#{result.imageUrl}" rendered="#{!empty result.imageUrl}"/>
@@ -505,7 +505,7 @@
                         </ui:repeat>
                     </div>
                     <!--DATASET CARDS-->
-                    <div class="datasetResult clearfix" jsf:rendered="#{result.type == 'datasets'}">
+                    <div class="datasetResult clearfix #{result.unpublishedState ? 'unpublished' : ''}" jsf:rendered="#{result.type == 'datasets'}">
                         <div class="card-preview-icon-block text-center">
                             <a href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">                               
                                 <h:graphicImage value="#{result.imageUrl}" rendered="#{!empty result.imageUrl}"/>                               
@@ -570,7 +570,7 @@
                         </div>
                     </div>
                     <!--FILE CARDS-->
-                    <div class="fileResult clearfix" jsf:rendered="#{result.type == 'files'}">
+                    <div class="fileResult clearfix #{result.unpublishedState ? 'unpublished' : ''}" jsf:rendered="#{result.type == 'files'}">
                         <div class="card-preview-icon-block text-center">
                             <a href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
                                 <h:graphicImage value="#{result.imageUrl}" rendered="#{!empty result.imageUrl}"/>

@@ -149,6 +149,7 @@ a:hover {
 }
 
 #search-row-panel {
+	padding: 13px 0;
 	border-color: $gray-border-color;
 	border-radius: $border-radius;
 }
@@ -210,11 +211,6 @@ div.panelSearchForm input.search-input {
 	#metrics-label .glyphicon-stats {
 		font-size: 18px;
 	}
-}
-
-#dv-main > p > button.btn.btn-primary {
-	font-size: 14px;
-	padding-bottom: 1px;
 }
 
 /* Carousel */
@@ -326,6 +322,10 @@ div.panelSearchForm input.search-input {
 /* Sidebar */
 
 #dv-sidebar {
+	padding-left: 25px;
+	padding-right: 22px;
+	padding-top: 3px;
+
 	a.facetLink  {
 		color: $link-color;
 	}
@@ -348,7 +348,7 @@ div.panelSearchForm input.search-input {
 		position: absolute;
 		font-family: "Glyphicons Halflings";
 		font-size: 17px;
-		color: $main-color;
+		color: $icon-color;
 		background: #FFF;
 		z-index: 3;
 	}
@@ -364,11 +364,35 @@ form[id$="facetType"] > div.clearfix a.facetTypeLink span {
 	top: -3px;
 }
 
-/* Results */
+/* Search results */
 
-#resultsCountPaginatorBlock div.results-count {
-	font-weight: normal;
-	color: #4a4a4a;
+#resultsCountPaginatorBlock {
+	margin-bottom: 8px;
+
+	div.results-count {
+		font-weight: normal;
+		color: #4a4a4a;
+	}
+}
+
+#dv-main {
+	padding-left: 18px;
+	padding-right: 18px;
+
+	div.emptyResults.bg-warning {
+		padding: 15px 20px;
+		border-radius: $border-radius;
+		margin-bottom: 20px;
+
+		p {
+			margin: 0;
+
+			& > button.btn.btn-primary {
+				font-size: 14px;
+				padding-bottom: 1px;
+			}
+		}
+	}
 }
 
 div.alert-info.bg-citation {
@@ -393,6 +417,8 @@ table[id$="resultsTable"] {
 
 	td  {
 		& > div {
+			margin-top: 5px;
+			margin-bottom: 5px;
 			padding-top: 16px;
 			padding-bottom: 15px;
 			border-radius: $border-radius;
@@ -403,11 +429,14 @@ table[id$="resultsTable"] {
 		}
 
 		& > div.dataverseResult {
-			border-color: $border-color;
+			border-color: $main-color;
 		}
 
 		& > div.datasetResult {
 			border-color: $border-color;
+		}
+
+		& > div.unpublished {
 			border-style: dashed;
 		}
 	}
@@ -453,16 +482,6 @@ table[id$="resultsTable"] {
 		
 			color: #FFF;
 		}
-	}
-}
-
-#dv-main div.emptyResults.bg-warning {
-	padding: 15px 20px;
-	border-radius: $border-radius;
-	margin-bottom: 20px;
-
-	p {
-		margin: 0;
 	}
 }
 
