@@ -14,13 +14,18 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CustomExceptionHandler extends ExceptionHandlerWrapper {
+/**
+ * Class designed for handling exception that were not handled explicitly.
+ * <p>
+ * If request was async(Ajax) banner is going to be displayed, otherwise user is redirected to 500.xhtml.
+ */
+public class FallbackExceptionHandler extends ExceptionHandlerWrapper {
 
-    private static final Logger logger = Logger.getLogger(CustomExceptionHandler.class.getName());
+    private static final Logger logger = Logger.getLogger(FallbackExceptionHandler.class.getName());
 
     private ExceptionHandler exceptionHandler;
 
-    public CustomExceptionHandler(ExceptionHandler exceptionHandler) {
+    public FallbackExceptionHandler(ExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
 

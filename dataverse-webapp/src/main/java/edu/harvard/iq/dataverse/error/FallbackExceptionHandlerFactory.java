@@ -3,19 +3,19 @@ package edu.harvard.iq.dataverse.error;
 import javax.faces.context.ExceptionHandler;
 import javax.faces.context.ExceptionHandlerFactory;
 
-public class CustomExceptionHandlerFactory extends ExceptionHandlerFactory {
+public class FallbackExceptionHandlerFactory extends ExceptionHandlerFactory {
 
     private ExceptionHandlerFactory exceptionHandlerFactory;
 
-    public CustomExceptionHandlerFactory() {
+    public FallbackExceptionHandlerFactory() {
     }
 
-    public CustomExceptionHandlerFactory(ExceptionHandlerFactory exceptionHandlerFactory) {
+    public FallbackExceptionHandlerFactory(ExceptionHandlerFactory exceptionHandlerFactory) {
         this.exceptionHandlerFactory = exceptionHandlerFactory;
     }
 
     @Override
     public ExceptionHandler getExceptionHandler() {
-        return new CustomExceptionHandler(exceptionHandlerFactory.getExceptionHandler());
+        return new FallbackExceptionHandler(exceptionHandlerFactory.getExceptionHandler());
     }
 }

@@ -23,7 +23,7 @@
         <validator-class>edu.harvard.iq.dataverse.util.RequiredCheckboxValidator</validator-class>
     </validator>
     <factory>
-        <exception-handler-factory>edu.harvard.iq.dataverse.error.CustomExceptionHandlerFactory
+        <exception-handler-factory>edu.harvard.iq.dataverse.error.FallbackExceptionHandlerFactory
         </exception-handler-factory>
     </factory>
 </faces-config>
