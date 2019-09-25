@@ -35,6 +35,32 @@
                     <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                     <f:viewAction action="#{DataverseUserPage.init}" />
                     <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse(), (DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn'] : bundle.account))}"/>
+
+                    <f:viewParam name="q" value="#{MyDataSearchFragment.query}"/>
+                    <f:viewParam name="uId" value="#{MyDataSearchFragment.searchUserId}" />
+                    <f:viewParam name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                    <f:viewParam name="fq1" value="#{MyDataSearchFragment.fq1}"/>
+                    <f:viewParam name="fq0" value="#{MyDataSearchFragment.fq0}"/>
+                    <f:viewParam name="fq2" value="#{MyDataSearchFragment.fq2}"/>
+                    <f:viewParam name="fq3" value="#{MyDataSearchFragment.fq3}"/>
+                    <f:viewParam name="fq4" value="#{MyDataSearchFragment.fq4}"/>
+                    <f:viewParam name="fq5" value="#{MyDataSearchFragment.fq5}"/>
+                    <f:viewParam name="fq6" value="#{MyDataSearchFragment.fq6}"/>
+                    <f:viewParam name="fq7" value="#{MyDataSearchFragment.fq7}"/>
+                    <f:viewParam name="fq8" value="#{MyDataSearchFragment.fq8}"/>
+                    <f:viewParam name="fq9" value="#{MyDataSearchFragment.fq9}"/>
+                    <f:viewParam name="rf1" value="#{MyDataSearchFragment.rf1}"/>
+                    <f:viewParam name="rf0" value="#{MyDataSearchFragment.rf0}"/>
+                    <f:viewParam name="rf2" value="#{MyDataSearchFragment.rf2}"/>
+                    <f:viewParam name="rf3" value="#{MyDataSearchFragment.rf3}"/>
+                    <f:viewParam name="rf4" value="#{MyDataSearchFragment.rf4}"/>
+                    <f:viewParam name="rf5" value="#{MyDataSearchFragment.rf5}"/>
+                    <f:viewParam name="sort" value="#{MyDataSearchFragment.sortField}"/>
+                    <f:viewParam name="page" value="#{MyDataSearchFragment.page}"/>
+                    <f:viewParam name="debug" value="#{MyDataSearchFragment.debug}"/>
+                    <f:viewAction action="#{MyDataSearchFragment.retrieveMyData()}"/>
+                    
+                    
                 </f:metadata>
                 <h:form id="dataverseUserForm">
                     <p:focus context="dataverseUserForm"/>
@@ -53,13 +79,13 @@
                                 <ui:fragment rendered="#{DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable}">
                                     <li>
                                         <p:commandLink id="editAccount" rendered="#{DataverseUserPage.accountDetailsEditable}"
-                                                       actionListener="#{DataverseUserPage.edit}" update="@form" >
+                                                       actionListener="#{DataverseUserPage.edit}" update="@form" oncomplete="javascript:bind_bsui_components();">
                                             <h:outputText value="#{bundle['account.info']}" />
                                         </p:commandLink>
                                     </li>
                                     <li>
                                         <p:commandLink id="changePassword" rendered="#{DataverseUserPage.passwordEditable}" 
-                                                       actionListener="#{DataverseUserPage.changePassword}" update="@form" >
+                                                       actionListener="#{DataverseUserPage.changePassword}" update="@form" oncomplete="javascript:bind_bsui_components();">
                                             <h:outputText value="#{bundle.passwd}" />
                                         </p:commandLink>
                                     </li>
@@ -73,7 +99,7 @@
                     </p:panel>
 
                     <p:tabView id="dataRelatedToMeView" activeIndex="#{DataverseUserPage.activeIndex}" dynamic="true" rendered="#{empty DataverseUserPage.editMode}">
-                        <p:ajax event="tabChange" listener="#{DataverseUserPage.onTabChange}" update="@all"  />
+                        <p:ajax event="tabChange" listener="#{DataverseUserPage.onTabChange}" update="@all" oncomplete="javascript:bind_bsui_components();" />
                         <p:tab id="myData" title="#{bundle['user.dataRelatedToMe']}">
                             <ui:include src="mydata_fragment.xhtml"></ui:include>
                         </p:tab>
@@ -325,7 +351,7 @@
                                         <div class="notification-item-cell">
                                             <p:commandLink title="#{bundle.removeNotification}" styleClass="bootstrap-button-tooltip"
                                                            action="#{DataverseUserPage.remove(item.id)}" update="@form"
-                                                           >
+                                                           oncomplete="bind_bsui_components();">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </p:commandLink>
                                         </div>
