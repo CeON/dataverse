@@ -139,10 +139,10 @@ public class IngestServiceBean {
     @EJB
     private SettingsServiceBean settingsService;
 
-//    @Resource(mappedName = "jms/DataverseIngest")
-//    Queue queue;
-//    @Resource(mappedName = "jms/IngestQueueConnectionFactory")
-//    QueueConnectionFactory factory;
+    @Resource(mappedName = "jms/DataverseIngest")
+    Queue queue;
+    @Resource(mappedName = "jms/IngestQueueConnectionFactory")
+    QueueConnectionFactory factory;
 
 
     private static String timeFormat_hmsS = "HH:mm:ss.SSS";
@@ -490,9 +490,9 @@ public class IngestServiceBean {
             QueueSender sender = null;
 
             try {
-//                conn = factory.createQueueConnection();
+                conn = factory.createQueueConnection();
                 session = conn.createQueueSession(false, 0);
-//                sender = session.createSender(queue);
+                sender = session.createSender(queue);
 
                 Message queueMessage = session.createObjectMessage(ingestMessage);
 
