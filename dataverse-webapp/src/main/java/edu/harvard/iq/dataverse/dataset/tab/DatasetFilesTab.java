@@ -480,9 +480,6 @@ public class DatasetFilesTab implements Serializable {
         if (workingVersion == null) {
             return false;
         }
-        if (!workingVersion.getTermsOfUseAndAccess().isFileAccessRequest()) {
-            // return false;
-        }
         for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
             if (!this.fileDownloadHelper.canDownloadFile(fmd)) {
                 return true;
