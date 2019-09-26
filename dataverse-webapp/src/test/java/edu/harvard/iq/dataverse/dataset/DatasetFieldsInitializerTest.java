@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillAuthorField;
@@ -200,9 +201,13 @@ public class DatasetFieldsInitializerTest {
         //when
         List<DatasetField> updatedDsf = datasetFieldsInitializer.updateDatasetFieldIncludeFlag(datasetFields, dataverse);
 
+        Optional<DatasetField> titleDsf = updatedDsf.stream()
+                .filter(datasetField -> datasetField.getDatasetFieldType().getName().equals("title")
+                        && datasetField.getDatasetFieldType().getId().equals(2L)).findAny();
         //then
         Assert.assertEquals(3, updatedDsf.stream().filter(DatasetField::isInclude).count());
-        Assert.assertEquals(1, updatedDsf.stream().filter(datasetField -> !datasetField.isInclude()).count());
+        Assert.assertTrue(titleDsf.isPresent());
+        Assert.assertFalse(titleDsf.get().isInclude());
     }
 
     // -------------------- PRIVATE --------------------
