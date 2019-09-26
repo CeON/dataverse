@@ -813,6 +813,7 @@ div[id$="filesTable"] .ui-paginator {
 }
 
 .ui-dialog.ui-widget-content {
+	min-height: 300px;
 	border: none;
 	border-radius: $border-radius;
 	box-shadow: 0 5px 10px rgba(0,0,0,0.2);
