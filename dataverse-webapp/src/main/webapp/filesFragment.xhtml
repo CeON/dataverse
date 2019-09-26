@@ -267,7 +267,7 @@
                                     type="button" styleClass="btn btn-default btn-download"
                                     disabled="#{false and datasetFilesTab.lockedFromDownload}"
                                     action="#{datasetFilesTab.validateFilesForDownload(true, false)}"
-                                    update="@form" oncomplete="">
+                                    update="@form">
                         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
                     </p:commandLink>
                 </div>
@@ -290,7 +290,7 @@
                                 <p:commandLink rendered="#{datasetFilesTab.downloadPopupRequired}"
                                                 disabled="#{false and datasetFilesTab.lockedFromDownload}"
                                                 action="#{datasetFilesTab.validateFilesForDownload(true, true)}"
-                                                update="@form" oncomplete="">
+                                                update="@form">
                                     #{bundle.downloadOriginal}
                                 </p:commandLink>
                             </li>
@@ -305,7 +305,7 @@
                                 <p:commandLink rendered="#{datasetFilesTab.downloadPopupRequired}"
                                                 disabled="#{false and datasetFilesTab.lockedFromDownload}"
                                                 action="#{datasetFilesTab.validateFilesForDownload(true, false)}"
-                                                update="@form" oncomplete="">
+                                                update="@form">
                                     #{bundle.downloadArchival}
                                 </p:commandLink>
                             </li>
