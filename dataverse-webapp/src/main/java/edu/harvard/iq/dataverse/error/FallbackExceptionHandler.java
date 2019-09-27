@@ -9,7 +9,7 @@ import javax.faces.context.ExceptionHandler;
 import javax.faces.context.ExceptionHandlerWrapper;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ExceptionQueuedEvent;
-import javax.faces.event.ExceptionQueuedEventContext;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,20 +39,15 @@ public class FallbackExceptionHandler extends ExceptionHandlerWrapper {
         final Iterator<ExceptionQueuedEvent> queue = getUnhandledExceptionQueuedEvents().iterator();
 
         if (queue.hasNext()) {
-
             FacesContext facesContext = FacesContext.getCurrentInstance();
 
             if (facesContext.getPartialViewContext().isAjaxRequest()) {
                 JsfHelper.addErrorMessage(null, BundleUtil.getStringFromBundle("error.general.message"), "");
             } else {
-                Try.run(() -> facesContext.getExternalContext().redirect("500.xhtml"))
-                        .onFailure(exception -> logger.log(Level.SEVERE, exception.getMessage(), exception));
+                Try.run(() -> facesContext.getExternalContext()
+                        .responseSendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null))
+                        .onFailure(throwable -> logger.log(Level.SEVERE, throwable.getMessage(), throwable));
             }
-
-            ExceptionQueuedEventContext exceptionContext = queue.next().getContext();
-            Throwable exception = exceptionContext.getException();
-
-            logger.log(Level.SEVERE, exception.getMessage(), exception);
         }
 
         while (queue.hasNext()) {
