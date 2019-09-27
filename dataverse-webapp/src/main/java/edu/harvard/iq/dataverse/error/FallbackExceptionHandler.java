@@ -2,9 +2,9 @@ package edu.harvard.iq.dataverse.error;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 
 import javax.faces.FacesException;
-import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExceptionHandler;
 import javax.faces.context.ExceptionHandlerWrapper;
 import javax.faces.context.FacesContext;
@@ -45,8 +45,8 @@ public class FallbackExceptionHandler extends ExceptionHandlerWrapper {
             if (facesContext.getPartialViewContext().isAjaxRequest()) {
                 JsfHelper.addErrorMessage(null, BundleUtil.getStringFromBundle("error.general.message"), "");
             } else {
-                NavigationHandler nav = facesContext.getApplication().getNavigationHandler();
-                nav.handleNavigation(facesContext, null, "/500");
+                Try.run(() -> facesContext.getExternalContext().redirect("500.xhtml"))
+                        .onFailure(exception -> logger.log(Level.SEVERE, exception.getMessage(), exception));
             }
 
             ExceptionQueuedEventContext exceptionContext = queue.next().getContext();
