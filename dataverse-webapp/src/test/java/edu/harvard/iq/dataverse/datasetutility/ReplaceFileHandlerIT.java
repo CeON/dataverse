@@ -1,16 +1,12 @@
 package edu.harvard.iq.dataverse.datasetutility;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.MetadataBlockDao;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataset.file.ReplaceFileHandler;
-import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -25,7 +21,6 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -37,16 +32,10 @@ import org.junit.runner.RunWith;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.JoinColumn;
 import javax.persistence.PersistenceContext;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -56,8 +45,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static edu.harvard.iq.dataverse.util.FileUtil.calculateChecksum;
-import static edu.harvard.iq.dataverse.util.FileUtil.getFilesTempDirectory;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Arquillian.class)
@@ -127,10 +114,11 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         dataset.setOwner(dataverse);
         fillDatasetWithExtendedData(dataset);
         em.persist(dataset);
+        em.flush();
 
-        DataFile initialFile = createTestDataFile(dataset.getEditVersion(), "banner", "png/allgood", true);
-//        initialFile.setRootDataFileId(999L);
+        DataFile initialFile = createTestDataFile(dataset.getLatestVersion(), "banner", "png/allgood", true);
         em.persist(initialFile);
+
 
         byte[] bytes = IOUtils.resourceToByteArray("images/coffeeshop.png", getClass().getClassLoader());
         File newfile = new File(FileUtil.getFilesTempDirectory() +"/coffeeshop.png");
@@ -140,7 +128,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
             ex.printStackTrace();
         }
 
-        DataFile newDataFile = createTestDataFile(dataset.getEditVersion(), "coffeeshop", "png/allgood", false);
+        DataFile newDataFile = createTestDataFile(dataset.getLatestVersion(), "coffeeshop", "png/allgood", false);
         newDataFile.setStorageIdentifier("coffeeshop.png");
         em.persist(newDataFile);
 
@@ -149,7 +137,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
         //then
         Assert.assertEquals(2 ,dataset.getFiles().size());
-
+        Assert.assertEquals(datafile.findByDatasetId(dataset.getLatestVersion().getId()).get(0).getFileMetadatas(), dataset.getLatestVersion().getFileMetadatas());
         Assert.assertEquals(newDataFile.getFileMetadatas(), dataset.getLatestVersion().getFileMetadatas());
         Assert.assertTrue(dataset.getFiles().get(1).getFileMetadatas().get(0).getLabel().equals(newDataFile.getFileMetadatas().get(0).getLabel()));
     }
@@ -235,6 +223,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         dataset.setCreateDate(new Timestamp(System.currentTimeMillis()));
 
         DatasetVersion editVersion = dataset.getEditVersion();
+        editVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
 
         editVersion.setCreateTime(Date.from(Instant.ofEpochMilli(1567763690000L)));
         editVersion.setLastUpdateTime(Date.from(Instant.ofEpochMilli(1567763690000L)));
