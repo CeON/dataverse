@@ -24,6 +24,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jboss.arquillian.junit.Arquillian;
@@ -67,9 +68,6 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
     private EntityManager em;
 
     @EJB
-    private IngestServiceBean ingestServiceBean;
-
-    @EJB
     private ReplaceFileHandler replaceFileHandler;
 
     @EJB
@@ -83,9 +81,6 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
     @EJB
     private DataFileServiceBean datafile;
-
-    @EJB
-    private TermsOfUseFactory termsOfUseFactory;
 
     @EJB
     private TermsOfUseFormMapper termsOfUseFormMapper;
@@ -133,22 +128,22 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         fillDatasetWithExtendedData(dataset);
         em.persist(dataset);
 
-        DataFile initialFile = createTestDataFile(dataset.getEditVersion(), "banner", "png/allgood", null, true);
-
+        DataFile initialFile = createTestDataFile(dataset.getEditVersion(), "banner", "png/allgood", true);
+//        initialFile.setRootDataFileId(999L);
         em.persist(initialFile);
-        em.flush();
 
         byte[] bytes = IOUtils.resourceToByteArray("images/coffeeshop.png", getClass().getClassLoader());
-        File newfile = new File("/tmp/files/10.5072/FK2/AAAAAA/coffeeshop.png");
+        File newfile = new File(FileUtil.getFilesTempDirectory() +"/coffeeshop.png");
         try {
             Files.write(newfile.toPath(), bytes);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        DataFile newDataFile = createTestDataFile(dataset.getEditVersion(), "coffeeshop", "png/allgood", newfile, false);
+        DataFile newDataFile = createTestDataFile(dataset.getEditVersion(), "coffeeshop", "png/allgood", false);
+        newDataFile.setStorageIdentifier("coffeeshop.png");
         em.persist(newDataFile);
-        em.flush();
+
         //when
         replaceFileHandler.replaceFile(dataset.getFiles().get(0), dataset, newDataFile);
 
@@ -158,8 +153,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         Assert.assertEquals(newDataFile.getFileMetadatas(), dataset.getLatestVersion().getFileMetadatas());
         Assert.assertTrue(dataset.getFiles().get(1).getFileMetadatas().get(0).getLabel().equals(newDataFile.getFileMetadatas().get(0).getLabel()));
     }
-
-    private DataFile createTestDataFile(DatasetVersion datasetVersion, String filename, String fileContentType2, File file, boolean addToDataset) {
+    private DataFile createTestDataFile(DatasetVersion datasetVersion, String filename, String fileContentType2, boolean addToDataset) {
         DataFile.ChecksumType checksumType = DataFile.ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
         DataFile savedFile = new DataFile(fileContentType2);
         savedFile.setModificationTime(new Timestamp(new Date().getTime()));
@@ -175,19 +169,23 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
         fmd.setTermsOfUseForm(termsOfUseFormMapper.mapToForm(termsOfUse));
 
-        fmd.setDataFile(savedFile);
-        savedFile.getFileMetadatas().add(fmd);
-        em.persist(fmd);
-
         if(addToDataset) {
             savedFile.setOwner(datasetVersion.getDataset());
         }
 
+        fmd.setDataFile(savedFile);
+        savedFile.getFileMetadatas().add(fmd);
+
         if(addToDataset) {
+            if (datasetVersion.getFileMetadatas() == null) {
+                datasetVersion.setFileMetadatas(new ArrayList<>());
+            }
             datasetVersion.addFileMetadata(fmd);
             fmd.setDatasetVersion(datasetVersion);
             datasetVersion.getDataset().getFiles().add(savedFile);
         }
+        em.persist(fmd);
+
         datafile.generateStorageIdentifier(savedFile);
         savedFile.setChecksumType(checksumType);
         savedFile.setChecksumValue(filename);
@@ -240,7 +238,6 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
         editVersion.setCreateTime(Date.from(Instant.ofEpochMilli(1567763690000L)));
         editVersion.setLastUpdateTime(Date.from(Instant.ofEpochMilli(1567763690000L)));
-        em.persist(editVersion);
 
         return dataset;
     }
