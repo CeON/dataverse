@@ -116,7 +116,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         em.persist(dataset);
         em.flush();
 
-        DataFile initialFile = createTestDataFile(dataset.getLatestVersion(), "banner", "png/allgood", true);
+        DataFile initialFile = createTestDataFile(dataset.getLatestVersion(), "banner", "image/png", true);
         em.persist(initialFile);
 
 
@@ -128,7 +128,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
             ex.printStackTrace();
         }
 
-        DataFile newDataFile = createTestDataFile(dataset.getLatestVersion(), "coffeeshop", "png/allgood", false);
+        DataFile newDataFile = createTestDataFile(dataset.getLatestVersion(), "coffeeshop", "image/png", false);
         newDataFile.setStorageIdentifier("coffeeshop.png");
         em.persist(newDataFile);
 
@@ -137,9 +137,11 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
         //then
         Assert.assertEquals(2 ,dataset.getFiles().size());
-        Assert.assertEquals(datafile.findByDatasetId(dataset.getLatestVersion().getId()).get(0).getFileMetadatas(), dataset.getLatestVersion().getFileMetadatas());
-        Assert.assertEquals(newDataFile.getFileMetadatas(), dataset.getLatestVersion().getFileMetadatas());
-        Assert.assertTrue(dataset.getFiles().get(1).getFileMetadatas().get(0).getLabel().equals(newDataFile.getFileMetadatas().get(0).getLabel()));
+        Assert.assertEquals(1, dataset.getLatestVersion().getFileMetadatas().size());
+        Assert.assertEquals(datafile.findFileMetadataByDatasetVersionId(dataset.getLatestVersion().getId(), 2,"","").size(),
+                dataset.getLatestVersion().getFileMetadatas().size());
+        Assert.assertEquals(datafile.findFileMetadataByDatasetVersionId(dataset.getLatestVersion().getId(), 2,"","").get(0),
+                dataset.getLatestVersion().getFileMetadatas().get(0));
     }
     private DataFile createTestDataFile(DatasetVersion datasetVersion, String filename, String fileContentType2, boolean addToDataset) {
         DataFile.ChecksumType checksumType = DataFile.ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
