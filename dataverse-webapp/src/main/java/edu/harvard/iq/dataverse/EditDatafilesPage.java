@@ -1241,15 +1241,6 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
     }
 
-    public void uploadStarted() {
-        // uploadStarted() is triggered by PrimeFaces <p:upload onStart=... when an upload is 
-        // started. It will be called *once*, even if it is a multiple file upload 
-        // (either through drag-and-drop or select menu). 
-        logger.fine("upload started");
-
-        uploadInProgress = true;
-    }
-
 
     private Boolean hasRsyncScript = false;
 
