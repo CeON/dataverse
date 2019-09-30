@@ -1,5 +1,6 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.dataverse.template;
 
+import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * @author skraffmiller
  */
 @Stateless
-public class TemplateServiceBean {
+public class TemplateDao {
 
     private static final Logger logger = Logger.getLogger(DatasetServiceBean.class.getCanonicalName());
     @EJB
@@ -38,6 +39,10 @@ public class TemplateServiceBean {
             return em.merge(template);
         } */
         return em.merge(template);
+    }
+
+    public void remove(Template template) {
+        em.remove(template);
     }
 
     public Template findByDeafultTemplateOwnerId(Long ownerId) {

@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroup
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.bannersandmessages.messages.DataverseTextMessageServiceBean;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleServiceBean;
+import edu.harvard.iq.dataverse.dataverse.template.TemplateDao;
 import edu.harvard.iq.dataverse.engine.DataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
@@ -100,7 +101,7 @@ public class EjbDataverseEngine {
     DataFileServiceBean dataFileService;
 
     @EJB
-    TemplateServiceBean templateService;
+    TemplateDao templateService;
 
     @EJB
     SavedSearchServiceBean savedSearchService;
@@ -360,7 +361,7 @@ public class EjbDataverseEngine {
                 }
 
                 @Override
-                public TemplateServiceBean templates() {
+                public TemplateDao templates() {
                     return templateService;
                 }
 

@@ -40,7 +40,8 @@
                         </div>
                     </div>
                     <div>
-                        <div id="no-templates-message" class="panel panel-default" jsf:rendered="#{empty manageTemplatesPage.templates}">
+                        <div id="no-templates-message" class="panel panel-default"
+                             jsf:rendered="#{empty manageTemplatesPage.templatesForView}">
                             <div class="panel-body">
                                 <span class="help-block h3">#{bundle['dataset.manageTemplates.noTemplates.why.header']}</span>
                                 <ul>
@@ -64,8 +65,9 @@
                                 </p>
                             </div>
                         </div>
-                        <p:dataTable id="allTemplates" styleClass="manageTable" var="template" value="#{manageTemplatesPage.templates}" widgetVar="allTemplates"
-                                     rendered="#{!empty manageTemplatesPage.templates}">
+                        <p:dataTable id="allTemplates" styleClass="manageTable" var="template"
+                                     value="#{manageTemplatesPage.templatesForView}" widgetVar="allTemplates"
+                                     rendered="#{!empty manageTemplatesPage.templatesForView}">
                             <p:column width="30%" sortBy="#{template.name}" headerText="#{bundle['dataset.manageTemplates.tab.header.templte']}">
                                 <h:outputText value="#{template.name}" />
                             </p:column>
@@ -92,7 +94,7 @@
                                 <p:commandLink type="button" styleClass="btn btn-default"
                                                value="#{bundle['dataset.manageTemplates.tab.action.btn.default']}"
                                                rendered="#{manageTemplatesPage.dataverse.defaultTemplate == template}"
-                                               actionListener="#{manageTemplatesPage.unselectDefault(template)}"
+                                               actionListener="#{manageTemplatesPage.unselectDefault()}"
                                                update="@form,:messagePanel"
                                                oncomplete="bind_tooltip_popover();">
                                     <span class="glyphicon glyphicon-eye-open"/>
