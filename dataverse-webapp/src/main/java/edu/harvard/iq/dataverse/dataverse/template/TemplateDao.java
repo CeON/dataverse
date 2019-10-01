@@ -30,15 +30,12 @@ public class TemplateDao {
         return em.find(Template.class, pk);
     }
 
-    public Template save(Template template) {
-        /*
-                if (template.getId() == null) {
-            em.persist(template);
-            return template;
-        } else {
-            return em.merge(template);
-        } */
+    public Template merge(Template template) {
         return em.merge(template);
+    }
+
+    public void flush() {
+        em.flush();
     }
 
     public void remove(Template template) {

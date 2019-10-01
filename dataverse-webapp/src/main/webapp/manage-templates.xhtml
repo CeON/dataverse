@@ -22,11 +22,13 @@
                 <h:form id="manageTemplatesForm">
                     <div class="form-group clearfix">
                         <ui:fragment rendered="#{manageTemplatesPage.dataverse.owner ne null and manageTemplatesPage.inheritTemplatesAllowed}">
-                            <label for="templateRoot" class="normal-text">
-                                <h:selectBooleanCheckbox id="templateRoot" value="#{manageTemplatesPage.inheritTemplatesValue}">
+                            <label for="templateRoot" class="normal-text" style="width: 25%">
+                                <p:selectBooleanCheckbox id="templateRoot"
+                                                         value="#{manageTemplatesPage.inheritTemplatesValue}">
                                     <p:ajax update="@form" listener="#{manageTemplatesPage.updateTemplatesRoot}" />
-                                </h:selectBooleanCheckbox>
-                                <h:outputFormat value="#{bundle['dataset.manageTemplates.select.txt']}">
+                                </p:selectBooleanCheckbox>
+                                <h:outputFormat value="#{bundle['dataset.manageTemplates.select.txt']}"
+                                                style="padding-left: 2%">
                                     <f:param value="#{manageTemplatesPage.dataverse.templateRootDataverseName}"/>
                                 </h:outputFormat>
                             </label>
@@ -145,16 +147,15 @@
                         <p class="help-block">
                             <span class="text-danger"><span class="glyphicon glyphicon-warning-sign"/> &#160;<h:outputText value="#{bundle['dataset.manageTemplates.tab.action.btn.delete.dialog.tip']}" /></span>
                         </p>
-                        <ui:fragment rendered="#{manageTemplatesPage.selectedTemplate.isDefaultForDataverse}">
+                        <ui:fragment
+                                rendered="#{manageTemplatesPage.dataverse.defaultTemplate.equals(manageTemplatesPage.selectedTemplate)}">
                             <p>
                                 <h:outputText value="#{bundle['dataset.manageTemplates.delete.usedAsDefault']}" />
                             </p>
                             <ul>
-                                <ui:repeat value="#{manageTemplatesPage.selectedTemplate.dataversesHasAsDefault}" var="dv">
                                     <li>
-                                        <h:outputText value="#{dv.displayName}"/>
+                                        <h:outputText value="#{manageTemplatesPage.dataverse.displayName}"/>
                                     </li>
-                                </ui:repeat>
                             </ul>
                         </ui:fragment>
                         <div class="button-block">

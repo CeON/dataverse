@@ -1,15 +1,10 @@
 package edu.harvard.iq.dataverse.dataverse.template;
 
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataset.DatasetFieldsInitializer;
-import edu.harvard.iq.dataverse.dataverse.DataversePage;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseTemplateRootCommand;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
@@ -25,6 +20,7 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,18 +38,16 @@ public class ManageTemplatesPage implements java.io.Serializable {
 
     private DataverseServiceBean dvService;
     private TemplateDao templateDao;
-    private EjbDataverseEngine engineService;
-    private DataversePage dvpage;
-    private DataverseRequestServiceBean dvRequestService;
     private PermissionsWrapper permissionsWrapper;
     private DatasetFieldsInitializer datasetFieldsInitializer;
     private TemplateService templateService;
 
-    private List<Template> templatesForView;
+    private List<Template> templatesForView = new LinkedList<>();
     private Dataverse dataverse;
     private Long dataverseId;
     private boolean inheritTemplatesValue;
     private boolean inheritTemplatesAllowed = false;
+    private LocalDateTime currentTime = LocalDateTime.now();
 
     private Template selectedTemplate = null;
     private Map<MetadataBlock, List<DatasetField>> mdbForView;
@@ -64,14 +58,11 @@ public class ManageTemplatesPage implements java.io.Serializable {
     }
 
     @Inject
-    public ManageTemplatesPage(DataverseServiceBean dvService, TemplateDao templateDao, EjbDataverseEngine engineService,
-                               DataversePage dvpage, DataverseRequestServiceBean dvRequestService, PermissionsWrapper permissionsWrapper,
+    public ManageTemplatesPage(DataverseServiceBean dvService, TemplateDao templateDao,
+                               PermissionsWrapper permissionsWrapper,
                                DatasetFieldsInitializer datasetFieldsInitializer, TemplateService templateService) {
         this.dvService = dvService;
         this.templateDao = templateDao;
-        this.engineService = engineService;
-        this.dvpage = dvpage;
-        this.dvRequestService = dvRequestService;
         this.permissionsWrapper = permissionsWrapper;
         this.datasetFieldsInitializer = datasetFieldsInitializer;
         this.templateService = templateService;
@@ -118,35 +109,29 @@ public class ManageTemplatesPage implements java.io.Serializable {
             return permissionsWrapper.notAuthorized();
         }
 
-        dvpage.setDataverse(dataverse);
         if (dataverse.getOwner() != null && dataverse.getRootMetadataBlocks().equals(dataverse.getOwner().getRootMetadataBlocks())) {
             setInheritTemplatesAllowed(true);
         }
 
-        templatesForView = new LinkedList<>();
         setInheritTemplatesValue(!dataverse.isTemplateRoot());
+
         if (inheritTemplatesValue && dataverse.getOwner() != null) {
-            for (Template pt : dataverse.getParentTemplates()) {
-                pt.setDataverse(dataverse.getOwner());
-                templatesForView.add(pt);
-            }
+            templatesForView.addAll(dataverse.getParentTemplates());
         }
-        for (Template ct : dataverse.getTemplates()) {
-            ct.setDataverse(dataverse);
-            ct.setDataversesHasAsDefault(templateDao.findDataversesByDefaultTemplateId(ct.getId()));
-            ct.setIsDefaultForDataverse(!ct.getDataversesHasAsDefault().isEmpty());
-            templatesForView.add(ct);
-        }
+
+        templatesForView.addAll(dataverse.getTemplates());
+
         if (!templatesForView.isEmpty()) {
             JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.message.manageTemplates.label"), BundleUtil.getStringFromBundle("dataset.message.manageTemplates.message"));
         }
-        return null;
+
+        return StringUtils.EMPTY;
     }
 
     public void makeDefault(Template templateIn) {
         dataverse.setDefaultTemplate(templateIn);
 
-        templateService.saveDataverse(dataverse)
+        templateService.updateDataverse(dataverse)
                 .onFailure(throwable -> JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("template.makeDefault.error")))
                 .onSuccess(dataverse -> JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("template.makeDefault")));
     }
@@ -154,28 +139,27 @@ public class ManageTemplatesPage implements java.io.Serializable {
     public void unselectDefault() {
         dataverse.setDefaultTemplate(null);
 
-        templateService.saveDataverse(dataverse)
+        templateService.updateDataverse(dataverse)
                 .onFailure(throwable -> JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("template.update.error")))
                 .onSuccess(dataverse -> JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("template.unselectDefault")));
     }
 
     public String cloneTemplate(Template templateIn) {
 
-        boolean isCloneOperationFail = templateService.cloneTemplate(templateIn, dataverse);
+        Try<Template> cloneTemplate = templateService.cloneTemplate(templateIn, dataverse, currentTime)
+                .andThenTry(() -> templateService.updateDataverse(dataverse));
 
-        if (isCloneOperationFail) {
+        if (cloneTemplate.isFailure()) {
             JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("template.clone.error"));
             return StringUtils.EMPTY;
         }
 
-        saveDataverseWithDefaultMessage();
-
-        templatesForView.add(templateIn);
+        templatesForView.add(cloneTemplate.get());
 
         String msg = BundleUtil.getStringFromBundle("template.clone");
         JsfHelper.addFlashMessage(msg);
 
-        return "/template.xhtml?id=" + templateIn.getId() + "&ownerId=" + dataverse.getId() + "&faces-redirect=true";
+        return "/template.xhtml?id=" + cloneTemplate.get().getId() + "&ownerId=" + dataverse.getId() + "&faces-redirect=true";
     }
 
     public void deleteTemplate() {
@@ -195,39 +179,46 @@ public class ManageTemplatesPage implements java.io.Serializable {
         mdbForView = DatasetFieldUtil.groupByBlock(dsfForView);
     }
 
+    /**
+     * Updates dataverse regarding which templates it can use, since you can inherit templates from parent.
+     */
     public String updateTemplatesRoot(AjaxBehaviorEvent event) throws AbortProcessingException {
-        try {
-            if (dataverse.getOwner() != null) {
-                if (isInheritTemplatesValue() && dataverse.getDefaultTemplate() == null && dataverse.getOwner().getDefaultTemplate() != null) {
-                    dataverse.setDefaultTemplate(dataverse.getOwner().getDefaultTemplate());
-                }
-                if (!isInheritTemplatesValue()) {
-                    if (dataverse.getDefaultTemplate() != null) {
-                        for (Template test : dataverse.getParentTemplates()) {
-                            if (test.equals(dataverse.getDefaultTemplate())) {
-                                dataverse.setDefaultTemplate(null);
-                            }
-                        }
-                    }
-                }
-            }
 
-            dataverse = engineService.submit(new UpdateDataverseTemplateRootCommand(!isInheritTemplatesValue(), dvRequestService.getDataverseRequest(), getDataverse()));
-            init();
-            return "";
-        } catch (CommandException ex) {
-            Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, ex);
+        if (dataverse.getOwner() != null) {
+
+            updateDefaultTemplates();
+
+            templateService.updateDataverseTemplate(dataverse, isInheritTemplatesValue())
+                    .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable))
+                    .onSuccess(this::setDataverse);
+
+            if (inheritTemplatesValue && dataverse.getOwner() != null) {
+                templatesForView.addAll(dataverse.getParentTemplates());
+            } else {
+                templatesForView.removeAll(dataverse.getParentTemplates());
+            }
         }
-        return "";
+
+        templateDao.flush();
+        return StringUtils.EMPTY;
     }
 
     // -------------------- PRIVATE --------------------
 
-    private Try<Dataverse> saveDataverseWithDefaultMessage() {
+    private void updateDefaultTemplates() {
+        if (isInheritTemplatesValue() && !isDataverseHasDefaultTemplate(dataverse) && isDataverseHasDefaultTemplate(dataverse.getOwner())) {
+            dataverse.setDefaultTemplate(dataverse.getOwner().getDefaultTemplate());
+        }
 
-        return templateService.saveDataverse(dataverse)
-                .onFailure(throwable -> JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("template.update.error")))
-                .onSuccess(dataverse -> JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("template.update")));
+        if (!isInheritTemplatesValue() && isDataverseHasDefaultTemplate(dataverse)) {
+            dataverse.getParentTemplates().stream()
+                    .filter(template -> template.equals(dataverse.getDefaultTemplate()))
+                    .forEach(template -> dataverse.setDefaultTemplate(null));
+        }
+    }
+
+    private boolean isDataverseHasDefaultTemplate(Dataverse dataverse) {
+        return dataverse.getDefaultTemplate() != null;
     }
 
     // -------------------- SETTERS --------------------
@@ -255,5 +246,9 @@ public class ManageTemplatesPage implements java.io.Serializable {
 
     public void setSelectedTemplate(Template selectedTemplate) {
         this.selectedTemplate = selectedTemplate;
+    }
+
+    public void setCurrentTime(LocalDateTime currentTime) {
+        this.currentTime = currentTime;
     }
 }

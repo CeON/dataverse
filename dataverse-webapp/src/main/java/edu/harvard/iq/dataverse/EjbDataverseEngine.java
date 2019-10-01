@@ -279,6 +279,7 @@ public class EjbDataverseEngine {
             logRec.setEndTime(new java.util.Date());
             logSvc.log(logRec);
         }
+
     }
 
     public CommandContext getContext() {

@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateTemplateCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteTemplateCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseTemplateRootCommand;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import io.vavr.control.Try;
@@ -13,7 +14,7 @@ import io.vavr.control.Try;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,9 +43,13 @@ public class TemplateService {
 
     // -------------------- LOGIC --------------------
 
-    public Try<Dataverse> saveDataverse(Dataverse dataverse) {
+    public Try<Dataverse> updateDataverse(Dataverse dataverse) {
         return Try.of(() -> engineService.submit(new UpdateDataverseCommand(dataverse, null, null,
                                                                             dvRequestService.getDataverseRequest(), null)));
+    }
+
+    public Try<Dataverse> updateDataverseTemplate(Dataverse dataverse, boolean inheritTemplatesValue) {
+        return Try.of(() -> engineService.submit(new UpdateDataverseTemplateRootCommand(!inheritTemplatesValue, dvRequestService.getDataverseRequest(), dataverse)));
     }
 
     public Try<Dataverse> deleteTemplate(Dataverse dataverse, Template templateToDelete) {
@@ -63,22 +68,14 @@ public class TemplateService {
                 .onFailure(throwable -> logger.log(Level.SEVERE, throwable.getMessage(), throwable));
     }
 
-    public boolean cloneTemplate(Template templateIn, Dataverse dataverse) {
+    public Try<Template> cloneTemplate(Template templateIn, Dataverse dataverse, LocalDateTime localDateTime) {
         Template newTemplate = templateIn.cloneNewTemplate(templateIn);
-
         newTemplate.setName(BundleUtil.getStringFromBundle("page.copy") + " " + templateIn.getName());
         newTemplate.setUsageCount(0L);
-        newTemplate.setCreateTime(new Timestamp(new Date().getTime()));
+        newTemplate.setCreateTime(Timestamp.valueOf(localDateTime));
         dataverse.getTemplates().add(newTemplate);
 
-        boolean isCreateTemplateFailure = Try.of(() -> engineService.submit(new CreateTemplateCommand(newTemplate, dvRequestService.getDataverseRequest(), dataverse)))
-                .onFailure(throwable -> logger.log(Level.SEVERE, throwable.getMessage(), throwable))
-                .isFailure();
-
-        boolean isSaveDataverseFailure = saveDataverse(dataverse)
-                .onFailure(throwable -> logger.log(Level.SEVERE, throwable.getMessage(), throwable))
-                .isFailure();
-
-        return isCreateTemplateFailure || isSaveDataverseFailure;
+        return Try.of(() -> engineService.submit(new CreateTemplateCommand(newTemplate, dvRequestService.getDataverseRequest(), dataverse)))
+                .onFailure(throwable -> logger.log(Level.SEVERE, throwable.getMessage(), throwable));
     }
 }
