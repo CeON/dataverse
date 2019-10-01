@@ -1,28 +1,21 @@
 package edu.harvard.iq.dataverse.datasetutility;
 
-import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.MetadataBlockDao;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataset.file.ReplaceFileHandler;
-import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.jboss.arquillian.junit.Arquillian;
@@ -63,20 +56,9 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
     @EJB
     private AuthenticationServiceBean authenticationServiceBean;
 
-    @EJB
-    private MetadataBlockDao metadataBlockDao;
 
     @EJB
     private DataverseServiceBean dataverseServiceBean;
-
-    @EJB
-    private DataFileServiceBean dataFileService;
-
-    @EJB
-    private TermsOfUseFormMapper termsOfUseFormMapper;
-
-    @EJB
-    private SettingsServiceBean settingsService;
 
     @EJB
     private LicenseDAO licenseDAO;
@@ -220,14 +202,6 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         dataset.setAuthority("10.5072");
         dataset.setIdentifier("FK2/AAAAAA");
         dataset.setProtocol("doi");
-
-        DatasetField datasetField = new DatasetField();
-        datasetField.setSingleValue("testvalue");
-        DatasetFieldType datasetFieldType = new DatasetFieldType("test", FieldType.TEXT, false);
-        datasetFieldType.setMetadataBlock(metadataBlockDao.findById(1L));
-        datasetFieldType.setRequired(false);
-        datasetField.setDatasetFieldType(datasetFieldType);
-        em.persist(datasetFieldType);
 
         DatasetVersion editVersion = dataset.getEditVersion();
         editVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
