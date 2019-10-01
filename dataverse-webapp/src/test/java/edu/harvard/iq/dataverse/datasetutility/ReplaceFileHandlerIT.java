@@ -1,11 +1,14 @@
 package edu.harvard.iq.dataverse.datasetutility;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.MetadataBlockDao;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataset.file.ReplaceFileHandler;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -67,7 +70,7 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
     private DataverseServiceBean dataverseServiceBean;
 
     @EJB
-    private DataFileServiceBean datafile;
+    private DataFileServiceBean dataFileService;
 
     @EJB
     private TermsOfUseFormMapper termsOfUseFormMapper;
@@ -80,6 +83,9 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
     @Inject
     private DataverseSession dataverseSession;
+
+    @EJB
+    private DatasetServiceBean datasetService;
 
     @Test
     public void shouldCreateDataFile() {
@@ -116,39 +122,55 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         em.persist(dataset);
         em.flush();
 
-        DataFile initialFile = createTestDataFile(dataset.getLatestVersion(), "banner", "image/png", true);
+        DataFile initialFile = createTestDataFile("banner", "image/png");
+        attachDataFileToDataset(initialFile, dataset.getLatestVersion());
         em.persist(initialFile);
 
-
         byte[] bytes = IOUtils.resourceToByteArray("images/coffeeshop.png", getClass().getClassLoader());
-        File newfile = new File(FileUtil.getFilesTempDirectory() +"/coffeeshop.png");
-        try {
-            Files.write(newfile.toPath(), bytes);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        File newFile = new File(FileUtil.getFilesTempDirectory() +"/coffeeshop.png");
+        Files.write(newFile.toPath(), bytes);
 
-        DataFile newDataFile = createTestDataFile(dataset.getLatestVersion(), "coffeeshop", "image/png", false);
+        DataFile newDataFile = createTestDataFile("coffeeshop", "image/png");
         newDataFile.setStorageIdentifier("coffeeshop.png");
-        em.persist(newDataFile);
 
         //when
         replaceFileHandler.replaceFile(dataset.getFiles().get(0), dataset, newDataFile);
 
         //then
-        Assert.assertEquals(2 ,dataset.getFiles().size());
-        Assert.assertEquals(1, dataset.getLatestVersion().getFileMetadatas().size());
-        Assert.assertEquals(datafile.findFileMetadataByDatasetVersionId(dataset.getLatestVersion().getId(), 2,"","").size(),
-                dataset.getLatestVersion().getFileMetadatas().size());
-        Assert.assertEquals(datafile.findFileMetadataByDatasetVersionId(dataset.getLatestVersion().getId(), 2,"","").get(0),
-                dataset.getLatestVersion().getFileMetadatas().get(0));
+        Dataset dbDataset = datasetService.find(dataset.getId());
+
+        List<DatasetVersion> dbDatasetVersions = dbDataset.getVersions();
+        Assert.assertEquals(2, dbDatasetVersions.size());
+
+        DatasetVersion dbOldVersion = dbDatasetVersions.get(1);
+        Assert.assertEquals(1, dbOldVersion.getFileMetadatas().size());
+        Assert.assertEquals("banner", dbOldVersion.getFileMetadatas().get(0).getLabel());
+
+        DatasetVersion dbNewVersion = dbDatasetVersions.get(0);
+        Assert.assertEquals(1, dbNewVersion.getFileMetadatas().size());
+        Assert.assertEquals("coffeeshop", dbNewVersion.getFileMetadatas().get(0).getLabel());
+
+        Assert.assertEquals(2, dbDataset.getFiles().size());
+        Assert.assertEquals(dbOldVersion.getFileMetadatas().get(0).getDataFile(), dbDataset.getFiles().get(0));
+        Assert.assertEquals(dbNewVersion.getFileMetadatas().get(0).getDataFile(), dbDataset.getFiles().get(1));
+
+        Assert.assertEquals(dbDataset.getFiles().get(0).getId(), dbDataset.getFiles().get(0).getRootDataFileId());
+
+        StorageIO<DataFile> newFileStorageIO = new DataAccess().getStorageIO(dbDataset.getFiles().get(1));
+        newFileStorageIO.open();
+        byte[] newFileContent = IOUtils.toByteArray(newFileStorageIO.getInputStream());
+        Assert.assertArrayEquals(bytes, newFileContent);
+
     }
-    private DataFile createTestDataFile(DatasetVersion datasetVersion, String filename, String fileContentType2, boolean addToDataset) {
-        DataFile.ChecksumType checksumType = DataFile.ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
+    private DataFile createTestDataFile(String filename, String fileContentType2) {
         DataFile savedFile = new DataFile(fileContentType2);
+        savedFile.setChecksumType(DataFile.ChecksumType.SHA1);
+        savedFile.setChecksumValue(filename);
         savedFile.setModificationTime(new Timestamp(new Date().getTime()));
         savedFile.setPermissionModificationTime(new Timestamp(new Date().getTime()));
         savedFile.setCreateDate(new Timestamp(new Date().getTime()));
+        savedFile.setStorageIdentifier("testStorageId");
+
         FileMetadata fmd = new FileMetadata();
         fmd.setLabel(filename);
 
@@ -156,31 +178,19 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         termsOfUse.setLicense(licenseDAO.findFirstActive());
         fmd.setTermsOfUse(termsOfUse);
         termsOfUse.setFileMetadata(fmd);
-
-        fmd.setTermsOfUseForm(termsOfUseFormMapper.mapToForm(termsOfUse));
-
-        if(addToDataset) {
-            savedFile.setOwner(datasetVersion.getDataset());
-        }
-
         fmd.setDataFile(savedFile);
         savedFile.getFileMetadatas().add(fmd);
 
-        if(addToDataset) {
-            if (datasetVersion.getFileMetadatas() == null) {
-                datasetVersion.setFileMetadatas(new ArrayList<>());
-            }
-            datasetVersion.addFileMetadata(fmd);
-            fmd.setDatasetVersion(datasetVersion);
-            datasetVersion.getDataset().getFiles().add(savedFile);
-        }
-        em.persist(fmd);
-
-        datafile.generateStorageIdentifier(savedFile);
-        savedFile.setChecksumType(checksumType);
-        savedFile.setChecksumValue(filename);
-
         return savedFile;
+    }
+
+    private void attachDataFileToDataset(DataFile dataFileToAttach, DatasetVersion datasetVersion) {
+        FileMetadata fileMetadata = dataFileToAttach.getFileMetadatas().get(0);
+
+        dataFileToAttach.setOwner(datasetVersion.getDataset());
+        datasetVersion.addFileMetadata(fileMetadata);
+        fileMetadata.setDatasetVersion(datasetVersion);
+        datasetVersion.getDataset().getFiles().add(dataFileToAttach);
     }
 
     private Dataverse fillDataverseWithRequiredData(Dataverse dataverse) {
@@ -216,13 +226,8 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         DatasetFieldType datasetFieldType = new DatasetFieldType("test", FieldType.TEXT, false);
         datasetFieldType.setMetadataBlock(metadataBlockDao.findById(1L));
         datasetFieldType.setRequired(false);
-        List<DatasetField> datasetFieldList = new ArrayList<>();
         datasetField.setDatasetFieldType(datasetFieldType);
-        datasetFieldList.add(datasetField);
         em.persist(datasetFieldType);
-
-        dataset.getEditVersion().setDatasetFields(datasetFieldList);
-        dataset.setCreateDate(new Timestamp(System.currentTimeMillis()));
 
         DatasetVersion editVersion = dataset.getEditVersion();
         editVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
