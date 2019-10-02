@@ -37,7 +37,6 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 public class ManageTemplatesPage implements java.io.Serializable {
 
     private DataverseServiceBean dvService;
-    private TemplateDao templateDao;
     private PermissionsWrapper permissionsWrapper;
     private DatasetFieldsInitializer datasetFieldsInitializer;
     private TemplateService templateService;
@@ -58,11 +57,10 @@ public class ManageTemplatesPage implements java.io.Serializable {
     }
 
     @Inject
-    public ManageTemplatesPage(DataverseServiceBean dvService, TemplateDao templateDao,
+    public ManageTemplatesPage(DataverseServiceBean dvService,
                                PermissionsWrapper permissionsWrapper,
                                DatasetFieldsInitializer datasetFieldsInitializer, TemplateService templateService) {
         this.dvService = dvService;
-        this.templateDao = templateDao;
         this.permissionsWrapper = permissionsWrapper;
         this.datasetFieldsInitializer = datasetFieldsInitializer;
         this.templateService = templateService;
@@ -128,6 +126,7 @@ public class ManageTemplatesPage implements java.io.Serializable {
         return StringUtils.EMPTY;
     }
 
+
     public void makeDefault(Template templateIn) {
         dataverse.setDefaultTemplate(templateIn);
 
@@ -156,9 +155,7 @@ public class ManageTemplatesPage implements java.io.Serializable {
 
         templatesForView.add(cloneTemplate.get());
 
-        String msg = BundleUtil.getStringFromBundle("template.clone");
-        JsfHelper.addFlashMessage(msg);
-
+        JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("template.clone"));
         return "/template.xhtml?id=" + cloneTemplate.get().getId() + "&ownerId=" + dataverse.getId() + "&faces-redirect=true";
     }
 
@@ -199,7 +196,6 @@ public class ManageTemplatesPage implements java.io.Serializable {
             }
         }
 
-        templateDao.flush();
         return StringUtils.EMPTY;
     }
 
@@ -248,7 +244,4 @@ public class ManageTemplatesPage implements java.io.Serializable {
         this.selectedTemplate = selectedTemplate;
     }
 
-    public void setCurrentTime(LocalDateTime currentTime) {
-        this.currentTime = currentTime;
-    }
 }

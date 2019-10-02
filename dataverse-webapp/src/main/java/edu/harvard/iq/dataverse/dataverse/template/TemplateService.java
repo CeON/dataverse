@@ -48,6 +48,9 @@ public class TemplateService {
                                                                             dvRequestService.getDataverseRequest(), null)));
     }
 
+    /**
+     * Updates dataverse regarding if it is a templateRoot or not.
+     */
     public Try<Dataverse> updateDataverseTemplate(Dataverse dataverse, boolean inheritTemplatesValue) {
         return Try.of(() -> engineService.submit(new UpdateDataverseTemplateRootCommand(!inheritTemplatesValue, dvRequestService.getDataverseRequest(), dataverse)));
     }
