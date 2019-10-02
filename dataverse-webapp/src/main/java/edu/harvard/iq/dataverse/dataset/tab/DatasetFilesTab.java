@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.tab;
 
+import com.google.common.base.Strings;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
@@ -827,8 +828,15 @@ public class DatasetFilesTab implements Serializable {
         }
         return lockedFromEditsVar;
     }
+
+    public boolean isAllFilesSelected() {
+        return selectedFiles.size() >= allCurrentFilesCount();
+    }
     
     // -------------------- PRIVATE --------------------
+    private Integer allCurrentFilesCount() {
+        return Strings.isNullOrEmpty(fileLabelSearchTerm) ? workingVersion.getFileMetadatas().size() : fileMetadatasSearch.size();
+    }
 
     private List<FileMetadata> selectFileMetadatasForDisplay(String searchTerm) {
         Set<Long> searchResultsIdSet = null;
