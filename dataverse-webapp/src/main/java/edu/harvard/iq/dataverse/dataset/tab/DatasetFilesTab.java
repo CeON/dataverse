@@ -342,13 +342,6 @@ public class DatasetFilesTab implements Serializable {
         rowsPerPage = dt.getRowsToRender();
     }
 
-    /**
-     * Reset page number to the first element found for showing search results.
-     */
-    public void resetPaginator() {
-        RequestContext.getCurrentInstance().execute("PF('filesTable').getPaginator().setPage(0)");
-    }
-
     public void fileListingPaginatorListener(PageEvent event) {
         filePaginatorPage = event.getPage();
     }
