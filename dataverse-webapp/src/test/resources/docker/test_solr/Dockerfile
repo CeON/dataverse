@@ -2,9 +2,6 @@ FROM solr:8.2
 
 USER root
 
-#COPY schema.xml /tmp
-#COPY solrconfig.xml /tmp
-
 RUN cp -r /opt/solr/server/solr/configsets/_default /opt/solr/server/solr/configsets/dataverse_config
 COPY schema.xml /opt/solr/server/solr/configsets/dataverse_config/conf/
 COPY solrconfig.xml /opt/solr/server/solr/configsets/dataverse_config/conf/
