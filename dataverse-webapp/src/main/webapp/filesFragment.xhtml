@@ -45,11 +45,25 @@
                         <p:inputText id="searchFiles" styleClass="form-control" value="#{datasetFilesTab.fileLabelSearchTerm}" widgetVar="inputSearchTerm"
                                      onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"/>
                         <p:watermark for="searchFiles" value="#{bundle['file.search.placeholder']}"/>
-                        <p:remoteCommand name="submitsearch" action="#{datasetFilesTab.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
+                        <p:remoteCommand name="submitsearch"
+                                         action="#{datasetFilesTab.updateFileSearch()}"
+                                         process="@this @widgetVar(inputSearchTerm)"
+                                         update="@form" partialSubmit="true"
+                        >
+                            <f:actionListener binding="#{datasetFilesTab.clearSelection()}" />
+                            <f:actionListener binding="#{datasetFilesTab.resetPaginator()}" />
+                        </p:remoteCommand>
                         
                         <span class="input-group-btn">
-                            <p:commandLink styleClass="btn btn-default" action="#{datasetFilesTab.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">
+                            <p:commandLink styleClass="btn btn-default"
+                                           action="#{datasetFilesTab.updateFileSearch()}"
+                                           process="@this @widgetVar(inputSearchTerm)"
+                                           update="@form"
+                                           partialSubmit="true"
+                            >
                                 <span class="glyphicon glyphicon-search"></span> #{bundle['dataverse.search.btn.find']}
+                                <f:actionListener binding="#{datasetFilesTab.clearSelection()}" />
+                                <f:actionListener binding="#{datasetFilesTab.resetPaginator()}" />
                             </p:commandLink>
                         </span>
                     </div>
@@ -97,23 +111,31 @@
                 </div>
             </div>
             
-            <div class="row" jsf:rendered="#{datasetFilesTab.workingVersion.fileMetadatas.size() gt 10 and (datasetFilesTab.selectedFiles.size() gt 0)}">
+            <div class="row" jsf:rendered="#{datasetFilesTab.fileLabelSearchTerm.equals('') ?
+                        datasetFilesTab.workingVersion.fileMetadatas.size() gt datasetFilesTab.rowsPerPage :
+                        datasetFilesTab.fileMetadatasSearch.size() gt datasetFilesTab.rowsPerPage}">
                 <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
                     <!-- SELECTION MESSAGE -->
                     <p>
-                        <h:outputFormat value="#{bundle['file.numFilesSelected']}">
+                        <h:outputFormat rendered="#{datasetFilesTab.selectedFiles.size() gt 0}"
+                                        value="#{bundle['file.numFilesSelected']}">
                             <f:param value="#{datasetFilesTab.selectedFiles.size()}"/>
                         </h:outputFormat>
-                        <ui:fragment rendered="#{datasetFilesTab.selectedFiles.size() lt datasetFilesTab.workingVersion.fileMetadatas.size()}">
+                        <ui:fragment rendered="#{datasetFilesTab.selectedFiles.size() lt
+                                (datasetFilesTab.fileLabelSearchTerm.equals('') ? datasetFilesTab.workingVersion.fileMetadatas.size() : datasetFilesTab.fileMetadatasSearch.size())}">
                         &#160;
                         <p:commandLink action="#{datasetFilesTab.selectAllFiles}" update="@form">
                             <h:outputFormat value="#{bundle['file.selectAllFiles']}">
                                 <f:param value="#{datasetFilesTab.fileMetadatasSearch.size()}"/>
+                                <f:param value="#{datasetFilesTab.fileLabelSearchTerm.equals('') ? '.' : bundle['file.selectAllFilesWhileSearching']}" />
                             </h:outputFormat>
                         </p:commandLink>
                         </ui:fragment>
                         &#160;
-                        <p:commandLink value="#{bundle['file.clearSelection']}" action="#{datasetFilesTab.clearSelection}" update="@form"/>
+                        <p:commandLink rendered="#{datasetFilesTab.selectedFiles.size() gt 0}"
+                                       value="#{bundle['file.clearSelection']}"
+                                       action="#{datasetFilesTab.clearSelection}"
+                                       update="@form"/>
                     </p>
                 </div>
             </div>

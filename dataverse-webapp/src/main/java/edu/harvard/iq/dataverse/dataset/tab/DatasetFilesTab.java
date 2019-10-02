@@ -27,8 +27,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
-import edu.harvard.iq.dataverse.persistence.datafile.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.persistence.datafile.license.TermsOfUseForm;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
@@ -52,7 +52,6 @@ import javax.inject.Named;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -342,13 +341,24 @@ public class DatasetFilesTab implements Serializable {
         rowsPerPage = dt.getRowsToRender();
     }
 
+    /**
+     * Reset page number to the first element found for showing search results.
+     */
+    public void resetPaginator() {
+        RequestContext.getCurrentInstance().execute("PF('filesTable').getPaginator().setPage(0)");
+    }
+
     public void fileListingPaginatorListener(PageEvent event) {
         filePaginatorPage = event.getPage();
     }
 
     public void selectAllFiles() {
         logger.fine("selectAllFiles called");
-        selectedFiles = workingVersion.getFileMetadatas();
+        if(fileLabelSearchTerm.isEmpty()) {
+            selectedFiles = workingVersion.getFileMetadatas();
+        } else {
+            selectedFiles = fileMetadatasSearch;
+        }
     }
 
     public void clearSelection() {
