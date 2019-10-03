@@ -99,13 +99,13 @@ public class FileBasedSettingsFetcher {
 
     // -------------------- PRIVATE --------------------
 
-    private Properties loadClasspathProperties(String classpath, boolean optional) {
+    private Properties loadClasspathProperties(String classpath, boolean isOptional) {
         Properties properties = new Properties();
         try (InputStream propertiesInputStream = this.getClass().getResourceAsStream(classpath)) {
             
             if (propertiesInputStream == null) {
                 
-                if (!optional) {
+                if (!isOptional) {
                     throw new RuntimeException("Required properties file not found: " + classpath);
                 }
                 return properties;
@@ -118,12 +118,12 @@ public class FileBasedSettingsFetcher {
         return properties;
     }
     
-    private Properties loadFilesystemProperties(String path, boolean optional) {
+    private Properties loadFilesystemProperties(String path, boolean isOptional) {
         Properties properties = new Properties();
         File propertiesFile = new File(path);
 
-        if (!propertiesFile.exists() || !propertiesFile.isFile()) {
-            if (!optional) {
+        if (!(propertiesFile.exists() && propertiesFile.isFile())) {
+            if (!isOptional) {
                 throw new RuntimeException("Required properties file not found: " + path);
             }
             return properties;

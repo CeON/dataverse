@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.settings;
 
-import com.google.common.io.Files;
 import edu.harvard.iq.dataverse.settings.FileSettingLocations.SettingLocationType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -12,14 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 public class FileBasedSettingsFetcherTest {
-
-    private FileBasedSettingsFetcher settingsFetcher;
     
     @Test
     public void loadSettings__PROPERTIES_FROM_CLASSPATH() {
@@ -51,7 +48,7 @@ public class FileBasedSettingsFetcherTest {
         FileBasedSettingsFetcher settingsFetcher = new FileBasedSettingsFetcher(settingLocations);
         
         // when
-        Executable loadSettingsOperation = () -> settingsFetcher.loadSettings();
+        Executable loadSettingsOperation = settingsFetcher::loadSettings;
         
         // then
         assertThrows(RuntimeException.class, loadSettingsOperation);
@@ -108,7 +105,7 @@ public class FileBasedSettingsFetcherTest {
         FileBasedSettingsFetcher settingsFetcher = new FileBasedSettingsFetcher(settingLocations);
         
         // when
-        Executable loadSettingsOperation = () -> settingsFetcher.loadSettings();
+        Executable loadSettingsOperation = settingsFetcher::loadSettings;
         
         // then
         assertThrows(RuntimeException.class, loadSettingsOperation);

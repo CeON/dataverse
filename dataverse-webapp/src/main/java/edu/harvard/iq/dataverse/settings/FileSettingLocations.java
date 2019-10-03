@@ -30,8 +30,8 @@ public class FileSettingLocations {
 
     // -------------------- LOGIC --------------------
     
-    public void addLocation(SettingLocationType locationType, String path, boolean optional) {
-        settingLocations.add(new SettingLocation(locationType, path, optional));
+    public void addLocation(SettingLocationType locationType, String path, boolean isOptional) {
+        settingLocations.add(new SettingLocation(locationType, path, isOptional));
     }
 
 
@@ -40,15 +40,15 @@ public class FileSettingLocations {
     public static class SettingLocation {
         private SettingLocationType locationType;
         private String path;
-        private boolean optional;
+        private boolean isOptional;
         
         // -------------------- CONSTRUCTORS --------------------
         
-        private SettingLocation(SettingLocationType locationType, String path, boolean optional) {
+        private SettingLocation(SettingLocationType locationType, String path, boolean isOptional) {
             super();
             this.locationType = locationType;
             this.path = path;
-            this.optional = optional;
+            this.isOptional = isOptional;
         }
         
         // -------------------- GETTERS --------------------
@@ -60,7 +60,7 @@ public class FileSettingLocations {
             return path;
         }
         public boolean isOptional() {
-            return optional;
+            return isOptional;
         }
         
     }
