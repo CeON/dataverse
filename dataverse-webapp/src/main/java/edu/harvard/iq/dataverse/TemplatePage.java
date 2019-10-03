@@ -113,37 +113,40 @@ public class TemplatePage implements java.io.Serializable {
 
     public String init() {
 
-        dataverse = dataverseService.find(ownerId);
-        if (dataverse == null) {
-            return permissionsWrapper.notFound();
-        }
-        if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
-            return permissionsWrapper.notAuthorized();
-        }
-        if (templateId != null) { // edit existing template
+        if (templateId != null) {
             editMode = TemplatePage.EditMode.METADATA;
             template = templateService.find(templateId);
-            template.setDataverse(dataverse);
+
+            dataverse = template.getDataverse();
+
+            String validationError = validatePermissionsForTemplateEdit(dataverse, templateId);
+
+            if (!validationError.isEmpty()) {
+                return validationError;
+            }
 
             List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
             template.setDatasetFields(dsfForEdit);
             mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(dsfForEdit);
 
             if (template.getTermsOfUseAndAccess() == null) {
-                TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
-                terms.setTemplate(template);
-                terms.setLicense(TermsOfUseAndAccess.License.CC0);
-                template.setTermsOfUseAndAccess(terms);
+                template.setTermsOfUseAndAccess(prepareTermsOfUseAndAccess(template));
             }
 
+
         } else if (ownerId != null) {
+            dataverse = dataverseService.find(ownerId);
+
+            String validationError = validatePermissionsForTemplateCreation(dataverse);
+
+            if (!validationError.isEmpty()) {
+                return validationError;
+            }
 
             editMode = TemplatePage.EditMode.CREATE;
             template = new Template(this.dataverse);
-            TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
-            terms.setTemplate(template);
-            terms.setLicense(TermsOfUseAndAccess.License.CC0);
-            template.setTermsOfUseAndAccess(terms);
+
+            template.setTermsOfUseAndAccess(prepareTermsOfUseAndAccess(template));
 
             List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
             template.setDatasetFields(datasetFields);
@@ -151,7 +154,8 @@ public class TemplatePage implements java.io.Serializable {
         } else {
             throw new RuntimeException("On Template page without id or ownerid."); // improve error handling
         }
-        return null;
+
+        return StringUtils.EMPTY;
     }
 
     public String save() {
@@ -180,6 +184,42 @@ public class TemplatePage implements java.io.Serializable {
         
 
         return "/manage-templates.xhtml?dataverseId=" + dataverse.getId() + "&faces-redirect=true";
+    }
+
+    private TermsOfUseAndAccess prepareTermsOfUseAndAccess(Template template) {
+        TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
+        terms.setTemplate(template);
+        terms.setLicense(TermsOfUseAndAccess.License.CC0);
+        return terms;
+    }
+
+    private String validatePermissionsForTemplateEdit(Dataverse dataverse, long templateId) {
+        if (dataverse == null) {
+            return permissionsWrapper.notFound();
+        }
+
+        if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
+            return permissionsWrapper.notAuthorized();
+        }
+
+        if (dataverse.getTemplates().stream()
+                .noneMatch(dvTemplate -> dvTemplate.getId().equals(templateId))) {
+            return permissionsWrapper.notAuthorized();
+        }
+
+        return StringUtils.EMPTY;
+    }
+
+    private String validatePermissionsForTemplateCreation(Dataverse dataverse) {
+        if (dataverse == null) {
+            return permissionsWrapper.notFound();
+        }
+
+        if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
+            return permissionsWrapper.notAuthorized();
+        }
+
+        return StringUtils.EMPTY;
     }
 
 }
