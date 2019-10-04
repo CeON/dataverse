@@ -153,9 +153,11 @@
                                 <h:outputText value="#{bundle['dataset.manageTemplates.delete.usedAsDefault']}" />
                             </p>
                             <ul>
+                                <ui:repeat value="#{manageTemplatesPage}" var="dataverse">
                                     <li>
                                         <h:outputText value="#{manageTemplatesPage.dataverse.displayName}"/>
                                     </li>
+                                </ui:repeat>
                             </ul>
                         </ui:fragment>
                         <div class="button-block">

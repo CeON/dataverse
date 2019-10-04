@@ -128,15 +128,94 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         em.persist(dataverse);
 
         //when
-        Try<Template> clonedTemplate = templateService.cloneTemplate(template,
-                                                                     dataverse,
-                                                                     LocalDateTime.of(2018, 10, 1, 9, 15, 45));
+        Try<Template> clonedTemplate = templateService.cloneTemplate(template, dataverse);
 
         //then
         assertFalse(clonedTemplate.isFailure());
         assertTrue(dataverse.getTemplates().contains(clonedTemplate.get()));
         assertEquals(2, dataverse.getTemplates().size());
         assertTrue(clonedTemplate.get().getName().equalsIgnoreCase("copy of " + template.getName()));
+    }
+
+    @Test
+    public void makeTemplateDefaultForDataverse() {
+        //given
+        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Template template = prepareTemplate();
+        template.setDataverse(dataverse);
+
+        dataverse.setTemplates(Lists.newArrayList(template));
+
+        em.persist(template);
+        em.persist(dataverse);
+
+        //when
+        templateService.makeTemplateDefaultForDataverse(dataverse, template);
+
+        //then
+        assertEquals(dataverse.getDefaultTemplate(), template);
+
+    }
+
+    @Test
+    public void removeDataverseDefaultTemplate() {
+        //given
+        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Template template = prepareTemplate();
+        template.setDataverse(dataverse);
+
+        dataverse.setTemplates(Lists.newArrayList(template));
+        dataverse.setDefaultTemplate(template);
+
+        em.persist(template);
+        em.persist(dataverse);
+
+        //when
+        templateService.removeDataverseDefaultTemplate(dataverse);
+
+        //then
+        assertNull(dataverse.getDefaultTemplate());
+    }
+
+    @Test
+    public void updateDefaultTemplates_ForInheritedValue() {
+        //given
+        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse rootDataverse = dataverseService.findRootDataverse();
+        Template template = prepareTemplate();
+        template.setDataverse(rootDataverse);
+        rootDataverse.setDefaultTemplate(template);
+
+        em.persist(template);
+        em.persist(dataverse);
+
+        //when
+        templateService.updateDataverseTemplates(true, dataverse);
+
+        //then
+        assertEquals(dataverse.getDefaultTemplate(), template);
+
+    }
+
+    @Test
+    public void updateDefaultTemplates_ForNonInheritedValue() {
+        //given
+        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse rootDataverse = dataverseService.findRootDataverse();
+        Template template = prepareTemplate();
+        rootDataverse.setTemplates(Lists.newArrayList(template));
+        template.setDataverse(rootDataverse);
+        dataverse.setDefaultTemplate(template);
+
+        em.persist(template);
+        em.persist(dataverse);
+
+        //when
+        templateService.updateDataverseTemplates(false, dataverse);
+
+        //then
+        assertNull(dataverse.getDefaultTemplate());
+
     }
 
     // -------------------- PRIVATE --------------------

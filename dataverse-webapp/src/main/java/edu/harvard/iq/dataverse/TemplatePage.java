@@ -38,7 +38,7 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 public class TemplatePage implements java.io.Serializable {
 
     @EJB
-    TemplateDao templateService;
+    TemplateDao templateDao;
 
     @EJB
     DataverseServiceBean dataverseService;
@@ -123,7 +123,7 @@ public class TemplatePage implements java.io.Serializable {
         }
         if (templateId != null) { // edit existing template
             editMode = TemplatePage.EditMode.METADATA;
-            template = templateService.find(templateId);
+            template = templateDao.find(templateId);
             template.setDataverse(dataverse);
 
             List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());

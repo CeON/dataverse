@@ -9,6 +9,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.logging.Logger;
@@ -50,6 +51,12 @@ public class TemplateDao {
 
     public List<Dataverse> findDataversesByDefaultTemplateId(Long defaultTemplateId) {
         TypedQuery<Dataverse> query = em.createQuery("select object(o) from Dataverse as o where o.defaultTemplate.id =:defaultTemplateId order by o.name", Dataverse.class);
+        query.setParameter("defaultTemplateId", defaultTemplateId);
+        return query.getResultList();
+    }
+
+    public List<String> findDataverseNamesByDefaultTemplateId(long defaultTemplateId) {
+        Query query = em.createNativeQuery("select dv.name from Dataverse as dv where dv.defaulttemplate_id =:defaultTemplateId order by dv.name", Dataverse.class);
         query.setParameter("defaultTemplateId", defaultTemplateId);
         return query.getResultList();
     }

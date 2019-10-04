@@ -22,11 +22,11 @@ import javax.faces.convert.FacesConverter;
 public class TemplateConverter implements Converter {
 
     @EJB
-    TemplateDao templateService;
+    TemplateDao templateDao;
 
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent component, String submittedValue) {
-        return templateService.find(new Long(submittedValue));
+        return templateDao.find(new Long(submittedValue));
     }
 
     public String getAsString(FacesContext facesContext, UIComponent component, Object value) {

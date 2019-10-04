@@ -101,7 +101,7 @@ public class EjbDataverseEngine {
     DataFileServiceBean dataFileService;
 
     @EJB
-    TemplateDao templateService;
+    TemplateDao templateDao;
 
     @EJB
     SavedSearchServiceBean savedSearchService;
@@ -363,7 +363,7 @@ public class EjbDataverseEngine {
 
                 @Override
                 public TemplateDao templates() {
-                    return templateService;
+                    return templateDao;
                 }
 
                 @Override
