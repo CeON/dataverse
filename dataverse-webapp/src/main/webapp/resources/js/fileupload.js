@@ -39,17 +39,6 @@ function uploadStarted() {
 	observer.observe(files[0].parentElement,config);
 }
 
-function uploadFinished(fileupload) {
-    if (fileupload.files.length === 0) {
-        $('button[id$="AllUploadsFinished"]').trigger('click');
-        //stop observer when we're done
-        if(observer !=null) {
-          observer.disconnect();
-          observer=null;
-        }
-    }
-}
-
 function uploadFailure(fileUpload) {
 	// This handles HTTP errors (non-20x reponses) such as 0 (no connection at all), 413 (Request too large),
 	// and 504 (Gateway timeout) where the upload call to the server fails (the server doesn't receive the request)

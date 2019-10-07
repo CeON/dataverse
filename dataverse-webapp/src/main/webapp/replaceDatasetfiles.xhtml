@@ -112,7 +112,6 @@
                                                           fileUploadListener="#{ReplaceDatafilesPage.handleFileUpload}"
                                                           update="@form"
                                                           label="#{bundle['file.selectToAddBtn']}"
-                                                          oncomplete="uploadFinished(PF('fileUploadWidget'));"
                                                           onstart="#{ReplaceDatafilesPage.uploadStarted()}"
                                                           onerror="uploadFailure();"
                                                           sizeLimit="#{settingsWrapper.getEnumSettingValue(settingEnum.MaxFileUploadSizeInBytes)}"
