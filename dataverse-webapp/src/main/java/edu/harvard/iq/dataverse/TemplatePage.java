@@ -113,16 +113,18 @@ public class TemplatePage implements java.io.Serializable {
 
     public String init() {
 
-        if (templateId != null) {
+        if (isEditingTemplate()) {
             editMode = TemplatePage.EditMode.METADATA;
             template = templateService.find(templateId);
 
             dataverse = template.getDataverse();
 
-            String validationError = validatePermissionsForTemplateEdit(dataverse, templateId);
+            if (dataverse == null) {
+                return permissionsWrapper.notFound();
+            }
 
-            if (!validationError.isEmpty()) {
-                return validationError;
+            if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
+                return permissionsWrapper.notAuthorized();
             }
 
             List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
@@ -134,13 +136,15 @@ public class TemplatePage implements java.io.Serializable {
             }
 
 
-        } else if (ownerId != null) {
+        } else if (isCreatingTemplate()) {
             dataverse = dataverseService.find(ownerId);
 
-            String validationError = validatePermissionsForTemplateCreation(dataverse);
+            if (dataverse == null) {
+                return permissionsWrapper.notFound();
+            }
 
-            if (!validationError.isEmpty()) {
-                return validationError;
+            if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
+                return permissionsWrapper.notAuthorized();
             }
 
             editMode = TemplatePage.EditMode.CREATE;
@@ -193,33 +197,12 @@ public class TemplatePage implements java.io.Serializable {
         return terms;
     }
 
-    private String validatePermissionsForTemplateEdit(Dataverse dataverse, long templateId) {
-        if (dataverse == null) {
-            return permissionsWrapper.notFound();
-        }
-
-        if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
-            return permissionsWrapper.notAuthorized();
-        }
-
-        if (dataverse.getTemplates().stream()
-                .noneMatch(dvTemplate -> dvTemplate.getId().equals(templateId))) {
-            return permissionsWrapper.notAuthorized();
-        }
-
-        return StringUtils.EMPTY;
+    private boolean isEditingTemplate() {
+        return templateId != null;
     }
 
-    private String validatePermissionsForTemplateCreation(Dataverse dataverse) {
-        if (dataverse == null) {
-            return permissionsWrapper.notFound();
-        }
-
-        if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
-            return permissionsWrapper.notAuthorized();
-        }
-
-        return StringUtils.EMPTY;
+    private boolean isCreatingTemplate() {
+        return ownerId != null;
     }
 
 }
