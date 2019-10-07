@@ -3,14 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.datafile.page;
 
+import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.FileDownloadHelper;
+import edu.harvard.iq.dataverse.FileDownloadServiceBean;
+import edu.harvard.iq.dataverse.GuestbookResponseServiceBean;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
-import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -26,8 +35,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.FileVersionDifference;
-import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseIcon;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseIcon;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
