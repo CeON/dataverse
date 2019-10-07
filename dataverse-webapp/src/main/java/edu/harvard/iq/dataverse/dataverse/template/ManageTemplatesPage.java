@@ -190,7 +190,7 @@ public class ManageTemplatesPage implements java.io.Serializable {
     }
 
     public List<String> retrieveDataverseNamesWithDefaultTemplate() {
-        templateService.
+        return templateService.retrieveDataverseNamesWithDefaultTemplate(selectedTemplate.getId());
     }
 
     // -------------------- SETTERS --------------------

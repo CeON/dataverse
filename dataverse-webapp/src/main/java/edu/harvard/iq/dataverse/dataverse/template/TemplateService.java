@@ -124,7 +124,7 @@ public class TemplateService {
     }
 
     public List<String> retrieveDataverseNamesWithDefaultTemplate(long templateId) {
-        templateDao.findDataversesByDefaultTemplateId()
+        return templateDao.findDataverseNamesByDefaultTemplateId(templateId);
     }
 
     // -------------------- PRIVATE --------------------

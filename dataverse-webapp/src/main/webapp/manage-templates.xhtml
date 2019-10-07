@@ -153,9 +153,10 @@
                                 <h:outputText value="#{bundle['dataset.manageTemplates.delete.usedAsDefault']}" />
                             </p>
                             <ul>
-                                <ui:repeat value="#{manageTemplatesPage}" var="dataverse">
+                                <ui:repeat value="#{manageTemplatesPage.retrieveDataverseNamesWithDefaultTemplate()}"
+                                           var="dataverseName">
                                     <li>
-                                        <h:outputText value="#{manageTemplatesPage.dataverse.displayName}"/>
+                                        <h:outputText value="#{dataverseName}"/>
                                     </li>
                                 </ui:repeat>
                             </ul>

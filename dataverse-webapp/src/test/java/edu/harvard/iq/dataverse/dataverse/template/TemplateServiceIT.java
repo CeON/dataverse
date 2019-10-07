@@ -80,7 +80,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         dataverse.setTemplates(Collections.singletonList(template));
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         Try<Dataverse> savedDataverse = templateService.updateDataverseTemplate(dataverse, false);
@@ -102,7 +101,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         dataverse.setDefaultTemplate(template);
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         Try<Dataverse> affectedDataverse = templateService.deleteTemplate(dataverse, template);
@@ -125,7 +123,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         dataverse.setDefaultTemplate(template);
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         Try<Template> clonedTemplate = templateService.cloneTemplate(template, dataverse);
@@ -147,7 +144,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         dataverse.setTemplates(Lists.newArrayList(template));
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         templateService.makeTemplateDefaultForDataverse(dataverse, template);
@@ -168,7 +164,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         dataverse.setDefaultTemplate(template);
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         templateService.removeDataverseDefaultTemplate(dataverse);
@@ -187,7 +182,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         rootDataverse.setDefaultTemplate(template);
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         templateService.updateDataverseTemplates(true, dataverse);
@@ -208,13 +202,34 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         dataverse.setDefaultTemplate(template);
 
         em.persist(template);
-        em.persist(dataverse);
 
         //when
         templateService.updateDataverseTemplates(false, dataverse);
 
         //then
         assertNull(dataverse.getDefaultTemplate());
+
+    }
+
+    @Test
+    public void retrieveDataverseNamesWithDefaultTemplate() {
+        //given
+        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Template template = prepareTemplate();
+        template.setDataverse(dataverse);
+
+        dataverse.setTemplates(Lists.newArrayList(template));
+        dataverse.setDefaultTemplate(template);
+
+        em.persist(template);
+        //when
+        em.flush();
+
+        List<String> dataverseNames = templateService.retrieveDataverseNamesWithDefaultTemplate(template.getId());
+
+        //then
+        assertEquals(1, dataverseNames.size());
+        assertTrue(dataverseNames.contains("test dataverse"));
 
     }
 

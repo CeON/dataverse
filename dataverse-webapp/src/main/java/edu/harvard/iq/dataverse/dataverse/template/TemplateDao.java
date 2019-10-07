@@ -55,9 +55,11 @@ public class TemplateDao {
         return query.getResultList();
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> findDataverseNamesByDefaultTemplateId(long defaultTemplateId) {
-        Query query = em.createNativeQuery("select dv.name from Dataverse as dv where dv.defaulttemplate_id =:defaultTemplateId order by dv.name", Dataverse.class);
-        query.setParameter("defaultTemplateId", defaultTemplateId);
+        Query query = em.createNativeQuery("select dv.name from Dataverse as dv where dv.defaulttemplate_id = ? order by dv.name");
+        query.setParameter(1, defaultTemplateId);
+
         return query.getResultList();
     }
 
