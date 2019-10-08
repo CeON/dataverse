@@ -58,20 +58,6 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     }
 
     @Test
-    public void shouldSuccessfullyUpdateDataverse() {
-        //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
-
-        //when
-        dataverse.setAlias("new-alias");
-        templateService.updateDataverse(dataverse);
-
-        //then
-        Dataverse dvFromDb = em.find(Dataverse.class, dataverse.getId());
-        assertEquals("new-alias", dvFromDb.getAlias());
-    }
-
-    @Test
     public void shouldSuccessfullyUpdateDataverseTemplate() {
         //given
         Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
@@ -184,7 +170,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         em.persist(template);
 
         //when
-        templateService.updateDataverseTemplates(true, dataverse);
+        templateService.updateDataverseTemplate(dataverse, true);
 
         //then
         assertEquals(dataverse.getDefaultTemplate(), template);
@@ -204,7 +190,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
         em.persist(template);
 
         //when
-        templateService.updateDataverseTemplates(false, dataverse);
+        templateService.updateDataverseTemplate(dataverse, false);
 
         //then
         assertNull(dataverse.getDefaultTemplate());

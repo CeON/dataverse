@@ -14,6 +14,7 @@ import io.vavr.control.Try;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
@@ -28,7 +29,7 @@ public class TemplateService {
     private DataverseRequestServiceBean dvRequestService;
     private TemplateDao templateDao;
 
-    private LocalDateTime currentTime = LocalDateTime.now();
+    private Clock clock = Clock.systemUTC();
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -46,15 +47,13 @@ public class TemplateService {
 
     // -------------------- LOGIC --------------------
 
-    public Try<Dataverse> updateDataverse(Dataverse dataverse) {
-        return Try.of(() -> engineService.submit(new UpdateDataverseCommand(dataverse, null, null,
-                                                                            dvRequestService.getDataverseRequest(), null)));
-    }
-
     /**
      * Updates dataverse regarding if it is a templateRoot or not.
      */
     public Try<Dataverse> updateDataverseTemplate(Dataverse dataverse, boolean inheritTemplatesValue) {
+
+        updateDataverseTemplates(inheritTemplatesValue, dataverse);
+
         return Try.of(() -> engineService.submit(new UpdateDataverseTemplateRootCommand(!inheritTemplatesValue, dvRequestService.getDataverseRequest(), dataverse)))
                 .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable));
     }
@@ -79,7 +78,7 @@ public class TemplateService {
         Template newTemplate = templateIn.cloneNewTemplate(templateIn);
         newTemplate.setName(BundleUtil.getStringFromBundle("page.copy") + " " + templateIn.getName());
         newTemplate.setUsageCount(0L);
-        newTemplate.setCreateTime(Timestamp.valueOf(currentTime));
+        newTemplate.setCreateTime(Timestamp.valueOf(LocalDateTime.now(clock)));
         dataverse.getTemplates().add(newTemplate);
 
         Try<Template> createdTemplate = Try.of(() -> engineService.submit(new CreateTemplateCommand(newTemplate, dvRequestService.getDataverseRequest(), dataverse)))
@@ -102,6 +101,12 @@ public class TemplateService {
         return updateDataverse(dataverse);
     }
 
+    public List<String> retrieveDataverseNamesWithDefaultTemplate(long templateId) {
+        return templateDao.findDataverseNamesByDefaultTemplateId(templateId);
+    }
+
+    // -------------------- PRIVATE --------------------
+
     /**
      * Cleans up dataverse default templates regarding parent inheritance.
      * <p/>
@@ -110,7 +115,7 @@ public class TemplateService {
      * <p/>
      * Inheritance = false - if current dataverse had default template and it was parent's template, dataverse won't have default template anymore.
      */
-    public void updateDataverseTemplates(boolean isInheritTemplatesValue, Dataverse dataverse) {
+    private void updateDataverseTemplates(boolean isInheritTemplatesValue, Dataverse dataverse) {
         if (isInheritTemplatesValue && !isDataverseHasDefaultTemplate(dataverse) && isDataverseHasDefaultTemplate(dataverse.getOwner())) {
             dataverse.setDefaultTemplate(dataverse.getOwner().getDefaultTemplate());
         }
@@ -123,19 +128,18 @@ public class TemplateService {
         }
     }
 
-    public List<String> retrieveDataverseNamesWithDefaultTemplate(long templateId) {
-        return templateDao.findDataverseNamesByDefaultTemplateId(templateId);
-    }
-
-    // -------------------- PRIVATE --------------------
-
     private boolean isDataverseHasDefaultTemplate(Dataverse dataverse) {
         return dataverse.getDefaultTemplate() != null;
     }
 
+    private Try<Dataverse> updateDataverse(Dataverse dataverse) {
+        return Try.of(() -> engineService.submit(new UpdateDataverseCommand(dataverse, null, null,
+                                                                            dvRequestService.getDataverseRequest(), null)));
+    }
+
     // -------------------- SETTERS --------------------
 
-    public void setCurrentTime(LocalDateTime currentTime) {
-        this.currentTime = currentTime;
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

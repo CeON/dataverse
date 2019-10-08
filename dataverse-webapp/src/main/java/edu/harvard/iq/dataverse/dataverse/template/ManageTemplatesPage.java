@@ -174,8 +174,6 @@ public class ManageTemplatesPage implements java.io.Serializable {
 
         if (dataverse.getOwner() != null) {
 
-            templateService.updateDataverseTemplates(isInheritTemplatesValue(), dataverse);
-
             templateService.updateDataverseTemplate(dataverse, isInheritTemplatesValue())
                     .onSuccess(updatedDataverse -> dataverse = updatedDataverse);
 

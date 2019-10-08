@@ -14,20 +14,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +50,8 @@ public class TemplateServiceTest {
 
     @BeforeEach
     public void setUp() throws CommandException {
-        templateService.setCurrentTime(LocalDateTime.of(LocalDate.of(2019, 12, 12), LocalTime.of(13, 15)));
+
+        templateService.setClock(Clock.fixed(Instant.ofEpochSecond(1576156500), ZoneId.systemDefault()));
 
         when(ejbDataverseEngine.submit(any(Command.class)))
                 .then(InvocationOnMock::getMock);
@@ -103,7 +106,7 @@ public class TemplateServiceTest {
         template.setCreateTime(new Date());
         dataverse.setTemplates(new ArrayList<>());
         dataverse.getTemplates().add(template);
-        LocalDateTime testTime = LocalDateTime.of(LocalDate.of(2019, 12, 12), LocalTime.of(13, 15));
+        Instant testTime = Instant.ofEpochSecond(1576156500);
 
         when(ejbDataverseEngine.submit(any(Command.class)))
                 .thenReturn(template);
@@ -112,13 +115,13 @@ public class TemplateServiceTest {
         Try<Template> cloneOperation = templateService.cloneTemplate(template, dataverse);
 
         Optional<Template> createdTemplate = dataverse.getTemplates().stream()
-                .filter(template1 -> template1.getCreateTime().equals(Timestamp.valueOf(testTime)))
+                .filter(template1 -> template1.getCreateTime().equals(Timestamp.from(testTime)))
                 .findAny();
 
         //then
         Assert.assertFalse(cloneOperation.isFailure());
         Assert.assertEquals(0, createdTemplate.get().getUsageCount().longValue());
-        Assert.assertEquals(Timestamp.valueOf(testTime), createdTemplate.get().getCreateTime());
+        Assert.assertEquals(Timestamp.from(testTime), createdTemplate.get().getCreateTime());
         Assert.assertEquals(2, dataverse.getTemplates().size());
 
     }
@@ -172,7 +175,7 @@ public class TemplateServiceTest {
     }
 
     @Test
-    public void updateDefaultTemplates_ForInheritedValue() {
+    public void updateDefaultTemplates_ForInheritedValue() throws CommandException {
         //given
         Dataverse dataverse = new Dataverse();
         Dataverse dataverseOwner = new Dataverse();
@@ -183,15 +186,16 @@ public class TemplateServiceTest {
         dataverse.setOwner(dataverseOwner);
 
         //when
-        templateService.updateDataverseTemplates(true, dataverse);
+        templateService.updateDataverseTemplate(dataverse, true);
 
         //then
         Assert.assertEquals(dataverse.getDefaultTemplate(), template);
+        Mockito.verify(ejbDataverseEngine, times(1)).submit(any());
 
     }
 
     @Test
-    public void updateDefaultTemplates_ForNonInheritedValue() {
+    public void updateDefaultTemplates_ForNonInheritedValue() throws CommandException {
         //given
         Dataverse dataverse = new Dataverse();
         Dataverse dataverseOwner = new Dataverse();
@@ -203,7 +207,8 @@ public class TemplateServiceTest {
         dataverse.setDefaultTemplate(template);
 
         //when
-        templateService.updateDataverseTemplates(false, dataverse);
+        templateService.updateDataverseTemplate(dataverse, false);
+        Mockito.verify(ejbDataverseEngine, times(1)).submit(any());
 
         //then
         Assert.assertNull(dataverse.getDefaultTemplate());
