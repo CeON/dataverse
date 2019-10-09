@@ -5,7 +5,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui" xmlns:comp="http://java.sun.com/jsf/composite/jsfcomponents">
 
 <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
@@ -126,7 +126,11 @@
                                                 function uploadWidgetDropMsg() {
                                                     var fileUpload = $('div[id$="fileUpload"] div.ui-fileupload-content');
                                                     if ($(fileUpload).children('#dragdropMsg').length === 0) {
-                                                        $(fileUpload).prepend('<div id="dragdropMsg">#{bundle['file.selectToAdd.dragdropMsg']}</div>');
+                                                        $(fileUpload).prepend('<div id="dragdropMsg">#{bundle['
+                                                        file.selectToAdd.dragdropMsg
+                                                        ']}</div>'
+                                                    )
+                                                        ;
                                                     }
                                                 }
 
@@ -400,7 +404,7 @@
                                 <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}"
                                                  action="#{ReplaceDatafilesPage.returnToFileLandingPage()}"
                                                  process="@this" update="@form"
-                                                 >
+                                >
                                 </p:commandButton>
                                 <p:commandButton value="#{bundle.saveChanges}" id="datasetSave"
                                                  update="@form,:messagePanel"
@@ -412,7 +416,7 @@
                                 <p:commandButton tabindex="1000" id="doneFilesButton" value="#{bundle.done}"
                                                  action="#{ReplaceDatafilesPage.returnToFileLandingPage()}"
                                                  process="@this" update="@form"
-                                                 >
+                                >
                                 </p:commandButton>
 
                             </div>
@@ -433,6 +437,15 @@
                                          type="button"/>
                     </div>
                 </p:dialog>
+
+                <comp:fileTagsDialog categoriesByName="#{ReplaceDatafilesPage.categoriesByName}"
+                                     fileMetadata="#{ReplaceDatafilesPage.fileMetadataSelectedForTagsPopup}"
+                                     selectedTabFileTags="#{ReplaceDatafilesPage.selectedTabFileTags}"
+                                     selectedTags="#{ReplaceDatafilesPage.selectedTags}"
+                                     tabFileTags="#{ReplaceDatafilesPage.tabFileTags}"
+                                     updateAfterSave="@form">
+                    <p:ajax event="saveAction" listener="#{ReplaceDatafilesPage.saveFileTagsAndCategories()}"/>
+                </comp:fileTagsDialog>
                 <p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
                           widgetVar="editFileTagsPopup" modal="true">
                     <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
