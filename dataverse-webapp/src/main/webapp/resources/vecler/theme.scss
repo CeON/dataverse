@@ -10,7 +10,6 @@ $border-radius: 7px;
 
 $main-text-color: #4a4a4a;
 $gray-border-color: #e8e8e8;
-$dataverse-icon-gray: #a4a5a8;
 
 /* RepOD color scheme */
 
@@ -87,23 +86,6 @@ $ajax_spinner_filter: hue-rotate(170deg) saturate(2);
 	background-repeat: no-repeat;
 	background-position: center center;
 	color: transparent;
-}
-
-.icon-dataverse::after {
-	/*content: "\f200";*/
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: block;
-	color: #a4a5a8;
-	z-index: -1;
-	line-height: 100%;
-	font-style: normal;
-	font-weight: normal;
-}
-
-.card-title-icon-block .icon-dataverse::after {
-	top: 2.2px;
 }
 
 
