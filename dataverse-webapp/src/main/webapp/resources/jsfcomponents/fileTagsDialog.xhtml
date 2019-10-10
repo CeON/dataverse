@@ -1,9 +1,9 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:composite="http://xmlns.jcp.org/jsf/composite">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:composite="http://xmlns.jcp.org/jsf/composite">
 
     <!--@elvariable id="updateAfterSave" type="java.lang.String"-->
     <!--@elvariable id="newCategoryName" type="java.lang.String"-->
@@ -14,6 +14,7 @@
     <!--@elvariable id="fileMetadataSelectedForTagsPopup" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
     <composite:interface>
+        <composite:attribute name="dialogId" required="true"/>
         <composite:attribute name="fileMetadata" required="true"/>
         <composite:attribute name="selectedTags" required="true"/>
         <composite:attribute name="selectedTabFileTags" required="true"/>
@@ -21,19 +22,20 @@
         <composite:attribute name="tabFileTags" required="true"/>
         <composite:attribute name="updateAfterSave"/>
 
-        <composite:clientBehavior name="saveAction" targets="editFileTagsPopup:editFileTagsPopupSaveButton"
+        <composite:clientBehavior name="saveAction" targets="#{cc.attrs.dialogId}:editFileTagsPopupSaveButton"
                                   event="click"/>
-        <composite:clientBehavior name="saveNewCategory" targets="editFileTagsPopup:saveNewCategoryButton"
+        <composite:clientBehavior name="cancelAction" targets="#{cc.attrs.dialogId}:editFileTagsPopupCancelButton"
                                   event="click"/>
-        <composite:clientBehavior name="fileTagsMenuToggleSelect" targets="editFileTagsPopup:fileTagsMenu"
+        <composite:clientBehavior name="fileTagsMenuToggleSelect" targets="#{cc.attrs.dialogId}:fileTagsMenu"
                                   event="toggleSelect"/>
-        <composite:clientBehavior name="saveNewCategory" targets="editFileTagsPopup:saveNewCategoryButton"
+        <composite:clientBehavior name="saveNewCategory" targets="#{cc.attrs.dialogId}:saveNewCategoryButton"
                                   event="change"/> <!--selectedTagsListEFF-->
     </composite:interface>
 
     <composite:implementation>
-        <p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
-                  widgetVar="editFileTagsPopup" modal="true">
+        <p:dialog id="#{cc.attrs.dialogId}" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
+                  widgetVar="#{cc.attrs.dialogId}" modal="true">
+
             <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
 
             <div class="form-horizontal" jsf:rendered="#{!(empty fileMetadataSelectedForTagsPopup)}">
@@ -94,7 +96,7 @@
                     </div>
                 </div>
                 <div class="form-group text-left"
-                     jsf:rendered="#{fileMetadataSelectedForTagsPopup.dataFile.tabularData}">
+                     jsf:rendered="#{cc.attrs.fileMetadata.dataFile.tabularData}">
                     <label for="tabularDataTags" class="col-sm-4 control-label">
                         #{bundle['file.tabularDataTags']}
                     </label>
@@ -121,7 +123,9 @@
                                  onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();"
                                  update="#{updateAfterSave}"/>
             </div>
+
+
         </p:dialog>
     </composite:implementation>
 
-</ui:composition>
+</html>
