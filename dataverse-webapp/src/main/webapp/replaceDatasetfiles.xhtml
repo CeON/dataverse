@@ -438,15 +438,24 @@
                     </div>
                 </p:dialog>
 
-                <comp:fileTagsDialog dialogId="editFileTagsPopup"
+                <comp:fileTagsDialog dialogWidgetId="editFileTagsPopup"
                                      categoriesByName="#{ReplaceDatafilesPage.categoriesByName}"
                                      fileMetadata="#{ReplaceDatafilesPage.fileMetadataSelectedForTagsPopup}"
                                      selectedTabFileTags="#{ReplaceDatafilesPage.selectedTabFileTags}"
                                      selectedTags="#{ReplaceDatafilesPage.selectedTags}"
                                      tabFileTags="#{ReplaceDatafilesPage.tabFileTags}"
+                                     newCategoryName="#{ReplaceDatafilesPage.newCategoryName}"
                                      updateAfterSave="@form">
                     <p:ajax event="saveAction" listener="#{ReplaceDatafilesPage.saveFileTagsAndCategories()}"/>
-                    <!--<p:ajax event="cancelAction" listener="#{ReplaceDatafilesPage.clearFileMetadataSelectedForTagsPopup()}"/>-->
+                    <p:ajax event="cancelAction"
+                            listener="#{ReplaceDatafilesPage.clearFileMetadataSelectedForTagsPopup()}"/>
+                    <p:ajax event="saveNewCategory" listener="#{ReplaceDatafilesPage.saveNewCategory()}"
+                            update="selectedTagsListEFF, fileTagAddNew, fileTagsMenu"/>
+                    <p:ajax event="fileTagsMenuToggleSelect"
+                            listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
+                            update="selectedTagsListEFF"/>
+                    <p:ajax event="fileTagsMenuChange" listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
+                            update="selectedTagsListEFF"/>
                 </comp:fileTagsDialog>
                 <!--<p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
                           widgetVar="editFileTagsPopup" modal="true">

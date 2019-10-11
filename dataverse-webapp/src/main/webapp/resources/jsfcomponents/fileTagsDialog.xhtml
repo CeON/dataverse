@@ -5,40 +5,43 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:composite="http://xmlns.jcp.org/jsf/composite">
 
-    <!--@elvariable id="updateAfterSave" type="java.lang.String"-->
-    <!--@elvariable id="newCategoryName" type="java.lang.String"-->
-    <!--@elvariable id="selectedTags" type="java.lang.reflect.Array"-->
-    <!--@elvariable id="selectedTabFileTags" type="java.lang.reflect.Array"-->
-    <!--@elvariable id="categoriesByName" type="java.util.ArrayList"-->
-    <!--@elvariable id="tabFileTags" type="java.util.ArrayList"-->
-    <!--@elvariable id="fileMetadataSelectedForTagsPopup" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
-
     <composite:interface>
-        <composite:attribute name="dialogId" required="true"/>
-        <composite:attribute name="fileMetadata" required="true"/>
+        <composite:attribute name="dialogWidgetId" required="true"/>
+        <composite:attribute name="fileMetadata" required="true"
+                             type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"/>
         <composite:attribute name="selectedTags" required="true"/>
         <composite:attribute name="selectedTabFileTags" required="true"/>
-        <composite:attribute name="categoriesByName" required="true"/>
-        <composite:attribute name="tabFileTags" required="true"/>
+        <composite:attribute name="categoriesByName" required="true" type="java.util.ArrayList"/>
+        <composite:attribute name="tabFileTags" required="true" type="java.util.ArrayList"/>
+        <composite:attribute name="newCategoryName" required="true" type="java.lang.String"/>
         <composite:attribute name="updateAfterSave"/>
 
-        <composite:clientBehavior name="saveAction" targets="#{cc.attrs.dialogId}:editFileTagsPopupSaveButton"
+        <composite:clientBehavior name="saveAction" targets="editFileTagsPopupSaveButton"
                                   event="click"/>
-        <composite:clientBehavior name="cancelAction" targets="#{cc.attrs.dialogId}:editFileTagsPopupCancelButton"
+        <composite:clientBehavior name="cancelAction" targets="editFileTagsPopupCancelButton"
                                   event="click"/>
-        <composite:clientBehavior name="fileTagsMenuToggleSelect" targets="#{cc.attrs.dialogId}:fileTagsMenu"
+        <composite:clientBehavior name="fileTagsMenuToggleSelect" targets="fileTagsMenu"
                                   event="toggleSelect"/>
-        <composite:clientBehavior name="saveNewCategory" targets="#{cc.attrs.dialogId}:saveNewCategoryButton"
-                                  event="change"/> <!--selectedTagsListEFF-->
+        <composite:clientBehavior name="fileTagsMenuChange" targets="fileTagsMenu"
+                                  event="change"/>
+        <composite:clientBehavior name="saveNewCategory" targets="saveNewCategoryButton"
+                                  event="click"/> <!--selectedTagsListEFF-->
+
+        <!--<p:ajax event="toggleSelect"
+                listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
+                update="selectedTagsListEFF"/>
+        <p:ajax event="change"
+                listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
+                update="selectedTagsListEFF"/>-->
     </composite:interface>
 
     <composite:implementation>
-        <p:dialog id="#{cc.attrs.dialogId}" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
-                  widgetVar="#{cc.attrs.dialogId}" modal="true">
+        <p:dialog styleClass="smallPopUp" header="#{bundle['file.editTags']}"
+                  widgetVar="#{cc.attrs.dialogWidgetId}" modal="true">
 
             <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
 
-            <div class="form-horizontal" jsf:rendered="#{!(empty fileMetadataSelectedForTagsPopup)}">
+            <div class="form-horizontal" jsf:rendered="#{!(empty cc.attrs.fileMetadata)}">
                 <div class="form-group text-left">
                     <label for="selectedTagsListEFF" class="col-sm-4 control-label">
                         #{bundle['file.editTagsDialog.selectedTags']}
@@ -46,14 +49,15 @@
                     <div class="col-sm-8">
                         <p:outputPanel id="selectedTagsListEFF" style="padding-top:.5em;">
                             <h:outputText value="#{bundle['file.editTagsDialog.selectedTags.none']}"
-                                          rendered="#{(empty selectedTags) and (empty selectedTabFileTags)}"/>
+                                          rendered="#{(empty cc.attrs.selectedTags) and (empty cc.attrs.selectedTabFileTags)}"/>
 
-                            <ui:repeat value="#{selectedTags}" var="tags" rendered="#{!empty selectedTags}">
+                            <ui:repeat value="#{cc.attrs.selectedTags}" var="tags"
+                                       rendered="#{!empty cc.attrs.selectedTags}">
                                 <h:outputText value="#{tags}" styleClass="label label-default"
                                               style="margin-right:.5em;display:inline-block;"/>
                             </ui:repeat>
-                            <ui:repeat value="#{selectedTabFileTags}" var="tags"
-                                       rendered="#{!empty selectedTabFileTags}">
+                            <ui:repeat value="#{cc.attrs.selectedTabFileTags}" var="tags"
+                                       rendered="#{!empty cc.attrs.selectedTabFileTags}">
                                 <h:outputText value="#{tags}" styleClass="label label-info"
                                               style="margin-right:.5em;display:inline-block;"/>
                             </ui:repeat>
@@ -66,8 +70,8 @@
                     </label>
                     <div class="col-sm-8">
                         <p:selectCheckboxMenu id="fileTagsMenu" styleClass="form-control"
-                                              value="#{selectedTags}" label="#{bundle.select}">
-                            <f:selectItems value="#{categoriesByName}"/>
+                                              value="#{cc.attrs.selectedTags}" label="#{bundle.select}">
+                            <f:selectItems value="#{cc.attrs.categoriesByName}"/>
                         </p:selectCheckboxMenu>
                         <p:message for="fileTagsMenu" display="text"/>
                     </div>
@@ -81,15 +85,14 @@
                             <div class="col-sm-12">
                                 <p class="help-block">#{bundle['file.editTagsDialog.add.tip']}</p>
                                 <p:inputText id="fileTagAddNew" styleClass="form-control"
-                                             type="text" value="#{newCategoryName}"
+                                             type="text" value="#{cc.attrs.newCategoryName}"
                                              placeholder="#{bundle['file.editTagsDialog.newName']}"
                                              onkeypress="if (event.keyCode == 13) {
                                                      return false;
                                                  }"/>
-                                <p:commandLink id="saveNewCategoryButton" styleClass="btn btn-default"
-                                               style="margin-left:.5em;"
-                                               value="#{bundle.apply}"
-                                               update="selectedTagsListEFF, fileTagAddNew, fileTagsMenu"/>
+                                <p:commandButton id="saveNewCategoryButton" styleClass="btn btn-default"
+                                                 style="margin-left:.5em;"
+                                                 value="#{bundle.apply}"/>
                                 <p:message for="fileTagAddNew" display="text"/>
                             </div>
                         </div>
@@ -103,9 +106,9 @@
                     <div class="col-sm-8">
                         <p class="help-block">#{bundle['file.tabularDataTags.tip']}</p>
                         <p:selectCheckboxMenu id="tabularDataTags" styleClass="form-control"
-                                              value="#{selectedTabFileTags}" label="#{bundle.select}"
+                                              value="#{cc.attrs.selectedTabFileTags}" label="#{bundle.select}"
                                               filter="false">
-                            <f:selectItems value="#{tabFileTags}"/>
+                            <f:selectItems value="#{cc.attrs.tabFileTags}"/>
                         </p:selectCheckboxMenu>
                         <p:message for="tabularDataTags" display="text"/>
                     </div>
@@ -116,12 +119,12 @@
                                  id="editFileTagsPopupSaveButton"
                                  value="#{bundle.saveChanges}"
                                  oncomplete="PF('editFileTagsPopup').hide()"
-                                 update="#{updateAfterSave}"/>
+                                 update="#{cc.attrs.updateAfterSave}"/>
                 <p:commandButton styleClass="btn btn-default"
                                  id="editFileTagsPopupCancelButton"
                                  value="#{bundle.cancel}"
                                  onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();"
-                                 update="#{updateAfterSave}"/>
+                                 update="#{cc.attrs.updateAfterSave}"/>
             </div>
 
 
