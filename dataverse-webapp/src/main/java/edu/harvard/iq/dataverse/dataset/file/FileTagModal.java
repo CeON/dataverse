@@ -5,74 +5,144 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
 @ViewScoped
 @Named("FileTagModal")
-public class FileTagModal {
+public class FileTagModal implements Serializable {
 
-    private List<String> categoriesByName = new ArrayList<>();
-    private List<String> tabFileTags = new ArrayList<>();
-    private TreeSet<String> selectedTabFileTags = new TreeSet<>();
-    private TreeSet<String> selectableTags = new TreeSet<>();
+    private List<String> fileMetadataTags = new ArrayList<>();
+    private List<String> dataFileTags = new ArrayList<>();
+    private TreeSet<String> selectedFileMetadataTags = new TreeSet<>();
+    private TreeSet<String> selectedDataFileTags = new TreeSet<>();
+
+    private boolean removeUnusedTags;
     private String newCategoryName;
     private FileMetadata fileMetadata;
 
     private Dataset dataset;
 
-    /*public String saveNewCategory() {
+
+    // -------------------- GETTERS --------------------
+
+    public List<String> getFileMetadataTags() {
+        return fileMetadataTags;
+    }
+
+    public List<String> getDataFileTags() {
+        return dataFileTags;
+    }
+
+    public TreeSet<String> getSelectedFileMetadataTags() {
+        return selectedFileMetadataTags;
+    }
+
+    public TreeSet<String> getSelectedDataFileTags() {
+        return selectedDataFileTags;
+    }
+
+    public String getNewCategoryName() {
+        return newCategoryName;
+    }
+
+    public boolean isRemoveUnusedTags() {
+        return removeUnusedTags;
+    }
+
+    public FileMetadata getFileMetadata() {
+        return fileMetadata;
+    }
+
+    // -------------------- LOGIC --------------------
+
+    public void init(FileMetadata fileMetadata, Dataset dataset) {
+        this.fileMetadata = fileMetadata;
+        this.dataset = dataset;
+
+        prepareTags(fileMetadata, dataset);
+    }
+
+    public void init2(List<FileMetadata> fileMetadata, Dataset dataset) {
+        //this.fileMetadata = fileMetadata;
+        this.dataset = dataset;
+
+        //prepareTags(fileMetadata, dataset);
+    }
+
+    public String saveNewCategory() {
 
         if (!newCategoryName.isEmpty()) {
-            categoriesByName.add(newCategoryName);
+
+            fileMetadataTags.add(newCategoryName);
+            selectedFileMetadataTags.add(newCategoryName);
+            newCategoryName = "";
         }
 
-
-        //Now increase size of selectedTags and add new category
-        String[] temp = new String[selectableTags.length + 1];
-        System.arraycopy(selectableTags, 0, temp, 0, selectableTags.length);
-        selectableTags = temp;
-        selectableTags[selectableTags.length - 1] = newCategoryName;
-        //Blank out added category
-        newCategoryName = "";
         return "";
     }
 
-    public void handleFileCategoriesSelection(final AjaxBehaviorEvent event) {
-        if (selectableTags != null) {
-            selectableTags = selectableTags.clone();
+    /*public void handleFileCategoriesSelection(final AjaxBehaviorEvent event) {
+        if (selectedFileMetadataTags != null) {
+            selectedFileMetadataTags = selectedFileMetadataTags.clone();
         }
-    }
-
-    public void refreshTagsPopUp(FileMetadata fm) {
-        fileMetadata = fm;
-        refreshCategoriesByName();
-        refreshTabFileTagsByName();
-    }
-
-    private void refreshCategoriesByName() {
-        categoriesByName.addAll(dataset.getCategoriesByName());
-        selectableTags.addAll(fileMetadata.getCategoriesByName());
-    }
-
-    private void refreshTabFileTagsByName() {
-        tabFileTagsByName = new ArrayList<>();
-        if (fileMetadataSelectedForTagsPopup.getDataFile().getTags() != null) {
-            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getDataFile().getTags().size(); i++) {
-                tabFileTagsByName.add(fileMetadataSelectedForTagsPopup.getDataFile().getTags().get(i).getTypeLabel());
-            }
-        }
-
-        selectedTabFileTags = new String[0];
-        if (tabFileTagsByName.size() > 0) {
-            selectedTabFileTags = new String[tabFileTagsByName.size()];
-            for (int i = 0; i < tabFileTagsByName.size(); i++) {
-                selectedTabFileTags[i] = tabFileTagsByName.get(i);
-            }
-        }
-
-        selectedTabFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
     }*/
 
+    public boolean isTabularFile() {
+        return fileMetadata.getDataFile().isTabularData();
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private void prepareTags(FileMetadata fileMetadata, Dataset dataset) {
+        prepareFileMetadataTags(fileMetadata, dataset);
+        prepareDataFileTags(fileMetadata);
+    }
+
+    private void prepareFileMetadataTags(FileMetadata fileMetadata, Dataset dataset) {
+        fileMetadataTags.addAll(dataset.getCategoriesByName());
+        selectedFileMetadataTags.addAll(fileMetadata.getCategoriesByName());
+    }
+
+    private void prepareDataFileTags(FileMetadata fileMetadata) {
+        dataFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
+        selectedDataFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
+    }
+
+    // -------------------- SETTERS --------------------
+
+
+    public void setFileMetadataTags(List<String> fileMetadataTags) {
+        this.fileMetadataTags = fileMetadataTags;
+    }
+
+    public void setDataFileTags(List<String> dataFileTags) {
+        this.dataFileTags = dataFileTags;
+    }
+
+    public void setSelectedFileMetadataTags(TreeSet<String> selectedFileMetadataTags) {
+        this.selectedFileMetadataTags = selectedFileMetadataTags;
+    }
+
+    public void setSelectedDataFileTags(TreeSet<String> selectedDataFileTags) {
+        this.selectedDataFileTags = selectedDataFileTags;
+    }
+
+    public void setRemoveUnusedTags(boolean removeUnusedTags) {
+        this.removeUnusedTags = removeUnusedTags;
+    }
+
+    public void setNewCategoryName(String newCategoryName) {
+        this.newCategoryName = newCategoryName;
+    }
+
+    public void setFileMetadata(FileMetadata fileMetadata) {
+        this.fileMetadata = fileMetadata;
+    }
+
+    public void setDataset(Dataset dataset) {
+        this.dataset = dataset;
+    }
 }

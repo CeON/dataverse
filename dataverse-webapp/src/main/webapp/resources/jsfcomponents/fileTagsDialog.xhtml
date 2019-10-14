@@ -1,134 +1,136 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:composite="http://xmlns.jcp.org/jsf/composite">
 
-    <composite:interface>
-        <composite:attribute name="dialogWidgetId" required="true"/>
-        <composite:attribute name="fileMetadata" required="true"
-                             type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"/>
-        <composite:attribute name="selectedTags" required="true"/>
-        <composite:attribute name="selectedTabFileTags" required="true"/>
-        <composite:attribute name="categoriesByName" required="true" type="java.util.ArrayList"/>
-        <composite:attribute name="tabFileTags" required="true" type="java.util.ArrayList"/>
-        <composite:attribute name="newCategoryName" required="true" type="java.lang.String"/>
-        <composite:attribute name="updateAfterSave"/>
 
-        <composite:clientBehavior name="saveAction" targets="editFileTagsPopupSaveButton"
-                                  event="click"/>
-        <composite:clientBehavior name="cancelAction" targets="editFileTagsPopupCancelButton"
-                                  event="click"/>
-        <composite:clientBehavior name="fileTagsMenuToggleSelect" targets="fileTagsMenu"
-                                  event="toggleSelect"/>
-        <composite:clientBehavior name="fileTagsMenuChange" targets="fileTagsMenu"
-                                  event="change"/>
-        <composite:clientBehavior name="saveNewCategory" targets="saveNewCategoryButton"
-                                  event="click"/> <!--selectedTagsListEFF-->
+<composite:interface>
+    <composite:attribute name="dialogWidgetId" required="true"/>
+    <composite:attribute name="dialogId" required="true"/>
+    <composite:attribute name="fileMetadata" required="true"
+                         type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"/>
+    <composite:attribute name="fileMetadatas" type="java.util.List"/>
+    <composite:attribute name="dataset" required="true"
+                         type="edu.harvard.iq.dataverse.persistence.dataset.Dataset"/>
 
-        <!--<p:ajax event="toggleSelect"
-                listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
-                update="selectedTagsListEFF"/>
-        <p:ajax event="change"
-                listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
-                update="selectedTagsListEFF"/>-->
-    </composite:interface>
+    <composite:clientBehavior name="saveAction" targets="fileTagsPopupSaveButton"
+                              event="click"/> <!--selectedTagsListEFF-->
+</composite:interface>
 
-    <composite:implementation>
-        <p:dialog styleClass="smallPopUp" header="#{bundle['file.editTags']}"
-                  widgetVar="#{cc.attrs.dialogWidgetId}" modal="true">
 
-            <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
+<composite:implementation>
+    <p:dialog styleClass="smallPopUp" header="#{bundle['file.editTags']}"
+              widgetVar="#{cc.attrs.dialogWidgetId}" modal="true">
 
-            <div class="form-horizontal" jsf:rendered="#{!(empty cc.attrs.fileMetadata)}">
-                <div class="form-group text-left">
-                    <label for="selectedTagsListEFF" class="col-sm-4 control-label">
-                        #{bundle['file.editTagsDialog.selectedTags']}
-                    </label>
-                    <div class="col-sm-8">
-                        <p:outputPanel id="selectedTagsListEFF" style="padding-top:.5em;">
-                            <h:outputText value="#{bundle['file.editTagsDialog.selectedTags.none']}"
-                                          rendered="#{(empty cc.attrs.selectedTags) and (empty cc.attrs.selectedTabFileTags)}"/>
+        <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
+        <div class="form-horizontal" jsf:rendered="#{!(empty FileTagModal.selectedFileMetadataTags)}">
+            <div class="form-group text-left">
+                <label for="selectedTagsList" class="col-sm-4 control-label">
+                    #{bundle['file.editTagsDialog.selectedTags']}
+                </label>
+                <div class="col-sm-8">
+                    <p:outputPanel id="selectedTagsList" style="padding-top:.5em;">
+                        <h:outputText value="#{bundle['file.editTagsDialog.selectedTags.none']}"
+                                      rendered="#{(empty FileTagModal.selectedFileMetadataTags) and (empty FileTagModal.selectedDataFileTags)}"/>
 
-                            <ui:repeat value="#{cc.attrs.selectedTags}" var="tags"
-                                       rendered="#{!empty cc.attrs.selectedTags}">
-                                <h:outputText value="#{tags}" styleClass="label label-default"
-                                              style="margin-right:.5em;display:inline-block;"/>
-                            </ui:repeat>
-                            <ui:repeat value="#{cc.attrs.selectedTabFileTags}" var="tags"
-                                       rendered="#{!empty cc.attrs.selectedTabFileTags}">
-                                <h:outputText value="#{tags}" styleClass="label label-info"
-                                              style="margin-right:.5em;display:inline-block;"/>
-                            </ui:repeat>
-                        </p:outputPanel>
-                    </div>
+                        <ui:repeat value="#{FileTagModal.selectedFileMetadataTags}" var="tags"
+                                   rendered="#{!empty FileTagModal.selectedFileMetadataTags}">
+                            <h:outputText value="#{tags}" styleClass="label label-default"
+                                          style="margin-right:.5em;display:inline-block;"/>
+                        </ui:repeat>
+                        <ui:repeat value="#{FileTagModal.selectedDataFileTags}" var="tags"
+                                   rendered="#{!empty FileTagModal.selectedDataFileTags}">
+                            <h:outputText value="#{tags}" styleClass="label label-info"
+                                          style="margin-right:.5em;display:inline-block;"/>
+                        </ui:repeat>
+                    </p:outputPanel>
                 </div>
-                <div class="form-group text-left">
-                    <label for="fileTagsMenu" class="col-sm-4 control-label">
-                        #{bundle['file.editTagsDialog.select']}
-                    </label>
-                    <div class="col-sm-8">
-                        <p:selectCheckboxMenu id="fileTagsMenu" styleClass="form-control"
-                                              value="#{cc.attrs.selectedTags}" label="#{bundle.select}">
-                            <f:selectItems value="#{cc.attrs.categoriesByName}"/>
-                        </p:selectCheckboxMenu>
-                        <p:message for="fileTagsMenu" display="text"/>
-                    </div>
+            </div>
+            <div class="form-group text-left">
+                <label for="fileTagsMenuDS" class="col-sm-4 control-label">
+                    #{bundle['file.editTagsDialog.select']}
+                </label>
+                <div class="col-sm-8">
+                    <p:selectCheckboxMenu id="fileTagsMenuDS" styleClass="form-control"
+                                          value="#{FileTagModal.selectedFileMetadataTags}" label="#{bundle.select}">
+
+                        <p:ajax event="toggleSelect" listener="#{FileTagModal.handleSelection}"
+                                update="selectedTagsList"/>
+                        <p:ajax event="change" listener="#{FileTagModal.handleSelection}"
+                                update="selectedTagsList"/>
+
+                        <f:selectItems value="#{FileTagModal.fileMetadataTags}"/>
+                    </p:selectCheckboxMenu>
+                    <p:message for="fileTagsMenuDS" display="text"/>
                 </div>
-                <div class="form-group text-left">
-                    <label for="fileTagAddNew" class="col-sm-4 control-label">
-                        #{bundle['file.editTagsDialog.add']}
-                    </label>
-                    <div class="col-sm-8">
-                        <div class="row form-inline">
-                            <div class="col-sm-12">
-                                <p class="help-block">#{bundle['file.editTagsDialog.add.tip']}</p>
-                                <p:inputText id="fileTagAddNew" styleClass="form-control"
-                                             type="text" value="#{cc.attrs.newCategoryName}"
-                                             placeholder="#{bundle['file.editTagsDialog.newName']}"
-                                             onkeypress="if (event.keyCode == 13) {
-                                                     return false;
-                                                 }"/>
-                                <p:commandButton id="saveNewCategoryButton" styleClass="btn btn-default"
-                                                 style="margin-left:.5em;"
-                                                 value="#{bundle.apply}"/>
-                                <p:message for="fileTagAddNew" display="text"/>
-                            </div>
+            </div>
+            <div class="form-group text-left">
+                <label for="fileTagAddNewDS" class="col-sm-4 control-label">
+                    #{bundle['file.editTagsDialog.add']}
+                </label>
+                <div class="col-sm-8">
+                    <div class="row form-inline">
+                        <div class="col-sm-12">
+                            <p class="help-block">#{bundle['file.editTagsDialog.add.tip']}</p>
+                            <p:inputText id="fileTagAddNewDS" styleClass="form-control"
+                                         type="text" value="#{FileTagModal.newCategoryName}"
+                                         placeholder="#{bundle['file.editTagsDialog.newName']}"
+                                         onkeypress="if (event.keyCode == 13) {
+                                                                     return false;
+                                                                 }"/>
+                            <p:commandLink styleClass="btn btn-default" style="margin-left:.5em;"
+                                           value="#{bundle.apply}" action="#{FileTagModal.saveNewCategory}"
+                                           update="selectedTagsList, fileTagAddNewDS, fileTagsMenuDS"/>
                         </div>
                     </div>
-                </div>
-                <div class="form-group text-left"
-                     jsf:rendered="#{cc.attrs.fileMetadata.dataFile.tabularData}">
-                    <label for="tabularDataTags" class="col-sm-4 control-label">
-                        #{bundle['file.tabularDataTags']}
-                    </label>
-                    <div class="col-sm-8">
-                        <p class="help-block">#{bundle['file.tabularDataTags.tip']}</p>
-                        <p:selectCheckboxMenu id="tabularDataTags" styleClass="form-control"
-                                              value="#{cc.attrs.selectedTabFileTags}" label="#{bundle.select}"
-                                              filter="false">
-                            <f:selectItems value="#{cc.attrs.tabFileTags}"/>
-                        </p:selectCheckboxMenu>
-                        <p:message for="tabularDataTags" display="text"/>
-                    </div>
+                    <p:message for="fileTagAddNewDS" display="text"/>
                 </div>
             </div>
-            <div class="button-block">
-                <p:commandButton styleClass="btn btn-default"
-                                 id="editFileTagsPopupSaveButton"
-                                 value="#{bundle.saveChanges}"
-                                 oncomplete="PF('editFileTagsPopup').hide()"
-                                 update="#{cc.attrs.updateAfterSave}"/>
-                <p:commandButton styleClass="btn btn-default"
-                                 id="editFileTagsPopupCancelButton"
-                                 value="#{bundle.cancel}"
-                                 onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();"
-                                 update="#{cc.attrs.updateAfterSave}"/>
+            <div class="form-group text-left" jsf:rendered="#{FileTagModal.isTabularFile()}">
+                <label for="tabularDataTagsDSPage" class="col-sm-4 control-label">
+                    #{bundle['file.tabularDataTags']}
+                </label>
+                <div class="col-sm-8">
+                    <p class="help-block">#{bundle['file.tabularDataTags.tip']}</p>
+                    <p:selectCheckboxMenu id="tabularDataTagsDSPage" styleClass="form-control"
+                                          value="#{FileTagModal.selectedDataFileTags}"
+                                          label="#{bundle.select}"
+                                          filter="false">
+
+                        <p:ajax event="toggleSelect" listener="#{FileTagModal.handleSelection}"
+                                update="selectedTagsList"/>
+                        <p:ajax event="change" listener="#{FileTagModal.handleSelection}"
+                                update="selectedTagsList"/>
+
+                        <f:selectItems value="#{FileTagModal.dataFileTags}"/>
+                    </p:selectCheckboxMenu>
+                    <p:message for="tabularDataTagsDSPage" display="text"/>
+                </div>
             </div>
-
-
-        </p:dialog>
-    </composite:implementation>
+            <div class="form-group text-left">
+                <label class="col-sm-4 control-label">
+                    #{bundle['dataset.removeUnusedFileTags.label']}
+                </label>
+                <div class="col-sm-8">
+                    <p class="help-block">#{bundle['dataset.removeUnusedFileTags.tip']}</p>
+                    <p:selectBooleanCheckbox id="removeUnused"
+                                             itemLabel="#{bundle['dataset.removeUnusedFileTags.check']}"
+                                             value="#{FileTagModal.removeUnusedTags}"
+                                             widgetVar="removeUnused"/>
+                </div>
+            </div>
+        </div>
+        <div class="button-block">
+            <p:commandButton styleClass="btn btn-default" id="fileTagsPopupSaveButton"
+                             value="#{bundle.saveChanges}" oncomplete="PF('fileTagsPopup').hide()"
+                             update="@widgetVar(filesTable), @form"/>
+            <p:commandButton styleClass="btn btn-default" id="fileTagsPopupCancelButton"
+                             value="#{bundle.cancel}"
+                             onclick="PF('fileTagsPopup').hide();PF('blockDatasetForm').hide();"/>
+        </div>
+    </p:dialog>
+</composite:implementation>
 
 </html>

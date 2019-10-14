@@ -198,7 +198,7 @@ public class FileMetadata implements Serializable {
 
         JsonArrayBuilder builder = Json.createArrayBuilder();
 
-        if (fileCategories.isEmpty() {
+        if (fileCategories.isEmpty()) {
             return builder;
         }
 

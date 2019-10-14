@@ -5,7 +5,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui" xmlns:comp="http://java.sun.com/jsf/composite/jsfcomponents">
+      xmlns:p="http://primefaces.org/ui">
 
 <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
@@ -438,26 +438,7 @@
                     </div>
                 </p:dialog>
 
-                <comp:fileTagsDialog dialogWidgetId="editFileTagsPopup"
-                                     categoriesByName="#{ReplaceDatafilesPage.categoriesByName}"
-                                     fileMetadata="#{ReplaceDatafilesPage.fileMetadataSelectedForTagsPopup}"
-                                     selectedTabFileTags="#{ReplaceDatafilesPage.selectedTabFileTags}"
-                                     selectedTags="#{ReplaceDatafilesPage.selectedTags}"
-                                     tabFileTags="#{ReplaceDatafilesPage.tabFileTags}"
-                                     newCategoryName="#{ReplaceDatafilesPage.newCategoryName}"
-                                     updateAfterSave="@form">
-                    <p:ajax event="saveAction" listener="#{ReplaceDatafilesPage.saveFileTagsAndCategories()}"/>
-                    <p:ajax event="cancelAction"
-                            listener="#{ReplaceDatafilesPage.clearFileMetadataSelectedForTagsPopup()}"/>
-                    <p:ajax event="saveNewCategory" listener="#{ReplaceDatafilesPage.saveNewCategory()}"
-                            update="selectedTagsListEFF, fileTagAddNew, fileTagsMenu"/>
-                    <p:ajax event="fileTagsMenuToggleSelect"
-                            listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
-                            update="selectedTagsListEFF"/>
-                    <p:ajax event="fileTagsMenuChange" listener="#{ReplaceDatafilesPage.handleFileCategoriesSelection}"
-                            update="selectedTagsListEFF"/>
-                </comp:fileTagsDialog>
-                <!--<p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
+                <p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
                           widgetVar="editFileTagsPopup" modal="true">
                     <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
 
@@ -561,7 +542,7 @@
                                          onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();"
                                          actionListener="#{ReplaceDatafilesPage.clearFileMetadataSelectedForTagsPopup()}"/>
                     </div>
-                </p:dialog>-->
+                </p:dialog>
                 <p:dialog styleClass="smallPopUp" header="#{bundle['file.deleteFileDialog.header']}"
                           widgetVar="deleteFileConfirmation" modal="true">
                     <p class="text-warning"><span
