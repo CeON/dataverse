@@ -126,6 +126,11 @@
                                                     <h:outputText id="editFile-Multi-Link" value="#{bundle['file.dataFilesTab.metadata.header']}"/>
                                                 </h:outputLink>
                                             </li>
+                                            <li>
+                                                <h:outputLink value="/editSingleFile.xhtml?selectedFileIds=#{FilePage.fileMetadata.dataFile.id}&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;version=#{FilePage.version}">
+                                                    <h:outputText id="editSingleFile-Multi-Link" value="NewMeta"/>
+                                                </h:outputLink>
+                                            </li>
                                             <ui:fragment rendered="#{FilePage.fileMetadata.dataFile.released and FilePage.draftReplacementFile == false and !FilePage.fileMetadata.dataFile.filePackage}">                                        
                                             <li><!-- start: replace file link -->
                                                 <h:outputLink
