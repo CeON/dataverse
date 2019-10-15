@@ -24,7 +24,6 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import org.apache.commons.lang.StringUtils;
 
-import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -44,38 +43,23 @@ import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
-
-/**
- * @author Leonid Andreev
- */
 @ViewScoped
 @Named("EditSingleFilePage")
 public class EditSingleFilePage implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(EditSingleFilePage.class.getCanonicalName());
 
-    @EJB
-    DatasetServiceBean datasetService;
-    @EJB
-    DataFileServiceBean datafileService;
-    @EJB
-    PermissionServiceBean permissionService;
-    @EJB
-    EjbDataverseEngine commandEngine;
-    @Inject
-    DataverseSession session;
-    @EJB
-    SettingsServiceBean settingsService;
-    @EJB
-    IndexServiceBean indexService;
-    @Inject
-    DataverseRequestServiceBean dvRequestService;
-    @Inject
-    PermissionsWrapper permissionsWrapper;
-    @Inject
-    FileDownloadHelper fileDownloadHelper;
-    @Inject
-    ProvPopupFragmentBean provPopupFragmentBean;
+    private DatasetServiceBean datasetService;
+    private DataFileServiceBean datafileService;
+    private PermissionServiceBean permissionService;
+    private EjbDataverseEngine commandEngine;
+    private DataverseSession session;
+    private SettingsServiceBean settingsService;
+    private IndexServiceBean indexService;
+    private DataverseRequestServiceBean dvRequestService;
+    private PermissionsWrapper permissionsWrapper;
+    private FileDownloadHelper fileDownloadHelper;
+    private ProvPopupFragmentBean provPopupFragmentBean;
 
     private Dataset dataset = new Dataset();
     private String editedFileIdString = null;
@@ -101,8 +85,6 @@ public class EditSingleFilePage implements java.io.Serializable {
     private boolean isFileToBeDeleted = false;
     private DataFile singleFile = null;
 
-    private FileMetadata fileMetadataSelectedForTagsPopup = null;
-
     private List<String> tabFileTags = null;
     private String[] selectedTabFileTags = {};
     private String[] selectedTags = {};
@@ -111,6 +93,27 @@ public class EditSingleFilePage implements java.io.Serializable {
     private String newCategoryName = null;
 
     // -------------------- CONSTRUCTORS --------------------
+    @Deprecated
+    public EditSingleFilePage() {
+    }
+
+    @Inject
+    public EditSingleFilePage(DatasetServiceBean datasetService, DataFileServiceBean datafileService, PermissionServiceBean permissionService,
+                              EjbDataverseEngine commandEngine, DataverseSession session, SettingsServiceBean settingsService,
+                              IndexServiceBean indexService, DataverseRequestServiceBean dvRequestService, PermissionsWrapper permissionsWrapper,
+                              FileDownloadHelper fileDownloadHelper, ProvPopupFragmentBean provPopupFragmentBean) {
+        this.datasetService = datasetService;
+        this.datafileService = datafileService;
+        this.permissionService = permissionService;
+        this.commandEngine = commandEngine;
+        this.session = session;
+        this.settingsService = settingsService;
+        this.indexService = indexService;
+        this.dvRequestService = dvRequestService;
+        this.permissionsWrapper = permissionsWrapper;
+        this.fileDownloadHelper = fileDownloadHelper;
+        this.provPopupFragmentBean = provPopupFragmentBean;
+    }
 
     // -------------------- GETTERS --------------------
 
@@ -176,10 +179,6 @@ public class EditSingleFilePage implements java.io.Serializable {
 
     public boolean getUseAsDatasetThumbnail() {
         return isDesignatedDatasetThumbnail(fileMetadata);
-    }
-
-    public FileMetadata getFileMetadataSelectedForTagsPopup() {
-        return fileMetadataSelectedForTagsPopup;
     }
 
     public List<String> getTabFileTags() {
@@ -616,12 +615,7 @@ public class EditSingleFilePage implements java.io.Serializable {
         return datasetThumbnail != null && !datasetThumbnail.isFromDataFile();
     }
 
-    public void clearFileMetadataSelectedForTagsPopup() {
-        fileMetadataSelectedForTagsPopup = null;
-    }
-
     public void refreshTagsPopUp(FileMetadata fm) {
-        setFileMetadataSelectedForTagsPopup(fm);
         refreshCategoriesByName();
         refreshTabFileTagsByName();
     }
@@ -645,23 +639,18 @@ public class EditSingleFilePage implements java.io.Serializable {
      * "file categories" (which are also considered "tags" in 4.0)
      */
     public void saveFileTagsAndCategories() {
-        if (fileMetadataSelectedForTagsPopup == null) {
-            logger.fine("No FileMetadata selected for the categories popup");
-            return;
-        }
         // 1. File categories:
         /*
         In order to get the cancel button to work we had to separate the selected tags
         from the file metadata and re-add them on save
-
         */
 
-        fileMetadataSelectedForTagsPopup.setCategories(new ArrayList<>());
+        fileMetadata.setCategories(new ArrayList<>());
 
         // New, custom file category (if specified):
         if (newCategoryName != null) {
-            logger.fine("Adding new category, " + newCategoryName + " for file " + fileMetadataSelectedForTagsPopup.getLabel());
-            fileMetadataSelectedForTagsPopup.addCategoryByName(newCategoryName);
+            logger.fine("Adding new category, " + newCategoryName + " for file " + fileMetadata.getLabel());
+            fileMetadata.addCategoryByName(newCategoryName);
         } else {
             logger.fine("no category specified");
         }
@@ -671,20 +660,20 @@ public class EditSingleFilePage implements java.io.Serializable {
         if (selectedTags != null) {
             for (String selectedTag : selectedTags) {
 
-                fileMetadataSelectedForTagsPopup.addCategoryByName(selectedTag);
+                fileMetadata.addCategoryByName(selectedTag);
             }
         }
 
         // 2. Tabular DataFile Tags:
 
-        if (fileMetadataSelectedForTagsPopup.getDataFile() != null && tabularDataTagsUpdated && selectedTabFileTags != null) {
-            fileMetadataSelectedForTagsPopup.getDataFile().setTags(null);
+        if (fileMetadata.getDataFile() != null && tabularDataTagsUpdated && selectedTabFileTags != null) {
+            fileMetadata.getDataFile().setTags(null);
             for (String selectedTabFileTag : selectedTabFileTags) {
                 DataFileTag tag = new DataFileTag();
                 try {
                     tag.setTypeByLabel(selectedTabFileTag);
-                    tag.setDataFile(fileMetadataSelectedForTagsPopup.getDataFile());
-                    fileMetadataSelectedForTagsPopup.getDataFile().addTag(tag);
+                    tag.setDataFile(fileMetadata.getDataFile());
+                    fileMetadata.getDataFile().addTag(tag);
 
                 } catch (IllegalArgumentException iax) {
                     // ignore
@@ -693,9 +682,6 @@ public class EditSingleFilePage implements java.io.Serializable {
 
             datasetUpdateRequired = true;
         }
-
-        fileMetadataSelectedForTagsPopup = null;
-
     }
 
     public void handleFileCategoriesSelection(final AjaxBehaviorEvent event) {
@@ -738,9 +724,9 @@ public class EditSingleFilePage implements java.io.Serializable {
 
     private void refreshTabFileTagsByName() {
         tabFileTagsByName = new ArrayList<>();
-        if (fileMetadataSelectedForTagsPopup.getDataFile().getTags() != null) {
-            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getDataFile().getTags().size(); i++) {
-                tabFileTagsByName.add(fileMetadataSelectedForTagsPopup.getDataFile().getTags().get(i).getTypeLabel());
+        if (fileMetadata.getDataFile().getTags() != null) {
+            for (int i = 0; i < fileMetadata.getDataFile().getTags().size(); i++) {
+                tabFileTagsByName.add(fileMetadata.getDataFile().getTags().get(i).getTypeLabel());
             }
         }
         refreshSelectedTabFileTags();
@@ -803,10 +789,10 @@ public class EditSingleFilePage implements java.io.Serializable {
         selectedTags = new String[0];
         List<String> selectedCategoriesByName = new ArrayList<>();
 
-        if (fileMetadataSelectedForTagsPopup.getCategories() != null) {
-            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getCategories().size(); i++) {
-                if (!selectedCategoriesByName.contains(fileMetadataSelectedForTagsPopup.getCategories().get(i).getName())) {
-                    selectedCategoriesByName.add(fileMetadataSelectedForTagsPopup.getCategories().get(i).getName());
+        if (fileMetadata.getCategories() != null) {
+            for (int i = 0; i < fileMetadata.getCategories().size(); i++) {
+                if (!selectedCategoriesByName.contains(fileMetadata.getCategories().get(i).getName())) {
+                    selectedCategoriesByName.add(fileMetadata.getCategories().get(i).getName());
                 }
             }
         }
@@ -864,10 +850,6 @@ public class EditSingleFilePage implements java.io.Serializable {
                 }
             }
         }
-    }
-
-    public void setFileMetadataSelectedForTagsPopup(FileMetadata fm) {
-        fileMetadataSelectedForTagsPopup = fm;
     }
 
     public void setTabFileTags(List<String> tabFileTags) {

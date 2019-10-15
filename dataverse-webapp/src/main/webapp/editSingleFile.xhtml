@@ -293,7 +293,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group text-left" jsf:rendered="#{EditSingleFilePage.fileMetadataSelectedForTagsPopup.dataFile.tabularData}">
+                        <div class="form-group text-left" jsf:rendered="#{EditSingleFilePage.fileMetadata.dataFile.tabularData}">
                             <label for="tabularDataTags" class="col-sm-4 control-label">
                                 #{bundle['file.tabularDataTags']}
                             </label>
@@ -322,7 +322,7 @@
                                          value="#{bundle.cancel}"
                                          onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();"
                                          update=":fileForm:fileTable"
-                                         actionListener="#{EditSingleFilePage.clearFileMetadataSelectedForTagsPopup()}"/>
+                        />
                     </div>
                 </p:dialog>
                 <!--Set dataset thumbnail from file window-->
