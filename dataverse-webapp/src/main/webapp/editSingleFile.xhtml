@@ -5,6 +5,7 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:o="http://omnifaces.org/ui"
 >
 
 <!--@elvariable id="datasetPage" type="edu.harvard.iq.dataverse.DatasetPage"-->
@@ -12,16 +13,20 @@
 <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
 <h:head>
+    <style>
+        .hideTableheader thead {
+            display: none; !important;
+        }
+    </style>
 </h:head>
 
 <h:body>
     <ui:composition template="/dataverse_template.xhtml">
-        <ui:param name="pageTitle"
-                  value="#{bundle['file.editFiles']} - #{EditSingleFilePage.workingVersion.title}"/>
+        <ui:param name="pageTitle" value="#{bundle['file.editFiles']} - #{EditSingleFilePage.workingVersion.title}"/>
         <ui:param name="dataverse" value="#{EditSingleFilePage.dataset.owner}"/>
         <ui:param name="dataset" value="#{EditSingleFilePage.dataset}"/>
         <ui:param name="version" value="#{EditSingleFilePage.workingVersion}"/>
-        <ui:param name="fileMetadatas" value="#{EditSingleFilePage.fileMetadatas}"/>
+        <ui:param name="fileMetadatas" value="#{EditSingleFilePage.getFileMetadatas()}"/>
         <ui:param name="showMessagePanel" value="#{true}"/>
         <ui:define name="body">
             <f:metadata>
@@ -32,23 +37,24 @@
                 <f:viewAction action="#{EditSingleFilePage.init}" />
                 <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(EditSingleFilePage.singleFile, bundle['file.editFiles'])}" />
             </f:metadata>
+
+        <o:importConstants type="edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType" var="restrictTypeEnum"/>
+
             <h:form id="fileForm">
 
                 <div id="contentTabs">
-
-                    <div jsf:id="filesCounts">
+                    <div jsf:id="fileEditBox">
                         <!-- Files Table -->
                         <p:dataTable id="fileTable"
                                      value="#{EditSingleFilePage.fileMetadatas}"
-                                     rendered="#{!empty EditSingleFilePage.fileMetadatas}"
                                      rowIndexVar="rowNum"
                                      rowKey="#{fileMetadata.dataFile.storageIdentifier}"
-                                     selection="#{EditSingleFilePage.selectedFiles}"
                                      var="fileMetadata"
                                      widgetVar="fileTable"
+                                     emptyMessage=""
+                                     styleClass="hideTableheader"
                         >
-                            <p:column selectionMode="single" class="col-select-width text-center" style="width:40px !important;"/>
-                            <p:column class="col-file-thumb text-center" style="width:73px !important;padding:4px 10px;">
+                            <p:column class="col-file-thumb text-center" style="width:93px !important;padding:4px 10px;">
                                 <div class="thumbnail-block">
                                     <!-- Thumbnail Preview -->
                                     <span class="file-thumbnail-preview-img" jsf:rendered="#{!empty fileMetadata.dataFile.id and dataFileServiceBean.isThumbnailAvailable(fileMetadata.dataFile)}"
@@ -125,22 +131,14 @@
                                     </ui:fragment>
                                 </div>
                             </p:column>
-                            <p:column class="col-file-action text-right">
-                                <f:facet name="header" class="col-file-action text-right">
-                                    <div jsf:id="editFilesRestrictDeletePanel" style="margin-right:14px;" class="btn-group" jsf:rendered="#{!empty EditSingleFilePage.fileMetadatas and !EditSingleFilePage.workingVersion.hasPackageFile}">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                            <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFilesSelected']} <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu multi-level pull-right text-left" role="menu">
-                                            <li>
-                                                <p:commandLink  onclick="PF('deleteFileConfirmation').show();" >
-                                                    <h:outputText value="#{bundle['file.delete']}"/>
-                                                </p:commandLink>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </f:facet>
+                            <p:column class="col-file-action text-right" style="width: 250px !important;">
                                 <div style="margin-right:14px;" class="btn-group" >
+                                    <div jsf:id="editFilesRestrictDeletePanelButton" style="margin-right:14px;" class="btn-group"
+                                         jsf:rendered="#{!empty EditSingleFilePage.fileMetadatas and !EditSingleFilePage.workingVersion.hasPackageFile}">
+                                        <p:commandLink type="button" class="btn btn-default" onclick="PF('deleteFileConfirmation').show();">
+                                            <span class="glyphicon glyphicon-trash"/> #{bundle['file.delete']}
+                                        </p:commandLink>
+                                    </div>
                                     <button type="button" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown">
                                         <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFile']} <span class="caret"></span>
                                     </button>
@@ -149,7 +147,8 @@
                                             <li>
                                                 <p:commandLink id="fileProvenanceButton"
                                                                update=":fileForm:editProvenancePopup"
-                                                               oncomplete="PF('editProvenancePopup').show();">
+                                                               oncomplete="PF('editProvenancePopup').show();"
+                                                >
                                                     <f:actionListener binding="#{provPopupFragmentBean.updatePopupStateAndDataset(fileMetadata, EditSingleFilePage.dataset)}" />
                                                     #{bundle['file.provenance']}
                                                 </p:commandLink>
@@ -160,22 +159,26 @@
                                             <p:commandLink id="fileCategoriesButton"
                                                            actionListener="#{EditSingleFilePage.refreshTagsPopUp(fileMetadata)}"
                                                            update=":fileForm:editFileTagsPopup"
-                                                           oncomplete="PF('editFileTagsPopup').show();">
+                                                           oncomplete="PF('editFileTagsPopup').show();"
+                                            >
                                                 #{bundle['file.tags']}
                                             </p:commandLink>
                                         </li>
                                         <li>
                                             <p:commandLink id="fileSetThumbnailBtn"
-                                                           rendered="#{!empty fileMetadata.dataFile.id and fileMetadata.dataFile.image and not EditSingleFilePage.thumbnailIsFromDatasetLogoRatherThanDatafile}"
+                                                           rendered="#{!empty fileMetadata.dataFile.id and fileMetadata.dataFile.image
+                                                                                and not EditSingleFilePage.thumbnailIsFromDatasetLogoRatherThanDatafile}"
                                                            actionListener="#{EditSingleFilePage.setFileMetadataSelectedForThumbnailPopup(fileMetadata)}"
                                                            update=":fileForm:fileSetThumbnail"
-                                                           oncomplete="PF('fileSetThumbnail').show()">
+                                                           oncomplete="PF('fileSetThumbnail').show()"
+                                            >
                                                 #{bundle['file.setThumbnail']}
                                             </p:commandLink>
                                         </li>
                                         <li>
                                             <p:commandLink id="fileSetThumbnailBtn2"
-                                                           rendered="#{!empty fileMetadata.dataFile.id and fileMetadata.dataFile.image and EditSingleFilePage.thumbnailIsFromDatasetLogoRatherThanDatafile}"
+                                                           rendered="#{!empty fileMetadata.dataFile.id and fileMetadata.dataFile.image
+                                                                                and EditSingleFilePage.thumbnailIsFromDatasetLogoRatherThanDatafile}"
                                                            actionListener="#{EditSingleFilePage.setFileMetadataSelectedForThumbnailPopup(fileMetadata)}"
                                                            oncomplete="PF('fileThumbnailConfirm').show()">
                                                 #{bundle['file.setThumbnail']}
@@ -190,17 +193,24 @@
                 </div>
 
                 <!-- Save Changes/Cancel Buttons -->
-                <p:fragment  id="editDataFilesButtons">
+                <p:fragment  id="editDataFileButtons">
                     <div  class="button-block">
-                        <p:outputPanel id="filesButtons" >
+                        <p:outputPanel id="fileButtons" >
                             <div>
-                                <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}"
+                                <p:commandButton
+                                                 id="save"
+                                                 value="#{bundle.saveChanges}"
                                                  onclick="PF('blockFileForm').show();"
-                                                 action="#{EditSingleFilePage.save}"
+                                                 action="#{EditSingleFilePage.save()}"
                                                  update="@form,:messagePanel"
-                                                 oncomplete="$(document).scrollTop(0);" />
-                                <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}" action="#{EditSingleFilePage.cancel}" process="@this" update="@form" >
-                                </p:commandButton>
+                                                 oncomplete="$(document).scrollTop(0);"
+                                                 process="@this"
+                                />
+                                <p:commandButton id="cancel"
+                                                 value="#{bundle.cancel}"
+                                                 action="#{EditSingleFilePage.cancel}"
+                                                 process="@this"
+                                                 update="@form" />
                             </div>
                         </p:outputPanel>
                     </div>
@@ -215,16 +225,21 @@
                         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
                     </ui:fragment>
                     <div class="button-block">
-                        <p:commandButton value="#{bundle.continue}" onclick="PF('deleteFileConfirmation').hide()" oncomplete="window.scrollTo(0, 0);deleteFinished();"
-                                         update=":#{p:resolveClientId('fileForm:fileTable', view)},:messagePanel" action="#{EditSingleFilePage.deleteFiles()}" />
-                        <p:commandButton value="#{bundle.cancel}" onclick="PF('deleteFileConfirmation').hide()" type="button" />
+                        <p:commandButton value="#{bundle.continue}"
+                                         onclick="PF('deleteFileConfirmation').hide()"
+                                         oncomplete="window.scrollTo(0, 0);"
+                                         update=":#{p:resolveClientId('fileForm:fileTable', view)},:messagePanel, :fileForm:editDataFileButtons"
+                                         action="#{EditSingleFilePage.deleteFile()}" />
+                        <p:commandButton value="#{bundle.cancel}" onclick="PF('deleteFileConfirmation').hide()" type="button"
+                                         update=":fileForm:editDataFileButtons"
+                        />
                     </div>
                 </p:dialog>
                 <!--Edit file tags window-->
                 <p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}" widgetVar="editFileTagsPopup" modal="true">
                     <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
 
-                    <div class="form-horizontal" jsf:rendered="#{true}">
+                    <div class="form-horizontal">
                         <div class="form-group text-left">
                             <label for="selectedTagsListEFF" class="col-sm-4 control-label">
                                 #{bundle['file.editTagsDialog.selectedTags']}
