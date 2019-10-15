@@ -101,20 +101,27 @@ public class EditSingleFilePage implements java.io.Serializable {
     private boolean isFileToBeDeleted = false;
     private DataFile singleFile = null;
 
+    private FileMetadata fileMetadataSelectedForThumbnailPopup = null;
+    private FileMetadata fileMetadataSelectedForTagsPopup = null;
+
+    private boolean alreadyDesignatedAsDatasetThumbnail = false;
+    private List<String> tabFileTags = null;
+    private String[] selectedTabFileTags = {};
+    private String[] selectedTags = {};
+    private List<String> tabFileTagsByName;
+    private List<String> categoriesByName;
+    private String newCategoryName = null;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    // -------------------- GETTERS --------------------
+
     public DataFile getSingleFile() {
         return singleFile;
     }
 
-    public void setSingleFile(DataFile singleFile) {
-        this.singleFile = singleFile;
-    }
-
     public String getSelectedFileIds() {
         return editedFileIdString;
-    }
-
-    public void setSelectedFileIds(String selectedFileIds) {
-        editedFileIdString = selectedFileIds;
     }
 
     public List<FileMetadata> getFileMetadatas() {
@@ -132,10 +139,6 @@ public class EditSingleFilePage implements java.io.Serializable {
         return fileMetadata;
     }
 
-    public void setFileMetadatas(FileMetadata fileMetadata) {
-        this.fileMetadata = fileMetadata;
-    }
-
     public String getGlobalId() {
         return persistentId;
     }
@@ -144,16 +147,8 @@ public class EditSingleFilePage implements java.io.Serializable {
         return persistentId;
     }
 
-    public void setPersistentId(String persistentId) {
-        this.persistentId = persistentId;
-    }
-
     public Dataset getDataset() {
         return dataset;
-    }
-
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
     }
 
     public DatasetVersion getWorkingVersion() {
@@ -164,17 +159,56 @@ public class EditSingleFilePage implements java.io.Serializable {
         return ownerId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
-
     public Long getVersionId() {
         return versionId;
     }
 
-    public void setVersionId(Long versionId) {
-        this.versionId = versionId;
+    public String getVersionString() {
+        return versionString;
     }
+
+    /**
+     * @param msgName - from the bundle e.g. "file.deleted.success"
+     * @return
+     */
+    private String getBundleString(String msgName) {
+
+        return BundleUtil.getStringFromBundle(msgName);
+    }
+
+    public boolean getUseAsDatasetThumbnail() {
+
+        return isDesignatedDatasetThumbnail(fileMetadataSelectedForThumbnailPopup);
+    }
+
+    public FileMetadata getFileMetadataSelectedForTagsPopup() {
+        return fileMetadataSelectedForTagsPopup;
+    }
+
+    public List<String> getTabFileTags() {
+        if (tabFileTags == null) {
+            tabFileTags = DataFileTag.listTags();
+        }
+        return tabFileTags;
+    }
+
+    public String[] getSelectedTabFileTags() {
+        return selectedTabFileTags;
+    }
+
+    public List<String> getCategoriesByName() {
+        return categoriesByName;
+    }
+
+    public String[] getSelectedTags() {
+        return selectedTags;
+    }
+
+    public String getNewCategoryName() {
+        return newCategoryName;
+    }
+
+    // -------------------- LOGIC --------------------
 
     public String init() {
 
@@ -208,16 +242,16 @@ public class EditSingleFilePage implements java.io.Serializable {
         }
 
         if (StringUtils.isNotEmpty(editedFileIdString)) {
-                try {
-                    Long fileId = Long.parseLong(editedFileIdString);
-                    singleFile = datafileService.find(fileId);
-                    selectedFileId = fileId;
-                } catch (NumberFormatException nfe) {
-                    // do nothing...
-                    logger.warning("Couldn't parse editedFileIdString =" + editedFileIdString + " to Long");
-                    JH.addMessage(FacesMessage.SEVERITY_ERROR, "File id is not a number!");
-                    return "";
-                }
+            try {
+                Long fileId = Long.parseLong(editedFileIdString);
+                singleFile = datafileService.find(fileId);
+                selectedFileId = fileId;
+            } catch (NumberFormatException nfe) {
+                // do nothing...
+                logger.warning("Couldn't parse editedFileIdString =" + editedFileIdString + " to Long");
+                JH.addMessage(FacesMessage.SEVERITY_ERROR, "File id is not a number!");
+                return "";
+            }
         }
 
         if (singleFile == null) {
@@ -248,24 +282,6 @@ public class EditSingleFilePage implements java.io.Serializable {
 
         return null;
     }
-
-    public String getVersionString() {
-        return versionString;
-    }
-
-    public void setVersionString(String versionString) {
-        this.versionString = versionString;
-    }
-
-    /**
-     * @param msgName - from the bundle e.g. "file.deleted.success"
-     * @return
-     */
-    private String getBundleString(String msgName) {
-
-        return BundleUtil.getStringFromBundle(msgName);
-    }
-
 
     public void deleteFile() {
         logger.fine("entering bulk file delete (EditDataFilesPage)");
@@ -545,49 +561,8 @@ public class EditSingleFilePage implements java.io.Serializable {
         return returnToDraftVersion();
     }
 
-    private void populateDatasetUpdateFailureMessage() {
-
-        JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.message.filesFailure"));
-    }
-
-    private String returnToDraftVersion() {
-        return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&version=DRAFT&faces-redirect=true";
-    }
-
-    private String returnToFileLandingPage() {
-        Long fileId = fileMetadata.getDataFile().getId();
-        if (versionString != null && versionString.equals("DRAFT")) {
-            return "/file.xhtml?fileId=" + fileId + "&version=DRAFT&faces-redirect=true";
-        }
-        return "/file.xhtml?fileId=" + fileId + "&faces-redirect=true";
-
-    }
-
     public String cancel() {
         return returnToFileLandingPage();
-    }
-
-    private Map<String, String> temporaryThumbnailsMap = new HashMap<>();
-
-    public String getTemporaryPreviewAsBase64(String fileSystemId) {
-        return temporaryThumbnailsMap.get(fileSystemId);
-    }
-
-    public boolean isLocked() {
-        if (dataset != null) {
-            logger.log(Level.FINE, "checking lock status of dataset {0}", dataset.getId());
-            if (dataset.isLocked()) {
-                // refresh the dataset and version, if the current working
-                // version of the dataset is locked:
-            }
-            Dataset lookedupDataset = datasetService.find(dataset.getId());
-
-            if ((lookedupDataset != null) && lookedupDataset.isLocked()) {
-                logger.fine("locked!");
-                return true;
-            }
-        }
-        return false;
     }
 
     public boolean isThumbnailAvailable(FileMetadata fileMetadata) {
@@ -615,43 +590,8 @@ public class EditSingleFilePage implements java.io.Serializable {
         return false;
     }
 
-    private FileMetadata fileMetadataSelectedForThumbnailPopup = null;
-
-    /**
-     * @param fm
-     * @todo For consistency, we should disallow users from setting the
-     * thumbnail to a restricted file. We enforce this rule in the newer
-     * workflow in dataset-widgets.xhtml. The logic to show the "Set Thumbnail"
-     * button is in editFilesFragment.xhtml and it would be nice to move it to
-     * Java since it's getting long and a bit complicated.
-     */
-    public void setFileMetadataSelectedForThumbnailPopup(FileMetadata fm) {
-        fileMetadataSelectedForThumbnailPopup = fm;
-        alreadyDesignatedAsDatasetThumbnail = getUseAsDatasetThumbnail();
-
-    }
-
     public void clearFileMetadataSelectedForThumbnailPopup() {
         fileMetadataSelectedForThumbnailPopup = null;
-    }
-
-    private boolean alreadyDesignatedAsDatasetThumbnail = false;
-
-    public boolean getUseAsDatasetThumbnail() {
-
-        return isDesignatedDatasetThumbnail(fileMetadataSelectedForThumbnailPopup);
-    }
-
-    public void setUseAsDatasetThumbnail(boolean useAsThumbnail) {
-        if (fileMetadataSelectedForThumbnailPopup != null) {
-            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
-                if (useAsThumbnail) {
-                    dataset.setThumbnailFile(fileMetadataSelectedForThumbnailPopup.getDataFile());
-                } else if (getUseAsDatasetThumbnail()) {
-                    dataset.setThumbnailFile(null);
-                }
-            }
-        }
     }
 
     public void saveAsDesignatedThumbnail() {
@@ -692,138 +632,14 @@ public class EditSingleFilePage implements java.io.Serializable {
         return datasetThumbnail != null && !datasetThumbnail.isFromDataFile();
     }
 
-    private FileMetadata fileMetadataSelectedForTagsPopup = null;
-
-    public void setFileMetadataSelectedForTagsPopup(FileMetadata fm) {
-        fileMetadataSelectedForTagsPopup = fm;
-    }
-
-    public FileMetadata getFileMetadataSelectedForTagsPopup() {
-        return fileMetadataSelectedForTagsPopup;
-    }
-
     public void clearFileMetadataSelectedForTagsPopup() {
         fileMetadataSelectedForTagsPopup = null;
     }
-
-    private List<String> tabFileTags = null;
-
-    public List<String> getTabFileTags() {
-        if (tabFileTags == null) {
-            tabFileTags = DataFileTag.listTags();
-        }
-        return tabFileTags;
-    }
-
-    public void setTabFileTags(List<String> tabFileTags) {
-        this.tabFileTags = tabFileTags;
-    }
-
-    private String[] selectedTabFileTags = {};
-
-    public String[] getSelectedTabFileTags() {
-        return selectedTabFileTags;
-    }
-
-    public void setSelectedTabFileTags(String[] selectedTabFileTags) {
-        this.selectedTabFileTags = selectedTabFileTags;
-    }
-
-    private String[] selectedTags = {};
 
     public void refreshTagsPopUp(FileMetadata fm) {
         setFileMetadataSelectedForTagsPopup(fm);
         refreshCategoriesByName();
         refreshTabFileTagsByName();
-    }
-
-    private List<String> tabFileTagsByName;
-
-    private void refreshTabFileTagsByName() {
-        tabFileTagsByName = new ArrayList<>();
-        if (fileMetadataSelectedForTagsPopup.getDataFile().getTags() != null) {
-            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getDataFile().getTags().size(); i++) {
-                tabFileTagsByName.add(fileMetadataSelectedForTagsPopup.getDataFile().getTags().get(i).getTypeLabel());
-            }
-        }
-        refreshSelectedTabFileTags();
-    }
-
-    private void refreshSelectedTabFileTags() {
-        selectedTabFileTags = null;
-        selectedTabFileTags = new String[0];
-        if (tabFileTagsByName.size() > 0) {
-            selectedTabFileTags = new String[tabFileTagsByName.size()];
-            for (int i = 0; i < tabFileTagsByName.size(); i++) {
-                selectedTabFileTags[i] = tabFileTagsByName.get(i);
-            }
-        }
-        Arrays.sort(selectedTabFileTags);
-    }
-
-    private void refreshCategoriesByName() {
-        categoriesByName = new ArrayList<>();
-        for (String category : dataset.getCategoriesByName()) {
-            categoriesByName.add(category);
-        }
-        refreshSelectedTags();
-    }
-
-
-    private List<String> categoriesByName;
-
-    public List<String> getCategoriesByName() {
-        return categoriesByName;
-    }
-
-    public void setCategoriesByName(List<String> categoriesByName) {
-        this.categoriesByName = categoriesByName;
-    }
-
-    private void refreshSelectedTags() {
-        selectedTags = null;
-        selectedTags = new String[0];
-        List<String> selectedCategoriesByName = new ArrayList<>();
-
-        if (fileMetadataSelectedForTagsPopup.getCategories() != null) {
-            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getCategories().size(); i++) {
-                if (!selectedCategoriesByName.contains(fileMetadataSelectedForTagsPopup.getCategories().get(i).getName())) {
-                    selectedCategoriesByName.add(fileMetadataSelectedForTagsPopup.getCategories().get(i).getName());
-                }
-            }
-        }
-
-        if (selectedCategoriesByName.size() > 0) {
-            selectedTags = new String[selectedCategoriesByName.size()];
-            for (int i = 0; i < selectedCategoriesByName.size(); i++) {
-                selectedTags[i] = selectedCategoriesByName.get(i);
-            }
-        }
-        Arrays.sort(selectedTags);
-    }
-
-    public String[] getSelectedTags() {
-        return selectedTags;
-    }
-
-    public void setSelectedTags(String[] selectedTags) {
-        this.selectedTags = selectedTags;
-    }
-
-
-
-    /*
-     * "File Tags" (aka "File Categories"):
-     */
-
-    private String newCategoryName = null;
-
-    public String getNewCategoryName() {
-        return newCategoryName;
-    }
-
-    public void setNewCategoryName(String newCategoryName) {
-        this.newCategoryName = newCategoryName;
     }
 
     public String saveNewCategory() {
@@ -916,35 +732,191 @@ public class EditSingleFilePage implements java.io.Serializable {
         datasetUpdateRequired = true;
     }
 
+    // -------------------- PRIVATE ---------------------
+
+    private void populateDatasetUpdateFailureMessage() {
+
+        JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.message.filesFailure"));
+    }
+
+    private String returnToDraftVersion() {
+        return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&version=DRAFT&faces-redirect=true";
+    }
+
+    private String returnToFileLandingPage() {
+        Long fileId = fileMetadata.getDataFile().getId();
+        if (versionString != null && versionString.equals("DRAFT")) {
+            return "/file.xhtml?fileId=" + fileId + "&version=DRAFT&faces-redirect=true";
+        }
+        return "/file.xhtml?fileId=" + fileId + "&faces-redirect=true";
+
+    }
+
+    private void refreshTabFileTagsByName() {
+        tabFileTagsByName = new ArrayList<>();
+        if (fileMetadataSelectedForTagsPopup.getDataFile().getTags() != null) {
+            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getDataFile().getTags().size(); i++) {
+                tabFileTagsByName.add(fileMetadataSelectedForTagsPopup.getDataFile().getTags().get(i).getTypeLabel());
+            }
+        }
+        refreshSelectedTabFileTags();
+    }
+
+    private void refreshSelectedTabFileTags() {
+        selectedTabFileTags = null;
+        selectedTabFileTags = new String[0];
+        if (tabFileTagsByName.size() > 0) {
+            selectedTabFileTags = new String[tabFileTagsByName.size()];
+            for (int i = 0; i < tabFileTagsByName.size(); i++) {
+                selectedTabFileTags[i] = tabFileTagsByName.get(i);
+            }
+        }
+        Arrays.sort(selectedTabFileTags);
+    }
+
+    private void refreshCategoriesByName() {
+        categoriesByName = new ArrayList<>();
+        for (String category : dataset.getCategoriesByName()) {
+            categoriesByName.add(category);
+        }
+        refreshSelectedTags();
+    }
+
     private void populateFileMetadatas() {
 
         Long datasetVersionId = workingVersion.getId();
 
-            if (datasetVersionId != null) {
-                // The version has a database id - this is an existing version,
-                // that had been saved previously. So we can look up the file metadatas
-                // by the file and version ids:
-                logger.fine("attempting to retrieve file metadata for version id " + datasetVersionId + " and file id " + selectedFileId);
-                FileMetadata fileMetadata = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(datasetVersionId, selectedFileId);
-                if (fileMetadata != null) {
-                    logger.fine("Success!");
-                    this.fileMetadata = fileMetadata;
-                } else {
-                    logger.fine("Failed to find file metadata.");
-                }
+        if (datasetVersionId != null) {
+            // The version has a database id - this is an existing version,
+            // that had been saved previously. So we can look up the file metadatas
+            // by the file and version ids:
+            logger.fine("attempting to retrieve file metadata for version id " + datasetVersionId + " and file id " + selectedFileId);
+            FileMetadata fileMetadata = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(datasetVersionId, selectedFileId);
+            if (fileMetadata != null) {
+                logger.fine("Success!");
+                this.fileMetadata = fileMetadata;
+            } else {
+                logger.fine("Failed to find file metadata.");
             }
-            else {
-                logger.fine("Brand new edit version - no database id.");
-                for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
+        }
+        else {
+            logger.fine("Brand new edit version - no database id.");
+            for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
 
-                    if (selectedFileId.equals(fileMetadata.getDataFile().getId())) {
-                        logger.fine("Success! - found the file id " + selectedFileId + " in the brand new edit version.");
-                        this.fileMetadata = fileMetadata;
-                        break;
-                    }
+                if (selectedFileId.equals(fileMetadata.getDataFile().getId())) {
+                    logger.fine("Success! - found the file id " + selectedFileId + " in the brand new edit version.");
+                    this.fileMetadata = fileMetadata;
+                    break;
                 }
             }
-            fileMetadatas = new ArrayList<>();
-            fileMetadatas.add(fileMetadata);
+        }
+        fileMetadatas = new ArrayList<>();
+        fileMetadatas.add(fileMetadata);
+    }
+
+    private void refreshSelectedTags() {
+        selectedTags = null;
+        selectedTags = new String[0];
+        List<String> selectedCategoriesByName = new ArrayList<>();
+
+        if (fileMetadataSelectedForTagsPopup.getCategories() != null) {
+            for (int i = 0; i < fileMetadataSelectedForTagsPopup.getCategories().size(); i++) {
+                if (!selectedCategoriesByName.contains(fileMetadataSelectedForTagsPopup.getCategories().get(i).getName())) {
+                    selectedCategoriesByName.add(fileMetadataSelectedForTagsPopup.getCategories().get(i).getName());
+                }
+            }
+        }
+
+        if (selectedCategoriesByName.size() > 0) {
+            selectedTags = new String[selectedCategoriesByName.size()];
+            for (int i = 0; i < selectedCategoriesByName.size(); i++) {
+                selectedTags[i] = selectedCategoriesByName.get(i);
+            }
+        }
+        Arrays.sort(selectedTags);
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setSingleFile(DataFile singleFile) {
+        this.singleFile = singleFile;
+    }
+
+    public void setSelectedFileIds(String selectedFileIds) {
+        editedFileIdString = selectedFileIds;
+    }
+
+    public void setFileMetadatas(FileMetadata fileMetadata) {
+        this.fileMetadata = fileMetadata;
+    }
+
+    public void setPersistentId(String persistentId) {
+        this.persistentId = persistentId;
+    }
+
+    public void setDataset(Dataset dataset) {
+        this.dataset = dataset;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public void setVersionId(Long versionId) {
+        this.versionId = versionId;
+    }
+
+    public void setVersionString(String versionString) {
+        this.versionString = versionString;
+    }
+
+    /**
+     * @param fm
+     * @todo For consistency, we should disallow users from setting the
+     * thumbnail to a restricted file. We enforce this rule in the newer
+     * workflow in dataset-widgets.xhtml. The logic to show the "Set Thumbnail"
+     * button is in editFilesFragment.xhtml and it would be nice to move it to
+     * Java since it's getting long and a bit complicated.
+     */
+    public void setFileMetadataSelectedForThumbnailPopup(FileMetadata fm) {
+        fileMetadataSelectedForThumbnailPopup = fm;
+        alreadyDesignatedAsDatasetThumbnail = getUseAsDatasetThumbnail();
+
+    }
+
+    public void setUseAsDatasetThumbnail(boolean useAsThumbnail) {
+        if (fileMetadataSelectedForThumbnailPopup != null) {
+            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
+                if (useAsThumbnail) {
+                    dataset.setThumbnailFile(fileMetadataSelectedForThumbnailPopup.getDataFile());
+                } else if (getUseAsDatasetThumbnail()) {
+                    dataset.setThumbnailFile(null);
+                }
+            }
+        }
+    }
+
+    public void setFileMetadataSelectedForTagsPopup(FileMetadata fm) {
+        fileMetadataSelectedForTagsPopup = fm;
+    }
+
+    public void setTabFileTags(List<String> tabFileTags) {
+        this.tabFileTags = tabFileTags;
+    }
+
+    public void setSelectedTabFileTags(String[] selectedTabFileTags) {
+        this.selectedTabFileTags = selectedTabFileTags;
+    }
+
+    public void setCategoriesByName(List<String> categoriesByName) {
+        this.categoriesByName = categoriesByName;
+    }
+
+    public void setSelectedTags(String[] selectedTags) {
+        this.selectedTags = selectedTags;
+    }
+
+    public void setNewCategoryName(String newCategoryName) {
+        this.newCategoryName = newCategoryName;
     }
 }
