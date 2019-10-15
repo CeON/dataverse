@@ -101,10 +101,8 @@ public class EditSingleFilePage implements java.io.Serializable {
     private boolean isFileToBeDeleted = false;
     private DataFile singleFile = null;
 
-    private FileMetadata fileMetadataSelectedForThumbnailPopup = null;
     private FileMetadata fileMetadataSelectedForTagsPopup = null;
 
-    private boolean alreadyDesignatedAsDatasetThumbnail = false;
     private List<String> tabFileTags = null;
     private String[] selectedTabFileTags = {};
     private String[] selectedTags = {};
@@ -177,8 +175,7 @@ public class EditSingleFilePage implements java.io.Serializable {
     }
 
     public boolean getUseAsDatasetThumbnail() {
-
-        return isDesignatedDatasetThumbnail(fileMetadataSelectedForThumbnailPopup);
+        return isDesignatedDatasetThumbnail(fileMetadata);
     }
 
     public FileMetadata getFileMetadataSelectedForTagsPopup() {
@@ -578,20 +575,10 @@ public class EditSingleFilePage implements java.io.Serializable {
     }
 
     public boolean isDesignatedDatasetThumbnail(FileMetadata fileMetadata) {
-        if (fileMetadata != null) {
-            if (fileMetadata.getDataFile() != null) {
-                if (fileMetadata.getDataFile().getId() != null) {
-                    //if (fileMetadata.getDataFile().getOwner() != null) {
-                    return fileMetadata.getDataFile().equals(dataset.getThumbnailFile());
-                    //}
-                }
-            }
+        if (fileMetadata != null && fileMetadata.getDataFile() != null && fileMetadata.getDataFile().getId() != null) {
+            return fileMetadata.getDataFile().equals(dataset.getThumbnailFile());
         }
         return false;
-    }
-
-    public void clearFileMetadataSelectedForThumbnailPopup() {
-        fileMetadataSelectedForThumbnailPopup = null;
     }
 
     public void saveAsDesignatedThumbnail() {
@@ -601,23 +588,20 @@ public class EditSingleFilePage implements java.io.Serializable {
         // file object appropriately.
         // However, once the "save" button is pressed, we want to show a success message, if this is
         // a new image has been designated as such:
-        if (getUseAsDatasetThumbnail() && !alreadyDesignatedAsDatasetThumbnail) {
+        if (isDesignatedDatasetThumbnail(fileMetadata)) {
             String successMessage = getBundleString("file.assignedDataverseImage.success");
             logger.fine(successMessage);
-            successMessage = successMessage.replace("{0}", fileMetadataSelectedForThumbnailPopup.getLabel());
+            successMessage = successMessage.replace("{0}", fileMetadata.getLabel());
             JsfHelper.addFlashMessage(successMessage);
 
             datasetUpdateRequired = true;
         }
-
-        // And reset the selected fileMetadata:
-        fileMetadataSelectedForThumbnailPopup = null;
     }
 
     public void deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead() {
-        logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadataSelectedForThumbnailPopup});
+        logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadata});
         try {
-            DatasetThumbnail datasetThumbnail = commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(), dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, fileMetadataSelectedForThumbnailPopup.getDataFile().getId(), null));
+            DatasetThumbnail datasetThumbnail = commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(), dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, fileMetadata.getDataFile().getId(), null));
             // look up the dataset again because the UpdateDatasetThumbnailCommand mutates (merges) the dataset
             dataset = datasetService.find(dataset.getId());
         } catch (CommandException ex) {
@@ -870,25 +854,11 @@ public class EditSingleFilePage implements java.io.Serializable {
         this.versionString = versionString;
     }
 
-    /**
-     * @param fm
-     * @todo For consistency, we should disallow users from setting the
-     * thumbnail to a restricted file. We enforce this rule in the newer
-     * workflow in dataset-widgets.xhtml. The logic to show the "Set Thumbnail"
-     * button is in editFilesFragment.xhtml and it would be nice to move it to
-     * Java since it's getting long and a bit complicated.
-     */
-    public void setFileMetadataSelectedForThumbnailPopup(FileMetadata fm) {
-        fileMetadataSelectedForThumbnailPopup = fm;
-        alreadyDesignatedAsDatasetThumbnail = getUseAsDatasetThumbnail();
-
-    }
-
     public void setUseAsDatasetThumbnail(boolean useAsThumbnail) {
-        if (fileMetadataSelectedForThumbnailPopup != null) {
-            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
+        if (fileMetadata != null) {
+            if (fileMetadata.getDataFile() != null) {
                 if (useAsThumbnail) {
-                    dataset.setThumbnailFile(fileMetadataSelectedForThumbnailPopup.getDataFile());
+                    dataset.setThumbnailFile(fileMetadata.getDataFile());
                 } else if (getUseAsDatasetThumbnail()) {
                     dataset.setThumbnailFile(null);
                 }

@@ -168,7 +168,6 @@
                                             <p:commandLink id="fileSetThumbnailBtn"
                                                            rendered="#{!empty fileMetadata.dataFile.id and fileMetadata.dataFile.image
                                                                                 and not EditSingleFilePage.thumbnailIsFromDatasetLogoRatherThanDatafile}"
-                                                           actionListener="#{EditSingleFilePage.setFileMetadataSelectedForThumbnailPopup(fileMetadata)}"
                                                            update=":fileForm:fileSetThumbnail"
                                                            oncomplete="PF('fileSetThumbnail').show()"
                                             >
@@ -179,7 +178,6 @@
                                             <p:commandLink id="fileSetThumbnailBtn2"
                                                            rendered="#{!empty fileMetadata.dataFile.id and fileMetadata.dataFile.image
                                                                                 and EditSingleFilePage.thumbnailIsFromDatasetLogoRatherThanDatafile}"
-                                                           actionListener="#{EditSingleFilePage.setFileMetadataSelectedForThumbnailPopup(fileMetadata)}"
                                                            oncomplete="PF('fileThumbnailConfirm').show()">
                                                 #{bundle['file.setThumbnail']}
                                             </p:commandLink>
@@ -351,7 +349,7 @@
                         <p:commandButton id="fileSetThumbnailCancelBtn"
                                          value="#{bundle.cancel}"
                                          onclick="PF('fileSetThumbnail').hide();PF('blockFileForm').hide();"
-                                         actionListener="#{EditSingleFilePage.clearFileMetadataSelectedForThumbnailPopup()}"/>
+                        />
                     </div>
                 </p:dialog>
                 <!--Confirm thumbnail change on modal window-->
