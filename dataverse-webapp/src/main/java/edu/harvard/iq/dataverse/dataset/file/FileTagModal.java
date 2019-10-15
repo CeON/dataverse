@@ -6,33 +6,33 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 @ViewScoped
 @Named("FileTagModal")
 public class FileTagModal implements Serializable {
 
-    private List<String> fileMetadataTags = new ArrayList<>();
-    private List<String> dataFileTags = new ArrayList<>();
+    private Set<String> fileMetadataTags = new HashSet<>();
+    private Set<String> dataFileTags = new HashSet<>();
     private TreeSet<String> selectedFileMetadataTags = new TreeSet<>();
     private TreeSet<String> selectedDataFileTags = new TreeSet<>();
 
     private boolean removeUnusedTags;
     private String newCategoryName;
     private FileMetadata fileMetadata;
-
-    private Dataset dataset;
+    private Collection<FileMetadata> selectedFiles = new HashSet<>();
 
 
     // -------------------- GETTERS --------------------
 
-    public List<String> getFileMetadataTags() {
+    public Set<String> getFileMetadataTags() {
         return fileMetadataTags;
     }
 
-    public List<String> getDataFileTags() {
+    public Set<String> getDataFileTags() {
         return dataFileTags;
     }
 
@@ -56,20 +56,22 @@ public class FileTagModal implements Serializable {
         return fileMetadata;
     }
 
+    public Collection<FileMetadata> getSelectedFiles() {
+        return selectedFiles;
+    }
+
     // -------------------- LOGIC --------------------
 
-    public void init(FileMetadata fileMetadata, Dataset dataset) {
+    public void initForSingleFile(FileMetadata fileMetadata, Dataset dataset) {
         this.fileMetadata = fileMetadata;
-        this.dataset = dataset;
 
         prepareTags(fileMetadata, dataset);
     }
 
-    public void init2(List<FileMetadata> fileMetadata, Dataset dataset) {
-        //this.fileMetadata = fileMetadata;
-        this.dataset = dataset;
+    public void initForMultipleFiles(Collection<FileMetadata> fileMetadatas, Dataset dataset) {
+        this.selectedFiles = fileMetadatas;
 
-        //prepareTags(fileMetadata, dataset);
+        prepareTags(fileMetadatas, dataset);
     }
 
     public String saveNewCategory() {
@@ -84,17 +86,33 @@ public class FileTagModal implements Serializable {
         return "";
     }
 
-    /*public void handleFileCategoriesSelection(final AjaxBehaviorEvent event) {
-        if (selectedFileMetadataTags != null) {
-            selectedFileMetadataTags = selectedFileMetadataTags.clone();
-        }
-    }*/
+    public void cleanupModalState() {
+        selectedFileMetadataTags.clear();
+        selectedDataFileTags.clear();
+        selectedFiles.clear();
+        fileMetadataTags.clear();
+        dataFileTags.clear();
+
+        removeUnusedTags = false;
+    }
 
     public boolean isTabularFile() {
-        return fileMetadata.getDataFile().isTabularData();
+        if (!selectedFiles.isEmpty()) {
+            return selectedFiles.stream()
+                    .anyMatch(fm -> fm.getDataFile().isTabularData());
+        } else if (fileMetadata != null) {
+            return fileMetadata.getDataFile().isTabularData();
+        }
+
+        return false;
     }
 
     // -------------------- PRIVATE --------------------
+
+    private void prepareTags(Collection<FileMetadata> fileMetadata, Dataset dataset) {
+        fileMetadata.forEach(fileMD -> prepareFileMetadataTags(fileMD, dataset));
+        fileMetadata.forEach(this::prepareDataFileTags);
+    }
 
     private void prepareTags(FileMetadata fileMetadata, Dataset dataset) {
         prepareFileMetadataTags(fileMetadata, dataset);
@@ -113,12 +131,11 @@ public class FileTagModal implements Serializable {
 
     // -------------------- SETTERS --------------------
 
-
-    public void setFileMetadataTags(List<String> fileMetadataTags) {
+    public void setFileMetadataTags(Set<String> fileMetadataTags) {
         this.fileMetadataTags = fileMetadataTags;
     }
 
-    public void setDataFileTags(List<String> dataFileTags) {
+    public void setDataFileTags(Set<String> dataFileTags) {
         this.dataFileTags = dataFileTags;
     }
 
@@ -140,9 +157,5 @@ public class FileTagModal implements Serializable {
 
     public void setFileMetadata(FileMetadata fileMetadata) {
         this.fileMetadata = fileMetadata;
-    }
-
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
     }
 }

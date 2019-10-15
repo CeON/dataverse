@@ -390,14 +390,16 @@
     </p:dataTable>
 
     <p:remoteCommand name="refreshTagsCommand" action="#{datasetFilesTab.refreshTagsPopUp()}"
-                     update="@widgetVar(fileTagsPopup); nicedialog"
+                     onstart="#{FileTagModal.initForMultipleFiles(datasetFilesTab.selectedFiles, datasetFilesTab.dataset)}"
+                     update="@form"
                      oncomplete="PF('fileTagsPopup').show();"/>
 
-    <comp:fileTagsDialog id="nicedialog" dialogWidgetId="fileTagsPopup" dialogId="fileTagsPopup"
-                         rendered="#{datasetFilesTab.selectedFiles.size() > 0}"
-                         fileMetadata="#{datasetFilesTab.selectedFiles}"
-                         dataset="#{datasetFilesTab.dataset}">
-        <p:ajax event="saveAction" listener="#{datasetFilesTab.saveFileTagsAndCategories()}"/>
+    <comp:fileTagsDialog dialogWidgetId="fileTagsPopup"
+                         rendered="#{datasetFilesTab.selectedFiles.size() > 0}">
+        <p:ajax event="saveAction" listener="#{datasetFilesTab.saveFileTagsAndCategories(FileTagModal.selectedFiles,
+         FileTagModal.selectedFileMetadataTags,
+         FileTagModal.selectedDataFileTags,
+         FileTagModal.removeUnusedTags)}"/>
     </comp:fileTagsDialog>
 
 

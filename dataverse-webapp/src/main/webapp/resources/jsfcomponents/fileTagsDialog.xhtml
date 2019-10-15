@@ -8,12 +8,6 @@
 
 <composite:interface>
     <composite:attribute name="dialogWidgetId" required="true"/>
-    <composite:attribute name="dialogId" required="true"/>
-    <composite:attribute name="fileMetadata" required="true"
-                         type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"/>
-    <composite:attribute name="fileMetadatas" type="java.util.List"/>
-    <composite:attribute name="dataset" required="true"
-                         type="edu.harvard.iq.dataverse.persistence.dataset.Dataset"/>
 
     <composite:clientBehavior name="saveAction" targets="fileTagsPopupSaveButton"
                               event="click"/> <!--selectedTagsListEFF-->
@@ -21,11 +15,12 @@
 
 
 <composite:implementation>
+
     <p:dialog styleClass="smallPopUp" header="#{bundle['file.editTags']}"
               widgetVar="#{cc.attrs.dialogWidgetId}" modal="true">
 
         <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
-        <div class="form-horizontal" jsf:rendered="#{!(empty FileTagModal.selectedFileMetadataTags)}">
+        <ui:fragment id="dismon" class="form-horizontal">
             <div class="form-group text-left">
                 <label for="selectedTagsList" class="col-sm-4 control-label">
                     #{bundle['file.editTagsDialog.selectedTags']}
@@ -56,9 +51,9 @@
                     <p:selectCheckboxMenu id="fileTagsMenuDS" styleClass="form-control"
                                           value="#{FileTagModal.selectedFileMetadataTags}" label="#{bundle.select}">
 
-                        <p:ajax event="toggleSelect" listener="#{FileTagModal.handleSelection}"
+                        <p:ajax event="toggleSelect"
                                 update="selectedTagsList"/>
-                        <p:ajax event="change" listener="#{FileTagModal.handleSelection}"
+                        <p:ajax event="change"
                                 update="selectedTagsList"/>
 
                         <f:selectItems value="#{FileTagModal.fileMetadataTags}"/>
@@ -99,9 +94,9 @@
                                           label="#{bundle.select}"
                                           filter="false">
 
-                        <p:ajax event="toggleSelect" listener="#{FileTagModal.handleSelection}"
+                        <p:ajax event="toggleSelect"
                                 update="selectedTagsList"/>
-                        <p:ajax event="change" listener="#{FileTagModal.handleSelection}"
+                        <p:ajax event="change"
                                 update="selectedTagsList"/>
 
                         <f:selectItems value="#{FileTagModal.dataFileTags}"/>
@@ -118,16 +113,21 @@
                     <p:selectBooleanCheckbox id="removeUnused"
                                              itemLabel="#{bundle['dataset.removeUnusedFileTags.check']}"
                                              value="#{FileTagModal.removeUnusedTags}"
-                                             widgetVar="removeUnused"/>
+
+                                             widgetVar="removeUnused">
+                        <p:ajax/> <!-- required, otherwise the save method will execute before boolean is set-->
+                    </p:selectBooleanCheckbox>
                 </div>
             </div>
-        </div>
+        </ui:fragment>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" id="fileTagsPopupSaveButton"
+            <p:commandButton id="fileTagsPopupSaveButton"
                              value="#{bundle.saveChanges}" oncomplete="PF('fileTagsPopup').hide()"
+                             action="#{FileTagModal.cleanupModalState()}"
                              update="@widgetVar(filesTable), @form"/>
-            <p:commandButton styleClass="btn btn-default" id="fileTagsPopupCancelButton"
+            <p:commandButton id="fileTagsPopupCancelButton"
                              value="#{bundle.cancel}"
+                             action="#{FileTagModal.cleanupModalState()}"
                              onclick="PF('fileTagsPopup').hide();PF('blockDatasetForm').hide();"/>
         </div>
     </p:dialog>
