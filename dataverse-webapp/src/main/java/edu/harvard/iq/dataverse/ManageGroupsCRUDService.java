@@ -7,13 +7,15 @@ import edu.harvard.iq.dataverse.engine.command.impl.DeleteExplicitGroupCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateExplicitGroupCommand;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.group.ExplicitGroup;
-import edu.harvard.iq.dataverse.persistence.group.GroupException;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
+import io.vavr.control.Try;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Stateless
 public class ManageGroupsCRUDService {
@@ -37,35 +39,47 @@ public class ManageGroupsCRUDService {
     }
 
     // -------------------- LOGIC --------------------
-    public ExplicitGroup create(Dataverse dataverse, String explicitGroupName, String explicitGroupIdentifier, String explicitGroupDescription,
-                                List<RoleAssignee> explicitGroupRoleAssignees)
-            throws CommandException, GroupException {
+
+    public Try<ExplicitGroup> create(Dataverse dataverse, String explicitGroupName, String explicitGroupIdentifier, String explicitGroupDescription,
+                                                              List<RoleAssignee> explicitGroupRoleAssignees) {
         ExplicitGroup explicitGroup = explicitGroupService.getProvider().makeGroup();
         explicitGroup.setDisplayName(explicitGroupName);
         explicitGroup.setGroupAliasInOwner(explicitGroupIdentifier);
         explicitGroup.setDescription(explicitGroupDescription);
 
-        if(CollectionUtils.isNotEmpty(explicitGroupRoleAssignees)) {
-            for (RoleAssignee ra : explicitGroupRoleAssignees) {
-                explicitGroup.add(ra);
-            }
-        }
+        Try<ExplicitGroup> explicitGroupTry = addRoleAssigneesToGroup(explicitGroup, explicitGroupRoleAssignees);
 
-        return engineService.submit(new CreateExplicitGroupCommand(dvRequestService.getDataverseRequest(), dataverse, explicitGroup));
+        return Try.of(() -> engineService.submit(new CreateExplicitGroupCommand(dvRequestService.getDataverseRequest(), dataverse, explicitGroupTry.get())))
+                .onFailure(throwable -> Logger.getLogger(ManageGroupsCRUDService.class.getCanonicalName()).log(Level.SEVERE, null, throwable))
+                ;
+
     }
 
-    public ExplicitGroup update(ExplicitGroup selectedGroup, List<RoleAssignee> selectedGroupAddRoleAssignees)
-            throws CommandException, GroupException {
+    public Try<ExplicitGroup> update(ExplicitGroup group, List<RoleAssignee> newRoleAssignees) {
 
-        if(CollectionUtils.isNotEmpty(selectedGroupAddRoleAssignees)) {
-            for (RoleAssignee ra : selectedGroupAddRoleAssignees) {
-                selectedGroup.add(ra);
-            }
-        }
-        return engineService.submit(new UpdateExplicitGroupCommand(dvRequestService.getDataverseRequest(), selectedGroup));
+        Try<ExplicitGroup> explicitGroupTry = addRoleAssigneesToGroup(group, newRoleAssignees);
+        return Try.of(() -> engineService.submit(new UpdateExplicitGroupCommand(dvRequestService.getDataverseRequest(), explicitGroupTry.get())))
+                .onFailure(throwable -> Logger.getLogger(ManageGroupsCRUDService.class.getCanonicalName()).log(Level.SEVERE, null, throwable))
+                ;
     }
 
     public void delete(ExplicitGroup explicitGroup) throws CommandException {
         engineService.submit(new DeleteExplicitGroupCommand(dvRequestService.getDataverseRequest(), explicitGroup));
+    }
+
+    // -------------------- LOGIC --------------------
+
+    private Try<ExplicitGroup> addRoleAssigneesToGroup(ExplicitGroup explicitGroup,
+                                                       List<RoleAssignee> explicitGroupRoleAssignees) {
+        return Try.of(() -> {
+            if(CollectionUtils.isNotEmpty(explicitGroupRoleAssignees)) {
+                for (RoleAssignee ra : explicitGroupRoleAssignees) {
+                    explicitGroup.add(ra);
+                }
+            }
+            return explicitGroup;
+        })
+                .onFailure(throwable -> Logger.getLogger(ManageGroupsCRUDService.class.getCanonicalName()).log(Level.SEVERE, null, throwable))
+                ;
     }
 }

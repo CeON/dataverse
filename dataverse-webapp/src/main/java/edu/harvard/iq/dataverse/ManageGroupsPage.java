@@ -2,18 +2,16 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.dataverse.DataversePage;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateExplicitGroupCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteExplicitGroupCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateExplicitGroupCommand;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.group.ExplicitGroup;
 import edu.harvard.iq.dataverse.persistence.group.Group;
-import edu.harvard.iq.dataverse.persistence.group.GroupException;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
 import javax.faces.application.FacesMessage;
@@ -47,7 +45,6 @@ public class ManageGroupsPage implements java.io.Serializable {
     private ExplicitGroupServiceBean explicitGroupService;
     private RoleAssigneeServiceBean roleAssigneeService;
     private PermissionsWrapper permissionsWrapper;
-    private DataversePage dvpage;
     private ManageGroupsCRUDService mgCrudService;
 
     private List<ExplicitGroup> explicitGroups;
@@ -76,12 +73,11 @@ public class ManageGroupsPage implements java.io.Serializable {
     @Inject
     public ManageGroupsPage(DataverseServiceBean dataverseService, ExplicitGroupServiceBean explicitGroupService,
                             RoleAssigneeServiceBean roleAssigneeService, PermissionsWrapper permissionsWrapper,
-                            DataversePage dvpage, ManageGroupsCRUDService mgCrudService) {
+                            ManageGroupsCRUDService mgCrudService) {
         this.dataverseService = dataverseService;
         this.explicitGroupService = explicitGroupService;
         this.roleAssigneeService = roleAssigneeService;
         this.permissionsWrapper = permissionsWrapper;
-        this.dvpage = dvpage;
         this.mgCrudService = mgCrudService;
     }
 
@@ -134,7 +130,6 @@ public class ManageGroupsPage implements java.io.Serializable {
     public String init() {
         setDataverse(dataverseService.find(getDataverseId()));
         Dataverse editDv = getDataverse();
-        dvpage.setDataverse(editDv);
 
         if (editDv == null) {
             return permissionsWrapper.notFound();
@@ -154,14 +149,17 @@ public class ManageGroupsPage implements java.io.Serializable {
 
     public void deleteGroup() {
         if (selectedGroup != null) {
-            try {
-                mgCrudService.delete(selectedGroup);
-                explicitGroups.remove(selectedGroup);
-                JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.delete"));
-            } catch (CommandException ex) {
-                String failMessage = BundleUtil.getStringFromBundle("dataverse.manageGroups.nodelete");
-                JH.addMessage(FacesMessage.SEVERITY_FATAL, failMessage);
-            }
+            Try
+                    .run(() -> mgCrudService.delete(selectedGroup))
+                    .andThen(() -> {
+                        explicitGroups.remove(selectedGroup);
+                        JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.delete"));
+                    })
+                    .onFailure(throwable -> {
+                        String failMessage = BundleUtil.getStringFromBundle("dataverse.manageGroups.nodelete");
+                        JH.addMessage(FacesMessage.SEVERITY_FATAL, failMessage);
+                    })
+            ;
         } else {
             logger.info("Selected group is null");
         }
@@ -266,47 +264,37 @@ public class ManageGroupsPage implements java.io.Serializable {
     }
 
     public void createExplicitGroup(ActionEvent ae) {
-        try {
-            ExplicitGroup eg = mgCrudService.create(dataverse, explicitGroupName, explicitGroupIdentifier, newExplicitGroupDescription, newExplicitGroupRoleAssignees);
-            explicitGroups.add(eg);
-            List<String> args = Arrays.asList(eg.getDisplayName());
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.create.success", args));
-        } catch (GroupException ge) {
-            JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                    BundleUtil.getStringFromBundle("dataverse.manageGroups.create.fail"),
-                    ge.getMessage());
-        } catch (CreateExplicitGroupCommand.GroupAliasExistsException gaee) {
-            explicitGroupIdentifierField.setValid(false);
-            FacesContext.getCurrentInstance().addMessage(explicitGroupIdentifierField.getClientId(),
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, gaee.getMessage(), null));
-
-        } catch (CommandException ex) {
-            logger.log(Level.WARNING, "Group creation failed", ex);
-            JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                    BundleUtil.getStringFromBundle("dataverse.manageGroups.create.fail"),
-                    ex.getMessage());
-        } catch (Exception ex) {
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("permission.roleNotSaved"));
-            logger.log(Level.SEVERE, "Error saving role: " + ex.getMessage(), ex);
-        }
+        Try.of(() -> mgCrudService.create(dataverse, explicitGroupName, explicitGroupIdentifier, newExplicitGroupDescription, newExplicitGroupRoleAssignees))
+            .onSuccess((eg) -> {
+                explicitGroups.add(eg.get());
+                List<String> args = Arrays.asList(eg.get().getDisplayName());
+                JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.create.success", args));
+            })
+            .onFailure(throwable -> {
+                if(throwable instanceof CreateExplicitGroupCommand.GroupAliasExistsException) {
+                    explicitGroupIdentifierField.setValid(false);
+                    FacesContext.getCurrentInstance().addMessage(explicitGroupIdentifierField.getClientId(),
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, throwable.getMessage(), null));
+                } else {
+                    logger.log(Level.WARNING, "Group creation failed", throwable);
+                    JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                            BundleUtil.getStringFromBundle("dataverse.manageGroups.create.fail"),
+                            throwable.getMessage());
+                }
+            })
+        ;
     }
 
     public void editExplicitGroup(ActionEvent ae) {
-        try {
-            ExplicitGroup eg = mgCrudService.update(selectedGroup, selectedGroupAddRoleAssignees);
-            List<String> args = Arrays.asList(eg.getDisplayName());
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.save.success", args));
-        } catch (GroupException ge) {
-            JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                    BundleUtil.getStringFromBundle("dataverse.manageGroups.edit.fail"),
-                    ge.getMessage());
-        } catch (CommandException ex) {
-            JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataverse.manageGroups.save.fail"),
-                    ex.getMessage());
-        } catch (Exception ex) {
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("permission.roleNotSaved"));
-            logger.log(Level.SEVERE, "Error saving role: " + ex.getMessage(), ex);
-        }
+
+        Try.of(() -> mgCrudService.update(selectedGroup, selectedGroupAddRoleAssignees))
+            .onSuccess((eg) -> {
+                List<String> args = Arrays.asList(eg.get().getDisplayName());
+                JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.save.success", args));
+            })
+            .onFailure(throwable -> JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataverse.manageGroups.edit.fail"),
+                    throwable.getMessage()))
+        ;
     }
 
     public void validateGroupIdentifier(FacesContext context, UIComponent toValidate, Object rawValue) {
