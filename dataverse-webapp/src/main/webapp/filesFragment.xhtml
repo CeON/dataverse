@@ -6,7 +6,7 @@
         xmlns:p="http://primefaces.org/ui"
         xmlns:jsf="http://xmlns.jcp.org/jsf"
         xmlns:o="http://omnifaces.org/ui"
-        xmlns:comp="http://java.sun.com/jsf/composite/jsfcomponents"
+        xmlns:iqbs="http://java.sun.com/jsf/composite/iqbs"
         xmlns:dv="http://dataverse.org/facelets">
 
     <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
@@ -394,13 +394,15 @@
                      update="@form"
                      oncomplete="PF('fileTagsPopup').show();"/>
 
-    <comp:fileTagsDialog dialogWidgetId="fileTagsPopup"
+    <iqbs:fileTagsDialog dialogWidgetId="fileTagsPopup"
+                         showRemoveUnusedTags="true"
                          rendered="#{datasetFilesTab.selectedFiles.size() > 0}">
+
         <p:ajax event="saveAction" listener="#{datasetFilesTab.saveFileTagsAndCategories(FileTagModal.selectedFiles,
          FileTagModal.selectedFileMetadataTags,
          FileTagModal.selectedDataFileTags,
-         FileTagModal.removeUnusedTags)}"/>
-    </comp:fileTagsDialog>
+         FileTagModal.removeUnusedTags)}" update="@form:tabView:filesTable"/>
+    </iqbs:fileTagsDialog>
 
 
                 <p:dialog id="selectFilesForDelete" styleClass="smallPopUp"

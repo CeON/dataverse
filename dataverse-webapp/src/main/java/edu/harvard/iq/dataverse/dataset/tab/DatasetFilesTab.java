@@ -651,13 +651,13 @@ public class DatasetFilesTab implements Serializable {
 
             if (fmd.getDataFile().isTabularData()) {
                 fmd.getDataFile().getTags().clear();
-                for (String selectedTabFileTag : selectedDataFileTags) {
+
+                selectedDataFileTags.forEach(selectedTag -> {
                     DataFileTag tag = new DataFileTag();
-                    tag.setTypeByLabel(selectedTabFileTag);
+                    tag.setTypeByLabel(selectedTag);
                     tag.setDataFile(fmd.getDataFile());
                     fmd.getDataFile().addTag(tag);
-
-                }
+                });
             }
         }
 
@@ -667,7 +667,7 @@ public class DatasetFilesTab implements Serializable {
         logger.fine(successMessage);
         successMessage = successMessage.replace("{0}", "Selected Files");
         JsfHelper.addFlashMessage(successMessage);
-        selectedDataFileTags.clear();
+        selectedFiles.clear();
 
         logger.fine("New category name: " + newCategoryName);
 

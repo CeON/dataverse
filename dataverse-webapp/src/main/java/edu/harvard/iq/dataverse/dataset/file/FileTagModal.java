@@ -22,7 +22,7 @@ public class FileTagModal implements Serializable {
 
     private boolean removeUnusedTags;
     private String newCategoryName;
-    private FileMetadata fileMetadata;
+    private FileMetadata selectedFile;
     private Collection<FileMetadata> selectedFiles = new HashSet<>();
 
 
@@ -52,8 +52,8 @@ public class FileTagModal implements Serializable {
         return removeUnusedTags;
     }
 
-    public FileMetadata getFileMetadata() {
-        return fileMetadata;
+    public FileMetadata getSelectedFile() {
+        return selectedFile;
     }
 
     public Collection<FileMetadata> getSelectedFiles() {
@@ -63,7 +63,7 @@ public class FileTagModal implements Serializable {
     // -------------------- LOGIC --------------------
 
     public void initForSingleFile(FileMetadata fileMetadata, Dataset dataset) {
-        this.fileMetadata = fileMetadata;
+        this.selectedFile = fileMetadata;
 
         prepareTags(fileMetadata, dataset);
     }
@@ -100,8 +100,8 @@ public class FileTagModal implements Serializable {
         if (!selectedFiles.isEmpty()) {
             return selectedFiles.stream()
                     .anyMatch(fm -> fm.getDataFile().isTabularData());
-        } else if (fileMetadata != null) {
-            return fileMetadata.getDataFile().isTabularData();
+        } else if (selectedFile != null) {
+            return selectedFile.getDataFile().isTabularData();
         }
 
         return false;
@@ -121,6 +121,7 @@ public class FileTagModal implements Serializable {
 
     private void prepareFileMetadataTags(FileMetadata fileMetadata, Dataset dataset) {
         fileMetadataTags.addAll(dataset.getCategoriesByName());
+        fileMetadataTags.addAll(fileMetadata.getCategoriesByName());
         selectedFileMetadataTags.addAll(fileMetadata.getCategoriesByName());
     }
 
@@ -155,7 +156,7 @@ public class FileTagModal implements Serializable {
         this.newCategoryName = newCategoryName;
     }
 
-    public void setFileMetadata(FileMetadata fileMetadata) {
-        this.fileMetadata = fileMetadata;
+    public void setSelectedFile(FileMetadata selectedFile) {
+        this.selectedFile = selectedFile;
     }
 }

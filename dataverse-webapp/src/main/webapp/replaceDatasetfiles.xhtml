@@ -5,7 +5,8 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:iqbs="http://java.sun.com/jsf/composite/iqbs">
 
 <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
@@ -125,11 +126,7 @@
                                                 function uploadWidgetDropMsg() {
                                                     var fileUpload = $('div[id$="fileUpload"] div.ui-fileupload-content');
                                                     if ($(fileUpload).children('#dragdropMsg').length === 0) {
-                                                        $(fileUpload).prepend('<div id="dragdropMsg">#{bundle['
-                                                        file.selectToAdd.dragdropMsg
-                                                        ']}</div>'
-                                                    )
-                                                        ;
+                                                        $(fileUpload).prepend('<div id="dragdropMsg">#{bundle['file.selectToAdd.dragdropMsg']}</div>');
                                                     }
                                                 }
 
@@ -345,6 +342,7 @@
                                                     <li class="#{ReplaceDatafilesPage.isLockedFromEdits()  ? 'disabled' : ''}">
                                                         <p:commandLink id="fileCategoriesButton"
                                                                        actionListener="#{ReplaceDatafilesPage.refreshTagsPopUp(fileMetadata)}"
+                                                                       action="#{FileTagModal.initForSingleFile(fileMetadata, ReplaceDatafilesPage.dataset)}"
                                                                        update="@form"
                                                                        oncomplete="PF('editFileTagsPopup').show();">
                                                             #{bundle['file.tags']}
@@ -399,7 +397,6 @@
                                 </p:commandButton>
                                 <p:commandButton value="#{bundle.saveChanges}" id="datasetSave"
                                                  update="@form,:messagePanel"
-                                                 onclick="PF('blockFileForm').show();"
                                                  oncomplete="$(document).scrollTop(0);"
                                                  action="#{ReplaceDatafilesPage.saveReplacement()}"/>
                             </div>
@@ -429,7 +426,14 @@
                     </div>
                 </p:dialog>
 
-                <p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
+                <iqbs:fileTagsDialog dialogWidgetId="editFileTagsPopup"
+                                     rendered="#{ReplaceDatafilesPage.fileMetadataSelectedForTagsPopup != null}">
+
+                    <!--<p:ajax event="saveAction" listener="#{ReplaceDatafilesPage.saveFileTagsAndCategories(FileTagModal.selectedFile,
+                    FileTagModal.selectedFileMetadataTags)}"/>-->
+                </iqbs:fileTagsDialog>
+
+                <!--<p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}"
                           widgetVar="editFileTagsPopup" modal="true">
                     <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
 
@@ -533,7 +537,7 @@
                                          onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();"
                                          actionListener="#{ReplaceDatafilesPage.clearFileMetadataSelectedForTagsPopup()}"/>
                     </div>
-                </p:dialog>
+                </p:dialog>-->
                 <p:dialog styleClass="smallPopUp" header="#{bundle['file.deleteFileDialog.header']}"
                           widgetVar="deleteFileConfirmation" modal="true">
                     <p class="text-warning"><span
