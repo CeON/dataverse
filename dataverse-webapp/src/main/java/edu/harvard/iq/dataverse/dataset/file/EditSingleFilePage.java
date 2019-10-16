@@ -1,5 +1,14 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.dataset.file;
 
+import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.EditDatafilesPage;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.FileDownloadHelper;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
