@@ -1820,9 +1820,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         setSelectedFile(fm);
     }
 
-    /* This method handles saving both "tabular file tags" and
-     * "file categories" (which are also considered "tags" in 4.0)
-     */
+
     public void saveFileTagsAndCategories(FileMetadata selectedFile,
                                           Collection<String> selectedFileMetadataTags,
                                           Collection<String> selectedDataFileTags) {
@@ -1831,6 +1829,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         selectedFileMetadataTags.forEach(selectedFile::addCategoryByName);
 
         setTagsForTabularData(selectedDataFileTags, selectedFile);
+        datasetUpdateRequired = true;
     }
 
     private void setTagsForTabularData(Collection<String> selectedDataFileTags, FileMetadata fmd) {

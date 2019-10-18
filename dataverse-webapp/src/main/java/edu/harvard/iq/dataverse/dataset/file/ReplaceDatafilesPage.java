@@ -302,7 +302,9 @@ public class ReplaceDatafilesPage implements Serializable {
 
         selectedFile.getCategories().clear();
         selectedFileMetadataTags.forEach(selectedFile::addCategoryByName);
+
         setTagsForTabularData(selectedDataFileTags, selectedFile);
+
     }
 
     public List<FileMetadata> getFileMetadatas() {
