@@ -63,12 +63,14 @@ public class FileTagModal implements Serializable {
     // -------------------- LOGIC --------------------
 
     public void initForSingleFile(FileMetadata fileMetadata, Dataset dataset) {
+        cleanupModalState();
         this.selectedFile = fileMetadata;
 
         prepareTags(fileMetadata, dataset);
     }
 
     public void initForMultipleFiles(Collection<FileMetadata> fileMetadatas, Dataset dataset) {
+        cleanupModalState();
         this.selectedFiles = fileMetadatas;
 
         prepareTags(fileMetadatas, dataset);
@@ -86,16 +88,6 @@ public class FileTagModal implements Serializable {
         return "";
     }
 
-    public void cleanupModalState() {
-        selectedFileMetadataTags.clear();
-        selectedDataFileTags.clear();
-        selectedFiles.clear();
-        fileMetadataTags.clear();
-        dataFileTags.clear();
-
-        removeUnusedTags = false;
-    }
-
     public boolean isTabularFile() {
         if (!selectedFiles.isEmpty()) {
             return selectedFiles.stream()
@@ -108,6 +100,16 @@ public class FileTagModal implements Serializable {
     }
 
     // -------------------- PRIVATE --------------------
+
+    public void cleanupModalState() {
+        selectedFileMetadataTags.clear();
+        selectedDataFileTags.clear();
+        selectedFiles.clear();
+        fileMetadataTags.clear();
+        dataFileTags.clear();
+
+        removeUnusedTags = false;
+    }
 
     private void prepareTags(Collection<FileMetadata> fileMetadata, Dataset dataset) {
         fileMetadata.forEach(fileMD -> prepareFileMetadataTags(fileMD, dataset));

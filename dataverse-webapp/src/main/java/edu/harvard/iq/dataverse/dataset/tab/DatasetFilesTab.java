@@ -636,44 +636,21 @@ public class DatasetFilesTab implements Serializable {
                                             Collection<String> selectedDataFileTags,
                                             boolean removeUnusedTags) {
 
-        List<DataFile> selectedDataFiles = selectedFiles.stream()
-                .map(FileMetadata::getDataFile)
-                .collect(Collectors.toList());
-
-        List<FileMetadata> filteredMetadata = workingVersion.getFileMetadatas().stream()
-                .filter(fileMetadata -> selectedDataFiles.contains(fileMetadata.getDataFile()))
-                .collect(Collectors.toList());
-
-
-        for (FileMetadata fmd : filteredMetadata) {
+        for (FileMetadata fmd : selectedFiles) {
             fmd.getCategories().clear();
             selectedFileMetadataTags.forEach(fmd::addCategoryByName);
 
             if (fmd.getDataFile().isTabularData()) {
-                fmd.getDataFile().getTags().clear();
-
-                selectedDataFileTags.forEach(selectedTag -> {
-                    DataFileTag tag = new DataFileTag();
-                    tag.setTypeByLabel(selectedTag);
-                    tag.setDataFile(fmd.getDataFile());
-                    fmd.getDataFile().addTag(tag);
-                });
+                setTagsForTabularData(selectedDataFileTags, fmd);
             }
         }
 
-
-        // success message:
-        String successMessage = BundleUtil.getStringFromBundle("file.assignedTabFileTags.success");
-        logger.fine(successMessage);
-        successMessage = successMessage.replace("{0}", "Selected Files");
-        JsfHelper.addFlashMessage(successMessage);
-        selectedFiles.clear();
-
-        logger.fine("New category name: " + newCategoryName);
+        addSuccessMessage();
 
         if (removeUnusedTags) {
             removeUnusedFileTagsFromDataset();
         }
+
         save();
         return returnToDraftVersion();
     }
@@ -753,6 +730,24 @@ public class DatasetFilesTab implements Serializable {
     // -------------------- PRIVATE --------------------
     private Integer allCurrentFilesCount() {
         return Strings.isNullOrEmpty(fileLabelSearchTerm) ? workingVersion.getFileMetadatas().size() : fileMetadatasSearch.size();
+    }
+
+    private void addSuccessMessage() {
+        String successMessage = BundleUtil.getStringFromBundle("file.assignedTabFileTags.success");
+        logger.fine(successMessage);
+        successMessage = successMessage.replace("{0}", "Selected Files");
+        JsfHelper.addFlashMessage(successMessage);
+    }
+
+    private void setTagsForTabularData(Collection<String> selectedDataFileTags, FileMetadata fmd) {
+        fmd.getDataFile().getTags().clear();
+
+        selectedDataFileTags.forEach(selectedTag -> {
+            DataFileTag tag = new DataFileTag();
+            tag.setTypeByLabel(selectedTag);
+            tag.setDataFile(fmd.getDataFile());
+            fmd.getDataFile().addTag(tag);
+        });
     }
 
     private List<FileMetadata> selectFileMetadatasForDisplay(String searchTerm) {

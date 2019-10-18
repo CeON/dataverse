@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -298,16 +297,12 @@ public class ReplaceDatafilesPage implements Serializable {
     }
 
     public void saveFileTagsAndCategories(FileMetadata selectedFile,
-                                          Collection<String> selectedTags) {
+                                          Collection<String> selectedFileMetadataTags,
+                                          Collection<String> selectedDataFileTags) {
 
-        if (!selectedTags.isEmpty()){
-            selectedFile.setCategories(new ArrayList<>());
-
-            for (String selectedTag : selectedTags) {
-                selectedFile.addCategoryByName(selectedTag);
-            }
-        }
-
+        selectedFile.getCategories().clear();
+        selectedFileMetadataTags.forEach(selectedFile::addCategoryByName);
+        setTagsForTabularData(selectedDataFileTags, selectedFile);
     }
 
     public List<FileMetadata> getFileMetadatas() {
@@ -417,6 +412,17 @@ public class ReplaceDatafilesPage implements Serializable {
         }
 
         return StringUtils.EMPTY;
+    }
+
+    private void setTagsForTabularData(Collection<String> selectedDataFileTags, FileMetadata fmd) {
+        fmd.getDataFile().getTags().clear();
+
+        selectedDataFileTags.forEach(selectedTag -> {
+            DataFileTag tag = new DataFileTag();
+            tag.setTypeByLabel(selectedTag);
+            tag.setDataFile(fmd.getDataFile());
+            fmd.getDataFile().addTag(tag);
+        });
     }
 
     private boolean isFileInDataset(DatasetVersion datasetVersion, DataFile fileToCheck) {

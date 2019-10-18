@@ -10,8 +10,8 @@
     <composite:attribute name="dialogWidgetId" required="true"/>
     <composite:attribute name="showRemoveUnusedTags" type="java.lang.Boolean" default="false"/>
 
-   <!-- <composite:clientBehavior name="saveAction" targets="fileTagsPopupSaveButton"
-                              event="click"/> -->
+    <composite:clientBehavior name="saveAction" targets="fileTagsPopupSaveButton"
+                              event="click"/>
 </composite:interface>
 
 
@@ -105,16 +105,15 @@
                     <p:message for="tabularDataTagsDSPage" display="text"/>
                 </div>
             </div>
-            <div class="form-group text-left">
+            <div class="form-group text-left" jsf:rendered="#{cc.attrs.showRemoveUnusedTags}">
                 <label class="col-sm-4 control-label">
                     #{bundle['dataset.removeUnusedFileTags.label']}
                 </label>
                 <div class="col-sm-8">
                     <p class="help-block">#{bundle['dataset.removeUnusedFileTags.tip']}</p>
-                    <p:selectBooleanCheckbox id="removeUnused" rendered="#{cc.attrs.showRemoveUnusedTags}"
+                    <p:selectBooleanCheckbox id="removeUnused"
                                              itemLabel="#{bundle['dataset.removeUnusedFileTags.check']}"
                                              value="#{FileTagModal.removeUnusedTags}"
-
                                              widgetVar="removeUnused">
                         <p:ajax/> <!-- required, otherwise the save method will execute before boolean is set-->
                     </p:selectBooleanCheckbox>
@@ -124,11 +123,10 @@
         <div class="button-block">
             <p:commandButton id="fileTagsPopupSaveButton"
                              value="#{bundle.saveChanges}"
-                             update="@widgetVar(filesTable), @form"/>
+                             onsuccess="PF('#{cc.attrs.dialogWidgetId}').hide();"/>
             <p:commandButton id="fileTagsPopupCancelButton"
                              value="#{bundle.cancel}"
-                             action="#{FileTagModal.cleanupModalState()}"
-                             onclick="PF(#{cc.attrs.dialogWidgetId}).hide();"/>
+                             onsuccess="PF('#{cc.attrs.dialogWidgetId}').hide();"/>
         </div>
     </p:dialog>
 </composite:implementation>
