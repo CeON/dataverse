@@ -6,6 +6,14 @@ $font-main: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-monospace: "Roboto Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
 $border-radius: 7px;
 
+/* Responsive breakpoints */
+$screen-md:	992px;
+$screen-md-min:	$screen-md;
+$screen-sm-max:	($screen-md-min - 1);
+$screen-sm: 768px;
+$screen-sm-min: $screen-sm;
+$screen-xs-max: ($screen-sm-min - 1);
+
 /* Colors */
 
 $main-text-color: #4a4a4a;
@@ -320,7 +328,7 @@ div.field-add-delete {
 		margin: 0 1em;
 	}
 
-	@media (max-width: 991.98px) {
+	@media (max-width: $screen-sm-max) {
 		.btn span.glyphicon.no-text {
 			margin: 0 0.3em;
 		}
@@ -969,7 +977,7 @@ div[id$="filesTable"] .ui-paginator {
 		}
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: $screen-xs-max) {
 		margin-left: 0;
 		margin-right: 0;
 	}
