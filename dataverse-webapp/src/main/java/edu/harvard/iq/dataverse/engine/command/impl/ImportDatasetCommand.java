@@ -44,10 +44,10 @@ public class ImportDatasetCommand extends AbstractCreateDatasetCommand {
      * Validate that the PID of the dataset, if any, exists.
      *
      * @param ctxt
-     * @throws CommandException
+     * @
      */
     @Override
-    protected void additionalParameterTests(CommandContext ctxt) throws CommandException {
+    protected void additionalParameterTests(CommandContext ctxt)  {
 
         if (!getUser().isSuperuser()) {
             throw new PermissionException("ImportDatasetCommand can only be issued by a super-user.", this, Collections.emptySet(), getDataset());
@@ -89,7 +89,7 @@ public class ImportDatasetCommand extends AbstractCreateDatasetCommand {
     }
 
     @Override
-    protected void postPersist(Dataset theDataset, CommandContext ctxt) throws CommandException {
+    protected void postPersist(Dataset theDataset, CommandContext ctxt)  {
     }
 
 

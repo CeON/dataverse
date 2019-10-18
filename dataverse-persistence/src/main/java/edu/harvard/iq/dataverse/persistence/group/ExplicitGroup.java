@@ -154,10 +154,10 @@ public class ExplicitGroup implements Group, java.io.Serializable {
      * Adds the {@link RoleAssignee} to {@code this} group.
      *
      * @param ra the role assignee to be added to this group.
-     * @throws GroupException if {@code ra} is a group, and is either an ancestor of {@code this},
+     * @ if {@code ra} is a group, and is either an ancestor of {@code this},
      *                        or is defined in a dataverse that is not an ancestor of {@code this.owner}.
      */
-    public void add(RoleAssignee ra) throws GroupException {
+    public void add(RoleAssignee ra)  {
 
         if (ra.equals(this)) {
             throw new GroupException(this, "A group cannot be added to itself.");

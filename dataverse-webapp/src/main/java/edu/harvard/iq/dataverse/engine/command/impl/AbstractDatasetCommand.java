@@ -93,10 +93,10 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
      * @param dsv     The dataset version whose fields we validate
      * @param lenient when {@code true}, invalid fields are populated with N/A
      *                value.
-     * @throws CommandException if and only if {@code lenient=false}, and field
+     * @ if and only if {@code lenient=false}, and field
      *                          validation failed.
      */
-    protected void validateOrDie(DatasetVersion dsv, Boolean lenient) throws CommandException {
+    protected void validateOrDie(DatasetVersion dsv, Boolean lenient)  {
         Set<ConstraintViolation> constraintViolations = dsv.validate();
         if (!constraintViolations.isEmpty()) {
             if (lenient) {
@@ -154,9 +154,9 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
      *
      * @param theDataset
      * @param ctxt
-     * @throws CommandException
+     * @
      */
-    protected void registerExternalIdentifier(Dataset theDataset, CommandContext ctxt) throws CommandException {
+    protected void registerExternalIdentifier(Dataset theDataset, CommandContext ctxt)  {
         if (!theDataset.isIdentifierRegistered()) {
             GlobalIdServiceBean globalIdServiceBean = GlobalIdServiceBean.getBean(theDataset.getProtocol(), ctxt);
             if (globalIdServiceBean != null) {
