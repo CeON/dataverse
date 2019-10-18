@@ -70,8 +70,6 @@
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
                         <p:selectBooleanCheckbox
                                 value="#{MyDataSearchFragment.selectedTypesList.contains('dataverses') ? true : false}"
@@ -88,8 +86,6 @@
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
 
                         <i class="icon-dataverse text-icon-inline"></i>
@@ -114,8 +110,6 @@
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
                         <p:selectBooleanCheckbox
                                 value="#{MyDataSearchFragment.selectedTypesList.contains('datasets') ? true : false}"
@@ -132,8 +126,6 @@
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
 
                         <i class="icon-dataset text-icon-inline"></i>
@@ -158,8 +150,6 @@
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
                         <p:selectBooleanCheckbox value="#{MyDataSearchFragment.selectedTypesList.contains('files') ? true : false}"
                                                  disabled="#{MyDataSearchFragment.getNewSelectedTypes('files') == null ? true : false}"/>
@@ -175,8 +165,6 @@
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
 
                         <i class="icon-file text-icon-inline"></i>
@@ -208,8 +196,6 @@
                             </c:forEach>
                             <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                             <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                            <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                            <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         </h:outputLink>
 
                         <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{MyDataSearchFragment.filterQueries.contains(facetLabel.filterQuery)}" styleClass="facetLink facetSelected">
@@ -226,8 +212,6 @@
                             </c:forEach>
                             <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                             <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                            <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                            <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                         </h:outputLink>
                     </p:dataList>
 
@@ -247,8 +231,6 @@
                                 </c:forEach>
                                 <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                 <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                                <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                             </h:outputLink>
 
                             <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{MyDataSearchFragment.roleFilters.contains(role)}" styleClass="facetLink facetSelected">
@@ -263,8 +245,6 @@
                                 </c:forEach>
                                 <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                 <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                                <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                             </h:outputLink>
                         </p:dataList>
                     </h:form>
@@ -276,7 +256,6 @@
             <div jsf:rendered="#{MyDataSearchFragment.debug}" style="background-color: lightgray">
                 <tt>
                     <h:outputText value="mode:#{MyDataSearchFragment.mode} "/>
-                    <h:outputText value="sort=#{MyDataSearchFragment.sortField}:#{MyDataSearchFragment.sortOrder}"/><br/>
                     <h:outputText value="#{MyDataSearchFragment.filterQueriesDebug}"/><br/>
                     <h:outputText value="solrIsDown=#{MyDataSearchFragment.solrIsDown}"/><br/>
                     <h:outputText value="errorFromSolr: #{MyDataSearchFragment.errorFromSolr}" rendered="#{MyDataSearchFragment.errorFromSolr != null}"/>
@@ -351,8 +330,6 @@
                         </c:forEach>
                         <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                         <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                     </h:outputLink>
                 </ui:repeat>
                 <ui:repeat value="#{MyDataSearchFragment.roleFilters}" var="roleFilter" rendered="#{!MyDataSearchFragment.wasSolrErrorEncountered()}">
@@ -368,8 +345,6 @@
                         </c:forEach>
                         <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                         <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                     </h:outputLink>
                 </ui:repeat>
             </div>
@@ -626,8 +601,6 @@
                                     </c:forEach>
                                     <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                                     <f:param name="page" value="1"/>
                                 </h:outputLink>
                             </li>
@@ -643,8 +616,6 @@
                                     </c:forEach>
                                     <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                                     <f:param name="page" value="#{Math:max(1,MyDataSearchFragment.page-1).intValue()}"/>
                                 </h:outputLink>
                             </li>
@@ -668,8 +639,6 @@
                                             <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
                                         </c:forEach>
                                         <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                        <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                        <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                                         <f:param name="page" value="#{pageStatus.index}"/>
                                     </h:outputLink>
                                 </li>
@@ -686,8 +655,6 @@
                                     </c:forEach>
                                     <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                                     <f:param name="page" value="#{Math:min(MyDataSearchFragment.page+1,MyDataSearchFragment.totalPages).intValue()}"/>
                                 </h:outputLink>
                             </li>
@@ -702,8 +669,6 @@
                                         <f:param name="rf#{role.index}" value='#{clickedRoleFilter}'/>
                                     </c:forEach>
                                     <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
-                                    <f:param name="sort" value="#{MyDataSearchFragment.sortField}"/>
-                                    <f:param name="order" value="#{MyDataSearchFragment.sortOrder}"/>
                                     <f:param name="page" value="#{MyDataSearchFragment.totalPages}"/>
                                     <f:param name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
                                 </h:outputLink>

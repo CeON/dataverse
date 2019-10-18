@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataverse.DataversePage;
@@ -27,8 +25,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -56,27 +52,14 @@ public class ManageGroupsPage implements java.io.Serializable {
     EjbDataverseEngine engineService;
     @EJB
     RoleAssigneeServiceBean roleAssigneeService;
-    @EJB
-    AuthenticationServiceBean authenticationService;
-    @EJB
-    GroupServiceBean groupService;
     @Inject
     DataverseRequestServiceBean dvRequestService;
 
     @Inject
     PermissionsWrapper permissionsWrapper;
 
-    @PersistenceContext(unitName = "VDCNet-ejbPU")
-    EntityManager em;
-
     @Inject
     DataversePage dvpage;
-
-    @Inject
-    GuestbookPage guestbookPage;
-
-    @Inject
-    DataverseSession session;
 
     private List<ExplicitGroup> explicitGroups;
     private Dataverse dataverse;

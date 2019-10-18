@@ -3,14 +3,15 @@ package edu.harvard.iq.dataverse.mydata;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
+import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.ThumbnailServiceWrapper;
 import edu.harvard.iq.dataverse.WidgetWrapper;
-import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.DataverseRolePermissionHelper;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
@@ -18,7 +19,6 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
@@ -41,7 +41,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
 
 @ViewScoped
 @Named("MyDataSearchFragment")
-public class MyDataSearchFragment extends AbstractApiBean implements java.io.Serializable {
+public class MyDataSearchFragment implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(MyDataSearchFragment.class.getCanonicalName());
 
@@ -86,6 +85,10 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private WidgetWrapper widgetWrapper;
     @Inject
     private PermissionsWrapper permissionsWrapper;
+    @Inject
+    private DataverseRequestServiceBean dataverseRequestService;
+    @Inject
+    private RoleAssigneeServiceBean roleAssigneeService;
 
     private String browseModeString = "browse";
     private String searchModeString = "search";
@@ -118,12 +121,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
     private String selectedTypesString;
     private List<String> selectedTypesList = new ArrayList<>();
 
-    final private String ASCENDING = SortOrder.asc.toString();
-    final private String DESCENDING = SortOrder.desc.toString();
     private String typeFilterQuery;
     private Map<String, Long> previewCountbyType = new HashMap<>();
-    private String sortField;
-    private SortOrder sortOrder;
     private int page = 1;
     private int paginationGuiStart = 1;
     private int paginationGuiEnd = 10;
@@ -274,51 +273,6 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
 
     public Long getFacetCountFiles() {
         return findFacetCountByType("files");
-    }
-
-    public String getASCENDING() {
-        return ASCENDING;
-    }
-
-    public String getDESCENDING() {
-        return DESCENDING;
-    }
-
-    public String getSortField() {
-        return sortField;
-    }
-
-    public void setSortField(String sortField) {
-        this.sortField = sortField;
-    }
-
-    public String getSortOrder() {
-        if (sortOrder != null) {
-            return sortOrder.toString();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * @todo this method doesn't seem to be in use and can probably be deleted.
-     */
-    @Deprecated
-    public String getCurrentSortFriendly() {
-        String friendlySortField = sortField;
-        String friendlySortOrder = sortOrder.toString();
-        if (sortField.equals(SearchFields.NAME_SORT)) {
-            friendlySortField = "Name";
-            if (sortOrder.equals(ASCENDING)) {
-                friendlySortOrder = " (A-Z)";
-            } else if (sortOrder.equals(DESCENDING)) {
-                friendlySortOrder = " (Z-A)";
-            }
-        } else if (sortField.equals(SearchFields.RELEVANCE)) {
-            friendlySortField = "Relevance";
-            friendlySortOrder = "";
-        }
-        return friendlySortField + friendlySortOrder;
     }
 
     public int getPage() {
@@ -740,25 +694,13 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         String searchTerm = "*";
         if (mode.equals(browseModeString)) {
             searchTerm = "*";
-            if (sortField == null) {
-                String searchFieldReleaseOrCreateDate = SearchFields.RELEASE_OR_CREATE_DATE;
-                sortField = searchFieldReleaseOrCreateDate;
-            }
-            if (sortOrder == null) {
-                sortOrder = MyDataSearchFragment.SortOrder.desc;
-            }
+
             if (selectedTypesString == null || selectedTypesString.isEmpty()) {
                 selectedTypesString = "dataverses:datasets";
             }
         } else if (mode.equals(searchModeString)) {
             searchTerm = query;
-            if (sortField == null) {
-                String searchFieldRelevance = SearchFields.RELEVANCE;
-                sortField = searchFieldRelevance;
-            }
-            if (sortOrder == null) {
-                sortOrder = MyDataSearchFragment.SortOrder.desc;
-            }
+
             if (selectedTypesString == null || selectedTypesString.isEmpty()) {
                 selectedTypesString = "dataverses:datasets:files";
             }
@@ -796,22 +738,23 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         // ---------------------------------
         // (1) Initialize filterParams and check for Errors
         // ---------------------------------
-        DataverseRequest dataverseRequest = createDataverseRequest(authUser);
+        DataverseRequest dataverseRequest = dataverseRequestService.getDataverseRequest();
 
         List<String> filterQueriesFinal = new ArrayList<>();
+        List<String> filterQueriesWithAllRoles = new ArrayList<>();
         selectedTypesList = new ArrayList<>();
         String[] parts = selectedTypesString.split(":");
         selectedTypesList.addAll(Arrays.asList(parts));
 
-        List<String> filterQueriesFinalAllTypes = new ArrayList<>();
         String[] arr = selectedTypesList.toArray(new String[selectedTypesList.size()]);
         String selectedTypesHumanReadable = combine(arr, " OR ");
         if (!selectedTypesHumanReadable.isEmpty()) {
             typeFilterQuery = SearchFields.TYPE + ":(" + selectedTypesHumanReadable + ")";
         }
 
-        List<Long> rolesIds = rolePermissionHelper.getRoleIdList();
-        MyDataFilterParams filterParams = new MyDataFilterParams(dataverseRequest, toMyDataFinderFormat(selectedTypesList), pub_states, rolesIds, searchTerm);
+        List<Long> roleIdsForFilters = roleFilters.isEmpty() ? rolePermissionHelper.getRoleIdList() : rolePermissionHelper.findRolesIdsByNames(roleFilters);
+        MyDataFilterParams filterParams = new MyDataFilterParams(dataverseRequest, toMyDataFinderFormat(selectedTypesList),
+                pub_states, roleIdsForFilters, searchTerm);
         if (filterParams.hasError()) {
             return filterParams.getErrorMessage() + filterParams.getErrorMessage();
         }
@@ -820,7 +763,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         // (2) Initialize MyDataFinder and check for Errors
         // ---------------------------------
         MyDataFinder myDataFinder = new MyDataFinder(rolePermissionHelper,
-                roleAssigneeSvc,
+                roleAssigneeService,
                 dvObjectServiceBean,
                 groupService);
         myDataFinder.runFindDataSteps(filterParams);
@@ -840,10 +783,8 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
         }
 
         filterQueriesFinal.addAll(filterQueries);
-        filterQueriesFinalAllTypes.addAll(filterQueriesFinal);
         filterQueriesFinal.add(typeFilterQuery);
-        String allTypesFilterQuery = SearchFields.TYPE + ":(dataverses OR datasets OR files)";
-        filterQueriesFinalAllTypes.add(allTypesFilterQuery);
+//        filterQueriesWithAllRoles
 
 
         // ---------------------------------
@@ -893,7 +834,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                         true,
                         1000
                 );
-                roleTagRetriever = new RoleTagRetriever(rolePermissionHelper, this.roleAssigneeSvc, this.dvObjectServiceBean);
+                roleTagRetriever = new RoleTagRetriever(rolePermissionHelper, roleAssigneeService, this.dvObjectServiceBean);
                 roleTagRetriever.loadRoles(dataverseRequest, fullSolrQueryResponse);
 
                 List<String> roles = new ArrayList<>();
@@ -905,30 +846,7 @@ public class MyDataSearchFragment extends AbstractApiBean implements java.io.Ser
                 logger.severe("Solr SearchException: " + ex.getMessage());
             }
 
-            if(!roleFilters.isEmpty()) {
-                try {
-                    SolrQueryResponse helpSolrQueryResponse = searchService.search(
-                            dataverseRequest,
-                            null,
-                            searchTerm,
-                            filterQueriesFinal,
-                            SearchFields.RELEASE_OR_CREATE_DATE,
-                            SortBy.DESCENDING,
-                            paginationStart,
-                            true,
-                            SearchConstants.NUM_SOLR_DOCS_TO_RETRIEVE,
-                            true,
-                            getEntitiesIdsNotFilteredByRoles(roleFilters, roleTagRetriever)
-                    );
-
-                    roleTagRetriever.loadRoles(dataverseRequest, helpSolrQueryResponse);
-                    solrQueryResponse = helpSolrQueryResponse; // helpSolrQueryResponse.rebuildForRolesFilters(roleFilters, roleTagRetriever);
-                } catch (SearchException ex) {
-                    solrQueryResponse = null;
-                    logger.severe("Solr SearchException: " + ex.getMessage());
-                }
-            }
-
+            roleTagRetriever.loadRoles(dataverseRequest, solrQueryResponse);
             for(FacetCategory facetCat : solrQueryResponse.getFacetCategoryList()) {
                 if(facetCat.getName().equals("publicationStatus")) {
                     this.facetCategoryList.add(facetCat);
