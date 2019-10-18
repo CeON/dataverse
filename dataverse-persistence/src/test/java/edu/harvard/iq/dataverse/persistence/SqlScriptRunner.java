@@ -23,8 +23,8 @@ import java.util.logging.Logger;
  * @see https://github.com/mybatis/ibatis-2/blob/master/src/main/java/com/ibatis/common/jdbc/ScriptRunner.java
  */
 @Stateless
-public class ScriptRunner {
-    private static final Logger LOG = Logger.getLogger(ScriptRunner.class.getCanonicalName());
+public class SqlScriptRunner {
+    private static final Logger LOG = Logger.getLogger(SqlScriptRunner.class.getCanonicalName());
     private static final String DELIMITER = ";";
 
 
@@ -46,20 +46,20 @@ public class ScriptRunner {
         }
     }
 
+    // -------------------- PRIVATE --------------------
+
     /**
      * Runs an SQL script (read in using the Reader parameter)
      * @throws IOException 
      */
     private void runScript(Reader reader) throws IOException {
-        StringBuffer command = null;
+        StringBuffer command = new StringBuffer();
         LineNumberReader lineReader = new LineNumberReader(reader);
 
         try {
             String line = null;
             while ((line = lineReader.readLine()) != null) {
-                if (command == null) {
-                    command = new StringBuffer();
-                }
+                
                 String trimmedLine = line.trim();
                 if (trimmedLine.length() == 0 || trimmedLine.startsWith("//") || trimmedLine.startsWith("--")) {
                     continue;
@@ -76,15 +76,13 @@ public class ScriptRunner {
 
                 executeCommand(command.toString());
 
-                command = null;
+                command.delete(0, command.length());
             }
 
         } finally {
             entityManager.flush();
         }
     }
-
-    // -------------------- PRIVATE --------------------
 
     private void executeCommand(String commandString) {
         LOG.finest("Executing command: " + commandString);

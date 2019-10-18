@@ -4,7 +4,7 @@ import com.github.sleroy.fakesmtp.core.ServerConfiguration;
 import com.github.sleroy.junit.mail.server.test.FakeSmtpRule;
 import edu.harvard.iq.dataverse.persistence.DatabaseCleaner;
 import edu.harvard.iq.dataverse.persistence.PersistenceArquillianDeployment;
-import edu.harvard.iq.dataverse.persistence.ScriptRunner;
+import edu.harvard.iq.dataverse.persistence.SqlScriptRunner;
 import edu.harvard.iq.dataverse.test.arquillian.ArquillianIntegrationTests;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.Archive;
@@ -36,7 +36,7 @@ public class WebappArquillianDeployment {
                                                               .charset("UTF-8"));
 
     @Inject
-    private ScriptRunner scriptRunner;
+    private SqlScriptRunner sqlScriptRunner;
     @Inject
     private DatabaseCleaner databaseCleaner;
     @Resource
@@ -45,7 +45,7 @@ public class WebappArquillianDeployment {
 
     @Before
     public void before() throws Throwable {
-        scriptRunner.runScriptFromClasspath("/dbinit.sql");
+        sqlScriptRunner.runScriptFromClasspath("/dbinit.sql");
     }
 
     @After

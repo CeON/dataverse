@@ -22,7 +22,7 @@ public class PersistenceArquillianDeployment {
     private static final Logger logger = Logger.getLogger(PersistenceArquillianDeployment.class.getName());
 
     @Inject
-    private ScriptRunner scriptRunner;
+    private SqlScriptRunner sqlScriptRunner;
     @Inject
     private DatabaseCleaner databaseCleaner;
     @Resource
@@ -31,7 +31,7 @@ public class PersistenceArquillianDeployment {
 
     @Before
     public void before() throws Throwable {
-        scriptRunner.runScriptFromClasspath("/dbinit.sql");
+        sqlScriptRunner.runScriptFromClasspath("/dbinit.sql");
     }
 
     @After
