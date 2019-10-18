@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Class takes care of editing tags(FileMetadata and Datafile) for single or multiple files.
+ */
 @ViewScoped
 @Named("FileTagModal")
 public class FileTagModal implements Serializable {
@@ -76,6 +79,9 @@ public class FileTagModal implements Serializable {
         prepareTags(fileMetadatas, dataset);
     }
 
+    /**
+     * Saves custom category typed by user.
+     */
     public String saveNewCategory() {
 
         if (!newCategoryName.isEmpty()) {
@@ -101,6 +107,12 @@ public class FileTagModal implements Serializable {
 
     // -------------------- PRIVATE --------------------
 
+    /**
+     * Cleans up the model since it is ViewScoped, it will not clean itself when the modal window will popup again.
+     * <p></p>
+     * It had to be used in 'constructor' and not when closing window,
+     * otherwise jsf will raise an error https://stackoverflow.com/questions/9069379/validation-error-value-is-not-valid
+     */
     public void cleanupModalState() {
         selectedFileMetadataTags.clear();
         selectedDataFileTags.clear();
@@ -124,9 +136,13 @@ public class FileTagModal implements Serializable {
     private void prepareFileMetadataTags(FileMetadata fileMetadata, Dataset dataset) {
         fileMetadataTags.addAll(dataset.getCategoriesByName());
         fileMetadataTags.addAll(fileMetadata.getCategoriesByName());
+
         selectedFileMetadataTags.addAll(fileMetadata.getCategoriesByName());
     }
 
+    /**
+     * DataFile tags are used exclusively by TAB separated values (ingested files).
+     */
     private void prepareDataFileTags(FileMetadata fileMetadata) {
         dataFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
         selectedDataFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
