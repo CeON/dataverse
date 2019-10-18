@@ -17,7 +17,6 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailComman
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestUtil;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.license.TermsOfUseSelectItemsFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -1269,9 +1268,11 @@ public class EditDatafilesPage implements java.io.Serializable {
             } catch (EJBException ex) {
                 logger.warning("Problem getting rsync script (EJBException): " + EjbUtil.ejbExceptionToString(ex));
             } catch (RuntimeException ex) {
-                logger.warning("Problem getting rsync script (RuntimeException): " + ex.getLocalizedMessage());
-            } catch (CommandException cex) {
-                logger.warning("Problem getting rsync script (Command Exception): " + cex.getLocalizedMessage());
+                if (ex instanceof CommandException) {
+                    logger.warning("Problem getting rsync script (Command Exception): " + ex.getLocalizedMessage());
+                } else {
+                    logger.warning("Problem getting rsync script (RuntimeException): " + ex.getLocalizedMessage());
+                }
             }
         }
     }
