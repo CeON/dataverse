@@ -22,7 +22,7 @@ public class SolrQueryResponse {
     private List<FacetCategory> facetCategoryList;
     private List<FacetCategory> typeFacetCategories;
     private Map<String, String> datasetfieldFriendlyNamesBySolrField = new HashMap<>();
-    private Map<String, String> staticSolrFieldFriendlyNamesBySolrField;
+    private Map<String, String> staticSolrFieldFriendlyNamesBySolrField = new HashMap<>();
     private List<String> filterQueriesActual = new ArrayList<String>();
     private String error;
     private Map<String, Long> dvObjectCounts = new HashMap<>();
