@@ -44,7 +44,7 @@ public class ImportDatasetCommand extends AbstractCreateDatasetCommand {
      * Validate that the PID of the dataset, if any, exists.
      *
      * @param ctxt
-     * @
+     * @throws CommandException
      */
     @Override
     protected void additionalParameterTests(CommandContext ctxt)  {

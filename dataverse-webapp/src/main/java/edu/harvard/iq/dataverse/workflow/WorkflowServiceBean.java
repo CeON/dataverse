@@ -97,7 +97,7 @@ public class WorkflowServiceBean {
      *
      * @param wf   the workflow to execute.
      * @param ctxt the context in which the workflow is executed.
-     * @ If the dataset could not be locked.
+     * @throws CommandException If the dataset could not be locked.
      */
     @Asynchronous
     public void start(Workflow wf, WorkflowContext ctxt)  {

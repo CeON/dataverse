@@ -93,7 +93,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
      * @param dsv     The dataset version whose fields we validate
      * @param lenient when {@code true}, invalid fields are populated with N/A
      *                value.
-     * @ if and only if {@code lenient=false}, and field
+     * @throws CommandException if and only if {@code lenient=false}, and field
      *                          validation failed.
      */
     protected void validateOrDie(DatasetVersion dsv, Boolean lenient)  {
