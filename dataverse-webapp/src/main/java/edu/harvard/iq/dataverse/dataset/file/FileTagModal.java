@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.file;
 
+import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 
@@ -144,7 +145,7 @@ public class FileTagModal implements Serializable {
      * DataFile tags are used exclusively by TAB separated values (ingested files).
      */
     private void prepareDataFileTags(FileMetadata fileMetadata) {
-        dataFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
+        dataFileTags.addAll(DataFileTag.listTags());
         selectedDataFileTags.addAll(fileMetadata.getDataFile().getTagLabels());
     }
 
