@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
@@ -20,6 +21,7 @@ import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
@@ -39,6 +41,7 @@ import javax.ejb.EJB;
 import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionRolledbackLocalException;
+import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -51,9 +54,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Stateless
 public class SearchServiceBean {
@@ -81,26 +89,8 @@ public class SearchServiceBean {
     SystemConfig systemConfig;
     @EJB
     private SolrFieldFactory solrFieldFactory;
-
+    @Inject
     private SolrClient solrServer;
-
-    @PostConstruct
-    public void init() {
-        String urlString = "http://" + settingsService.getValueForKey(Key.SolrHostColonPort) + "/solr/collection1";
-        solrServer = new HttpSolrClient.Builder(urlString).build();
-    }
-
-    @PreDestroy
-    public void close() {
-        if (solrServer != null) {
-            try {
-                solrServer.close();
-            } catch (IOException e) {
-                logger.warning("Solr closing error: " + e);
-            }
-            solrServer = null;
-        }
-    }
 
     /**
      * Import note: "onlyDatatRelatedToMe" relies on filterQueries for providing
@@ -636,7 +626,9 @@ public class SearchServiceBean {
                  */
 //                logger.info("field: " + facetField.getName() + " " + facetFieldCount.getName() + " (" + facetFieldCount.getCount() + ")");
                 if (facetFieldCount.getCount() > 0) {
-                    FacetLabel facetLabel = new FacetLabel(facetFieldCount.getName(), facetFieldCount.getCount());
+                    FacetLabel facetLabel = new FacetLabel(facetFieldCount.getName(),
+                            getLocaleFacetName(facetFieldCount.getName()),
+                            facetFieldCount.getCount());
                     // quote field facets
                     facetLabel.setFilterQuery(facetField.getName() + ":\"" + facetFieldCount.getName() + "\"");
                     facetLabelList.add(facetLabel);
@@ -703,7 +695,7 @@ public class SearchServiceBean {
                         stringBuilder.append(getCapitalizedName(part.toLowerCase()) + " ");
                     }
                     String friendlyNameWithTrailingSpace = stringBuilder.toString();
-                    String friendlyName = friendlyNameWithTrailingSpace.replaceAll(" $", "");
+                    String friendlyName = getLocaleFacetName(friendlyNameWithTrailingSpace.replaceAll(" $", ""));
                     facetCategory.setFriendlyName(friendlyName);
 //                    logger.info("adding <<<" + staticSearchField + ":" + friendlyName + ">>>");
                     staticSolrFieldFriendlyNamesBySolrField.put(staticSearchField, friendlyName);
@@ -746,7 +738,7 @@ public class SearchServiceBean {
                 // to avoid overlapping dates
                 end = end - 1;
                 if (rangeFacetCount.getCount() > 0) {
-                    FacetLabel facetLabel = new FacetLabel(start + "-" + end, new Long(rangeFacetCount.getCount()));
+                    FacetLabel facetLabel = new FacetLabel(start + "-" + end,start + "-" + end, new Long(rangeFacetCount.getCount()));
                     // special [12 TO 34] syntax for range facets
                     facetLabel.setFilterQuery(rangeFacet.getName() + ":" + "[" + start + " TO " + end + "]");
                     facetLabelList.add(facetLabel);
@@ -773,8 +765,6 @@ public class SearchServiceBean {
         solrQueryResponse.setTypeFacetCategories(typeFacetCategories);
         solrQueryResponse.setNumResultsFound(queryResponse.getResults().getNumFound());
         solrQueryResponse.setResultsStart(queryResponse.getResults().getStart());
-        solrQueryResponse.setDatasetfieldFriendlyNamesBySolrField(datasetfieldFriendlyNamesBySolrField);
-        solrQueryResponse.setStaticSolrFieldFriendlyNamesBySolrField(staticSolrFieldFriendlyNamesBySolrField);
         String[] filterQueriesArray = solrQuery.getFilterQueries();
         if (filterQueriesArray != null) {
             // null check added because these tests were failing: mvn test -Dtest=SearchIT
@@ -815,11 +805,7 @@ public class SearchServiceBean {
          * with "AllUsers" group or not? If so, uncomment the allUsersString
          * stuff below.
          */
-//        String allUsersString = IndexServiceBean.getGroupPrefix() + AllUsers.get().getAlias();
-//        String publicOnly = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":(" + IndexServiceBean.getPublicGroupString() + " OR " + allUsersString + ")";
         String publicOnly = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":(" + IndexServiceBean.getPublicGroupString() + ")";
-//        String publicOnly = "{!join from=" + SearchFields.GROUPS + " to=" + SearchFields.PERMS + "}id:" + IndexServiceBean.getPublicGroupString();
-        // initialize to public only to be safe
         String dangerZoneNoSolrJoin = null;
 
         if (user instanceof PrivateUrlUser) {
@@ -959,5 +945,47 @@ public class SearchServiceBean {
             facetsNames.addAll(pubStatuses);
         }
         return facetsNames;
+    }
+  
+    public String getLocaleFacetName(String name) {
+        return getLocaleFacetName(name, datasetFieldService.findAllOrderedByName());
+    }
+
+    public String getLocaleFacetName(String name, List<DatasetFieldType> datasetFields ) {
+        final String key = toBundleNameFormat(name);
+        try {
+            String displayName = getStringFromBundle(format("facets.search.fieldtype.%s.label", name));
+            if(isNotBlank(displayName)) {
+                return displayName;
+            }
+            displayName = BundleUtil.getStringFromBundle(name);
+            if(isNotBlank(displayName)) {
+                return displayName;
+            }
+            displayName = BundleUtil.getStringFromBundle("dataverse.type.selectTab." + key);
+            if(isNotBlank(displayName)) {
+                return displayName;
+            }
+            for(DatasetFieldType datasetField : datasetFields) {
+                displayName = BundleUtil.getStringFromPropertyFile("controlledvocabulary."
+                                + datasetField.getName() + "." + key,
+                        datasetField.getMetadataBlock().getName().toLowerCase());
+                if(isNotBlank(displayName)) {
+                    return displayName;
+                }
+            }
+        } catch (MissingResourceException | NullPointerException e) {
+            return name;
+        }
+        return name;
+    }
+
+    /**
+     * if exist, multi word bundle names are connected with underscores and formatted toLowerCase
+     * @param name text for which we want to create its bundle name
+     * @return text with replaced spaces with underscores, and leading/trailing whitespaces removed, toLowerCased
+     */
+    private String toBundleNameFormat(String name) {
+        return StringUtils.stripAccents(name.toLowerCase().replace(" ", "_"));
     }
 }

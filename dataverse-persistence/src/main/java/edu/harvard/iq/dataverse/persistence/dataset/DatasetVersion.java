@@ -47,7 +47,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +133,7 @@ public class DatasetVersion implements Serializable {
 
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "termsOfUseAndAccess_id")
-    private TermsOfUseAndAccess termsOfUseAndAccess;
+    private TermsOfUseAndAccess termsOfUseAndAccess = new TermsOfUseAndAccess();
 
     @OneToMany(mappedBy = "datasetVersion", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetField> datasetFields = new ArrayList();
@@ -490,35 +489,6 @@ public class DatasetVersion implements Serializable {
         return !this.fileMetadatas.get(0).getDataFile().getContentType().equals(PackageMimeType.DATAVERSE_PACKAGE.getMimeValue());
     }
 
-    public void updateDefaultValuesFromTemplate(Template template) {
-        List<DatasetField> datasetFields = initDatasetFields();
-        Map<DatasetFieldType, DatasetField> datasetFieldsMap = new LinkedHashMap<>();
-
-        for (DatasetField datasetField : datasetFields) {
-            datasetFieldsMap.put(datasetField.getDatasetFieldType(), datasetField);
-        }
-        if (!template.getDatasetFields().isEmpty()) {
-            List<DatasetField> templateDatasetFields = this.copyDatasetFields(template.getDatasetFields());
-
-            for (DatasetField templateField : templateDatasetFields) {
-                datasetFieldsMap.put(templateField.getDatasetFieldType(), templateField);
-            }
-        }
-        setDatasetFields(new ArrayList<>(datasetFieldsMap.values()));
-
-        if (template.getTermsOfUseAndAccess() != null) {
-            TermsOfUseAndAccess terms = template.getTermsOfUseAndAccess().copyTermsOfUseAndAccess();
-            terms.setDatasetVersion(this);
-            this.setTermsOfUseAndAccess(terms);
-        } else {
-            TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
-            terms.setDatasetVersion(this);
-            terms.setLicense(TermsOfUseAndAccess.License.CC0);
-            terms.setDatasetVersion(this);
-            this.setTermsOfUseAndAccess(terms);
-        }
-    }
-
     public DatasetVersion cloneDatasetVersion() {
         DatasetVersion dsv = new DatasetVersion();
         dsv.setVersionState(this.getPriorVersionState());
@@ -529,7 +499,7 @@ public class DatasetVersion implements Serializable {
         }
 
         if (this.getDatasetFields() != null && !this.getDatasetFields().isEmpty()) {
-            dsv.setDatasetFields(dsv.copyDatasetFields(this.getDatasetFields()));
+            dsv.setDatasetFields(DatasetFieldUtil.copyDatasetFields(this.getDatasetFields()));
         }
 
         if (this.getTermsOfUseAndAccess() != null) {
@@ -1122,10 +1092,14 @@ public class DatasetVersion implements Serializable {
                             relatedPublication.setText(citation);
                         }
                         if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationURL)) {
-                            // Prevent href and target=_blank from getting into Schema.org JSON-LD output.
-                            subField.getDatasetFieldType().setDisplayFormat("#VALUE");
-                            String url = subField.getDisplayValue();
+                            String url = subField.getValue();
                             relatedPublication.setUrl(url);
+                        }
+                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationIDNumber)) {
+                            relatedPublication.setIdNumber(subField.getValue());
+                        }
+                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationIDType)) {
+                            relatedPublication.setIdType(subField.getValue());
                         }
                     }
                     relatedPublications.add(relatedPublication);
@@ -1431,34 +1405,9 @@ public class DatasetVersion implements Serializable {
         return serverName + "/file.xhtml?fileId=" + dataFile.getId() + "&version=" + this.getSemanticVersion();
     }
 
-    public List<DatasetField> copyDatasetFields(List<DatasetField> copyFromList) {
-        List<DatasetField> retList = new ArrayList<>();
-
-        for (DatasetField sourceDsf : copyFromList) {
-            //the copy needs to have the current version
-            retList.add(sourceDsf.copy(this));
-        }
-
-        return retList;
-    }
-
 
     public List<DatasetField> getFlatDatasetFields() {
-        return getFlatDatasetFields(getDatasetFields());
-    }
-
-    private List<DatasetField> getFlatDatasetFields(List<DatasetField> dsfList) {
-        List<DatasetField> retList = new LinkedList<>();
-        for (DatasetField dsf : dsfList) {
-            retList.add(dsf);
-            if (dsf.getDatasetFieldType().isCompound()) {
-                for (DatasetFieldCompoundValue compoundValue : dsf.getDatasetFieldCompoundValues()) {
-                    retList.addAll(getFlatDatasetFields(compoundValue.getChildDatasetFields()));
-                }
-
-            }
-        }
-        return retList;
+        return DatasetFieldUtil.getFlatDatasetFields(getDatasetFields());
     }
 
     public String getSemanticVersion() {

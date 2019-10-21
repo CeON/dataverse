@@ -1,16 +1,18 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.dataset.DatasetFieldsInitializer;
+import edu.harvard.iq.dataverse.dataverse.template.TemplateDao;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateTemplateCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseTemplateCommand;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import org.apache.commons.lang.StringUtils;
 
@@ -22,6 +24,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
@@ -34,16 +38,13 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 public class TemplatePage implements java.io.Serializable {
 
     @EJB
-    TemplateServiceBean templateService;
+    TemplateDao templateDao;
 
     @EJB
     DataverseServiceBean dataverseService;
 
     @EJB
     EjbDataverseEngine commandEngine;
-
-    @EJB
-    DataverseFieldTypeInputLevelServiceBean dataverseFieldTypeInputLevelService;
 
     @Inject
     DataverseRequestServiceBean dvRequestService;
@@ -52,7 +53,7 @@ public class TemplatePage implements java.io.Serializable {
     PermissionsWrapper permissionsWrapper;
 
     @Inject
-    DataverseSession session;
+    DatasetFieldsInitializer datasetFieldsInitializer;
 
     private static final Logger logger = Logger.getLogger(TemplatePage.class.getCanonicalName());
 
@@ -65,6 +66,7 @@ public class TemplatePage implements java.io.Serializable {
     private EditMode editMode;
     private Long ownerId;
     private Long templateId;
+    private Map<MetadataBlock, List<DatasetField>> mdbForEdit;
 
     public Long getTemplateId() {
         return templateId;
@@ -106,67 +108,59 @@ public class TemplatePage implements java.io.Serializable {
         this.ownerId = ownerId;
     }
 
-    private int selectedTabIndex;
-
-    public int getSelectedTabIndex() {
-        return selectedTabIndex;
-    }
-
-    public void setSelectedTabIndex(int selectedTabIndex) {
-        this.selectedTabIndex = selectedTabIndex;
+    public Map<MetadataBlock, List<DatasetField>> getMdbForEdit() {
+        return mdbForEdit;
     }
 
     public String init() {
 
-        dataverse = dataverseService.find(ownerId);
-        if (dataverse == null) {
-            return permissionsWrapper.notFound();
-        }
-        if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
-            return permissionsWrapper.notAuthorized();
-        }
-        if (templateId != null) { // edit existing template
+        if (isEditingTemplate()) {
             editMode = TemplatePage.EditMode.METADATA;
-            template = templateService.find(templateId);
-            template.setDataverse(dataverse);
-            template.setMetadataValueBlocks();
+            template = templateDao.find(templateId);
 
-            if (template.getTermsOfUseAndAccess() == null) {
-                TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
-                terms.setTemplate(template);
-                terms.setLicense(TermsOfUseAndAccess.License.CC0);
-                template.setTermsOfUseAndAccess(terms);
+            dataverse = template.getDataverse();
+
+            if (dataverse == null) {
+                return permissionsWrapper.notFound();
             }
 
-            updateDatasetFieldsIncludeFlag();
-        } else if (ownerId != null) {
-            // create mode for a new template
+            if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
+                return permissionsWrapper.notAuthorized();
+            }
+
+            List<DatasetField> dsfForEdit = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
+            template.setDatasetFields(dsfForEdit);
+            mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(dsfForEdit);
+
+            if (template.getTermsOfUseAndAccess() == null) {
+                template.setTermsOfUseAndAccess(prepareTermsOfUseAndAccess(template));
+            }
+
+
+        } else if (isCreatingTemplate()) {
+            dataverse = dataverseService.find(ownerId);
+
+            if (dataverse == null) {
+                return permissionsWrapper.notFound();
+            }
+
+            if (!permissionsWrapper.canIssueCommand(dataverse, UpdateDataverseCommand.class)) {
+                return permissionsWrapper.notAuthorized();
+            }
 
             editMode = TemplatePage.EditMode.CREATE;
             template = new Template(this.dataverse);
-            TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
-            terms.setTemplate(template);
-            terms.setLicense(TermsOfUseAndAccess.License.CC0);
-            template.setTermsOfUseAndAccess(terms);
-            updateDatasetFieldsIncludeFlag();
+
+            template.setTermsOfUseAndAccess(prepareTermsOfUseAndAccess(template));
+
+            List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(template.getDatasetFields(), dataverse.getMetadataBlockRootDataverse());
+            template.setDatasetFields(datasetFields);
+            mdbForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(datasetFields);
         } else {
             throw new RuntimeException("On Template page without id or ownerid."); // improve error handling
         }
-        return null;
-    }
 
-    private void updateDatasetFieldsIncludeFlag() {
-        Dataverse owner = dataverseService.find(ownerId);
-        Long dvIdForInputLevel = owner.getMetadataRootId();
-
-        for (DatasetField dsf : template.getFlatDatasetFields()) {
-            DataverseFieldTypeInputLevel dsfIl = dataverseFieldTypeInputLevelService.findByDataverseIdDatasetFieldTypeId(dvIdForInputLevel, dsf.getDatasetFieldType().getId());
-            if (dsfIl != null) {
-                dsf.setInclude(dsfIl.isInclude());
-            } else {
-                dsf.setInclude(true);
-            }
-        }
+        return StringUtils.EMPTY;
     }
 
     public String save() {
@@ -195,6 +189,21 @@ public class TemplatePage implements java.io.Serializable {
         
 
         return "/manage-templates.xhtml?dataverseId=" + dataverse.getId() + "&faces-redirect=true";
+    }
+
+    private TermsOfUseAndAccess prepareTermsOfUseAndAccess(Template template) {
+        TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
+        terms.setTemplate(template);
+        terms.setLicense(TermsOfUseAndAccess.License.CC0);
+        return terms;
+    }
+
+    private boolean isEditingTemplate() {
+        return templateId != null;
+    }
+
+    private boolean isCreatingTemplate() {
+        return ownerId != null;
     }
 
 }

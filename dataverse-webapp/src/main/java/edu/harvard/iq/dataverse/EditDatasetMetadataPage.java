@@ -1,6 +1,23 @@
 package edu.harvard.iq.dataverse;
 
-import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.dataset.DatasetFieldsInitializer;
+import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
+import edu.harvard.iq.dataverse.util.JsfHelper;
+import org.apache.commons.lang.StringUtils;
+
+import javax.ejb.EJB;
+import javax.ejb.EJBException;
+import javax.faces.application.FacesMessage;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.validation.ConstraintViolation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,30 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.faces.application.FacesMessage;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.validation.ConstraintViolation;
-
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
-import edu.harvard.iq.dataverse.persistence.user.Permission;
-import org.apache.commons.lang.StringUtils;
-import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
-import edu.harvard.iq.dataverse.util.JsfHelper;
+import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
 @ViewScoped
 @Named("editDatasetMetadataPage")
@@ -49,13 +44,9 @@ public class EditDatasetMetadataPage implements Serializable {
     @Inject
     private DataverseRequestServiceBean dvRequestService;
     @EJB
-    private DataverseFieldTypeInputLevelServiceBean dataverseFieldTypeInputLevelService;
-    @EJB
     private EjbDataverseEngine commandEngine;
     @Inject
-    private DatasetVersionUI datasetVersionUI;
-    @Inject
-    private PermissionServiceBean permissionService;
+    private DatasetFieldsInitializer datasetFieldsInitializer;
 
     private Long datasetId;
     private String persistentId;
@@ -113,10 +104,10 @@ public class EditDatasetMetadataPage implements Serializable {
         workingVersion = dataset.getEditVersion();
         clone = workingVersion.cloneDatasetVersion();
 
-        datasetVersionUI = datasetVersionUI.initDatasetVersionUI(workingVersion, true);
-        metadataBlocksForEdit = datasetVersionUI.getMetadataBlocksForEdit();
-
-        updateDatasetFieldsIncludeFlag();
+        List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(workingVersion.getDatasetFields(),
+                dataset.getOwner().getMetadataBlockRootDataverse());
+        workingVersion.setDatasetFields(datasetFields);
+        metadataBlocksForEdit = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(datasetFields);
 
         JH.addMessage(FacesMessage.SEVERITY_INFO,
                 BundleUtil.getStringFromBundle("dataset.message.editMetadata.label"),
@@ -159,31 +150,6 @@ public class EditDatasetMetadataPage implements Serializable {
     }
 
     // -------------------- PRIVATE --------------------
-
-    private void updateDatasetFieldsIncludeFlag() {
-        Long dvIdForInputLevel = dataset.getOwner().getMetadataRootId();
-
-        List<DatasetField> datasetFields = workingVersion.getFlatDatasetFields();
-        List<Long> datasetFieldTypeIds = new ArrayList<>();
-
-        for (DatasetField dsf: datasetFields) {
-            datasetFieldTypeIds.add(dsf.getDatasetFieldType().getId());
-        }
-
-        List<Long> fieldTypeIdsToHide = dataverseFieldTypeInputLevelService
-                .findByDataverseIdAndDatasetFieldTypeIdList(dvIdForInputLevel, datasetFieldTypeIds).stream()
-                .filter(inputLevel -> !inputLevel.isInclude())
-                .map(inputLevel -> inputLevel.getDatasetFieldType().getId())
-                .collect(Collectors.toList());
-
-
-        for (DatasetField dsf: datasetFields) {
-            dsf.setInclude(true);
-            if (fieldTypeIdsToHide.contains(dsf.getDatasetFieldType().getId())) {
-                dsf.setInclude(false);
-            }
-        }
-    }
 
     private String returnToLatestVersion() {
         dataset = datasetService.find(dataset.getId());

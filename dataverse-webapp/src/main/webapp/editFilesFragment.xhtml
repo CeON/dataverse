@@ -134,7 +134,7 @@
                                   process="filesTable" 
                                   update=":datasetForm:filesTable, @([id$=filesButtons])"
                                   label="#{bundle['file.selectToAddBtn']}"
-                                  oncomplete="javascript:bind_bsui_components();uploadFinished(PF('fileUploadWidget'));"
+                                  oncomplete="uploadFinished(PF('fileUploadWidget'));"
                                   onstart="javascript:uploadWidgetDropRemoveMsg();uploadStarted();"
                                   onerror="javascript:uploadFailure();"
                                   sizeLimit="#{EditDatafilesPage.getMaxFileUploadSizeInBytes()}"
@@ -449,7 +449,7 @@
                                     <li class="#{lockedFromEdits  ? 'disabled' : ''}">
                                         <p:commandLink id="fileProvenanceButton"
                                                    update=":datasetForm:editProvenancePopup"
-                                                   oncomplete="PF('editProvenancePopup').show();bind_bsui_components();">
+                                                   oncomplete="PF('editProvenancePopup').show();">
                                             <f:actionListener binding="#{provPopupFragmentBean.updatePopupStateAndDataset(fileMetadata, EditDatafilesPage.dataset)}" />
                                                     #{bundle['file.provenance']} 
                                         </p:commandLink>    
@@ -460,7 +460,7 @@
                                     <p:commandLink id="fileCategoriesButton"
                                                actionListener="#{EditDatafilesPage.refreshTagsPopUp(fileMetadata)}"
                                                update=":datasetForm:editFileTagsPopup"
-                                               oncomplete="PF('editFileTagsPopup').show();bind_bsui_components();">
+                                               oncomplete="PF('editFileTagsPopup').show();">
                                                 #{bundle['file.tags']} 
                                     </p:commandLink>
                                 </li>
@@ -492,7 +492,6 @@
                                     </p:commandLink>
                                 </li>
                             </ul>
-                            <p:remoteCommand  name="openEditFilesPageCommand2" partialSubmit="true" async="true" update="" action="#{redirectToEditdataFiles}"  />
                         </div>
                     </p:column>
                 </p:dataTable>
@@ -903,9 +902,6 @@
             } else {
                 PF('selectFilesForLicenseEdit').show();
             }
-        }
-        function checkNewlyRestricted() {
-            $('button[id$="datasetSave"]').trigger('click');
         }
         function openDropboxChooser() {
             options = {
