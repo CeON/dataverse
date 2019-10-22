@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.FileDownloadHelper;
 import edu.harvard.iq.dataverse.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.GuestbookResponseServiceBean;
@@ -22,11 +21,10 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
-import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import edu.harvard.iq.dataverse.engine.command.exception.UpdateFailedException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
@@ -53,13 +51,13 @@ import org.primefaces.model.ByteArrayContent;
 import org.primefaces.model.StreamedContent;
 
 import javax.ejb.EJB;
-import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.ConstraintViolation;
+import javax.validation.ValidationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -115,8 +113,6 @@ public class FilePage implements java.io.Serializable {
     @Inject
     DataverseSession session;
     @EJB
-    EjbDataverseEngine commandEngine;
-    @EJB
     ExternalToolServiceBean externalToolService;
 
     @Inject
@@ -130,17 +126,10 @@ public class FilePage implements java.io.Serializable {
     @Inject
     private ExportService exportService;
 
-    public WorldMapPermissionHelper getWorldMapPermissionHelper() {
-        return worldMapPermissionHelper;
-    }
-
-    public void setWorldMapPermissionHelper(WorldMapPermissionHelper worldMapPermissionHelper) {
-        this.worldMapPermissionHelper = worldMapPermissionHelper;
-    }
+    @Inject
+    private FileService fileService;
 
     private static final Logger logger = Logger.getLogger(FilePage.class.getCanonicalName());
-
-    private boolean fileDeleteInProgress = false;
 
     public String init() {
 
@@ -309,48 +298,46 @@ public class FilePage implements java.io.Serializable {
         return retList;
     }
 
-    public String saveProvFreeform(String freeformTextInput, DataFile dataFileFromPopup) throws CommandException {
-        editDataset = this.file.getOwner();
-        file.setProvEntityName(dataFileFromPopup.getProvEntityName()); //passing this value into the file being saved here is pretty hacky.
-        Command cmd;
+    public String saveProvFreeform(String freeformTextInput, DataFile dataFileFromPopup){
 
-        for (FileMetadata fmw : editDataset.getEditVersion().getFileMetadatas()) {
-            if (fmw.getDataFile().equals(this.fileMetadata.getDataFile())) {
-                cmd = new PersistProvFreeFormCommand(dvRequestService.getDataverseRequest(), file, freeformTextInput);
-                commandEngine.submit(cmd);
-            }
-        }
+        Try.of(() -> fileService.saveProvenanceFileWithDesc(fileMetadata, dataFileFromPopup, freeformTextInput))
+                .onFailure(ValidationException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                                                                          BundleUtil.getStringFromBundle("dataset.message.validationError")))
+                .onFailure(UpdateFailedException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                                                                            BundleUtil.getStringFromBundle("dataset.save.fail"),
+                                                                            " - " + ex.toString()));
 
-        save();
+
+        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.editSuccess"));
+        setVersion("DRAFT");
         init();
         return returnToDraftVersion();
     }
 
     public String deleteFile() {
+        Try<FileMetadata> deleteFileOperation = Try.of(() -> fileService.deleteFile(this.fileMetadata, editDataset))
+                .onFailure(ValidationException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                                                                          BundleUtil.getStringFromBundle("dataset.message.validationError")))
+                .onFailure(UpdateFailedException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                                                                            BundleUtil.getStringFromBundle("dataset.save.fail"),
+                                                                            " - " + ex.toString()))
+                .onFailure(IllegalStateException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                                                                            BundleUtil.getStringFromBundle("dataset.save.fail")));
 
-        if (fileMetadata.getId() != null) {
-            editDataset.getEditVersion().getFileMetadatas().remove(fileMetadata);
+        if (deleteFileOperation.isFailure()) {
+            return "";
         }
 
-        delettt(fileMetadata);
+        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.deleteSuccess"));
+
+        setVersion("DRAFT");
         return returnToDatasetOnly();
-
-    }
-
-    private int activeTabIndex;
-
-    public int getActiveTabIndex() {
-        return activeTabIndex;
-    }
-
-    public void setActiveTabIndex(int activeTabIndex) {
-        this.activeTabIndex = activeTabIndex;
     }
 
     public void tabChanged(TabChangeEvent event) {
         TabView tv = (TabView) event.getComponent();
-        this.activeTabIndex = tv.getActiveIndex();
-        if (this.activeTabIndex == 1 || this.activeTabIndex == 2) {
+        int activeTabIndex = tv.getActiveIndex();
+        if (activeTabIndex == 1 || activeTabIndex == 2) {
             setFileMetadatasForTab(loadFileMetadataTabList());
         } else {
             setFileMetadatasForTab(new ArrayList<>());
@@ -365,7 +352,6 @@ public class FilePage implements java.io.Serializable {
             boolean foundFmd = false;
 
             if (versionLoop.isReleased() || versionLoop.isDeaccessioned() || permissionService.on(fileMetadata.getDatasetVersion().getDataset()).has(Permission.ViewUnpublishedDataset)) {
-                foundFmd = false;
                 for (DataFile df : allfiles) {
                     FileMetadata fmd = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(versionLoop.getId(), df.getId());
                     if (fmd != null) {
@@ -455,9 +441,7 @@ public class FilePage implements java.io.Serializable {
             versionId = dvPrevious.getId();
         }
 
-        FileMetadata fmd = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(versionId, dfId);
-
-        return fmd;
+        return datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(versionId, dfId);
     }
 
     public List<FileMetadata> getFileMetadatasForTab() {
@@ -522,75 +506,6 @@ public class FilePage implements java.io.Serializable {
         } else {
             throw new IllegalStateException("DataFile with id: " + fileToDelete.getDataFile().getId() + " doesn't have storage location");
         }
-    }
-
-    public String save() {
-        Set<ConstraintViolation> constraintViolations = this.fileMetadata.getDatasetVersion().validate();
-
-        if (!constraintViolations.isEmpty()) {
-            JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.message.validationError"));
-            return "";
-        }
-
-
-        Command<Dataset> cmd;
-        Long deleteFileId = null;
-        String deleteStorageLocation = null;
-
-        if (!filesToBeDeleted.isEmpty()) {
-            // We want to delete the file (there's always only one file with this page)
-
-            deleteStorageLocation = datafileService.getPhysicalFileToDelete(filesToBeDeleted.get(0).getDataFile());
-        }
-
-        try {
-            cmd = new UpdateDatasetVersionCommand(editDataset, dvRequestService.getDataverseRequest(), filesToBeDeleted);
-            commandEngine.submit(cmd);
-
-        } catch (EJBException ex) {
-
-            StringBuilder error = new StringBuilder();
-            error.append(ex).append(" ");
-            error.append(ex.getMessage()).append(" ");
-
-
-            Throwable cause = ex;
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-                error.append(cause).append(" ");
-                error.append(cause.getMessage()).append(" ");
-            }
-            return null;
-        } catch (CommandException ex) {
-            fileDeleteInProgress = false;
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.save.fail"), " - " + ex.toString()));
-            return null;
-        }
-
-
-        if (fileDeleteInProgress) {
-
-            if (deleteStorageLocation != null) {
-                // Finalize the delete of the physical file
-                // (File service will double-check that the datafile no
-                // longer exists in the database, before proceeding to
-                // delete the physical file)
-                try {
-                    datafileService.finalizeFileDelete(deleteFileId, deleteStorageLocation, new DataAccess());
-                } catch (IOException ioex) {
-                    logger.warning("Failed to delete the physical file associated with the deleted datafile id="
-                                           + deleteFileId + ", storage location: " + deleteStorageLocation);
-                }
-            }
-
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.deleteSuccess"));
-            fileDeleteInProgress = false;
-        } else {
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.editSuccess"));
-        }
-
-        setVersion("DRAFT");
-        return "";
     }
 
     private Boolean thumbnailAvailable = null;
