@@ -49,7 +49,8 @@ public class FileService {
     public FileMetadata deleteFile(FileMetadata fileToDelete) {
         Dataset datasetFileOwner = fileToDelete.getDataFile().getOwner();
 
-        datasetFileOwner.getEditVersion().getFileMetadatas().remove(fileToDelete);
+        datasetFileOwner.getEditVersion().getFileMetadatas()
+                .removeIf(fileMetadata -> fileMetadata.getDataFile().equals(fileToDelete.getDataFile()));
 
         Set<ConstraintViolation> constraintViolations = fileToDelete.getDatasetVersion().validate();
 
