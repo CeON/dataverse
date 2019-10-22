@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.datafile.page;
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.exception.UpdateFailedException;
 import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
@@ -13,6 +14,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import io.vavr.control.Try;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
@@ -27,10 +29,25 @@ public class FileService {
 
     private DataverseRequestServiceBean dvRequestService;
     private DataFileServiceBean dataFileService;
+    private EjbDataverseEngine commandEngine;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    @Deprecated
+    public FileService() {
+    }
+
+    @Inject
+    public FileService(DataverseRequestServiceBean dvRequestService, DataFileServiceBean dataFileService, EjbDataverseEngine commandEngine) {
+        this.dvRequestService = dvRequestService;
+        this.dataFileService = dataFileService;
+        this.commandEngine = commandEngine;
+    }
 
     // -------------------- LOGIC --------------------
 
-    public FileMetadata deleteFile(FileMetadata fileToDelete, Dataset datasetFileOwner) {
+    public FileMetadata deleteFile(FileMetadata fileToDelete) {
+        Dataset datasetFileOwner = fileToDelete.getDataFile().getOwner();
 
         datasetFileOwner.getEditVersion().getFileMetadatas().remove(fileToDelete);
 
@@ -42,7 +59,8 @@ public class FileService {
 
         }
 
-        Try.of(() -> new UpdateDatasetVersionCommand(datasetFileOwner, dvRequestService.getDataverseRequest(), Lists.newArrayList(fileToDelete)))
+        Try.of(() -> commandEngine.submit(new UpdateDatasetVersionCommand(datasetFileOwner, dvRequestService.getDataverseRequest(),
+                                                                          Lists.newArrayList(fileToDelete))))
                 .getOrElseThrow(throwable -> new UpdateFailedException("Dataset Update failed with dataset id: " + datasetFileOwner.getId(), throwable));
 
         if (!fileToDelete.getDataFile().isReleased()) {
@@ -58,9 +76,9 @@ public class FileService {
         editedFile.getDataFile().setProvEntityName(uploadedProvFile.getProvEntityName()); //passing this value into the file being saved here is pretty hacky.
 
         findDataFileInDataset(datasetFileOwner, editedFile.getDataFile())
-                .ifPresent(file -> new PersistProvFreeFormCommand(dvRequestService.getDataverseRequest(),
-                                                                  file.getDataFile(),
-                                                                  provenanceDesciption));
+                .ifPresent(file -> Try.of(() -> commandEngine.submit(new PersistProvFreeFormCommand(dvRequestService.getDataverseRequest(),
+                                                                                                    file.getDataFile(),
+                                                                                                    provenanceDesciption))));
 
         Set<ConstraintViolation> constraintViolations = editedFile.getDatasetVersion().validate();
 
@@ -69,7 +87,7 @@ public class FileService {
             throw new ValidationException("There was validation error during deletion attempt with the dataFile id: " + editedFile.getDataFile().getId());
         }
 
-        Try.of(() -> new UpdateDatasetVersionCommand(datasetFileOwner, dvRequestService.getDataverseRequest(), new ArrayList<>()))
+        Try.of(() -> commandEngine.submit(new UpdateDatasetVersionCommand(datasetFileOwner, dvRequestService.getDataverseRequest(), new ArrayList<>())))
                 .getOrElseThrow(throwable -> new UpdateFailedException("Dataset Update failed with dataset id: " + datasetFileOwner.getId(), throwable));
 
         return datasetFileOwner;

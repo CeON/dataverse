@@ -5,7 +5,6 @@
  */
 package edu.harvard.iq.dataverse.datafile.page;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
@@ -19,9 +18,7 @@ import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
-import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.UpdateFailedException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
@@ -56,14 +53,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
@@ -300,13 +295,12 @@ public class FilePage implements java.io.Serializable {
 
     public String saveProvFreeform(String freeformTextInput, DataFile dataFileFromPopup){
 
-        Try.of(() -> fileService.saveProvenanceFileWithDesc(fileMetadata, dataFileFromPopup, freeformTextInput))
-                .onFailure(ValidationException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                                                                          BundleUtil.getStringFromBundle("dataset.message.validationError")))
-                .onFailure(UpdateFailedException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                                                                            BundleUtil.getStringFromBundle("dataset.save.fail"),
-                                                                            " - " + ex.toString()));
+        Try<Dataset> saveProvOperation = Try.of(() -> fileService.saveProvenanceFileWithDesc(fileMetadata, dataFileFromPopup, freeformTextInput))
+                .onFailure(this::handleExceptions);
 
+        if (saveProvOperation.isFailure()){
+            return "";
+        }
 
         JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.editSuccess"));
         setVersion("DRAFT");
@@ -315,14 +309,8 @@ public class FilePage implements java.io.Serializable {
     }
 
     public String deleteFile() {
-        Try<FileMetadata> deleteFileOperation = Try.of(() -> fileService.deleteFile(this.fileMetadata, editDataset))
-                .onFailure(ValidationException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                                                                          BundleUtil.getStringFromBundle("dataset.message.validationError")))
-                .onFailure(UpdateFailedException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                                                                            BundleUtil.getStringFromBundle("dataset.save.fail"),
-                                                                            " - " + ex.toString()))
-                .onFailure(IllegalStateException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                                                                            BundleUtil.getStringFromBundle("dataset.save.fail")));
+        Try<FileMetadata> deleteFileOperation = Try.of(() -> fileService.deleteFile(this.fileMetadata))
+                .onFailure(this::handleExceptions);
 
         if (deleteFileOperation.isFailure()) {
             return "";
@@ -344,6 +332,21 @@ public class FilePage implements java.io.Serializable {
         }
     }
 
+    private void handleExceptions(Throwable throwable){
+
+        if (throwable instanceof ValidationException){
+            JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                          BundleUtil.getStringFromBundle("dataset.message.validationError"));
+
+        } else if (throwable instanceof UpdateFailedException){
+            JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                          BundleUtil.getStringFromBundle("dataset.save.fail"),
+                          " - " + throwable.toString());
+        } else {
+            JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                          BundleUtil.getStringFromBundle("dataset.save.fail"));
+        }
+    }
 
     private List<FileMetadata> loadFileMetadataTabList() {
         List<DataFile> allfiles = allRelatedFiles();
@@ -458,54 +461,6 @@ public class FilePage implements java.io.Serializable {
 
     public void setPersistentId(String persistentId) {
         this.persistentId = persistentId;
-    }
-
-
-    public List<DatasetVersion> getDatasetVersionsForTab() {
-        return datasetVersionsForTab;
-    }
-
-    public void setDatasetVersionsForTab(List<DatasetVersion> datasetVersionsForTab) {
-        this.datasetVersionsForTab = datasetVersionsForTab;
-    }
-
-    public String delettt(FileMetadata fileToDelete) {
-        Set<ConstraintViolation> constraintViolations = this.fileMetadata.getDatasetVersion().validate();
-
-        if (!constraintViolations.isEmpty()) {
-            JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.message.validationError"));
-            return "";
-        }
-
-        Try<UpdateDatasetVersionCommand> updateCommand = Try.of(() -> new UpdateDatasetVersionCommand(editDataset, dvRequestService.getDataverseRequest(), Lists.newArrayList(fileToDelete)))
-                .onFailure(CommandException.class, ex -> JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                                                                       BundleUtil.getStringFromBundle("dataset.save.fail"),
-                                                                       " - " + ex.toString()));
-
-        if (updateCommand.isFailure()) {
-            return "";
-        }
-
-        if (!fileToDelete.getDataFile().isReleased()) {
-            deleteFilePhysically(fileToDelete);
-        }
-
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.deleteSuccess"));
-
-        setVersion("DRAFT");
-        return "";
-    }
-
-    private void deleteFilePhysically(FileMetadata fileToDelete) {
-        String fileStorageLocation = datafileService.getPhysicalFileToDelete(fileToDelete.getDataFile());
-
-        if (fileStorageLocation != null) {
-            Try.run(() -> datafileService.finalizeFileDelete(fileToDelete.getDataFile().getId(), fileStorageLocation, new DataAccess()))
-                    .onFailure(throwable -> logger.warning("Failed to delete the physical file associated with the deleted datafile id="
-                                                                   + fileToDelete.getDataFile().getId() + ", storage location: " + fileStorageLocation));
-        } else {
-            throw new IllegalStateException("DataFile with id: " + fileToDelete.getDataFile().getId() + " doesn't have storage location");
-        }
     }
 
     private Boolean thumbnailAvailable = null;
