@@ -296,7 +296,7 @@ public class FilePage implements java.io.Serializable {
     public String saveProvFreeform(String freeformTextInput, DataFile dataFileFromPopup){
 
         Try<Dataset> saveProvOperation = Try.of(() -> fileService.saveProvenanceFileWithDesc(fileMetadata, dataFileFromPopup, freeformTextInput))
-                .onFailure(this::handleExceptions);
+                .onFailure(this::handleProvenanceExceptions);
 
         if (saveProvOperation.isFailure()){
             return "";
@@ -309,8 +309,8 @@ public class FilePage implements java.io.Serializable {
     }
 
     public String deleteFile() {
-        Try<FileMetadata> deleteFileOperation = Try.of(() -> fileService.deleteFile(this.fileMetadata))
-                .onFailure(this::handleExceptions);
+        Try<Dataset> deleteFileOperation = Try.of(() -> fileService.deleteFile(this.fileMetadata))
+                .onFailure(this::handleDeleteFileExceptions);
 
         if (deleteFileOperation.isFailure()) {
             return "";
@@ -319,7 +319,7 @@ public class FilePage implements java.io.Serializable {
         JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.deleteSuccess"));
 
         setVersion("DRAFT");
-        return returnToDatasetOnly();
+        return returnToDatasetOnly(fileMetadata.getDataFile().getOwner());
     }
 
     public void tabChanged(TabChangeEvent event) {
@@ -332,7 +332,7 @@ public class FilePage implements java.io.Serializable {
         }
     }
 
-    private void handleExceptions(Throwable throwable){
+    private void handleProvenanceExceptions(Throwable throwable){
 
         if (throwable instanceof ValidationException){
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
@@ -345,6 +345,22 @@ public class FilePage implements java.io.Serializable {
         } else {
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
                           BundleUtil.getStringFromBundle("dataset.save.fail"));
+        }
+    }
+
+    private void handleDeleteFileExceptions(Throwable throwable){
+
+        if (throwable instanceof ValidationException){
+            JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                          BundleUtil.getStringFromBundle("dataset.message.validationError"));
+
+        } else if (throwable instanceof UpdateFailedException){
+            JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                          BundleUtil.getStringFromBundle("dataset.delete.fail"),
+                          " - " + throwable.toString());
+        } else {
+            JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                          BundleUtil.getStringFromBundle("dataset.delete.fail"));
         }
     }
 
@@ -502,9 +518,9 @@ public class FilePage implements java.io.Serializable {
         return Optional.of(new ByteArrayContent(licenseIcon.getContent(), licenseIcon.getContentType()));
     }
 
-    private String returnToDatasetOnly() {
+    private String returnToDatasetOnly(Dataset draftDataset) {
 
-        return "/dataset.xhtml?persistentId=" + editDataset.getGlobalIdString() + "&version=DRAFT" + "&faces-redirect=true";
+        return "/dataset.xhtml?persistentId=" + draftDataset.getGlobalIdString() + "&version=DRAFT" + "&faces-redirect=true";
     }
 
     private String returnToDraftVersion() {
