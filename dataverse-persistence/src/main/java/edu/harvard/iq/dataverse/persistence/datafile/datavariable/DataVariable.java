@@ -200,7 +200,7 @@ public class DataVariable implements Serializable {
     private Long numberOfDecimalPoints;
 
     @OneToMany(mappedBy = "dataVariable", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    private Collection<VariableMetadata> variableMetadatas;
+    private Collection<VariableMetadata> variableMetadatas = new ArrayList<>();
 
     public DataVariable() {
     }
