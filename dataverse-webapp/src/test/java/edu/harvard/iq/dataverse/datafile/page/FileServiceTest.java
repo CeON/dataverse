@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.datafile.page;
 
 import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -40,12 +41,16 @@ class FileServiceTest {
     private DataverseRequestServiceBean dvRequestService;
 
     @Mock
+    private DataFileServiceBean dataFileService;
+
+    @Mock
     private EjbDataverseEngine commandEngine;
 
     @BeforeEach
     void setUp() throws CommandException {
         when(commandEngine.submit(Mockito.any(UpdateDatasetVersionCommand.class))).thenReturn(new Dataset());
         when(commandEngine.submit(Mockito.any(PersistProvFreeFormCommand.class))).thenReturn(new DataFile());
+        when(dataFileService.getPhysicalFileToDelete(Mockito.any(DataFile.class))).thenReturn("location");
     }
 
     @Test

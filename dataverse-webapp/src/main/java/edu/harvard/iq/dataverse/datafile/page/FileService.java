@@ -1,8 +1,10 @@
 package edu.harvard.iq.dataverse.datafile.page;
 
 import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.exception.UpdateFailedException;
 import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
@@ -27,6 +29,7 @@ public class FileService {
 
     private DataverseRequestServiceBean dvRequestService;
     private EjbDataverseEngine commandEngine;
+    private DataFileServiceBean dataFileService;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -35,9 +38,10 @@ public class FileService {
     }
 
     @Inject
-    public FileService(DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine) {
+    public FileService(DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine, DataFileServiceBean dataFileServiceBean) {
         this.dvRequestService = dvRequestService;
         this.commandEngine = commandEngine;
+        this.dataFileService = dataFileServiceBean;
     }
 
     // -------------------- LOGIC --------------------
@@ -57,7 +61,13 @@ public class FileService {
 
         }
 
-        return updateDatasetVersion(Lists.newArrayList(fileToDelete), datasetFileOwner);
+        Dataset updatedDataset = updateDatasetVersion(Lists.newArrayList(fileToDelete), datasetFileOwner);
+
+        if (!fileToDelete.getDataFile().isReleased()) {
+            deleteFilePhysically(fileToDelete);
+        }
+
+        return updatedDataset;
     }
 
     /**
@@ -91,6 +101,18 @@ public class FileService {
         return Try.of(() -> commandEngine.submit(new UpdateDatasetVersionCommand(datasetFileOwner, dvRequestService.getDataverseRequest(),
                                                                                  filesToDelete)))
                 .getOrElseThrow(throwable -> new UpdateFailedException("Dataset Update failed with dataset id: " + datasetFileOwner.getId(), throwable));
+    }
+
+    private void deleteFilePhysically(FileMetadata fileToDelete) {
+        String fileStorageLocation = dataFileService.getPhysicalFileToDelete(fileToDelete.getDataFile());
+
+        if (fileStorageLocation != null) {
+            Try.run(() -> dataFileService.finalizeFileDelete(fileToDelete.getDataFile().getId(), fileStorageLocation, new DataAccess()))
+                    .onFailure(throwable -> logger.warning("Failed to delete the physical file associated with the deleted datafile id="
+                                                                   + fileToDelete.getDataFile().getId() + ", storage location: " + fileStorageLocation));
+        } else {
+            throw new IllegalStateException("DataFile with id: " + fileToDelete.getDataFile().getId() + " doesn't have storage location");
+        }
     }
 
 }
