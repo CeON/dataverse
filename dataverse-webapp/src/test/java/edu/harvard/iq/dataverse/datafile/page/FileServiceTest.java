@@ -5,7 +5,7 @@ import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.exception.UpdateFailedException;
+import edu.harvard.iq.dataverse.engine.command.exception.UpdateDatasetException;
 import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -72,7 +72,7 @@ class FileServiceTest {
         when(commandEngine.submit(Mockito.any(UpdateDatasetVersionCommand.class))).thenAnswer(Answers.CALLS_REAL_METHODS);
 
         //when & then
-        assertThrows(UpdateFailedException.class, () -> fileService.deleteFile(fileToDelete));
+        assertThrows(UpdateDatasetException.class, () -> fileService.deleteFile(fileToDelete));
         verify(commandEngine, times(1)).submit(Mockito.any(UpdateDatasetVersionCommand.class));
 
     }
@@ -116,7 +116,7 @@ class FileServiceTest {
         when(commandEngine.submit(Mockito.any(UpdateDatasetVersionCommand.class))).thenAnswer(Answers.CALLS_REAL_METHODS);
 
         //when & then
-        assertThrows(UpdateFailedException.class, () -> fileService.saveProvenanceFileWithDesc(fileToEdit, provFile.getDataFile(), "provDesc"));
+        assertThrows(UpdateDatasetException.class, () -> fileService.saveProvenanceFileWithDesc(fileToEdit, provFile.getDataFile(), "provDesc"));
 
         verify(commandEngine, times(1)).submit(Mockito.any(PersistProvFreeFormCommand.class));
         verify(commandEngine, times(1)).submit(Mockito.any(UpdateDatasetVersionCommand.class));

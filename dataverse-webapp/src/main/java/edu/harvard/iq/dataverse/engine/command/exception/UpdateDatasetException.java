@@ -3,13 +3,13 @@ package edu.harvard.iq.dataverse.engine.command.exception;
 import javax.ejb.ApplicationException;
 
 @ApplicationException(rollback = true)
-public class UpdateFailedException extends RuntimeException {
+public class UpdateDatasetException extends RuntimeException {
 
-    public UpdateFailedException(String message) {
+    public UpdateDatasetException(String message) {
         super(message);
     }
 
-    public UpdateFailedException(String message, Throwable throwable) {
+    public UpdateDatasetException(String message, Throwable throwable) {
         super(message, throwable);
     }
 }

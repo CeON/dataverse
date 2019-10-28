@@ -20,7 +20,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
-import edu.harvard.iq.dataverse.engine.command.exception.UpdateFailedException;
+import edu.harvard.iq.dataverse.engine.command.exception.UpdateDatasetException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.ExportService;
@@ -338,7 +338,7 @@ public class FilePage implements java.io.Serializable {
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
                           BundleUtil.getStringFromBundle("dataset.message.validationError"));
 
-        } else if (throwable instanceof UpdateFailedException){
+        } else if (throwable instanceof UpdateDatasetException){
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
                           BundleUtil.getStringFromBundle("dataset.save.fail"),
                           " - " + throwable.toString());
@@ -354,7 +354,7 @@ public class FilePage implements java.io.Serializable {
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
                           BundleUtil.getStringFromBundle("dataset.message.validationError"));
 
-        } else if (throwable instanceof UpdateFailedException){
+        } else if (throwable instanceof UpdateDatasetException){
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
                           BundleUtil.getStringFromBundle("dataset.delete.fail"),
                           " - " + throwable.toString());
