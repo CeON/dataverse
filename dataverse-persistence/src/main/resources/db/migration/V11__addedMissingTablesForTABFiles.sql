@@ -66,14 +66,8 @@ create table vargroup
 create index index_vargroup_filemetadata_id
     on vargroup (filemetadata_id);
 
-create table vargroup_datavariable
-(
-    vargroup_id    bigint not null,
-    varsingroup_id bigint not null,
-    constraint vargroup_datavariable_pkey
-        primary key (vargroup_id, varsingroup_id),
-    constraint fk_vargroup_datavariable_varsingroup_id
-        foreign key (varsingroup_id) references datavariable,
-    constraint fk_vargroup_datavariable_vargroup_id
-        foreign key (vargroup_id) references vargroup
-);
+ALTER TABLE datavariable
+    add column vargroup_id bigint,
+
+    add constraint fk_datavariable_vargroup_id
+        foreign key (vargroup_id) references vargroup (id);

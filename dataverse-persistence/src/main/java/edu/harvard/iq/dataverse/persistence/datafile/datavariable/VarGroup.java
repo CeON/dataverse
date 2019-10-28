@@ -31,7 +31,7 @@ public class VarGroup {
     private FileMetadata fileMetadata;
 
     @OneToMany(mappedBy = "varGroup", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<DataVariable> varsInGroup;
+    private Set<DataVariable> varsInGroup = new HashSet<>();
 
     public VarGroup() {
         varsInGroup = new HashSet<DataVariable>();
