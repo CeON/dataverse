@@ -48,6 +48,7 @@ import org.primefaces.model.ByteArrayContent;
 import org.primefaces.model.StreamedContent;
 
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
@@ -333,6 +334,9 @@ public class FilePage implements java.io.Serializable {
     }
 
     private void handleProvenanceExceptions(Throwable throwable){
+        if (throwable instanceof EJBException){
+            throwable = throwable.getCause();
+        }
 
         if (throwable instanceof ValidationException){
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
@@ -349,6 +353,9 @@ public class FilePage implements java.io.Serializable {
     }
 
     private void handleDeleteFileExceptions(Throwable throwable){
+        if (throwable instanceof EJBException){
+            throwable = throwable.getCause();
+        }
 
         if (throwable instanceof ValidationException){
             JH.addMessage(FacesMessage.SEVERITY_ERROR,
