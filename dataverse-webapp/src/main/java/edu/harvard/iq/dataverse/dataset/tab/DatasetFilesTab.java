@@ -207,8 +207,6 @@ public class DatasetFilesTab implements Serializable {
                 }
             } catch (RuntimeException ex) {
                 logger.warning("Problem getting rsync script: " + ex.getLocalizedMessage());
-            } catch (CommandException cex) {
-                logger.warning("Problem getting rsync script (Command Exception): " + cex.getLocalizedMessage());
             }
         }
 

@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.Guestbook;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -138,7 +139,7 @@ public class ManageGuestbooksPage implements java.io.Serializable {
     }
 
     public void deleteGuestbook() {
-        manageGuestbooksService.delete(dataverse, selectedGuestbook)
+        Try.of(() -> manageGuestbooksService.delete(dataverse, selectedGuestbook))
                 .onSuccess(dv -> {
                     guestbooks.remove(selectedGuestbook);
                     dataverse.getGuestbooks().remove(selectedGuestbook);
@@ -174,7 +175,7 @@ public class ManageGuestbooksPage implements java.io.Serializable {
 
         String finalSuccessMessage = successMessage;
         String finalFailureMessage = failureMessage;
-        manageGuestbooksService.createOrUpdate(dataverse)
+        Try.of(() -> manageGuestbooksService.createOrUpdate(dataverse))
                 .onSuccess(dv -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle(finalSuccessMessage)))
                 .onFailure(throwable -> JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle(finalFailureMessage)));
     }
@@ -233,7 +234,7 @@ public class ManageGuestbooksPage implements java.io.Serializable {
     }
 
     public void updateGuestbooksRoot(javax.faces.event.AjaxBehaviorEvent event) throws javax.faces.event.AbortProcessingException {
-        manageGuestbooksService.updateRoot(dataverse)
+        Try.of(() -> manageGuestbooksService.updateRoot(dataverse))
                 .onSuccess(dv -> init())
                 .onFailure(throwable -> Logger.getLogger(ManageGuestbooksPage.class.getName()).log(Level.SEVERE, null, throwable));
     }

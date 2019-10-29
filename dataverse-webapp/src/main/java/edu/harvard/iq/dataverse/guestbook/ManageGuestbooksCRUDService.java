@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.guestbook;
 
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteGuestbookCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseGuestbookRootCommand;
@@ -32,18 +33,21 @@ public class ManageGuestbooksCRUDService {
     }
 
     // -------------------- LOGIC --------------------
-    public Try<Dataverse> createOrUpdate(Dataverse dataverse) {
+    public Dataverse createOrUpdate(Dataverse dataverse) {
         return Try.of(() -> engineService.submit(new UpdateDataverseCommand(dataverse, null, null, dvRequestService.getDataverseRequest(), null)))
-                .onFailure(throwable -> logger.warning("Failed to create or update guestbooks for dataverse: " + dataverse.getName()));
+                .getOrElseThrow(throwable -> new CommandException(throwable.getMessage(), throwable,
+                        new UpdateDataverseCommand(dataverse, null, null, dvRequestService.getDataverseRequest(), null)));
     }
 
-    public Try<Dataverse> delete(Dataverse dataverse, Guestbook guestbook) {
+    public Dataverse delete(Dataverse dataverse, Guestbook guestbook) {
         return Try.of(() -> engineService.submit(new DeleteGuestbookCommand(dvRequestService.getDataverseRequest(), dataverse, guestbook)))
-                .onFailure(throwable -> logger.warning("Failed to delete guestbook: " + guestbook.getName() + " from dataverse: " + dataverse.getName()));
+                .getOrElseThrow(throwable -> new CommandException(throwable.getMessage(), throwable,
+                        new DeleteGuestbookCommand(dvRequestService.getDataverseRequest(), dataverse, guestbook)));
     }
 
-    public Try<Dataverse> updateRoot(Dataverse dataverse) {
+    public Dataverse updateRoot(Dataverse dataverse) {
         return Try.of(() -> engineService.submit(new UpdateDataverseGuestbookRootCommand(dataverse.isGuestbookRoot(), dvRequestService.getDataverseRequest(), dataverse)))
-                .onFailure(throwable -> logger.warning("Failed to update root guestbook for dataverse: " + dataverse.getName()));
+                .getOrElseThrow(throwable -> new CommandException(throwable.getMessage(), throwable,
+                        new UpdateDataverseGuestbookRootCommand(dataverse.isGuestbookRoot(), dvRequestService.getDataverseRequest(), dataverse)));
     }
 }
