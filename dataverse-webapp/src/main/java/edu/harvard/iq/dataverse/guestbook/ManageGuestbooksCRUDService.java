@@ -12,12 +12,9 @@ import io.vavr.control.Try;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.logging.Logger;
 
 @Stateless
 public class ManageGuestbooksCRUDService {
-    private static final Logger logger = Logger.getLogger(ManageGuestbooksCRUDService.class.getCanonicalName());
-
     private EjbDataverseEngine engineService;
     private DataverseRequestServiceBean dvRequestService;
 
