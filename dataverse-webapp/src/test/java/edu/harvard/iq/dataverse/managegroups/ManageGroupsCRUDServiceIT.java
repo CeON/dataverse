@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.group.ExplicitGroup;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -25,6 +26,7 @@ import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Transactional(TransactionMode.ROLLBACK)
 @RunWith(Arquillian.class)
@@ -78,14 +80,38 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
         em.persist(explicitGroup);
 
         // when
-        explicitGroup.setDisplayName("testGroup");
-        manageGroupsCRUDService.update(explicitGroup, new LinkedList<>());
+        explicitGroup.setDisplayName("updatedName");
+
+        AuthenticatedUser newRoleAssignee = authenticationService.findAllAuthenticatedUsers().get(1);
+        Set<AuthenticatedUser> newRoleAssigneesSet = explicitGroup.getContainedAuthenticatedUsers();
+        newRoleAssigneesSet.add(newRoleAssignee);
+        List<RoleAssignee> newRoleAssigneesList = new LinkedList<>(newRoleAssigneesSet);
+
+        manageGroupsCRUDService.update(explicitGroup, newRoleAssigneesList);
 
         // then
         List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
         Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getId().equals(explicitGroup.getId())));
-        Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("testGroup")));
+        Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("updatedName")));
         Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("explicitGroupName")));
+
+        Assert.assertEquals(2,
+                dbExplicitGroupList
+                        .stream()
+                        .filter(eg -> eg.getDisplayName().equals("updatedName"))
+                        .findFirst()
+                        .get().getContainedAuthenticatedUsers().size()
+        );
+        Assert.assertEquals(newRoleAssignee.getIdentifier(),
+                dbExplicitGroupList
+                        .stream()
+                        .filter(eg -> eg.getDisplayName().equals("updatedName"))
+                        .findFirst()
+                        .get().getContainedAuthenticatedUsers()
+                        .stream()
+                        .filter(au -> au.getIdentifier().equals(newRoleAssignee.getIdentifier()))
+                        .findAny().get().getIdentifier()
+        );
     }
 
     @Test
