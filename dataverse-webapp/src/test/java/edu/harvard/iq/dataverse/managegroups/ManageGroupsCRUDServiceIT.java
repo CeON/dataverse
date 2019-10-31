@@ -73,7 +73,7 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
     public void shouldUpdateGroup() {
         // given
         Dataverse dv = dataverseService.findByAlias("ownmetadatablocks");
-        ExplicitGroup explicitGroup = getExplicitGroup(dv);
+        ExplicitGroup explicitGroup = buildExplicitGroup(dv);
 
         em.persist(explicitGroup);
 
@@ -92,7 +92,7 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
     public void shouldDeleteGroup() {
         // given
         Dataverse dv = dataverseService.findByAlias("ownmetadatablocks");
-        ExplicitGroup explicitGroup = getExplicitGroup(dv);
+        ExplicitGroup explicitGroup = buildExplicitGroup(dv);
 
         em.persist(explicitGroup);
 
@@ -107,7 +107,7 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
 
     // -------------------- PRIVATE ---------------------
     @NotNull
-    private ExplicitGroup getExplicitGroup(Dataverse groupOwner) {
+    private ExplicitGroup buildExplicitGroup(Dataverse groupOwner) {
         ExplicitGroup explicitGroup = explicitGroupService.getProvider().makeGroup();
         explicitGroup.setDisplayName("explicitGroupName");
         explicitGroup.setGroupAliasInOwner("explicitGroupIdentifier");
