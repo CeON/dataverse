@@ -116,7 +116,7 @@ public class EditDatasetMetadataPage implements Serializable {
 
     public String save() {
 
-        Try<Dataset> updateDataset = Try.of(() -> datasetVersionService.updateDatasetVersion(workingVersion))
+        Try<Dataset> updateDataset = Try.of(() -> datasetVersionService.updateDatasetVersion(workingVersion, true))
                 .onFailure(this::handleUpdateDatasetExceptions);
 
         if (updateDataset.isFailure()){

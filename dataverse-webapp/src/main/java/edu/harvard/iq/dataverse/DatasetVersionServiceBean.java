@@ -1159,7 +1159,7 @@ w
         return null;
     }
 
-    public Dataset updateDatasetVersion(DatasetVersion workingVersion) {
+    public Dataset updateDatasetVersion(DatasetVersion workingVersion, boolean validateLenient) {
         Set<ConstraintViolation> constraintViolations = workingVersion.validate();
 
         if (!constraintViolations.isEmpty()) {
@@ -1175,7 +1175,7 @@ w
                                                                               dvRequestService.getDataverseRequest(),
                                                                               new ArrayList<>(),
                                                                               clonedDataset);
-        command.setValidateLenient(true);
+        command.setValidateLenient(validateLenient);
         return commandEngine.submit(command);
     }
 
