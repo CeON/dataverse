@@ -60,15 +60,11 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
         manageGroupsCRUDService.create(dv, "testGroup", "testGroupId", "testDesc", Collections.singletonList(roleAssignee));
 
         // then
-        List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
+        ExplicitGroup dbExplicitGroup = explicitGroupService.findByAlias(dv.getId() + "-testGroupId");
+
         Assert.assertEquals(1, explicitGroupService.findByOwner(dv.getId()).size());
-        Assert.assertTrue(dbExplicitGroupList
-                .stream()
-                .anyMatch(explicitGroup -> explicitGroup.getDisplayName().equals("testGroup")));
-        Assert.assertTrue(dbExplicitGroupList
-                .stream()
-                .filter(explicitGroup -> explicitGroup.getDisplayName().equals("testGroup"))
-                .findFirst().get().structuralContains(roleAssignee));
+        Assert.assertEquals("testGroup", dbExplicitGroup.getDisplayName());
+        Assert.assertEquals(roleAssignee, dbExplicitGroup.getContainedAuthenticatedUsers().iterator().next());
     }
 
     @Test
@@ -90,25 +86,14 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
         manageGroupsCRUDService.update(explicitGroup, newRoleAssigneesList);
 
         // then
-        List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
+        ExplicitGroup dbExplicitGroup = explicitGroupService.findByAlias(dv.getId() + "-explicitGroupIdentifier");
         Assert.assertEquals(1, explicitGroupService.findByOwner(dv.getId()).size());
-        Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getId().equals(explicitGroup.getId())));
-        Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("updatedName")));
-        Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("explicitGroupName")));
-
-        Assert.assertEquals(2,
-                dbExplicitGroupList
-                        .stream()
-                        .filter(eg -> eg.getDisplayName().equals("updatedName"))
-                        .findFirst()
-                        .get().getContainedAuthenticatedUsers().size()
-        );
+        Assert.assertEquals(explicitGroup.getId(), dbExplicitGroup.getId());
+        Assert.assertEquals("updatedName", dbExplicitGroup.getDisplayName());
+        Assert.assertNotEquals("explicitGroupName", dbExplicitGroup.getDisplayName());
+        Assert.assertEquals(2, dbExplicitGroup.getContainedAuthenticatedUsers().size());
         Assert.assertEquals(newRoleAssignee.getIdentifier(),
-                dbExplicitGroupList
-                        .stream()
-                        .filter(eg -> eg.getDisplayName().equals("updatedName"))
-                        .findFirst()
-                        .get().getContainedAuthenticatedUsers()
+                dbExplicitGroup.getContainedAuthenticatedUsers()
                         .stream()
                         .filter(au -> au.getIdentifier().equals(newRoleAssignee.getIdentifier()))
                         .findAny().get().getIdentifier()
@@ -127,8 +112,10 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
         manageGroupsCRUDService.delete(explicitGroup);
 
         // then
-        List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
         Assert.assertEquals(0, explicitGroupService.findByOwner(dv.getId()).size());
+        Assert.assertNull(explicitGroupService.findByAlias(dv.getId() + "-explicitGroupIdentifier"));
+
+        List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
         Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getId().equals(explicitGroup.getId())));
         Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("explicitGroupName")));
     }
