@@ -9,7 +9,8 @@ import javax.ejb.ApplicationException;
  *
  * @author michael
  */
-@ApplicationException
+
+@ApplicationException(rollback = true)
 public class CommandException extends RuntimeException {
 
     private final Command failedCommand;
