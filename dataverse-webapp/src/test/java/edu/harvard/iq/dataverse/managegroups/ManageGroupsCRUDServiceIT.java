@@ -13,7 +13,6 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +61,7 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
 
         // then
         List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
+        Assert.assertEquals(1, explicitGroupService.findByOwner(dv.getId()).size());
         Assert.assertTrue(dbExplicitGroupList
                 .stream()
                 .anyMatch(explicitGroup -> explicitGroup.getDisplayName().equals("testGroup")));
@@ -91,6 +91,7 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
 
         // then
         List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
+        Assert.assertEquals(1, explicitGroupService.findByOwner(dv.getId()).size());
         Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getId().equals(explicitGroup.getId())));
         Assert.assertTrue(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("updatedName")));
         Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("explicitGroupName")));
@@ -127,12 +128,12 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
 
         // then
         List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
+        Assert.assertEquals(0, explicitGroupService.findByOwner(dv.getId()).size());
         Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getId().equals(explicitGroup.getId())));
         Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("explicitGroupName")));
     }
 
     // -------------------- PRIVATE ---------------------
-    @NotNull
     private ExplicitGroup buildExplicitGroup(Dataverse groupOwner) {
         ExplicitGroup explicitGroup = explicitGroupService.getProvider().makeGroup();
         explicitGroup.setDisplayName("explicitGroupName");
