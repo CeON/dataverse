@@ -75,6 +75,7 @@ public class FilePermissionsService {
      * Note: Files must be from the same dataset
      */
     public List<RoleAssignment> assignFileDownloadRole(List<RoleAssignee> roleAssignees, List<DataFile> files) {
+        Preconditions.checkArgument(!files.isEmpty());
         Preconditions.checkArgument(isAllFilesFromSameDataset(files));
         
         Dataset dataset = files.get(0).getOwner();
@@ -108,9 +109,7 @@ public class FilePermissionsService {
             Optional<RoleAssignment> roleAssignment = roleAssigneeService.getAssignmentFor(
                     roleAssigneeAndFile._1.getIdentifier(), roleAssigneeAndFile._2.getId(), fileDownloaderRole.getId());
             
-            if (roleAssignment.isPresent()) {
-                roleAssignments.add(roleAssignment.get());
-            }
+            roleAssignment.ifPresent(roleAssignments::add);
         }
         
         for (RoleAssignment roleAssignment: roleAssignments) {
@@ -127,6 +126,7 @@ public class FilePermissionsService {
      * Note: Files must be from the same dataset
      */
     public void rejectRequestAccessToFiles(AuthenticatedUser au, List<DataFile> files) {
+        Preconditions.checkArgument(!files.isEmpty());
         Preconditions.checkArgument(isAllFilesFromSameDataset(files));
         
         Dataset dataset = files.get(0).getOwner();
@@ -148,7 +148,7 @@ public class FilePermissionsService {
         List<Tuple2<RoleAssignee, DataFile>> roleAssigneeAndFileTuples = Lists.newArrayList();
         for (RoleAssignee roleAssignee: roleAssignees) {
             for (DataFile file: files) {
-                roleAssigneeAndFileTuples.add(new Tuple2<RoleAssignee, DataFile>(roleAssignee, file));
+                roleAssigneeAndFileTuples.add(new Tuple2<>(roleAssignee, file));
             }
         }
         return roleAssigneeAndFileTuples;
@@ -180,9 +180,6 @@ public class FilePermissionsService {
     }
     
     private boolean isAllFilesFromSameDataset(List<DataFile> files) {
-        if (files.size() == 0) {
-            return true;
-        }
         Dataset firstFileDataset = files.get(0).getOwner();
         return files.stream().allMatch(file -> file.getOwner().equals(firstFileDataset));
     }

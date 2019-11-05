@@ -343,7 +343,8 @@
                                 </p:commandLink>
                                 <p:commandLink type="button" styleClass="btn btn-default" rendered="#{!empty manageFilePermissionsPage.fileRequester}"
                                                update="assignRoleContent userGroups fileAccessRequests restrictedFiles @([id$=Messages])"
-                                               actionListener="#{manageFilePermissionsPage.rejectAccessToRequests(manageFilePermissionsPage.fileRequester)}" oncomplete="PF('assignWidget').hide();">
+                                               actionListener="#{manageFilePermissionsPage.rejectAccessToRequestsForSelectedFiles(manageFilePermissionsPage.fileRequester)}"
+                                               oncomplete="PF('assignWidget').hide();">
                                     <span class="glyphicon glyphicon-ban-circle"/>
                                     <h:outputText value="#{bundle['dataverse.permissionsFiles.assignDialog.rejectBtn']}"/>
                                 </p:commandLink>

@@ -23,7 +23,6 @@ import io.vavr.control.Try;
 import jersey.repackaged.com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
@@ -51,15 +50,10 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(ManageFilePermissionsPage.class.getCanonicalName());
 
-    @EJB
     private DatasetServiceBean datasetService;
-    @EJB
     private RoleAssigneeServiceBean roleAssigneeService;
-    @Inject
     private PermissionsWrapper permissionsWrapper;
-    @Inject
     private FilePermissionsService filePermissionsService;
-    @Inject
     private DataverseRoleServiceBean roleService;
 
     private Long datasetId;
@@ -67,6 +61,23 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
     private final TreeMap<RoleAssignee, List<RoleAssignmentRow>> roleAssigneeMap = new TreeMap<>();
     private final TreeMap<DataFile, List<RoleAssignmentRow>> fileMap = new TreeMap<>();
     private final TreeMap<AuthenticatedUser, List<DataFile>> fileAccessRequestMap = new TreeMap<>();
+
+
+    @Deprecated
+    public ManageFilePermissionsPage() {
+        // JEE requirement
+    }
+
+    @Inject
+    public ManageFilePermissionsPage(DatasetServiceBean datasetService, RoleAssigneeServiceBean roleAssigneeService,
+            PermissionsWrapper permissionsWrapper, FilePermissionsService filePermissionsService,
+            DataverseRoleServiceBean roleService) {
+        this.datasetService = datasetService;
+        this.roleAssigneeService = roleAssigneeService;
+        this.permissionsWrapper = permissionsWrapper;
+        this.filePermissionsService = filePermissionsService;
+        this.roleService = roleService;
+    }
 
     public Dataset getDataset() {
         return dataset;
@@ -265,7 +276,7 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
             .onFailure((e) -> handleAssignRoleException(e, userString, filesString));
     }
 
-    public void rejectAccessToRequests(AuthenticatedUser au) {
+    public void rejectAccessToRequestsForSelectedFiles(AuthenticatedUser au) {
         rejectAccessToRequests(au, selectedFiles);
     }
 
@@ -282,9 +293,7 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
     
     private void handleAssignRoleException(Throwable ex, String usersString, String filesString) {
         if (ex instanceof PermissionException) {
-            Set<Permission> requiredPermissions = ((PermissionException)ex).getRequiredPermissions();
-            JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("permission.roleNotAbleToBeAssigned"),
-                    BundleUtil.getStringFromBundle("permission.permissionsMissing", Arrays.asList(requiredPermissions.toString())));
+            handlePermissionException((PermissionException) ex, "permission.roleNotAbleToBeAssigned");
             return;
         }
         
@@ -295,15 +304,19 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
     
     private void handleRemoveRoleException(Throwable ex) {
         if (ex instanceof PermissionException) {
-            Set<Permission> requiredPermissions = ((PermissionException)ex).getRequiredPermissions();
-            JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                    BundleUtil.getStringFromBundle("permission.roleNotAbleToBeRemoved"),
-                    BundleUtil.getStringFromBundle("permission.permissionsMissing", Arrays.asList(requiredPermissions.toString())));
+            handlePermissionException((PermissionException) ex, "permission.roleNotAbleToBeRemoved");
+            return;
         }
         JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("permission.roleNotAbleToBeRemoved"));
         logger.log(Level.SEVERE, "Error removing role assignment: " + ex.getMessage(), ex);
     }
-
+    
+    private void handlePermissionException(PermissionException ex, String operationErrorSummaryKey) {
+        Set<Permission> requiredPermissions = ex.getRequiredPermissions();
+        JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                BundleUtil.getStringFromBundle(operationErrorSummaryKey),
+                BundleUtil.getStringFromBundle("permission.permissionsMissing", Arrays.asList(requiredPermissions.toString())));
+    }
     
     private void initMaps() {
         // initialize files and usergroup list

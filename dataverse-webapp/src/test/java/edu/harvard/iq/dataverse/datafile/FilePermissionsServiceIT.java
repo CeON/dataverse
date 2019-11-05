@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.datafile.FilePermissionsService;
 import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
+import edu.harvard.iq.dataverse.mail.FakeSmtpServerUtil;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.group.Group;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -32,7 +33,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
-import static edu.harvard.iq.dataverse.mail.FakeSmtpServerUtil.waitForEmailSentTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -102,7 +102,7 @@ public class FilePermissionsServiceIT extends WebappArquillianDeployment {
         assertThat(dataFileService.find(55L).getFileAccessRequesters(), is(empty()));
         
         
-        EmailModel userEmail = waitForEmailSentTo(smtpServer, "superuser@mailinator.com");
+        EmailModel userEmail = FakeSmtpServerUtil.waitForEmailSentTo(smtpServer, "superuser@mailinator.com");
         assertEquals("Root: You have been granted access to a restricted file", userEmail.getSubject());
 
         List<UserNotification> userNotifications = userNotificationDao.findByUser(user.getId());
@@ -110,7 +110,7 @@ public class FilePermissionsServiceIT extends WebappArquillianDeployment {
         assertUserNotification(userNotifications.get(0), NotificationType.GRANTFILEACCESS, 52L, true);
         
         
-        EmailModel groupMemberEmail = waitForEmailSentTo(smtpServer, "groupmember@mailinator.com");
+        EmailModel groupMemberEmail = FakeSmtpServerUtil.waitForEmailSentTo(smtpServer, "groupmember@mailinator.com");
         assertEquals("Root: You have been granted access to a restricted file", groupMemberEmail.getSubject());
 
         AuthenticatedUser groupMember = authenticationService.getAuthenticatedUser("rootGroupMember");
@@ -197,7 +197,7 @@ public class FilePermissionsServiceIT extends WebappArquillianDeployment {
         assertThat(dataFileService.find(53L).getFileAccessRequesters(), is(empty()));
         assertThat(dataFileService.find(55L).getFileAccessRequesters(), is(empty()));
         
-        EmailModel userEmail = waitForEmailSentTo(smtpServer, "superuser@mailinator.com");
+        EmailModel userEmail = FakeSmtpServerUtil.waitForEmailSentTo(smtpServer, "superuser@mailinator.com");
         assertEquals("Root: Your request for access to a restricted file has been", userEmail.getSubject());
 
         List<UserNotification> userNotifications = userNotificationDao.findByUser(user.getId());
