@@ -27,6 +27,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.assertThat;
+
 @Transactional(TransactionMode.ROLLBACK)
 @RunWith(Arquillian.class)
 public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
@@ -90,14 +94,11 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
         Assert.assertEquals(1, explicitGroupService.findByOwner(dv.getId()).size());
         Assert.assertEquals(explicitGroup.getId(), dbExplicitGroup.getId());
         Assert.assertEquals("updatedName", dbExplicitGroup.getDisplayName());
-        Assert.assertNotEquals("explicitGroupName", dbExplicitGroup.getDisplayName());
         Assert.assertEquals(2, dbExplicitGroup.getContainedAuthenticatedUsers().size());
-        Assert.assertEquals(newRoleAssignee.getIdentifier(),
-                dbExplicitGroup.getContainedAuthenticatedUsers()
-                        .stream()
-                        .filter(au -> au.getIdentifier().equals(newRoleAssignee.getIdentifier()))
-                        .findAny().get().getIdentifier()
-        );
+
+        List<String> dbContainedAuthenticatedUserIdentifiers = dbExplicitGroup.getContainedAuthenticatedUsers()
+                .stream().map(AuthenticatedUser::getIdentifier).collect(toList());
+        assertThat(dbContainedAuthenticatedUserIdentifiers, hasItem(newRoleAssignee.getIdentifier()));
     }
 
     @Test
@@ -114,10 +115,6 @@ public class ManageGroupsCRUDServiceIT extends WebappArquillianDeployment {
         // then
         Assert.assertEquals(0, explicitGroupService.findByOwner(dv.getId()).size());
         Assert.assertNull(explicitGroupService.findByAlias(dv.getId() + "-explicitGroupIdentifier"));
-
-        List<ExplicitGroup> dbExplicitGroupList = explicitGroupService.findByOwner(dv.getId());
-        Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getId().equals(explicitGroup.getId())));
-        Assert.assertFalse(dbExplicitGroupList.stream().anyMatch(eg -> eg.getDisplayName().equals("explicitGroupName")));
     }
 
     // -------------------- PRIVATE ---------------------
