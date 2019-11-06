@@ -16,11 +16,12 @@
 <cc:implementation>
 
     <!--@elvariable id="globalMessage" type="javax.faces.application.FacesMessage"-->
+    <o:importConstants type="javax.faces.application.FacesMessage"/>
 
     <p:outputPanel autoUpdate="true">
         <o:messages globalOnly="true" closable="true" var="globalMessage">
 
-            <ui:fragment rendered="#{globalMessage.severity.ordinal eq 2}">
+            <ui:fragment rendered="#{globalMessage.severity eq FacesMessage.SEVERITY_ERROR}">
                 <div class="alert alert-danger">
                     <o:form useRequestURI="true">
                         <span class="glyphicon glyphicon-warning-sign"></span>&#160;<strong>#{globalMessage.summary}</strong> –

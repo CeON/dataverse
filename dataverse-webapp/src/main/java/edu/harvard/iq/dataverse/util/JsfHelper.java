@@ -21,7 +21,7 @@ public class JsfHelper {
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 
         FacesContext.getCurrentInstance().addMessage("successMessage", new FacesMessage(BundleUtil.getStringFromBundle("messages.success"),
-                                                                                       message));
+                                                                                        message));
     }
 
     public static void addFlashMessage(String message) {
@@ -31,7 +31,7 @@ public class JsfHelper {
     public static void addFlashErrorMessage(String message) {
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 
-        FacesContext.getCurrentInstance().addMessage("flashMessages", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                                                                        BundleUtil.getStringFromBundle("messages.error"),
                                                                                        message));
     }
@@ -39,7 +39,7 @@ public class JsfHelper {
     public static void addFlashInfoMessage(String message) {
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 
-        FacesContext.getCurrentInstance().addMessage("flashMessages", new FacesMessage(FacesMessage.SEVERITY_INFO,
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
                                                                                        BundleUtil.getStringFromBundle("messages.info"),
                                                                                        message));
     }
@@ -47,7 +47,7 @@ public class JsfHelper {
     public static void addFlashWarningMessage(String message) {
         FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 
-        FacesContext.getCurrentInstance().addMessage("flashMessages", new FacesMessage(FacesMessage.SEVERITY_WARN,
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
                                                                                        BundleUtil.getStringFromBundle("messages.info"),
                                                                                        message));
     }
