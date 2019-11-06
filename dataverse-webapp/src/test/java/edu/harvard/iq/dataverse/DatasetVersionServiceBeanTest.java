@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,28 +34,53 @@ class DatasetVersionServiceBeanTest {
     @Mock
     private DataverseRequestServiceBean dvRequestService;
 
+    private Dataset testDataset =  new Dataset();
+
     @BeforeEach
     void setUp() {
-        when(commandEngine.submit(any(UpdateDatasetVersionCommand.class))).thenReturn(new Dataset());
+        testDataset.setId(10L);
+        when(commandEngine.submit(any(UpdateDatasetVersionCommand.class))).thenReturn(testDataset);
     }
+
+    // -------------------- TESTS --------------------
 
     @Test
     public void updateDatasetVersion() {
         //given
-        DatasetVersion testDatasetVersion = new DatasetVersion();
-        testDatasetVersion.setVersionState(DatasetVersion.VersionState.DRAFT);
-        Dataset testDataset = new Dataset();
-        testDataset.setVersions(Lists.newArrayList(testDatasetVersion));
-        testDatasetVersion.setDataset(testDataset);
+        DatasetVersion testDatasetVersion = prepareDataset();
 
-        //when & then
-        Assertions.assertDoesNotThrow(() -> datasetVersionService.updateDatasetVersion(testDatasetVersion, true));
+        //when
+        Dataset updatedDataset = Assertions.assertDoesNotThrow(() -> datasetVersionService.updateDatasetVersion(testDatasetVersion, true));
+
+        //then
+        Assert.assertSame(testDataset, updatedDataset);
 
     }
 
     @Test
     public void updateDatasetVersion_WithValidationException() {
         //given
+        DatasetVersion testDatasetVersion = prepareDataset();
+
+        prepareFileMetadata(testDatasetVersion);
+
+        //when & then
+        Assertions.assertThrows(ValidationException.class, () -> datasetVersionService.updateDatasetVersion(testDatasetVersion, true));
+
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private FileMetadata prepareFileMetadata(DatasetVersion testDatasetVersion) {
+        FileMetadata fileToDelete = new FileMetadata();
+        fileToDelete.setLabel("");
+        fileToDelete.setDatasetVersion(testDatasetVersion);
+        fileToDelete.getDatasetVersion().setFileMetadatas(Lists.newArrayList(fileToDelete));
+
+        return fileToDelete;
+    }
+
+    private DatasetVersion prepareDataset(){
         DatasetVersion testDatasetVersion = new DatasetVersion();
         testDatasetVersion.setVersionState(DatasetVersion.VersionState.DRAFT);
         Dataset testDataset = new Dataset();
@@ -62,13 +88,6 @@ class DatasetVersionServiceBeanTest {
         testDataset.setVersions(Lists.newArrayList(testDatasetVersion));
         testDatasetVersion.setDataset(testDataset);
 
-        FileMetadata fileToDelete = new FileMetadata();
-        fileToDelete.setLabel("");
-        fileToDelete.setDatasetVersion(testDatasetVersion);
-        fileToDelete.getDatasetVersion().setFileMetadatas(Lists.newArrayList(fileToDelete));
-
-        //when & then
-        Assertions.assertThrows(ValidationException.class, () -> datasetVersionService.updateDatasetVersion(testDatasetVersion, true));
-
+        return testDatasetVersion;
     }
 }

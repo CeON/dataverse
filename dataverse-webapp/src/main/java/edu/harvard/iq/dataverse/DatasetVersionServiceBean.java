@@ -1173,7 +1173,7 @@ w
 
         UpdateDatasetVersionCommand command = new UpdateDatasetVersionCommand(dataset,
                                                                               dvRequestService.getDataverseRequest(),
-                                                                              new ArrayList<>(),
+                                                                              Collections.emptyList(),
                                                                               clonedDataset);
         command.setValidateLenient(validateLenient);
         return commandEngine.submit(command);
