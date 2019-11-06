@@ -6,10 +6,12 @@ import edu.harvard.iq.dataverse.GuestbookServiceBean;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.guestbook.Guestbook;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,6 +19,8 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
@@ -39,10 +43,14 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
     @EJB
     private AuthenticationServiceBean authenticationServiceBean;
 
+    @Before
+    public void setUp() {
+        dataverseSession.setUser(authenticationServiceBean.getAdminUser());
+    }
+
     @Test
     public void shouldDeleteGuestbook() {
         // given
-        dataverseSession.setUser(authenticationServiceBean.getAdminUser());
         Dataverse dataverse = dataverseService.findByAlias("ownmetadatablocks");
         long guestbookId = dataverse.getGuestbooks().get(0).getId();
 
@@ -58,15 +66,81 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldEnableGuestbook() {
         // given
-        dataverseSession.setUser(authenticationServiceBean.getAdminUser());
-        Dataverse dataverse = dataverseService.findByAlias("ownmetadatablocks");
-        long guestbookId = dataverse.getGuestbooks().get(0).getId();
+        long guestbookId = 2L;
+        Guestbook guestbook = guestbookService.find(guestbookId);
+        guestbook.setEnabled(false);
+        em.persist(guestbook);
 
         // when
         manageGuestbooksService.enableGuestbook(guestbookId);
 
         // then
-        Assert.assertTrue(dataverseService.findByAlias("ownmetadatablocks").getGuestbooks().get(0).isEnabled());
-        Assert.assertTrue(guestbookService.find(guestbookId).isEnabled());
+        Dataverse dbDataverse = dataverseService.findByAlias("ownmetadatablocks");
+        Assert.assertEquals(1, dbDataverse.getGuestbooks().size());
+        Assert.assertTrue(dbDataverse.getGuestbooks().get(0).isEnabled());
+    }
+
+    @Test
+    public void shouldDisableGuestbook() {
+        // given
+        long guestbookId = 2L;
+        Guestbook guestbook = guestbookService.find(guestbookId);
+        guestbook.setEnabled(true);
+        em.persist(guestbook);
+
+        // when
+        manageGuestbooksService.disableGuestbook(guestbookId);
+
+        // then
+        Dataverse dbDataverse = dataverseService.findByAlias("ownmetadatablocks");
+        Assert.assertEquals(1, dbDataverse.getGuestbooks().size());
+        Assert.assertFalse(dbDataverse.getGuestbooks().get(0).isEnabled());
+    }
+
+    @Test
+    public void shouldUpdateAllowGuestbooksFromRootStatus_ALLOWED() {
+        // given
+        Dataverse dataverse = createTestDataverse();
+
+        dataverse.setGuestbookRoot(false);
+        em.persist(dataverse);
+
+        // when
+        manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverseService.findByAlias("testDvAlias").getId(), true);
+
+        // then
+        Dataverse dbDataverse = dataverseService.findByAlias("testDvAlias");
+        Assert.assertTrue(dbDataverse.isGuestbookRoot());
+    }
+
+    @Test
+    public void shouldUpdateAllowGuestbooksFromRootStatus_NOT_ALLOWED() {
+        // given
+        Dataverse dataverse = createTestDataverse();
+
+        dataverse.setGuestbookRoot(true);
+        em.persist(dataverse);
+
+        // when
+        manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverseService.findByAlias("testDvAlias").getId(), false);
+
+        // then
+        Dataverse dbDataverse = dataverseService.findByAlias("testDvAlias");
+        Assert.assertFalse(dbDataverse.isGuestbookRoot());
+    }
+
+
+    // -------------------- PRIVATE ---------------------
+    private Dataverse createTestDataverse() {
+        Dataverse dataverse = new Dataverse();
+        dataverse.setName("testDv");
+        dataverse.setAlias("testDvAlias");
+        dataverse.setDataverseType(Dataverse.DataverseType.LABORATORY);
+        dataverse.setDataverseContacts(dataverseService.findByAlias("ownmetadatablocks").getDataverseContacts());
+        dataverse.setOwner(dataverseService.findByAlias("ownmetadatablocks"));
+        dataverse.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
+        dataverse.setModificationTime(Timestamp.valueOf(LocalDateTime.now()));
+
+        return dataverse;
     }
 }
