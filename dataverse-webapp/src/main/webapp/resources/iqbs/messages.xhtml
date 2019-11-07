@@ -19,7 +19,7 @@
     <o:importConstants type="javax.faces.application.FacesMessage"/>
 
     <p:outputPanel autoUpdate="true">
-        <o:messages globalOnly="true" closable="true" var="globalMessage">
+        <o:messages globalOnly="true" var="globalMessage">
 
             <ui:fragment rendered="#{globalMessage.severity eq FacesMessage.SEVERITY_ERROR}">
                 <div class="alert alert-danger">
