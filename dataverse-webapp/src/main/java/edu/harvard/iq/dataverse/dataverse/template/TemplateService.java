@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateTemplateCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteTemplateCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseTemplateCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseTemplateRootCommand;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,10 +49,25 @@ public class TemplateService {
 
     // -------------------- LOGIC --------------------
 
+    public Try<Template> createTemplate(Dataverse dataverse, Template template) {
+        template.setCreateTime(new Timestamp(new Date().getTime()));
+        template.setUsageCount(0L);
+        dataverse.getTemplates().add(template);
+
+        return Try.of(() -> engineService.submit(new CreateTemplateCommand(template, dvRequestService.getDataverseRequest(), dataverse)))
+                .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable));
+    }
+
+    public Try<Template> updateTemplate(Dataverse dataverse, Template template) {
+
+        return Try.of(() -> engineService.submit(new UpdateDataverseTemplateCommand(dataverse, template, dvRequestService.getDataverseRequest())))
+                .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable));
+    }
+
     /**
      * Updates dataverse regarding if it is a templateRoot or not.
      */
-    public Try<Dataverse> updateDataverseTemplate(Dataverse dataverse, boolean inheritTemplatesValue) {
+    public Try<Dataverse> updateTemplateInheritance(Dataverse dataverse, boolean inheritTemplatesValue) {
 
         updateDataverseTemplates(inheritTemplatesValue, dataverse);
 

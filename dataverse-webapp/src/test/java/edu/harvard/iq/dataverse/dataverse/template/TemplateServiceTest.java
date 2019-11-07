@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.Command;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import io.vavr.control.Try;
@@ -186,7 +185,7 @@ public class TemplateServiceTest {
         dataverse.setOwner(dataverseOwner);
 
         //when
-        templateService.updateDataverseTemplate(dataverse, true);
+        templateService.updateTemplateInheritance(dataverse, true);
 
         //then
         Assert.assertEquals(dataverse.getDefaultTemplate(), template);
@@ -207,7 +206,7 @@ public class TemplateServiceTest {
         dataverse.setDefaultTemplate(template);
 
         //when
-        templateService.updateDataverseTemplate(dataverse, false);
+        templateService.updateTemplateInheritance(dataverse, false);
         Mockito.verify(ejbDataverseEngine, times(1)).submit(any());
 
         //then
