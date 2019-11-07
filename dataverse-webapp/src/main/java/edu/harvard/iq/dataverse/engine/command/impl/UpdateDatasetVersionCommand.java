@@ -76,7 +76,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
     }
 
     @Override
-    public Dataset execute(CommandContext ctxt) throws CommandException {
+    public Dataset execute(CommandContext ctxt)  {
         if (!(getUser() instanceof AuthenticatedUser)) {
             throw new IllegalCommandException("Only authenticated users can update datasets", this);
         }
@@ -146,10 +146,9 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
                     cat.getFileMetadatas().remove(fmd);
                 }
             } else {
-                FileMetadata mergedFmd = ctxt.em().merge(fmd);
-                ctxt.em().remove(mergedFmd);
-                fmd.getDataFile().getFileMetadatas().remove(fmd);
-                tempDataset.getEditVersion().getFileMetadatas().remove(fmd);
+
+                tempDataset.getEditVersion().getFileMetadatas().
+                        removeIf(fileMetadata -> fileMetadata.getDataFile().equals(fmd.getDataFile()));
             }
         }
 

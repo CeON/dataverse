@@ -21,6 +21,8 @@ public class SolrQueryResponse {
     private Map<String, List<String>> spellingSuggestionsByToken;
     private List<FacetCategory> facetCategoryList;
     private List<FacetCategory> typeFacetCategories;
+    private Map<String, String> datasetfieldFriendlyNamesBySolrField = new HashMap<>();
+    private Map<String, String> staticSolrFieldFriendlyNamesBySolrField = new HashMap<>();
     private List<String> filterQueriesActual = new ArrayList<String>();
     private String error;
     private Map<String, Long> dvObjectCounts = new HashMap<>();
@@ -165,6 +167,22 @@ public class SolrQueryResponse {
         this.typeFacetCategories = typeFacetCategories;
     }
 
+    public Map<String, String> getDatasetfieldFriendlyNamesBySolrField() {
+        return datasetfieldFriendlyNamesBySolrField;
+    }
+
+    void setDatasetfieldFriendlyNamesBySolrField(Map<String, String> datasetfieldFriendlyNamesBySolrField) {
+        this.datasetfieldFriendlyNamesBySolrField = datasetfieldFriendlyNamesBySolrField;
+    }
+
+    public Map<String, String> getStaticSolrFieldFriendlyNamesBySolrField() {
+        return staticSolrFieldFriendlyNamesBySolrField;
+    }
+
+    void setStaticSolrFieldFriendlyNamesBySolrField(Map<String, String> staticSolrFieldFriendlyNamesBySolrField) {
+        this.staticSolrFieldFriendlyNamesBySolrField = staticSolrFieldFriendlyNamesBySolrField;
+    }
+
     public List<String> getFilterQueriesActual() {
         return filterQueriesActual;
     }
@@ -194,5 +212,4 @@ public class SolrQueryResponse {
     public SolrQuery getSolrQuery() {
         return solrQuery;
     }
-
 }
