@@ -104,9 +104,10 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
 
         dataverse.setGuestbookRoot(false);
         em.persist(dataverse);
+        em.flush();
 
         // when
-        manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverseService.findByAlias("testDvAlias").getId(), true);
+        manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverse.getId(), true);
 
         // then
         Dataverse dbDataverse = dataverseService.findByAlias("testDvAlias");
@@ -120,9 +121,10 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
 
         dataverse.setGuestbookRoot(true);
         em.persist(dataverse);
+        em.flush();
 
         // when
-        manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverseService.findByAlias("testDvAlias").getId(), false);
+        manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverse.getId(), false);
 
         // then
         Dataverse dbDataverse = dataverseService.findByAlias("testDvAlias");
