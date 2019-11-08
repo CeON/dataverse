@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.guestbook;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
@@ -74,15 +75,15 @@ public class ManageGuestbooksServiceTest {
         Assert.assertFalse(result.isEnabled());
     }
 
-//    @Test
-//    public void deleteGuestbook() throws CommandException {
-//        // given & when
-//        Dataverse result = manageGuestbooksService.deleteGuestbook(1L);
-//
-//        // when & then
-//        verify(engineService, times(1)).submit(Mockito.any(DeleteGuestbookCommand.class));
-//        Assert.assertNull(result.getGuestbooks());
-//    }
+    @Test
+    public void deleteGuestbook() throws CommandException {
+        // given & when
+        Dataverse result = manageGuestbooksService.deleteGuestbook(1L);
+
+        // when & then
+        verify(engineService, times(1)).submit(Mockito.any(DeleteGuestbookCommand.class));
+        Assert.assertNull(result.getGuestbooks());
+    }
 
 
     @Test
@@ -124,6 +125,7 @@ public class ManageGuestbooksServiceTest {
         gb.setName(guestBookName);
         gb.setId(1L);
         gb.setDataverse(createTestDataverse(false));
+        gb.getDataverse().setGuestbooks(Lists.newArrayList(gb));
 
         return gb;
     }
