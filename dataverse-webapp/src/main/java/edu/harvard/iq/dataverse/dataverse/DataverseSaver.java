@@ -23,6 +23,7 @@ import org.primefaces.model.DualListModel;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,6 +96,14 @@ public class DataverseSaver {
         }
 
         return Either.right(dataverse);
+    }
+
+    public Dataverse saveFeaturedDataverse(Dataverse dataverse, List<Dataverse> featuredDataverses){
+
+        return commandEngine.submit(new UpdateDataverseCommand(dataverse, null,
+                                                        featuredDataverses,
+                                                        dvRequestService.getDataverseRequest(),
+                                                        null));
     }
 
 }

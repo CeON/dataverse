@@ -14,7 +14,6 @@ import edu.harvard.iq.dataverse.engine.command.impl.CreateSavedSearchCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.LinkDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.link.SavedSearch;
@@ -24,6 +23,7 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.search.SearchIncludeFragment;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.model.DualListModel;
@@ -75,6 +75,8 @@ public class DataversePage implements java.io.Serializable {
     DataverseLinkingServiceBean linkingService;
     @Inject
     PermissionsWrapper permissionsWrapper;
+    @Inject
+    private DataverseSaver dataverseSaver;
 
     private Dataverse dataverse = new Dataverse();
     private LinkMode linkMode;
@@ -154,16 +156,15 @@ public class DataversePage implements java.io.Serializable {
     }
 
     public String saveFeaturedDataverse() {
-        UpdateDataverseCommand cmd =
-                new UpdateDataverseCommand(dataverse, null, featuredDataverses.getTarget(), dvRequestService.getDataverseRequest(), null);
 
-        try {
-            dataverse = commandEngine.submit(cmd);
+        Try<Dataverse> saveFeaturedDataverseOperation = Try.of(() -> dataverseSaver.saveFeaturedDataverse(dataverse, featuredDataverses.getTarget()))
+                .onSuccess(saveOperation -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.feature.update")))
+                .onFailure(ex -> {
+                    logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
+                    JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.update.failure"));
+                });
 
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.feature.update"));
-        } catch (CommandException ex) {
-            logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.update.failure"));
+        if (saveFeaturedDataverseOperation.isFailure()) {
             return StringUtils.EMPTY;
         }
 
