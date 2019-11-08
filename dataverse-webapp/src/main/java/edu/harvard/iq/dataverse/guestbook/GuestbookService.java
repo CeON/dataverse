@@ -36,7 +36,7 @@ public class GuestbookService {
     public Dataverse saveGuestbook(Guestbook guestbook) {
         Dataverse dataverse = guestbook.getDataverse();
         guestbook.setCreateTime(new Timestamp(new Date().getTime()));
-        guestbook.setUsageCount(new Long(0));
+        guestbook.setUsageCount(0L);
         guestbook.setEnabled(true);
 
         dataverse.getGuestbooks().add(guestbook);

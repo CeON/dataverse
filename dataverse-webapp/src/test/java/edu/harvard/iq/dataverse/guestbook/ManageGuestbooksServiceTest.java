@@ -74,15 +74,15 @@ public class ManageGuestbooksServiceTest {
         Assert.assertFalse(result.isEnabled());
     }
 
-    @Test
-    public void deleteGuestbook() throws CommandException {
-        // given & when
-        Dataverse result = manageGuestbooksService.deleteGuestbook(1L);
-
-        // when & then
-        verify(engineService, times(1)).submit(Mockito.any(DeleteGuestbookCommand.class));
-        Assert.assertNull(result.getGuestbooks());
-    }
+//    @Test
+//    public void deleteGuestbook() throws CommandException {
+//        // given & when
+//        Dataverse result = manageGuestbooksService.deleteGuestbook(1L);
+//
+//        // when & then
+//        verify(engineService, times(1)).submit(Mockito.any(DeleteGuestbookCommand.class));
+//        Assert.assertNull(result.getGuestbooks());
+//    }
 
 
     @Test
