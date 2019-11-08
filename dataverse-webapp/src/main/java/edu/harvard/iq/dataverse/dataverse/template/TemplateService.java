@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,18 +49,18 @@ public class TemplateService {
     // -------------------- LOGIC --------------------
 
     public Try<Template> createTemplate(Dataverse dataverse, Template template) {
-        template.setCreateTime(new Timestamp(new Date().getTime()));
+        template.setCreateTime(Timestamp.valueOf(LocalDateTime.now(clock)));
         template.setUsageCount(0L);
         dataverse.getTemplates().add(template);
 
         return Try.of(() -> engineService.submit(new CreateTemplateCommand(template, dvRequestService.getDataverseRequest(), dataverse)))
-                .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable));
+                .onFailure(throwable -> logger.log(Level.SEVERE, null, throwable));
     }
 
     public Try<Template> updateTemplate(Dataverse dataverse, Template template) {
 
         return Try.of(() -> engineService.submit(new UpdateDataverseTemplateCommand(dataverse, template, dvRequestService.getDataverseRequest())))
-                .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable));
+                .onFailure(throwable -> logger.log(Level.SEVERE, null, throwable));
     }
 
     /**
@@ -72,7 +71,7 @@ public class TemplateService {
         updateDataverseTemplates(inheritTemplatesValue, dataverse);
 
         return Try.of(() -> engineService.submit(new UpdateDataverseTemplateRootCommand(!inheritTemplatesValue, dvRequestService.getDataverseRequest(), dataverse)))
-                .onFailure(throwable -> Logger.getLogger(ManageTemplatesPage.class.getName()).log(Level.SEVERE, null, throwable));
+                .onFailure(throwable -> logger.log(Level.SEVERE, null, throwable));
     }
 
     public Try<Dataverse> deleteTemplate(Dataverse dataverse, Template templateToDelete) {
