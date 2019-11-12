@@ -67,6 +67,7 @@ public class TemplateServiceTest {
         //given
         Dataverse dataverse = new Dataverse();
         Template template = new Template();
+        template.setId(11L);
 
         //when
         when(ejbDataverseEngine.submit(any(CreateTemplateCommand.class))).thenReturn(template);
@@ -82,21 +83,6 @@ public class TemplateServiceTest {
     }
 
     @Test
-    public void createTemplate_WithException() {
-        //given
-        Dataverse dataverse = new Dataverse();
-        Template template = new Template();
-
-        //when
-        when(ejbDataverseEngine.submit(any(CreateTemplateCommand.class))).thenThrow(new RuntimeException());
-
-        Try<Template> createdTemplate = templateService.createTemplate(dataverse, template);
-
-        //then
-        Assert.assertTrue(createdTemplate.isFailure());
-    }
-
-    @Test
     public void updateTemplate() {
         //given
         Dataverse dataverse = new Dataverse();
@@ -109,21 +95,6 @@ public class TemplateServiceTest {
 
         //then
         Assert.assertTrue(updatedTemplate.isSuccess());
-    }
-
-    @Test
-    public void updateTemplate_WithException() {
-        //given
-        Dataverse dataverse = new Dataverse();
-        Template template = new Template();
-
-        //when
-        when(ejbDataverseEngine.submit(any(UpdateDataverseTemplateCommand.class))).thenThrow(new RuntimeException());
-
-        Try<Template> updatedTemplate = templateService.updateTemplate(dataverse, template);
-
-        //then
-        Assert.assertTrue(updatedTemplate.isFailure());
     }
 
     @Test

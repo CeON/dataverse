@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.persistence.dataverse.link.DataverseLinkingDatav
 import edu.harvard.iq.dataverse.persistence.guestbook.Guestbook;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,7 +134,7 @@ public class MoveDataverseCommand extends AbstractVoidCommand {
 
         // generate a list of templates in destination to check against
         List<Template> destinationTemplates = null;
-        if (!moved.getTemplates().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(moved.getTemplates())) {
             List<Template> movedTemplates = moved.getTemplates();
             destinationTemplates = destination.getTemplates();
             boolean inheritTemplateValue = !destination.isTemplateRoot();
