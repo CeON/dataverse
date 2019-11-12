@@ -2,12 +2,16 @@ package edu.harvard.iq.dataverse.dataverse;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateDataverseCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.DeleteDataverseCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.LinkDataverseCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
@@ -43,6 +47,9 @@ public class DataverseSaver {
 
     @Inject
     private UserNotificationService userNotificationService;
+
+    @Inject
+    private DataverseServiceBean dataverseService;
 
     // -------------------- LOGIC --------------------
 
@@ -98,12 +105,30 @@ public class DataverseSaver {
         return Either.right(dataverse);
     }
 
-    public Dataverse saveFeaturedDataverse(Dataverse dataverse, List<Dataverse> featuredDataverses){
+    public Dataverse saveFeaturedDataverse(Dataverse dataverse, List<Dataverse> featuredDataverses) {
 
         return commandEngine.submit(new UpdateDataverseCommand(dataverse, null,
-                                                        featuredDataverses,
-                                                        dvRequestService.getDataverseRequest(),
-                                                        null));
+                                                               featuredDataverses,
+                                                               dvRequestService.getDataverseRequest(),
+                                                               null));
+    }
+
+    public Dataverse saveLinkedDataverse(long dataverseToBeLinkedId, Dataverse dataverse) {
+
+        Dataverse dataverseToBeLinked = dataverseService.find(dataverseToBeLinkedId);
+
+        commandEngine.submit(new LinkDataverseCommand(dvRequestService.getDataverseRequest(), dataverseToBeLinked, dataverse));
+
+        return dataverseToBeLinked;
+    }
+
+    public Dataverse publishDataverse(Dataverse dataverseToBePublished) {
+
+        return commandEngine.submit(new PublishDataverseCommand(dvRequestService.getDataverseRequest(), dataverseToBePublished));
+    }
+
+    public void deleteDataverse(Dataverse dataverseToDelete){
+        commandEngine.submit(new DeleteDataverseCommand(dvRequestService.getDataverseRequest(), dataverseToDelete));
     }
 
 }

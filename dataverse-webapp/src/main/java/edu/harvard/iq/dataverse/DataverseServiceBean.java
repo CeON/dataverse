@@ -62,7 +62,7 @@ public class DataverseServiceBean implements java.io.Serializable {
     DatasetServiceBean datasetService;
 
     @EJB
-    DataverseLinkingServiceBean dataverseLinkingService;
+    DataverseLinkingDao dataverseLinkingService;
 
     @EJB
     DatasetLinkingServiceBean datasetLinkingService;

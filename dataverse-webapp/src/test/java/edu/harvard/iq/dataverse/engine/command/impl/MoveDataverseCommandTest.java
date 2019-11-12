@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
+import edu.harvard.iq.dataverse.DataverseLinkingDao;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.engine.DataverseEngine;
 import edu.harvard.iq.dataverse.engine.NoOpTestEntityManager;
@@ -280,8 +280,8 @@ public class MoveDataverseCommandTest {
             }
 
             @Override
-            public DataverseLinkingServiceBean dvLinking() {
-                return new DataverseLinkingServiceBean() {
+            public DataverseLinkingDao dvLinking() {
+                return new DataverseLinkingDao() {
 
                 };
             }

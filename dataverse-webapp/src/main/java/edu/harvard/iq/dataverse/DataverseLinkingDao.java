@@ -24,8 +24,8 @@ import java.util.logging.Logger;
  */
 @Stateless
 @Named
-public class DataverseLinkingServiceBean implements java.io.Serializable {
-    private static final Logger logger = Logger.getLogger(DataverseLinkingServiceBean.class.getCanonicalName());
+public class DataverseLinkingDao implements java.io.Serializable {
+    private static final Logger logger = Logger.getLogger(DataverseLinkingDao.class.getCanonicalName());
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;

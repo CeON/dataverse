@@ -8,7 +8,7 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
-import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
+import edu.harvard.iq.dataverse.DataverseLinkingDao;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
@@ -174,7 +174,7 @@ public class TestCommandContext implements CommandContext {
     }
 
     @Override
-    public DataverseLinkingServiceBean dvLinking() {
+    public DataverseLinkingDao dvLinking() {
         return null;
     }
 

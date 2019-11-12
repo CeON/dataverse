@@ -132,7 +132,7 @@ public class EjbDataverseEngine {
     GuestbookResponseServiceBean responses;
 
     @EJB
-    DataverseLinkingServiceBean dvLinking;
+    DataverseLinkingDao dvLinking;
 
     @EJB
     DatasetLinkingServiceBean dsLinking;
@@ -413,7 +413,7 @@ public class EjbDataverseEngine {
                 }
 
                 @Override
-                public DataverseLinkingServiceBean dvLinking() {
+                public DataverseLinkingDao dvLinking() {
                     return dvLinking;
                 }
 
