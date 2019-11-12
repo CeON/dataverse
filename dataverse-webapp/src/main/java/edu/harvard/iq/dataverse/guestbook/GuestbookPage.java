@@ -8,7 +8,6 @@ package edu.harvard.iq.dataverse.guestbook;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.CustomQuestion;
@@ -29,6 +28,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static javax.faces.application.FacesMessage.SEVERITY_ERROR;
@@ -241,9 +241,13 @@ public class GuestbookPage implements java.io.Serializable {
         }
 
         if (editMode == EditMode.CREATE || editMode == EditMode.CLONE) {
-            Try.of(() -> guestbookService.saveGuestbook(guestbook))
+            Try<Dataverse> guestbookTry = Try.of(() -> guestbookService.saveGuestbook(guestbook))
                     .onSuccess(dv -> JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("guestbook.create")))
                     .onFailure(this::handleErrorMessages);
+
+            if(guestbookTry.isFailure() && guestbookTry.getCause() instanceof EJBException) {
+                return "";
+            }
         } else {
             Try.of(() -> guestbookService.editGuestbook(guestbook))
                     .onSuccess(dv -> JsfHelper.addFlashMessage(BundleUtil.getStringFromBundle("guestbook.save")))
@@ -261,27 +265,10 @@ public class GuestbookPage implements java.io.Serializable {
 
     // -------------------- PRIVATE --------------------
     private void handleErrorMessages(Throwable throwable) {
-        if(throwable instanceof EJBException) {
-            StringBuilder error = new StringBuilder();
-            error.append(throwable).append(" ");
-            error.append(throwable.getMessage()).append(" ");
-            Throwable cause = throwable;
-            while (cause.getCause() != null) {
-                cause = cause.getCause();
-                error.append(cause).append(" ");
-                error.append(cause.getMessage()).append(" ");
-            }
+            logger.log(Level.SEVERE,"Guestbook Page Exception. Dataverse: " + dataverse.getName());
+            logger.log(Level.SEVERE, "There was an error when saving guestbook: ", throwable);
 
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("guestbook.save.fail"), " - " + error.toString()));
-            logger.info("Guestbook Page EJB Exception. Dataverse: " + dataverse.getName());
-            logger.info(error.toString());
-        } else if(throwable instanceof CommandException) {
-            logger.info("Guestbook Page Command Exception. Dataverse: " + dataverse.getName());
-            logger.info(throwable.toString());
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("guestbook.save.fail"), " - " + throwable.toString()));
-        }
+            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("guestbook.save.fail"));
     }
 
     private void initCustomQuestionsForView() {
