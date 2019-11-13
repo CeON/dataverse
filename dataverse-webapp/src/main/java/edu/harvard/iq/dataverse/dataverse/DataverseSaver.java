@@ -113,6 +113,9 @@ public class DataverseSaver {
                                                                null));
     }
 
+    /**
+     * Operation to link one dataverse to the other.
+     */
     public Dataverse saveLinkedDataverse(long dataverseToBeLinkedId, Dataverse dataverse) {
 
         Dataverse dataverseToBeLinked = dataverseService.find(dataverseToBeLinkedId);
@@ -122,6 +125,9 @@ public class DataverseSaver {
         return dataverseToBeLinked;
     }
 
+    /**
+     * Operation to publish dataverse also known as release dataverse.
+     */
     public Dataverse publishDataverse(Dataverse dataverseToBePublished) {
 
         return commandEngine.submit(new PublishDataverseCommand(dvRequestService.getDataverseRequest(), dataverseToBePublished));

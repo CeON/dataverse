@@ -26,7 +26,6 @@ import org.primefaces.model.DualListModel;
 
 import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -140,6 +139,49 @@ public class DataverseSaverIT extends WebappArquillianDeployment {
         Assert.assertTrue(updatedDataverse.isLeft());
         Assert.assertEquals(1, dataverseServiceBean.findAll().size());
 
+    }
+
+    @Test
+    @Transactional(TransactionMode.ROLLBACK)
+    public void saveLinkedDataverse() {
+        //given
+        loginSessionWithSuperUser();
+        Dataverse ownerDataverse = dataverseServiceBean.find(19L);
+        Dataverse dataverseToBeLinked = dataverseServiceBean.find(51L);
+
+        //when
+        Dataverse linkedDataverse = dataverseSaver.saveLinkedDataverse(dataverseToBeLinked.getId(), ownerDataverse);
+
+        //then
+        Assert.assertTrue(linkedDataverse.getDataverseLinkedDataverses().contains(ownerDataverse));
+    }
+
+    @Test
+    @Transactional(TransactionMode.ROLLBACK)
+    public void publishDataverse() {
+        //given
+        loginSessionWithSuperUser();
+        Dataverse unpublishedDataverse = dataverseServiceBean.findRootDataverse();
+
+        //when
+        Dataverse publishedDataverse = dataverseSaver.publishDataverse(unpublishedDataverse);
+
+        //then
+        Assert.assertTrue(publishedDataverse.isReleased());
+    }
+
+    @Test
+    @Transactional(TransactionMode.ROLLBACK)
+    public void deleteDataverse() {
+        //given
+        loginSessionWithSuperUser();
+        Dataverse unpublishedDataverse = dataverseServiceBean.find(19L);
+
+        //when
+        dataverseSaver.deleteDataverse(unpublishedDataverse);
+
+        //then
+        Assert.assertNull(dataverseServiceBean.find(19L));
     }
 
     // -------------------- PRIVATE --------------------

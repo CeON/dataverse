@@ -2,23 +2,18 @@ package edu.harvard.iq.dataverse.dataverse;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseLinkingDao;
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.CreateSavedSearchCommand;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverse;
-import edu.harvard.iq.dataverse.persistence.dataverse.link.SavedSearch;
-import edu.harvard.iq.dataverse.persistence.dataverse.link.SavedSearchFilterQuery;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
+import edu.harvard.iq.dataverse.search.LinkSearchService;
 import edu.harvard.iq.dataverse.search.SearchIncludeFragment;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
@@ -34,6 +29,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,21 +55,19 @@ public class DataversePage implements java.io.Serializable {
     @Inject
     DataverseSession session;
     @EJB
-    EjbDataverseEngine commandEngine;
-    @EJB
     FeaturedDataverseServiceBean featuredDataverseService;
     @EJB
     PermissionServiceBean permissionService;
     @Inject
     SearchIncludeFragment searchIncludeFragment;
-    @Inject
-    DataverseRequestServiceBean dvRequestService;
     @EJB
     DataverseLinkingDao linkingService;
     @Inject
     PermissionsWrapper permissionsWrapper;
     @Inject
     private DataverseSaver dataverseSaver;
+    @Inject
+    private LinkSearchService linkSearchService;
 
     private Dataverse dataverse = new Dataverse();
     private LinkMode linkMode;
@@ -220,30 +214,19 @@ public class DataversePage implements java.io.Serializable {
             return returnRedirect();
         }
 
-        SavedSearch savedSearch = new SavedSearch(searchIncludeFragment.getQuery(), linkingDataverse, savedSearchCreator);
-        savedSearch.setSavedSearchFilterQueries(new ArrayList<>());
-        for (String filterQuery : searchIncludeFragment.getFilterQueriesDebug()) {
-            if (filterQuery != null && !filterQuery.isEmpty()) {
-                SavedSearchFilterQuery ssfq = new SavedSearchFilterQuery(filterQuery, savedSearch);
-                savedSearch.getSavedSearchFilterQueries().add(ssfq);
-            }
-        }
-        CreateSavedSearchCommand cmd = new CreateSavedSearchCommand(dvRequestService.getDataverseRequest(), linkingDataverse, savedSearch);
-        try {
-            commandEngine.submit(cmd);
 
-            List<String> arguments = new ArrayList<>();
-            String linkString = "<a href=\"/dataverse/" + linkingDataverse.getAlias() + "\">" + StringEscapeUtils.escapeHtml(linkingDataverse.getDisplayName()) + "</a>";
-            arguments.add(linkString);
-            String successMessageString = BundleUtil.getStringFromBundle("dataverse.saved.search.success", arguments);
-            JsfHelper.addFlashSuccessMessage(successMessageString);
-            return returnRedirect();
-        } catch (CommandException ex) {
-            String msg = "There was a problem linking this search to yours: " + ex;
-            logger.severe(msg);
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.saved.search.failure") + " " + ex);
-            return returnRedirect();
-        }
+        Try.of(() -> linkSearchService.saveSavedDataverseSearch(searchIncludeFragment.getQuery(), searchIncludeFragment.getFilterQueriesDebug(), dataverse))
+                .onSuccess(savedSearch -> {
+                    String hrefArgument = "<a href=\"/dataverse/" + linkingDataverse.getAlias() + "\">" + StringEscapeUtils.escapeHtml(linkingDataverse.getDisplayName()) + "</a>";
+                    JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.saved.search.success", Collections.singleton(hrefArgument)));
+                })
+                .onFailure(ex -> {
+                    logger.log(Level.SEVERE, "There was a problem linking this search", ex);
+                    JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.saved.search.failure") + " " + ex);
+                });
+
+
+        return returnRedirect();
     }
 
     public String releaseDataverse() {
