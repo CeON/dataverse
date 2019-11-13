@@ -18,7 +18,7 @@ import java.util.Collection;
  * Class responsible for saving user typed query for dataverse.
  */
 @Stateless
-public class LinkSearchService {
+public class SavedSearchService {
 
     private DataverseSession dataverseSession;
     private DataverseRequestServiceBean dvRequestService;
@@ -26,11 +26,11 @@ public class LinkSearchService {
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public LinkSearchService() {
+    public SavedSearchService() {
     }
 
     @Inject
-    public LinkSearchService(DataverseSession dataverseSession, DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine) {
+    public SavedSearchService(DataverseSession dataverseSession, DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine) {
         this.dataverseSession = dataverseSession;
         this.dvRequestService = dvRequestService;
         this.commandEngine = commandEngine;

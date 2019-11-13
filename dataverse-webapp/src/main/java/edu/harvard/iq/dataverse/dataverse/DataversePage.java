@@ -13,7 +13,7 @@ import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverse
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import edu.harvard.iq.dataverse.search.LinkSearchService;
+import edu.harvard.iq.dataverse.search.SavedSearchService;
 import edu.harvard.iq.dataverse.search.SearchIncludeFragment;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
@@ -67,7 +67,7 @@ public class DataversePage implements java.io.Serializable {
     @Inject
     private DataverseSaver dataverseSaver;
     @Inject
-    private LinkSearchService linkSearchService;
+    private SavedSearchService savedSearchService;
 
     private Dataverse dataverse = new Dataverse();
     private LinkMode linkMode;
@@ -215,7 +215,7 @@ public class DataversePage implements java.io.Serializable {
         }
 
 
-        Try.of(() -> linkSearchService.saveSavedDataverseSearch(searchIncludeFragment.getQuery(), searchIncludeFragment.getFilterQueriesDebug(), dataverse))
+        Try.of(() -> savedSearchService.saveSavedDataverseSearch(searchIncludeFragment.getQuery(), searchIncludeFragment.getFilterQueriesDebug(), dataverse))
                 .onSuccess(savedSearch -> {
                     String hrefArgument = "<a href=\"/dataverse/" + linkingDataverse.getAlias() + "\">" + StringEscapeUtils.escapeHtml(linkingDataverse.getDisplayName()) + "</a>";
                     JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.saved.search.success", Collections.singleton(hrefArgument)));

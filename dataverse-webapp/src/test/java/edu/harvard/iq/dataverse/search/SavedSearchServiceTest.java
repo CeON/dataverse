@@ -18,10 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 
 @ExtendWith(MockitoExtension.class)
-class LinkSearchServiceTest {
+class SavedSearchServiceTest {
 
     @InjectMocks
-    private LinkSearchService linkSearchService;
+    private SavedSearchService savedSearchService;
 
     @Mock
     private DataverseSession dataverseSession;
@@ -44,7 +44,7 @@ class LinkSearchServiceTest {
         ArgumentCaptor<CreateSavedSearchCommand> commandArgumentCaptor = ArgumentCaptor.forClass(CreateSavedSearchCommand.class);
 
         //when
-        linkSearchService.saveSavedDataverseSearch(query, Collections.singletonList(filteredQuery), dataverse);
+        savedSearchService.saveSavedDataverseSearch(query, Collections.singletonList(filteredQuery), dataverse);
 
         //then
         Mockito.verify(commandEngine, Mockito.times(1)).submit(commandArgumentCaptor.capture());
