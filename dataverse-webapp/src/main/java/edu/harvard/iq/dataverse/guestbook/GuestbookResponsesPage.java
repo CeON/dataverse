@@ -5,7 +5,7 @@
  */
 package edu.harvard.iq.dataverse.guestbook;
 
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
