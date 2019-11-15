@@ -63,7 +63,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,7 +95,7 @@ public class DatasetPage implements java.io.Serializable {
     @EJB
     PermissionServiceBean permissionService;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
     DatasetFieldServiceBean fieldService;
     @EJB
@@ -892,7 +891,7 @@ public class DatasetPage implements java.io.Serializable {
     public List<Dataverse> completeLinkingDataverse(String query) {
         dataset = datasetService.find(dataset.getId());
         if (session.getUser().isAuthenticated()) {
-            return dataverseService.filterDataversesForLinking(query, dvRequestService.getDataverseRequest(), dataset);
+            return dataverseDao.filterDataversesForLinking(query, dvRequestService.getDataverseRequest(), dataset);
         } else {
             return null;
         }

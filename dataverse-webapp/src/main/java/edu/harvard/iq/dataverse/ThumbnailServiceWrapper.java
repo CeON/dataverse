@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
-import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
@@ -39,7 +38,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable {
     @Inject
     PermissionsWrapper permissionsWrapper;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
     DatasetServiceBean datasetService;
     @EJB
@@ -315,7 +314,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable {
     // it's the responsibility of the user - to make sure the search result
     // passed to this method is of the Dataverse type!
     public String getDataverseCardImageAsBase64Url(SolrSearchResult result) {
-        return dataverseService.getDataverseLogoThumbnailAsBase64ById(result.getEntityId());
+        return dataverseDao.getDataverseLogoThumbnailAsBase64ById(result.getEntityId());
     }
 
     public void resetObjectMaps() {

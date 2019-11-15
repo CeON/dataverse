@@ -46,7 +46,7 @@ public class GuestbookPage implements java.io.Serializable {
     private GuestbookServiceBean guestbookService;
 
     @EJB
-    private DataverseServiceBean dataverseService;
+    private DataverseDao dataverseDao;
 
     @EJB
     private EjbDataverseEngine commandEngine;
@@ -106,7 +106,7 @@ public class GuestbookPage implements java.io.Serializable {
 
     public String init() {
 
-        dataverse = dataverseService.find(ownerId);
+        dataverse = dataverseDao.find(ownerId);
         if (dataverse == null) {
             return permissionsWrapper.notFound();
         }

@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.dataverse.template;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
@@ -47,7 +47,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     private DataverseSession dataverseSession;
 
     @Inject
-    private DataverseServiceBean dataverseService;
+    private DataverseDao dataverseDao;
 
     @Before
     public void setUp() {
@@ -60,7 +60,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldSuccessfullyUpdateDataverseTemplate() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
         Template template = prepareTemplate();
         template.setDataverse(dataverse);
         dataverse.setTemplates(Collections.singletonList(template));
@@ -79,7 +79,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldSuccessfullyDeleteTemplate() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
         Template template = prepareTemplate();
         template.setDataverse(dataverse);
 
@@ -101,7 +101,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldSuccessfullyCloneTemplate() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
         Template template = prepareTemplate();
         template.setDataverse(dataverse);
 
@@ -123,7 +123,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void makeTemplateDefaultForDataverse() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
         Template template = prepareTemplate();
         template.setDataverse(dataverse);
 
@@ -142,7 +142,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void removeDataverseDefaultTemplate() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
         Template template = prepareTemplate();
         template.setDataverse(dataverse);
 
@@ -161,8 +161,8 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void updateDefaultTemplates_ForInheritedValue() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
-        Dataverse rootDataverse = dataverseService.findRootDataverse();
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse rootDataverse = dataverseDao.findRootDataverse();
         Template template = prepareTemplate();
         template.setDataverse(rootDataverse);
         rootDataverse.setDefaultTemplate(template);
@@ -180,8 +180,8 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void updateDefaultTemplates_ForNonInheritedValue() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
-        Dataverse rootDataverse = dataverseService.findRootDataverse();
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse rootDataverse = dataverseDao.findRootDataverse();
         Template template = prepareTemplate();
         rootDataverse.setTemplates(Lists.newArrayList(template));
         template.setDataverse(rootDataverse);
@@ -200,7 +200,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
     @Test
     public void retrieveDataverseNamesWithDefaultTemplate() {
         //given
-        Dataverse dataverse = dataverseService.findByAlias(TEST_DATAVERSE_ALIAS);
+        Dataverse dataverse = dataverseDao.findByAlias(TEST_DATAVERSE_ALIAS);
         Template template = prepareTemplate();
         template.setDataverse(dataverse);
 
@@ -223,7 +223,7 @@ public class TemplateServiceIT extends WebappArquillianDeployment {
 
     private Dataverse prepareDataverse() {
         Dataverse dataverse = new Dataverse();
-        dataverse.setOwner(dataverseService.findRootDataverse());
+        dataverse.setOwner(dataverseDao.findRootDataverse());
         dataverse.setCreateDate(new Timestamp(new Date().getTime()));
         dataverse.setModificationTime(new Timestamp(new Date().getTime()));
         dataverse.setDataverseContacts(prepareDataverseContact());

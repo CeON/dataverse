@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.dataverse;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.common.BundleUtil;
@@ -19,6 +18,7 @@ import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
+import edu.harvard.iq.dataverse.persistence.dataverse.link.DataverseLinkingDataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import io.vavr.control.Either;
@@ -32,9 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Stateless
-public class DataverseSaver {
+public class DataverseService {
 
-    private static final Logger logger = Logger.getLogger(DataverseSaver.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(DataverseService.class.getCanonicalName());
 
     @Inject
     private DataverseSession session;
@@ -47,9 +47,6 @@ public class DataverseSaver {
 
     @Inject
     private UserNotificationService userNotificationService;
-
-    @Inject
-    private DataverseServiceBean dataverseService;
 
     // -------------------- LOGIC --------------------
 
@@ -116,13 +113,9 @@ public class DataverseSaver {
     /**
      * Operation to link one dataverse to the other.
      */
-    public Dataverse saveLinkedDataverse(long dataverseToBeLinkedId, Dataverse dataverse) {
+    public DataverseLinkingDataverse saveLinkedDataverse(Dataverse dataverseToBeLinked, Dataverse dataverse) {
 
-        Dataverse dataverseToBeLinked = dataverseService.find(dataverseToBeLinkedId);
-
-        commandEngine.submit(new LinkDataverseCommand(dvRequestService.getDataverseRequest(), dataverseToBeLinked, dataverse));
-
-        return dataverseToBeLinked;
+        return commandEngine.submit(new LinkDataverseCommand(dvRequestService.getDataverseRequest(), dataverseToBeLinked, dataverse));
     }
 
     /**

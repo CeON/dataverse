@@ -5,9 +5,9 @@ import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetLinkingServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseLinkingDao;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.MapLayerMetadataServiceBean;
 import edu.harvard.iq.dataverse.MetadataBlockDao;
@@ -171,7 +171,7 @@ public abstract class AbstractApiBean {
     protected DataFileServiceBean fileService;
 
     @EJB
-    protected DataverseServiceBean dataverseSvc;
+    protected DataverseDao dataverseSvc;
 
     @EJB
     protected AuthenticationServiceBean authSvc;

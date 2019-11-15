@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.guestbook;
 
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.GuestbookServiceBean;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
@@ -35,7 +35,7 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
     private GuestbookServiceBean guestbookService;
 
     @Inject
-    private DataverseServiceBean dataverseService;
+    private DataverseDao dataverseDao;
 
     @Inject
     private DataverseSession dataverseSession;
@@ -51,14 +51,14 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldDeleteGuestbook() {
         // given
-        Dataverse dataverse = dataverseService.findByAlias("ownmetadatablocks");
+        Dataverse dataverse = dataverseDao.findByAlias("ownmetadatablocks");
         long guestbookId = dataverse.getGuestbooks().get(0).getId();
 
         // when
         manageGuestbooksService.deleteGuestbook(guestbookId);
 
         // then
-        Assert.assertEquals(0, dataverseService.findByAlias("ownmetadatablocks").getGuestbooks().size());
+        Assert.assertEquals(0, dataverseDao.findByAlias("ownmetadatablocks").getGuestbooks().size());
         Assert.assertNull(guestbookService.find(guestbookId));
     }
 
@@ -75,7 +75,7 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
         manageGuestbooksService.enableGuestbook(guestbookId);
 
         // then
-        Dataverse dbDataverse = dataverseService.findByAlias("ownmetadatablocks");
+        Dataverse dbDataverse = dataverseDao.findByAlias("ownmetadatablocks");
         Assert.assertEquals(1, dbDataverse.getGuestbooks().size());
         Assert.assertTrue(dbDataverse.getGuestbooks().get(0).isEnabled());
     }
@@ -92,7 +92,7 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
         manageGuestbooksService.disableGuestbook(guestbookId);
 
         // then
-        Dataverse dbDataverse = dataverseService.findByAlias("ownmetadatablocks");
+        Dataverse dbDataverse = dataverseDao.findByAlias("ownmetadatablocks");
         Assert.assertEquals(1, dbDataverse.getGuestbooks().size());
         Assert.assertFalse(dbDataverse.getGuestbooks().get(0).isEnabled());
     }
@@ -110,7 +110,7 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
         manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverse.getId(), true);
 
         // then
-        Dataverse dbDataverse = dataverseService.findByAlias("testDvAlias");
+        Dataverse dbDataverse = dataverseDao.findByAlias("testDvAlias");
         Assert.assertTrue(dbDataverse.isGuestbookRoot());
     }
 
@@ -127,7 +127,7 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
         manageGuestbooksService.updateAllowGuestbooksFromRootStatus(dataverse.getId(), false);
 
         // then
-        Dataverse dbDataverse = dataverseService.findByAlias("testDvAlias");
+        Dataverse dbDataverse = dataverseDao.findByAlias("testDvAlias");
         Assert.assertFalse(dbDataverse.isGuestbookRoot());
     }
 
@@ -138,8 +138,8 @@ public class ManageGuestbooksServiceIT extends WebappArquillianDeployment {
         dataverse.setName("testDv");
         dataverse.setAlias("testDvAlias");
         dataverse.setDataverseType(Dataverse.DataverseType.LABORATORY);
-        dataverse.setDataverseContacts(dataverseService.findByAlias("ownmetadatablocks").getDataverseContacts());
-        dataverse.setOwner(dataverseService.findByAlias("ownmetadatablocks"));
+        dataverse.setDataverseContacts(dataverseDao.findByAlias("ownmetadatablocks").getDataverseContacts());
+        dataverse.setOwner(dataverseDao.findByAlias("ownmetadatablocks"));
         dataverse.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
         dataverse.setModificationTime(Timestamp.valueOf(LocalDateTime.now()));
 

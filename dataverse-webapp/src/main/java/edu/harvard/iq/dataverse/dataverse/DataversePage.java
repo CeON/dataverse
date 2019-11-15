@@ -1,8 +1,8 @@
 package edu.harvard.iq.dataverse.dataverse;
 
 import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseLinkingDao;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
@@ -51,7 +51,7 @@ public class DataversePage implements java.io.Serializable {
     }
 
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @Inject
     DataverseSession session;
     @EJB
@@ -65,7 +65,7 @@ public class DataversePage implements java.io.Serializable {
     @Inject
     PermissionsWrapper permissionsWrapper;
     @Inject
-    private DataverseSaver dataverseSaver;
+    private DataverseService dataverseService;
     @Inject
     private SavedSearchService savedSearchService;
 
@@ -117,12 +117,12 @@ public class DataversePage implements java.io.Serializable {
     public String init() {
 
         if (dataverse.getAlias() != null) {
-            dataverse = dataverseService.findByAlias(dataverse.getAlias());
+            dataverse = dataverseDao.findByAlias(dataverse.getAlias());
         } else if (dataverse.getId() != null) {
-            dataverse = dataverseService.find(dataverse.getId());
+            dataverse = dataverseDao.find(dataverse.getId());
         } else {
             try {
-                dataverse = dataverseService.findRootDataverse();
+                dataverse = dataverseDao.findRootDataverse();
             } catch (EJBException e) {
                 // @todo handle case with no root dataverse (a fresh installation) with message about using API to create the root
                 dataverse = null;
@@ -148,7 +148,7 @@ public class DataversePage implements java.io.Serializable {
 
     public String saveFeaturedDataverse() {
 
-        Try<Dataverse> saveFeaturedDataverseOperation = Try.of(() -> dataverseSaver.saveFeaturedDataverse(dataverse, featuredDataverses.getTarget()))
+        Try<Dataverse> saveFeaturedDataverseOperation = Try.of(() -> dataverseService.saveFeaturedDataverse(dataverse, featuredDataverses.getTarget()))
                 .onSuccess(saveOperation -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.feature.update")))
                 .onFailure(ex -> {
                     logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
@@ -177,16 +177,14 @@ public class DataversePage implements java.io.Serializable {
             return returnRedirect();
         }
 
-        Try<Dataverse> saveLinkedDataverseOperation = Try.of(() -> dataverseSaver.saveLinkedDataverse(linkingDataverseId, dataverse))
-                .onFailure(ex -> handleSaveLinkedDataverseExceptions(ex, linkingDataverseId));
+        Try.of(() -> dataverseService.saveLinkedDataverse(dataverseDao.find(linkingDataverseId), dataverse))
+                .onFailure(ex -> handleSaveLinkedDataverseExceptions(ex, linkingDataverseId))
+                .onSuccess(savedLinkingDv -> {
+                    linkingDataverse = savedLinkingDv.getLinkingDataverse();
 
-        if (saveLinkedDataverseOperation.isFailure()) {
-            return returnRedirect();
-        }
+                    JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.linked.success.wait", getSuccessMessageArguments()));
+                });
 
-        linkingDataverse = saveLinkedDataverseOperation.get();
-
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.linked.success.wait", getSuccessMessageArguments()));
         return returnRedirect();
     }
 
@@ -204,7 +202,7 @@ public class DataversePage implements java.io.Serializable {
             JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.link.select"));
             return "";
         }
-        linkingDataverse = dataverseService.find(linkingDataverseId);
+        linkingDataverse = dataverseDao.find(linkingDataverseId);
 
         AuthenticatedUser savedSearchCreator = getAuthenticatedUser();
         if (savedSearchCreator == null) {
@@ -234,7 +232,7 @@ public class DataversePage implements java.io.Serializable {
             JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.publish.not.authorized"));
         }
 
-        Try.of(() -> dataverseSaver.publishDataverse(dataverse))
+        Try.of(() -> dataverseService.publishDataverse(dataverse))
                 .onFailure(ex -> {
                     logger.log(Level.SEVERE, "Unexpected Exception calling  publish dataverse command", ex);
                     JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.publish.failure"));
@@ -246,7 +244,7 @@ public class DataversePage implements java.io.Serializable {
 
     public String deleteDataverse() {
 
-        Try.run(() -> dataverseSaver.deleteDataverse(dataverse))
+        Try.run(() -> dataverseService.deleteDataverse(dataverse))
                 .onFailure(ex -> {
                     logger.log(Level.SEVERE, "Unexpected Exception calling  delete dataverse command", ex);
                     JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataverse.delete.failure"));
@@ -257,7 +255,7 @@ public class DataversePage implements java.io.Serializable {
     }
 
     public Boolean isEmptyDataverse() {
-        return !dataverseService.hasData(dataverse);
+        return !dataverseDao.hasData(dataverse);
     }
 
     public boolean isUserCanChangeAllowMessageAndBanners() {
@@ -298,7 +296,7 @@ public class DataversePage implements java.io.Serializable {
     private void initFeaturedDataverses() {
         List<Dataverse> featuredSource = new ArrayList<>();
         List<Dataverse> featuredTarget = new ArrayList<>();
-        featuredSource.addAll(dataverseService.findAllPublishedByOwnerId(dataverse.getId()));
+        featuredSource.addAll(dataverseDao.findAllPublishedByOwnerId(dataverse.getId()));
         featuredSource.addAll(linkingService.findLinkingDataverses(dataverse.getId()));
         List<DataverseFeaturedDataverse> featuredList = featuredDataverseService.findByDataverseId(dataverse.getId());
         for (DataverseFeaturedDataverse dfd : featuredList) {
@@ -315,7 +313,7 @@ public class DataversePage implements java.io.Serializable {
         linkingDVSelectItems = new ArrayList<>();
 
         //Since only a super user function add all dvs
-        dataversesForLinking = dataverseService.findAll();// permissionService.getDataversesUserHasPermissionOn(session.getUser(), Permission.PublishDataverse);
+        dataversesForLinking = dataverseDao.findAll();// permissionService.getDataversesUserHasPermissionOn(session.getUser(), Permission.PublishDataverse);
 
 
         //for linking - make sure the link hasn't occurred and its not int the tree

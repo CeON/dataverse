@@ -26,6 +26,7 @@ public class SavedSearchService {
 
     // -------------------- CONSTRUCTORS --------------------
 
+    @Deprecated
     public SavedSearchService() {
     }
 

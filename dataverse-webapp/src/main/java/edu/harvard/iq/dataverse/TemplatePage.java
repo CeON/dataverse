@@ -41,7 +41,7 @@ public class TemplatePage implements java.io.Serializable {
     TemplateDao templateDao;
 
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
 
     @EJB
     EjbDataverseEngine commandEngine;
@@ -138,7 +138,7 @@ public class TemplatePage implements java.io.Serializable {
 
 
         } else if (isCreatingTemplate()) {
-            dataverse = dataverseService.find(ownerId);
+            dataverse = dataverseDao.find(ownerId);
 
             if (dataverse == null) {
                 return permissionsWrapper.notFound();

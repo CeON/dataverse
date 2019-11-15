@@ -63,7 +63,7 @@ public class EjbDataverseEngine {
     DatasetServiceBean datasetService;
 
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
 
     @EJB
     DataverseRoleServiceBean rolesService;
@@ -293,8 +293,8 @@ public class EjbDataverseEngine {
                 }
 
                 @Override
-                public DataverseServiceBean dataverses() {
-                    return dataverseService;
+                public DataverseDao dataverses() {
+                    return dataverseDao;
                 }
 
                 @Override

@@ -2,8 +2,8 @@ package edu.harvard.iq.dataverse.search;
 
 import edu.harvard.iq.dataverse.DatasetLinkingServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseLinkingDao;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -86,7 +86,7 @@ public class IndexServiceBean {
     @EJB
     DvObjectServiceBean dvObjectService;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
     DatasetServiceBean datasetService;
     @EJB
@@ -1375,7 +1375,7 @@ public class IndexServiceBean {
              * figure out the caching later.
              */
             try {
-                Dataverse rootDataverse = dataverseService.findRootDataverse();
+                Dataverse rootDataverse = dataverseDao.findRootDataverse();
                 return rootDataverse;
             } catch (EJBException ex) {
                 logger.info("caught " + ex);
@@ -1394,7 +1394,7 @@ public class IndexServiceBean {
         if (rootDataverseCached != null) {
             return rootDataverseCached;
         } else {
-            rootDataverseCached = dataverseService.findRootDataverse();
+            rootDataverseCached = dataverseDao.findRootDataverse();
             if (rootDataverseCached != null) {
                 return rootDataverseCached;
             } else {
@@ -1426,8 +1426,8 @@ public class IndexServiceBean {
      */
     public List<Dataverse> findStaleOrMissingDataverses() {
         List<Dataverse> staleDataverses = new ArrayList<>();
-        for (Dataverse dataverse : dataverseService.findAll()) {
-            if (dataverse.equals(dataverseService.findRootDataverse())) {
+        for (Dataverse dataverse : dataverseDao.findAll()) {
+            if (dataverse.equals(dataverseDao.findRootDataverse())) {
                 continue;
             }
             if (stale(dataverse)) {

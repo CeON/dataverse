@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.guestbook;
 
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.GuestbookServiceBean;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -41,7 +41,7 @@ public class ManageGuestbooksServiceTest {
     @Mock
     private DataverseRequestServiceBean dataverseRequestService;
     @Mock
-    private DataverseServiceBean dataverseService;
+    private DataverseDao dataverseDao;
 
     @Captor
     private ArgumentCaptor<UpdateDataverseGuestbookRootCommand> commandArgumentCaptor;
@@ -50,7 +50,7 @@ public class ManageGuestbooksServiceTest {
     void setUp() throws CommandException {
         when(engineService.submit(Mockito.any(UpdateDataverseCommand.class))).thenReturn(new Dataverse());
         when(engineService.submit(Mockito.any(DeleteGuestbookCommand.class))).thenReturn(new Dataverse());
-        when(dataverseService.find(Mockito.any())).thenReturn(createTestDataverse(false));
+        when(dataverseDao.find(Mockito.any())).thenReturn(createTestDataverse(false));
         when(dataverseRequestService.getDataverseRequest()).thenReturn(null);
         when(guestbookService.find(Mockito.any())).thenReturn(createTestGuestbook("anyTestGb"));
     }

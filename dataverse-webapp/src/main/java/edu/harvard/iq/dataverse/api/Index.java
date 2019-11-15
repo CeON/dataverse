@@ -5,7 +5,7 @@ import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.persistence.DvObject;
@@ -76,7 +76,7 @@ public class Index extends AbstractApiBean {
     @EJB
     SolrIndexServiceBean solrIndexService;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
     DatasetServiceBean datasetService;
     @EJB
@@ -223,7 +223,7 @@ public class Index extends AbstractApiBean {
     public Response indexTypeById(@PathParam("type") String type, @PathParam("id") Long id) {
         try {
             if (type.equals("dataverses")) {
-                Dataverse dataverse = dataverseService.find(id);
+                Dataverse dataverse = dataverseDao.find(id);
                 if (dataverse != null) {
                     /**
                      * @todo Can we display the result of indexing to the user?
@@ -578,7 +578,7 @@ public class Index extends AbstractApiBean {
             return error(Response.Status.UNAUTHORIZED, "Invalid apikey ");
         }
 
-        Dataverse subtreeScope = dataverseService.findRootDataverse();
+        Dataverse subtreeScope = dataverseDao.findRootDataverse();
 
         String sortField = SearchFields.ID;
         String sortOrder = SortBy.ASCENDING;

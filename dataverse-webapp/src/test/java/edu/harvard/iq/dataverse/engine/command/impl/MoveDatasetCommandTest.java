@@ -5,7 +5,7 @@
  */
 package edu.harvard.iq.dataverse.engine.command.impl;
 
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.GuestbookServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.engine.DataverseEngine;
@@ -161,8 +161,8 @@ public class MoveDatasetCommandTest {
 
         testEngine = new TestDataverseEngine(new TestCommandContext() {
             @Override
-            public DataverseServiceBean dataverses() {
-                return new DataverseServiceBean() {
+            public DataverseDao dataverses() {
+                return new DataverseDao() {
                     @Override
                     public Dataverse save(Dataverse dataverse) {
                         // no-op. The superclass accesses databases which we don't have.

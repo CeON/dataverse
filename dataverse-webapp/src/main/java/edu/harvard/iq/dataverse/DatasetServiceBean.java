@@ -6,7 +6,6 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.FinalizeDatasetPublicationCommand;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -163,7 +162,7 @@ public class DatasetServiceBean implements java.io.Serializable {
      * @param partitionId
      * @param skipIndexed
      * @return a list of datasets
-     * @see DataverseServiceBean#findAllOrSubset(long, long, boolean)
+     * @see DataverseDao#findAllOrSubset(long, long, boolean)
      */
     public List<Long> findAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed) {
         if (numPartitions < 1) {

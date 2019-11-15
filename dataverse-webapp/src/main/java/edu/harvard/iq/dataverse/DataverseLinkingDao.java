@@ -31,7 +31,7 @@ public class DataverseLinkingDao implements java.io.Serializable {
     private EntityManager em;
 
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
 
 
     public List<Dataverse> findLinkedDataverses(Long linkingDataverseId) {

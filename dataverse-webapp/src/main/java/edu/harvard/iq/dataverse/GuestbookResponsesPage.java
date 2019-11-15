@@ -38,7 +38,7 @@ public class GuestbookResponsesPage implements java.io.Serializable {
     GuestbookResponseServiceBean guestbookResponseService;
 
     @EJB
-    DataverseServiceBean dvService;
+    DataverseDao dvService;
 
     @EJB
     SystemConfig systemConfig;
