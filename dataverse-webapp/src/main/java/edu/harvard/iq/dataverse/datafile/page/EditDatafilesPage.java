@@ -2,9 +2,9 @@ package edu.harvard.iq.dataverse.datafile.page;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.FileDownloadHelper;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
@@ -13,22 +13,17 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
-import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
-import edu.harvard.iq.dataverse.datafile.EditDatafilesService;
+import edu.harvard.iq.dataverse.datafile.DataFilesService;
+import edu.harvard.iq.dataverse.datafile.pojo.RsyncInfo;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
-import edu.harvard.iq.dataverse.engine.command.Command;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.DeleteDataFileCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.RequestRsyncScriptCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestUtil;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.license.TermsOfUseSelectItemsFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestRequest;
@@ -44,10 +39,10 @@ import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
-import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -115,13 +110,11 @@ public class EditDatafilesPage implements java.io.Serializable {
     @EJB
     DatasetServiceBean datasetService;
     @EJB
-    DataFileServiceBean datafileService;
+    DataFileServiceBean datafileDao;
     @EJB
     PermissionServiceBean permissionService;
     @EJB
     IngestServiceBean ingestService;
-    @EJB
-    EjbDataverseEngine commandEngine;
     @Inject
     DataverseSession session;
     @EJB
@@ -142,13 +135,16 @@ public class EditDatafilesPage implements java.io.Serializable {
     SettingsWrapper settingsWrapper;
 
     @Inject
+    private DatasetVersionServiceBean datasetVersionService;
+
+    @Inject
     private TermsOfUseFormMapper termsOfUseFormMapper;
 
     @Inject
     private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
 
     @Inject
-    private EditDatafilesService editDatafilesService;
+    private DataFilesService datafilesService;
 
     private Dataset dataset = new Dataset();
 
@@ -799,33 +795,18 @@ public class EditDatafilesPage implements java.io.Serializable {
             Map<Long, String> deleteStorageLocations = null;
 
             if (!filesToBeDeleted.isEmpty()) {
-                deleteStorageLocations = datafileService.getPhysicalFilesToDelete(filesToBeDeleted);
+                deleteStorageLocations = datafileDao.getPhysicalFilesToDelete(filesToBeDeleted);
             }
 
-            Command<Dataset> cmd;
-            try {
-                cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest(), filesToBeDeleted, clone);
-                ((UpdateDatasetVersionCommand) cmd).setValidateLenient(true);
-                dataset = commandEngine.submit(cmd);
+            Try<Dataset> updateDatasetOperation = Try.of(() -> datasetVersionService.updateDatasetVersion(workingVersion, true))
+                    .onSuccess(updatedDataset -> dataset = updatedDataset)
+                    .onFailure(ex -> {
+                        logger.log(Level.SEVERE, "Couldn't update dataset with id: " + workingVersion.getDataset().getId(), ex);
+                        populateDatasetUpdateFailureMessage();
+                    });
 
-            } catch (EJBException ex) {
-                StringBuilder error = new StringBuilder();
-                error.append(ex).append(" ");
-                error.append(ex.getMessage()).append(" ");
-                Throwable cause = ex;
-                while (cause.getCause() != null) {
-                    cause = cause.getCause();
-                    error.append(cause).append(" ");
-                    error.append(cause.getMessage()).append(" ");
-                }
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", error.toString());
-                populateDatasetUpdateFailureMessage();
-                return null;
-            } catch (CommandException ex) {
-                //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Dataset Save Failed", " - " + ex.toString()));
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", ex.getMessage());
-                populateDatasetUpdateFailureMessage();
-                return null;
+            if (updateDatasetOperation.isFailure()){
+                return StringUtils.EMPTY;
             }
 
             // Have we just deleted some draft datafiles (successfully)? 
@@ -834,7 +815,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             // longer exist in the database, before attempting to delete 
             // the physical files)
             if (deleteStorageLocations != null) {
-                datafileService.finalizeFileDeletes(deleteStorageLocations);
+                datafileDao.finalizeFileDeletes(deleteStorageLocations);
             }
 
             datasetUpdateRequired = false;
@@ -860,7 +841,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 fileMetadata.getDataFile().setModificationTime(updateTime);
                 try {
                     //DataFile savedDatafile = datafileService.save(fileMetadata.getDataFile());
-                    fileMetadata = datafileService.mergeFileMetadata(fileMetadata);
+                    fileMetadata = datafileDao.mergeFileMetadata(fileMetadata);
                     logger.fine("Successfully saved DataFile " + fileMetadata.getLabel() + " in the database.");
                 } catch (EJBException ex) {
                     saveError.append(ex).append(" ");
@@ -874,62 +855,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 }
             }
 
-            // Remove / delete any files that were removed
-            for (FileMetadata fmd : filesToBeDeleted) {
-                //  check if this file is being used as the default thumbnail
-                if (fmd.getDataFile().equals(dataset.getThumbnailFile())) {
-                    logger.fine("deleting the dataset thumbnail designation");
-                    dataset.setThumbnailFile(null);
-                }
-
-                if (!fmd.getDataFile().isReleased()) {
-                    // if file is draft (ie. new to this version, delete; otherwise just remove filemetadata object)
-                    boolean deleteCommandSuccess = false;
-                    Long dataFileId = fmd.getDataFile().getId();
-                    String deleteStorageLocation = null;
-
-                    if (dataFileId != null) { // is this check necessary?
-
-                        deleteStorageLocation = datafileService.getPhysicalFileToDelete(fmd.getDataFile());
-
-                        try {
-                            commandEngine.submit(new DeleteDataFileCommand(fmd.getDataFile(), dvRequestService.getDataverseRequest()));
-                            dataset.getFiles().remove(fmd.getDataFile());
-                            workingVersion.getFileMetadatas().remove(fmd);
-                            // added this check to handle an issue where you could not delete a file that shared a category with a new file
-                            // the relationship does not seem to cascade, yet somehow it was trying to merge the filemetadata
-                            // todo: clean this up some when we clean the create / update dataset methods
-                            for (DataFileCategory cat : dataset.getCategories()) {
-                                cat.getFileMetadatas().remove(fmd);
-                            }
-                            deleteCommandSuccess = true;
-                        } catch (CommandException cmde) {
-                            // TODO: 
-                            // add diagnostics reporting for individual data files that 
-                            // we failed to delete.
-                            logger.warning("Failed to delete DataFile id=" + dataFileId + " from the database; " + cmde.getMessage());
-                        }
-                        if (deleteCommandSuccess) {
-                            if (deleteStorageLocation != null) {
-                                // Finalize the delete of the physical file 
-                                // (File service will double-check that the datafile no 
-                                // longer exists in the database, before proceeding to 
-                                // delete the physical file)
-                                try {
-                                    datafileService.finalizeFileDelete(dataFileId, deleteStorageLocation, new DataAccess());
-                                } catch (IOException ioex) {
-                                    logger.warning("Failed to delete the physical file associated with the deleted datafile id="
-                                                           + dataFileId + ", storage location: " + deleteStorageLocation);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    datafileService.removeFileMetadata(fmd);
-                    fmd.getDataFile().getFileMetadatas().remove(fmd);
-                    workingVersion.getFileMetadatas().remove(fmd);
-                }
-            }
+            datafilesService.deleteFileVersions(filesToBeDeleted, workingVersion);
 
             String saveErrorString = saveError.toString();
             if (saveErrorString != null && !saveErrorString.isEmpty()) {
@@ -1171,7 +1097,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // for example, multiple files can be extracted from an uncompressed
                 // zip file.
                 //datafiles = ingestService.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream");
-                datafiles = datafileService.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream");
+                datafiles = datafileDao.createDataFiles(workingVersion, dropBoxStream, fileName, "application/octet-stream");
 
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error during ingest of DropBox file {0} from link {1}", new Object[]{fileName, fileLink});
@@ -1239,22 +1165,23 @@ public class EditDatafilesPage implements java.io.Serializable {
     private void setUpRsync() {
         logger.fine("setUpRsync called...");
         if (DataCaptureModuleUtil.rsyncSupportEnabled(settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods))
-                && dataset.getFiles().isEmpty()) { //only check for rsync if no files exist
-            try {
-                ScriptRequestResponse scriptRequestResponse = commandEngine.submit(new RequestRsyncScriptCommand(dvRequestService.getDataverseRequest(), dataset));
-                logger.fine("script: " + scriptRequestResponse.getScript());
-                if (scriptRequestResponse.getScript() != null && !scriptRequestResponse.getScript().isEmpty()) {
-                    setRsyncScript(scriptRequestResponse.getScript());
-                    rsyncScriptFilename = DataCaptureModuleUtil.getScriptName(workingVersion);
+                && dataset.getFiles().isEmpty()) {
+
+            Try<Option<RsyncInfo>> rsyncFetchOperation = Try.of(() -> datafilesService.retrieveRsyncScript(dataset, workingVersion))
+                    .onFailure(ex -> logger.log(Level.WARNING, "There was a problem with getting rsync script", ex));
+
+            if (rsyncFetchOperation.isSuccess()) {
+                Option<RsyncInfo> rsyncScript = rsyncFetchOperation.get();
+
+                rsyncScript.peek(rsyncInfo -> {
+                    setRsyncScript(rsyncInfo.getRsyncScript());
+                    rsyncScriptFilename = rsyncInfo.getRsyncScriptFileName();
                     setHasRsyncScript(true);
-                } else {
-                    setHasRsyncScript(false);
-                }
-            } catch (EJBException ex) {
-                logger.warning("Problem getting rsync script (EJBException): " + EjbUtil.ejbExceptionToString(ex));
-            } catch (RuntimeException ex) {
-                logger.warning("Problem getting rsync script (RuntimeException): " + ex.getLocalizedMessage());
+                })
+                        .onEmpty(() -> setHasRsyncScript(false));
             }
+
+
         }
     }
 
@@ -1408,7 +1335,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             // Note: A single uploaded file may produce multiple datafiles - 
             // for example, multiple files can be extracted from an uncompressed
             // zip file. 
-            dFileList = datafileService.createDataFiles(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType());
+            dFileList = datafileDao.createDataFiles(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType());
 
         } catch (IOException ioex) {
             logger.warning("Failed to process and/or save the file " + uFile.getFileName() + "; " + ioex.getMessage());
@@ -1692,7 +1619,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             return false;
         }
 
-        return datafileService.isThumbnailAvailable(fileMetadata.getDataFile());
+        return datafileDao.isThumbnailAvailable(fileMetadata.getDataFile());
     }
 
 
@@ -1792,7 +1719,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead() {
         logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadataSelectedForThumbnailPopup});
 
-        Try.of(() -> editDatafilesService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile().getId()))
+        Try.of(() -> datafilesService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile().getId()))
                 .onFailure(ex -> logger.log(Level.SEVERE, "Problem setting thumbnail for dataset id " + dataset.getId(), ex))
                 .onSuccess(datasetThumbnail -> dataset = datasetService.find(dataset.getId()));
     }
@@ -1995,7 +1922,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // by the file and version ids:
                 for (Long fileId : selectedFileIdsList) {
                     logger.fine("attempting to retrieve file metadata for version id " + datasetVersionId + " and file id " + fileId);
-                    FileMetadata fileMetadata = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(datasetVersionId, fileId);
+                    FileMetadata fileMetadata = datafileDao.findFileMetadataByDatasetVersionIdAndDataFileId(datasetVersionId, fileId);
                     if (fileMetadata != null) {
                         logger.fine("Success!");
                         fileMetadatas.add(fileMetadata);
