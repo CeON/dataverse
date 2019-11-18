@@ -149,7 +149,7 @@ public class DataversePage implements java.io.Serializable {
     public String saveFeaturedDataverse() {
 
         Try<Dataverse> saveFeaturedDataverseOperation = Try.of(() -> dataverseService.saveFeaturedDataverse(dataverse, featuredDataverses.getTarget()))
-                .onSuccess(saveOperation -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.feature.update")))
+                .onSuccess(savedDataverse -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataverse.feature.update")))
                 .onFailure(ex -> {
                     logger.log(Level.SEVERE, "Unexpected Exception calling dataverse command", ex);
                     JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("dataverse.update.failure"));
