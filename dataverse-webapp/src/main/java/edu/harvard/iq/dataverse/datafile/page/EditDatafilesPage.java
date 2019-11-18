@@ -1,11 +1,20 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.datafile.page;
 
+import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.FileDownloadHelper;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
+import edu.harvard.iq.dataverse.datafile.EditDatafilesService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.engine.command.Command;
@@ -13,7 +22,6 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteDataFileCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RequestRsyncScriptCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestUtil;
@@ -40,6 +48,7 @@ import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
@@ -137,6 +146,9 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     @Inject
     private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
+
+    @Inject
+    private EditDatafilesService editDatafilesService;
 
     private Dataset dataset = new Dataset();
 
@@ -1779,20 +1791,10 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     public void deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead() {
         logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadataSelectedForThumbnailPopup});
-        /**
-         * @todo Rather than deleting and merging right away, try to respect how
-         * this page seems to stage actions and giving the user a chance to
-         * review before clicking "Save Changes".
-         */
-        try {
-            DatasetThumbnail datasetThumbnail = commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(), dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, fileMetadataSelectedForThumbnailPopup.getDataFile().getId(), null));
-            // look up the dataset again because the UpdateDatasetThumbnailCommand mutates (merges) the dataset
-            dataset = datasetService.find(dataset.getId());
-        } catch (CommandException ex) {
-            String error = "Problem setting thumbnail for dataset id " + dataset.getId() + ".: " + ex;
-            // show this error to the user?
-            logger.info(error);
-        }
+
+        Try.of(() -> editDatafilesService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile().getId()))
+                .onFailure(ex -> logger.log(Level.SEVERE, "Problem setting thumbnail for dataset id " + dataset.getId(), ex))
+                .onSuccess(datasetThumbnail -> dataset = datasetService.find(dataset.getId()));
     }
 
     public boolean isThumbnailIsFromDatasetLogoRatherThanDatafile() {
