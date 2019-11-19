@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datafile.DataFilesService;
+import edu.harvard.iq.dataverse.datafile.FileService;
 import edu.harvard.iq.dataverse.datafile.pojo.RsyncInfo;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
@@ -145,6 +146,9 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     @Inject
     private DataFilesService datafilesService;
+
+    @Inject
+    private FileService fileService;
 
     private Dataset dataset = new Dataset();
 
@@ -805,7 +809,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                         populateDatasetUpdateFailureMessage();
                     });
 
-            if (updateDatasetOperation.isFailure()){
+            if (updateDatasetOperation.isFailure()) {
                 return StringUtils.EMPTY;
             }
 
@@ -855,7 +859,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 }
             }
 
-            datafilesService.deleteFileVersions(filesToBeDeleted, workingVersion);
+            filesToBeDeleted.forEach(fileMetadata -> fileService.deleteFile(fileMetadata));
 
             String saveErrorString = saveError.toString();
             if (saveErrorString != null && !saveErrorString.isEmpty()) {
@@ -1167,21 +1171,10 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (DataCaptureModuleUtil.rsyncSupportEnabled(settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods))
                 && dataset.getFiles().isEmpty()) {
 
-            Try<Option<RsyncInfo>> rsyncFetchOperation = Try.of(() -> datafilesService.retrieveRsyncScript(dataset, workingVersion))
+            Try<Option<RsyncInfo>> rsyncFetchOperation = Try.of(() -> fileService.retrieveRsyncScript(dataset, workingVersion))
                     .onFailure(ex -> logger.log(Level.WARNING, "There was a problem with getting rsync script", ex));
 
-            if (rsyncFetchOperation.isSuccess()) {
-                Option<RsyncInfo> rsyncScript = rsyncFetchOperation.get();
-
-                rsyncScript.peek(rsyncInfo -> {
-                    setRsyncScript(rsyncInfo.getRsyncScript());
-                    rsyncScriptFilename = rsyncInfo.getRsyncScriptFileName();
-                    setHasRsyncScript(true);
-                })
-                        .onEmpty(() -> setHasRsyncScript(false));
-            }
-
-
+            rsyncFetchOperation.onSuccess(this::setupScriptInfo);
         }
     }
 
@@ -1235,6 +1228,15 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     public String getRsyncScriptFilename() {
         return rsyncScriptFilename;
+    }
+
+    private void setupScriptInfo(Option<RsyncInfo> rsyncScript) {
+        rsyncScript.peek(rsyncInfo -> {
+            setRsyncScript(rsyncInfo.getRsyncScript());
+            rsyncScriptFilename = rsyncInfo.getRsyncScriptFileName();
+            setHasRsyncScript(true);
+        })
+                .onEmpty(() -> setHasRsyncScript(false));
     }
 
 
