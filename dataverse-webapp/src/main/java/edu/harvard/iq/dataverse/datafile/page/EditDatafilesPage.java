@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.datafile.page;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.FileDownloadHelper;
@@ -12,9 +12,9 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
-import edu.harvard.iq.dataverse.datafile.DataFilesService;
 import edu.harvard.iq.dataverse.datafile.FileService;
 import edu.harvard.iq.dataverse.datafile.pojo.RsyncInfo;
+import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
@@ -109,7 +109,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     }
 
     @EJB
-    DatasetServiceBean datasetService;
+    DatasetDao datasetDao;
     @EJB
     DataFileServiceBean datafileDao;
     @EJB
@@ -145,7 +145,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
 
     @Inject
-    private DataFilesService datafilesService;
+    private DatasetService datasetService;
 
     @Inject
     private FileService fileService;
@@ -390,7 +390,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (dataset.getId() != null) {
             // Set Working Version and Dataset by Datasaet Id and Version
             //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionById(dataset.getId(), null);
-            dataset = datasetService.find(dataset.getId());
+            dataset = datasetDao.find(dataset.getId());
             // Is the Dataset harvested? (because we don't allow editing of harvested 
             // files!)
             if (dataset == null || dataset.isHarvested()) {
@@ -415,7 +415,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (!permissionService.on(dataset).has(Permission.EditDataset)) {
             return permissionsWrapper.notAuthorized();
         }
-        if (datasetService.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
+        if (datasetDao.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
             return permissionsWrapper.notAuthorized();
         }
 
@@ -673,7 +673,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (nNewFiles > 0) {
             //SEK 10/15/2018 only apply the following tests if dataset has already been saved.
             if (dataset.getId() != null) {
-                Dataset lockTest = datasetService.find(dataset.getId());
+                Dataset lockTest = datasetDao.find(dataset.getId());
                 //SEK 09/19/18 Get Dataset again to test for lock just in case the user downloads the rsync script via the api while the 
                 // edit files page is open and has already loaded a file in http upload for Dual Mode
                 if (dataset.isLockedFor(DatasetLock.Reason.DcmUpload) || lockTest.isLockedFor(DatasetLock.Reason.DcmUpload)) {
@@ -875,7 +875,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             // the id for null, just in case)
             if (mode == FileEditMode.UPLOAD) {
                 if (dataset.getId() != null) {
-                    dataset = datasetService.find(dataset.getId());
+                    dataset = datasetDao.find(dataset.getId());
                 }
             }
         }
@@ -934,7 +934,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     }
 
     public String returnToDatasetOnly() {
-        dataset = datasetService.find(dataset.getId());
+        dataset = datasetDao.find(dataset.getId());
         return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&faces-redirect=true";
     }
 
@@ -1202,7 +1202,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         // If the script has been successfully downloaded, lock the dataset:
         String lockInfoMessage = "script downloaded";
-        DatasetLock lock = datasetService.addDatasetLock(dataset.getId(), DatasetLock.Reason.DcmUpload, session.getUser() != null ? ((AuthenticatedUser) session.getUser()).getId() : null, lockInfoMessage);
+        DatasetLock lock = datasetDao.addDatasetLock(dataset.getId(), DatasetLock.Reason.DcmUpload, session.getUser() != null ? ((AuthenticatedUser) session.getUser()).getId() : null, lockInfoMessage);
         if (lock != null) {
             dataset.addLock(lock);
         } else {
@@ -1602,7 +1602,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // refresh the dataset and version, if the current working
                 // version of the dataset is locked:
             }
-            Dataset lookedupDataset = datasetService.find(dataset.getId());
+            Dataset lookedupDataset = datasetDao.find(dataset.getId());
 
             if ((lookedupDataset != null) && lookedupDataset.isLocked()) {
                 logger.fine("locked!");
@@ -1721,9 +1721,9 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead() {
         logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadataSelectedForThumbnailPopup});
 
-        Try.of(() -> datafilesService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile().getId()))
+        Try.of(() -> datasetService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile().getId()))
                 .onFailure(ex -> logger.log(Level.SEVERE, "Problem setting thumbnail for dataset id " + dataset.getId(), ex))
-                .onSuccess(datasetThumbnail -> dataset = datasetService.find(dataset.getId()));
+                .onSuccess(datasetThumbnail -> dataset = datasetDao.find(dataset.getId()));
     }
 
     public boolean isThumbnailIsFromDatasetLogoRatherThanDatafile() {
