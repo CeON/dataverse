@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroup
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.bannersandmessages.messages.DataverseTextMessageServiceBean;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleServiceBean;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.dataverse.template.TemplateDao;
 import edu.harvard.iq.dataverse.engine.DataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.Command;
@@ -65,7 +66,7 @@ public class EjbDataverseEngine {
     DatasetServiceBean datasetService;
 
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
 
     @EJB
     DataverseRoleServiceBean rolesService;
@@ -134,7 +135,7 @@ public class EjbDataverseEngine {
     GuestbookResponseServiceBean responses;
 
     @EJB
-    DataverseLinkingServiceBean dvLinking;
+    DataverseLinkingDao dvLinking;
 
     @EJB
     DatasetLinkingServiceBean dsLinking;
@@ -295,8 +296,8 @@ public class EjbDataverseEngine {
                 }
 
                 @Override
-                public DataverseServiceBean dataverses() {
-                    return dataverseService;
+                public DataverseDao dataverses() {
+                    return dataverseDao;
                 }
 
                 @Override
@@ -415,7 +416,7 @@ public class EjbDataverseEngine {
                 }
 
                 @Override
-                public DataverseLinkingServiceBean dvLinking() {
+                public DataverseLinkingDao dvLinking() {
                     return dvLinking;
                 }
 

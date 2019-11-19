@@ -48,7 +48,7 @@ INSERT INTO guestbook (id, createtime, emailrequired, enabled, institutionrequir
 
 --- ROOT -> unreleased ---
 INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate, creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime) 
-    VALUES (51, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, '2019-08-19 13:15:02.415', 1, '2019-08-19 13:14:48.434', '2019-08-19 13:15:02.415', '2019-08-19 13:14:48.799', '2019-09-19 14:37:07.268', '2019-09-19 14:37:07.486');
+    VALUES (51, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, NULL, 1, '2019-08-19 13:14:48.434', '2019-08-19 13:15:02.415', '2019-08-19 13:14:48.799', '2019-09-19 14:37:07.268', '2019-09-19 14:37:07.486');
 INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners) 
     VALUES (51, 'unreleased', 'Unreleased Dataverse', 'ICM UW', 'JOURNALS', 'das', 6, NULL, false, false, false, true, false, true, false);
 INSERT INTO dataversecontact (id, contactemail, displayorder, dataverse_id) VALUES (5, 'unreleased.dv.contact@mailinator.com', 0, 51);
@@ -139,7 +139,20 @@ INSERT INTO datasetfieldvalue (id, displayorder, value, datasetfield_id) VALUES 
 INSERT INTO datasetfieldvalue (id, displayorder, value, datasetfield_id) VALUES (343, 0, 'Some contact name', 574);
 INSERT INTO datasetfieldvalue (id, displayorder, value, datasetfield_id) VALUES (344, 0, 'Some depositor name', 573);
 
-
+--- DV:unreleased -> Dataset with Versions ---
+INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate, creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
+    VALUES (56, 'Dataset', 19, false, 'doi', '10.18150', 'FK2/MLDB99', NULL, false, 'file://10.18150/FK2/MLDB99', NULL, NULL, 2, '2019-08-22 08:22:33.069', '2019-09-27 12:00:43.188', '2019-08-22 08:22:33.069', '2019-09-27 12:00:43.631', '2019-09-27 12:00:44.29');
+INSERT INTO dataset (id, fileaccessrequest, harvestidentifier, usegenericthumbnail, citationdatedatasetfieldtype_id, harvestingclient_id, guestbook_id, thumbnailfile_id)
+    VALUES (56, NULL, NULL, false, NULL, NULL, NULL, NULL);
+INSERT INTO datasetversion (id, version, dataset_id, versionstate, versionnumber, minorversionnumber, unf, termsofuseandaccess_id, archivenote, versionnote, deaccessionlink, createtime, lastupdatetime, releasetime, archivetime, archivalcopylocation)
+    VALUES (42, 11, 56, 'ARCHIVED', 1, 0, NULL, 36, 'https://www.google.com/', NULL, NULL, '2019-08-22 08:22:33.1', '2019-09-27 12:00:43.188', '2019-09-27 12:00:43.188', NULL, NULL);
+INSERT INTO datasetversion (id, version, dataset_id, versionstate, versionnumber, minorversionnumber, unf, termsofuseandaccess_id, archivenote, versionnote, deaccessionlink, createtime, lastupdatetime, releasetime, archivetime, archivalcopylocation)
+    VALUES (43, 11, 56, 'RELEASED', 2, 0, NULL, 36, NULL, NULL, NULL, '2019-08-22 08:22:33.1', '2019-09-27 12:00:43.188', '2019-09-27 12:00:43.188', NULL, NULL);
+INSERT INTO datasetversion (id, version, dataset_id, versionstate, versionnumber, minorversionnumber, unf, termsofuseandaccess_id, archivenote, versionnote, deaccessionlink, createtime, lastupdatetime, releasetime, archivetime, archivalcopylocation)
+    VALUES (44, 11, 56, 'DRAFT', NULL, NULL, NULL, 36, NULL, NULL, NULL, '2019-08-22 08:22:33.1', '2019-09-27 12:00:43.188', NULL, NULL, NULL);
+INSERT INTO datasetversionuser (id, lastupdatedate, authenticateduser_id, datasetversion_id) VALUES (40, '2019-08-22 08:23:02.738', 2, 42);
+INSERT INTO datasetversionuser (id, lastupdatedate, authenticateduser_id, datasetversion_id) VALUES (41, '2019-08-22 08:23:02.738', 2, 43);
+INSERT INTO datasetversionuser (id, lastupdatedate, authenticateduser_id, datasetversion_id) VALUES (42, '2019-08-22 08:23:02.738', 2, 43);
 -------------------- DATAFILES --------------------
 
 --- DS:Draft with files -> testfile6.zip
@@ -178,8 +191,9 @@ INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionp
 INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionpoint_id, role_id) VALUES (30, '@filedownloader', NULL, 53, 2);
 INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionpoint_id, role_id) VALUES (31, '@filedownloader', NULL, 55, 2);
 
-
-
+-------------------- TEMPLATES --------------------
+INSERT INTO template (id, createtime, name, usagecount, dataverse_id, termsofuseandaccess_id)
+ VALUES (1, '2019-08-22 08:23:02.738', 'testTemplate', 0, 1, NULL);
 
 -------------------- Fix sequences --------------------
 
