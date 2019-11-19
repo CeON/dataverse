@@ -53,6 +53,8 @@ public class SavedSearchServiceIT extends WebappArquillianDeployment {
         Assert.assertEquals(savedSearch.getQuery(), searchQuery);
         Assert.assertEquals(1, savedSearch.getFilterQueriesAsStrings().size());
         Assert.assertTrue( savedSearch.getFilterQueriesAsStrings().contains(facetQuery));
+        Assert.assertEquals(savedSearch.getDefinitionPoint(), dataverseToBeLinked);
+
 
     }
 }
