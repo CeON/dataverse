@@ -144,9 +144,9 @@ public class MoveDataverseCommandTest {
         grandchildDD.setTemplateRoot(false);
         grandchildDD.setDefaultTemplate(templateA);
 
-        Template moveTemplate = new Template();
-        moveTemplate.setName("moveTemplate");
-        moveTemplate.setId(2L);
+        Template testTemplate = new Template();
+        testTemplate.setName("testTemplate");
+        testTemplate.setId(2L);
 
         List<Template> noneT = new ArrayList<>();
         root.setTemplates(noneT);
@@ -155,7 +155,7 @@ public class MoveDataverseCommandTest {
         childB.setTemplates(noneT);
         childC.setTemplates(noneT);
         grandchildCC.setTemplates(noneT);
-        grandchildDD.setTemplates(Lists.newArrayList(moveTemplate));
+        grandchildDD.setTemplates(Lists.newArrayList(testTemplate));
 
         // Metadata blocks
         List<MetadataBlock> mbsE = new ArrayList<>();
