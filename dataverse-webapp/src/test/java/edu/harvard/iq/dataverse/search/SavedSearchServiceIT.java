@@ -2,8 +2,8 @@ package edu.harvard.iq.dataverse.search;
 
 
 import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -26,7 +26,7 @@ public class SavedSearchServiceIT extends WebappArquillianDeployment {
     private SavedSearchService savedSearchService;
     
     @Inject
-    private GenericDao genericDao;
+    private DataverseDao dataverseDao;
 
     @Inject
     private AuthenticationServiceBean authenticationServiceBean;
@@ -42,7 +42,7 @@ public class SavedSearchServiceIT extends WebappArquillianDeployment {
     @Test
     public void saveSavedDataverseSearch() {
         //given
-        Dataverse dataverseToBeLinked = genericDao.find(19, Dataverse.class);
+        Dataverse dataverseToBeLinked = dataverseDao.find(19L);
         String searchQuery = "testQuery";
         String facetQuery = "facetQuery";
 
