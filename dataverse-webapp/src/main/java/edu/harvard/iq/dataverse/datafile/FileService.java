@@ -25,9 +25,11 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Stateless
 public class FileService {
@@ -52,6 +54,13 @@ public class FileService {
     }
 
     // -------------------- LOGIC --------------------
+
+    public Set<Dataset> deleteFiles(Collection<FileMetadata> filesToDelete) {
+
+        return filesToDelete.stream()
+                .map(this::deleteFile)
+                .collect(Collectors.toSet());
+    }
 
     /**
      * If the dataset is realised it creates it's draft version, and then it deletes the file from newly created datasetdraft.
@@ -124,8 +133,8 @@ public class FileService {
                 .getOrElseThrow(throwable -> new UpdateDatasetException("Dataset Update failed with dataset id: " + datasetFileOwner.getId(), throwable));
     }
 
-    private boolean isFileAThumbnail(FileMetadata fileToDelete, Dataset datasetFileOwner) {
-        return fileToDelete.getDataFile().equals(datasetFileOwner.getThumbnailFile());
+    private boolean isFileAThumbnail(FileMetadata thumbnailFile, Dataset datasetFileOwner) {
+        return thumbnailFile.getDataFile().equals(datasetFileOwner.getThumbnailFile());
     }
 
     private void deleteFilePhysically(FileMetadata fileToDelete) {

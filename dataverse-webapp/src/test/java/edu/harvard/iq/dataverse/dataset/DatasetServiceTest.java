@@ -32,10 +32,12 @@ public class DatasetServiceTest {
     public void changeDatasetThumbnail() {
         //given
         Dataset dataset = new Dataset();
-        when(commandEngine.submit(any(UpdateDatasetThumbnailCommand.class))).thenReturn(new DatasetThumbnail("", new DataFile()));
+        DataFile thumbnailFile = new DataFile();
+
+        when(commandEngine.submit(any(UpdateDatasetThumbnailCommand.class))).thenReturn(new DatasetThumbnail("", thumbnailFile));
 
         //when
-        datasetService.changeDatasetThumbnail(dataset, 1);
+        datasetService.changeDatasetThumbnail(dataset, thumbnailFile);
 
         //then
         verify(commandEngine, times(1)).submit(any(UpdateDatasetThumbnailCommand.class));

@@ -125,13 +125,13 @@ public class DatasetService {
      * Replaces thumbnail (default if none is set) with the one provided.
      *
      * @param datasetForNewThumbnail dataset that will have new thumbnail
-     * @param datafileThumbnailId    id of the thumbnail that will be set for dataset
+     * @param thumbnailFile          thumbnail that will be set for dataset
      */
-    public DatasetThumbnail changeDatasetThumbnail(Dataset datasetForNewThumbnail, long datafileThumbnailId) {
+    public DatasetThumbnail changeDatasetThumbnail(Dataset datasetForNewThumbnail, DataFile thumbnailFile) {
         return commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(),
                                                                       datasetForNewThumbnail,
                                                                       UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail,
-                                                                      datafileThumbnailId,
+                                                                      thumbnailFile.getId(),
                                                                       null));
 
     }

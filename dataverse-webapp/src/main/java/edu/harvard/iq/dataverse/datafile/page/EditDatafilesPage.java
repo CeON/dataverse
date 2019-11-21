@@ -859,7 +859,8 @@ public class EditDatafilesPage implements java.io.Serializable {
                 }
             }
 
-            filesToBeDeleted.forEach(fileMetadata -> fileService.deleteFile(fileMetadata));
+            Try.of(() -> fileService.deleteFiles(filesToBeDeleted))
+                    .onFailure(ex -> logger.log(Level.WARNING, "There was a problem with deleting files", ex));
 
             String saveErrorString = saveError.toString();
             if (saveErrorString != null && !saveErrorString.isEmpty()) {
@@ -979,11 +980,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
 
     public boolean showFileUploadComponent() {
-        if (mode == FileEditMode.UPLOAD || mode == FileEditMode.CREATE) {
-            return true;
-        }
-
-        return false;
+        return mode == FileEditMode.UPLOAD || mode == FileEditMode.CREATE;
     }
 
 
@@ -1721,7 +1718,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead() {
         logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadataSelectedForThumbnailPopup});
 
-        Try.of(() -> datasetService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile().getId()))
+        Try.of(() -> datasetService.changeDatasetThumbnail(dataset, fileMetadataSelectedForThumbnailPopup.getDataFile()))
                 .onFailure(ex -> logger.log(Level.SEVERE, "Problem setting thumbnail for dataset id " + dataset.getId(), ex))
                 .onSuccess(datasetThumbnail -> dataset = datasetDao.find(dataset.getId()));
     }
