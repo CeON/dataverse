@@ -1234,6 +1234,12 @@ div.ui-widget-overlay {
 	border-bottom: none;
 }
 
+#rolesPermissionsForm\:rolesPermissionsDialog {
+	input[type=text], table {
+		width: 100%;
+	}
+}
+
 /* Fix for the unnecessary scrollbar in some modals */
 div.ui-dialog.largePopUp {
 	overflow: hidden;
