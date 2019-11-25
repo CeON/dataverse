@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.dataverse.themewidget;
 
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -19,6 +18,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -38,8 +38,6 @@ public class ThemeWidgetServiceIT extends WebappArquillianDeployment {
     @Inject
     private DataverseDao dataverseDao;
     @Inject
-    private GenericDao genericDao;
-    @Inject
     private DataverseSession dataverseSession;
     @EJB
     private AuthenticationServiceBean authenticationServiceBean;
@@ -51,7 +49,7 @@ public class ThemeWidgetServiceIT extends WebappArquillianDeployment {
 
 
     @Test
-    public void shouldSaveOrUpdateThemeRoot() {
+    public void shouldSaveOrUpdateUploadedTheme() {
         // given
         Dataverse dataverse = dataverseDao.findByAlias("ownmetadatablocks");
         File file = new File (getClass().getClassLoader()
@@ -69,7 +67,7 @@ public class ThemeWidgetServiceIT extends WebappArquillianDeployment {
         dvTheme.setTagline("testTagline");
 
         // when
-        themeWidgetService.saveOrUpdateThemeRoot(dataverse, file);
+        themeWidgetService.saveOrUpdateUploadedTheme(dataverse, file);
 
         // then
         Dataverse dbDataverse = dataverseDao.findByAlias("ownmetadatablocks");
@@ -86,19 +84,14 @@ public class ThemeWidgetServiceIT extends WebappArquillianDeployment {
         assertEquals("FFFFAA", dbDvTheme.getTextColor());
         assertEquals("testTagline", dbDvTheme.getTagline());
 
-        Path logoPath = Paths.get("../docroot/logos");
-        File logoFileDir = new File(logoPath.toFile(), dbDataverse.getId().toString());
-        File newFile = new File(logoFileDir, dbDataverse.getDataverseTheme().getLogo());
+        Path logoPath = Paths.get("../docroot/logos" ,dbDataverse.getId().toString(), dbDataverse.getDataverseTheme().getLogo());
 
-        assertTrue(logoFileDir.exists());
-        assertTrue(logoFileDir.isDirectory());
-        assertTrue(newFile.exists());
-        assertTrue(newFile.isFile());
-        assertEquals("banner.png", newFile.getName());
+        assertTrue(Files.exists(logoPath));
+        assertEquals("banner.png", logoPath.toFile().getName());
     }
 
     @Test
-    public void shouldSaveOrUpdateTheme() {
+    public void shouldInheritThemeFromRoot() {
         // given
         Dataverse dataverse = dataverseDao.findByAlias("unreleased");
         dataverse.setThemeRoot(false);
@@ -106,18 +99,15 @@ public class ThemeWidgetServiceIT extends WebappArquillianDeployment {
 
 
         // when
-        themeWidgetService.saveOrUpdateTheme(dataverse);
+        themeWidgetService.inheritThemeFromRoot(dataverse);
 
         // then
         Dataverse dbDataverse = dataverseDao.findByAlias("unreleased");
         assertEquals("Root", dbDataverse.getThemeRootDataverseName());
         assertEquals(dataverseDao.findByAlias("root").getDataverseTheme(), dbDataverse.getDataverseTheme());
 
-        Path logoPath = Paths.get("../docroot/logos");
-        File logoFileDir = new File(logoPath.toFile(), dbDataverse.getId().toString());
-        File newFile = new File(logoFileDir, dbDataverse.getDataverseTheme().getLogo());
+        Path logoPath = Paths.get("../docroot/logos",dbDataverse.getId().toString(), dbDataverse.getDataverseTheme().getLogo());
 
-        assertFalse(logoFileDir.exists());
-        assertFalse(newFile.exists());
+        assertFalse(logoPath.toFile().exists());
     }
 }

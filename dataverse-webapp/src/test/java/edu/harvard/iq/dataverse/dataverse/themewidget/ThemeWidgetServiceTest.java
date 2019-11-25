@@ -45,24 +45,24 @@ public class ThemeWidgetServiceTest {
     }
 
     @Test
-    public void saveOrUpdateRootTheme() {
+    public void saveOrUpdateUploadedTheme() {
         // given
         File file = new File (getClass().getClassLoader()
                 .getResource("images/banner.png").getFile());
         // when
-        themeWidgetService.saveOrUpdateThemeRoot(dataverse, file);
+        themeWidgetService.saveOrUpdateUploadedTheme(dataverse, file);
 
         // then
         verify(commandEngine, times(1)).submit(any(UpdateDataverseThemeCommand.class));
     }
 
     @Test
-    public void saveOrUpdateTheme() {
+    public void inheritThemeFromRoot() {
         // given
         dataverse.setDataverseTheme(new DataverseTheme());
 
         // when
-        themeWidgetService.saveOrUpdateTheme(dataverse);
+        themeWidgetService.inheritThemeFromRoot(dataverse);
 
         // then
         verify(commandEngine, times(1)).submit(any(UpdateDataverseThemeCommand.class));

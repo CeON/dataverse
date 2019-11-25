@@ -281,9 +281,9 @@ public class ThemeWidgetFragment implements java.io.Serializable {
         Try<Dataverse> saveOperation;
 
         if (editDv.isThemeRoot()) {
-            saveOperation = Try.of(() -> themeWidgetService.saveOrUpdateThemeRoot(editDv, uploadedFile));
+            saveOperation = Try.of(() -> themeWidgetService.saveOrUpdateUploadedTheme(editDv, uploadedFile));
         } else {
-            saveOperation = Try.of(() -> themeWidgetService.saveOrUpdateTheme(editDv))
+            saveOperation = Try.of(() -> themeWidgetService.inheritThemeFromRoot(editDv))
                     .onSuccess(editedDataverse -> editDv = editedDataverse);
         }
 

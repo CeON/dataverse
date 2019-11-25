@@ -15,6 +15,8 @@ public class ThemeWidgetService {
     private EjbDataverseEngine commandEngine;
     private DataverseRequestServiceBean dvRequestService;
 
+    // -------------------- CONSTRUCTORS --------------------
+
     @Deprecated
     public ThemeWidgetService() {
     }
@@ -25,11 +27,13 @@ public class ThemeWidgetService {
         this.dvRequestService = dvRequestService;
     }
 
-    public Dataverse saveOrUpdateThemeRoot(Dataverse dataverse, File themeFile) {
+    // -------------------- LOGIC --------------------
+
+    public Dataverse saveOrUpdateUploadedTheme(Dataverse dataverse, File themeFile) {
         return commandEngine.submit(new UpdateDataverseThemeCommand(dataverse, themeFile, dvRequestService.getDataverseRequest()));
     }
 
-    public Dataverse saveOrUpdateTheme(Dataverse dataverse) {
+    public Dataverse inheritThemeFromRoot(Dataverse dataverse) {
         dataverse.setDataverseTheme(null);
 
         return commandEngine.submit(new UpdateDataverseThemeCommand(dataverse, null, dvRequestService.getDataverseRequest()));
