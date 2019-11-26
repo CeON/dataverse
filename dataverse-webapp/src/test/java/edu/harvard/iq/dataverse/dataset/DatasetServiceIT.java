@@ -14,10 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
@@ -65,24 +61,5 @@ public class DatasetServiceIT extends WebappArquillianDeployment {
 
         //then
         Assert.assertEquals(datasetWithFiles.getFiles().get(0), updatedDataset.getThumbnailFile());
-    }
-
-    @Test
-    public void changeDatasetThumbnail_WithFileFromDisk() throws IOException, URISyntaxException {
-        //given
-        Dataset datasetWithFiles = genericDao.find(52, Dataset.class);
-
-
-        URL fileResource = getClass().getClassLoader()
-                .getResource("images/banner.png");
-
-        //when
-        datasetService.changeDatasetThumbnail(datasetWithFiles, fileResource.openStream());
-        Dataset updatedDataset = genericDao.find(52, Dataset.class);
-
-        //then
-        String name = Paths.get(fileResource.toURI()).toFile().getName();
-
-        Assert.assertEquals(name, DatasetUtil.getThumbnail(updatedDataset));
     }
 }
