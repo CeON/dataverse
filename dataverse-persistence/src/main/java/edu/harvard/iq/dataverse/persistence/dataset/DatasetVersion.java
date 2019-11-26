@@ -607,7 +607,9 @@ public class DatasetVersion implements Serializable {
 
     @Override
     public String toString() {
-        return "[DatasetVersion id:" + getId() + "]";
+        String id = getId() == null ? "id doesn't exists" : getId().toString();
+
+        return "[DatasetVersion id:" + id + "]";
     }
 
     public boolean isLatestVersion() {
