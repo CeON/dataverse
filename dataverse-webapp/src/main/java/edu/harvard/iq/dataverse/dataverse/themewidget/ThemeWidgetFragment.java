@@ -294,10 +294,9 @@ public class ThemeWidgetFragment implements java.io.Serializable {
             return "dataverse.xhtml?faces-redirect=true&alias=" + editDv.getAlias();
         } else {
             logger.log(Level.SEVERE, "error updating dataverse theme", saveOperation.getCause());
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_FATAL,
-                            BundleUtil.getStringFromBundle("dataverse.save.failed"),
-                            BundleUtil.getStringFromBundle("dataverse.theme.failure")));
+            JsfHelper.addErrorMessage(null,
+                    BundleUtil.getStringFromBundle("dataverse.save.failed"),
+                    BundleUtil.getStringFromBundle("dataverse.theme.failure"));
 
             return null;
         }
