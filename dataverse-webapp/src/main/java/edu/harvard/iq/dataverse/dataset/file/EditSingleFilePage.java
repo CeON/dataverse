@@ -4,19 +4,16 @@ import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.FileDownloadHelper;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.datafile.page.EditDatafilesPage;
+import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
-import edu.harvard.iq.dataverse.engine.command.Command;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -25,9 +22,9 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
-import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJBException;
@@ -39,7 +36,6 @@ import javax.inject.Named;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,12 +51,12 @@ public class EditSingleFilePage implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(EditSingleFilePage.class.getCanonicalName());
 
     private DatasetDao datasetDao;
+    private DatasetService datasetService;
+    private DatasetVersionService datasetVersionService;
     private DataFileServiceBean datafileService;
     private PermissionServiceBean permissionService;
-    private EjbDataverseEngine commandEngine;
     private DataverseSession session;
     private SettingsServiceBean settingsService;
-    private IndexServiceBean indexService;
     private DataverseRequestServiceBean dvRequestService;
     private PermissionsWrapper permissionsWrapper;
     private FileDownloadHelper fileDownloadHelper;
@@ -95,17 +91,18 @@ public class EditSingleFilePage implements java.io.Serializable {
     }
 
     @Inject
-    public EditSingleFilePage(DatasetDao datasetDao, DataFileServiceBean datafileService, PermissionServiceBean permissionService,
-                              EjbDataverseEngine commandEngine, DataverseSession session, SettingsServiceBean settingsService,
-                              IndexServiceBean indexService, DataverseRequestServiceBean dvRequestService, PermissionsWrapper permissionsWrapper,
+    public EditSingleFilePage(DatasetDao datasetDao, DatasetService datasetService, DatasetVersionService datasetVersionService,
+                              DataFileServiceBean datafileService, PermissionServiceBean permissionService,
+                              DataverseSession session, SettingsServiceBean settingsService,
+                              DataverseRequestServiceBean dvRequestService, PermissionsWrapper permissionsWrapper,
                               FileDownloadHelper fileDownloadHelper, ProvPopupFragmentBean provPopupFragmentBean) {
+        this.datasetService = datasetService;
+        this.datasetVersionService = datasetVersionService;
         this.datasetDao = datasetDao;
         this.datafileService = datafileService;
         this.permissionService = permissionService;
-        this.commandEngine = commandEngine;
         this.session = session;
         this.settingsService = settingsService;
-        this.indexService = indexService;
         this.dvRequestService = dvRequestService;
         this.permissionsWrapper = permissionsWrapper;
         this.fileDownloadHelper = fileDownloadHelper;
@@ -344,30 +341,14 @@ public class EditSingleFilePage implements java.io.Serializable {
                 }
             }
 
-            Command<Dataset> cmd;
-            try {
-                cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest(), Collections.emptyList(), clone);
-                ((UpdateDatasetVersionCommand) cmd).setValidateLenient(true);
-                dataset = commandEngine.submit(cmd);
+            Try<Dataset> updateDatasetVersionOperation = Try.of(() -> datasetVersionService.updateDatasetVersion(dataset, clone, true))
+                    .onFailure(ex -> {
+                        logger.log(Level.SEVERE, "Unable to updateDatasetVersion with dataset id: " + dataset.getId(), ex);
+                        populateDatasetUpdateFailureMessage();
+                    });
 
-            } catch (EJBException ex) {
-                StringBuilder error = new StringBuilder();
-                error.append(ex).append(" ");
-                error.append(ex.getMessage()).append(" ");
-                Throwable cause = ex;
-                while (cause.getCause() != null) {
-                    cause = cause.getCause();
-                    error.append(cause).append(" ");
-                    error.append(cause.getMessage()).append(" ");
-                }
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", error.toString());
-                populateDatasetUpdateFailureMessage();
-                return null;
-            } catch (CommandException ex) {
-                //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Dataset Save Failed", " - " + ex.toString()));
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", ex.getMessage());
-                populateDatasetUpdateFailureMessage();
-                return null;
+            if (updateDatasetVersionOperation.isFailure()) {
+                return "";
             }
 
             datasetUpdateRequired = false;
@@ -462,16 +443,12 @@ public class EditSingleFilePage implements java.io.Serializable {
     }
 
     public void deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead() {
-        logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file, blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadata});
-        try {
-            DatasetThumbnail datasetThumbnail = commandEngine.submit(new UpdateDatasetThumbnailCommand(dvRequestService.getDataverseRequest(), dataset, UpdateDatasetThumbnailCommand.UserIntent.setDatasetFileAsThumbnail, fileMetadata.getDataFile().getId(), null));
-            // look up the dataset again because the UpdateDatasetThumbnailCommand mutates (merges) the dataset
-            dataset = datasetDao.find(dataset.getId());
-        } catch (CommandException ex) {
-            String error = "Problem setting thumbnail for dataset id " + dataset.getId() + ".: " + ex;
-            // show this error to the user?
-            logger.info(error);
-        }
+        logger.log(Level.FINE, "For dataset id {0} the current thumbnail is from a dataset logo rather than a dataset file," +
+                " blowing away the logo and using this FileMetadata id instead: {1}", new Object[]{dataset.getId(), fileMetadata});
+
+        Try.of(() -> datasetService.changeDatasetThumbnail(dataset, fileMetadata.getDataFile()))
+                .onSuccess(datasetThumbnail -> dataset = datasetDao.find(dataset.getId()))
+                .onFailure(ex -> logger.log(Level.WARNING, "Problem setting thumbnail for dataset id: " + dataset.getId(), ex));
     }
 
     public boolean isThumbnailIsFromDatasetLogoRatherThanDatafile() {
@@ -541,8 +518,7 @@ public class EditSingleFilePage implements java.io.Serializable {
             } else {
                 logger.fine("Failed to find file metadata.");
             }
-        }
-        else {
+        } else {
             logger.fine("Brand new edit version - no database id.");
             for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
 
