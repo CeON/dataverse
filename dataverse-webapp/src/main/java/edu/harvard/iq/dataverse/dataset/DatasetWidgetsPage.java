@@ -177,7 +177,7 @@ public class DatasetWidgetsPage implements java.io.Serializable {
     public String save() {
         if (thumbnailOperation.isEmpty()) {
             logger.fine("The user clicked saved without making any changes.");
-            return redirectToPreviousPage();
+            return redirectToDatasetPage();
         }
 
         Lazy<DatasetThumbnail> lazyOperation = thumbnailOperation.get();
@@ -186,14 +186,14 @@ public class DatasetWidgetsPage implements java.io.Serializable {
 
         if (executedOperation.isSuccess()) {
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.thumbnailsAndWidget.success"));
-            return redirectToPreviousPage();
+            return redirectToDatasetPage();
         }
 
         executedOperation.onFailure(this::handleThumbnailExceptions);
         return "";
     }
 
-    public String redirectToPreviousPage() {
+    public String redirectToDatasetPage() {
         return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&faces-redirect=true";
     }
 
@@ -202,8 +202,8 @@ public class DatasetWidgetsPage implements java.io.Serializable {
         if (exception instanceof CommandException){
             CommandException commandException = (CommandException) exception;
 
-            logger.log(Level.SEVERE, "Username " + dvRequestService.getDataverseRequest().getUser().getIdentifier() +
-                    " experienced a problem executing thumbnail operation on a DVObject " + commandException.getFailedCommand().getAffectedDvObjects(),
+            logger.log(Level.SEVERE, "Therewas  a problem executing thumbnail operation on a DVObject " +
+                               commandException.getFailedCommand().getAffectedDvObjects(),
                        exception.getCause());
 
             JsfHelper.addFlashErrorMessage(exception.getCause().getLocalizedMessage());
