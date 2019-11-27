@@ -493,8 +493,14 @@ input, textarea {
 		padding: 0.2em 0 0 0;
 	}
 	
-	.ui-tabs-nav.ui-widget-header li a {
-		padding: 10px 1.5em 7px 1.5em;
+	.ui-tabs-nav {
+		&.ui-widget-header li a {
+			padding: 10px 1.5em 7px 1.5em;
+		}
+
+		li.ui-tabs-selected a {
+			cursor: default;
+		}
 	}
 }
 
