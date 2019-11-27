@@ -1,19 +1,11 @@
 package edu.harvard.iq.dataverse.harvest.client;
 
-import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.DataverseDao;
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.persistence.harvest.ClientHarvestRun;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
-import edu.harvard.iq.dataverse.search.IndexServiceBean;
-import edu.harvard.iq.dataverse.timer.DataverseTimerServiceBean;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -29,21 +21,7 @@ import java.util.logging.Logger;
  * Dedicated service for managing Harvesting Client Configurations
  */
 @Stateless
-public class HarvestingClientServiceBean implements java.io.Serializable {
-    @EJB
-    DataverseDao dataverseDao;
-    @EJB
-    EjbDataverseEngine engineService;
-    @EJB
-    DataFileServiceBean dataFileService;
-    @Inject
-    DataverseRequestServiceBean dvRequestService;
-    @EJB
-    IndexServiceBean indexService;
-    @EJB
-    DataverseTimerServiceBean dataverseTimerService;
-    @Inject
-    private HarvestingClientsService harvestingClientsService;
+public class HarvestingClientDao implements java.io.Serializable {
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;

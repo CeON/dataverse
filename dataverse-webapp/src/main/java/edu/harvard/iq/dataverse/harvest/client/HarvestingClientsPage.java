@@ -53,7 +53,7 @@ public class HarvestingClientsPage implements java.io.Serializable {
     @EJB
     DataverseDao dataverseDao;
     @EJB
-    HarvestingClientServiceBean harvestingClientService;
+    HarvestingClientDao harvestingClientService;
     @EJB
     HarvesterServiceBean harvesterService;
     @EJB
@@ -353,25 +353,13 @@ public class HarvestingClientsPage implements java.io.Serializable {
         // set default description - they can customize it as they see fit:
         newHarvestingClient.setArchiveDescription(BundleUtil.getStringFromBundle("harvestclients.viewEditDialog.archiveDescription.default.generic"));
 
-        HarvestingClient finalNewHarvestingClient = newHarvestingClient;
-        Try<HarvestingClient> createHarvestingClientOperation = Try.of(() -> harvestingClientsService.createHarvestingClient(finalNewHarvestingClient));
+        Try.of(() -> harvestingClientsService.createHarvestingClient(newHarvestingClient))
+                .onSuccess(harvestingClient -> {
+                    configuredHarvestingClients = harvestingClientService.getAllHarvestingClients();
+                    JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("harvestclients.newClientDialog.success", harvestingClient.getName()));
+                })
+                .onFailure(this::handleCreateHarvestingClientFailure);
 
-        if(createHarvestingClientOperation.isSuccess()) {
-            newHarvestingClient = createHarvestingClientOperation.get();
-            configuredHarvestingClients = harvestingClientService.getAllHarvestingClients();
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("harvestclients.newClientDialog.success", newHarvestingClient.getName()));
-        } else {
-            Throwable throwable = createHarvestingClientOperation.getCause();
-            if(throwable instanceof CommandException) {
-                logger.log(Level.WARNING, "Harvesting client creation command failed", throwable);
-                JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                        BundleUtil.getStringFromBundle("harvest.createCommand.error"),
-                        throwable.getMessage());
-            } else if(throwable instanceof Exception) {
-                JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("harvest.create.fail"));
-                logger.log(Level.SEVERE, "Harvesting client creation failed (reason unknown)." + throwable.getMessage(), throwable);
-            }
-        }
         setPageMode(PageMode.VIEW);
     }
 
@@ -419,29 +407,16 @@ public class HarvestingClientsPage implements java.io.Serializable {
             harvestingClient.setScheduled(false);
         }
 
+        Try.of(() -> harvestingClientsService.updateHarvestingClient(harvestingClient))
+                .onSuccess(updatedClient -> {
+                    configuredHarvestingClients = harvestingClientService.getAllHarvestingClients();
+                    if (!updatedClient.isScheduled()) {
+                        dataverseTimerService.removeHarvestTimer(updatedClient);
+                    }
+                    JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("harvest.update.success", updatedClient.getName()));
+                })
+                .onFailure(this::handleUpdateHarvestingClientFailure);
 
-        HarvestingClient finalHarvestingClient = harvestingClient;
-        Try<HarvestingClient> harvestingClientOperation = Try.of(() -> harvestingClientsService.updateHarvestingClient(finalHarvestingClient));
-
-        if(harvestingClientOperation.isSuccess()) {
-            harvestingClient = harvestingClientOperation.get();
-            configuredHarvestingClients = harvestingClientService.getAllHarvestingClients();
-            if (!harvestingClient.isScheduled()) {
-                dataverseTimerService.removeHarvestTimer(harvestingClient);
-            }
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("harvest.update.success", harvestingClient.getName()));
-        } else {
-            Throwable throwable = harvestingClientOperation.getCause();
-            if(throwable instanceof CommandException) {
-                logger.log(Level.WARNING, "Failed to save harvesting client", throwable);
-                JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
-                        BundleUtil.getStringFromBundle("harvest.save.failure1"),
-                        throwable.getMessage());
-            } else if(throwable instanceof Exception) {
-                JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("harvest.save.failure2"));
-                logger.log(Level.SEVERE, "Failed to save harvesting client (reason unknown)." + throwable.getMessage(), throwable);
-            }
-        }
         setPageMode(PageMode.VIEW);
     }
 
@@ -1019,5 +994,31 @@ public class HarvestingClientsPage implements java.io.Serializable {
 
     public boolean isSuperUser() {
         return session.getUser().isSuperuser();
+    }
+
+    // -------------------- PRIVATE ---------------------
+
+    private void handleCreateHarvestingClientFailure(Throwable throwable) {
+        if(throwable instanceof CommandException) {
+            logger.log(Level.WARNING, "Harvesting client creation command failed", throwable);
+            JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("harvest.createCommand.error"),
+                    throwable.getMessage());
+        } else if(throwable instanceof Exception) {
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("harvest.create.fail"));
+            logger.log(Level.SEVERE, "Harvesting client creation failed (reason unknown)." + throwable.getMessage(), throwable);
+        }
+    }
+
+    private void handleUpdateHarvestingClientFailure(Throwable throwable) {
+        if(throwable instanceof CommandException) {
+            logger.log(Level.WARNING, "Failed to save harvesting client", throwable);
+            JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("harvest.save.failure1"),
+                    throwable.getMessage());
+        } else if(throwable instanceof Exception) {
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle("harvest.save.failure2"));
+            logger.log(Level.SEVERE, "Failed to save harvesting client (reason unknown)." + throwable.getMessage(), throwable);
+        }
     }
 }

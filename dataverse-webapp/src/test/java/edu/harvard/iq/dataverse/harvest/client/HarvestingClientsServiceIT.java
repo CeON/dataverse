@@ -30,13 +30,15 @@ public class HarvestingClientsServiceIT extends WebappArquillianDeployment {
     @Inject
     private HarvestingClientsService harvestingClientsService;
     @Inject
-    private HarvestingClientServiceBean harvestingClientService;
+    private HarvestingClientDao harvestingClientService;
     @Inject
     private DataverseSession dataverseSession;
     @EJB
     private AuthenticationServiceBean authenticationServiceBean;
     @Inject
     private DataverseDao dataverseDao;
+    @Inject
+    private HarvestingClientDao harvestingClientDao;
 
     @Before
     public void setUp() {
