@@ -6,7 +6,6 @@ import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -79,7 +78,6 @@ public class DatasetWidgetsPage implements java.io.Serializable {
         if (datasetDao.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
             return permissionsWrapper.notAuthorized();
         }
-
 
 
         datasetThumbnails = DatasetUtil.getThumbnailCandidates(dataset, considerDatasetLogoAsCandidate, new DataAccess());
@@ -197,21 +195,10 @@ public class DatasetWidgetsPage implements java.io.Serializable {
         return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&faces-redirect=true";
     }
 
-    private void handleThumbnailExceptions(Throwable exception){
+    private void handleThumbnailExceptions(Throwable exception) {
 
-        if (exception instanceof CommandException){
-            CommandException commandException = (CommandException) exception;
-
-            logger.log(Level.SEVERE, "Therewas  a problem executing thumbnail operation on a DVObject " +
-                               commandException.getFailedCommand().getAffectedDvObjects(),
-                       exception.getCause());
-
-            JsfHelper.addFlashErrorMessage(exception.getCause().getLocalizedMessage());
-        } else {
-
-            logger.log(Level.SEVERE, "There was a problem with executing thumbnail command", exception);
-            JsfHelper.addFlashErrorMessage(exception.getCause().getLocalizedMessage());
-        }
+        logger.log(Level.SEVERE, "There was a problem with executing thumbnail command", exception);
+        JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("commandFailed"));
     }
 
 }
