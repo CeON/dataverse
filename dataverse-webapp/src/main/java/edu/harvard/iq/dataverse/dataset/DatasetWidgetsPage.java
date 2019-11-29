@@ -198,7 +198,7 @@ public class DatasetWidgetsPage implements java.io.Serializable {
     private void handleThumbnailExceptions(Throwable exception) {
 
         logger.log(Level.SEVERE, "There was a problem with executing thumbnail command", exception);
-        JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("commandFailed"));
+        JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.thumbnailsAndWidget.fail"));
     }
 
 }
