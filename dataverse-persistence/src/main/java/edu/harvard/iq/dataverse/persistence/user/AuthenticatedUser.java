@@ -104,6 +104,9 @@ public class AuthenticatedUser implements User, Serializable {
     @Column(nullable = true)
     private Timestamp lastApiUseTime;   // last API use with user's token
 
+    @Column
+    private String notificationsLanguage;
+
     private boolean superuser;
 
     /**
@@ -265,6 +268,14 @@ public class AuthenticatedUser implements User, Serializable {
         this.emailConfirmed = emailConfirmed;
     }
 
+    public String getNotificationsLanguage() {
+        return notificationsLanguage;
+    }
+
+    public void setNotificationsLanguage(String notificationsLanguage) {
+        this.notificationsLanguage = notificationsLanguage;
+    }
+
     @Override
     public boolean isSuperuser() {
         return superuser;
@@ -322,6 +333,7 @@ public class AuthenticatedUser implements User, Serializable {
         authenicatedUserJson.add("email", this.email);
         authenicatedUserJson.add("affiliation", UserUtil.getStringOrNull(this.affiliation));
         authenicatedUserJson.add("position", UserUtil.getStringOrNull(this.position));
+        authenicatedUserJson.add("notificationsLanguage", UserUtil.getStringOrNull(this.notificationsLanguage));
         authenicatedUserJson.add("isSuperuser", this.superuser);
 
         authenicatedUserJson.add("authenticationProvider", this.authProviderFactoryAlias);

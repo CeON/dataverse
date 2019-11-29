@@ -569,6 +569,10 @@ public class DataverseUserPage implements java.io.Serializable {
         return userAuthProvider;
     }
 
+    public String getUserNotificationsLanguageTitle() {
+        return settingsWrapper.getConfiguredLocaleName(currentUser.getNotificationsLanguage());
+    }
+
     public boolean isPasswordEditable() {
         return getUserAuthProvider().isPasswordUpdateAllowed();
     }
