@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.dataset.file;
+package edu.harvard.iq.dataverse.datafile.file;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
@@ -22,6 +22,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
+import edu.harvard.iq.dataverse.provenance.UpdatesEntry;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
@@ -307,12 +308,12 @@ public class EditSingleFilePage implements java.io.Serializable {
                 //Moves DataFile updates from popupFragment to page for saving
                 //This does not seem to collide with the tags updating below
                 if (settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled) && provJsonChanges) {
-                    HashMap<String, ProvPopupFragmentBean.UpdatesEntry> provenanceUpdates = provPopupFragmentBean.getProvenanceUpdates();
+                    HashMap<String, UpdatesEntry> provenanceUpdates = provPopupFragmentBean.getProvenanceUpdates();
                     for (int i = 0; i < dataset.getFiles().size(); i++) {
-                        for (ProvPopupFragmentBean.UpdatesEntry ue : provenanceUpdates.values()) {
-                            if (ue.dataFile.getStorageIdentifier() != null) {
-                                if (ue.dataFile.getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
-                                    dataset.getFiles().set(i, ue.dataFile);
+                        for (UpdatesEntry ue : provenanceUpdates.values()) {
+                            if (ue.getDataFile().getStorageIdentifier() != null) {
+                                if (ue.getDataFile().getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
+                                    dataset.getFiles().set(i, ue.getDataFile());
                                 }
                             }
                         }
