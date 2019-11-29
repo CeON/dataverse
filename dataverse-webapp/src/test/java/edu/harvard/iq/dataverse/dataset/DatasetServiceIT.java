@@ -41,9 +41,10 @@ public class DatasetServiceIT extends WebappArquillianDeployment {
         //given
         Dataset datasetWithFiles = genericDao.find(52, Dataset.class);
         datasetWithFiles.setThumbnailFile(datasetWithFiles.getFiles().get(0));
+        Dataset datasetWithThumbnail = genericDao.merge(datasetWithFiles);
 
         //when
-        datasetService.removeDatasetThumbnail(datasetWithFiles);
+        datasetService.removeDatasetThumbnail(datasetWithThumbnail);
 
         //then
         Dataset updatedDataset = genericDao.find(52, Dataset.class);
