@@ -7,7 +7,6 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.FileDownloadHelper;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
-import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.datafile.page.EditDatafilesPage;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
@@ -19,7 +18,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.provenance.UpdatesEntry;
@@ -28,18 +26,15 @@ import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
-import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +57,7 @@ public class EditSingleFilePage implements java.io.Serializable {
     private PermissionsWrapper permissionsWrapper;
     private FileDownloadHelper fileDownloadHelper;
     private ProvPopupFragmentBean provPopupFragmentBean;
+    private FileMetadataService fileMetadataService;
 
     private Dataset dataset = new Dataset();
     private String editedFileIdString = null;
@@ -96,7 +92,8 @@ public class EditSingleFilePage implements java.io.Serializable {
                               DataFileServiceBean datafileService, PermissionServiceBean permissionService,
                               DataverseSession session, SettingsServiceBean settingsService,
                               DataverseRequestServiceBean dvRequestService, PermissionsWrapper permissionsWrapper,
-                              FileDownloadHelper fileDownloadHelper, ProvPopupFragmentBean provPopupFragmentBean) {
+                              FileDownloadHelper fileDownloadHelper, ProvPopupFragmentBean provPopupFragmentBean,
+                              FileMetadataService fileMetadataService) {
         this.datasetService = datasetService;
         this.datasetVersionService = datasetVersionService;
         this.datasetDao = datasetDao;
@@ -108,6 +105,7 @@ public class EditSingleFilePage implements java.io.Serializable {
         this.permissionsWrapper = permissionsWrapper;
         this.fileDownloadHelper = fileDownloadHelper;
         this.provPopupFragmentBean = provPopupFragmentBean;
+        this.fileMetadataService = fileMetadataService;
     }
 
     // -------------------- GETTERS --------------------
@@ -262,135 +260,29 @@ public class EditSingleFilePage implements java.io.Serializable {
             return "";
         }
 
-        Boolean provJsonChanges = false;
+        updateEntityWithUpdatedFile();
 
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
-            Boolean provFreeChanges = provPopupFragmentBean.updatePageMetadatasWithProvFreeform(fileMetadatas);
 
-            try {
-                // Note that the user may have uploaded provenance metadata file(s)
-                // for some of the new files that have since failed to be permanently saved
-                // in storage (in the ingestService.saveAndAddFilesToDataset() step, above);
-                // these files have been dropped from the fileMetadatas list, and we
-                // are not adding them to the dataset; but the
-                // provenance update set still has entries for these failed files,
-                // so we are passing the fileMetadatas list to the saveStagedProvJson()
-                // method below - so that it doesn't attempt to save the entries
-                // that are no longer valid.
-                provJsonChanges = provPopupFragmentBean.saveStagedProvJson(false, fileMetadatas);
-            } catch (AbstractApiBean.WrappedResponse ex) {
-                JsfHelper.addFlashErrorMessage(getBundleString("file.metadataTab.provenance.error"));
-                Logger.getLogger(EditDatafilesPage.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            //Always update the whole dataset if updating prov
-            //The flow that happens when datasetUpdateRequired is false has problems with doing saving actions after its merge
-            //This was the simplest way to work around this issue for prov. --MAD 4.8.6.
-            datasetUpdateRequired = datasetUpdateRequired || provFreeChanges || provJsonChanges;
-        }
+            fileMetadataService.updateFileMetadataWithProvFreeform(fileMetadata, provPopupFragmentBean.getProvenanceUpdates());
 
-        if (workingVersion.getId() == null || datasetUpdateRequired) {
-            logger.fine("issuing the dataset update command");
-            // We are creating a new draft version;
-            // (OR, a full update of the dataset has been explicitly requested,
-            // because of the nature of the updates the user has made).
-            // We'll use an Update command for this:
-
-            if (datasetUpdateRequired) {
-                for (int i = 0; i < workingVersion.getFileMetadatas().size(); i++) {
-                    if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
-                        if (fileMetadata.getDataFile().getStorageIdentifier().equals(workingVersion.getFileMetadatas().get(i).getDataFile().getStorageIdentifier())) {
-                            workingVersion.getFileMetadatas().set(i, fileMetadata);
-                        }
-                    }
-                }
-
-
-                //Moves DataFile updates from popupFragment to page for saving
-                //This does not seem to collide with the tags updating below
-                if (settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled) && provJsonChanges) {
-                    HashMap<String, UpdatesEntry> provenanceUpdates = provPopupFragmentBean.getProvenanceUpdates();
-                    for (int i = 0; i < dataset.getFiles().size(); i++) {
-                        for (UpdatesEntry ue : provenanceUpdates.values()) {
-                            if (ue.getDataFile().getStorageIdentifier() != null) {
-                                if (ue.getDataFile().getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
-                                    dataset.getFiles().set(i, ue.getDataFile());
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Tabular data tags are assigned to datafiles, not to
-                // version-specfic filemetadatas!
-                // So if tabular tags have been modified, we also need to
-                // refresh the list of datafiles, as found in dataset.getFiles(),
-                // similarly to what we've just done, above, for the filemetadatas.
-                // Otherwise, when we call UpdateDatasetCommand, it's not going
-                // to update the tags in the database (issue #2798).
-                // TODO: Is the above still true/is this still necessary?
-                // (and why?...)
-
-                if (tabularDataTagsUpdated) {
-                    for (int i = 0; i < dataset.getFiles().size(); i++) {
-                        if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
-                            if (fileMetadata.getDataFile().getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
-                                dataset.getFiles().set(i, fileMetadata.getDataFile());
-                            }
-                        }
-                    }
-                    tabularDataTagsUpdated = false;
-                }
-            }
-
-            Try<Dataset> updateDatasetVersionOperation = Try.of(() -> datasetVersionService.updateDatasetVersion(dataset, clone, true))
+            Try<Set<UpdatesEntry>> saveProvenanceOperation = Try.of(() -> fileMetadataService.saveStagedProvJson(false, fileMetadatas, provPopupFragmentBean.getProvenanceUpdates()))
                     .onFailure(ex -> {
-                        logger.log(Level.SEVERE, "Unable to updateDatasetVersion with dataset id: " + dataset.getId(), ex);
-                        populateDatasetUpdateFailureMessage();
+                        JsfHelper.addFlashErrorMessage(getBundleString("file.metadataTab.provenance.error"));
+                        Logger.getLogger(EditDatafilesPage.class.getName()).log(Level.SEVERE, "There was a problem with saving prov json", ex);
                     });
 
-            if (updateDatasetVersionOperation.isFailure()) {
-                return "";
-            }
+        }
 
-            datasetUpdateRequired = false;
-            saveEnabled = false;
-        } else {
-            // This is an existing Draft version (and nobody has explicitly
-            // requested that the entire dataset is updated). So we'll try to update
-            // only the filemetadatas and/or files affected, and not the
-            // entire version.
-            Timestamp updateTime = new Timestamp(new Date().getTime());
 
-            workingVersion.setLastUpdateTime(updateTime);
-            dataset.setModificationTime(updateTime);
+        Try<Dataset> updateDatasetVersionOperation = Try.of(() -> datasetVersionService.updateDatasetVersion(dataset, clone, true))
+                .onFailure(ex -> {
+                    logger.log(Level.SEVERE, "Unable to updateDatasetVersion with dataset id: " + dataset.getId(), ex);
+                    populateDatasetUpdateFailureMessage();
+                });
 
-            StringBuilder saveError = new StringBuilder();
-
-            if (fileMetadata.getDataFile().getCreateDate() == null) {
-                fileMetadata.getDataFile().setCreateDate(updateTime);
-                fileMetadata.getDataFile().setCreator((AuthenticatedUser) session.getUser());
-            }
-            fileMetadata.getDataFile().setModificationTime(updateTime);
-            try {
-                fileMetadata = datafileService.mergeFileMetadata(fileMetadata);
-                logger.fine("Successfully saved DataFile " + fileMetadata.getLabel() + " in the database.");
-            } catch (EJBException ex) {
-                saveError.append(ex).append(" ");
-                saveError.append(ex.getMessage()).append(" ");
-                Throwable cause = ex;
-                while (cause.getCause() != null) {
-                    cause = cause.getCause();
-                    saveError.append(cause).append(" ");
-                    saveError.append(cause.getMessage()).append(" ");
-                }
-            }
-
-            String saveErrorString = saveError.toString();
-            if (saveErrorString != null && !saveErrorString.isEmpty()) {
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", saveErrorString);
-                populateDatasetUpdateFailureMessage();
-                return null;
-            }
+        if (updateDatasetVersionOperation.isFailure()) {
+            return "";
         }
 
         workingVersion = dataset.getEditVersion();
@@ -481,6 +373,12 @@ public class EditSingleFilePage implements java.io.Serializable {
     private void populateDatasetUpdateFailureMessage() {
 
         JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.message.filesFailure"));
+    }
+
+    private void updateEntityWithUpdatedFile() {
+        workingVersion.getFileMetadatas().stream()
+                .filter(fmd -> fmd.getDataFile().getStorageIdentifier().equals(fileMetadata.getDataFile().getStorageIdentifier()))
+                .forEach(fmd -> fmd = fileMetadata);
     }
 
     private String returnToFileLandingPage() {

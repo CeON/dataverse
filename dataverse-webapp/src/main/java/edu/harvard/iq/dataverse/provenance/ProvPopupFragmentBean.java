@@ -200,7 +200,7 @@ public class ProvPopupFragmentBean extends AbstractApiBean implements java.io.Se
     public String stagePopupChanges(boolean saveInPopup) throws IOException {
         UpdatesEntry stagingEntry = provenanceUpdates.get(popupDataFile.getChecksumValue());
         if (stagingEntry == null) {
-            stagingEntry = new UpdatesEntry(popupDataFile, null, false, null);// (DataFile dataFile, String provJson, Boolean deleteJson, String provFreeform) { 
+            stagingEntry = new UpdatesEntry(popupDataFile, Option.none(), false, null);// (DataFile dataFile, String provJson, Boolean deleteJson, String provFreeform) {
         }
         if (null == freeformTextInput && null != freeformTextState) {
             freeformTextInput = "";

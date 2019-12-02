@@ -24,6 +24,13 @@ public class UpdatesEntry {
         this.deleteJson = deleteJson;
     }
 
+    public UpdatesEntry(DataFile dataFile, Option<String> provJson, Boolean deleteJson, String provFreeform) {
+        this.provJson = provJson;
+        this.dataFile = dataFile;
+        this.provFreeform = provFreeform;
+        this.deleteJson = deleteJson;
+    }
+
     // -------------------- GETTERS --------------------
 
     public Option<String> getProvJson() {
