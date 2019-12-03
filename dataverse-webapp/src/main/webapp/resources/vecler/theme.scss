@@ -294,7 +294,7 @@ tr.ui-state-highlight .ui-icon {
 }
 
 .ui-button.ui-state-default {
-	&[id*="Cancel"], [id*="cancel"] {
+	&[id*="Cancel"], &[id*="cancel"] {
 		border: none;
 		box-shadow: none;
 	}
