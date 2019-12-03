@@ -1,17 +1,11 @@
 package edu.harvard.iq.dataverse.dashboard;
 
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.api.Admin;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.engine.command.impl.GrantSuperuserStatusCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.RevokeAllRolesCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.RevokeSuperuserStatusCommand;
 import edu.harvard.iq.dataverse.mydata.Pager;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.userdata.UserListMaker;
@@ -34,21 +28,16 @@ import java.util.logging.Logger;
 public class DashboardUsersPage implements java.io.Serializable {
 
     @EJB
-    AuthenticationServiceBean authenticationService;
-    @EJB
     UserServiceBean userService;
     @Inject
     DataverseSession session;
     @Inject
     PermissionsWrapper permissionsWrapper;
-    @EJB
-    EjbDataverseEngine commandEngine;
     @Inject
-    DataverseRequestServiceBean dvRequestService;
+    private DashboardUsersService dashboardUsersService;
 
     private static final Logger logger = Logger.getLogger(DashboardUsersPage.class.getCanonicalName());
 
-    private AuthenticatedUser authUser = null;
     private Integer selectedPage = 1;
     private UserListMaker userListMaker = null;
 
@@ -60,12 +49,10 @@ public class DashboardUsersPage implements java.io.Serializable {
     public String init() {
 
         if ((session.getUser() != null) && (session.getUser().isAuthenticated()) && (session.getUser().isSuperuser())) {
-            authUser = (AuthenticatedUser) session.getUser();
             userListMaker = new UserListMaker(userService);
             runUserSearch();
         } else {
             return permissionsWrapper.notAuthorized();
-            // redirect to login OR give some type ‘you must be logged in message'
         }
 
         return null;
@@ -164,29 +151,12 @@ public class DashboardUsersPage implements java.io.Serializable {
     public void setSearchTerm(String searchTerm) {
         this.searchTerm = searchTerm;
     }
-    
-    /* 
-       Methods for toggling the supeuser status of a selected user. 
-       Our normal two step approach is used: first showing the "are you sure?" 
-       popup, then finalizing the toggled value. 
-    */
-
-//    AuthenticatedUser selectedUserDetached = null; // Note: This is NOT the persisted object!!!!  Don't try to save it, etc.
-//    AuthenticatedUser selectedUserPersistent = null;  // This is called on the fly and updated
 
     public AuthenticatedUser getSelectedUser() {
         return selectedUser;
     }
 
     private AuthenticatedUser selectedUser = null;
-
-    public void setSelectedUserDetached(AuthenticatedUser user) {
-        this.selectedUserDetached = user;
-    }
-
-    public AuthenticatedUser getSelectedUserDetached() {
-        return this.selectedUserDetached;
-    }
 
 
     public void setSelectedUser(AuthenticatedUser user) {
@@ -196,58 +166,36 @@ public class DashboardUsersPage implements java.io.Serializable {
     public void saveSuperuserStatus() {
 
         // Retrieve the persistent version for saving to db
-        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUserDetached.getId());
-        selectedUserPersistent = userService.find(selectedUserDetached.getId());
+        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUser.getId());
+//        selectedUserPersistent = userService.find(selectedUser.getId());
 
-        if (selectedUserPersistent != null) {
-            logger.fine("Toggling user's " + selectedUserDetached.getIdentifier() + " superuser status; (current status: " + selectedUserDetached.isSuperuser() + ")");
-            logger.fine("Attempting to save user " + selectedUserDetached.getIdentifier());
-
-            logger.fine("selectedUserPersistent info: " + selectedUserPersistent.getId() + " set to: " + selectedUserDetached.isSuperuser());
-            selectedUserPersistent.setSuperuser(selectedUserDetached.isSuperuser());
-
-            // Using the new commands for granting and revoking the superuser status: 
-            try {
-                if (!selectedUserPersistent.isSuperuser()) {
-                    // We are revoking the status:
-                    commandEngine.submit(new RevokeSuperuserStatusCommand(selectedUserPersistent, dvRequestService.getDataverseRequest()));
-                } else {
-                    // granting the status:
-                    commandEngine.submit(new GrantSuperuserStatusCommand(selectedUserPersistent, dvRequestService.getDataverseRequest()));
-                }
-            } catch (Exception ex) {
-                logger.warning("Failed to permanently toggle the superuser status for user " + selectedUserDetached.getIdentifier() + ": " + ex.getMessage());
-            }
-        } else {
-            logger.warning("selectedUserPersistent is null.  AuthenticatedUser not found for id: " + selectedUserDetached.getId());
-        }
-
+        selectedUser = dashboardUsersService.changeSuperuserStatus(selectedUser);
     }
 
     public void cancelSuperuserStatusChange() {
-        selectedUserDetached.setSuperuser(!selectedUserDetached.isSuperuser());
-        selectedUserPersistent = null;
+        if(selectedUser != null) {
+            selectedUser.setSuperuser(!selectedUser.isSuperuser());
+            selectedUser = null;
+        }
     }
 
     // Methods for the removeAllRoles for a user : 
 
     public void removeUserRoles() {
-        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUserDetached.getId());
-        selectedUserPersistent = userService.find(selectedUserDetached.getId());
+        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUser.getId());
 
-        selectedUserDetached.setRoles(null); // for display
         try {
-            commandEngine.submit(new RevokeAllRolesCommand(selectedUserPersistent, dvRequestService.getDataverseRequest()));
+            selectedUser = dashboardUsersService.revokeAllRolesForUser(selectedUser);
         } catch (Exception ex) {
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure", Collections.singletonList(selectedUserPersistent.getUserIdentifier())));
+            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure", Collections.singletonList(selectedUser.getUserIdentifier())));
             return;
         }
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success", Collections.singletonList(selectedUserPersistent.getUserIdentifier())));
+        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success", Collections.singletonList(selectedUser.getUserIdentifier())));
     }
 
     public String getConfirmRemoveRolesMessage() {
-        if (selectedUserDetached != null) {
-            return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText", Arrays.asList(selectedUserDetached.getUserIdentifier()));
+        if (selectedUser != null) {
+            return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText", Arrays.asList(selectedUser.getUserIdentifier()));
         }
         return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText");
     }
