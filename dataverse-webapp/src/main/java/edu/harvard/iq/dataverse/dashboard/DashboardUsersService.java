@@ -38,7 +38,7 @@ public class DashboardUsersService {
         logger.fine("Attempting to save user " + user.getIdentifier());
         logger.fine("selectedUserPersistent info: " + user.getId() + " set to: " + user.isSuperuser());
 
-        if (!user.isSuperuser()) {
+        if (user.isSuperuser()) {
             return Try.of(() -> revokeSuperuserStatus(user));
         } else {
             return Try.of(() -> grantSuperuserStatus(user));
