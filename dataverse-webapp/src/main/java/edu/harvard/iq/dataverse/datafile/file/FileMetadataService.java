@@ -13,7 +13,6 @@ import io.vavr.control.Option;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +37,7 @@ public class FileMetadataService {
 
     // -------------------- LOGIC --------------------
 
-    public FileMetadata updateFileMetadataWithProvFreeform(FileMetadata fileMetadataToUpdate, Map<String, UpdatesEntry> provenanceUpdates) {
+    public FileMetadata updateFileMetadataWithProvFreeForm(FileMetadata fileMetadataToUpdate, Map<String, UpdatesEntry> provenanceUpdates) {
 
         UpdatesEntry provEntry = provenanceUpdates.get(fileMetadataToUpdate.getDataFile().getChecksumValue());
 
@@ -61,28 +60,29 @@ public class FileMetadataService {
      * that are no longer valid.
      * @param checksumSource - used for filtering provenance, since Datafile checksum is used as key in provenanceUpdates.
      */
-    public Set<UpdatesEntry> saveStagedProvJson(boolean saveContext, List<FileMetadata> checksumSource, Map<String, UpdatesEntry> provenanceUpdates) {
-        Set<String> finalChecksums = checksumSource.stream()
-                .map(fileMetadata -> fileMetadata.getDataFile().getChecksumValue())
-                .collect(Collectors.toSet());
+    public Set<DataFile> manageProvJson(boolean saveContext, FileMetadata checksumSource, Map<String, UpdatesEntry> provenanceUpdates) {
 
         Set<Map.Entry<String, UpdatesEntry>> provenanceUpdatesForChange = provenanceUpdates.entrySet().stream()
-                .filter(provMap -> finalChecksums.contains(provMap.getKey()))
+                .filter(provMap -> {
+                    String checksumValue = checksumSource.getDataFile().getChecksumValue();
+                    return checksumValue.equals(provMap.getKey());
+                })
                 .collect(Collectors.toSet());
 
-        Set<UpdatesEntry> updatedEntries = new HashSet<>();
-        for (Map.Entry<String, UpdatesEntry> m : provenanceUpdatesForChange) {
-            UpdatesEntry mapEntry = m.getValue();
-            DataFile df = mapEntry.getDataFile();
-            Option<String> provString = mapEntry.getProvJson();
+        Set<DataFile> updatedEntries = new HashSet<>();
 
-            if (mapEntry.getDeleteJson()) {
-                DataFile updatedDataFile = commandEngine.submit((new DeleteProvJsonCommand(dvRequestService.getDataverseRequest(), df, saveContext)));
-                updatedEntries.add(new UpdatesEntry(updatedDataFile, mapEntry.getProvJson(), mapEntry.getDeleteJson(), mapEntry.getProvFreeform()));
+        for (Map.Entry<String, UpdatesEntry> entry : provenanceUpdatesForChange) {
+            UpdatesEntry updatesEntry = entry.getValue();
+            DataFile updatedProvOwner = updatesEntry.getDataFile();
+            Option<String> provString = updatesEntry.getProvJson();
+
+            if (updatesEntry.getDeleteJson()) {
+                DataFile updatedDataFile = commandEngine.submit((new DeleteProvJsonCommand(dvRequestService.getDataverseRequest(), updatedProvOwner, saveContext)));
+                updatedEntries.add(updatedDataFile);
             } else if (provString.isDefined()) {
-                DataFile updatedDataFile = commandEngine.submit(new PersistProvJsonCommand(dvRequestService.getDataverseRequest(), df, provString.get(),
-                                                                                           df.getProvEntityName(), saveContext));
-                updatedEntries.add(new UpdatesEntry(updatedDataFile, mapEntry.getProvJson(), mapEntry.getDeleteJson(), mapEntry.getProvFreeform()));
+                DataFile updatedDataFile = commandEngine.submit(new PersistProvJsonCommand(dvRequestService.getDataverseRequest(), updatedProvOwner, provString.get(),
+                                                                                           updatedProvOwner.getProvEntityName(), saveContext));
+                updatedEntries.add(updatedDataFile);
             }
 
         }

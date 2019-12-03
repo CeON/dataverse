@@ -8,11 +8,10 @@ import edu.harvard.iq.dataverse.FileDownloadHelper;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.datafile.page.EditDatafilesPage;
+import edu.harvard.iq.dataverse.datafile.file.exception.ProvenanceChangeException;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
-import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -20,7 +19,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
-import edu.harvard.iq.dataverse.provenance.UpdatesEntry;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
@@ -34,7 +32,6 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +45,6 @@ public class EditSingleFilePage implements java.io.Serializable {
 
     private DatasetDao datasetDao;
     private DatasetService datasetService;
-    private DatasetVersionService datasetVersionService;
     private DataFileServiceBean datafileService;
     private PermissionServiceBean permissionService;
     private DataverseSession session;
@@ -57,7 +53,7 @@ public class EditSingleFilePage implements java.io.Serializable {
     private PermissionsWrapper permissionsWrapper;
     private FileDownloadHelper fileDownloadHelper;
     private ProvPopupFragmentBean provPopupFragmentBean;
-    private FileMetadataService fileMetadataService;
+    private SingleFileFacade singleFileFacade;
 
     private Dataset dataset = new Dataset();
     private String editedFileIdString = null;
@@ -79,7 +75,6 @@ public class EditSingleFilePage implements java.io.Serializable {
     private String versionString = "";
 
 
-    private boolean saveEnabled = false;
     private DataFile singleFile = null;
 
     // -------------------- CONSTRUCTORS --------------------
@@ -88,14 +83,13 @@ public class EditSingleFilePage implements java.io.Serializable {
     }
 
     @Inject
-    public EditSingleFilePage(DatasetDao datasetDao, DatasetService datasetService, DatasetVersionService datasetVersionService,
+    public EditSingleFilePage(DatasetDao datasetDao, DatasetService datasetService,
                               DataFileServiceBean datafileService, PermissionServiceBean permissionService,
                               DataverseSession session, SettingsServiceBean settingsService,
                               DataverseRequestServiceBean dvRequestService, PermissionsWrapper permissionsWrapper,
                               FileDownloadHelper fileDownloadHelper, ProvPopupFragmentBean provPopupFragmentBean,
-                              FileMetadataService fileMetadataService) {
+                              SingleFileFacade singleFileFacade) {
         this.datasetService = datasetService;
-        this.datasetVersionService = datasetVersionService;
         this.datasetDao = datasetDao;
         this.datafileService = datafileService;
         this.permissionService = permissionService;
@@ -105,7 +99,7 @@ public class EditSingleFilePage implements java.io.Serializable {
         this.permissionsWrapper = permissionsWrapper;
         this.fileDownloadHelper = fileDownloadHelper;
         this.provPopupFragmentBean = provPopupFragmentBean;
-        this.fileMetadataService = fileMetadataService;
+        this.singleFileFacade = singleFileFacade;
     }
 
     // -------------------- GETTERS --------------------
@@ -240,8 +234,6 @@ public class EditSingleFilePage implements java.io.Serializable {
             versionString = "DRAFT";
         }
 
-        saveEnabled = true;
-
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall)) {
             JH.addMessage(FacesMessage.SEVERITY_WARN, getBundleString("dataset.message.publicInstall"));
         }
@@ -250,44 +242,24 @@ public class EditSingleFilePage implements java.io.Serializable {
     }
 
     public String save() {
-        // Once all the filemetadatas pass the validation, we'll only allow the user
-        // to try to save once; (this it to prevent them from creating multiple
-        // DRAFT versions, if the page gets stuck in that state where it
-        // successfully creates a new version, but can't complete the remaining
-        // tasks. -- L.A. 4.2
 
-        if (!saveEnabled) {
-            return "";
+        if (!datasetUpdateRequired) {
+            return returnToFileLandingPage();
         }
 
         updateEntityWithUpdatedFile();
 
-        if (settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
-
-            fileMetadataService.updateFileMetadataWithProvFreeform(fileMetadata, provPopupFragmentBean.getProvenanceUpdates());
-
-            Try<Set<UpdatesEntry>> saveProvenanceOperation = Try.of(() -> fileMetadataService.saveStagedProvJson(false, fileMetadatas, provPopupFragmentBean.getProvenanceUpdates()))
-                    .onFailure(ex -> {
-                        JsfHelper.addFlashErrorMessage(getBundleString("file.metadataTab.provenance.error"));
-                        Logger.getLogger(EditDatafilesPage.class.getName()).log(Level.SEVERE, "There was a problem with saving prov json", ex);
-                    });
-
-        }
-
-
-        Try<Dataset> updateDatasetVersionOperation = Try.of(() -> datasetVersionService.updateDatasetVersion(dataset, clone, true))
+        Try<Dataset> updateFileOperation = Try.of(() -> singleFileFacade.saveFileChanges(fileMetadata, provPopupFragmentBean.getProvenanceUpdates()))
                 .onFailure(ex -> {
-                    logger.log(Level.SEVERE, "Unable to updateDatasetVersion with dataset id: " + dataset.getId(), ex);
+                    logger.log(Level.SEVERE, "Unable to update file with dataset id: " + dataset.getId(), ex);
                     populateDatasetUpdateFailureMessage();
                 });
 
-        if (updateDatasetVersionOperation.isFailure()) {
+        if (updateFileOperation.isFailure() && !isProvenanceError(updateFileOperation)) {
             return "";
         }
 
         workingVersion = dataset.getEditVersion();
-        logger.fine("working version id: " + workingVersion.getId());
-
         JsfHelper.addFlashSuccessMessage(getBundleString("file.message.editSuccess"));
 
         versionString = "DRAFT";
@@ -373,6 +345,10 @@ public class EditSingleFilePage implements java.io.Serializable {
     private void populateDatasetUpdateFailureMessage() {
 
         JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.message.filesFailure"));
+    }
+
+    private boolean isProvenanceError(Try<Dataset> updateFileOperation) {
+        return updateFileOperation.getCause() instanceof ProvenanceChangeException;
     }
 
     private void updateEntityWithUpdatedFile() {
