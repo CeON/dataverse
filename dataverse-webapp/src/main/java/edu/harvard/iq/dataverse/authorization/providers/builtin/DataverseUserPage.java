@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.authorization.providers.builtin;
 
-import com.google.common.base.Strings;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
@@ -61,7 +60,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -77,7 +75,6 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 public class DataverseUserPage implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(DataverseUserPage.class.getCanonicalName());
-    private static final String UNDEFINED_LOCALE = "UNDEFINED";
 
     public enum EditMode {
         CREATE, EDIT, CHANGE_PASSWORD, FORGOT
@@ -573,11 +570,9 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getUserLocalizedNotificationsLanguageForDisplay() {
-        String displayLanguage = StringUtils.EMPTY;
-        if(isUserLanguageConfigured()) {
-            displayLanguage = StringUtils.capitalize(Locale.forLanguageTag(currentUser.getNotificationsLanguage().toLanguageTag()).getDisplayLanguage(session.getLocale()));
-        }
-        return Strings.isNullOrEmpty(displayLanguage) ? UNDEFINED_LOCALE : displayLanguage;
+        String displayLanguage = StringUtils.capitalize(currentUser.getNotificationsLanguage().getDisplayLanguage(session.getLocale()));
+
+        return isUserLanguageConfigured() ? displayLanguage : displayLanguage + " " + BundleUtil.getStringFromBundle("user.notificationsLanguage.notSupported");
     }
 
 
