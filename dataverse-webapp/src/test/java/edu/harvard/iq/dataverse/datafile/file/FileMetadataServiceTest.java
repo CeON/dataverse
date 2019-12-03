@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.datafile.file;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteProvJsonCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.PersistProvJsonCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.provenance.UpdatesEntry;
@@ -71,7 +72,7 @@ class FileMetadataServiceTest {
     }
 
     @Test
-    public void manageProvJson() {
+    public void manageProvJson_ForDeletingProv() {
         //given
         String checksum = "testChecksum";
 
@@ -93,6 +94,33 @@ class FileMetadataServiceTest {
         //then
         Assert.assertEquals("", updatedFiles.iterator().next().getProvEntityName());
         Mockito.verify(commandEngine, Mockito.times(1)).submit(Mockito.any(DeleteProvJsonCommand.class));
+
+    }
+
+    @Test
+    public void manageProvJson_ForPersistingProv() {
+        //given
+        String checksum = "testChecksum";
+
+        DataFile dataFile = new DataFile();
+        dataFile.setChecksumValue(checksum);
+        dataFile.setProvEntityName("");
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setDataFile(dataFile);
+
+        String provFreeForm = "provFree";
+        HashMap<String, UpdatesEntry> provenanceUpdates = of(checksum, new UpdatesEntry(dataFile, "prov", false, provFreeForm))
+                .toJavaMap();
+
+        //when
+        DataFile persistedProvOwner = new DataFile();
+        persistedProvOwner.setProvEntityName(provFreeForm);
+        Mockito.when(commandEngine.submit(Mockito.any(PersistProvJsonCommand.class))).thenReturn(persistedProvOwner);
+        Set<DataFile> updatedFiles = fileMetadataService.manageProvJson(true, fileMetadata, provenanceUpdates);
+
+        //then
+        Assert.assertEquals(provFreeForm, updatedFiles.iterator().next().getProvEntityName());
+        Mockito.verify(commandEngine, Mockito.times(1)).submit(Mockito.any(PersistProvJsonCommand.class));
 
     }
 }

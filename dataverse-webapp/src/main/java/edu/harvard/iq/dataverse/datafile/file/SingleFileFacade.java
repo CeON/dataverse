@@ -41,19 +41,22 @@ public class SingleFileFacade {
 
     // -------------------- LOGIC --------------------
 
-    public Dataset saveFileChanges(FileMetadata fileMetadata, Map<String, UpdatesEntry> provUpdates) {
+    /**
+     * Saves provenance updates if the setting is enabled, and then updates the dataset.
+     */
+    public Dataset saveFileChanges(FileMetadata fileToModify, Map<String, UpdatesEntry> provUpdates) {
 
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
 
-            fileMetadataService.updateFileMetadataWithProvFreeForm(fileMetadata, provUpdates);
+            fileMetadataService.updateFileMetadataWithProvFreeForm(fileToModify, provUpdates);
 
-            Try.of(() -> fileMetadataService.manageProvJson(false, fileMetadata, provUpdates))
+            Try.of(() -> fileMetadataService.manageProvJson(false, fileToModify, provUpdates))
                     .getOrElseThrow(ex -> new ProvenanceChangeException("There was a problem with changing provenance file", ex));
 
         }
 
 
-        Dataset datasetToUpdate = fileMetadata.getDatasetVersion().getDataset();
+        Dataset datasetToUpdate = fileToModify.getDatasetVersion().getDataset();
         DatasetVersion cloneDatasetVersion = datasetToUpdate.getEditVersion().cloneDatasetVersion();
 
         UpdateDatasetVersionCommand updateCommand = new UpdateDatasetVersionCommand(datasetToUpdate, dvRequestService.getDataverseRequest(),

@@ -8,7 +8,6 @@ import edu.harvard.iq.dataverse.FileDownloadHelper;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.datafile.file.exception.ProvenanceChangeException;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
@@ -255,7 +254,7 @@ public class EditSingleFilePage implements java.io.Serializable {
                     populateDatasetUpdateFailureMessage();
                 });
 
-        if (updateFileOperation.isFailure() && !isProvenanceError(updateFileOperation)) {
+        if (updateFileOperation.isFailure()) {
             return "";
         }
 
@@ -345,10 +344,6 @@ public class EditSingleFilePage implements java.io.Serializable {
     private void populateDatasetUpdateFailureMessage() {
 
         JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.message.filesFailure"));
-    }
-
-    private boolean isProvenanceError(Try<Dataset> updateFileOperation) {
-        return updateFileOperation.getCause() instanceof ProvenanceChangeException;
     }
 
     private void updateEntityWithUpdatedFile() {
