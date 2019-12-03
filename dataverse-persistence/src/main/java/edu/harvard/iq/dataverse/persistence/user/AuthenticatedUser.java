@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -104,8 +105,8 @@ public class AuthenticatedUser implements User, Serializable {
     @Column(nullable = true)
     private Timestamp lastApiUseTime;   // last API use with user's token
 
-    @Column
-    private String notificationsLanguage;
+    @Column(nullable = false)
+    private String notificationsLanguage = Locale.ENGLISH.toLanguageTag();
 
     private boolean superuser;
 
@@ -268,12 +269,12 @@ public class AuthenticatedUser implements User, Serializable {
         this.emailConfirmed = emailConfirmed;
     }
 
-    public String getNotificationsLanguage() {
-        return notificationsLanguage;
+    public Locale getNotificationsLanguage() {
+        return new Locale(notificationsLanguage);
     }
 
-    public void setNotificationsLanguage(String notificationsLanguage) {
-        this.notificationsLanguage = notificationsLanguage;
+    public void setNotificationsLanguage(Locale notificationsLanguage) {
+        this.notificationsLanguage = notificationsLanguage.toLanguageTag();
     }
 
     @Override

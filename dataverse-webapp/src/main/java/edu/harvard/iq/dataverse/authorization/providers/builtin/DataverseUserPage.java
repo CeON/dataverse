@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.authorization.providers.builtin;
 
+import com.google.common.base.Strings;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
@@ -60,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -75,6 +77,7 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 public class DataverseUserPage implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(DataverseUserPage.class.getCanonicalName());
+    private static final String UNDEFINED_LOCALE = "UNDEFINED";
 
     public enum EditMode {
         CREATE, EDIT, CHANGE_PASSWORD, FORGOT
@@ -569,9 +572,14 @@ public class DataverseUserPage implements java.io.Serializable {
         return userAuthProvider;
     }
 
-    public String getUserNotificationsLanguageTitle() {
-        return settingsWrapper.getConfiguredLocaleName(currentUser.getNotificationsLanguage());
+    public String getUserLocalizedNotificationsLanguageForDisplay() {
+        String displayLanguage = StringUtils.EMPTY;
+        if(isUserLanguageConfigured()) {
+            displayLanguage = StringUtils.capitalize(Locale.forLanguageTag(currentUser.getNotificationsLanguage().toLanguageTag()).getDisplayLanguage(session.getLocale()));
+        }
+        return Strings.isNullOrEmpty(displayLanguage) ? UNDEFINED_LOCALE : displayLanguage;
     }
+
 
     public boolean isPasswordEditable() {
         return getUserAuthProvider().isPasswordUpdateAllowed();
@@ -718,5 +726,11 @@ public class DataverseUserPage implements java.io.Serializable {
             return BundleUtil.getStringFromBundle("notification.email.info.unavailable");
         }
         return notification.getRequestor().getEmail() != null ? notification.getRequestor().getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
+    }
+
+    // -------------------- PRIVATE ---------------------
+
+    private boolean isUserLanguageConfigured() {
+        return StringUtils.isNotEmpty(settingsWrapper.getConfiguredLocaleName(currentUser.getNotificationsLanguage().toLanguageTag()));
     }
 }

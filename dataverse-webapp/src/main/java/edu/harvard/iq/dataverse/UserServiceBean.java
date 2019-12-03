@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -127,7 +128,7 @@ public class UserServiceBean {
         user.setAffiliation(UserUtil.getStringOrNull(dbRowValues[5]));
         user.setSuperuser((Boolean) (dbRowValues[6]));
         user.setPosition(UserUtil.getStringOrNull(dbRowValues[7]));
-        user.setNotificationsLanguage(UserUtil.getStringOrNull(dbRowValues[8]));
+        user.setNotificationsLanguage(new Locale(dbRowValues[8].toString()));
 
         user.setCreatedTime(UserUtil.getTimestampOrNull(dbRowValues[9]));
         user.setLastLoginTime(UserUtil.getTimestampOrNull(dbRowValues[10]));
