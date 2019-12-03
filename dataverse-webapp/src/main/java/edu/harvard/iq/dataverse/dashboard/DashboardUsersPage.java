@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -170,8 +171,14 @@ public class DashboardUsersPage implements java.io.Serializable {
        popup, then finalizing the toggled value. 
     */
 
-    AuthenticatedUser selectedUserDetached = null; // Note: This is NOT the persisted object!!!!  Don't try to save it, etc.
-    AuthenticatedUser selectedUserPersistent = null;  // This is called on the fly and updated
+//    AuthenticatedUser selectedUserDetached = null; // Note: This is NOT the persisted object!!!!  Don't try to save it, etc.
+//    AuthenticatedUser selectedUserPersistent = null;  // This is called on the fly and updated
+
+    public AuthenticatedUser getSelectedUser() {
+        return selectedUser;
+    }
+
+    private AuthenticatedUser selectedUser = null;
 
     public void setSelectedUserDetached(AuthenticatedUser user) {
         this.selectedUserDetached = user;
@@ -182,8 +189,8 @@ public class DashboardUsersPage implements java.io.Serializable {
     }
 
 
-    public void setUserToToggleSuperuserStatus(AuthenticatedUser user) {
-        selectedUserDetached = user;
+    public void setSelectedUser(AuthenticatedUser user) {
+        selectedUser = user;
     }
 
     public void saveSuperuserStatus() {
@@ -232,12 +239,10 @@ public class DashboardUsersPage implements java.io.Serializable {
         try {
             commandEngine.submit(new RevokeAllRolesCommand(selectedUserPersistent, dvRequestService.getDataverseRequest()));
         } catch (Exception ex) {
-            // error message to show on the page:
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure", Arrays.asList(selectedUserPersistent.getUserIdentifier())));
+            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure", Collections.singletonList(selectedUserPersistent.getUserIdentifier())));
             return;
         }
-        // success message: 
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success", Arrays.asList(selectedUserPersistent.getUserIdentifier())));
+        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success", Collections.singletonList(selectedUserPersistent.getUserIdentifier())));
     }
 
     public String getConfirmRemoveRolesMessage() {
