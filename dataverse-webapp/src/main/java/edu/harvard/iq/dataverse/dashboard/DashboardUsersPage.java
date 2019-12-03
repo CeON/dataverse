@@ -11,13 +11,12 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.userdata.UserListMaker;
 import edu.harvard.iq.dataverse.userdata.UserListResult;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.control.Try;
 
-import javax.ejb.EJB;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -27,24 +26,67 @@ import java.util.logging.Logger;
 @Named("DashboardUsersPage")
 public class DashboardUsersPage implements java.io.Serializable {
 
-    @EJB
-    UserServiceBean userService;
-    @Inject
-    DataverseSession session;
-    @Inject
-    PermissionsWrapper permissionsWrapper;
-    @Inject
+    private UserServiceBean userService;
+    private DataverseSession session;
+    private PermissionsWrapper permissionsWrapper;
     private DashboardUsersService dashboardUsersService;
 
     private static final Logger logger = Logger.getLogger(DashboardUsersPage.class.getCanonicalName());
 
     private Integer selectedPage = 1;
     private UserListMaker userListMaker = null;
-
     private Pager pager;
     private List<AuthenticatedUser> userList;
-
     private String searchTerm;
+    private AuthenticatedUser selectedUser = null;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    @Deprecated
+    public DashboardUsersPage() {
+    }
+
+    @Inject
+    public DashboardUsersPage(UserServiceBean userService, DataverseSession session,
+                              PermissionsWrapper permissionsWrapper, DashboardUsersService dashboardUsersService) {
+        this.userService = userService;
+        this.session = session;
+        this.permissionsWrapper = permissionsWrapper;
+        this.dashboardUsersService = dashboardUsersService;
+    }
+
+    // -------------------- GETTERS --------------------
+
+    /**
+     * Pager for when user list exceeds the number of display rows
+     * (default: UserListMaker.ITEMS_PER_PAGE)
+     *
+     * @return
+     */
+    public Pager getPager() {
+        return this.pager;
+    }
+
+    public Integer getSelectedPage() {
+        if ((selectedPage == null) || (selectedPage < 1)) {
+            setSelectedPage(null);
+        }
+        return selectedPage;
+    }
+
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public AuthenticatedUser getSelectedUser() {
+        return selectedUser;
+    }
+
+    public List<AuthenticatedUser> getUserList() {
+        return this.userList;
+    }
+
+    // -------------------- LOGIC --------------------
 
     public String init() {
 
@@ -65,10 +107,53 @@ public class DashboardUsersPage implements java.io.Serializable {
         return true;
     }
 
+    public void setSelectedUser(AuthenticatedUser user) {
+        selectedUser = user;
+    }
+
+    public void saveSuperuserStatus() {
+        if (selectedUser != null) {
+            dashboardUsersService.changeSuperuserStatus(selectedUser)
+                    .onSuccess(user -> selectedUser = user)
+                    .onFailure(throwable -> logger.warning("Failed to permanently toggle the superuser status for user " + selectedUser.getIdentifier() + ": " + throwable.getMessage()));
+        } else {
+            logger.warning("selectedUserPersistent is null.  AuthenticatedUser not found for id: ");
+        }
+    }
+
+    public void cancelSuperuserStatusChange() {
+        if(selectedUser != null) {
+            selectedUser.setSuperuser(!selectedUser.isSuperuser());
+            selectedUser = null;
+        }
+    }
+
+    public void removeUserRoles() {
+        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUser.getId());
+
+        Try.of(() -> dashboardUsersService.revokeAllRolesForUser(selectedUser))
+                .onSuccess(user -> selectedUser=user)
+                .onSuccess(user -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success",
+                        Collections.singletonList(selectedUser.getUserIdentifier()))))
+                .onFailure(throwable ->  JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure",
+                        Collections.singletonList(selectedUser.getUserIdentifier()))))
+                .onFailure(throwable -> logger.severe(throwable.getMessage()));
+    }
+
+    public String getConfirmRemoveRolesMessage() {
+        if (selectedUser != null) {
+            return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText", Collections.singletonList(selectedUser.getUserIdentifier()));
+        }
+        return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText");
+    }
+
+    public String getAuthProviderFriendlyName(String authProviderId) {
+        return AuthenticationProvider.getFriendlyName(authProviderId);
+    }
+
     public boolean runUserSearch() {
 
         logger.fine("Run the search!");
-
 
         /**
          * (1) Determine the number of users returned by the count        
@@ -90,9 +175,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     }
 
-
     public String getListUsersAPIPath() {
-        //return "ok";
         return Admin.listUsersFullAPIPath;
     }
 
@@ -102,7 +185,6 @@ public class DashboardUsersPage implements java.io.Serializable {
      * @return
      */
     public String getUserCount() {
-
         return NumberFormat.getInstance().format(userService.getTotalUserCount());
     }
 
@@ -112,22 +194,7 @@ public class DashboardUsersPage implements java.io.Serializable {
      * @return
      */
     public Long getSuperUserCount() {
-
         return userService.getSuperUserCount();
-    }
-
-    public List<AuthenticatedUser> getUserList() {
-        return this.userList;
-    }
-
-    /**
-     * Pager for when user list exceeds the number of display rows
-     * (default: UserListMaker.ITEMS_PER_PAGE)
-     *
-     * @return
-     */
-    public Pager getPager() {
-        return this.pager;
     }
 
     public void setSelectedPage(Integer pgNum) {
@@ -137,71 +204,7 @@ public class DashboardUsersPage implements java.io.Serializable {
         selectedPage = pgNum;
     }
 
-    public Integer getSelectedPage() {
-        if ((selectedPage == null) || (selectedPage < 1)) {
-            setSelectedPage(null);
-        }
-        return selectedPage;
-    }
-
-    public String getSearchTerm() {
-        return searchTerm;
-    }
-
     public void setSearchTerm(String searchTerm) {
         this.searchTerm = searchTerm;
-    }
-
-    public AuthenticatedUser getSelectedUser() {
-        return selectedUser;
-    }
-
-    private AuthenticatedUser selectedUser = null;
-
-
-    public void setSelectedUser(AuthenticatedUser user) {
-        selectedUser = user;
-    }
-
-    public void saveSuperuserStatus() {
-
-        // Retrieve the persistent version for saving to db
-        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUser.getId());
-//        selectedUserPersistent = userService.find(selectedUser.getId());
-
-        selectedUser = dashboardUsersService.changeSuperuserStatus(selectedUser);
-    }
-
-    public void cancelSuperuserStatusChange() {
-        if(selectedUser != null) {
-            selectedUser.setSuperuser(!selectedUser.isSuperuser());
-            selectedUser = null;
-        }
-    }
-
-    // Methods for the removeAllRoles for a user : 
-
-    public void removeUserRoles() {
-        logger.fine("Get persisent AuthenticatedUser for id: " + selectedUser.getId());
-
-        try {
-            selectedUser = dashboardUsersService.revokeAllRolesForUser(selectedUser);
-        } catch (Exception ex) {
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure", Collections.singletonList(selectedUser.getUserIdentifier())));
-            return;
-        }
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success", Collections.singletonList(selectedUser.getUserIdentifier())));
-    }
-
-    public String getConfirmRemoveRolesMessage() {
-        if (selectedUser != null) {
-            return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText", Arrays.asList(selectedUser.getUserIdentifier()));
-        }
-        return BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles.removeAll.confirmationText");
-    }
-
-    public String getAuthProviderFriendlyName(String authProviderId) {
-
-        return AuthenticationProvider.getFriendlyName(authProviderId);
     }
 }
