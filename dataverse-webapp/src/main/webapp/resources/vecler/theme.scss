@@ -286,6 +286,26 @@ a,
 	}
 }
 
+/* Missing checkbox tick fix */
+tr.ui-state-highlight .ui-icon {
+	background-image: url("img/primefaces-main-default.png");
+}
+
+*, ui-widget-content  {
+	button, span {
+		&.ui-button.ui-state-default{
+			@include btn-access;
+		}
+	}
+}
+
+.ui-button.ui-state-default {
+	&[id*="Cancel"], &[id*="cancel"] {
+		border: none;
+		box-shadow: none;
+	}
+}
+
 /* Forms */
 
 .ui-selectonemenu {
