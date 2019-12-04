@@ -1292,6 +1292,10 @@ div.ui-widget-overlay {
 	}
 }
 
+#rolesPermissionsForm\:userGroupDialog[style*="width: auto"] {
+	width: 100% !important;
+}
+
 /* Fix for the unnecessary scrollbar in some modals */
 div.ui-dialog.largePopUp {
 	overflow: hidden;
