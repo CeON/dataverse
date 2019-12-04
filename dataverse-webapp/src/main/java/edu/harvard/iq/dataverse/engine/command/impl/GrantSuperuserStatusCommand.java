@@ -14,13 +14,15 @@ import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 
+import java.io.Serializable;
+
 /**
  * @author Leonid Andreev
  */
 // the permission annotation is open, since this is a superuser-only command - 
 // and that's enforced in the command body:
 @RequiredPermissions({})
-public class GrantSuperuserStatusCommand extends AbstractCommand<AuthenticatedUser> {
+public class GrantSuperuserStatusCommand extends AbstractCommand<AuthenticatedUser> implements Serializable {
 
     private final AuthenticatedUser targetUser;
 

@@ -14,6 +14,8 @@ import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 
+import java.io.Serializable;
+
 /**
  * Revokes all roles for a assignee.
  * (Note that in addition to deleting the explicit role assignments,
@@ -24,7 +26,7 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 // the permission annotation is open, since this is a superuser-only command - 
 // and that's enforced in the command body:
 @RequiredPermissions({})
-public class RevokeAllRolesCommand extends AbstractCommand<AuthenticatedUser> {
+public class RevokeAllRolesCommand extends AbstractCommand<AuthenticatedUser> implements Serializable {
 
     private final AuthenticatedUser assignee;
 

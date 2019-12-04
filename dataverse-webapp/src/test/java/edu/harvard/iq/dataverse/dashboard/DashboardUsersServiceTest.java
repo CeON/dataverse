@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.dashboard;
 
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.GrantSuperuserStatusCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeAllRolesCommand;
@@ -33,12 +34,17 @@ public class DashboardUsersServiceTest {
     private EjbDataverseEngine engineService;
     @Mock
     private DataverseRequestServiceBean dataverseRequestService;
+    @Mock
+    private UserServiceBean userServiceBean;
+
+    private AuthenticatedUser testUser = createTestUser();
 
     @BeforeEach
     void setUp() throws CommandException {
         when(engineService.submit(any(GrantSuperuserStatusCommand.class))).thenReturn(new AuthenticatedUser());
         when(engineService.submit(any(RevokeSuperuserStatusCommand.class))).thenReturn(new AuthenticatedUser());
         when(engineService.submit(any(RevokeAllRolesCommand.class))).thenReturn(new AuthenticatedUser());
+        when(userServiceBean.find(any())).thenReturn(testUser);
     }
 
     @Test
@@ -59,6 +65,7 @@ public class DashboardUsersServiceTest {
         // given
         AuthenticatedUser user = createTestUser();
         user.setSuperuser(false);
+        this.testUser.setSuperuser(false);
 
         // when
         dashboardUsersService.changeSuperuserStatus(user);
@@ -72,6 +79,7 @@ public class DashboardUsersServiceTest {
         // given
         AuthenticatedUser user = createTestUser();
         user.setSuperuser(true);
+        this.testUser.setSuperuser(true);
 
         // when
         dashboardUsersService.changeSuperuserStatus(user);
@@ -87,6 +95,7 @@ public class DashboardUsersServiceTest {
         user.setFirstName("test");
         user.setLastName("user");
         user.setRoles("testRole");
+        user.setSuperuser(true);
 
         return user;
     }

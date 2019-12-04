@@ -113,7 +113,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     public void saveSuperuserStatus() {
         if (selectedUser != null) {
-            dashboardUsersService.changeSuperuserStatus(selectedUser)
+            Try.of(() -> dashboardUsersService.changeSuperuserStatus(selectedUser))
                     .onSuccess(user -> selectedUser = user)
                     .onFailure(throwable -> logger.warning("Failed to permanently toggle the superuser status for user " + selectedUser.getIdentifier() + ": " + throwable.getMessage()));
         } else {
