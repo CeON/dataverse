@@ -187,6 +187,9 @@ INSERT INTO explicitgroup (id, description, displayname, groupalias, groupaliasi
 
 INSERT INTO explicitgroup_containedroleassignees (explicitgroup_id, containedroleassignees) VALUES (1, '@rootGroupMember');
 
+INSERT INTO explicitgroup_authenticateduser (explicitgroup_id, containedauthenticatedusers_id) VALUES (1, 2);
+INSERT INTO explicitgroup_authenticateduser (explicitgroup_id, containedauthenticatedusers_id) VALUES (1, 3);
+
 -------------------- ROLE ASSIGNMENTS --------------------
 
 INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionpoint_id, role_id) VALUES (5, '@dataverseAdmin', NULL, 1, 1);
@@ -195,6 +198,8 @@ INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionp
 
 INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionpoint_id, role_id) VALUES (30, '@filedownloader', NULL, 53, 2);
 INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionpoint_id, role_id) VALUES (31, '@filedownloader', NULL, 55, 2);
+
+INSERT INTO roleassignment (id, assigneeidentifier, privateurltoken, definitionpoint_id, role_id) VALUES (32, '&explicit/1-1-rootgroup', NULL, 2, 7);
 
 -------------------- TEMPLATES --------------------
 INSERT INTO template (id, createtime, name, usagecount, dataverse_id, termsofuseandaccess_id)
