@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.api.datadeposit;
 
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
@@ -32,9 +32,9 @@ public class CollectionListManagerImpl implements CollectionListManager {
 
     private static final Logger logger = Logger.getLogger(CollectionListManagerImpl.class.getCanonicalName());
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
-    DatasetServiceBean datasetService;
+    DatasetDao datasetDao;
     @EJB
     PermissionServiceBean permissionService;
     @Inject
@@ -53,7 +53,7 @@ public class CollectionListManagerImpl implements CollectionListManager {
         String dvAlias = urlManager.getTargetIdentifier();
         if (urlManager.getTargetType().equals("dataverse") && dvAlias != null) {
 
-            Dataverse dv = dataverseService.findByAlias(dvAlias);
+            Dataverse dv = dataverseDao.findByAlias(dvAlias);
 
             if (dv != null) {
                 /**
@@ -70,7 +70,7 @@ public class CollectionListManagerImpl implements CollectionListManager {
                 Feed feed = abdera.newFeed();
                 feed.setTitle(dv.getName());
                 String baseUrl = urlManagerServiceBean.getHostnamePlusBaseUrlPath();
-                List<Dataset> datasets = datasetService.findByOwnerId(dv.getId());
+                List<Dataset> datasets = datasetDao.findByOwnerId(dv.getId());
                 for (Dataset dataset : datasets) {
                     /**
                      * @todo Will this be performant enough with production
@@ -84,7 +84,7 @@ public class CollectionListManagerImpl implements CollectionListManager {
                     String editMediaUri = baseUrl + "/edit-media/study/" + dataset.getGlobalIdString();
                     Entry entry = feed.addEntry();
                     entry.setId(editUri);
-                    entry.setTitle(datasetService.getTitleFromLatestVersion(dataset.getId()));
+                    entry.setTitle(datasetDao.getTitleFromLatestVersion(dataset.getId()));
                     entry.setBaseUri(new IRI(editUri));
                     entry.addLink(editMediaUri, "edit-media");
                     feed.addEntry(entry);

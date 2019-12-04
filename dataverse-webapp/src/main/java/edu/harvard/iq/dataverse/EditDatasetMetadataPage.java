@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataset.DatasetFieldsInitializer;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
@@ -33,7 +34,7 @@ public class EditDatasetMetadataPage implements Serializable {
     private static final Logger logger = Logger.getLogger(EditDatasetMetadataPage.class.getCanonicalName());
 
     @EJB
-    private DatasetServiceBean datasetService;
+    private DatasetDao datasetDao;
     @EJB
     private DatasetVersionServiceBean datasetVersionService;
     @Inject
@@ -80,9 +81,9 @@ public class EditDatasetMetadataPage implements Serializable {
     public String init() {
 
         if (persistentId != null) {
-            dataset = datasetService.findByGlobalId(persistentId);
+            dataset = datasetDao.findByGlobalId(persistentId);
         } else if (datasetId != null) {
-            dataset = datasetService.find(datasetId);
+            dataset = datasetDao.find(datasetId);
         }
 
         if (dataset == null) {
@@ -94,7 +95,7 @@ public class EditDatasetMetadataPage implements Serializable {
         if (!permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), dataset)) {
             return permissionsWrapper.notAuthorized();
         }
-        if (datasetService.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
+        if (datasetDao.isInReview(dataset) && !permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)) {
             return permissionsWrapper.notAuthorized();
         }
 
@@ -133,7 +134,7 @@ public class EditDatasetMetadataPage implements Serializable {
     // -------------------- PRIVATE --------------------
 
     private String returnToLatestVersion() {
-        dataset = datasetService.find(dataset.getId());
+        dataset = datasetDao.find(dataset.getId());
         workingVersion = dataset.getLatestVersion();
         if (workingVersion.isDeaccessioned() && dataset.getReleasedVersion() != null) {
             workingVersion = dataset.getReleasedVersion();

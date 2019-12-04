@@ -5,7 +5,7 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
-      xmlns:o="http://omnifaces.org/ui">
+      xmlns:o="http://omnifaces.org/ui" >
 
     <!--@elvariable id="item" type="edu.harvard.iq.dataverse.persistence.user.UserNotification"-->
 
@@ -14,8 +14,8 @@
 
     <h:body>
         <ui:composition template="/dataverse_template.xhtml">
-            <ui:param name="pageTitle" value="#{bundle.account} - #{dataverseServiceBean.findRootDataverse().name}"/>
-            <ui:param name="dataverse" value="#{dataverseServiceBean.findRootDataverse()}"/>
+            <ui:param name="pageTitle" value="#{bundle.account} - #{dataverseDao.findRootDataverse().name}"/>
+            <ui:param name="dataverse" value="#{dataverseDao.findRootDataverse()}"/>
             <ui:param name="showDataverseHeader" value="false"/>
             <ui:param name="loginRedirectPage" value="dataverseuser.xhtml"/>
             <ui:define name="body">
@@ -34,31 +34,30 @@
                     <f:viewParam name="selectTab" value="#{DataverseUserPage.selectTab}"/>
                     <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                     <f:viewAction action="#{DataverseUserPage.init}" />
-                    <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse(), (DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn'] : bundle.account))}"/>
+                    <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseDao.findRootDataverse(), (DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn'] : bundle.account))}"/>
 
-                    <f:viewParam name="q" value="#{MyDataSearchFragment.query}"/>
-                    <f:viewParam name="uId" value="#{MyDataSearchFragment.searchUserId}" />
-                    <f:viewParam name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
-                    <f:viewParam name="fq1" value="#{MyDataSearchFragment.fq1}"/>
-                    <f:viewParam name="fq0" value="#{MyDataSearchFragment.fq0}"/>
-                    <f:viewParam name="fq2" value="#{MyDataSearchFragment.fq2}"/>
-                    <f:viewParam name="fq3" value="#{MyDataSearchFragment.fq3}"/>
-                    <f:viewParam name="fq4" value="#{MyDataSearchFragment.fq4}"/>
-                    <f:viewParam name="fq5" value="#{MyDataSearchFragment.fq5}"/>
-                    <f:viewParam name="fq6" value="#{MyDataSearchFragment.fq6}"/>
-                    <f:viewParam name="fq7" value="#{MyDataSearchFragment.fq7}"/>
-                    <f:viewParam name="fq8" value="#{MyDataSearchFragment.fq8}"/>
-                    <f:viewParam name="fq9" value="#{MyDataSearchFragment.fq9}"/>
-                    <f:viewParam name="rf1" value="#{MyDataSearchFragment.rf1}"/>
-                    <f:viewParam name="rf0" value="#{MyDataSearchFragment.rf0}"/>
-                    <f:viewParam name="rf2" value="#{MyDataSearchFragment.rf2}"/>
-                    <f:viewParam name="rf3" value="#{MyDataSearchFragment.rf3}"/>
-                    <f:viewParam name="rf4" value="#{MyDataSearchFragment.rf4}"/>
-                    <f:viewParam name="rf5" value="#{MyDataSearchFragment.rf5}"/>
-                    <f:viewParam name="page" value="#{MyDataSearchFragment.page}"/>
-                    <f:viewParam name="debug" value="#{MyDataSearchFragment.debug}"/>
-                    <f:viewAction action="#{MyDataSearchFragment.retrieveMyData()}"/>
-                    
+                        <f:viewParam name="q" value="#{MyDataSearchFragment.query}" />
+                        <f:viewParam name="uId" value="#{MyDataSearchFragment.searchUserId}" />
+                        <f:viewParam name="types" value="#{MyDataSearchFragment.selectedTypesString}"/>
+                        <f:viewParam name="fq1" value="#{MyDataSearchFragment.fq1}"/>
+                        <f:viewParam name="fq0" value="#{MyDataSearchFragment.fq0}"/>
+                        <f:viewParam name="fq2" value="#{MyDataSearchFragment.fq2}"/>
+                        <f:viewParam name="fq3" value="#{MyDataSearchFragment.fq3}"/>
+                        <f:viewParam name="fq4" value="#{MyDataSearchFragment.fq4}"/>
+                        <f:viewParam name="fq5" value="#{MyDataSearchFragment.fq5}"/>
+                        <f:viewParam name="fq6" value="#{MyDataSearchFragment.fq6}"/>
+                        <f:viewParam name="fq7" value="#{MyDataSearchFragment.fq7}"/>
+                        <f:viewParam name="fq8" value="#{MyDataSearchFragment.fq8}"/>
+                        <f:viewParam name="fq9" value="#{MyDataSearchFragment.fq9}"/>
+                        <f:viewParam name="rf1" value="#{MyDataSearchFragment.rf1}"/>
+                        <f:viewParam name="rf0" value="#{MyDataSearchFragment.rf0}"/>
+                        <f:viewParam name="rf2" value="#{MyDataSearchFragment.rf2}"/>
+                        <f:viewParam name="rf3" value="#{MyDataSearchFragment.rf3}"/>
+                        <f:viewParam name="rf4" value="#{MyDataSearchFragment.rf4}"/>
+                        <f:viewParam name="rf5" value="#{MyDataSearchFragment.rf5}"/>
+                        <f:viewParam name="page" value="#{MyDataSearchFragment.page}"/>
+                        <f:viewParam name="debug" value="#{MyDataSearchFragment.debug}"/>
+                        <f:viewAction action="#{MyDataSearchFragment.retrieveMyData()}" if="#{param.editMode ne 'CREATE'}"/>
                     
                 </f:metadata>
                 <h:form id="dataverseUserForm">
@@ -115,10 +114,10 @@
                                                     <i class="icon-dataverse text-icon-inline text-muted"></i>
                                                     <h:outputFormat value="#{bundle['notification.welcome']}" escape="false">
                                                         <o:param>
-                                                            <h:outputText value="#{dataverseServiceBean.findRootDataverse().name}"/>
+                                                            <h:outputText value="#{dataverseDao.findRootDataverse().name}"/>
                                                         </o:param>
                                                         <o:param>
-                                                            <a href="#{settingsWrapper.guidesBaseUrl}/#{settingsWrapper.guidesVersion}/user/index.html" title="#{dataverseServiceBean.findRootDataverse().name} #{bundle['header.guides.user']}" target="_blank">#{bundle['header.guides.user']}</a>
+                                                            <a href="#{settingsWrapper.guidesBaseUrl}/#{settingsWrapper.guidesVersion}/user/index.html" title="#{dataverseDao.findRootDataverse().name} #{bundle['header.guides.user']}" target="_blank">#{bundle['header.guides.user']}</a>
                                                         </o:param>
                                                         <o:param>
                                                             <a href="https://demo.dataverse.org">#{bundle['notification.demoSite']}</a>
@@ -478,6 +477,16 @@
                                     </label>
                                     <div class="col-sm-9">
                                         <p class="form-control-static">#{DataverseUserPage.currentUser.position}</p>
+                                    </div>
+                                </div>
+                                <!-- Notifications Language -->
+                                <div class="form-group">
+                                    <label for="notificationsLanguage" class="col-sm-3 control-label">
+                                        #{bundle['user.notificationsLanguage']}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <p class="form-control-static">
+                                        #{DataverseUserPage.getUserLocalizedNotificationsLanguageForDisplay()}</p>
                                     </div>
                                 </div>
                             </div>

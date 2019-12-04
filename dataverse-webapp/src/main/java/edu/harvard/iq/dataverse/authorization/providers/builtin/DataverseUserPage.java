@@ -1,9 +1,8 @@
 package edu.harvard.iq.dataverse.authorization.providers.builtin;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
@@ -14,6 +13,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailUtil;
@@ -83,7 +83,7 @@ public class DataverseUserPage implements java.io.Serializable {
     @Inject
     DataverseSession session;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
     private UserNotificationService userNotificationService;
     @EJB
@@ -91,7 +91,7 @@ public class DataverseUserPage implements java.io.Serializable {
     @EJB
     UserServiceBean userService;
     @EJB
-    DatasetServiceBean datasetService;
+    DatasetDao datasetDao;
     @EJB
     DataFileServiceBean fileService;
     @EJB
@@ -353,14 +353,14 @@ public class DataverseUserPage implements java.io.Serializable {
             }
 
             if ("dataverse.xhtml".equals(redirectPage)) {
-                redirectPage = redirectPage + "?alias=" + dataverseService.findRootDataverse().getAlias();
+                redirectPage = redirectPage + "?alias=" + dataverseDao.findRootDataverse().getAlias();
             }
 
             try {
                 redirectPage = URLDecoder.decode(redirectPage, "UTF-8");
             } catch (UnsupportedEncodingException ex) {
                 logger.log(Level.SEVERE, "Server does not support 'UTF-8' encoding.", ex);
-                redirectPage = "dataverse.xhtml?alias=" + dataverseService.findRootDataverse().getAlias();
+                redirectPage = "dataverse.xhtml?alias=" + dataverseDao.findRootDataverse().getAlias();
             }
 
             logger.log(Level.FINE, "Sending user to = {0}", redirectPage);
@@ -400,7 +400,7 @@ public class DataverseUserPage implements java.io.Serializable {
 
     public String cancel() {
         if (editMode == EditMode.CREATE) {
-            return "/dataverse.xhtml?alias=" + dataverseService.findRootDataverse().getAlias() + "&faces-redirect=true";
+            return "/dataverse.xhtml?alias=" + dataverseDao.findRootDataverse().getAlias() + "&faces-redirect=true";
         }
 
         editMode = null;
@@ -454,12 +454,12 @@ public class DataverseUserPage implements java.io.Serializable {
                 case ASSIGNROLE:
                 case REVOKEROLE:
                     // Can either be a dataverse or dataset, so search both
-                    Dataverse dataverse = dataverseService.find(userNotification.getObjectId());
+                    Dataverse dataverse = dataverseDao.find(userNotification.getObjectId());
                     if (dataverse != null) {
                         userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), dataverse));
                         userNotification.setTheObject(dataverse);
                     } else {
-                        Dataset dataset = datasetService.find(userNotification.getObjectId());
+                        Dataset dataset = datasetDao.find(userNotification.getObjectId());
                         if (dataset != null) {
                             userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), dataset));
                             userNotification.setTheObject(dataset);
@@ -471,7 +471,7 @@ public class DataverseUserPage implements java.io.Serializable {
                     }
                     break;
                 case CREATEDV:
-                    userNotification.setTheObject(dataverseService.find(userNotification.getObjectId()));
+                    userNotification.setTheObject(dataverseDao.find(userNotification.getObjectId()));
                     break;
 
                 case REQUESTFILEACCESS:
@@ -480,7 +480,7 @@ public class DataverseUserPage implements java.io.Serializable {
                     break;
                 case GRANTFILEACCESS:
                 case REJECTFILEACCESS:
-                    userNotification.setTheObject(datasetService.find(userNotification.getObjectId()));
+                    userNotification.setTheObject(datasetDao.find(userNotification.getObjectId()));
                     break;
 
                 case MAPLAYERUPDATED:
@@ -500,7 +500,7 @@ public class DataverseUserPage implements java.io.Serializable {
                     break;
 
                 case CHECKSUMFAIL:
-                    userNotification.setTheObject(datasetService.find(userNotification.getObjectId()));
+                    userNotification.setTheObject(datasetDao.find(userNotification.getObjectId()));
                     break;
 
                 case FILESYSTEMIMPORT:
@@ -569,6 +569,13 @@ public class DataverseUserPage implements java.io.Serializable {
         return userAuthProvider;
     }
 
+    public String getUserLocalizedNotificationsLanguageForDisplay() {
+        String displayLanguage = StringUtils.capitalize(currentUser.getNotificationsLanguage().getDisplayLanguage(session.getLocale()));
+
+        return isUserLanguageConfigured() ? displayLanguage : displayLanguage + " " + BundleUtil.getStringFromBundle("user.notificationsLanguage.notSupported");
+    }
+
+
     public boolean isPasswordEditable() {
         return getUserAuthProvider().isPasswordUpdateAllowed();
     }
@@ -634,7 +641,7 @@ public class DataverseUserPage implements java.io.Serializable {
     public Long getDataverseId() {
 
         if (dataverseId == null) {
-            dataverseId = dataverseService.findRootDataverse().getId();
+            dataverseId = dataverseDao.findRootDataverse().getId();
         }
         return dataverseId;
     }
@@ -714,5 +721,11 @@ public class DataverseUserPage implements java.io.Serializable {
             return BundleUtil.getStringFromBundle("notification.email.info.unavailable");
         }
         return notification.getRequestor().getEmail() != null ? notification.getRequestor().getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
+    }
+
+    // -------------------- PRIVATE ---------------------
+
+    private boolean isUserLanguageConfigured() {
+        return StringUtils.isNotEmpty(settingsWrapper.getConfiguredLocaleName(currentUser.getNotificationsLanguage().toLanguageTag()));
     }
 }

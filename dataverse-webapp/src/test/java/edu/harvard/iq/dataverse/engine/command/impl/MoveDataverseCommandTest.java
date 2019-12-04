@@ -1,8 +1,9 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DataverseLinkingServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.DataverseDao;
+import edu.harvard.iq.dataverse.DataverseLinkingDao;
 import edu.harvard.iq.dataverse.engine.DataverseEngine;
 import edu.harvard.iq.dataverse.engine.NoOpTestEntityManager;
 import edu.harvard.iq.dataverse.engine.TestCommandContext;
@@ -134,6 +135,7 @@ public class MoveDataverseCommandTest {
         // Templates
         List<Template> ts = new ArrayList<>();
         templateA = new Template();
+        templateA.setId(1L);
         templateA.setName("TemplateA");
         templateA.setDataverse(childD);
         ts.add(templateA);
@@ -142,6 +144,10 @@ public class MoveDataverseCommandTest {
         grandchildDD.setTemplateRoot(false);
         grandchildDD.setDefaultTemplate(templateA);
 
+        Template testTemplate = new Template();
+        testTemplate.setName("testTemplate");
+        testTemplate.setId(2L);
+
         List<Template> noneT = new ArrayList<>();
         root.setTemplates(noneT);
         childA.setTemplates(noneT);
@@ -149,7 +155,7 @@ public class MoveDataverseCommandTest {
         childB.setTemplates(noneT);
         childC.setTemplates(noneT);
         grandchildCC.setTemplates(noneT);
-        grandchildDD.setTemplates(noneT);
+        grandchildDD.setTemplates(Lists.newArrayList(testTemplate));
 
         // Metadata blocks
         List<MetadataBlock> mbsE = new ArrayList<>();
@@ -170,8 +176,8 @@ public class MoveDataverseCommandTest {
 
         testEngine = new TestDataverseEngine(new TestCommandContext() {
             @Override
-            public DataverseServiceBean dataverses() {
-                return new DataverseServiceBean() {
+            public DataverseDao dataverses() {
+                return new DataverseDao() {
                     @Override
                     public Dataverse save(Dataverse dataverse) {
                         // no-op. The superclass accesses databases which we don't have.
@@ -254,8 +260,8 @@ public class MoveDataverseCommandTest {
             }
 
             @Override
-            public DatasetServiceBean datasets() {
-                return new DatasetServiceBean() {
+            public DatasetDao datasets() {
+                return new DatasetDao() {
                     @Override
                     public List<Dataset> findByOwnerId(Long ownerId) {
                         return new ArrayList<>();
@@ -280,8 +286,8 @@ public class MoveDataverseCommandTest {
             }
 
             @Override
-            public DataverseLinkingServiceBean dvLinking() {
-                return new DataverseLinkingServiceBean() {
+            public DataverseLinkingDao dvLinking() {
+                return new DataverseLinkingDao() {
 
                 };
             }

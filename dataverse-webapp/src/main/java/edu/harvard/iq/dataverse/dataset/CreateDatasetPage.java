@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.dataset;
 
 import edu.harvard.iq.dataverse.DatasetPage;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
@@ -52,7 +52,7 @@ public class CreateDatasetPage implements Serializable {
     private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
 
     @EJB
-    private DataverseServiceBean dataverseService;
+    private DataverseDao dataverseDao;
     @Inject
     private PermissionsWrapper permissionsWrapper;
     @EJB
@@ -66,7 +66,7 @@ public class CreateDatasetPage implements Serializable {
     @EJB
     private UserDataFieldFiller userDataFieldFiller;
     @EJB
-    private DatasetSaver datasetSaver;
+    private DatasetService DatasetService;
 
     private Dataset dataset;
     private Long ownerId;
@@ -83,7 +83,7 @@ public class CreateDatasetPage implements Serializable {
 
     public String init() {
 
-        Dataverse ownerDataverse = dataverseService.find(ownerId);
+        Dataverse ownerDataverse = dataverseDao.find(ownerId);
 
         if (ownerDataverse == null) {
             return permissionsWrapper.notFound();
@@ -159,7 +159,7 @@ public class CreateDatasetPage implements Serializable {
 
         mapTermsOfUseInFiles(newFiles);
 
-        Try<Dataset> createDatasetOperation = Try.of(() -> datasetSaver.createDataset(dataset, selectedTemplate))
+        Try<Dataset> createDatasetOperation = Try.of(() -> DatasetService.createDataset(dataset, selectedTemplate))
                 .onFailure(NotAuthenticatedException.class,
                     ex -> handleErrorMessage(BundleUtil.getStringFromBundle("dataset.create.authenticatedUsersOnly"), ex))
                 .onFailure(EJBException.class,
@@ -172,7 +172,7 @@ public class CreateDatasetPage implements Serializable {
         }
 
 
-        Try.of(() -> datasetSaver.addFilesToDataset(dataset.getId(), newFiles))
+        Try.of(() -> DatasetService.addFilesToDataset(dataset.getId(), newFiles))
             .onFailure(ex -> handleErrorMessage(BundleUtil.getStringFromBundle("dataset.message.createSuccess.failedToSaveFiles"), ex))
             .onSuccess(addFilesResult -> handleSuccessOrPartialSuccessMessages(newFiles.size(), addFilesResult))
             .onSuccess(addFilesResult -> dataset = addFilesResult.getDataset());

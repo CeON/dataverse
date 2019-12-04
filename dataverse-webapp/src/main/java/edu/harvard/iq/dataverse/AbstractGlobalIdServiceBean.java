@@ -25,13 +25,13 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
     private static final Logger logger = Logger.getLogger(AbstractGlobalIdServiceBean.class.getCanonicalName());
 
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
     SettingsServiceBean settingsService;
     @EJB
     EjbDataverseEngine commandEngine;
     @EJB
-    DatasetServiceBean datasetService;
+    DatasetDao datasetDao;
     @EJB
     DataFileServiceBean datafileService;
     @EJB
@@ -68,7 +68,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
             authorString = ":unav";
         }
 
-        String producerString = dataverseService.findRootDataverse().getName();
+        String producerString = dataverseDao.findRootDataverse().getName();
 
         if (producerString.isEmpty()) {
             producerString = ":unav";
@@ -114,7 +114,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         String authority = dvObject.getAuthority() == null ? settingsService.getValueForKey(SettingsServiceBean.Key.Authority) : dvObject.getAuthority();
         GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(protocol, commandEngine.getContext());
         if (dvObject.isInstanceofDataset()) {
-            dvObject.setIdentifier(datasetService.generateDatasetIdentifier((Dataset) dvObject, idServiceBean));
+            dvObject.setIdentifier(datasetDao.generateDatasetIdentifier((Dataset) dvObject, idServiceBean));
         } else {
             dvObject.setIdentifier(datafileService.generateDataFileIdentifier((DataFile) dvObject, idServiceBean));
         }
@@ -425,7 +425,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         metadataTemplate.setContacts(dataset.getLatestVersion().getDatasetContacts());
         metadataTemplate.setProducers(dataset.getLatestVersion().getDatasetProducers());
         metadataTemplate.setTitle(dvObject.getDisplayName());
-        String producerString = dataverseService.findRootDataverse().getName();
+        String producerString = dataverseDao.findRootDataverse().getName();
         if (producerString.isEmpty()) {
             producerString = ":unav";
         }

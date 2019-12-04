@@ -1,13 +1,13 @@
 package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -76,9 +76,9 @@ public class Index extends AbstractApiBean {
     @EJB
     SolrIndexServiceBean solrIndexService;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
-    DatasetServiceBean datasetService;
+    DatasetDao datasetDao;
     @EJB
     DatasetVersionServiceBean datasetVersionService;
     @EJB
@@ -223,7 +223,7 @@ public class Index extends AbstractApiBean {
     public Response indexTypeById(@PathParam("type") String type, @PathParam("id") Long id) {
         try {
             if (type.equals("dataverses")) {
-                Dataverse dataverse = dataverseService.find(id);
+                Dataverse dataverse = dataverseDao.find(id);
                 if (dataverse != null) {
                     /**
                      * @todo Can we display the result of indexing to the user?
@@ -235,7 +235,7 @@ public class Index extends AbstractApiBean {
                     return notFound("Could not find dataverse with id of " + id + ". Result from deletion attempt: " + response);
                 }
             } else if (type.equals("datasets")) {
-                Dataset dataset = datasetService.find(id);
+                Dataset dataset = datasetDao.find(id);
                 if (dataset != null) {
                     boolean doNormalSolrDocCleanUp = true;
                     Future<String> indexDatasetFuture = indexService.indexDataset(dataset, doNormalSolrDocCleanUp);
@@ -250,7 +250,7 @@ public class Index extends AbstractApiBean {
                 }
             } else if (type.equals("files")) {
                 DataFile dataFile = dataFileService.find(id);
-                Dataset datasetThatOwnsTheFile = datasetService.find(dataFile.getOwner().getId());
+                Dataset datasetThatOwnsTheFile = datasetDao.find(dataFile.getOwner().getId());
                 /**
                  * @todo How can we display the result to the user?
                  */
@@ -299,7 +299,7 @@ public class Index extends AbstractApiBean {
         }
         Dataset dataset = null;
         try {
-            dataset = datasetService.findByGlobalId(persistentId);
+            dataset = datasetDao.findByGlobalId(persistentId);
         } catch (Exception ex) {
             return error(Status.BAD_REQUEST, "Problem looking up dataset with persistent id \"" + persistentId + "\". Error: " + ex.getMessage());
         }
@@ -578,7 +578,7 @@ public class Index extends AbstractApiBean {
             return error(Response.Status.UNAUTHORIZED, "Invalid apikey ");
         }
 
-        Dataverse subtreeScope = dataverseService.findRootDataverse();
+        Dataverse subtreeScope = dataverseDao.findRootDataverse();
 
         String sortField = SearchFields.ID;
         String sortOrder = SortBy.ASCENDING;
@@ -674,7 +674,7 @@ public class Index extends AbstractApiBean {
     @GET
     @Path("filesearch")
     public Response filesearch(@QueryParam("persistentId") String persistentId, @QueryParam("semanticVersion") String semanticVersion, @QueryParam("q") String userSuppliedQuery) {
-        Dataset dataset = datasetService.findByGlobalId(persistentId);
+        Dataset dataset = datasetDao.findByGlobalId(persistentId);
         if (dataset == null) {
             return error(Status.BAD_REQUEST, "Could not find dataset with persistent id " + persistentId);
         }

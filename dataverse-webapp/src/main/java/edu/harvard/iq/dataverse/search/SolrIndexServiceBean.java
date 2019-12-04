@@ -1,8 +1,8 @@
 package edu.harvard.iq.dataverse.search;
 
-import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -11,15 +11,11 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -49,9 +45,9 @@ public class SolrIndexServiceBean {
     @EJB
     SearchPermissionsServiceBean searchPermissionsService;
     @EJB
-    DataverseServiceBean dataverseService;
+    DataverseDao dataverseDao;
     @EJB
-    DatasetServiceBean datasetService;
+    DatasetDao datasetDao;
     @EJB
     DataverseRoleServiceBean rolesSvc;
     @EJB
@@ -395,10 +391,10 @@ public class SolrIndexServiceBean {
         // so don't create a Solr "permission" doc either.
         if (definitionPoint.isInstanceofDataverse()) {
             Dataverse selfDataverse = (Dataverse) definitionPoint;
-            if (!selfDataverse.equals(dataverseService.findRootDataverse())) {
+            if (!selfDataverse.equals(dataverseDao.findRootDataverse())) {
                 dvObjectsToReindexPermissionsFor.add(definitionPoint);
             }
-            List<Dataset> directChildDatasetsOfDvDefPoint = datasetService.findByOwnerId(selfDataverse.getId());
+            List<Dataset> directChildDatasetsOfDvDefPoint = datasetDao.findByOwnerId(selfDataverse.getId());
             for (Dataset dataset : directChildDatasetsOfDvDefPoint) {
                 dvObjectsToReindexPermissionsFor.add(dataset);
                 for (DataFile datafile : filesToReIndexPermissionsFor(dataset)) {
@@ -550,7 +546,7 @@ public class SolrIndexServiceBean {
      */
     public List<Long> findPermissionsInDatabaseButStaleInOrMissingFromSolr() {
         List<Long> indexingRequired = new ArrayList<>();
-        long rootDvId = dataverseService.findRootDataverse().getId();
+        long rootDvId = dataverseDao.findRootDataverse().getId();
         for (DvObject dvObject : dvObjectService.findAll()) {
 //            logger.info("examining dvObjectId " + dvObject.getId() + "...");
             Timestamp permissionModificationTime = dvObject.getPermissionModificationTime();

@@ -153,6 +153,14 @@ body {
 	}
 }
 
+*, ui-widget-content  {
+	button, span {
+		&.ui-button.ui-state-default{
+			@include btn-access;
+		}
+	}
+}
+
 .alert {
 	color: #043e58;
 
@@ -286,11 +294,6 @@ a,
 	}
 }
 
-/* Missing checkbox tick fix */
-tr.ui-state-highlight .ui-icon {
-	background-image: url("img/primefaces-main-default.png");
-}
-
 *, ui-widget-content  {
 	button, span {
 		&.ui-button.ui-state-default{
@@ -383,8 +386,12 @@ input, textarea {
 	}
 }
 
+.ui-widget textarea[readonly="readonly"] {
+	font-family: $font-monospace;
+}
+
 .form-horizontal .control-label {
-	padding-top: 10px;
+	padding-top: 4px;
 	padding-bottom: 5px;
 	color: $main-text-color;
 }
@@ -498,6 +505,24 @@ input, textarea {
 		}
 
 		
+	}
+}
+
+/* Tabs */
+
+.ui-tabs {
+	&.ui-tabs-top > .ui-tabs-nav {
+		padding: 0.2em 0 0 0;
+	}
+	
+	.ui-tabs-nav {
+		&.ui-widget-header li a {
+			padding: 10px 1.5em 7px 1.5em;
+		}
+
+		li.ui-tabs-selected a {
+			cursor: default;
+		}
 	}
 }
 
@@ -1145,23 +1170,22 @@ div.filesTable .ui-paginator {
 		padding-top: 27px;
 		padding-bottom: 31px;
 
-		button {
-			/*padding: 1px 0 2px 0;*/
+		button, a {
+			padding: 6px 12px;
 			color: $link-color;
 
 			&:last-child {
-				background: none;
-				border: none;
+				border: 1px solid transparent;
 				box-shadow: none;
 
-				&:hover {
-					background: $gray-border-color;
-				}
-
 				&:active {
-					background: $gray-border-color;
-					box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+					box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
 				}
+			}
+
+			span.ui-button-text {
+				line-height: 1.42857143;
+				padding: 0;
 			}
 		}
 	}
@@ -1196,9 +1220,17 @@ div.filesTable .ui-paginator {
 	}
 
 	.ui-message, .ui-messages {
-		&.ui-message-info, &.ui-message-error, &.ui-message-warn, &.ui-message-fatal {
+		&.ui-message-info, &.ui-message-warn, &.ui-message-fatal {
 			margin: 10px 0;
 			padding: 10px;
+		}
+		&.ui-message-error {
+			margin: 0;
+			padding: 5px 10px;
+		}
+
+		.ui-message-error-detail {
+			margin-left: 0;
 		}
 	}
 
