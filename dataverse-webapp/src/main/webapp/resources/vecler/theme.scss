@@ -153,14 +153,6 @@ body {
 	}
 }
 
-*, ui-widget-content  {
-	button, span {
-		&.ui-button.ui-state-default{
-			@include btn-access;
-		}
-	}
-}
-
 .alert {
 	color: #043e58;
 
@@ -180,6 +172,12 @@ body {
 		background: #fff7dc;
 		border-color: #f0d16f;
 	}
+}
+
+.bg-warning {
+	padding: 15px 20px;
+	border-radius: $border-radius;
+	margin-bottom: 20px;
 }
 
 .ui-message, .ui-messages {
@@ -288,6 +286,11 @@ a,
 	}
 }
 
+/* Missing checkbox tick fix */
+tr.ui-state-highlight .ui-icon {
+	background-image: url("img/primefaces-main-default.png");
+}
+
 *, ui-widget-content  {
 	button, span {
 		&.ui-button.ui-state-default{
@@ -296,12 +299,18 @@ a,
 	}
 }
 
-.ui-button.ui-state-default[id*="\:cancel"] {
-	border: none;
-	box-shadow: none;
+.ui-button.ui-state-default {
+	&[id*="Cancel"], &[id*="cancel"] {
+		border: none;
+		box-shadow: none;
+	}
 }
 
 /* Forms */
+
+#datasetThumbnail {
+	border-radius: 5px;
+}
 
 .ui-selectonemenu {
 	border: 1px solid #e8e8e8;
@@ -436,6 +445,7 @@ input, textarea {
 		border: 1px solid $main-color;
 	
 		color: #4a4a4a;
+		text-transform: none;
 	}
 }
 
@@ -496,6 +506,20 @@ input, textarea {
 		}
 
 		
+	}
+}
+
+/* Buttons */
+
+.button-block {
+	button, a {
+		padding: 6px 12px;
+		color: $link-color;
+
+		span.ui-button-text {
+			line-height: 1.42857143;
+			padding: 0;
+		}
 	}
 }
 
@@ -752,6 +776,10 @@ div.panelSearchForm input.search-input {
 	.glyphicon-stats {
 		color: $icon-color;
 	}
+
+	a {
+		padding: 0;
+	}
 }
 
 #metrics-content {
@@ -967,10 +995,6 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 	padding-right: 18px;
 
 	div.emptyResults.bg-warning {
-		padding: 15px 20px;
-		border-radius: $border-radius;
-		margin-bottom: 20px;
-
 		p {
 			margin: 0;
 
@@ -1148,6 +1172,9 @@ div.filesTable .ui-paginator {
 		width: 100% !important;
 		height: calc(100% - 67px) !important;
 
+		/* Missing scrollbars fix */
+		max-height: calc(80vh - 67px);
+
 		/* Null height fix */
 		.form-group::after {
 			content: " ";
@@ -1155,7 +1182,7 @@ div.filesTable .ui-paginator {
 			clear: both;
 		}
 	}
-
+	
 	.button-block {
 		border-top: 1px solid $gray-border-color;
 		margin: 49px 0 0 0;
@@ -1163,6 +1190,7 @@ div.filesTable .ui-paginator {
 		padding-bottom: 31px;
 
 		button, a {
+
 			padding: 6px 12px;
 			color: $link-color;
 
@@ -1225,6 +1253,14 @@ div.filesTable .ui-paginator {
 			margin-left: 0;
 		}
 	}
+
+	div[class^="col-"] + div[class^="col-"].bg-muted {
+		margin-top: 15px;
+	}
+
+	.form-horizontal .form-group {
+		margin-right: -14px;
+	}
 }
 
 div.ui-widget-overlay {
@@ -1264,6 +1300,20 @@ div.ui-widget-overlay {
 			font-size: 26px;
 		}
 	}
+}
+
+.panelLayoutBlock > .ui-widget-content {
+	border-bottom: none;
+}
+
+#rolesPermissionsForm\:rolesPermissionsDialog {
+	input[type=text], table {
+		width: 100%;
+	}
+}
+
+#rolesPermissionsForm\:userGroupDialog[style*="width: auto"] {
+	width: 100% !important;
 }
 
 /* Fix for the unnecessary scrollbar in some modals */
