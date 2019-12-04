@@ -153,14 +153,6 @@ body {
 	}
 }
 
-*, ui-widget-content  {
-	button, span {
-		&.ui-button.ui-state-default{
-			@include btn-access;
-		}
-	}
-}
-
 .alert {
 	color: #043e58;
 
@@ -294,6 +286,11 @@ a,
 	}
 }
 
+/* Missing checkbox tick fix */
+tr.ui-state-highlight .ui-icon {
+	background-image: url("img/primefaces-main-default.png");
+}
+
 *, ui-widget-content  {
 	button, span {
 		&.ui-button.ui-state-default{
@@ -310,6 +307,10 @@ a,
 }
 
 /* Forms */
+
+#datasetThumbnail {
+	border-radius: 5px;
+}
 
 .ui-selectonemenu {
 	border: 1px solid #e8e8e8;
@@ -505,6 +506,20 @@ input, textarea {
 		}
 
 		
+	}
+}
+
+/* Buttons */
+
+.button-block {
+	button, a {
+		padding: 6px 12px;
+		color: $link-color;
+
+		span.ui-button-text {
+			line-height: 1.42857143;
+			padding: 0;
+		}
 	}
 }
 
@@ -760,6 +775,10 @@ div.panelSearchForm input.search-input {
 
 	.glyphicon-stats {
 		color: $icon-color;
+	}
+
+	a {
+		padding: 0;
 	}
 }
 
@@ -1163,7 +1182,7 @@ div.filesTable .ui-paginator {
 			clear: both;
 		}
 	}
-
+	
 	.button-block {
 		border-top: 1px solid $gray-border-color;
 		margin: 49px 0 0 0;
@@ -1171,6 +1190,7 @@ div.filesTable .ui-paginator {
 		padding-bottom: 31px;
 
 		button, a {
+
 			padding: 6px 12px;
 			color: $link-color;
 
