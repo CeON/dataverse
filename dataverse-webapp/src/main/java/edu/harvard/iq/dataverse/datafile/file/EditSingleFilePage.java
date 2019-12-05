@@ -248,7 +248,9 @@ public class EditSingleFilePage implements java.io.Serializable {
 
         updateEntityWithUpdatedFile();
 
-        Try<Dataset> updateFileOperation = Try.of(() -> singleFileFacade.saveFileChanges(fileMetadata, provPopupFragmentBean.getProvenanceUpdates()))
+        Try<Dataset> updateFileOperation = Try.of(() -> singleFileFacade.saveFileChanges(fileMetadata,
+                                                                                         provPopupFragmentBean.getProvenanceUpdates(),
+                                                                                         clone))
                 .onFailure(ex -> {
                     logger.log(Level.SEVERE, "Unable to update file with dataset id: " + dataset.getId(), ex);
                     populateDatasetUpdateFailureMessage();

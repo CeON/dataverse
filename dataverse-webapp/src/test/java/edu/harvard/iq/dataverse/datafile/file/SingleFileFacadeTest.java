@@ -59,7 +59,7 @@ public class SingleFileFacadeTest {
         Mockito.when(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)).thenReturn(true);
         Mockito.when(fileMetadataService.manageProvJson(Mockito.any(Boolean.TYPE), Mockito.any(FileMetadata.class), Mockito.any())).thenThrow(NullPointerException.class);
 
-        Assertions.assertThrows(ProvenanceChangeException.class, () -> singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates));
+        Assertions.assertThrows(ProvenanceChangeException.class, () -> singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates, new DatasetVersion()));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class SingleFileFacadeTest {
         Mockito.when(commandEngine.submit(Mockito.any(UpdateDatasetVersionCommand.class))).thenReturn(dataset);
         Mockito.when(fileMetadataService.manageProvJson(Mockito.any(Boolean.TYPE), Mockito.any(FileMetadata.class), Mockito.any())).then(Answers.RETURNS_MOCKS);
 
-        singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates);
+        singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates, new DatasetVersion());
 
         //then
         Mockito.verify(commandEngine, Mockito.times(1)).submit(Mockito.any(UpdateDatasetVersionCommand.class));

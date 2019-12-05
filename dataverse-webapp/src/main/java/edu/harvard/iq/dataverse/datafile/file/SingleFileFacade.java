@@ -43,8 +43,11 @@ public class SingleFileFacade {
 
     /**
      * Saves provenance updates if the setting is enabled, and then updates the dataset.
+     * @param datasetBeforeChanges - datasetVersion that was cloned before changes so you can compare the changes later.
      */
-    public Dataset saveFileChanges(FileMetadata fileToModify, Map<String, UpdatesEntry> provUpdates) {
+    public Dataset saveFileChanges(FileMetadata fileToModify,
+                                   Map<String, UpdatesEntry> provUpdates,
+                                   DatasetVersion datasetBeforeChanges) {
 
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)) {
 
@@ -57,10 +60,9 @@ public class SingleFileFacade {
 
 
         Dataset datasetToUpdate = fileToModify.getDatasetVersion().getDataset();
-        DatasetVersion cloneDatasetVersion = datasetToUpdate.getEditVersion().cloneDatasetVersion();
 
         UpdateDatasetVersionCommand updateCommand = new UpdateDatasetVersionCommand(datasetToUpdate, dvRequestService.getDataverseRequest(),
-                                                                                    Collections.emptyList(), cloneDatasetVersion);
+                                                                                    Collections.emptyList(), datasetBeforeChanges);
         updateCommand.setValidateLenient(true);
 
         return commandEngine.submit(updateCommand);

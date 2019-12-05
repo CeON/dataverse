@@ -11,7 +11,6 @@ import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,7 +53,7 @@ public class FileMetadataService {
      * Aggregate function that either persists provenance or deletes it.
      * @param checksumSource - used for filtering provenance, since Datafile checksum is used as key in provenanceUpdates.
      */
-    public Set<DataFile> manageProvJson(boolean saveContext, FileMetadata checksumSource, Map<String, UpdatesEntry> provenanceUpdates) {
+    public Option<DataFile> manageProvJson(boolean saveContext, FileMetadata checksumSource, Map<String, UpdatesEntry> provenanceUpdates) {
 
         Set<Map.Entry<String, UpdatesEntry>> provenanceUpdatesForChange = provenanceUpdates.entrySet().stream()
                 .filter(provMap -> {
@@ -63,7 +62,7 @@ public class FileMetadataService {
                 })
                 .collect(Collectors.toSet());
 
-        Set<DataFile> updatedEntries = new HashSet<>();
+        Option<DataFile> updatedEntry = Option.none();
 
         for (Map.Entry<String, UpdatesEntry> entry : provenanceUpdatesForChange) {
             UpdatesEntry updatesEntry = entry.getValue();
@@ -72,15 +71,15 @@ public class FileMetadataService {
 
             if (updatesEntry.getDeleteJson()) {
                 DataFile updatedDataFile = commandEngine.submit((new DeleteProvJsonCommand(dvRequestService.getDataverseRequest(), updatedProvOwner, saveContext)));
-                updatedEntries.add(updatedDataFile);
+                return Option.of(updatedDataFile);
             } else if (provString.isDefined()) {
                 DataFile updatedDataFile = commandEngine.submit(new PersistProvJsonCommand(dvRequestService.getDataverseRequest(), updatedProvOwner, provString.get(),
                                                                                            updatedProvOwner.getProvEntityName(), saveContext));
-                updatedEntries.add(updatedDataFile);
+                return Option.of(updatedDataFile);
             }
 
         }
 
-        return updatedEntries;
+        return updatedEntry;
     }
 }
