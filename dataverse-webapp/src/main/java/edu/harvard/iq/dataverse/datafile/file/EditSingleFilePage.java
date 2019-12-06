@@ -66,7 +66,6 @@ public class EditSingleFilePage implements java.io.Serializable {
     private Long ownerId;
     private Long versionId;
     private DatasetVersion workingVersion;
-    private DatasetVersion clone;
     private boolean datasetUpdateRequired = false;
     private boolean tabularDataTagsUpdated = false;
 
@@ -185,7 +184,6 @@ public class EditSingleFilePage implements java.io.Serializable {
 
 
         workingVersion = dataset.getEditVersion();
-        clone = workingVersion.cloneDatasetVersion();
         if (workingVersion == null || !workingVersion.isDraft()) {
             // Sorry, we couldn't find/obtain a draft version for this dataset!
             return permissionsWrapper.notFound();
@@ -249,8 +247,7 @@ public class EditSingleFilePage implements java.io.Serializable {
         updateEntityWithUpdatedFile();
 
         Try<Dataset> updateFileOperation = Try.of(() -> singleFileFacade.saveFileChanges(fileMetadata,
-                                                                                         provPopupFragmentBean.getProvenanceUpdates(),
-                                                                                         clone))
+                                                                                         provPopupFragmentBean.getProvenanceUpdates()))
                 .onFailure(ex -> {
                     logger.log(Level.SEVERE, "Unable to update file with dataset id: " + dataset.getId(), ex);
                     populateDatasetUpdateFailureMessage();

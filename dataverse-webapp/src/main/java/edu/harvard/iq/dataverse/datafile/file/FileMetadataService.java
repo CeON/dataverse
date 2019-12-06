@@ -11,9 +11,6 @@ import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Stateless
 public class FileMetadataService {
@@ -38,46 +35,32 @@ public class FileMetadataService {
     /**
      * If file is among provenanceUpdates file will be updated with ProvFreeForm.
      */
-    public FileMetadata updateFileMetadataWithProvFreeForm(FileMetadata fileMetadataToUpdate, Map<String, UpdatesEntry> provenanceUpdates) {
+    public FileMetadata updateFileMetadataWithProvFreeForm(FileMetadata fileMetadataToUpdate, String provenanceFreeForm) {
 
-        UpdatesEntry provEntry = provenanceUpdates.get(fileMetadataToUpdate.getDataFile().getChecksumValue());
-
-        if (provEntry != null && provEntry.getProvFreeform() != null){
-            fileMetadataToUpdate.setProvFreeForm(provEntry.getProvFreeform());
-        }
+        fileMetadataToUpdate.setProvFreeForm(provenanceFreeForm);
 
         return fileMetadataToUpdate;
     }
 
     /**
      * Aggregate function that either persists provenance or deletes it.
-     * @param checksumSource - used for filtering provenance, since Datafile checksum is used as key in provenanceUpdates.
      */
-    public Option<DataFile> manageProvJson(boolean saveContext, FileMetadata checksumSource, Map<String, UpdatesEntry> provenanceUpdates) {
-
-        Set<Map.Entry<String, UpdatesEntry>> provenanceUpdatesForChange = provenanceUpdates.entrySet().stream()
-                .filter(provMap -> {
-                    String checksumValue = checksumSource.getDataFile().getChecksumValue();
-                    return checksumValue.equals(provMap.getKey());
-                })
-                .collect(Collectors.toSet());
+    public Option<DataFile> manageProvJson(boolean saveContext, UpdatesEntry provenanceUpdate) {
 
         Option<DataFile> updatedEntry = Option.none();
 
-        for (Map.Entry<String, UpdatesEntry> entry : provenanceUpdatesForChange) {
-            UpdatesEntry updatesEntry = entry.getValue();
-            DataFile updatedProvOwner = updatesEntry.getDataFile();
-            Option<String> provString = updatesEntry.getProvJson();
-
-            if (updatesEntry.getDeleteJson()) {
-                DataFile updatedDataFile = commandEngine.submit((new DeleteProvJsonCommand(dvRequestService.getDataverseRequest(), updatedProvOwner, saveContext)));
-                return Option.of(updatedDataFile);
-            } else if (provString.isDefined()) {
-                DataFile updatedDataFile = commandEngine.submit(new PersistProvJsonCommand(dvRequestService.getDataverseRequest(), updatedProvOwner, provString.get(),
-                                                                                           updatedProvOwner.getProvEntityName(), saveContext));
-                return Option.of(updatedDataFile);
-            }
-
+        if (provenanceUpdate.getDeleteJson()) {
+            DataFile updatedDataFile = commandEngine.submit((new DeleteProvJsonCommand(dvRequestService.getDataverseRequest(),
+                                                                                       provenanceUpdate.getDataFile(),
+                                                                                       saveContext)));
+            return Option.of(updatedDataFile);
+        } else if (provenanceUpdate.getProvJson().isDefined()) {
+            DataFile updatedDataFile = commandEngine.submit(new PersistProvJsonCommand(dvRequestService.getDataverseRequest(),
+                                                                                       provenanceUpdate.getDataFile(),
+                                                                                       provenanceUpdate.getProvJson().get(),
+                                                                                       provenanceUpdate.getDataFile().getProvEntityName(),
+                                                                                       saveContext));
+            return Option.of(updatedDataFile);
         }
 
         return updatedEntry;

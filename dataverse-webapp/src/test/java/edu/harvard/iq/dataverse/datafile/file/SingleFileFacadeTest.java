@@ -1,7 +1,9 @@
 package edu.harvard.iq.dataverse.datafile.file;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.datafile.file.exception.ProvenanceChangeException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -39,6 +41,9 @@ public class SingleFileFacadeTest {
     private EjbDataverseEngine commandEngine;
 
     @Mock
+    private GenericDao genericDao;
+
+    @Mock
     private DataverseRequestServiceBean dvRequestService;
 
     @Test
@@ -50,6 +55,7 @@ public class SingleFileFacadeTest {
         dataFile.setChecksumValue(checksum);
         dataFile.setProvEntityName("");
         FileMetadata fileToSave = new FileMetadata();
+        fileToSave.setDataFile(dataFile);
 
         String provFreeForm = "provFree";
         HashMap<String, UpdatesEntry> provenanceUpdates = of(checksum, new UpdatesEntry(dataFile, "prov", false, provFreeForm))
@@ -57,9 +63,9 @@ public class SingleFileFacadeTest {
 
         //when & then
         Mockito.when(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)).thenReturn(true);
-        Mockito.when(fileMetadataService.manageProvJson(Mockito.any(Boolean.TYPE), Mockito.any(FileMetadata.class), Mockito.any())).thenThrow(NullPointerException.class);
+        Mockito.when(fileMetadataService.manageProvJson(Mockito.any(Boolean.TYPE), Mockito.any())).thenThrow(NullPointerException.class);
 
-        Assertions.assertThrows(ProvenanceChangeException.class, () -> singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates, new DatasetVersion()));
+        Assertions.assertThrows(ProvenanceChangeException.class, () -> singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates));
     }
 
     @Test
@@ -73,8 +79,10 @@ public class SingleFileFacadeTest {
         FileMetadata fileToSave = new FileMetadata();
         fileToSave.setDataFile(dataFile);
         DatasetVersion dsv = new DatasetVersion();
+        dsv.setId(1L);
         Dataset dataset = new Dataset();
         dsv.setDataset(dataset);
+        dataset.setVersions(Lists.newArrayList(dsv));
         fileToSave.setDatasetVersion(dsv);
 
         String provFreeForm = "provFree";
@@ -84,12 +92,13 @@ public class SingleFileFacadeTest {
         //when
         Mockito.when(settingsService.isTrueForKey(SettingsServiceBean.Key.ProvCollectionEnabled)).thenReturn(true);
         Mockito.when(commandEngine.submit(Mockito.any(UpdateDatasetVersionCommand.class))).thenReturn(dataset);
-        Mockito.when(fileMetadataService.manageProvJson(Mockito.any(Boolean.TYPE), Mockito.any(FileMetadata.class), Mockito.any())).then(Answers.RETURNS_MOCKS);
+        Mockito.when(fileMetadataService.manageProvJson(Mockito.any(Boolean.TYPE), Mockito.any())).then(Answers.RETURNS_MOCKS);
+        Mockito.when(genericDao.find(Mockito.anyLong(), Mockito.eq(DatasetVersion.class))).thenReturn(new DatasetVersion());
 
-        singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates, new DatasetVersion());
+        singleFileFacade.saveFileChanges(fileToSave, provenanceUpdates);
 
         //then
         Mockito.verify(commandEngine, Mockito.times(1)).submit(Mockito.any(UpdateDatasetVersionCommand.class));
-        Mockito.verify(fileMetadataService, Mockito.times(1)).manageProvJson(false, fileToSave, provenanceUpdates);
+        Mockito.verify(fileMetadataService, Mockito.times(1)).manageProvJson(Mockito.eq(false), Mockito.any());
     }
 }

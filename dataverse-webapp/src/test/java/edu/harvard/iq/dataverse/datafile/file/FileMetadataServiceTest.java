@@ -47,7 +47,7 @@ class FileMetadataServiceTest {
                 .toJavaMap();
 
         //when
-        FileMetadata updatedFile = fileMetadataService.updateFileMetadataWithProvFreeForm(fileMetadata, provenanceUpdates);
+        FileMetadata updatedFile = fileMetadataService.updateFileMetadataWithProvFreeForm(fileMetadata, provFree);
 
         //then
         Assert.assertEquals(provFree, updatedFile.getProvFreeForm());
@@ -64,7 +64,7 @@ class FileMetadataServiceTest {
         fileMetadata.setDataFile(dataFile);
 
         //when
-        fileMetadataService.updateFileMetadataWithProvFreeForm(fileMetadata, new HashMap<>());
+        fileMetadataService.updateFileMetadataWithProvFreeForm(fileMetadata, null);
 
         //then
         Assert.assertNull(fileMetadata.getProvFreeForm());
@@ -84,11 +84,13 @@ class FileMetadataServiceTest {
         HashMap<String, UpdatesEntry> provenanceUpdates = of(checksum, new UpdatesEntry(dataFile, "prov", true, "provFree"))
                 .toJavaMap();
 
+        UpdatesEntry updatedEntry = provenanceUpdates.get(checksum);
+
         //when
         DataFile value = new DataFile();
         value.setProvEntityName("");
         Mockito.when(commandEngine.submit(Mockito.any(DeleteProvJsonCommand.class))).thenReturn(value);
-        Option<DataFile> updatedFile = fileMetadataService.manageProvJson(true, fileMetadata, provenanceUpdates);
+        Option<DataFile> updatedFile = fileMetadataService.manageProvJson(true,  updatedEntry);
 
         //then
         Assert.assertEquals("", updatedFile.get().getProvEntityName());
@@ -111,11 +113,13 @@ class FileMetadataServiceTest {
         HashMap<String, UpdatesEntry> provenanceUpdates = of(checksum, new UpdatesEntry(dataFile, "prov", false, provFreeForm))
                 .toJavaMap();
 
+        UpdatesEntry updatedEntry = provenanceUpdates.get(checksum);
+
         //when
         DataFile persistedProvOwner = new DataFile();
         persistedProvOwner.setProvEntityName(provFreeForm);
         Mockito.when(commandEngine.submit(Mockito.any(PersistProvJsonCommand.class))).thenReturn(persistedProvOwner);
-        Option<DataFile> updatedFile = fileMetadataService.manageProvJson(true, fileMetadata, provenanceUpdates);
+        Option<DataFile> updatedFile = fileMetadataService.manageProvJson(true, updatedEntry);
 
         //then
         Assert.assertEquals(provFreeForm, updatedFile.get().getProvEntityName());
