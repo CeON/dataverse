@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.common;
 
-import edu.harvard.iq.dataverse.common.BundleUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +29,7 @@ public class BundleUtilTest {
         assertEquals(expected, actual);
         assertEquals("Your new dataverse named "
                              + "dvName (view at dvUrl ) "
-                             + "was created in parentDvName (view at parentDvUrl ). To learn more "
+                             + "was created in parentDvName (view at parentDvUrl). To learn more "
                              + "about what you can do with your dataverse, check out "
                              + "the Dataverse Management - User Guide at "
                              + "http://guides.dataverse.org/en/4.0/user/dataverse-management.html .",
