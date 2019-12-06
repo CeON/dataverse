@@ -32,6 +32,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -79,10 +80,10 @@ public class MailMessageCreator {
     /**
      * Creates footer for email message.
      */
-    public String createMailFooterMessage(String messageText, String rootDataverseName, InternetAddress systemAddress) {
+    public String createMailFooterMessage(String messageText, Locale messageLocale, String rootDataverseName, InternetAddress systemAddress) {
 
         return messageText + BundleUtil.getStringFromBundle("notification.email.closing",
-                                                            getCurrentUser().getNotificationsLanguage(),
+                                                            messageLocale,
                                                             Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(
                                                                     systemAddress),
                                                                           BrandingUtil.getSupportTeamName(systemAddress,
@@ -106,7 +107,7 @@ public class MailMessageCreator {
      *
      * @return message and subject or blank tuple if notificationType didn't match any template.
      */
-    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, String systemEmail) {
+    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, Locale messageLocale, String systemEmail) {
         Lazy<String> rootDataverseName = Lazy.of(() -> dataverseDao.findRootDataverse().getName());
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATAVERSE) {
@@ -165,7 +166,7 @@ public class MailMessageCreator {
      *
      * @return message and subject or blank tuple if notificationType didn't match any template.
      */
-    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, AuthenticatedUser requester) {
+    public Tuple2<String, String> getMessageAndSubject(EmailNotificationDto notificationDto, Locale messageLocale, AuthenticatedUser requester) {
         Lazy<String> rootDataverseName = Lazy.of(() -> dataverseDao.findRootDataverse().getName());
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET_VERSION) {
