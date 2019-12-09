@@ -101,7 +101,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
                 setUpdateLogger.info("\"un-deleting\" an existing OAI Record for " + dataset.getGlobalIdString());
                 record.setRemoved(false);
                 record.setLastUpdateTime(new Date());
-            } else if (dataset.getReleasedVersion().getReleaseTime().after(record.getLastUpdateTime())) {
+            } else if (isDatasetUpdated(dataset, record)) {
                 setUpdateLogger.info("updating the timestamp on an existing record.");
                 record.setLastUpdateTime(new Date());
             }
@@ -273,6 +273,16 @@ public class OAIRecordServiceBean implements java.io.Serializable {
             logger.fine("Caught exception; returning null.");
             return null;
         }
+    }
+
+    private boolean isDatasetUpdated(Dataset dataset, OAIRecord record) {
+        Date publishTime = dataset.getReleasedVersion().getReleaseTime();
+
+        Boolean isGuestbookTimeAfterOaiTime = dataset.getGuestbookChangeTime()
+                .map(guestbookChangeTime -> guestbookChangeTime.after(record.getLastUpdateTime()))
+                .getOrElse(false);
+
+        return publishTime.after(record.getLastUpdateTime()) || isGuestbookTimeAfterOaiTime;
     }
 
 }
