@@ -40,6 +40,8 @@ import edu.harvard.iq.dataverse.persistence.workflow.WorkflowStepData;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.util.DatasetFieldWalker;
 import edu.harvard.iq.dataverse.util.StringUtil;
+import io.vavr.control.Try;
+import org.apache.commons.lang.StringUtils;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -301,7 +303,8 @@ public class JsonPrinter {
                 .add("authority", ds.getAuthority())
                 .add("publisher", getRootDataverseNameforCitation(ds))
                 .add("publicationDate", ds.getPublicationDateFormattedYYYYMMDD())
-                .add("storageIdentifier", ds.getStorageIdentifier());
+                .add("storageIdentifier", ds.getStorageIdentifier())
+                .add("isGuestbookAvailable", ds.getGuestbook() != null);
     }
 
     public static JsonObjectBuilder json(DatasetVersion dsv, boolean excludeEmailFields) {
@@ -536,6 +539,9 @@ public class JsonPrinter {
                 .add("description", fmd.getDescription())
                 .add("label", fmd.getLabel()) // "label" is the filename
                 .add("restricted", fmd.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED)
+                .add("termsOfUseType", fmd.getTermsOfUse().getTermsOfUseType().toString())
+                .add("licenseName", Try.of(() -> fmd.getTermsOfUse().getLicense().getName()).getOrElse(StringUtils.EMPTY))
+                .add("licenseUrl", Try.of(() -> fmd.getTermsOfUse().getLicense().getUrl()).getOrElse(StringUtils.EMPTY))
                 .add("directoryLabel", fmd.getDirectoryLabel())
                 .add("version", fmd.getVersion())
                 .add("datasetVersionId", fmd.getDatasetVersion().getId())

@@ -17,6 +17,7 @@ public class DatasetDTO implements java.io.Serializable {
     private String globalIdCreateTime;
     private String publisher;
     private String publicationDate;
+    private boolean isGuestbookAvailable;
     private DatasetVersionDTO datasetVersion;
     private List<DataFileDTO> dataFiles;
     public static final String DOI_PROTOCOL = "doi";
@@ -70,6 +71,13 @@ public class DatasetDTO implements java.io.Serializable {
         this.datasetVersion = datasetVersion;
     }
 
+    public boolean isGuestbookAvailable() {
+        return isGuestbookAvailable;
+    }
+
+    public void setGuestbookAvailable(boolean guestbookAvailable) {
+        isGuestbookAvailable = guestbookAvailable;
+    }
 
     public List<DataFileDTO> getDataFiles() {
         return dataFiles;
