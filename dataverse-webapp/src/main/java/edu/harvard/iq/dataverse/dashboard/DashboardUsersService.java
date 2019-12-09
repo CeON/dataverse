@@ -51,7 +51,6 @@ public class DashboardUsersService {
     }
 
     public AuthenticatedUser revokeAllRolesForUser(AuthenticatedUser user) {
-        user.setRoles(null);
         return commandEngine.submit(new RevokeAllRolesCommand(user, dvRequestService.getDataverseRequest()));
     }
 

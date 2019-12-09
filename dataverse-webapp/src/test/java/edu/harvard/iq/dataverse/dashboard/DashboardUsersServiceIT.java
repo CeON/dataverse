@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.dashboard;
 import com.rometools.utils.Lists;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
-import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
@@ -14,7 +13,6 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.platform.commons.util.StringUtils;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
@@ -38,8 +36,9 @@ public class DashboardUsersServiceIT extends WebappArquillianDeployment {
     private DashboardUsersService dashboardUsersService;
     @Inject
     private RoleAssigneeServiceBean roleAssigneeService;
-    @Inject
-    private UserServiceBean userServiceBean;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() {
@@ -49,33 +48,22 @@ public class DashboardUsersServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldRevokeAllRolesForUser() {
         // given
-        AuthenticatedUser userWithRoles = userServiceBean.getAuthenticatedUserList("","",100, 0)
-                .stream()
-                .filter(u -> u.getId().equals(2L))
-                .findFirst()
-                .get();
+        AuthenticatedUser user = authenticationServiceBean.findByID(2L);
 
         // when
-        dashboardUsersService.revokeAllRolesForUser(userWithRoles);
+        dashboardUsersService.revokeAllRolesForUser(user);
 
         // then
-        AuthenticatedUser dbUserWithoutRoles = userServiceBean.getAuthenticatedUserList("","",100, 0)
-                .stream()
-                .filter(u -> u.getId().equals(2L))
-                .findFirst()
-                .get();
+        AuthenticatedUser dbUser = authenticationServiceBean.findByID(2L);
 
-        assertTrue(StringUtils.isBlank(dbUserWithoutRoles.getRoles()));
-        assertNull(roleAssigneeService.getUserExplicitGroups(dbUserWithoutRoles)
+
+        assertNull(roleAssigneeService.getUserExplicitGroups(dbUser)
                 .stream()
                 .filter(s -> "1-rootgroup".equals(s))
                 .findAny()
                 .orElse(null));
-        assertTrue(Lists.isEmpty(roleAssigneeService.getAssignmentsFor(dbUserWithoutRoles.getUserIdentifier())));
+        assertTrue(Lists.isEmpty(roleAssigneeService.getAssignmentsFor(dbUser.getUserIdentifier())));
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void shouldRevokeAllRolesForUser_withPermissionsException() {

@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,7 +56,6 @@ public class DashboardUsersServiceTest {
 
         // then
         verify(engineService, times(1)).submit(any(RevokeAllRolesCommand.class));
-        assertNull(user.getRoles());
     }
 
     @Test

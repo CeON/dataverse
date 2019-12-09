@@ -90,7 +90,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     public String init() {
 
-        if ((session.getUser() != null) && (session.getUser().isAuthenticated()) && (session.getUser().isSuperuser())) {
+        if (session.getUser().isSuperuser()) {
             userListMaker = new UserListMaker(userService);
             runUserSearch();
         } else {
@@ -105,10 +105,6 @@ public class DashboardUsersPage implements java.io.Serializable {
         setSelectedPage(pageNumber);
         runUserSearch();
         return true;
-    }
-
-    public void setSelectedUser(AuthenticatedUser user) {
-        selectedUser = user;
     }
 
     public void saveSuperuserStatus() {
@@ -133,11 +129,12 @@ public class DashboardUsersPage implements java.io.Serializable {
 
         Try.of(() -> dashboardUsersService.revokeAllRolesForUser(selectedUser))
                 .onSuccess(user -> selectedUser=user)
+                .onSuccess(user -> selectedUser.setRoles(null))
                 .onSuccess(user -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.success",
-                        Collections.singletonList(selectedUser.getUserIdentifier()))))
+                        selectedUser.getUserIdentifier())))
                 .onFailure(throwable ->  JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dashboard.list_users.removeAll.message.failure",
-                        Collections.singletonList(selectedUser.getUserIdentifier()))))
-                .onFailure(throwable -> logger.severe(throwable.getMessage()));
+                        selectedUser.getUserIdentifier())))
+                .onFailure(throwable -> logger.log(Level.SEVERE, "Revoking all roles failed for user: " + selectedUser.getIdentifier(), throwable));
     }
 
     public String getConfirmRemoveRolesMessage() {
@@ -204,7 +201,13 @@ public class DashboardUsersPage implements java.io.Serializable {
         selectedPage = pgNum;
     }
 
+    // -------------------- SETTERS --------------------
+
     public void setSearchTerm(String searchTerm) {
         this.searchTerm = searchTerm;
+    }
+
+    public void setSelectedUser(AuthenticatedUser user) {
+        selectedUser = user;
     }
 }
