@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Arquillian.class)
@@ -57,11 +56,7 @@ public class DashboardUsersServiceIT extends WebappArquillianDeployment {
         AuthenticatedUser dbUser = authenticationServiceBean.findByID(2L);
 
 
-        assertNull(roleAssigneeService.getUserExplicitGroups(dbUser)
-                .stream()
-                .filter(s -> "1-rootgroup".equals(s))
-                .findAny()
-                .orElse(null));
+        assertTrue(roleAssigneeService.getUserExplicitGroups(dbUser).isEmpty());
         assertTrue(Lists.isEmpty(roleAssigneeService.getAssignmentsFor(dbUser.getUserIdentifier())));
     }
 
