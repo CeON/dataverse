@@ -858,18 +858,10 @@ public class JsonPrinter {
 
 
     private static String getLicenseName(FileMetadata fmd) {
-        Optional<License> license = Optional.of(fmd.getTermsOfUse().getLicense());
-        if(license.isPresent()) {
-            return license.get().getName();
-        }
-        return StringUtils.EMPTY;
+        return Optional.ofNullable(fmd.getTermsOfUse().getLicense()).map(License::getName).orElse(StringUtils.EMPTY);
     }
 
     private static String getLicenseUrl(FileMetadata fmd) {
-        Optional<License> license = Optional.of(fmd.getTermsOfUse().getLicense());
-        if(license.isPresent()) {
-            return license.get().getUrl();
-        }
-        return StringUtils.EMPTY;
+        return Optional.ofNullable(fmd.getTermsOfUse().getLicense()).map(License::getUrl).orElse(StringUtils.EMPTY);
     }
 }
