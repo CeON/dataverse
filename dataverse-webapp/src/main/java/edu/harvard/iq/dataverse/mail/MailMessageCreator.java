@@ -564,10 +564,6 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private AuthenticatedUser getCurrentUser() {
-        return (AuthenticatedUser) session.getUser();
-    }
-
     private String getDatasetManageFileAccessLink(DataFile datafile) {
         return systemConfig.getDataverseSiteUrl() + "/permissions-manage-files.xhtml?id=" + datafile.getOwner().getId();
     }
