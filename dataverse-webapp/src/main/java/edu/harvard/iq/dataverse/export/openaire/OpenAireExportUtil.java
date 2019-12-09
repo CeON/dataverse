@@ -1097,17 +1097,17 @@ public class OpenAireExportUtil {
      * @param xmlw The Steam writer
      * @param datasetVersionDTO
      * @param language current language
-     * @param isGuestbookAvailable is there active guestbook on dataset
+     * @param hasActiveGuestbook is there active guestbook on dataset
      * @throws XMLStreamException
      */
     public static void writeAccessRightsElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO, String language,
-                                                boolean isGuestbookAvailable) throws XMLStreamException {
+                                                boolean hasActiveGuestbook) throws XMLStreamException {
         // rightsList -> rights with rightsURI attribute
         xmlw.writeStartElement("rightsList"); // <rightsList>
 
         List<FileDTO> files = datasetVersionDTO.getFiles();
         // set terms from the info:eu-repo-Access-Terms vocabulary
-        writeRightsUriInfoAttribute(xmlw, files, language, isGuestbookAvailable);
+        writeRightsUriInfoAttribute(xmlw, files, language, hasActiveGuestbook);
         writeRightsUriLicenseInfoAttribute(xmlw, files, language);
 
         xmlw.writeEndElement(); // </rightsList>
@@ -1588,12 +1588,12 @@ public class OpenAireExportUtil {
                 .allMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.RESTRICTED));
     }
 
-    private static void writeRightsUriInfoAttribute(XMLStreamWriter xmlw, List<FileDTO> files, String language, boolean isGuestbookAvailable) throws XMLStreamException {
+    private static void writeRightsUriInfoAttribute(XMLStreamWriter xmlw, List<FileDTO> files, String language, boolean hasActiveGuestbook) throws XMLStreamException {
         writeRightsHeader(xmlw, language);
 
         if(Lists.isEmpty(files)) {
             xmlw.writeAttribute("rightsURI", RIGHTS_URI_CLOSED_ACCESS);
-        } else if(isGuestbookAvailable || hasRestrictedFile(files)) {
+        } else if(hasActiveGuestbook || hasRestrictedFile(files)) {
             xmlw.writeAttribute("rightsURI", RIGHTS_URI_RESTRICTED_ACCESS);
         } else {
             xmlw.writeAttribute("rightsURI", RIGHTS_URI_OPEN_ACCESS);
