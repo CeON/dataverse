@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
@@ -154,6 +155,10 @@ public class PermissionsWrapper implements java.io.Serializable {
 
     public boolean canUpdateDataset(DataverseRequest dr, Dataset dataset) {
         return doesSessionUserHaveDataSetPermission(dr, dataset, Permission.EditDataset);
+    }
+    public boolean canCurrentUserUpdateDataset(Dataset dataset) {
+        DataverseRequest dataverseRequest = dvRequestService.getDataverseRequest();
+        return doesSessionUserHaveDataSetPermission(dataverseRequest, dataset, Permission.EditDataset);
     }
 
     public boolean canUpdateAndPublishDataset(DataverseRequest dr, Dataset dataset) {
