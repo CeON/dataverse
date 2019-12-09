@@ -98,10 +98,10 @@ public class MailMessageCreatorTest {
         String messageText = "Nice message";
 
         //when
-        String footerMessage = mailMessageCreator.createMailFooterMessage(messageText, ROOTDVNAME, systemEmail);
+        String footerMessage = mailMessageCreator.createMailFooterMessage(Locale.ENGLISH, ROOTDVNAME, systemEmail);
 
         //then
-        Assert.assertEquals(messageText + getFooterMessage(), footerMessage);
+        Assert.assertEquals(getFooterMessage(), footerMessage);
 
     }
 
@@ -141,12 +141,17 @@ public class MailMessageCreatorTest {
     @Test
     public void getMessageAndSubject_ForCreateDataverse_WithDifferentLocale() {
         //given
-        EmailNotificationDto testEmailNotificationDto = createDataverseEmailNotificationDto();
-
-        //when
         AuthenticatedUser userFromDifferentCountry = new AuthenticatedUser();
         userFromDifferentCountry.setNotificationsLanguage(Locale.forLanguageTag("pl"));
-        Mockito.when(dataverseSession.getUser()).thenReturn(userFromDifferentCountry);
+
+        EmailNotificationDto testEmailNotificationDto = new EmailNotificationDto(1L,
+                                                                                 "useremail@test.com",
+                                                                                 NotificationType.CREATEDV,
+                                                                                 1L,
+                                                                                 NotificationObjectType.DATAVERSE,
+                                                                                 userFromDifferentCountry);
+
+        //when
         Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto,
                                                                                            "test@icm.pl");
 
