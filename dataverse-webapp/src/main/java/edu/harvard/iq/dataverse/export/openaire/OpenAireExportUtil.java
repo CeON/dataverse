@@ -138,7 +138,7 @@ public class OpenAireExportUtil {
         writeVersionElement(xmlw, version, language);
 
         // 16 Rights (O), rights
-        writeAccessRightsElement(xmlw, version/*, version.getTermsOfAccess(), version.getRestrictions()*/, language, datasetDto.isGuestbookAvailable());
+        writeAccessRightsElement(xmlw, version/*, version.getTermsOfAccess(), version.getRestrictions()*/, language, datasetDto.hasActiveGuestbook());
 
         // 17 Description (R), description
         writeDescriptionsElement(xmlw, version, language);
@@ -1575,13 +1575,17 @@ public class OpenAireExportUtil {
     private static boolean areAllFilesAllRightsReserved(List<FileDTO> files) {
         return files
                 .stream()
-                .allMatch(fileDTO -> fileDTO.getTermsOfUseType().equals(FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED.toString()));
+                .allMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED));
+    }
+
+    private static boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType allRightsReserved) {
+        return fileDTO.getTermsOfUseType().equals(allRightsReserved.toString());
     }
 
     private static boolean areAllFilesRestricted(List<FileDTO> files) {
         return files
                 .stream()
-                .allMatch(fileDTO -> fileDTO.getTermsOfUseType().equals(FileTermsOfUse.TermsOfUseType.RESTRICTED.toString()));
+                .allMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.RESTRICTED));
     }
 
     private static void writeRightsUriInfoAttribute(XMLStreamWriter xmlw, List<FileDTO> files, String language, boolean isGuestbookAvailable) throws XMLStreamException {
@@ -1602,6 +1606,6 @@ public class OpenAireExportUtil {
     private static boolean hasRestrictedFile(List<FileDTO> files) {
         return files
                 .stream()
-                .anyMatch(fileDTO -> fileDTO.getTermsOfUseType().equals(FileTermsOfUse.TermsOfUseType.RESTRICTED.toString()));
+                .anyMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.RESTRICTED));
     }
 }

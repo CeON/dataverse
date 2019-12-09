@@ -5,7 +5,7 @@
   "protocol": "doi",
   "authority": "10.5072/FK2",
   "publisher": "Open Source Publisher",
-  "isGuestbookAvailable": false,
+  "hasActiveGuestbook": false,
   "datasetVersion": {
     "id": 1,
     "versionNumber": 1,
