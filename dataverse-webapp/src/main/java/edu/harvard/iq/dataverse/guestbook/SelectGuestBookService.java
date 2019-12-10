@@ -8,12 +8,15 @@ import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Instant;
 
 @Stateless
 public class SelectGuestBookService {
 
     private DatasetVersionServiceBean versionService;
+    private Clock systemTime = Clock.systemDefaultZone();
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -34,11 +37,11 @@ public class SelectGuestBookService {
 
         if (isGuestbookAddedOrRemoved(selectedGuestbook, guestbookBeforeChanges)){
             Dataset dataset = editedDataset.getDataset();
-            dataset.setGuestbookChangeTime(new Date());
+            dataset.setGuestbookChangeTime(Timestamp.from(Instant.now(systemTime)));
         }
 
         Dataset dataset = editedDataset.getDataset();
-        dataset.setGuestbook(selectedGuestbook.get());
+        dataset.setGuestbook(selectedGuestbook.getOrNull());
         return versionService.updateDatasetVersion(editedDataset, true);
     }
 
@@ -47,5 +50,11 @@ public class SelectGuestBookService {
     private boolean isGuestbookAddedOrRemoved(Option<Guestbook> selectedGuestbook, Option<Guestbook> guestbookBeforeChanges) {
         return (guestbookBeforeChanges.isEmpty() && selectedGuestbook.isDefined()) ||
                 (guestbookBeforeChanges.isDefined() && selectedGuestbook.isEmpty());
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setSystemTime(Clock systemTime) {
+        this.systemTime = systemTime;
     }
 }
