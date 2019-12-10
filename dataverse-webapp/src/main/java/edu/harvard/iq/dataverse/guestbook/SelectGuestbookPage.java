@@ -143,7 +143,6 @@ public class SelectGuestbookPage implements java.io.Serializable {
 
     public void reset() {
         selectedGuestbook = null;
-        dataset.setGuestbook(null);
     }
 
     public void viewSelectedGuestbook(Guestbook selectedGuestbook) {
