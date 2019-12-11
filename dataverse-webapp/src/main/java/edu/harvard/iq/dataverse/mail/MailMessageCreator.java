@@ -477,70 +477,72 @@ public class MailMessageCreator {
 
     private String getSubjectText(EmailNotificationDto notificationDto, String rootDataverseName) {
         List<String> rootDvNameAsList = Collections.singletonList(rootDataverseName);
+        Locale userNotificationLanguage = notificationDto.getNotificationReceiver().getNotificationsLanguage();
+
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
                 return BundleUtil.getStringFromBundle("notification.email.assign.role.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case REVOKEROLE:
                 return BundleUtil.getStringFromBundle("notification.email.revoke.role.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case CREATEDV:
                 return BundleUtil.getStringFromBundle("notification.email.create.dataverse.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case REQUESTFILEACCESS:
                 return BundleUtil.getStringFromBundle("notification.email.request.file.access.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case GRANTFILEACCESS:
                 return BundleUtil.getStringFromBundle("notification.email.grant.file.access.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case REJECTFILEACCESS:
                 return BundleUtil.getStringFromBundle("notification.email.rejected.file.access.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case MAPLAYERUPDATED:
                 return BundleUtil.getStringFromBundle("notification.email.update.maplayer",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case MAPLAYERDELETEFAILED:
                 return BundleUtil.getStringFromBundle("notification.email.maplayer.deletefailed.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case CREATEDS:
                 return BundleUtil.getStringFromBundle("notification.email.create.dataset.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case SUBMITTEDDS:
                 return BundleUtil.getStringFromBundle("notification.email.submit.dataset.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case PUBLISHEDDS:
                 return BundleUtil.getStringFromBundle("notification.email.publish.dataset.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case RETURNEDDS:
                 return BundleUtil.getStringFromBundle("notification.email.returned.dataset.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case CREATEACC:
                 return BundleUtil.getStringFromBundle("notification.email.create.account.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case CHECKSUMFAIL:
                 return BundleUtil.getStringFromBundle("notification.email.checksumfail.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case CHECKSUMIMPORT:
                 return BundleUtil.getStringFromBundle("notification.email.import.checksum.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
             case CONFIRMEMAIL:
                 return BundleUtil.getStringFromBundle("notification.email.verifyEmail.subject",
-                                                      notificationDto.getNotificationReceiver().getNotificationsLanguage(),
+                                                      userNotificationLanguage,
                                                       rootDvNameAsList);
         }
         return StringUtils.EMPTY;
