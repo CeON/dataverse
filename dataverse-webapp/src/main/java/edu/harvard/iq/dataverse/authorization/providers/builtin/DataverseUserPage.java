@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -140,15 +141,23 @@ public class DataverseUserPage implements java.io.Serializable {
     private String selectTab = "somedata";
     UIInput usernameField;
 
+    private List<Locale> supportedLanguages = new ArrayList<>();
 
     private String username;
     boolean nonLocalLoginEnabled;
     private List<String> passwordErrors;
 
+    public List<Locale> getSupportedLanguages() {
+        return supportedLanguages;
+    }
+
     public String init() {
 
         // prevent creating a user if signup not allowed.
         boolean signupAllowed = settingsService.isTrueForKey(SettingsServiceBean.Key.AllowSignUp);
+
+        supportedLanguages.add(Locale.FRANCE);
+        supportedLanguages.add(Locale.ENGLISH);
 
         if (editMode == EditMode.CREATE && !signupAllowed) {
             return "/403.xhtml";
@@ -727,5 +736,11 @@ public class DataverseUserPage implements java.io.Serializable {
 
     private boolean isUserLanguageConfigured() {
         return StringUtils.isNotEmpty(settingsWrapper.getConfiguredLocaleName(currentUser.getNotificationsLanguage().toLanguageTag()));
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setSupportedLanguages(List<Locale> supportedLanguages) {
+        this.supportedLanguages = supportedLanguages;
     }
 }
