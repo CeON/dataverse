@@ -32,15 +32,16 @@ public class SelectGuestBookService {
     // -------------------- LOGIC --------------------
 
     public Dataset saveGuestbookChanges(DatasetVersion editedDataset,
-                        Option<Guestbook> selectedGuestbook,
-                        Option<Guestbook> guestbookBeforeChanges) {
+                                        Option<Guestbook> selectedGuestbook,
+                                        Option<Guestbook> guestbookBeforeChanges) {
 
-        if (isGuestbookAddedOrRemoved(selectedGuestbook, guestbookBeforeChanges)){
-            Dataset dataset = editedDataset.getDataset();
+        Dataset dataset = editedDataset.getDataset();
+
+        if (isGuestbookAddedOrRemoved(selectedGuestbook, guestbookBeforeChanges)) {
+
             dataset.setGuestbookChangeTime(Timestamp.from(Instant.now(systemTime)));
         }
 
-        Dataset dataset = editedDataset.getDataset();
         dataset.setGuestbook(selectedGuestbook.getOrNull());
         return versionService.updateDatasetVersion(editedDataset, true);
     }
