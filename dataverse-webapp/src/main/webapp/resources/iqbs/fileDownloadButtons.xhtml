@@ -22,7 +22,7 @@
 
 <composite:implementation>
     <c:set var="downloadsDisabled" value="#{cc.attrs.fileMetadata.dataFile.ingestInProgress or cc.attrs.lockedFromDownload}"/>
-    <c:set var="canDownloadFile" value="#{fileDownloadHelper.canDownloadFile(cc.attrs.fileMetadata)}" />
+    <c:set var="canDownloadFile" value="#{fileDownloadHelper.canUserDownloadFile(cc.attrs.fileMetadata)}" />
     
     <ui:fragment rendered="#{worldMapPermissionHelper.canUserSeeExploreWorldMapButtonFromPage(fileMetadata)}">
         <button type="button" 
@@ -214,7 +214,7 @@
     
     <p:commandLink type="button" styleClass="btn btn-default btn-request" rendered="#{dataverseSession.user.authenticated}"
                    process="@this"
-                   action="#{FileDownloadRequestHelper.addFileForRequestAccess(cc.attrs.fileMetadata.dataFile)}"
+                   action="#{FileDownloadRequestHelper.replaceRequestAccessWithSingleFile(cc.attrs.fileMetadata.dataFile)}"
                    update="#{cc.attrs.updateOnRequestAccess}"
                    oncomplete="PF('requestAccessPopup').show()"
                    id="requestAccessPopupButton"

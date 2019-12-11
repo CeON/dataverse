@@ -25,7 +25,7 @@ public class FileDownloadRequestHelper implements Serializable {
     private List<DataFile> filesForRequestAccess = new ArrayList<DataFile>();
     
     
-    public void addFileForRequestAccess(DataFile dataFile) {
+    public void replaceRequestAccessWithSingleFile(DataFile dataFile) {
         this.filesForRequestAccess.clear();
         this.filesForRequestAccess.add(dataFile);
     }
@@ -34,7 +34,7 @@ public class FileDownloadRequestHelper implements Serializable {
         this.filesForRequestAccess.clear();
     }
 
-    public void addMultipleFilesForRequestAccess(DataFile dataFile) {
+    public void addFileForRequestAccess(DataFile dataFile) {
         this.filesForRequestAccess.add(dataFile);
     }
 

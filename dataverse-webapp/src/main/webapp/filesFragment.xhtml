@@ -163,11 +163,9 @@
                 </ui:fragment>
 
                 <!-- Restricted File Icon -->
-                <div class="file-icon-restricted-block" jsf:rendered="#{fileMetadata.termsOfUse.termsOfUseType eq termsOfUseTypeEnum.RESTRICTED and !fileDownloadHelper.canDownloadFile(fileMetadata)}">
-                    <span class="glyphicon glyphicon-lock text-danger"/>
-                </div>
-                <div class="file-icon-restricted-block" jsf:rendered="#{fileMetadata.termsOfUse.termsOfUseType eq termsOfUseTypeEnum.RESTRICTED and fileDownloadHelper.canDownloadFile(fileMetadata) }">
-                    <span class="icon-unlock text-success"/>
+                <div class="file-icon-restricted-block" jsf:rendered="#{fileMetadata.termsOfUse.termsOfUseType eq termsOfUseTypeEnum.RESTRICTED}">
+                    <span class="glyphicon glyphicon-lock text-danger" jsf:rendered="#{!fileDownloadHelper.canUserDownloadFile(fileMetadata)}"/>
+                    <span class="icon-unlock text-success" jsf:rendered="#{fileDownloadHelper.canUserDownloadFile(fileMetadata)}"/>
                 </div>
             </div>
         </p:column>
@@ -269,19 +267,11 @@
                     </ul>
                 </div>
 
-                <!-- NOTE the disabled="{_datasetFilesTab.lockedFromDownload}" attributes on the 3 batch download buttons below. -->
-                <!-- it looks like they were put there in order to disable downloads while the dataset is locked. -->
-                <!-- Nobody appears to remember why we would ever want to do that... especially since individual downloads -->
-                <!-- are currently allowed on locked datasets. I've been asked to re-enable these download buttons, even -->
-                <!-- when the dataset is locked. I didn't want to completely remove the disabled="" attributes, -->
-                <!-- since I feel we should figure out/remember why we put that logic in place in the first place... -->
-                <!-- so I have replaced them with {false && datasetFilesTab.lockedFromDownload}. - L.A. Aug. 2018 -->
                 <div jsf:id="downloadButtonBlockNormal" class="btn-group"
                      jsf:rendered="#{!(empty datasetFilesTab.workingVersion.fileMetadatas) 
                                     and datasetFilesTab.downloadButtonAvailable
                                     and !datasetFilesTab.isHasTabular()}">
                     <p:commandLink type="button" styleClass="btn btn-default btn-download"
-                                    disabled="#{false and datasetFilesTab.lockedFromDownload}"
                                     action="#{datasetFilesTab.validateFilesForDownload(false)}"
                                     update="@form">
                         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
@@ -296,15 +286,13 @@
                         </button>
                         <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level pull-right text-left" role="menu">
                             <li>
-                                <p:commandLink disabled="#{false and datasetFilesTab.lockedFromDownload}"
-                                                action="#{datasetFilesTab.validateFilesForDownload(true)}"
+                                <p:commandLink action="#{datasetFilesTab.validateFilesForDownload(true)}"
                                                 update="@form">
                                     #{bundle.downloadOriginal}
                                 </p:commandLink>
                             </li>
                             <li>
-                                <p:commandLink disabled="#{false and datasetFilesTab.lockedFromDownload}"
-                                                action="#{datasetFilesTab.validateFilesForDownload(false)}"
+                                <p:commandLink action="#{datasetFilesTab.validateFilesForDownload(false)}"
                                                 update="@form">
                                     #{bundle.downloadArchival}
                                 </p:commandLink>

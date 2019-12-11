@@ -1613,7 +1613,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         // - check download permission here (should be cached - so it's free!)
         // - only then ask the file service if the thumbnail is available/exists.
         // the service itself no longer checks download permissions.  
-        if (!fileDownloadHelper.canDownloadFile(fileMetadata)) {
+        if (!fileDownloadHelper.canUserDownloadFile(fileMetadata)) {
             return false;
         }
 

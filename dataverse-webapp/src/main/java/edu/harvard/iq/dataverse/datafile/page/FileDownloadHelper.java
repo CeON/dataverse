@@ -16,7 +16,6 @@ import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.PrimefacesUtil;
 
-import javax.ejb.EJB;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -43,19 +42,15 @@ public class FileDownloadHelper implements java.io.Serializable {
 
     private static final Logger logger = Logger.getLogger(FileDownloadHelper.class.getCanonicalName());
     
-    @Inject
     private DataverseSession session;
     
-    @Inject
     private PermissionsWrapper permissionsWrapper;
 
-    @EJB
     private FileDownloadServiceBean fileDownloadService;
 
-    @EJB
     private GuestbookResponseServiceBean guestbookResponseService;
     
-    @Inject
+    
     private RequestedDownloadType requestedDownloadType;
 
 
@@ -66,6 +61,7 @@ public class FileDownloadHelper implements java.io.Serializable {
         
     }
     
+    @Inject
     public FileDownloadHelper(DataverseSession session, PermissionsWrapper permissionsWrapper,
             FileDownloadServiceBean fileDownloadService, GuestbookResponseServiceBean guestbookResponseService,
             RequestedDownloadType requestedDownloadType) {
@@ -141,7 +137,7 @@ public class FileDownloadHelper implements java.io.Serializable {
         return;
     }
     
-    public boolean canDownloadFile(FileMetadata fileMetadata) {
+    public boolean canUserDownloadFile(FileMetadata fileMetadata) {
         if (fileMetadata == null) {
             return false;
         }

@@ -38,7 +38,6 @@ public class ConfigureFragmentBean implements java.io.Serializable {
 
     private ExternalTool tool = null;
     private Long fileId = null;
-    private ExternalToolHandler toolHandler = null;
 
     @EJB
     DataFileServiceBean datafileService;
@@ -82,7 +81,7 @@ public class ConfigureFragmentBean implements java.io.Serializable {
             apiToken = authService.findApiTokenByUser((AuthenticatedUser) user);
         }
         
-        return toolHandler.buildToolUrlWithQueryParams(tool, dataFile, apiToken);
+        return externalToolHandler.buildToolUrlWithQueryParams(tool, dataFile, apiToken);
     }
 
     public void setConfigureFileId(Long setFileId) {

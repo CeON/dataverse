@@ -215,7 +215,7 @@ public class FilePermissionsService {
     }
     
     private void requestAccessToFile(DataFile file) {
-        if (!file.getFileAccessRequesters().contains(dvRequestService.getDataverseRequest().getUser())) {
+        if (!file.getFileAccessRequesters().contains(dvRequestService.getDataverseRequest().getAuthenticatedUser())) {
             commandEngine.submit(new RequestAccessCommand(dvRequestService.getDataverseRequest(), file));
         }
     }

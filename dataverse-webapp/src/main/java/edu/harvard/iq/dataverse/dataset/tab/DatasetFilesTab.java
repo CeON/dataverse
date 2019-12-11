@@ -344,7 +344,7 @@ public class DatasetFilesTab implements Serializable {
             return false;
         }
 
-        if (!this.fileDownloadHelper.canDownloadFile(fileMetadata)) {
+        if (!this.fileDownloadHelper.canUserDownloadFile(fileMetadata)) {
             datafileThumbnailsMap.put(dataFileId, "");
             return false;
         }
@@ -431,7 +431,7 @@ public class DatasetFilesTab implements Serializable {
     public boolean isFileAccessRequestMultiButtonRequired() {
         
         for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
-            if (!this.fileDownloadHelper.canDownloadFile(fmd)) {
+            if (!this.fileDownloadHelper.canUserDownloadFile(fmd)) {
                 return session.getUser().isAuthenticated();
             }
         }
@@ -440,7 +440,7 @@ public class DatasetFilesTab implements Serializable {
 
     public boolean isFileAccessRequestMultiSignUpButtonRequired() {
         for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
-            if (!this.fileDownloadHelper.canDownloadFile(fmd)) {
+            if (!this.fileDownloadHelper.canUserDownloadFile(fmd)) {
                 return !session.getUser().isAuthenticated();
             }
         }
@@ -459,7 +459,7 @@ public class DatasetFilesTab implements Serializable {
         fileDownloadRequestHelper.clearRequestAccessFiles();
         for (FileMetadata fmd : selectedFiles) {
             if (isRequestAccessPopupRequired(fmd)) {
-                fileDownloadRequestHelper.addMultipleFilesForRequestAccess(fmd.getDataFile());
+                fileDownloadRequestHelper.addFileForRequestAccess(fmd.getDataFile());
                 anyFileAccessPopupRequired = true;
             }
         }
@@ -484,7 +484,7 @@ public class DatasetFilesTab implements Serializable {
             return;
         }
         for (FileMetadata fmd : this.selectedFiles) {
-            if (this.fileDownloadHelper.canDownloadFile(fmd)) {
+            if (this.fileDownloadHelper.canUserDownloadFile(fmd)) {
                 selectedDownloadableFiles.add(fmd);
             } else {
                 selectedNonDownloadableFiles.add(fmd);
@@ -530,7 +530,7 @@ public class DatasetFilesTab implements Serializable {
         }
 
         for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
-            if (this.fileDownloadHelper.canDownloadFile(fmd)) {
+            if (this.fileDownloadHelper.canUserDownloadFile(fmd)) {
                 downloadButtonAvailable = true;
                 return true;
             }

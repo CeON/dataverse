@@ -492,7 +492,7 @@ public class FilePage implements java.io.Serializable {
             return thumbnailAvailable;
         }
 
-        if (!fileDownloadHelper.canDownloadFile(fileMetadata)) {
+        if (!fileDownloadHelper.canUserDownloadFile(fileMetadata)) {
             thumbnailAvailable = false;
         } else {
             thumbnailAvailable = datafileService.isThumbnailAvailable(fileMetadata.getDataFile());
