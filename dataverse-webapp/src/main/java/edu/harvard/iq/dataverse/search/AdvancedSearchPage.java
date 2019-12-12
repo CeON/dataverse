@@ -19,6 +19,7 @@ import io.vavr.Tuple;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -65,7 +67,13 @@ public class AdvancedSearchPage implements java.io.Serializable {
      * Initalizes all components required to view the the page correctly.
      */
     public void init() {
-
+        if (FacesContext.getCurrentInstance() != null && FacesContext.getCurrentInstance().getExternalContext() != null) {
+        System.out.println("logicalViewMap: " + FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().get("com.sun.faces.renderkit.ServerSideStateHelper.LogicalViewMap"));
+        System.out.println("activeViewMaps: " + FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().get("com.sun.faces.application.view.activeViewMaps"));
+        }
+        
         if (dataverseIdentifier != null) {
             dataverse = dataverseDao.findByAlias(dataverseIdentifier);
         }
@@ -87,12 +95,16 @@ public class AdvancedSearchPage implements java.io.Serializable {
      * @throws IOException
      */
     public String find() throws IOException {
+        Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        Object context = FacesContext.getCurrentInstance().getExternalContext().getContext();
+//        System.out.println("SESSION: " + FacesContext.getCurrentInstance().getExternalContext().getSessionMap());
+//        System.out.println("CONTEXT: " + FacesContext.getCurrentInstance().getExternalContext().getContext());
         List<SearchBlock> allSearchBlocks = new ArrayList<>(metadataSearchBlocks);
         allSearchBlocks.add(filesSearchBlock);
         allSearchBlocks.add(dataversesSearchBlock);
 
         String query = solrQueryCreator.constructQuery(allSearchBlocks);
-
+        
         String returnString = "/dataverse.xhtml?q=";
         returnString += URLEncoder.encode(query, "UTF-8");
         returnString += "&alias=" + dataverse.getAlias() + "&faces-redirect=true";
