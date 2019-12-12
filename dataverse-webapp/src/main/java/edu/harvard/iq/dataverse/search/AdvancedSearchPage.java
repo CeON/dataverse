@@ -67,12 +67,6 @@ public class AdvancedSearchPage implements java.io.Serializable {
      * Initalizes all components required to view the the page correctly.
      */
     public void init() {
-        if (FacesContext.getCurrentInstance() != null && FacesContext.getCurrentInstance().getExternalContext() != null) {
-        System.out.println("logicalViewMap: " + FacesContext.getCurrentInstance().getExternalContext()
-                .getSessionMap().get("com.sun.faces.renderkit.ServerSideStateHelper.LogicalViewMap"));
-        System.out.println("activeViewMaps: " + FacesContext.getCurrentInstance().getExternalContext()
-                .getSessionMap().get("com.sun.faces.application.view.activeViewMaps"));
-        }
         
         if (dataverseIdentifier != null) {
             dataverse = dataverseDao.findByAlias(dataverseIdentifier);
@@ -95,10 +89,6 @@ public class AdvancedSearchPage implements java.io.Serializable {
      * @throws IOException
      */
     public String find() throws IOException {
-        Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
-        Object context = FacesContext.getCurrentInstance().getExternalContext().getContext();
-//        System.out.println("SESSION: " + FacesContext.getCurrentInstance().getExternalContext().getSessionMap());
-//        System.out.println("CONTEXT: " + FacesContext.getCurrentInstance().getExternalContext().getContext());
         List<SearchBlock> allSearchBlocks = new ArrayList<>(metadataSearchBlocks);
         allSearchBlocks.add(filesSearchBlock);
         allSearchBlocks.add(dataversesSearchBlock);
