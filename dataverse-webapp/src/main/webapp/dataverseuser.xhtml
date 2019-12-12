@@ -685,14 +685,18 @@
                                     <div class="col-sm-4">
                                         <p:selectOneMenu styleClass="facet-category-default"
                                                          disabled="#{false}"
-                                                         value="1">
+                                                         label="#{DataverseUserPage.getLocalizedPreferredNotificationsLanguage()}"
+                                                         value="#{DataverseUserPage.preferredNotificationsLanguage}"
+                                        >
                                             <f:selectItem
                                                     itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
-                                                    itemValue=""/>
-                                            <f:selectItems value="#{DataverseUserPage.supportedLanguages}"
+                                                    itemValue="#{null}"
+                                                    itemDisabled="#{true}"
+                                            />
+                                            <f:selectItems value="#{DataverseUserPage.getSupportedLanguages()}"
                                                            var="language"
-                                                           itemLabel="#{language.toString()}"
-                                                           itemValue="#{language.toLanguageTag()}"/>
+                                                           itemLabel="#{DataverseUserPage.getLocalizedDisplayNameForLanguage(language)}"
+                                                           itemValue="#{language}"/>
                                         </p:selectOneMenu>
                                     </div>
                                 </div>

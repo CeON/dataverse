@@ -53,7 +53,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -584,6 +586,17 @@ public class AuthenticationServiceBean {
         return authenticatedUser;
     }
 
+    public AuthenticatedUser createAuthenticatedUser(UserRecordIdentifier userRecordId,
+                                                     String proposedAuthenticatedUserIdentifier,
+                                                     AuthenticatedUserDisplayInfo userDisplayInfo,
+                                                     boolean generateUniqueIdentifier,
+                                                     Locale preferredNotificationsLanguage) {
+        Optional<AuthenticatedUser> authenticatedUser = Optional.ofNullable(createAuthenticatedUser(userRecordId, proposedAuthenticatedUserIdentifier, userDisplayInfo, generateUniqueIdentifier));
+        authenticatedUser.ifPresent(au -> au.setNotificationsLanguage(preferredNotificationsLanguage));
+
+        return authenticatedUser.orElse(null);
+    }
+
     /**
      * Checks whether the {@code idtf} is already taken by another {@link AuthenticatedUser}.
      *
@@ -600,6 +613,12 @@ public class AuthenticationServiceBean {
         user.applyDisplayInfo(userDisplayInfo);
         actionLogSvc.log(new ActionLogRecord(ActionLogRecord.ActionType.Auth, "updateUser")
                                  .setInfo(user.getIdentifier()));
+        return update(user);
+    }
+
+    public AuthenticatedUser updateAuthenticatedUser(AuthenticatedUser user, AuthenticatedUserDisplayInfo userDisplayInfo, Locale userNotificationsLanguage) {
+        updateAuthenticatedUser(user, userDisplayInfo);
+        user.setNotificationsLanguage(userNotificationsLanguage);
         return update(user);
     }
 
