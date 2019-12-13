@@ -203,7 +203,7 @@ public class MailMessageCreatorTest {
     private String getCreateDataverseMessage() {
         return "Hello, \n" +
                 "Your new dataverse named " + testDataverse.getDisplayName() + " (view at " + SITEURL + "/dataverse/" + testDataverse.getAlias()
-                + " ) was created in  (view at )." +
+                + ") was created in  (view at )." +
                 " To learn more about what you can do with your dataverse, check out the Dataverse Management" +
                 " - User Guide at " + GUIDESBASEURL + "/" + GUIDESVERSION + "/user/dataverse-management.html .";
     }
