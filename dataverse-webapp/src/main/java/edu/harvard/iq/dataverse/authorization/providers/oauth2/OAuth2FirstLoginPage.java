@@ -199,7 +199,8 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
                                                                                getSelectedEmail(),
                                                                                newUser.getDisplayInfo().getAffiliation(),
                                                                                newUser.getDisplayInfo().getPosition());
-        final AuthenticatedUser user = authenticationSvc.createAuthenticatedUser(newUser.getUserRecordIdentifier(), getUsername(), newAud, true, preferredNotificationsLanguage);
+        final AuthenticatedUser user = authenticationSvc.createAuthenticatedUser(newUser.getUserRecordIdentifier(), getUsername(),
+                newAud, true, preferredNotificationsLanguage).getOrNull();
         session.setUser(user);
         /**
          * @todo Move this to AuthenticationServiceBean.createAuthenticatedUser

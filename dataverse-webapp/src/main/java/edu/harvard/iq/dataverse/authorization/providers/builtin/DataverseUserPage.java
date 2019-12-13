@@ -165,7 +165,7 @@ public class DataverseUserPage implements java.io.Serializable {
                 // in create mode for new user
                 JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("user.message.signup.label"), BundleUtil.getStringFromBundle("user.message.signup.tip"));
                 userDisplayInfo = new AuthenticatedUserDisplayInfo();
-                preferredNotificationsLanguage = session.getLocale();
+                preferredNotificationsLanguage = null;
                 return "";
             }
         }
@@ -235,6 +235,14 @@ public class DataverseUserPage implements java.io.Serializable {
         if (editMode == EditMode.CREATE && !userNameValid) {
             ((UIInput) toValidate).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.username.invalid"), null);
+            context.addMessage(toValidate.getClientId(context), message);
+        }
+    }
+
+    public void validatePreferredNotificationsLanguage(FacesContext context, UIComponent toValidate, Object value) {
+        if(Objects.isNull(value)) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.notificationsLanguage.requiredMessage"), null);
             context.addMessage(toValidate.getClientId(context), message);
         }
     }
@@ -322,7 +330,7 @@ public class DataverseUserPage implements java.io.Serializable {
 
             AuthenticatedUser au = authenticationService.createAuthenticatedUser(
                     new UserRecordIdentifier(BuiltinAuthenticationProvider.PROVIDER_ID, builtinUser.getUserName()),
-                    builtinUser.getUserName(), userDisplayInfo, false, preferredNotificationsLanguage);
+                    builtinUser.getUserName(), userDisplayInfo, false, preferredNotificationsLanguage).getOrNull();
             if (au == null) {
                 // Username already exists, show an error message
                 getUsernameField().setValid(false);

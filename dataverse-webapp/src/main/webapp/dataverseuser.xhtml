@@ -679,19 +679,19 @@
                                     <!-- E-mail notifications language -->
                                     <label for="position" class="col-sm-3 control-label">
                                         #{bundle['user.notificationsLanguage']}
+                                        <span class="glyphicon glyphicon-asterisk text-danger"/>
                                         <span class="glyphicon glyphicon-question-sign tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.notificationsLanguage.tip']}"></span>
                                     </label>
                                     <div class="col-sm-4">
                                         <p:selectOneMenu styleClass="facet-category-default"
                                                          disabled="#{false}"
-                                                         label="#{DataverseUserPage.getLocalizedPreferredNotificationsLanguage()}"
-                                                         value="#{DataverseUserPage.preferredNotificationsLanguage}"
+                                                         validator="#{DataverseUserPage.validatePreferredNotificationsLanguage}"
                                         >
                                             <f:selectItem
                                                     itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
+                                                    noSelectionOption="true"
                                                     itemValue="#{null}"
-                                                    itemDisabled="#{true}"
                                             />
                                             <f:selectItems value="#{DataverseUserPage.getSupportedLanguages()}"
                                                            var="language"

@@ -31,6 +31,7 @@ import edu.harvard.iq.dataverse.persistence.user.PasswordResetData;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
+import io.vavr.control.Option;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -586,15 +587,16 @@ public class AuthenticationServiceBean {
         return authenticatedUser;
     }
 
-    public AuthenticatedUser createAuthenticatedUser(UserRecordIdentifier userRecordId,
-                                                     String proposedAuthenticatedUserIdentifier,
-                                                     AuthenticatedUserDisplayInfo userDisplayInfo,
-                                                     boolean generateUniqueIdentifier,
-                                                     Locale preferredNotificationsLanguage) {
-        Optional<AuthenticatedUser> authenticatedUser = Optional.ofNullable(createAuthenticatedUser(userRecordId, proposedAuthenticatedUserIdentifier, userDisplayInfo, generateUniqueIdentifier));
+    public Option<AuthenticatedUser> createAuthenticatedUser(UserRecordIdentifier userRecordId,
+                                          String proposedAuthenticatedUserIdentifier,
+                                          AuthenticatedUserDisplayInfo userDisplayInfo,
+                                          boolean generateUniqueIdentifier,
+                                          Locale preferredNotificationsLanguage) {
+        Optional<AuthenticatedUser> authenticatedUser = Optional.ofNullable(createAuthenticatedUser(userRecordId, proposedAuthenticatedUserIdentifier,
+                userDisplayInfo, generateUniqueIdentifier));
         authenticatedUser.ifPresent(au -> au.setNotificationsLanguage(preferredNotificationsLanguage));
 
-        return authenticatedUser.orElse(null);
+        return Option.ofOptional(authenticatedUser);
     }
 
     /**
