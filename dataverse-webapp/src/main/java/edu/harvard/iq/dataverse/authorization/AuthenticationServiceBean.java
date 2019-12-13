@@ -56,7 +56,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -592,11 +591,10 @@ public class AuthenticationServiceBean {
                                           AuthenticatedUserDisplayInfo userDisplayInfo,
                                           boolean generateUniqueIdentifier,
                                           Locale preferredNotificationsLanguage) {
-        Optional<AuthenticatedUser> authenticatedUser = Optional.ofNullable(createAuthenticatedUser(userRecordId, proposedAuthenticatedUserIdentifier,
-                userDisplayInfo, generateUniqueIdentifier));
-        authenticatedUser.ifPresent(au -> au.setNotificationsLanguage(preferredNotificationsLanguage));
 
-        return Option.ofOptional(authenticatedUser);
+        return Option.of(createAuthenticatedUser(userRecordId, proposedAuthenticatedUserIdentifier,
+                userDisplayInfo, generateUniqueIdentifier))
+                .peek(au -> au.setNotificationsLanguage(preferredNotificationsLanguage));
     }
 
     /**
