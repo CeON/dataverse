@@ -96,15 +96,29 @@
                                                    styleClass="btn btn-default btn-access #{DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview ? 'disabled' : ''}"
                                                    onclick="PF('publishConfirm').show()"
                                                    rendered="#{!DatasetPage.dataset.released
-                                                               and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and DatasetPage.dataset.owner.released
-                                                               and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
+                                                               and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
+                                                               and DatasetPage.dataset.owner.released
+                                                               and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
+                                                               and DatasetPage.latestDatasetHasFiles()}">
+                                        <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
+                                    </p:commandLink>
+
+                                    <p:commandLink type="button"
+                                                   styleClass="btn btn-default btn-access #{DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview ? 'disabled' : ''}"
+                                                   onclick="PF('noFilesInDataset').show()"
+                                                   rendered="#{!DatasetPage.dataset.released
+                                                               and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
+                                                               and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
+                                                               and !DatasetPage.latestDatasetHasFiles()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
                                     <p:commandLink type="button"
                                                    styleClass="btn btn-default btn-access #{DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview ? 'disabled' : ''}"
                                                    onclick="PF('releaseDraft').show()"
-                                                   rendered="#{DatasetPage.dataset.released and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and DatasetPage.dataset.owner.released
+                                                   rendered="#{DatasetPage.dataset.released
+                                                    and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
+                                                    and DatasetPage.dataset.owner.released
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
@@ -136,7 +150,8 @@
                                                    rendered="#{DatasetPage.dataset.latestVersion.versionState=='DRAFT' and !DatasetPage.dataset.owner.released
                                                                and DatasetPage.canPublishDataverse()
                                                                and (DatasetPage.dataset.owner.owner != null and !DatasetPage.dataset.owner.owner.released)
-                                                               and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}"
+                                                               and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
+                                                               and DatasetPage.latestDatasetHasFiles()}"
                                                    onclick="PF('maynotPublishParent').show()">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
@@ -814,34 +829,37 @@
                 <p:dialog width="70%" header="#{bundle['dataset.publish.header']}" widgetVar="publishConfirm"
                           modal="true"
                           rendered="#{DatasetPage.canPublishDataverse()}">
-                    <p:outputPanel rendered="#{DatasetPage.latestDatasetHasFiles()}">
-                        <p class="text-warning">
-                            <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.publish.tip']}
-                        </p>
-                        <div id="terms-agreement-block" class="well"
-                             jsf:rendered="#{DatasetPage.datasetPublishCustomText.length() > 0}">
-                            <h:outputText value="#{DatasetPage.datasetPublishCustomText}" escape="false"/>
-                        </div>
-                        <div class="button-block">
-                            <p:commandButton value="#{bundle.continue}" onclick="PF('publishConfirm').hide();"
-                                             action="#{DatasetPage.releaseDataset}"
-                                             immediate="true"/>
-                            <p:commandButton value="#{bundle.cancel}"
-                                             onclick="PF('publishConfirm').hide();"
-                                             type="button"/>
-                        </div>
-                    </p:outputPanel>
 
-                    <p:outputPanel rendered="#{!DatasetPage.latestDatasetHasFiles()}">
-                        <div class="text-warning">
-                            <h:outputText value="#{DatasetPage.noFilesInDataset()}" escape="false"/>
-                        </div>
-                        <div class="button-block">
-                            <p:commandButton value="#{bundle.ok}"
-                                             onclick="PF('publishConfirm').hide();"
-                                             type="button"/>
-                        </div>
-                    </p:outputPanel>
+                    <p class="text-warning">
+                        <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.publish.tip']}
+                    </p>
+                    <div id="terms-agreement-block" class="well"
+                         jsf:rendered="#{DatasetPage.datasetPublishCustomText.length() > 0}">
+                        <h:outputText value="#{DatasetPage.datasetPublishCustomText}" escape="false"/>
+                    </div>
+                    <div class="button-block">
+                        <p:commandButton value="#{bundle.continue}" onclick="PF('publishConfirm').hide();"
+                                         action="#{DatasetPage.releaseDataset}"
+                                         immediate="true"/>
+                        <p:commandButton value="#{bundle.cancel}"
+                                         onclick="PF('publishConfirm').hide();"
+                                         type="button"/>
+                    </div>
+
+                </p:dialog>
+
+                <p:dialog width="70%" header="#{bundle['dataset.publish.header']}" widgetVar="noFilesInDataset"
+                          modal="true"
+                          rendered="#{DatasetPage.canPublishDataverse()}">
+
+                    <div class="text-warning">
+                        <span class="glyphicon glyphicon-warning-sign"/> <h:outputText value="#{DatasetPage.noFilesInDataset()}" escape="false"/>
+                    </div>
+                    <div class="button-block">
+                        <p:commandButton value="#{bundle.ok}"
+                                         onclick="PF('noFilesInDataset').hide();"
+                                         type="button"/>
+                    </div>
 
                 </p:dialog>
 
