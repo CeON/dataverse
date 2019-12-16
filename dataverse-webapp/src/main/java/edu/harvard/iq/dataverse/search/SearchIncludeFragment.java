@@ -18,13 +18,14 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import org.apache.commons.lang.StringUtils;
+import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
