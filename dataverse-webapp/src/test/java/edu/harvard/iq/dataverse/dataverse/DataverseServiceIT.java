@@ -236,12 +236,12 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
     public void deleteDataverse_withData() {
         //given
         loginSessionWithSuperUser();
-        Dataverse unpublishedDataverse = dataverseDao.find(19L);
+        Dataverse dataverseWithData = dataverseDao.find(19L);
 
         //when & then
         expectedException.expect(IllegalCommandException.class);
         expectedException.expectMessage("Cannot delete non-empty dataverses");
-        dataverseService.deleteDataverse(unpublishedDataverse);
+        dataverseService.deleteDataverse(dataverseWithData);
     }
 
     @Test
