@@ -119,7 +119,8 @@
                                                    rendered="#{DatasetPage.dataset.released
                                                     and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                     and DatasetPage.dataset.owner.released
-                                                               and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
+                                                    and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
+                                                    and DatasetPage.latestDatasetHasFiles()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -127,9 +128,11 @@
                                     <p:commandLink type="button"
                                                    styleClass="btn btn-default btn-access #{DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview ? 'disabled' : ''}"
                                                    onclick="PF('mayNotRelease').show()"
-                                                   rendered="#{DatasetPage.dataset.latestVersion.versionState=='DRAFT' and !DatasetPage.dataset.owner.released
+                                                   rendered="#{DatasetPage.dataset.latestVersion.versionState=='DRAFT' and
+                                                    !DatasetPage.dataset.owner.released
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
-                                                               and !DatasetPage.canPublishDataverse()}">
+                                                               and !DatasetPage.canPublishDataverse()
+                                                               and DatasetPage.latestDatasetHasFiles()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -852,9 +855,9 @@
                           modal="true"
                           rendered="#{DatasetPage.canPublishDataverse()}">
 
-                    <div class="text-warning">
-                        <span class="glyphicon glyphicon-warning-sign"/> <h:outputText value="#{DatasetPage.noFilesInDataset()}" escape="false"/>
-                    </div>
+                    <p class="text-danger">
+                        <span class="glyphicon glyphicon-exclamation-sign"/> #{DatasetPage.noFilesInDataset()}
+                    </p>
                     <div class="button-block">
                         <p:commandButton value="#{bundle.ok}"
                                          onclick="PF('noFilesInDataset').hide();"
