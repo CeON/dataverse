@@ -111,7 +111,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //then
         Assert.assertTrue(savedDataverse.isLeft());
-        Assert.assertEquals(3, dataverseDao.findAll().size());
+        Assert.assertEquals(4, dataverseDao.findAll().size());
 
     }
 
@@ -217,13 +217,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
     public void deleteDataverse() {
         //given
         loginSessionWithSuperUser();
-        Dataverse unpublishedDataverse = dataverseDao.find(19L);
+        Dataverse unpublishedDataverse = dataverseDao.find(67L);
 
         //when
         dataverseService.deleteDataverse(unpublishedDataverse);
 
         //then
-        Assert.assertNull(dataverseDao.find(19L));
+        Assert.assertNull(dataverseDao.find(67L));
     }
 
     @Test
