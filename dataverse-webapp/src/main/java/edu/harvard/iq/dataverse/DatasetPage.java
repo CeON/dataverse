@@ -159,10 +159,17 @@ public class DatasetPage implements java.io.Serializable {
     private String version;
 
     private boolean stateChanged = false;
-
     private Boolean sameTermsOfUseForAllFiles;
-
     private String thumbnailString = null;
+    private String returnReason;
+
+    public String getReturnReason() {
+        return returnReason;
+    }
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
+    }
 
     // This is the Dataset-level thumbnail; 
     // it's either the thumbnail of the designated datafile, 
@@ -396,6 +403,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String init(boolean initFull) {
+        returnReason = "testowyReason";
 
         if (dataset.getId() != null || versionId != null || persistentId != null) { // view mode for a dataset     
 
@@ -574,7 +582,7 @@ public class DatasetPage implements java.io.Serializable {
     public String sendBackToContributor() {
         try {
             //FIXME - Get Return Comment from sendBackToContributor popup
-            Command<Dataset> cmd = new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, "");
+            Command<Dataset> cmd = new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, returnReason);
             dataset = commandEngine.submit(cmd);
             JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.reject.success"));
         } catch (CommandException ex) {
