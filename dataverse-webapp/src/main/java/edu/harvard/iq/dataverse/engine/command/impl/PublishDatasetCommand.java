@@ -161,13 +161,14 @@ public class PublishDatasetCommand extends AbstractPublishDatasetCommand<Publish
         if (getDataset().isLockedFor(DatasetLock.Reason.Workflow)
                 || getDataset().isLockedFor(DatasetLock.Reason.Ingest)) {
             throw new IllegalCommandException("This dataset is locked. Reason: "
-                                                      + getDataset().getLocks().stream().map(l -> l.getReason().name()).collect(
-                    joining(","))
-                                                      + ". Please try publishing later.", this);
+                                                      + getDataset().getLocks().stream()
+                    .map(DatasetLock::getReason)
+                    .map(DatasetLock.Reason::name)
+                    .collect(joining(","))+ ". Please try publishing later.", this);
         }
 
         if (getDataset().getLatestVersion().getFileMetadatas().isEmpty()) {
-            throw new NoDatasetFilesException("There was no files for dataset version with id: "+ getDataset().getLatestVersion().getId());
+            throw new NoDatasetFilesException("There was no files for dataset version with id: " + getDataset().getLatestVersion().getId());
         }
 
         if (datasetExternallyReleased) {

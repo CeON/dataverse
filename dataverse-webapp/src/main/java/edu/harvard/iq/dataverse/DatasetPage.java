@@ -266,12 +266,8 @@ public class DatasetPage implements java.io.Serializable {
         return permissionsWrapper.canIssuePublishDataverseCommand(dataset.getOwner());
     }
 
-    public boolean latestDatasetHasFiles(){
+    public boolean isLatestDatasetHasFiles(){
         return !dataset.getLatestVersion().getFileMetadatas().isEmpty();
-    }
-
-    public String noFilesInDataset(){
-        return BundleUtil.getStringFromBundle("dataset.publish.error.noFiles");
     }
 
     public boolean canViewUnpublishedDataset() {

@@ -37,6 +37,7 @@
         </ui:define>
         <ui:define name="jsonld_header">
             <script type="application/ld+json">
+                <h:outputText value="#{DatasetPage.jsonLd}"/>
             </script>
         </ui:define>
         <ui:define name="og_header">
@@ -856,7 +857,7 @@
                           rendered="#{DatasetPage.canPublishDataverse()}">
 
                     <p class="text-danger">
-                        <span class="glyphicon glyphicon-exclamation-sign"/> #{DatasetPage.noFilesInDataset()}
+                        <span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.publish.error.noFiles']}
                     </p>
                     <div class="button-block">
                         <p:commandButton value="#{bundle.ok}"
