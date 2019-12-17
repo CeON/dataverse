@@ -141,7 +141,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private String selectTab = "somedata";
     UIInput usernameField;
 
-    private Locale preferredNotificationsLanguage = null;
+    private Locale preferredNotificationsLanguage = Locale.ENGLISH;
 
 
     private String username;
