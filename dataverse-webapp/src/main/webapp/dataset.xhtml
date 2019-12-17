@@ -100,7 +100,7 @@
                                                                and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                and DatasetPage.dataset.owner.released
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
-                                                               and DatasetPage.latestDatasetWithAnyFilesIncluded()}">
+                                                               and DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -110,7 +110,7 @@
                                                    rendered="#{!DatasetPage.dataset.released
                                                                and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
-                                                               and !DatasetPage.latestDatasetWithAnyFilesIncluded()}">
+                                                               and !DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -121,7 +121,7 @@
                                                     and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                     and DatasetPage.dataset.owner.released
                                                     and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
-                                                    and DatasetPage.latestDatasetWithAnyFilesIncluded()}">
+                                                    and DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -133,7 +133,7 @@
                                                     !DatasetPage.dataset.owner.released
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
                                                                and !DatasetPage.canPublishDataverse()
-                                                               and DatasetPage.latestDatasetWithAnyFilesIncluded()}">
+                                                               and DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -145,7 +145,7 @@
                                                                and (DatasetPage.dataset.owner.owner == null
                                                                     or (DatasetPage.dataset.owner.owner != null and DatasetPage.dataset.owner.owner.released))
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
-                                                               and DatasetPage.latestDatasetWithAnyFilesIncluded()}">
+                                                               and DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
 
@@ -155,7 +155,7 @@
                                                                and DatasetPage.canPublishDataverse()
                                                                and (DatasetPage.dataset.owner.owner != null and !DatasetPage.dataset.owner.owner.released)
                                                                and permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)
-                                                               and DatasetPage.latestDatasetWithAnyFilesIncluded()}"
+                                                               and DatasetPage.isLatestDatasetWithAnyFilesIncluded()}"
                                                    onclick="PF('maynotPublishParent').show()">
                                         <span class="glyphicon glyphicon-globe"/> #{bundle['dataset.publish.btn']}
                                     </p:commandLink>
