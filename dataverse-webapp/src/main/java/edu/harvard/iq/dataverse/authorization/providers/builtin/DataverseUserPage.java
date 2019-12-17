@@ -141,7 +141,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private String selectTab = "somedata";
     UIInput usernameField;
 
-    private Locale preferredNotificationsLanguage;
+    private Locale preferredNotificationsLanguage = null;
 
 
     private String username;
@@ -165,7 +165,6 @@ public class DataverseUserPage implements java.io.Serializable {
                 // in create mode for new user
                 JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("user.message.signup.label"), BundleUtil.getStringFromBundle("user.message.signup.tip"));
                 userDisplayInfo = new AuthenticatedUserDisplayInfo();
-                preferredNotificationsLanguage = null;
                 return "";
             }
         }

@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -408,6 +409,14 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
 
     public String getLocalizedDisplayNameForLanguage(String language) {
         return getLocalizedDisplayNameForLanguage(Locale.forLanguageTag(language));
+    }
+
+    public void validatePreferredNotificationsLanguage(FacesContext context, UIComponent toValidate, Object value) {
+        if(Objects.isNull(value)) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.notificationsLanguage.requiredMessage"), null);
+            context.addMessage(toValidate.getClientId(context), message);
+        }
     }
 
     // -------------------- PRIVATE ---------------------

@@ -687,11 +687,26 @@
                                         <p:selectOneMenu styleClass="facet-category-default"
                                                          disabled="#{false}"
                                                          validator="#{DataverseUserPage.validatePreferredNotificationsLanguage}"
+                                                         value="#{DataverseUserPage.preferredNotificationsLanguage}"
+                                                         rendered="#{DataverseUserPage.editMode ne 'CREATE'}"
+                                        >
+                                            <f:selectItems value="#{DataverseUserPage.getSupportedLanguages()}"
+                                                           var="language"
+                                                           itemLabel="#{DataverseUserPage.getLocalizedDisplayNameForLanguage(language)}"
+                                                           itemValue="#{language}"/>
+                                        </p:selectOneMenu>
+                                        <p:selectOneMenu styleClass="facet-category-default"
+                                                         disabled="#{false}"
+                                                         validator="#{DataverseUserPage.validatePreferredNotificationsLanguage}"
+                                                         hideNoSelectionOption="true"
+                                                         rendered="#{DataverseUserPage.editMode eq 'CREATE'}"
                                         >
                                             <f:selectItem
                                                     itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
                                                     noSelectionOption="true"
                                                     itemValue="#{null}"
+                                                    itemDisabled="true"
+                                                    aria-hidden="true"
                                             />
                                             <f:selectItems value="#{DataverseUserPage.getSupportedLanguages()}"
                                                            var="language"

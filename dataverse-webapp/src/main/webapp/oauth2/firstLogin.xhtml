@@ -141,13 +141,15 @@
                                 <div class="col-sm-4">
                                     <p:selectOneMenu styleClass="facet-category-default"
                                                      disabled="#{false}"
-                                                     label="#{OAuth2FirstLoginPage.getLocalizedPreferredNotificationsLanguage()}"
-                                                     value="#{OAuth2FirstLoginPage.preferredNotificationsLanguage}"
+                                                     validator="#{OAuth2FirstLoginPage.validatePreferredNotificationsLanguage}"
+                                                     hideNoSelectionOption="true"
                                     >
                                         <f:selectItem
                                                 itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
+                                                noSelectionOption="true"
                                                 itemValue="#{null}"
-                                                itemDisabled="#{true}"
+                                                itemDisabled="true"
+                                                aria-hidden="true"
                                         />
                                         <f:selectItems value="#{OAuth2FirstLoginPage.getSupportedLanguages()}"
                                                        var="language"
