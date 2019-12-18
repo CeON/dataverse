@@ -11,6 +11,7 @@ GRTAGS
 .DS_Store
 .DS_Store?
 ._*
+_Deparsed_XSubs.pm
 .Spotlight-V100
 .Trashes
 ehthumbs.db
