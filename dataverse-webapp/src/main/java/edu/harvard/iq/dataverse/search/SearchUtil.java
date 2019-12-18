@@ -1,25 +1,13 @@
 package edu.harvard.iq.dataverse.search;
 
-import com.google.common.collect.Sets;
 import edu.harvard.iq.dataverse.common.Util;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.SolrInputDocument;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SearchUtil {
-
-    private static final String ASCENDING = "asc";
-    private static final String DESCENDING = "desc";
-
-    private static List<String> allowedOrderStrings() {
-        return Arrays.asList(ASCENDING, DESCENDING);
-    }
 
     
     // -------------------- LOGIC --------------------
@@ -47,43 +35,11 @@ public class SearchUtil {
     }
 
     public static SortBy getSortBy(String sortField, String sortOrder) throws Exception {
-
-        if (StringUtils.isBlank(sortField)) {
-            sortField = SearchFields.RELEVANCE;
-        } else if (StringUtils.equals(sortField, "name")) {
-            // "name" sounds better than "name_sort" so we convert it here so users don't have to pass in "name_sort"
-            sortField = SearchFields.NAME_SORT;
-        } else if (StringUtils.equals(sortField, "date")) {
-            // "date" sounds better than "release_or_create_date_dt"
-            sortField = SearchFields.RELEASE_OR_CREATE_DATE;
-        }
-
-        SortOrder parsedSortOrder = null;
-        if (StringUtils.isBlank(sortOrder)) {
-            // default sorting per field if not specified
-            if (sortField.equals(SearchFields.RELEVANCE)) {
-                parsedSortOrder = SortOrder.desc;
-            } else if (sortField.equals(SearchFields.NAME_SORT)) {
-                parsedSortOrder = SortOrder.asc;
-            } else if (sortField.equals(SearchFields.RELEASE_OR_CREATE_DATE)) {
-                parsedSortOrder = SortOrder.desc;
-            } else {
-                // asc for alphabetical by default despite GitHub using desc by default:
-                // "The sort order if sort parameter is provided. One of asc or desc. Default: desc"
-                // http://developer.github.com/v3/search/
-                parsedSortOrder = SortOrder.asc;
-            }
-        }
         
-        if (parsedSortOrder == null) {
-            if (!allowedOrderStrings().contains(sortOrder)) {
-                throw new Exception("The 'order' parameter was '" + sortOrder + "' but expected one of " + allowedOrderStrings() + ". (The 'sort' parameter was/became '" + sortField + "'.)");
-            }
-            
-            parsedSortOrder = sortOrder.equals(ASCENDING) ? SortOrder.asc : SortOrder.desc;
-        }
-        
-        return new SortBy(sortField, parsedSortOrder);
+        String parsedSortField = parseSortField(sortField);
+        SortOrder parsedSortOrder = parseSortOrder(sortOrder, parsedSortField);
+
+        return new SortBy(parsedSortField, parsedSortOrder);
     }
 
     public static String determineFinalQuery(String userSuppliedQuery) {
@@ -97,4 +53,42 @@ public class SearchUtil {
         }
     }
 
+    // -------------------- PRIVATE --------------------
+    
+    private static String parseSortField(String sortField) {
+        
+        if (StringUtils.isBlank(sortField)) {
+            return SearchFields.RELEVANCE;
+        } else if (StringUtils.equals(sortField, "name")) {
+            // "name" sounds better than "name_sort" so we convert it here so users don't have to pass in "name_sort"
+            return SearchFields.NAME_SORT;
+        } else if (StringUtils.equals(sortField, "date")) {
+            // "date" sounds better than "release_or_create_date_dt"
+            return SearchFields.RELEASE_OR_CREATE_DATE;
+        }
+        return sortField;
+    }
+    
+    private static SortOrder parseSortOrder(String sortOrder, String parsedSortField) throws Exception {
+        
+        if (StringUtils.isBlank(sortOrder)) {
+            // default sorting per field if not specified
+            if (StringUtils.equals(parsedSortField, SearchFields.RELEVANCE)) {
+                return SortOrder.desc;
+            } else if (StringUtils.equals(parsedSortField, SearchFields.NAME_SORT)) {
+                return SortOrder.asc;
+            } else if (StringUtils.equals(parsedSortField, SearchFields.RELEASE_OR_CREATE_DATE)) {
+                return SortOrder.desc;
+            } else {
+                // asc for alphabetical by default despite GitHub using desc by default:
+                // "The sort order if sort parameter is provided. One of asc or desc. Default: desc"
+                // http://developer.github.com/v3/search/
+                return SortOrder.asc;
+            }
+        }
+        
+        return SortOrder.fromString(sortOrder)
+            .orElseThrow(() -> new Exception("The 'order' parameter was '" + sortOrder + "' but expected one of " + SortOrder.allowedOrderStrings() + ". "
+                    + "(The 'sort' parameter was/became '" + parsedSortField + "'.)"));
+    }
 }

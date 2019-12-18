@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.search;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
@@ -18,6 +19,8 @@ import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -51,9 +54,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
 import static java.lang.String.format;
@@ -67,7 +72,20 @@ public class SearchServiceBean {
     
     public enum SortOrder {
 
-        asc, desc
+        asc, desc;
+        
+        
+        public static Optional<SortOrder> fromString(String sortOrderString) {
+            return Try.of(() -> SortOrder.valueOf(sortOrderString))
+                    .toJavaOptional();
+                    
+        }
+        
+        public static List<String> allowedOrderStrings() {
+            return Lists.newArrayList(SortOrder.values()).stream()
+                    .map(so -> so.name())
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -573,7 +591,7 @@ public class SearchServiceBean {
         }
 
         List<FacetCategory> facetCategoryList = new ArrayList<>();
-        FacetCategory typeFacetCategory = null;
+        Option<FacetCategory> typeFacetCategory = Option.none();
         boolean hidePublicationStatusFacet = false;
         boolean draftsAvailable = false;
         boolean unpublishedAvailable = false;
@@ -671,7 +689,7 @@ public class SearchServiceBean {
             if (!facetLabelList.isEmpty()) {
                 if (facetCategory.getName().equals(SearchFields.TYPE)) {
                     // the "type" facet is special, these are not
-                    typeFacetCategory = facetCategory;
+                    typeFacetCategory = Option.of(facetCategory);
                 } else if (facetCategory.getName().equals(SearchFields.PUBLICATION_STATUS)) {
                     if (unpublishedAvailable || draftsAvailable || deaccessionedAvailable) {
                         hidePublicationStatusFacet = false;
@@ -725,7 +743,7 @@ public class SearchServiceBean {
         solrQueryResponse.setSolrSearchResults(solrSearchResults);
         solrQueryResponse.setSpellingSuggestionsByToken(spellingSuggestionsByToken);
         solrQueryResponse.setFacetCategoryList(facetCategoryList);
-        solrQueryResponse.setTypeFacetCategory(typeFacetCategory);
+        solrQueryResponse.setTypeFacetCategory(typeFacetCategory.getOrNull());
         solrQueryResponse.setNumResultsFound(queryResponse.getResults().getNumFound());
         solrQueryResponse.setResultsStart(queryResponse.getResults().getStart());
         String[] filterQueriesArray = solrQuery.getFilterQueries();
