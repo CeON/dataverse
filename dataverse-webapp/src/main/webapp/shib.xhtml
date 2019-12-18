@@ -126,7 +126,8 @@
                                 </div>
                             </div>
                             <div class="col-sm-4">
-                                <p:selectOneMenu styleClass="facet-category-default"
+                                <p:selectOneMenu id="preferredLanguageDropdown"
+                                                 styleClass="facet-category-default"
                                                  disabled="#{false}"
                                                  validator="#{Shib.validatePreferredNotificationsLanguage}"
                                                  hideNoSelectionOption="true"
@@ -145,6 +146,7 @@
                                                    itemLabel="#{Shib.getLocalizedDisplayNameForLanguage(language)}"
                                                    itemValue="#{language}"/>
                                 </p:selectOneMenu>
+                                <p:message for="preferredLanguageDropdown" display="text" />
                             </div>
 
                             <ui:include src="termsofuse.xhtml"/>
