@@ -143,11 +143,13 @@
                                                      disabled="#{false}"
                                                      validator="#{OAuth2FirstLoginPage.validatePreferredNotificationsLanguage}"
                                                      hideNoSelectionOption="true"
+                                                     value="#{OAuth2FirstLoginPage.preferredNotificationsLanguage}"
+                                                     required="#{true}"
                                     >
                                         <f:selectItem
                                                 itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
                                                 noSelectionOption="true"
-                                                itemValue="#{null}"
+                                                itemValue=""
                                                 itemDisabled="true"
                                                 aria-hidden="true"
                                         />
