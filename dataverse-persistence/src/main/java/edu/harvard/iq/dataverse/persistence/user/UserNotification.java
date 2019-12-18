@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.persistence.user;
 
+import com.sun.istack.internal.Nullable;
 import edu.harvard.iq.dataverse.common.DateUtil;
 
 import javax.persistence.Column;
@@ -44,6 +45,9 @@ public class UserNotification implements Serializable {
     @Column(nullable = false)
     private NotificationType type;
     private Long objectId;
+
+    @Nullable
+    private String returnToAuthorReason;
 
     @Transient
     private boolean displayAsRead;
@@ -107,6 +111,14 @@ public class UserNotification implements Serializable {
 
     public void setObjectId(Long objectId) {
         this.objectId = objectId;
+    }
+
+    public String getReturnToAuthorReason() {
+        return returnToAuthorReason;
+    }
+
+    public void setReturnToAuthorReason(String returnToAuthorReason) {
+        this.returnToAuthorReason = returnToAuthorReason;
     }
 
     @Transient
