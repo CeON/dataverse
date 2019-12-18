@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.search;
 import com.google.common.collect.Sets;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import io.vavr.control.Option;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.Stateless;
@@ -61,9 +62,22 @@ public class SolrQuerySanitizer {
         source.setLength(0);
     }
     
+    /**
+     * Replaces field names in the given query according to provided mapping.
+     * <p>
+     * This process is needed because we want user to be able to use
+     * simple {@link DatasetFieldType} names instead of internal
+     * solr field name equivalents (for example "title" instead of "dsf_txt_title")
+     * <p>
+     * Method is aware of position where field name can be placed in
+     * the query (that is before ":" sign)
+     * <p>
+     * <code>
+     * replaceQueryFieldNames("field:search", {"field": "internalSolrField"}) = "internalSolrField:search"
+     * </code>
+     */
     private String replaceQueryFieldNames(String query, Map<String, String> fieldNamesMapping) {
         StringBuilder transformedQuery = new StringBuilder();
-
         StringBuilder currentSegmentWithoutSpecialCharacters = new StringBuilder();
 
         boolean insideQuotation = false;
@@ -92,13 +106,14 @@ public class SolrQuerySanitizer {
             }
 
             if (currentChar == ':') {
-                String fieldName = currentSegmentWithoutSpecialCharacters.toString();
+                String fieldNameFromView = currentSegmentWithoutSpecialCharacters.toString();
+                Option<String> solrFieldName = Option.none();
                 
-                if (fieldNamesMapping.containsKey(fieldName)) {
-                    fieldName = fieldNamesMapping.get(fieldName);
+                if (fieldNamesMapping.containsKey(fieldNameFromView)) {
+                    solrFieldName = Option.of(fieldNamesMapping.get(fieldNameFromView));
                 }
                 
-                transformedQuery.append(fieldName);
+                transformedQuery.append(solrFieldName.getOrElse(fieldNameFromView));
                 currentSegmentWithoutSpecialCharacters.setLength(0);
                 transformedQuery.append(currentChar);
                 continue;
