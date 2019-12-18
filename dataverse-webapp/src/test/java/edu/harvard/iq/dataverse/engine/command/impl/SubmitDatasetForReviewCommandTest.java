@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.NoDatasetFilesException;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
+import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
@@ -162,7 +163,10 @@ public class SubmitDatasetForReviewCommandTest {
 
     @Test
     public void testDraftDataset() {
-        dataset.getLatestVersion().setVersionState(DatasetVersion.VersionState.DRAFT);
+        DatasetVersion latestVersion = dataset.getLatestVersion();
+        latestVersion.setVersionState(DatasetVersion.VersionState.DRAFT);
+        latestVersion.setFileMetadatas(Lists.newArrayList(new FileMetadata()));
+
         Dataset updatedDataset = null;
         try {
             updatedDataset = testEngine.submit(new SubmitDatasetForReviewCommand(dataverseRequest, dataset));
