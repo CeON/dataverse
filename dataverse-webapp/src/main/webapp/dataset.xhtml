@@ -12,6 +12,7 @@
 <!--@elvariable id="dataset" type="edu.harvard.iq.dataverse.persistence.dataset.Dataset"-->
 <!--@elvariable id="privateUrlLink" type="java.lang.String"-->
 <!--@elvariable id="dataverseLk" type="edu.harvard.iq.dataverse.persistence.dataverse.Dataverse"-->
+<!--@elvariable id="DatasetPage" type="edu.harvard.iq.dataverse.DatasetPage"-->
 
 <h:head>
 </h:head>
@@ -946,13 +947,21 @@
                 </p:dialog>
 
                 <p:dialog header="#{bundle['dataset.rejectBtn']}" widgetVar="sendBackToContributor" modal="true">
-                    <p class="text-warning">
-                        <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.rejectMessage']}
+                    <p>
+                        <h:outputFormat id="textBoxName" value="#{bundle['dataset.reject.messageBox.label']}" escape="false"/>
                     </p>
-                    <p:inputTextarea id="returnReason" rows="3" value="#{DatasetPage.returnToAuthorReason}"
-                                     maxlength="255" widgetVar="returnReason"
-                                     cols="70" counter="display" counterTemplate="{0} characters remaining."
-                                     autoResize="false"/>
+                    <p:inputTextarea id="returnReason"
+                                     rows="3"
+                                     value="#{DatasetPage.returnToAuthorReason}"
+                                     maxlength="255"
+                                     widgetVar="returnReason"
+                                     cols="70"
+                                     counter="display"
+                                     counterTemplate="{0} characters remaining."
+                                     autoResize="false"
+                    >
+                        <p:ajax event="keyup" delay="100" global="false" update="confirmSentForModificationButton" />
+                    </p:inputTextarea>
                     <p>
                         <h:outputText id="display"/>
                     </p>
@@ -960,17 +969,17 @@
                                  id="returnReasonwatermark"/>
 
                     <div class="button-block">
-                        <p:commandButton value="#{bundle.continue}" onclick="testReturnReason();"/>
+                        <p:commandButton id="confirmSentForModificationButton"
+                                         value="#{bundle.ok}"
+                                         disabled="#{empty DatasetPage.returnToAuthorReason}"
+                                         onsuccess="PF('sendBackToContributor').hide();"
+                                         action="#{DatasetPage.sendBackToContributor()}"
+                        />
                         <p:commandButton value="#{bundle.cancel}"
                                          onclick="PF('sendBackToContributor').hide();"
                                          type="button"/>
                     </div>
                 </p:dialog>
-                <p:remoteCommand name="returnToAuthorCommand" action="#{DatasetPage.sendBackToContributor}"/>
-                <p:confirmDialog id="enterReturnReason" message="#{bundle['dataset.reject.enterReason']}"
-                                 header="#{bundle['dataset.reject.enterReason.header']}"
-                                 widgetVar="enterReturnReason"> </p:confirmDialog>
-
                 <!-- END: Publish/Submit for Review Dialogs -->
             </h:form>
 
@@ -979,17 +988,6 @@
 
 
             <script type="text/javascript">
-
-                function testReturnReason() {
-                    var returnReasonText = PF('returnReason').jq.val();
-                    if (returnReasonText.length === 0) {
-                        PF('enterReturnReason').show();
-                    } else {
-                        PF('sendBackToContributor').hide();
-                        returnToAuthorCommand();
-                    }
-                }
-
                 /* using this function to prevent syntax errors on conditionally deciding onclick action */
                 function sentToReview() {
                     PF('inreview').show();

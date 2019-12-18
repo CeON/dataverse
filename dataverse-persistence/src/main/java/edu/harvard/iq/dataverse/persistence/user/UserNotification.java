@@ -112,6 +112,10 @@ public class UserNotification implements Serializable {
         this.objectId = objectId;
     }
 
+    /**
+     * required for {@link NotificationType.RETURNEDDS} only
+     * @return provided by user reason for dataset publish rejection
+     */
     public String getReturnToAuthorReason() {
         return returnToAuthorReason;
     }
