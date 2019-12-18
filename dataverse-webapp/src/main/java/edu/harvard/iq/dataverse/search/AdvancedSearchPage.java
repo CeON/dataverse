@@ -130,7 +130,7 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
     private List<SearchField> mapMetadataBlockFieldsToSearchFields(List<DatasetFieldType> metadataFieldList, MetadataBlock mdb) {
         return metadataFieldList.stream()
-                .map(this::mapDatasetFields)
+                .map(this::mapDatasetField)
                 .filter(searchField -> !searchField.getName().isEmpty())
                 .collect(toList());
     }
@@ -151,7 +151,7 @@ public class AdvancedSearchPage implements java.io.Serializable {
                 });
     }
 
-    private SearchField mapDatasetFields(DatasetFieldType datasetFieldType) {
+    private SearchField mapDatasetField(DatasetFieldType datasetFieldType) {
 
         if (containsCheckboxValues(datasetFieldType)) {
 
