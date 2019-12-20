@@ -9,6 +9,8 @@ import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.util.concurrent.ExecutorService;
@@ -56,6 +58,7 @@ public class UserNotificationService {
      *
      * @param notificationObjectType - type has to match correct #{@link NotificationType}
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
                                           Timestamp sendDate,
                                           NotificationType type,
@@ -75,6 +78,7 @@ public class UserNotificationService {
      * Saves notification to database, then sends email asynchronously.
      * @param notificationObjectType - type has to match correct #{@link NotificationType}
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
                                           Timestamp sendDate,
                                           NotificationType type,
