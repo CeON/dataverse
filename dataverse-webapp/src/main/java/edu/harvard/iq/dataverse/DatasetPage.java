@@ -545,7 +545,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public String sendBackToContributor() {
         Try.of(() -> commandEngine.submit(new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, returnToAuthorReason)))
-                .onSuccess(ds -> JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.reject.success")))
+                .onSuccess(ds -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.reject.success")))
                 .onFailure(throwable -> logger.log(Level.SEVERE, "Sending back to Contributor failed:", throwable))
                 .onFailure(throwable -> JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.reject.failure", Collections.singletonList(throwable.getMessage()))));
 

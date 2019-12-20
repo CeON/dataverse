@@ -962,7 +962,7 @@
                                                  counter="display"
                                                  counterTemplate="#{bundle['dataset.reject.messageBox.counter']}"
                                                  autoResize="false"
-                                                 required="#{true}"
+                                                 required="#{param['DO_RETURN_VALIDATION']}"
                                                  requiredMessage="#{bundle['dataset.reject.enterReason']}"
                                                  styleClass="form-control"
                                 >
@@ -979,13 +979,15 @@
                     <div class="button-block">
                         <p:commandLink styleClass="btn btn-default btn-access"
                                        value="#{bundle.ok}"
-                                       update="@([id$=Messages]) returnReasonFragment"
+                                       update=":messagePanel returnReasonFragment"
                                        oncomplete="if (args &amp;&amp; !args.validationFailed) PF('sendBackToContributor').hide();"
                                        actionListener="#{DatasetPage.sendBackToContributor()}"
-                        />
+                        >
+                            <f:param name="DO_RETURN_VALIDATION" value="#{true}" />
+                        </p:commandLink>
                         <p:commandButton value="#{bundle.cancel}"
                                          onclick="PF('sendBackToContributor').hide();"
-                                         type="button"/>
+                                         type="button" />
                     </div>
                 </p:dialog>
                 <!-- END: Publish/Submit for Review Dialogs -->
