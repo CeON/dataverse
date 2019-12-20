@@ -64,6 +64,9 @@ public class MailMessageCreatorTest {
     @Mock
     private DataverseSession dataverseSession;
 
+    @Mock
+    private MailService mailService;
+
     private static String GUIDESBASEURL = "http://guides.dataverse.org";
     private static String GUIDESVERSION = "V8";
     private static String SITEURL = "http://localhost:8080";
@@ -96,7 +99,8 @@ public class MailMessageCreatorTest {
                                                     dataverseDao,
                                                     confirmEmailService,
                                                     genericDao,
-                                                    dataverseSession);
+                                                    dataverseSession
+        );
     }
 
     @Test
@@ -241,8 +245,8 @@ public class MailMessageCreatorTest {
     private String getReturnToAuthorMessage() {
         return "Hello, \n"
                 + " (view at http://localhost:8080/dataset.xhtml?persistentId=&version=DRAFT&faces-redirect=true) was returned by the curator "
-                + "of rootDataverseName (view at http://localhost:8080/dataverse/nicedataverse). \n"
-                + "Return reason:  Dataset returned to author message";
+                + "of rootDataverseName (view at http://localhost:8080/dataverse/nicedataverse).\n\n"
+                + "Additional information:\n\nDataset returned to author message";
     }
 
     private String getAssignRoleSubject() {
