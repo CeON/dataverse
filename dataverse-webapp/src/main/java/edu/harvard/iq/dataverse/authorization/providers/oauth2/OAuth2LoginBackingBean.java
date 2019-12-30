@@ -62,9 +62,6 @@ public class OAuth2LoginBackingBean implements Serializable {
     OAuth2FirstLoginPage newAccountPage;
 
     public String linkFor(String idpId, String redirectPage) {
-        if(redirectPage.equals("dataverseuser.xhtml")) {
-            redirectPage = "/dataverseuser.xhtml?selectTab=dataRelatedToMe";
-        }
         AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider(idpId);
         return idp.getService(createState(idp, toOption(redirectPage)), getCallbackUrl()).getAuthorizationUrl();
     }
