@@ -125,6 +125,29 @@
                                     </p>
                                 </div>
                             </div>
+                            <div class="col-sm-4">
+                                <p:selectOneMenu id="preferredLanguageDropdown"
+                                                 styleClass="facet-category-default"
+                                                 disabled="#{false}"
+                                                 validator="#{Shib.validatePreferredNotificationsLanguage}"
+                                                 hideNoSelectionOption="true"
+                                                 value="#{Shib.preferredNotificationsLanguage}"
+                                                 required="#{true}"
+                                >
+                                    <f:selectItem
+                                            itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
+                                            noSelectionOption="true"
+                                            itemValue=""
+                                            itemDisabled="true"
+                                            aria-hidden="true"
+                                    />
+                                    <f:selectItems value="#{Shib.getSupportedLanguages()}"
+                                                   var="language"
+                                                   itemLabel="#{Shib.getLocalizedDisplayNameForLanguage(language)}"
+                                                   itemValue="#{language}"/>
+                                </p:selectOneMenu>
+                                <p:message for="preferredLanguageDropdown" display="text" />
+                            </div>
 
                             <ui:include src="termsofuse.xhtml"/>
 

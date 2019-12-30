@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.dataset.tab.DatasetMetadataTab;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import edu.harvard.iq.dataverse.engine.command.exception.NoDatasetFilesException;
 import edu.harvard.iq.dataverse.engine.command.impl.AbstractSubmitToArchiveCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreatePrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CuratePublishedDatasetVersionCommand;
@@ -51,15 +52,16 @@ import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -235,6 +237,10 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean canPublishDataverse() {
         return permissionsWrapper.canIssuePublishDataverseCommand(dataset.getOwner());
+    }
+
+    public boolean isLatestDatasetWithAnyFilesIncluded(){
+        return !dataset.getLatestVersion().getFileMetadatas().isEmpty();
     }
 
     public boolean canViewUnpublishedDataset() {
@@ -556,7 +562,7 @@ public class DatasetPage implements java.io.Serializable {
         try {
             Command<Dataset> cmd = new SubmitDatasetForReviewCommand(dvRequestService.getDataverseRequest(), dataset);
             dataset = commandEngine.submit(cmd);
-            //JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.submit.success"));
+
         } catch (CommandException ex) {
             String message = ex.getMessage();
             logger.log(Level.SEVERE, "submitDataset: {0}", message);
@@ -614,6 +620,9 @@ public class DatasetPage implements java.io.Serializable {
             } catch (CommandException ex) {
                 JsfHelper.addFlashErrorMessage(ex.getLocalizedMessage());
                 logger.severe(ex.getMessage());
+            } catch (NoDatasetFilesException ex){
+                JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.publish.error.noFiles"));
+                logger.log(Level.SEVERE,"", ex);
             }
 
         } else {
