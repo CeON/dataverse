@@ -1,34 +1,39 @@
 package edu.harvard.iq.dataverse.datafile;
 
 import edu.harvard.iq.dataverse.DatasetDao;
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.engine.command.impl.PublishDatasetCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.allOf;
@@ -36,6 +41,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
@@ -48,9 +54,6 @@ public class FileServiceIT extends WebappArquillianDeployment {
     private FileService fileService;
 
     @EJB
-    private EjbDataverseEngine commandEngine;
-
-    @EJB
     private AuthenticationServiceBean authenticationServiceBean;
 
     @EJB
@@ -58,9 +61,6 @@ public class FileServiceIT extends WebappArquillianDeployment {
 
     @Inject
     private DataverseSession dataverseSession;
-
-    @Inject
-    private DataverseRequestServiceBean requestService;
 
     // -------------------- TESTS --------------------
 
@@ -73,22 +73,27 @@ public class FileServiceIT extends WebappArquillianDeployment {
     public void deleteFile_forDraftDataset() {
         // given
         Dataset dataset = datasetDao.find(DRAFT_DATASET_WITH_FILES_ID);
-
         Tuple2<VersionState, Long> versionDataBefore = getLatestVersionData(dataset);
+
 
         List<DataFile> files = dataset.getFiles();
         DataFile fileToDelete = files.get(0);
+        FileMetadata fileToDeleteMetadata = fileToDelete.getFileMetadata();
+        createPhysicalFileFromMetadata(fileToDeleteMetadata);
 
         // when
-        Dataset updatedDataset = fileService.deleteFile(fileToDelete.getFileMetadata());
+        Dataset updatedDataset = fileService.deleteFile(fileToDeleteMetadata);
 
         // then
         List<DataFile> updatedFiles = updatedDataset.getFiles();
+        File deletedFile = buildPathForFile(fileToDeleteMetadata).toFile();
 
         assertThat("State and version after delete should match",
                 getLatestVersionData(updatedDataset), equalTo(versionDataBefore));
         assertThat("File list in updated draft should not contain deleted file",
                 fileToDelete, not(in(updatedFiles))); // DataFile#equals(…) is based only on file's id
+        assertThat("File should be physically deleted",
+                deletedFile.exists(), is(false));
     }
 
     @Test
@@ -102,6 +107,7 @@ public class FileServiceIT extends WebappArquillianDeployment {
         DatasetVersion versionBefore = dataset.getLatestVersion();
         List<FileMetadata> filesMetadataBefore = versionBefore.getFileMetadatas();
         FileMetadata fileToDeleteMetadata = filesMetadataBefore.get(0);
+        createPhysicalFileFromMetadata(fileToDeleteMetadata);
 
         // when
         Dataset updatedDataset = fileService.deleteFile(fileToDeleteMetadata);
@@ -109,6 +115,7 @@ public class FileServiceIT extends WebappArquillianDeployment {
         // then
         DatasetVersion versionAfter = updatedDataset.getLatestVersion();
         Tuple2<VersionState, Long> versionDataAfter = getLatestVersionData(updatedDataset);
+        File deletedFile = buildPathForFile(fileToDeleteMetadata).toFile();
 
         assertThat("State before and after delete should be different and state after delete should be DRAFT",
                 versionDataAfter._1, allOf(not(equalTo(versionDataBefore._1)), equalTo(VersionState.DRAFT)));
@@ -118,30 +125,8 @@ public class FileServiceIT extends WebappArquillianDeployment {
                 "Deleted file should be present in dataset' file collection, as it is used by previously published version(s)",
                 fileToDeleteMetadata, in(extractFileListMetadata(updatedDataset))
         );
-    }
-
-    @Test
-    public void deleteFiles_forDraft() {
-        // given
-        Dataset dataset = datasetDao.find(DRAFT_DATASET_WITH_FILES_ID);
-
-        Tuple2<VersionState, Long> versionDataBefore = getLatestVersionData(dataset);
-
-        List<DataFile> files = dataset.getFiles();
-        Set<FileMetadata> filesToDeleteMetadata = files.stream()
-                .map(DataFile::getFileMetadata)
-                .collect(Collectors.toSet());
-
-        // when
-        Set<Dataset> results = fileService.deleteFiles(filesToDeleteMetadata);
-
-        // then
-        Dataset updatedDataset = findNewestResult(results);
-
-        assertThat("State and version after delete should match",
-                getLatestVersionData(updatedDataset), equalTo(versionDataBefore));
-        assertThat("All files should have been deleted from dataset file list",
-                updatedDataset.getFiles(), empty());
+        assertThat("File should be physically present after delete",
+                deletedFile.exists(), is(true));
     }
 
     @Test
@@ -154,6 +139,7 @@ public class FileServiceIT extends WebappArquillianDeployment {
 
         DatasetVersion latestVersionBefore = dataset.getLatestVersion();
         List<FileMetadata> filesToDeleteMetadata = latestVersionBefore.getFileMetadatas();
+        createPhysicalFilesFromMetadata(filesToDeleteMetadata);
 
         // when
         Set<Dataset> results = fileService.deleteFiles(filesToDeleteMetadata);
@@ -168,10 +154,40 @@ public class FileServiceIT extends WebappArquillianDeployment {
         assertThat("All files metadata should have been deleted from latest version metadata",
                 versionAfter.getFileMetadatas(), empty());
         assertThat(
-                "Deleted file should be present in dataset file collection, as they're used by previously published version(s)",
+                "Deleted files should be present in dataset file collection, as they're used by previously published version(s)",
                 filesToDeleteMetadata, everyItem(in(extractFileListMetadata(updatedDataset)))
         );
+        assertThat("Files should be physically present after delete",
+                allFilesStream(filesToDeleteMetadata).allMatch(File::exists), is(true));
     }
+
+    @Test
+    public void deleteFiles_forDraft() {
+        // given
+        Dataset dataset = datasetDao.find(DRAFT_DATASET_WITH_FILES_ID);
+
+        Tuple2<VersionState, Long> versionDataBefore = getLatestVersionData(dataset);
+
+        List<DataFile> files = dataset.getFiles();
+        Set<FileMetadata> filesToDeleteMetadata = files.stream()
+                .map(DataFile::getFileMetadata)
+                .collect(Collectors.toSet());
+        createPhysicalFilesFromMetadata(filesToDeleteMetadata);
+
+        // when
+        Set<Dataset> results = fileService.deleteFiles(filesToDeleteMetadata);
+
+        // then
+        Dataset updatedDataset = findNewestResult(results);
+
+        assertThat("State and version after delete should match",
+                getLatestVersionData(updatedDataset), equalTo(versionDataBefore));
+        assertThat("All files should have been deleted from dataset file list",
+                updatedDataset.getFiles(), empty());
+        assertThat("All files should be physically deleted",
+                allFilesStream(filesToDeleteMetadata).noneMatch(File::exists), is(true));
+    }
+
 
     // -------------------- PRIVATE --------------------
 
@@ -180,10 +196,61 @@ public class FileServiceIT extends WebappArquillianDeployment {
         return Tuple.of(latestVersion.getVersionState(), latestVersion.getVersionNumber());
     }
 
-    private Dataset findNewestResult(Collection<Dataset> datasets) {
-        return datasets.stream()
-                .reduce((prev, next) -> next.getModificationTime().after(prev.getModificationTime()) ? next : prev)
-                .orElseThrow(() -> new IllegalArgumentException("Cannot find newest result: possibly wrong argument"));
+    private Path buildPathForFile(FileMetadata fileMetadata) {
+        DataFile dataFile = fileMetadata.getDataFile();
+        String storageIdentifier = dataFile.getStorageIdentifier().replace("^.*://", "");
+        Dataset parent = dataFile.getOwner();
+        Path pathToFile = parent.getFileSystemDirectory(SystemConfig.getFilesDirectoryStatic());
+        return Paths.get(pathToFile.toString(), storageIdentifier);
+    }
+
+    private void createPhysicalFileFromMetadata(FileMetadata fileMetadata) {
+        File file = buildPathForFile(fileMetadata).toFile();
+        File parentFile = file.getParentFile();
+        if (parentFile != null) {
+            parentFile.mkdirs();
+        }
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            Assert.fail("Cannot create file for test. Exception: " + e.getMessage());
+        }
+    }
+
+    private void createPhysicalFilesFromMetadata(Collection<FileMetadata> filesMetadata) {
+        for (FileMetadata fileMetadata : filesMetadata) {
+            createPhysicalFileFromMetadata(fileMetadata);
+        }
+    }
+
+    private void publishDataset(Long datasetId) {
+        Timestamp currentTimestamp = Timestamp.from(Instant.now());
+        Dataset dataset = datasetDao.find(datasetId);
+        dataset.setPublicationDate(currentTimestamp);
+        dataset.setModificationTime(currentTimestamp);
+        dataset.setReleaseUser(authenticationServiceBean.getAdminUser());
+
+        DatasetVersion version = dataset.getLatestVersion();
+        version.setVersion(13L);
+        version.setVersionNumber(1L);
+        version.setMinorVersionNumber(0L);
+        version.setVersionState(VersionState.RELEASED);
+        version.setLastUpdateTime(currentTimestamp);
+        version.setReleaseTime(currentTimestamp);
+
+        Dataverse owner = dataset.getOwner();
+        owner.setPublicationDate(currentTimestamp);
+        owner.setModificationTime(currentTimestamp);
+
+        for (DataFile dataFile : dataset.getFiles()) {
+            dataFile.setPublicationDate(currentTimestamp);
+            // Following line is required because, when the fileMetadata
+            // are not included in persistence context, then on deletion
+            // JPA provider tries to delete entities in wrong order, and
+            // that causes sql error (more precisely: it starts removing
+            // from FileTermsOfUse entities instead of FileMetadata).
+            dataFile.getFileMetadata();
+        }
     }
 
     private List<FileMetadata> extractFileListMetadata(Dataset dataset) {
@@ -193,21 +260,15 @@ public class FileServiceIT extends WebappArquillianDeployment {
                 .collect(toList());
     }
 
-    private void publishDataset(Long datasetId) {
-        Dataset dataset = datasetDao.find(datasetId);
-        Dataverse dataverseForDataset = dataset.getDataverseContext();
-        publishDataverse(dataverseForDataset);
-        commandEngine.submit(new PublishDatasetCommand(dataset, requestService.getDataverseRequest(), false));
+    private Dataset findNewestResult(Collection<Dataset> datasets) {
+        return datasets.stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cannot find result: possibly wrong (empty) parameter"));
     }
 
-    private void publishDataverse(Dataverse dataverse) {
-        if (dataverse.isReleased()) {
-            return;
-        }
-        Dataverse owner = dataverse.getOwner();
-        if (owner != null) {
-            publishDataverse(owner);
-        }
-        commandEngine.submit(new PublishDataverseCommand(requestService.getDataverseRequest(), dataverse));
-    };
+    private Stream<File> allFilesStream(Collection<FileMetadata> filesToDeleteMetadata) {
+        return filesToDeleteMetadata.stream()
+                .map(this::buildPathForFile)
+                .map(Path::toFile);
+    }
 }
