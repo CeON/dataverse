@@ -23,8 +23,10 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.primefaces.model.DualListModel;
 
@@ -60,6 +62,9 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
     @Inject
     private SolrClient solrClient;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Before
     public void init() throws SolrServerException, IOException, SQLException {
         FacesContextMocker.mockServletRequest();
@@ -86,7 +91,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
         Assert.assertEquals("NICE DATAVERSE", dbDataverse.getName());
 
         await()
-                .atMost(Duration.ofSeconds(5L))
+                .atMost(Duration.ofSeconds(10L))
                 .until(() -> smtpServer.mailBox().stream()
                         .anyMatch(emailModel -> emailModel.getSubject().contains("Your dataverse has been created")));
 
@@ -111,7 +116,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //then
         Assert.assertTrue(savedDataverse.isLeft());
-        Assert.assertEquals(3, dataverseDao.findAll().size());
+        Assert.assertEquals(4, dataverseDao.findAll().size());
 
     }
 
@@ -217,13 +222,26 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
     public void deleteDataverse() {
         //given
         loginSessionWithSuperUser();
-        Dataverse unpublishedDataverse = dataverseDao.find(19L);
+        Dataverse unpublishedDataverse = dataverseDao.find(67L);
 
         //when
         dataverseService.deleteDataverse(unpublishedDataverse);
 
         //then
-        Assert.assertNull(dataverseDao.find(19L));
+        Assert.assertNull(dataverseDao.find(67L));
+    }
+
+    @Test
+    @Transactional(TransactionMode.ROLLBACK)
+    public void deleteDataverse_withData() {
+        //given
+        loginSessionWithSuperUser();
+        Dataverse dataverseWithData = dataverseDao.find(19L);
+
+        //when & then
+        expectedException.expect(IllegalCommandException.class);
+        expectedException.expectMessage("Cannot delete non-empty dataverses");
+        dataverseService.deleteDataverse(dataverseWithData);
     }
 
     @Test

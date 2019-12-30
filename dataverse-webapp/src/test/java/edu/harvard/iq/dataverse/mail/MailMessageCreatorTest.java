@@ -1,13 +1,19 @@
 package edu.harvard.iq.dataverse.mail;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.harvard.iq.dataverse.DataverseDao;
+import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.common.BrandingUtil;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
@@ -29,7 +35,9 @@ import org.mockito.quality.Strictness;
 import org.simplejavamail.email.Recipient;
 
 import javax.mail.internet.InternetAddress;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +61,12 @@ public class MailMessageCreatorTest {
     @Mock
     private GenericDao genericDao;
 
+    @Mock
+    private DataverseSession dataverseSession;
+
+    @Mock
+    private MailService mailService;
+
     private static String GUIDESBASEURL = "http://guides.dataverse.org";
     private static String GUIDESVERSION = "V8";
     private static String SITEURL = "http://localhost:8080";
@@ -60,6 +74,7 @@ public class MailMessageCreatorTest {
     private static String SYSTEMEMAIL = "test@icm.pl";
 
     private Dataverse testDataverse = createTestDataverse();
+    private DatasetVersion testDatasetVersion = createTestDatasetVersion();
 
     @BeforeEach
     void prepare() {
@@ -68,14 +83,24 @@ public class MailMessageCreatorTest {
 
         RoleAssignment roleAssignment = createRoleAssignment();
 
-        Mockito.when(permissionService.getRolesOfUser(Mockito.any(), Mockito.any(Dataverse.class))).thenReturn(Sets.newHashSet(roleAssignment));
+        Mockito.when(permissionService.getRolesOfUser(Mockito.any(),
+                                                      Mockito.any(Dataverse.class))).thenReturn(Sets.newHashSet(
+                roleAssignment));
         Mockito.when(dataverseDao.findRootDataverse()).thenReturn(rootDataverse);
         Mockito.when(dataverseDao.find(createDataverseEmailNotificationDto().getDvObjectId())).thenReturn(testDataverse);
+        Mockito.when(genericDao.find(createReturnToAuthorNotificationDto().getDvObjectId(), DatasetVersion.class)).thenReturn(testDatasetVersion);
         Mockito.when(systemConfig.getDataverseSiteUrl()).thenReturn(SITEURL);
         Mockito.when(systemConfig.getGuidesBaseUrl()).thenReturn(GUIDESBASEURL);
         Mockito.when(systemConfig.getGuidesVersion()).thenReturn(GUIDESVERSION);
+        Mockito.when(dataverseSession.getUser()).thenReturn(new AuthenticatedUser());
 
-        mailMessageCreator = new MailMessageCreator(systemConfig, permissionService, dataverseDao, confirmEmailService, genericDao);
+        mailMessageCreator = new MailMessageCreator(systemConfig,
+                                                    permissionService,
+                                                    dataverseDao,
+                                                    confirmEmailService,
+                                                    genericDao,
+                                                    dataverseSession
+        );
     }
 
     @Test
@@ -85,10 +110,10 @@ public class MailMessageCreatorTest {
         String messageText = "Nice message";
 
         //when
-        String footerMessage = mailMessageCreator.createMailFooterMessage(messageText, ROOTDVNAME, systemEmail);
+        String footerMessage = mailMessageCreator.createMailFooterMessage(Locale.ENGLISH, ROOTDVNAME, systemEmail);
 
         //then
-        Assert.assertEquals(messageText + getFooterMessage(), footerMessage);
+        Assert.assertEquals(getFooterMessage(), footerMessage);
 
     }
 
@@ -117,11 +142,34 @@ public class MailMessageCreatorTest {
         EmailNotificationDto testEmailNotificationDto = createDataverseEmailNotificationDto();
 
         //when
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, "test@icm.pl");
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto,
+                                                                                           "test@icm.pl");
 
         //then
         Assert.assertEquals(getCreateDataverseMessage(), messageAndSubject._1);
         Assert.assertEquals(getCreateDataverseSubject(), messageAndSubject._2);
+    }
+
+    @Test
+    public void getMessageAndSubject_ForCreateDataverse_WithDifferentLocale() {
+        //given
+        AuthenticatedUser userFromDifferentCountry = new AuthenticatedUser();
+        userFromDifferentCountry.setNotificationsLanguage(Locale.forLanguageTag("pl"));
+
+        EmailNotificationDto testEmailNotificationDto = new EmailNotificationDto(1L,
+                                                                                 "useremail@test.com",
+                                                                                 NotificationType.CREATEDV,
+                                                                                 1L,
+                                                                                 NotificationObjectType.DATAVERSE,
+                                                                                 userFromDifferentCountry);
+
+        //when
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto,
+                                                                                           "test@icm.pl");
+
+        //then
+        Assert.assertEquals(getPolishCreateDataverseMessage(), messageAndSubject._1);
+        Assert.assertEquals(getPolishCreateDataverseSubject(), messageAndSubject._2);
     }
 
     @Test
@@ -130,7 +178,8 @@ public class MailMessageCreatorTest {
         EmailNotificationDto testEmailNotificationDto = createIncorrectNotificationDto();
 
         //when
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, "test@icm.pl");
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto,
+                                                                                           "test@icm.pl");
 
         //then
         Assert.assertEquals(StringUtils.EMPTY, messageAndSubject._1);
@@ -143,12 +192,27 @@ public class MailMessageCreatorTest {
         EmailNotificationDto testEmailNotificationDto = createAssignRoleEmailNotificationDto();
 
         //when
-        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto, "test@icm.pl");
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto,
+                                                                                           "test@icm.pl");
 
         //then
         String ADMIN = "admin";
         Assert.assertEquals(getAssignRoleMessage(ADMIN, "dataverse"), messageAndSubject._1);
         Assert.assertEquals(getAssignRoleSubject(), messageAndSubject._2);
+    }
+
+    @Test
+    public void getMessageAndSubject_ForDatasetVersion_ReturnToAuthor() {
+        //given
+        EmailNotificationDto testEmailNotificationDto = createReturnToAuthorNotificationDto();
+
+        //when
+        Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(testEmailNotificationDto,
+                "test@icm.pl");
+
+        //then
+        Assert.assertEquals(getReturnToAuthorMessage(), messageAndSubject._1);
+        Assert.assertEquals("Root: Your dataset has been returned", messageAndSubject._2);
     }
 
     private String getFooterMessage() {
@@ -165,9 +229,24 @@ public class MailMessageCreatorTest {
     private String getCreateDataverseMessage() {
         return "Hello, \n" +
                 "Your new dataverse named " + testDataverse.getDisplayName() + " (view at " + SITEURL + "/dataverse/" + testDataverse.getAlias()
-                + " ) was created in  (view at  )." +
+                + ") was created in  (view at )." +
                 " To learn more about what you can do with your dataverse, check out the Dataverse Management" +
                 " - User Guide at " + GUIDESBASEURL + "/" + GUIDESVERSION + "/user/dataverse-management.html .";
+    }
+
+    private String getPolishCreateDataverseMessage() {
+        return  "Witaj, \n" +
+                "Twoja nowa kolekcja o nazwie " + testDataverse.getDisplayName() + " (zobacz na stronie " + SITEURL +"/dataverse/"+ testDataverse.getAlias()+ ") została utworzona" +
+                " w  (zobacz na stronie ). Aby dowiedzieć się więcej, co można zrobić z kolekcją, zapoznaj się z" +
+                " rozdziałem Zarządzanie kolekcją w Poradniku użytkownika" +
+                " na stronie " + GUIDESBASEURL + "/" + GUIDESVERSION + "/user/dataverse-management.html.";
+    }
+
+    private String getReturnToAuthorMessage() {
+        return "Hello, \n"
+                + " (view at http://localhost:8080/dataset.xhtml?persistentId=&version=DRAFT&faces-redirect=true) was returned by the curator "
+                + "of rootDataverseName (view at http://localhost:8080/dataverse/nicedataverse).\n\n"
+                + "Additional information:\n\nDataset returned to author message";
     }
 
     private String getAssignRoleSubject() {
@@ -178,9 +257,14 @@ public class MailMessageCreatorTest {
         return "Root: Your dataverse has been created";
     }
 
+    private String getPolishCreateDataverseSubject() {
+        return "Root: Twoja kolekcja została utworzona";
+    }
+
     private Dataverse createTestDataverse() {
         Dataverse dataverse = createRootDataverse("NICE DATAVERSE");
         dataverse.setAlias("nicedataverse");
+        dataverse.setName("rootDataverseName");
 
         return dataverse;
     }
@@ -221,6 +305,16 @@ public class MailMessageCreatorTest {
                                         new AuthenticatedUser());
     }
 
+    private EmailNotificationDto createReturnToAuthorNotificationDto() {
+        return new EmailNotificationDto(1L,
+                "useremail@test.com",
+                NotificationType.RETURNEDDS,
+                3L,
+                NotificationObjectType.DATASET_VERSION,
+                new AuthenticatedUser(),
+                "Dataset returned to author message");
+    }
+
     private Dataverse createRootDataverse(String rootdvname) {
         Dataverse rootDataverse = new Dataverse();
         rootDataverse.setName(rootdvname);
@@ -233,5 +327,31 @@ public class MailMessageCreatorTest {
         dataverseRole.setAlias(DataverseRole.ADMIN);
         roleAssignment.setRole(dataverseRole);
         return roleAssignment;
+    }
+
+    private DatasetVersion createTestDatasetVersion() {
+        Dataverse dataverse = createTestDataverse();
+        dataverse.setId(1L);
+
+        Dataset dataset = new Dataset();
+        dataset.setId(2L);
+        dataset.setOwner(dataverse);
+
+        DatasetVersion datasetVersion = new DatasetVersion();
+        datasetVersion.setId(3L);
+        datasetVersion.setVersionState(DatasetVersion.VersionState.DRAFT);
+
+        DatasetFieldType datasetFieldType = new DatasetFieldType();
+        datasetFieldType.setTitle("TheTitle");
+        datasetFieldType.setChildDatasetFieldTypes(Collections.EMPTY_LIST);
+
+
+        DatasetField datasetField = DatasetField.createNewEmptyDatasetField(datasetFieldType, datasetVersion);
+
+        datasetVersion.setDatasetFields(Lists.newArrayList());
+        datasetVersion.setDataset(dataset);
+        dataset.setVersions(Lists.newArrayList(datasetVersion));
+
+        return datasetVersion;
     }
 }
