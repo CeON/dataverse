@@ -167,9 +167,6 @@
                                                         <o:param>
                                                             #{DataverseUserPage.getRequestorEmail(item)}
                                                         </o:param>
-                                                        <o:param>
-                                                            #{DataverseUserPage.getReasonForReturn(item.theObject)}
-                                                        </o:param>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'RETURNEDDS'}">
@@ -181,12 +178,9 @@
                                                         <o:param>
                                                             <a href="/dataverse/#{item.theObject.getDataset().getOwner().getAlias()}" title="#{item.theObject.getDataset().getOwner().getDisplayName()}">#{item.theObject.getDataset().getOwner().getDisplayName()}</a>
                                                         </o:param>
-                                                        <!-- Reason for Return - This needs some work in the DataverseUserPage method to get it to work -->
-                                                        <ui:remove>
                                                         <o:param>
-                                                            #{DataverseUserPage.getReasonForReturn(item.theObject)}
+                                                            #{DataverseUserPage.getReasonForReturn(item)}
                                                         </o:param>
-                                                        </ui:remove>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'PUBLISHEDDS'}">
@@ -695,16 +689,20 @@
                                                            itemLabel="#{DataverseUserPage.getLocalizedDisplayNameForLanguage(language)}"
                                                            itemValue="#{language}"/>
                                         </p:selectOneMenu>
-                                        <p:selectOneMenu styleClass="facet-category-default"
+                                        <p:selectOneMenu id="preferredLanguageDropdown"
+                                                         styleClass="facet-category-default"
                                                          disabled="#{false}"
                                                          validator="#{DataverseUserPage.validatePreferredNotificationsLanguage}"
                                                          hideNoSelectionOption="true"
                                                          rendered="#{DataverseUserPage.editMode eq 'CREATE'}"
+                                                         value="#{DataverseUserPage.preferredNotificationsLanguage}"
+                                                         required="#{true}"
+                                                         requiredMessage="#{bundle['user.notificationsLanguage.requiredMessage']}"
                                         >
                                             <f:selectItem
                                                     itemLabel="#{bundle['user.notificationsLanguage.selectItem']}"
                                                     noSelectionOption="true"
-                                                    itemValue="#{null}"
+                                                    itemValue=""
                                                     itemDisabled="true"
                                                     aria-hidden="true"
                                             />
@@ -713,6 +711,7 @@
                                                            itemLabel="#{DataverseUserPage.getLocalizedDisplayNameForLanguage(language)}"
                                                            itemValue="#{language}"/>
                                         </p:selectOneMenu>
+                                        <p:message for="preferredLanguageDropdown" display="text" />
                                     </div>
                                 </div>
                                 <ui:fragment rendered="#{DataverseUserPage.editMode == 'CREATE'}">

@@ -23,7 +23,6 @@ import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.group.Group;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -40,8 +39,10 @@ import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
+import io.vavr.control.Option;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
+import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.event.TabChangeEvent;
 
 import javax.ejb.EJB;
@@ -50,9 +51,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
@@ -706,9 +707,8 @@ public class DataverseUserPage implements java.io.Serializable {
         return AuthUtil.isNonLocalLoginEnabled(authenticationService.getAuthenticationProviders());
     }
 
-    public String getReasonForReturn(DatasetVersion datasetVersion) {
-        // TODO: implement me! See getReasonsForReturn in api/Notifications.java
-        return "";
+    public String getReasonForReturn(UserNotification notification) {
+        return notification.getReturnToAuthorReason();
     }
 
     public String getPasswordRequirements() {
@@ -740,7 +740,7 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getPreferredNotificationsLanguage() {
-        return preferredNotificationsLanguage.getLanguage();
+        return Option.of(preferredNotificationsLanguage).getOrElse(Locale.ROOT).getLanguage();
     }
 
     public String getLocalizedPreferredNotificationsLanguage() {
