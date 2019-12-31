@@ -114,7 +114,7 @@ public class PrivateUrlUtilTest {
 
     @Test
     public void testGetDraftDatasetVersionFromRoleAssignmentNullRoleAssignement() {
-        assertNull(PrivateUrlUtil.getDraftDatasetVersionFromRoleAssignment(null));
+        assertNull(PrivateUrlUtil.getLatestDatasetVersionFromRoleAssignment(null));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class PrivateUrlUtilTest {
         DvObject dataset = null;
         String privateUrlToken = null;
         RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
-        DatasetVersion datasetVersion = PrivateUrlUtil.getDraftDatasetVersionFromRoleAssignment(ra);
+        DatasetVersion datasetVersion = PrivateUrlUtil.getLatestDatasetVersionFromRoleAssignment(ra);
         assertNull(datasetVersion);
     }
 
@@ -142,7 +142,7 @@ public class PrivateUrlUtilTest {
         dataset.setVersions(versions);
         String privateUrlToken = null;
         RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
-        DatasetVersion datasetVersionOut = PrivateUrlUtil.getDraftDatasetVersionFromRoleAssignment(ra);
+        DatasetVersion datasetVersionOut = PrivateUrlUtil.getLatestDatasetVersionFromRoleAssignment(ra);
         assertNull(datasetVersionOut);
     }
 
@@ -159,7 +159,7 @@ public class PrivateUrlUtilTest {
         dataset.setVersions(versions);
         String privateUrlToken = null;
         RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
-        DatasetVersion datasetVersionOut = PrivateUrlUtil.getDraftDatasetVersionFromRoleAssignment(ra);
+        DatasetVersion datasetVersionOut = PrivateUrlUtil.getLatestDatasetVersionFromRoleAssignment(ra);
         assertNotNull(datasetVersionOut);
         assertEquals("#42", ra.getAssigneeIdentifier());
     }
@@ -225,20 +225,20 @@ public class PrivateUrlUtilTest {
         RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
         PrivateUrlRedirectData privateUrlRedirectData = PrivateUrlUtil.getPrivateUrlRedirectData(ra);
         assertNotNull(privateUrlRedirectData);
-        assertEquals("/dataset.xhtml?persistentId=doi:10.5072/FK2/3L33T&version=DRAFT", privateUrlRedirectData.getDraftDatasetPageToBeRedirectedTo());
+        assertEquals("/dataset.xhtml?persistentId=doi:10.5072/FK2/3L33T&version=DRAFT", privateUrlRedirectData.getDatasetPageToBeRedirectedTo());
         assertEquals(privateUrlUser.getIdentifier(), privateUrlRedirectData.getPrivateUrlUser().getIdentifier());
     }
 
     @Test
     public void testGetDraftUrlDraftNull() {
-        assertEquals("UNKNOWN", PrivateUrlUtil.getDraftUrl(null));
+        assertEquals("UNKNOWN", PrivateUrlUtil.getLatestVersionUrl(null));
     }
 
     @Test
     public void testGetDraftUrlDatasetNull() {
         DatasetVersion draft = new DatasetVersion();
         draft.setDataset(null);
-        assertEquals("UNKNOWN", PrivateUrlUtil.getDraftUrl(draft));
+        assertEquals("UNKNOWN", PrivateUrlUtil.getLatestVersionUrl(draft));
     }
 
     @Test
@@ -246,7 +246,7 @@ public class PrivateUrlUtilTest {
         DatasetVersion draft = new DatasetVersion();
         Dataset dataset = new Dataset();
         draft.setDataset(dataset);
-        assertEquals("UNKNOWN", PrivateUrlUtil.getDraftUrl(draft));
+        assertEquals("UNKNOWN", PrivateUrlUtil.getLatestVersionUrl(draft));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class PrivateUrlUtilTest {
         dataset.setAuthority("10.5072/FK2");
         dataset.setIdentifier("3L33T");
         draft.setDataset(dataset);
-        assertEquals("/dataset.xhtml?persistentId=doi:10.5072/FK2/3L33T&version=DRAFT", PrivateUrlUtil.getDraftUrl(draft));
+        assertEquals("/dataset.xhtml?persistentId=doi:10.5072/FK2/3L33T&version=DRAFT", PrivateUrlUtil.getLatestVersionUrl(draft));
     }
 
     @Test
