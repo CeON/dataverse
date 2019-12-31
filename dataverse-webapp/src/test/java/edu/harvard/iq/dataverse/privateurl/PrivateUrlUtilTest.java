@@ -259,6 +259,7 @@ public class PrivateUrlUtilTest {
         dataset.setAuthority("10.5072/FK2");
         dataset.setIdentifier("3L33T");
         draft.setDataset(dataset);
+        draft.setVersionState(DatasetVersion.VersionState.DRAFT);
         assertEquals("/dataset.xhtml?persistentId=doi:10.5072/FK2/3L33T&version=DRAFT", PrivateUrlUtil.getLatestVersionUrl(draft));
     }
 
