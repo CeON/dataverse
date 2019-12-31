@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -138,12 +139,13 @@ public class PrivateUrlUtilTest {
         List<DatasetVersion> versions = new ArrayList<>();
         DatasetVersion datasetVersionIn = new DatasetVersion();
         datasetVersionIn.setVersionState(DatasetVersion.VersionState.RELEASED);
+        datasetVersionIn.setId(1L);
         versions.add(datasetVersionIn);
         dataset.setVersions(versions);
         String privateUrlToken = null;
         RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
         DatasetVersion datasetVersionOut = PrivateUrlUtil.getLatestDatasetVersionFromRoleAssignment(ra);
-        assertNull(datasetVersionOut);
+        Assertions.assertEquals(1L, datasetVersionOut.getId());
     }
 
     @Test
