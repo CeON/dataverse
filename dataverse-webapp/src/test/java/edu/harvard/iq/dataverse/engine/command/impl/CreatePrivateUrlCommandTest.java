@@ -124,6 +124,7 @@ public class CreatePrivateUrlCommandTest {
 
     @Test
     public void testCreatePrivateUrlSuccessfully_onReleased() {
+        // given
         dataset = new Dataset();
         List<DatasetVersion> versions = new ArrayList<>();
         DatasetVersion datasetVersion = new DatasetVersion();
@@ -132,10 +133,14 @@ public class CreatePrivateUrlCommandTest {
         dataset.setVersions(versions);
         dataset.setId(latestVersionIsNotDraft);
 
+        // when
         PrivateUrl privateUrl = testEngine.submit(new CreatePrivateUrlCommand(null, dataset));
+
+        // then
         assertNotNull(privateUrl);
         assertNotNull(privateUrl.getDataset());
         assertNotNull(privateUrl.getRoleAssignment());
+
         PrivateUrlUser expectedUser = new PrivateUrlUser(dataset.getId());
         assertEquals(expectedUser.getIdentifier(), privateUrl.getRoleAssignment().getAssigneeIdentifier());
         assertEquals(expectedUser.isSuperuser(), false);
