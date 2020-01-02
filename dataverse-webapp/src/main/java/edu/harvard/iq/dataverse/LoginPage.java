@@ -102,8 +102,8 @@ public class LoginPage implements java.io.Serializable {
     Long userSum;
 
     public String init() {
-        if(dvRequestService.getDataverseRequest().getUser().isAuthenticated()) {
-            return redirectPage;
+        if (dvRequestService.getDataverseRequest().getUser().isAuthenticated()) {
+            return redirectPage + "&faces-redirect=true";
         }
 
         Iterator<String> credentialsIterator = authSvc.getAuthenticationProviderIdsOfType(CredentialsAuthenticationProvider.class).iterator();
