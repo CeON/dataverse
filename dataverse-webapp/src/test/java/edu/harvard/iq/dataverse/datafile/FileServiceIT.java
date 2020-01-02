@@ -36,13 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.in;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(Arquillian.class)
@@ -145,7 +139,9 @@ public class FileServiceIT extends WebappArquillianDeployment {
         Set<Dataset> results = fileService.deleteFiles(filesToDeleteMetadata);
 
         // then
-        Dataset updatedDataset = findNewestResult(results);
+        assertThat("As we delete file from only one dataset, we should have one-element result set",
+                results, hasSize(1));
+        Dataset updatedDataset = results.iterator().next();
         DatasetVersion versionAfter = updatedDataset.getLatestVersion();
         Tuple2<VersionState, Long> versionDataAfter = getLatestVersionData(updatedDataset);
 
@@ -178,7 +174,9 @@ public class FileServiceIT extends WebappArquillianDeployment {
         Set<Dataset> results = fileService.deleteFiles(filesToDeleteMetadata);
 
         // then
-        Dataset updatedDataset = findNewestResult(results);
+        assertThat("As we delete files from only one dataset, we should have one-element result set",
+                results, hasSize(1));
+        Dataset updatedDataset = results.iterator().next();
 
         assertThat("State and version after delete should match",
                 getLatestVersionData(updatedDataset), equalTo(versionDataBefore));
@@ -258,12 +256,6 @@ public class FileServiceIT extends WebappArquillianDeployment {
         return files.stream()
                 .map(DataFile::getFileMetadata)
                 .collect(toList());
-    }
-
-    private Dataset findNewestResult(Collection<Dataset> datasets) {
-        return datasets.stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Cannot find result: possibly wrong (empty) parameter"));
     }
 
     private Stream<File> allFilesStream(Collection<FileMetadata> filesToDeleteMetadata) {
