@@ -103,7 +103,7 @@ public class LoginPage implements java.io.Serializable {
 
     public String init() {
         if (dvRequestService.getDataverseRequest().getUser().isAuthenticated()) {
-            return redirectPage + "&faces-redirect=true";
+            return redirectPage + "?faces-redirect=true";
         }
 
         Iterator<String> credentialsIterator = authSvc.getAuthenticationProviderIdsOfType(CredentialsAuthenticationProvider.class).iterator();
