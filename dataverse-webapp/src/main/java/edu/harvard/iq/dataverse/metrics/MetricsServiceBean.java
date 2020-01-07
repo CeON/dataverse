@@ -101,8 +101,8 @@ public class MetricsServiceBean implements Serializable {
     /**
      * Datasets
      */
-    public List<DatasetsMetrics> countPublishedDatasets() {
-        return mapToDatasetsMetrics(em.createNativeQuery(
+    public List<ChartMetrics> countPublishedDatasets() {
+        return mapToChartMetrics(em.createNativeQuery(
                 "SELECT\n" +
                         "    EXTRACT(YEAR FROM dsv.lastupdatetime) as year,\n" +
                         "    EXTRACT(MONTH FROM dsv.lastupdatetime) as month,\n" +
@@ -116,9 +116,23 @@ public class MetricsServiceBean implements Serializable {
                                             .getResultList());
     }
 
-    private List<DatasetsMetrics> mapToDatasetsMetrics(List<Object[]> result) {
+    /**
+     * Authenticated users
+     */
+    public List<ChartMetrics> countAuthenticatedUsers() {
+        return mapToChartMetrics(em.createNativeQuery(
+                "SELECT\n" +
+                        "    EXTRACT(YEAR FROM au.createdtime) as year,\n" +
+                        "    EXTRACT(MONTH FROM au.createdtime) as month,\n" +
+                        "    count (au.id)\n" +
+                        "    FROM authenticateduser au\n" +
+                        "    GROUP BY year, month")
+                .getResultList());
+    }
+
+    private List<ChartMetrics> mapToChartMetrics(List<Object[]> result) {
         return result.stream()
-                .map(dm -> new DatasetsMetrics((Double) dm[0], (Double) dm[1], (Long) dm[2]))
+                .map(dm -> new ChartMetrics((Double) dm[0], (Double) dm[1], (Long) dm[2]))
                 .collect(Collectors.toList());
     }
 

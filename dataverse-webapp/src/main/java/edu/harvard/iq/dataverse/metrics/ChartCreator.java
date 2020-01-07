@@ -6,88 +6,93 @@ import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.BarChartModel;
 import org.primefaces.model.chart.ChartSeries;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Stateless
 public class ChartCreator {
 
-    @EJB
-    private MetricsServiceBean metricsServiceBean;
+    public BarChartModel createYearlyChart(List<ChartMetrics> metrics, String chartType, String chartMode) {
+        List<ChartMetrics> yearlyMetrics =
+                MetricsUtil.countMetricsPerYearAndFillMissingYears(metrics);
 
-    public BarChartModel changeToYearlyModel() {
-        List<DatasetsMetrics> yearlyDatasetStats =
-                MetricsUtil.countDatasetsPerYear(metricsServiceBean.countPublishedDatasets());
-
-        if (yearlyDatasetStats.isEmpty()) {
-            yearlyDatasetStats.add(new DatasetsMetrics((double) LocalDateTime.now().getYear(), 0L));
+        if (yearlyMetrics.isEmpty()) {
+            yearlyMetrics.add(new ChartMetrics((double) LocalDateTime.now().getYear(), 0L));
         }
 
-        return createBarModel(yearlyDatasetStats, BundleUtil.getStringFromBundle("metrics.year")
-                , initYearlyBarModel(yearlyDatasetStats));
+        String xLabel = BundleUtil.getStringFromBundle("metrics.year");
+        String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend.label." + chartType);
+        String title = BundleUtil.getStringFromBundle("metrics.chart.title." + chartType);
+
+        return createBarModel(yearlyMetrics, title, xLabel, yLabel, chartMode);
     }
 
-    public BarChartModel changeToMonthlyModel(int selectedYear) {
-        List<DatasetsMetrics> monthlyDatasetStats =
-                MetricsUtil.fillMissingDatasetMonths(metricsServiceBean.countPublishedDatasets(), selectedYear);
+    public BarChartModel createMonthlyChart(List<ChartMetrics> metrics, int year, String chartType, String chartMode) {
+        List<ChartMetrics> monthlyChartStats =
+                MetricsUtil.fillMissingMonthsForMetrics(metrics, year);
 
-        return createBarModel(monthlyDatasetStats, BundleUtil.getStringFromBundle("metrics.month")
-                , initMonthlyBarModel(monthlyDatasetStats));
+        String xLabel = BundleUtil.getStringFromBundle("metrics.month");
+        String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend.label." + chartType);
+        String title = BundleUtil.getStringFromBundle("metrics.chart.title." + chartType);
+
+        return createBarModel(monthlyChartStats, title, xLabel, yLabel, chartMode);
     }
 
-    BarChartModel initYearlyBarModel(List<DatasetsMetrics> datasets) {
+    BarChartModel initBarModel(List<ChartMetrics> metrics, String columnLabel, String chartMode) {
         BarChartModel model = new BarChartModel();
+        ChartSeries chartSeries = new ChartSeries();
+        chartSeries.setLabel(columnLabel);
 
-        ChartSeries datasetsChart = new ChartSeries();
-        datasetsChart.setLabel(BundleUtil.getStringFromBundle("metrics.datasets"));
-
-        datasets.forEach(datasetStats ->
-                                 datasetsChart.set(datasetStats.getYear(), datasetStats.getCount()));
-
-        model.addSeries(datasetsChart);
+        if (chartMode.equals("YEAR")) {
+            metrics.forEach(metric ->
+                    chartSeries.set(metric.getYear(), metric.getCount()));
+        } else if (chartMode.equals("MONTH")) {
+            metrics.forEach(metric ->
+                    chartSeries.set(BundleUtil.getStringFromBundle("metrics.month-" + metric.getMonth()),
+                            metric.getCount()));
+        }
+        model.addSeries(chartSeries);
 
         return model;
     }
 
-    BarChartModel initMonthlyBarModel(List<DatasetsMetrics> datasets) {
-        BarChartModel model = new BarChartModel();
-        ChartSeries datasetsChart = new ChartSeries();
-        datasetsChart.setLabel("Datasets");
+    public BarChartModel createBarModel(List<ChartMetrics> metrics,
+                                        String title,
+                                        String xAxisLabel,
+                                        String yAxisLabel,
+                                        String chartMode) {
 
-        datasets.forEach(datasetStats ->
-                                 datasetsChart.set(BundleUtil.getStringFromBundle("metrics.month-" + datasetStats.getMonth()),
-                                                   datasetStats.getCount()));
+        BarChartModel model = initBarModel(metrics, yAxisLabel, chartMode);
 
-        model.addSeries(datasetsChart);
-
-        return model;
-    }
-
-    BarChartModel createBarModel(List<DatasetsMetrics> datasets, String xAxisLabel, BarChartModel model) {
-
-        model.setTitle(BundleUtil.getStringFromBundle("metrics.newDatasets"));
+        model.setTitle(title);
         model.setLegendPosition("ne");
 
         Axis xAxis = model.getAxis(AxisType.X);
         xAxis.setLabel(xAxisLabel);
 
         Axis yAxis = model.getAxis(AxisType.Y);
-        yAxis.setLabel(BundleUtil.getStringFromBundle("metrics.datasets"));
+        yAxis.setLabel(yAxisLabel);
         yAxis.setMin(0);
         yAxis.setTickFormat("%d");
 
-        Optional<DatasetsMetrics> datasetMax = datasets.stream().max(Comparator.comparing(DatasetsMetrics::getCount));
-        yAxis.setTickCount(Math.toIntExact(retrieveTickForMaxDatasetCountValue(datasetMax)));
-        yAxis.setMax(datasetMax.isPresent() ? datasetMax.get().getCount() : 0);
+        Long maxCountMetric = calculateMaxCountMetric(metrics);
+
+        yAxis.setTickCount(Math.toIntExact(retrieveTickForMaxDatasetCountValue(maxCountMetric)));
+        yAxis.setMax(maxCountMetric);
         return model;
     }
 
-    private long retrieveTickForMaxDatasetCountValue(Optional<DatasetsMetrics> maxDatasetCountValue) {
-        return maxDatasetCountValue.isPresent() && maxDatasetCountValue.get().getCount() < 4 ?
-                maxDatasetCountValue.get().getCount() + 1 : 5;
+    private Long calculateMaxCountMetric(List<ChartMetrics> metrics) {
+        return metrics.stream()
+                    .max(Comparator.comparingLong(ChartMetrics::getCount))
+                    .map(ChartMetrics::getCount)
+                    .orElse(0L);
+    }
+
+    private long retrieveTickForMaxDatasetCountValue(Long maxCountValue) {
+        return maxCountValue > 0 && maxCountValue < 4 ?
+                maxCountValue + 1 : 5;
     }
 }

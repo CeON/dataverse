@@ -3,9 +3,8 @@ package edu.harvard.iq.dataverse.metrics;
 import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.model.chart.BarChartModel;
 
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,53 +15,36 @@ import java.util.List;
 @Named("MetricsPage")
 public class MetricsPage implements Serializable {
 
-    @EJB
     private ChartCreator chartCreator;
+    private MetricsServiceBean metricsService;
 
-    @EJB
-    private MetricsServiceBean repository;
+    private final String CHART_TYPE = "publishedDatasets";
 
-    private BarChartModel barModel;
-
-    private List<DatasetsMetrics> yearlyDatasetStats = new ArrayList<>();
+    private BarChartModel publishedDatasetsModel;
+    private List<ChartMetrics> publishedDatasetsYearlyStats = new ArrayList<>();
+    private List<ChartMetrics> datasetsMetrics = new ArrayList<>();
 
     private String mode = "YEAR";
     private int selectedYear;
 
-    public void init() {
-        selectedYear = LocalDate.now().getYear();
-        yearlyDatasetStats = MetricsUtil.countDatasetsPerYear(repository.countPublishedDatasets());
-
-        if (yearlyDatasetStats.isEmpty()) {
-            yearlyDatasetStats.add(new DatasetsMetrics((double) LocalDateTime.now().getYear(), 0L));
-        }
-
-        barModel = chartCreator.changeToYearlyModel();
+    // -------------------- CONSTRUCTORS --------------------
+    @Deprecated
+    public MetricsPage() {
     }
 
-    public void changeDatasetMetricsModel() {
-        if (shouldGenerateYearlyModel()) {
-            barModel = chartCreator.changeToYearlyModel();
-
-        } else if (shouldGenerateMonthlyModel()) {
-            barModel = chartCreator.changeToMonthlyModel(selectedYear);
-        }
+    @Inject
+    public MetricsPage(ChartCreator chartCreator, MetricsServiceBean metricsService) {
+        this.chartCreator = chartCreator;
+        this.metricsService = metricsService;
     }
 
-    private boolean shouldGenerateMonthlyModel() {
-        return selectedYear != 0;
+    // -------------------- GETTERS --------------------
+    public BarChartModel getPublishedDatasetsModel() {
+        return publishedDatasetsModel;
     }
 
-    private boolean shouldGenerateYearlyModel() {
-        return mode.equals("YEAR");
-    }
-
-    public BarChartModel getBarModel() {
-        return barModel;
-    }
-
-    public List<DatasetsMetrics> getYearlyDatasetStats() {
-        return yearlyDatasetStats;
+    public List<ChartMetrics> getPublishedDatasetsYearlyStats() {
+        return publishedDatasetsYearlyStats;
     }
 
     public String getMode() {
@@ -73,6 +55,40 @@ public class MetricsPage implements Serializable {
         return selectedYear;
     }
 
+    // -------------------- LOGIC --------------------
+    public void init() {
+        datasetsMetrics = metricsService.countPublishedDatasets();
+
+        if (datasetsMetrics.isEmpty()) {
+            publishedDatasetsYearlyStats.add(new ChartMetrics((double) LocalDateTime.now().getYear(), 0L));
+            selectedYear = LocalDate.now().getYear();
+        } else {
+            publishedDatasetsYearlyStats = MetricsUtil.countMetricsPerYearAndFillMissingYearsDescending(datasetsMetrics);
+            selectedYear = publishedDatasetsYearlyStats.get(0).getYear();
+        }
+
+        publishedDatasetsModel = chartCreator.createYearlyChart(metricsService.countPublishedDatasets(), CHART_TYPE, mode);
+    }
+
+    public void changeDatasetMetricsModel() {
+        if (shouldGenerateYearlyModel()) {
+            publishedDatasetsModel = chartCreator.createYearlyChart(datasetsMetrics, CHART_TYPE, mode);
+
+        } else if (shouldGenerateMonthlyModel()) {
+            publishedDatasetsModel = chartCreator.createMonthlyChart(datasetsMetrics, selectedYear, CHART_TYPE, mode);
+        }
+    }
+
+    // -------------------- PRIVATE ---------------------
+    private boolean shouldGenerateMonthlyModel() {
+        return selectedYear != 0;
+    }
+
+    private boolean shouldGenerateYearlyModel() {
+        return mode.equals("YEAR");
+    }
+
+    // -------------------- SETTERS --------------------
     public void setMode(String mode) {
         this.mode = mode;
     }
@@ -81,7 +97,7 @@ public class MetricsPage implements Serializable {
         this.selectedYear = selectedYear;
     }
 
-    public void setYearlyDatasetStats(List<DatasetsMetrics> yearlyDatasetStats) {
-        this.yearlyDatasetStats = yearlyDatasetStats;
+    public void setPublishedDatasetsYearlyStats(List<ChartMetrics> publishedDatasetsYearlyStats) {
+        this.publishedDatasetsYearlyStats = publishedDatasetsYearlyStats;
     }
 }
