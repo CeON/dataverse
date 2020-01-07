@@ -7,12 +7,12 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
+import org.awaitility.Awaitility;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,7 +58,6 @@ public class UserNotificationService {
      *
      * @param notificationObjectType - type has to match correct #{@link NotificationType}
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
                                           Timestamp sendDate,
                                           NotificationType type,
@@ -78,7 +77,6 @@ public class UserNotificationService {
      * Saves notification to database, then sends email asynchronously.
      * @param notificationObjectType - type has to match correct #{@link NotificationType}
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
                                           Timestamp sendDate,
                                           NotificationType type,
@@ -118,7 +116,18 @@ public class UserNotificationService {
     }
     // -------------------- PRIVATE --------------------
 
+    /**
+     * Sends an email, Awaitility is necessary since we have to wait until previous transaction will be committed,
+     * otherwise there is a chance that we won't be able to retrieve necessary data from database.
+     */
     private boolean sendEmail(EmailNotificationDto emailNotificationDto, AuthenticatedUser requester) {
+        Awaitility.await()
+                .with()
+                .pollDelay(Duration.ofSeconds(1))
+                .pollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> userNotificationDao.find(emailNotificationDto.getUserNotificationId()) != null);
+
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto, requester);
 
         if (emailSent) {
@@ -129,6 +138,13 @@ public class UserNotificationService {
     }
 
     private boolean sendEmail(EmailNotificationDto emailNotificationDto) {
+        Awaitility.await()
+                .with()
+                .pollDelay(Duration.ofSeconds(1))
+                .pollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> userNotificationDao.find(emailNotificationDto.getUserNotificationId()) != null);
+
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto);
 
         if (emailSent) {
