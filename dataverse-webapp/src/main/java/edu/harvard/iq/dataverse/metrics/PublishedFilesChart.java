@@ -12,39 +12,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ViewScoped
-@Named("UsersChart")
-public class RegisteredUsersChart implements Serializable {
+@Named("FilesChart")
+public class PublishedFilesChart implements Serializable {
 
     private ChartCreator chartCreator;
     private MetricsServiceBean metricsService;
 
-    private final String CHART_TYPE = "authenticatedUsers";
+    private final String CHART_TYPE = "publishedFiles";
 
-    private BarChartModel usersChart;
-    private List<ChartMetrics> usersYearlyStats = new ArrayList<>();
-    private List<ChartMetrics> usersMetrics = new ArrayList<>();
+    private BarChartModel chartModel;
+    private List<ChartMetrics> yearlyStats = new ArrayList<>();
+    private List<ChartMetrics> chartMetrics = new ArrayList<>();
 
     private String mode = "YEAR";
     private int selectedYear;
 
     // -------------------- CONSTRUCTORS --------------------
     @Deprecated
-    public RegisteredUsersChart() {
+    public PublishedFilesChart() {
     }
 
     @Inject
-    public RegisteredUsersChart(ChartCreator chartCreator, MetricsServiceBean metricsService) {
+    public PublishedFilesChart(ChartCreator chartCreator, MetricsServiceBean metricsService) {
         this.chartCreator = chartCreator;
         this.metricsService = metricsService;
     }
 
     // -------------------- GETTERS --------------------
-    public BarChartModel getUsersChart() {
-        return usersChart;
+    public BarChartModel getChartModel() {
+        return chartModel;
     }
 
-    public List<ChartMetrics> getUsersYearlyStats() {
-        return usersYearlyStats;
+    public List<ChartMetrics> getYearlyStats() {
+        return yearlyStats;
     }
 
     public String getMode() {
@@ -58,25 +58,25 @@ public class RegisteredUsersChart implements Serializable {
     // -------------------- LOGIC --------------------
     public void init() {
 
-        usersMetrics = metricsService.countAuthenticatedUsers();
+        chartMetrics = metricsService.countPublishedFiles();
 
-        if (usersMetrics.isEmpty()) {
-            usersYearlyStats.add(new ChartMetrics((double) LocalDateTime.now().getYear(), 0L));
+        if (chartMetrics.isEmpty()) {
+            yearlyStats.add(new ChartMetrics((double) LocalDateTime.now().getYear(), 0L));
             selectedYear = LocalDate.now().getYear();
         } else {
-            usersYearlyStats = MetricsUtil.countMetricsPerYearAndFillMissingYearsDescending(usersMetrics);
-            selectedYear = usersYearlyStats.get(0).getYear();
+            yearlyStats = MetricsUtil.countMetricsPerYearAndFillMissingYearsDescending(chartMetrics);
+            selectedYear = yearlyStats.get(0).getYear();
         }
 
-        usersChart = chartCreator.createYearlyChart(usersMetrics, CHART_TYPE);
+        chartModel = chartCreator.createYearlyChart(chartMetrics, CHART_TYPE);
     }
 
     public void changeChartGrouping() {
         if (isYearlyChartSelected()) {
-            usersChart = chartCreator.createYearlyChart(usersMetrics, CHART_TYPE);
+            chartModel = chartCreator.createYearlyChart(chartMetrics, CHART_TYPE);
 
         } else if (isMonthlyChartSelected()) {
-            usersChart = chartCreator.createMonthlyChart(usersMetrics, selectedYear, CHART_TYPE);
+            chartModel = chartCreator.createMonthlyChart(chartMetrics, selectedYear, CHART_TYPE);
         }
     }
 
@@ -98,7 +98,7 @@ public class RegisteredUsersChart implements Serializable {
         this.selectedYear = selectedYear;
     }
 
-    public void setUsersYearlyStats(List<ChartMetrics> usersYearlyStats) {
-        this.usersYearlyStats = usersYearlyStats;
+    public void setYearlyStats(List<ChartMetrics> yearlyStats) {
+        this.yearlyStats = yearlyStats;
     }
 }

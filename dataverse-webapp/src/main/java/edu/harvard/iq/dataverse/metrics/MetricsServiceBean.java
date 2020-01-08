@@ -110,8 +110,7 @@ public class MetricsServiceBean implements Serializable {
                         "    FROM datasetversion dsv\n" +
                         "    WHERE\n" +
                         "        dsv.versionnumber = 1 and\n" +
-                        "        dsv.minorversionnumber = 0 and\n" +
-                        "        dsv.versionstate = 'RELEASED'\n" +
+                        "        dsv.releasetime is not null\n" +
                         "GROUP BY year, month")
                                             .getResultList());
     }
@@ -127,6 +126,29 @@ public class MetricsServiceBean implements Serializable {
                         "    count (au.id)\n" +
                         "    FROM authenticateduser au\n" +
                         "    GROUP BY year, month")
+                .getResultList());
+    }
+
+    /**
+     * Published files
+     */
+    public List<ChartMetrics> countPublishedFiles() {
+        return mapToChartMetrics(em.createNativeQuery(
+                "select \n" +
+                        "extract(year from sub.first_publishDate) as year,\n" +
+                        "extract(month from sub.first_publishDate) as month,\n" +
+                        "count(sub.datafile_id) as published_files_counter\n" +
+                        "from (select \n" +
+                        "       fm.datafile_id,\n" +
+                        "       min(dsv.releasetime) as first_publishDate\n" +
+                        "       from filemetadata fm\n" +
+                        "       inner join datasetversion dsv\n" +
+                        "       on fm.datasetversion_id = dsv.id\n" +
+                        "       where dsv.releasetime is not null\n" +
+                        "       group by fm.datafile_id\n" +
+                        "       order by fm.datafile_id ) sub\n" +
+                        "group by year, month\n" +
+                        "order by year, month\n")
                 .getResultList());
     }
 

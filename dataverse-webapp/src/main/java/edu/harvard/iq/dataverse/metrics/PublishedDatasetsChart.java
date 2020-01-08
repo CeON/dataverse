@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ViewScoped
-@Named("MetricsPage")
-public class MetricsPage implements Serializable {
+@Named("PublishedDatasets")
+public class PublishedDatasetsChart implements Serializable {
 
     private ChartCreator chartCreator;
     private MetricsServiceBean metricsService;
@@ -29,11 +29,11 @@ public class MetricsPage implements Serializable {
 
     // -------------------- CONSTRUCTORS --------------------
     @Deprecated
-    public MetricsPage() {
+    public PublishedDatasetsChart() {
     }
 
     @Inject
-    public MetricsPage(ChartCreator chartCreator, MetricsServiceBean metricsService) {
+    public PublishedDatasetsChart(ChartCreator chartCreator, MetricsServiceBean metricsService) {
         this.chartCreator = chartCreator;
         this.metricsService = metricsService;
     }
@@ -67,15 +67,15 @@ public class MetricsPage implements Serializable {
             selectedYear = publishedDatasetsYearlyStats.get(0).getYear();
         }
 
-        publishedDatasetsModel = chartCreator.createYearlyChart(metricsService.countPublishedDatasets(), CHART_TYPE, mode);
+        publishedDatasetsModel = chartCreator.createYearlyChart(metricsService.countPublishedDatasets(), CHART_TYPE);
     }
 
     public void changeDatasetMetricsModel() {
         if (shouldGenerateYearlyModel()) {
-            publishedDatasetsModel = chartCreator.createYearlyChart(datasetsMetrics, CHART_TYPE, mode);
+            publishedDatasetsModel = chartCreator.createYearlyChart(datasetsMetrics, CHART_TYPE);
 
         } else if (shouldGenerateMonthlyModel()) {
-            publishedDatasetsModel = chartCreator.createMonthlyChart(datasetsMetrics, selectedYear, CHART_TYPE, mode);
+            publishedDatasetsModel = chartCreator.createMonthlyChart(datasetsMetrics, selectedYear, CHART_TYPE);
         }
     }
 

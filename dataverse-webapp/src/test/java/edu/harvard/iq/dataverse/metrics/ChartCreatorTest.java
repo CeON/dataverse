@@ -17,9 +17,10 @@ public class ChartCreatorTest {
         //given
         ChartCreator chartCreator = new ChartCreator();
         List<ChartMetrics> chartMetrics = generateSampleDatasetsMetrics();
+
         //when
-        BarChartModel barChartModel = chartCreator.initBarModel(chartMetrics, "yAxisLabel", "YEAR");
-        BarChartModel createdModel = chartCreator.createBarModel(chartMetrics, "chartTitle","xAxisLabel", "yAxisLabel",  "YEAR");
+        BarChartModel createdModel = chartCreator.createYearlyChart(chartMetrics, "publishedDatasets");
+
         //then
         assertEquals(78L, getMaximumYaxisHeight(createdModel));
         assertEquals(7, getYearValueFromModel(createdModel, 2018));

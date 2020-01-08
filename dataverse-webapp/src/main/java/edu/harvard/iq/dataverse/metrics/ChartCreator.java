@@ -14,7 +14,8 @@ import java.util.List;
 @Stateless
 public class ChartCreator {
 
-    public BarChartModel createYearlyChart(List<ChartMetrics> metrics, String chartType, String chartMode) {
+    // -------------------- LOGIC --------------------
+    public BarChartModel createYearlyChart(List<ChartMetrics> metrics, String chartType) {
         List<ChartMetrics> yearlyMetrics =
                 MetricsUtil.countMetricsPerYearAndFillMissingYears(metrics);
 
@@ -23,37 +24,25 @@ public class ChartCreator {
         }
 
         String xLabel = BundleUtil.getStringFromBundle("metrics.year");
-        String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend.label." + chartType);
-        String title = BundleUtil.getStringFromBundle("metrics.chart.title." + chartType);
+        String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend." + chartType + ".label");
+        String title = BundleUtil.getStringFromBundle("metrics.chart." + chartType + "title.");
 
-        return createBarModel(yearlyMetrics, title, xLabel, yLabel, chartMode);
+        BarChartModel model = createBarModel(yearlyMetrics, title, xLabel, yLabel);
+        model.addSeries(createYearlySeries(yearlyMetrics, yLabel));
+
+        return model;
     }
 
-    public BarChartModel createMonthlyChart(List<ChartMetrics> metrics, int year, String chartType, String chartMode) {
-        List<ChartMetrics> monthlyChartStats =
+    public BarChartModel createMonthlyChart(List<ChartMetrics> metrics, int year, String chartType) {
+        List<ChartMetrics> chartMetrics =
                 MetricsUtil.fillMissingMonthsForMetrics(metrics, year);
 
         String xLabel = BundleUtil.getStringFromBundle("metrics.month");
-        String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend.label." + chartType);
-        String title = BundleUtil.getStringFromBundle("metrics.chart.title." + chartType);
+        String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend." + chartType + ".label");
+        String title = BundleUtil.getStringFromBundle("metrics.chart." + chartType + ".title");
 
-        return createBarModel(monthlyChartStats, title, xLabel, yLabel, chartMode);
-    }
-
-    BarChartModel initBarModel(List<ChartMetrics> metrics, String columnLabel, String chartMode) {
-        BarChartModel model = new BarChartModel();
-        ChartSeries chartSeries = new ChartSeries();
-        chartSeries.setLabel(columnLabel);
-
-        if (chartMode.equals("YEAR")) {
-            metrics.forEach(metric ->
-                    chartSeries.set(metric.getYear(), metric.getCount()));
-        } else if (chartMode.equals("MONTH")) {
-            metrics.forEach(metric ->
-                    chartSeries.set(BundleUtil.getStringFromBundle("metrics.month-" + metric.getMonth()),
-                            metric.getCount()));
-        }
-        model.addSeries(chartSeries);
+        BarChartModel model = createBarModel(chartMetrics, title, xLabel, yLabel);
+        model.addSeries(createMonthlySeries(chartMetrics, yLabel));
 
         return model;
     }
@@ -61,10 +50,11 @@ public class ChartCreator {
     public BarChartModel createBarModel(List<ChartMetrics> metrics,
                                         String title,
                                         String xAxisLabel,
-                                        String yAxisLabel,
-                                        String chartMode) {
+                                        String yAxisLabel) {
 
-        BarChartModel model = initBarModel(metrics, yAxisLabel, chartMode);
+        BarChartModel model = new BarChartModel();
+        ChartSeries chartSeries = new ChartSeries();
+        chartSeries.setLabel(yAxisLabel);
 
         model.setTitle(title);
         model.setLegendPosition("ne");
@@ -84,6 +74,7 @@ public class ChartCreator {
         return model;
     }
 
+    // -------------------- PRIVATE ---------------------
     private Long calculateMaxCountMetric(List<ChartMetrics> metrics) {
         return metrics.stream()
                     .max(Comparator.comparingLong(ChartMetrics::getCount))
@@ -94,5 +85,26 @@ public class ChartCreator {
     private long retrieveTickForMaxDatasetCountValue(Long maxCountValue) {
         return maxCountValue > 0 && maxCountValue < 4 ?
                 maxCountValue + 1 : 5;
+    }
+
+    private ChartSeries createYearlySeries(List<ChartMetrics> yearlyMetrics, String columnLabel) {
+        ChartSeries chartSeries = new ChartSeries();
+        chartSeries.setLabel(columnLabel);
+
+        yearlyMetrics.forEach(metric ->
+                chartSeries.set(metric.getYear(), metric.getCount()));
+
+        return chartSeries;
+    }
+
+    private ChartSeries createMonthlySeries(List<ChartMetrics> monthlyMetrics, String columnLabel) {
+        ChartSeries chartSeries = new ChartSeries();
+        chartSeries.setLabel(columnLabel);
+
+        monthlyMetrics.forEach(metric ->
+                chartSeries.set(BundleUtil.getStringFromBundle("metrics.month-" + metric.getMonth()),
+                        metric.getCount()));
+
+        return chartSeries;
     }
 }

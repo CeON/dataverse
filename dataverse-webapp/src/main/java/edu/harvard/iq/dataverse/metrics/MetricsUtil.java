@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MetricsUtil {
 
@@ -209,25 +210,25 @@ public class MetricsUtil {
         return filteredMetrics;
     }
 
-    static List<ChartMetrics> fillMissingYearsForMetrics(List<ChartMetrics> chartMetrics) {
+    static List<ChartMetrics> fillMissingYearsForMetrics(List<ChartMetrics> missingYearsMetrics) {
         int currentYear = LocalDate.now().getYear();
-        int minYear = chartMetrics.stream()
-                .min(Comparator.comparingInt(ChartMetrics::getYear))
-                .map(ChartMetrics::getYear)
+        int minYear = missingYearsMetrics.stream()
+                .mapToInt(ChartMetrics::getYear)
+                .min()
                 .orElse(currentYear);
 
         List<Integer> years = getListWithYears(minYear, currentYear);
-        List<ChartMetrics> yearsMetrics = new ArrayList<>();
-        years.forEach(year -> yearsMetrics.add(new ChartMetrics((double) year,
-                chartMetrics.stream()
+        List<ChartMetrics> filledYearsMetrics = new ArrayList<>();
+        years.forEach(year -> filledYearsMetrics.add(new ChartMetrics((double) year,
+                missingYearsMetrics.stream()
                         .filter(metric -> metric.getYear() == year)
                         .findFirst()
                         .map(ChartMetrics::getCount)
                         .orElse(0L)
         )));
 
-        yearsMetrics.sort(Comparator.comparingLong(ChartMetrics::getYear));
-        return yearsMetrics;
+        filledYearsMetrics.sort(Comparator.comparingLong(ChartMetrics::getYear));
+        return filledYearsMetrics;
     }
 
     private static List<Integer> getListWithMonthsValues() {
@@ -241,11 +242,7 @@ public class MetricsUtil {
     }
 
     private static List<Integer> getListWithYears(int fromYear, int toYear) {
-        List<Integer> years = new ArrayList<>();
-        for (int i=fromYear; i <= toYear; i++) {
-            years.add(i);
-        }
-        return years;
+        return IntStream.rangeClosed(fromYear, toYear).boxed().collect(Collectors.toList());
     }
 }
 
