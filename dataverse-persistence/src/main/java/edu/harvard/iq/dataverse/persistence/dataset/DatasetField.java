@@ -313,10 +313,8 @@ public class DatasetField implements Serializable {
      */
     public List<String> getValues() {
         List<String> returnList = new ArrayList<>();
-        if (!datasetFieldValues.isEmpty()) {
-            for (DatasetFieldValue dsfv : datasetFieldValues) {
-                returnList.add(dsfv.getDisplayValue());
-            }
+        if (!fieldValue.isEmpty()) {
+                returnList.add(getFieldDisplayValue());
         } else {
             for (ControlledVocabularyValue cvv : controlledVocabularyValues) {
                 if (cvv != null && cvv.getLocaleStrValue() != null) {

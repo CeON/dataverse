@@ -437,11 +437,15 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public boolean isPrimitive() {
-        return getChildDatasetFieldTypes().isEmpty();
+        return !isCompound();
     }
 
     public boolean isCompound() {
-        return !getChildDatasetFieldTypes().isEmpty();
+        return getChildDatasetFieldTypes().stream()
+                .map(DatasetFieldType::getFieldType)
+                .distinct()
+                .limit(2)
+                .count() <=1;
     }
 
     public boolean isChild() {
