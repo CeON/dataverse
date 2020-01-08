@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ViewScoped
-@Named("PublishedDatasets")
+@Named("PublishedDatasetsChart")
 public class PublishedDatasetsChart implements Serializable {
 
     private ChartCreator chartCreator;

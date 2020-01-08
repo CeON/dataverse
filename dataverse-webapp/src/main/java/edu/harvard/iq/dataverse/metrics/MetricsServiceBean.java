@@ -110,6 +110,7 @@ public class MetricsServiceBean implements Serializable {
                         "    FROM datasetversion dsv\n" +
                         "    WHERE\n" +
                         "        dsv.versionnumber = 1 and\n" +
+                        "        dsv.minorversionnumber = 0 and\n" +
                         "        dsv.releasetime is not null\n" +
                         "GROUP BY year, month")
                                             .getResultList());
