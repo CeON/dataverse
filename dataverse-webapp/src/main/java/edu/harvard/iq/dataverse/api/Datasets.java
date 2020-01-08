@@ -874,7 +874,7 @@ public class Datasets extends AbstractApiBean {
 
         for (DatasetField dsf : fields) {
             if (dsf.getDatasetFieldType().isAllowMultiples() && dsf.getControlledVocabularyValues().isEmpty()
-                    && dsf.getDatasetFieldCompoundValues().isEmpty() && dsf.getDatasetFieldValues().isEmpty()) {
+                    && dsf.getDatasetFieldsChildren().isEmpty() && dsf.getFieldValue().isEmpty()) {
                 error.append("Empty multiple value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");
             } else if (!dsf.getDatasetFieldType().isAllowMultiples() && dsf.getSingleValue().getValue().isEmpty()) {
                 error.append("Empty value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");

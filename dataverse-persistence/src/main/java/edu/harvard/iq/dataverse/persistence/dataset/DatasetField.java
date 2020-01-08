@@ -1,11 +1,14 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
+import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.common.MarkupChecker;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
-
+import io.vavr.control.Option;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -29,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author skraffmiller
@@ -70,7 +74,7 @@ public class DatasetField implements Serializable {
     // (that looked t overloaded methods, when it meant to look at overriden methods
     public static DatasetField createNewEmptyChildDatasetField(DatasetFieldType dsfType, DatasetFieldCompoundValue compoundValue) {
         DatasetField dsfv = createNewEmptyDatasetField(dsfType);
-        dsfv.setParentDatasetFieldCompoundValue(compoundValue);
+        dsfv.setDatasetFieldParent(compoundValue);
         return dsfv;
     }
 
@@ -83,7 +87,8 @@ public class DatasetField implements Serializable {
                 dsfv.getDatasetFieldValues().add(new DatasetFieldValue(dsfv));
             }
         } else { // compound field
-            dsfv.getDatasetFieldCompoundValues().add(DatasetFieldCompoundValue.createNewEmptyDatasetFieldCompoundValue(dsfv));
+            dsfv.getDatasetFieldCompoundValues().add(DatasetFieldCompoundValue.createNewEmptyDatasetFieldCompoundValue(
+                    dsfv));
         }
 
         return dsfv;
@@ -156,40 +161,54 @@ public class DatasetField implements Serializable {
         this.template = template;
     }
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private DatasetFieldCompoundValue parentDatasetFieldCompoundValue;
+    // -------------------- PRIVATE --------------------
 
-    public DatasetFieldCompoundValue getParentDatasetFieldCompoundValue() {
-        return parentDatasetFieldCompoundValue;
-    }
-
-    public void setParentDatasetFieldCompoundValue(DatasetFieldCompoundValue parentDatasetFieldCompoundValue) {
-        this.parentDatasetFieldCompoundValue = parentDatasetFieldCompoundValue;
-    }
-
-    @OneToMany(mappedBy = "parentDatasetField", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "datasetFieldParent", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("displayOrder ASC")
-    private List<DatasetFieldCompoundValue> datasetFieldCompoundValues = new ArrayList<>();
+    private List<DatasetField> datasetFieldsChildren = new ArrayList<>();
 
-    public List<DatasetFieldCompoundValue> getDatasetFieldCompoundValues() {
-        return datasetFieldCompoundValues;
+    public List<DatasetField> getDatasetFieldsChildren() {
+        return datasetFieldsChildren;
     }
 
-    public void setDatasetFieldCompoundValues(List<DatasetFieldCompoundValue> datasetFieldCompoundValues) {
-        this.datasetFieldCompoundValues = datasetFieldCompoundValues;
+    public void setDatasetFieldsChildren(List<DatasetField> compundDatasetFields) {
+        this.datasetFieldsChildren = compundDatasetFields;
     }
 
-    @OneToMany(mappedBy = "datasetField", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    @OrderBy("displayOrder ASC")
-    private List<DatasetFieldValue> datasetFieldValues = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn
+    private DatasetField datasetFieldParent;
 
-    public List<DatasetFieldValue> getDatasetFieldValues() {
-        return this.datasetFieldValues;
+    public Option<DatasetField> getDatasetFieldParent() {
+        return Option.of(datasetFieldParent);
     }
 
-    public void setDatasetFieldValues(List<DatasetFieldValue> datasetFieldValues) {
-        this.datasetFieldValues = datasetFieldValues;
+    public void setDatasetFieldParent(DatasetField datasetFieldParent) {
+        this.datasetFieldParent = datasetFieldParent;
     }
+
+    @Column(columnDefinition = "TEXT")
+    private String fieldValue;
+
+    public Option<String> getFieldValue() {
+        return Option.of(fieldValue);
+    }
+
+    public void setFieldValue(String fieldValue) {
+        this.fieldValue = fieldValue;
+    }
+
+    private int displayOrder;
+
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    // -------------------- PRIVATE --------------------
 
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(indexes = {@Index(columnList = "datasetfield_id"), @Index(columnList = "controlledvocabularyvalues_id")})
@@ -205,8 +224,8 @@ public class DatasetField implements Serializable {
 
     // HELPER METHODS
     public DatasetFieldValue getSingleValue() {
-        if (!datasetFieldValues.isEmpty()) {
-            return datasetFieldValues.get(0);
+        if (getFieldValue().isDefined()) {
+            return fieldValue;
         } else {
             return new DatasetFieldValue(this);
         }
@@ -269,27 +288,20 @@ public class DatasetField implements Serializable {
     }
 
     public String getCompoundDisplayValue() {
-        String returnString = "";
-        for (DatasetFieldCompoundValue dscv : datasetFieldCompoundValues) {
-            for (DatasetField dsf : dscv.getChildDatasetFields()) {
-                for (String value : dsf.getValues()) {
-                    if (!(value == null)) {
-                        returnString += (returnString.isEmpty() ? "" : "; ") + value.trim();
-                    }
-                }
-            }
-        }
-        return returnString;
+
+        return datasetFieldsChildren.stream()
+                .filter(datasetField -> datasetField.getFieldValue().isDefined())
+                .map(datasetField -> datasetField.fieldValue)
+                .map(String::trim)
+                .collect(Collectors.joining("; "));
     }
 
     public String getCompoundRawValue() {
         String returnString = "";
-        for (DatasetFieldCompoundValue dscv : datasetFieldCompoundValues) {
-            for (DatasetField dsf : dscv.getChildDatasetFields()) {
-                for (String value : dsf.getRawValuesList()) {
-                    if (!(value == null)) {
-                        returnString += (returnString.isEmpty() ? "" : "; ") + value.trim();
-                    }
+        for (DatasetField dsf : getDatasetFieldsChildren()) {
+            for (String value : dsf.getRawValuesList()) {
+                if (!(value == null)) {
+                    returnString += (returnString.isEmpty() ? "" : "; ") + value.trim();
                 }
             }
         }
@@ -364,6 +376,50 @@ public class DatasetField implements Serializable {
         return returnList;
     }
 
+    public String getFieldDisplayValue() { //dsf value
+        String retVal = "";
+        if (!StringUtils.isBlank(this.getValue()) && !DatasetField.NA_VALUE.equals(this.getValue())) {
+            String format = getDatasetFieldType().getDisplayFormat();
+            if (StringUtils.isBlank(format)) {
+                format = "#VALUE";
+            }
+            String sanitizedValue = !getDatasetFieldType().isSanitizeHtml() ?
+                    this.getValue() :
+                    MarkupChecker.sanitizeBasicHTML(this.getValue());
+
+            if (!getDatasetFieldType().isSanitizeHtml() && getDatasetFieldType().isEscapeOutputText()) {
+                sanitizedValue = MarkupChecker.stripAllTags(sanitizedValue);
+            }
+
+            // replace the special values in the format (note: we replace #VALUE last since we don't
+            // want any issues if the value itself has #NAME in it)
+            String displayValue = format
+                    .replace("#NAME", getDatasetFieldType().getTitle() == null ? "" : getDatasetFieldType().getTitle())
+                    .replace("#EMAIL", BundleUtil.getStringFromBundle("dataset.email.hiddenMessage"))
+                    .replace("#VALUE", sanitizedValue);
+            retVal = displayValue;
+        }
+
+        return retVal;
+    }
+
+    public String getUnsanitizedDisplayValue() {
+        String retVal = "";
+        if (!StringUtils.isBlank(this.getValue()) && !DatasetField.NA_VALUE.equals(this.getValue())) {
+            String format = getDatasetFieldType().getDisplayFormat();
+            if (StringUtils.isBlank(format)) {
+                format = "#VALUE";
+            }
+            String value = this.getValue();
+            String displayValue = format
+                    .replace("#NAME", getDatasetFieldType().getTitle() == null ? "" : getDatasetFieldType().getTitle())
+                    .replace("#EMAIL", BundleUtil.getStringFromBundle("dataset.email.hiddenMessage"))
+                    .replace("#VALUE", value);
+            retVal = displayValue;
+        }
+        return retVal;
+    }
+
     public boolean isEmpty() {
         return isEmpty(false);
     }
@@ -382,13 +438,12 @@ public class DatasetField implements Serializable {
                 }
             }
         } else { // compound
-            for (DatasetFieldCompoundValue cv : datasetFieldCompoundValues) {
-                for (DatasetField subField : cv.getChildDatasetFields()) {
-                    if (!subField.isEmpty(forDisplay)) {
-                        return false;
-                    }
+            for (DatasetField subField : getDatasetFieldsChildren()) {
+                if (!subField.isEmpty(forDisplay)) {
+                    return false;
                 }
             }
+
         }
 
         return true;
@@ -453,12 +508,13 @@ public class DatasetField implements Serializable {
     public Dataverse getDataverse() {
         if (datasetVersion != null) {
             return datasetVersion.getDataset().getOwner();
-        } else if (parentDatasetFieldCompoundValue != null) {
-            return parentDatasetFieldCompoundValue.getParentDatasetField().getDataverse();
+        } else if (datasetFieldParent != null) {
+            return datasetFieldParent.getDataverse();
         } else if (template != null) {
             return template.getDataverse();
         } else {
-            throw new IllegalStateException("DatasetField is in an illegal state: no dataset version, compound value, or template is set as its parent.");
+            throw new IllegalStateException(
+                    "DatasetField is in an illegal state: no dataset version, compound value, or template is set as its parent.");
         }
     }
 
@@ -570,15 +626,12 @@ public class DatasetField implements Serializable {
 
     public void trimTrailingSpaces() {
         if (this.getDatasetFieldType().isPrimitive() && !this.getDatasetFieldType().isControlledVocabulary()) {
-            for (int i = 0; i < datasetFieldValues.size(); i++) {
-                datasetFieldValues.get(i).setValue(datasetFieldValues.get(i).getValue().trim());
+            for (DatasetFieldValue datasetFieldValue : datasetFieldValues) {
+                datasetFieldValue.setValue(datasetFieldValue.getValue().trim());
             }
         } else if (this.getDatasetFieldType().isCompound()) {
-            for (int i = 0; i < datasetFieldCompoundValues.size(); i++) {
-                DatasetFieldCompoundValue compoundValue = datasetFieldCompoundValues.get(i);
-                for (DatasetField dsf : compoundValue.getChildDatasetFields()) {
-                    dsf.trimTrailingSpaces();
-                }
+            for (DatasetField dsf : getDatasetFieldsChildren()) {
+                dsf.trimTrailingSpaces();
             }
         }
     }
