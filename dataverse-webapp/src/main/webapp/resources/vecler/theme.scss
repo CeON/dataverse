@@ -323,11 +323,13 @@ tr.ui-state-highlight .ui-icon {
 
 /* Custom bootstrap columns */
 
-.col-sm-24-3 {
-	width: 12.5%;
-}
-.col-sm-24-21 {
-	width: 87.5%;
+@media screen and (min-width: $screen-md) {
+	.col-md-24-3 {
+		width: 12.5%;
+	}
+	.col-md-24-21 {
+		width: 87.5%;
+	}
 }
 
 /* Forms */
@@ -338,6 +340,7 @@ tr.ui-state-highlight .ui-icon {
 
 .ui-selectonemenu {
 	border: 1px solid #e8e8e8;
+	min-height: 35px;
 
 	.ui-selectonemenu-label {
 		margin-right: 23px;
@@ -462,7 +465,8 @@ input, textarea {
 
 .ui-chkbox-box,
 .ui-state-active .ui-chkbox-icon.ui-icon,
-.ui-state-default .ui-chkbox-icon.ui-icon {
+.ui-state-default .ui-chkbox-icon.ui-icon,
+.ui-state-focus .ui-chkbox-icon.ui-icon {
 	background: none;
 }
 
@@ -470,7 +474,7 @@ input, textarea {
 	font-weight: normal;
 	position: relative; 
 
-	&::before {
+	.ui-chkbox-icon::before {
 		@include checkbox;
 
 		content: "\e157";
@@ -479,23 +483,28 @@ input, textarea {
 		left: -2px;
 
 		background: #FFF;
+		text-indent: 0;
 	}
 
-	&.ui-state-active::before {
+	.ui-chkbox-icon.ui-icon-check::before {
 		content: "\e067";
+	}
+
+	&.ui-state-focus .ui-chkbox-icon::before {
+		color: #de8800;
 	}
 
 	&.ui-state-disabled {
 		opacity: 0.65;
 	}
 
-	&.ui-state-disabled::before {
+	&.ui-state-disabled .ui-chkbox-icon::before {
 		color: $main-text-color;
 	}
 }
 
-.checkbox label input, label input[type=checkbox] {
-	visibility: hidden;
+.checkbox label input, label input.fancy-checkbox[type=checkbox] {
+	opacity: 0;
 
 	+ span::before {
 		@include checkbox;
@@ -510,14 +519,18 @@ input, textarea {
 		content: "\e067";
 	}
 
+	&:focus + span::before {
+		color: #de8800;
+	}
+
 	&:disabled + span::before {
 		opacity: 0.65;
 		color: $main-text-color;
 	}
 }
 
-input[type=checkbox] {
-	visibility: hidden;
+input.fancy-checkbox[type=checkbox] {
+	opacity: 0;
 
 	+ label {
 		margin-left: -6px;
@@ -534,6 +547,10 @@ input[type=checkbox] {
 
 	&:checked + label::before {
 		content: "\e067";
+	}
+
+	&:focus + label::before {
+		color: #de8800;
 	}
 
 	&:disabled + label::before {
@@ -562,8 +579,16 @@ input[type=checkbox] {
 		margin: auto;
 	}
 
-	&:not(.ui-state-active) .ui-radiobutton-icon {
+	&:not(.ui-state-active):not(.ui-state-focus) .ui-radiobutton-icon {
 		display: none;
+	}
+	
+	&.ui-state-focus {
+		border-color: #de8800;
+
+		.ui-radiobutton-icon {
+			background-color: #de8800;
+		}
 	}
 
 	&.ui-state-disabled {
@@ -614,7 +639,7 @@ input[type=checkbox] {
 				background: $search-result-desc-color;
 				color: $main-text-color;
 
-				.ui-chkbox-box::before {
+				.ui-chkbox-box::before, .ui-chkbox-icon::before {
 					background: $search-result-desc-color;
 				}
 			}
@@ -754,7 +779,7 @@ input[type=checkbox] {
 						background: $search-result-desc-color;
 						border-color: $gray-border-color;
 
-						.ui-chkbox-box::before {
+						.ui-chkbox-box::before, .ui-chkbox-icon::before {
 							background: $search-result-desc-color;
 						}
 					}
@@ -834,7 +859,7 @@ input[type=checkbox] {
 					border-left: none;
 				}
 
-				.ui-chkbox-box::before {
+				.ui-chkbox-box::before, .ui-chkbox-icon::before {
 					background: $search-result-desc-color;
 				}
 			}
@@ -886,7 +911,7 @@ input[type=checkbox] {
 		td {
 			background: $search-result-desc-color;
 
-			.ui-chkbox-box::before {
+			.ui-chkbox-box::before, .ui-chkbox-icon::before {
 				background: $search-result-desc-color;
 			}
 		}
@@ -896,7 +921,7 @@ input[type=checkbox] {
 		&:hover td {
 			background: $table-row-hover;
 
-			.ui-chkbox-box::before {
+			.ui-chkbox-box::before, .ui-chkbox-icon::before {
 				background: $table-row-hover;
 			}
 		}
@@ -925,7 +950,7 @@ tr.ui-state-highlight, .ui-widget-content tr.ui-state-highlight, .ui-widget-head
 				color: $link-color;
 			}
 
-			.ui-chkbox-box::before {
+			.ui-chkbox-box::before, .ui-chkbox-icon::before {
 				background: $table-row-highlight;
 			}
 		}
@@ -968,7 +993,7 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 		color: $icon-color;
 	}
 
-	.ui-chkbox-box::before {
+	.ui-chkbox-box::before, .ui-chkbox-icon::before {
 		background: $search-result-desc-color;
 	}
 }
@@ -979,7 +1004,7 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 .table-striped > tbody > tr:hover {
 	background: $table-row-hover;
 
-	.ui-chkbox-box::before {
+	.ui-chkbox-box::before, .ui-chkbox-icon::before {
 		background: $table-row-hover;
 	}
 }
@@ -1505,6 +1530,15 @@ div.filesTable .ui-paginator {
 		&:not(input):not(textarea):not(th):not(ul):not(.ui-radiobutton-box) {
 			@include btn-access;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+
+			&:last-child {
+				border: 1px solid transparent;
+				box-shadow: none;
+
+				&:active {
+					box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+				}
+			}
 		}
 	}	
 
