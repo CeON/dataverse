@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.persistence.dataset;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.TreeMap;
 
 /**
  * Utility class with common operations on dataset fields
- * 
+ *
  * @author madryk
  */
 public class DatasetFieldUtil {
@@ -19,23 +18,21 @@ public class DatasetFieldUtil {
     private DatasetFieldUtil() {
         throw new IllegalArgumentException("Could not be instantiated");
     }
-    
-    // -------------------- LOGIC --------------------
-    
+
+    // -------------------- LOGIC -------------------
+
     public static List<DatasetField> getFlatDatasetFields(List<DatasetField> datasetFields) {
         List<DatasetField> retList = new LinkedList<>();
         for (DatasetField dsf : datasetFields) {
             retList.add(dsf);
             if (dsf.getDatasetFieldType().isCompound()) {
-                for (DatasetFieldCompoundValue compoundValue : dsf.getDatasetFieldCompoundValues()) {
-                    retList.addAll(getFlatDatasetFields(compoundValue.getChildDatasetFields()));
-                }
+                retList.addAll(getFlatDatasetFields(dsf.getDatasetFieldsChildren()));
 
             }
         }
         return retList;
     }
-    
+
     public static List<DatasetField> copyDatasetFields(List<DatasetField> copyFromList) {
         List<DatasetField> retList = new ArrayList<>();
 
@@ -45,19 +42,19 @@ public class DatasetFieldUtil {
 
         return retList;
     }
-    
+
     public static Map<MetadataBlock, List<DatasetField>> groupByBlock(List<DatasetField> datasetFields) {
         Map<MetadataBlock, List<DatasetField>> metadataBlocks = new TreeMap<>(Comparator.comparingLong(mb -> mb.getId()));
-        
-        for (DatasetField dsf: datasetFields) {
+
+        for (DatasetField dsf : datasetFields) {
             MetadataBlock metadataBlockOfField = dsf.getDatasetFieldType().getMetadataBlock();
             metadataBlocks.putIfAbsent(metadataBlockOfField, new ArrayList<>());
             metadataBlocks.get(metadataBlockOfField).add(dsf);
         }
-        
+
         return metadataBlocks;
     }
-    
+
     /**
      * Returns merged dataset fields from two given dataset field lists.
      * Merging is based on equality of {@link DatasetField#getDatasetFieldType()}.
@@ -75,7 +72,7 @@ public class DatasetFieldUtil {
         for (DatasetField datasetField : fields2) {
             datasetFieldsMap.put(datasetField.getDatasetFieldType(), datasetField);
         }
-        
+
         return new ArrayList<>(datasetFieldsMap.values());
     }
 }

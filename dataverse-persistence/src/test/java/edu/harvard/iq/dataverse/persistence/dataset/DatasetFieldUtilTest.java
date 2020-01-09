@@ -37,10 +37,10 @@ public class DatasetFieldUtilTest {
         // then
         assertThat(flatDatasetFields, contains(
                 field1,
-                field1.getDatasetFieldCompoundValues().get(0).getChildDatasetFields().get(0),
-                field1.getDatasetFieldCompoundValues().get(0).getChildDatasetFields().get(1),
-                field1.getDatasetFieldCompoundValues().get(1).getChildDatasetFields().get(0),
-                field1.getDatasetFieldCompoundValues().get(1).getChildDatasetFields().get(1),
+                field1.getDatasetFieldsChildren().get(0),
+                field1.getDatasetFieldsChildren().get(1),
+                field1.getDatasetFieldsChildren().get(0),
+                field1.getDatasetFieldsChildren().get(1),
                 field2));
     }
     

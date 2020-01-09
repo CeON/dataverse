@@ -72,27 +72,34 @@ public class DatasetField implements Serializable {
 
     // originally this was an overloaded method, but we renamed it to get around an issue with Bean Validation
     // (that looked t overloaded methods, when it meant to look at overriden methods
-    public static DatasetField createNewEmptyChildDatasetField(DatasetFieldType dsfType, DatasetFieldCompoundValue compoundValue) {
+    public static DatasetField createNewEmptyChildDatasetField(DatasetFieldType dsfType, DatasetField compoundValue) {
         DatasetField dsfv = createNewEmptyDatasetField(dsfType);
         dsfv.setDatasetFieldParent(compoundValue);
         return dsfv;
     }
 
     private static DatasetField createNewEmptyDatasetField(DatasetFieldType dsfType) {
-        DatasetField dsfv = new DatasetField();
-        dsfv.setDatasetFieldType(dsfType);
+        DatasetField dsf = new DatasetField();
+        dsf.setDatasetFieldType(dsfType);
 
-        if (dsfType.isPrimitive()) {
-            if (!dsfType.isControlledVocabulary()) {
-                dsfv.getDatasetFieldValues().add(new DatasetFieldValue(dsfv));
-            }
-        } else { // compound field
-            dsfv.getDatasetFieldCompoundValues().add(DatasetFieldCompoundValue.createNewEmptyDatasetFieldCompoundValue(
-                    dsfv));
+        if (dsfType.isCompound() || dsfType.isControlledVocabulary()) {
+            dsf.getDatasetFieldsChildren().add(createNewEmptyDatasetFieldCompoundValue(dsf));
         }
 
-        return dsfv;
+        return dsf;
 
+    }
+
+    public static DatasetField createNewEmptyDatasetFieldCompoundValue(DatasetField dsf) {
+        DatasetField compoundValue = new DatasetField();
+        compoundValue.setDatasetFieldParent(dsf);
+
+        for (DatasetFieldType dsfType : dsf.getDatasetFieldType().getChildDatasetFieldTypes()) {
+            compoundValue.getDatasetFieldsChildren().add(DatasetField.createNewEmptyChildDatasetField(dsfType,
+                                                                                                      compoundValue));
+        }
+
+        return compoundValue;
     }
 
     /**
@@ -255,8 +262,8 @@ public class DatasetField implements Serializable {
     }
 
     public String getValue() {
-        if (!datasetFieldValues.isEmpty()) {
-            return datasetFieldValues.get(0).getValue();
+        if (!getFieldValue().isEmpty()) {
+            return fieldValue;
         } else if (controlledVocabularyValues != null && !controlledVocabularyValues.isEmpty()) {
             if (controlledVocabularyValues.get(0) != null) {
                 return controlledVocabularyValues.get(0).getStrValue();
@@ -314,7 +321,7 @@ public class DatasetField implements Serializable {
     public List<String> getValues() {
         List<String> returnList = new ArrayList<>();
         if (!fieldValue.isEmpty()) {
-                returnList.add(getFieldDisplayValue());
+            returnList.add(getFieldDisplayValue());
         } else {
             for (ControlledVocabularyValue cvv : controlledVocabularyValues) {
                 if (cvv != null && cvv.getLocaleStrValue() != null) {
@@ -327,9 +334,9 @@ public class DatasetField implements Serializable {
 
     public List<String> getRawValuesList() {
         List<String> returnList = new ArrayList<>();
-        if (!datasetFieldValues.isEmpty()) {
-            for (DatasetFieldValue dsfv : datasetFieldValues) {
-                returnList.add(dsfv.getUnsanitizedDisplayValue());
+        if (!getDatasetFieldsChildren().isEmpty()) {
+            for (DatasetField dsf : getDatasetFieldsChildren()) {
+                returnList.add(dsf.getUnsanitizedDisplayValue());
             }
         } else {
             for (ControlledVocabularyValue cvv : controlledVocabularyValues) {
@@ -347,9 +354,9 @@ public class DatasetField implements Serializable {
      */
     public List<String> getValues_nondisplay() {
         List returnList = new ArrayList();
-        if (!datasetFieldValues.isEmpty()) {
-            for (DatasetFieldValue dsfv : datasetFieldValues) {
-                String value = dsfv.getValue();
+        if (!getDatasetFieldsChildren().isEmpty()) {
+            for (DatasetField dsf : getDatasetFieldsChildren()) {
+                String value = dsf.getValue();
                 if (value != null) {
                     returnList.add(value);
                 }
@@ -559,14 +566,9 @@ public class DatasetField implements Serializable {
         dsf.setDatasetFieldType(datasetFieldType);
         dsf.setControlledVocabularyValues(controlledVocabularyValues);
 
-        for (DatasetFieldValue dsfv : datasetFieldValues) {
-            dsf.getDatasetFieldValues().add(dsfv.copy(dsf));
-        }
-
-        for (DatasetFieldCompoundValue compoundValue : datasetFieldCompoundValues) {
-            DatasetFieldCompoundValue compoundValueCopy = compoundValue.copy();
-            compoundValueCopy.setParentDatasetField(dsf);
-            dsf.getDatasetFieldCompoundValues().add(compoundValueCopy);
+        for (DatasetField dsfChildren : getDatasetFieldsChildren()) {
+            dsfChildren.setDatasetFieldParent(dsf);
+            dsf.getDatasetFieldsChildren().add(dsfChildren.copy());
         }
 
         return dsf;
@@ -574,58 +576,46 @@ public class DatasetField implements Serializable {
 
     public boolean removeBlankDatasetFieldValues() {
         if (this.getDatasetFieldType().isPrimitive()) {
-            if (!this.getDatasetFieldType().isControlledVocabulary()) {
-                Iterator<DatasetFieldValue> dsfvIt = this.getDatasetFieldValues().iterator();
-                while (dsfvIt.hasNext()) {
-                    DatasetFieldValue dsfv = dsfvIt.next();
-                    if (StringUtils.isBlank(dsfv.getValue())) {
-                        dsfvIt.remove();
-                    }
-                }
-                return this.getDatasetFieldValues().isEmpty();
-            } else { // controlled vocab
+            if (this.getDatasetFieldType().isControlledVocabulary()) {
                 return this.getControlledVocabularyValues().isEmpty();
-            }
-        } else if (this.getDatasetFieldType().isCompound()) {
-            Iterator<DatasetFieldCompoundValue> cvIt = this.getDatasetFieldCompoundValues().iterator();
-            while (cvIt.hasNext()) {
-                DatasetFieldCompoundValue cv = cvIt.next();
-                Iterator<DatasetField> dsfIt = cv.getChildDatasetFields().iterator();
-                while (dsfIt.hasNext()) {
-                    if (dsfIt.next().removeBlankDatasetFieldValues()) {
-                        dsfIt.remove();
+            } else if (this.getDatasetFieldType().isCompound()) {
+                Iterator<DatasetField> cvIt = this.getDatasetFieldsChildren().iterator();
+                while (cvIt.hasNext()) {
+                    DatasetField cv = cvIt.next();
+                    cv.getDatasetFieldsChildren().removeIf(DatasetField::removeBlankDatasetFieldValues);
+                    if (cv.getDatasetFieldsChildren().isEmpty()) {
+                        cvIt.remove();
                     }
                 }
-                if (cv.getChildDatasetFields().isEmpty()) {
-                    cvIt.remove();
-                }
+                return this.getDatasetFieldsChildren().isEmpty();
             }
-            return this.getDatasetFieldCompoundValues().isEmpty();
+            return false;
         }
         return false;
     }
 
     public void setValueDisplayOrder() {
+
         if (this.getDatasetFieldType().isPrimitive() && !this.getDatasetFieldType().isControlledVocabulary()) {
-            for (int i = 0; i < datasetFieldValues.size(); i++) {
-                datasetFieldValues.get(i).setDisplayOrder(i);
+            for (int i = 0; i < getDatasetFieldsChildren().size(); i++) {
+                datasetFieldsChildren.get(i).setDisplayOrder(i);
             }
 
         } else if (this.getDatasetFieldType().isCompound()) {
-            for (int i = 0; i < datasetFieldCompoundValues.size(); i++) {
-                DatasetFieldCompoundValue compoundValue = datasetFieldCompoundValues.get(i);
+            for (int i = 0; i < getDatasetFieldsChildren().size(); i++) {
+                DatasetField compoundValue = getDatasetFieldsChildren().get(i);
                 compoundValue.setDisplayOrder(i);
-                for (DatasetField dsf : compoundValue.getChildDatasetFields()) {
-                    dsf.setValueDisplayOrder();
-                }
+                compoundValue.setValueDisplayOrder();
             }
         }
     }
 
+
     public void trimTrailingSpaces() {
+
         if (this.getDatasetFieldType().isPrimitive() && !this.getDatasetFieldType().isControlledVocabulary()) {
-            for (DatasetFieldValue datasetFieldValue : datasetFieldValues) {
-                datasetFieldValue.setValue(datasetFieldValue.getValue().trim());
+            for (DatasetField datasetFieldValue : getDatasetFieldsChildren()) {
+                datasetFieldValue.setFieldValue(datasetFieldValue.getValue().trim());
             }
         } else if (this.getDatasetFieldType().isCompound()) {
             for (DatasetField dsf : getDatasetFieldsChildren()) {
@@ -644,7 +634,8 @@ public class DatasetField implements Serializable {
     }
 
     public void addDatasetFieldCompoundValue(int index) {
-        datasetFieldCompoundValues.add(index, DatasetFieldCompoundValue.createNewEmptyDatasetFieldCompoundValue(this));
+        datasetFieldCompoundValues.add(index,
+                                       DatasetFieldCompoundValue.createNewEmptyDatasetFieldCompoundValue(this));
     }
 
     public void removeDatasetFieldCompoundValue(int index) {
@@ -672,4 +663,5 @@ public class DatasetField implements Serializable {
 
     } // end: needsTextCleaning
 
+}
 }
