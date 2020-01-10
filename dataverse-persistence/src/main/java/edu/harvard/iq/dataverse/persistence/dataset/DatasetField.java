@@ -190,8 +190,9 @@ public class DatasetField implements Serializable {
         return Option.of(datasetFieldParent);
     }
 
-    public void setDatasetFieldParent(DatasetField datasetFieldParent) {
+    public DatasetField setDatasetFieldParent(DatasetField datasetFieldParent) {
         this.datasetFieldParent = datasetFieldParent;
+        return this;
     }
 
     @Column(columnDefinition = "TEXT")
@@ -227,22 +228,6 @@ public class DatasetField implements Serializable {
 
     public void setControlledVocabularyValues(List<ControlledVocabularyValue> controlledVocabularyValues) {
         this.controlledVocabularyValues = controlledVocabularyValues;
-    }
-
-    // HELPER METHODS
-    public DatasetFieldValue getSingleValue() {
-        if (getFieldValue().isDefined()) {
-            return fieldValue;
-        } else {
-            return new DatasetFieldValue(this);
-        }
-    }
-
-    public void setSingleValue(String value) {
-        if (datasetFieldValues.isEmpty()) {
-            datasetFieldValues.add(new DatasetFieldValue(this));
-        }
-        datasetFieldValues.get(0).setValue(value);
     }
 
     public ControlledVocabularyValue getSingleControlledVocabularyValue() {
@@ -625,24 +610,6 @@ public class DatasetField implements Serializable {
     }
 
 
-    public void addDatasetFieldValue(int index) {
-        datasetFieldValues.add(index, new DatasetFieldValue(this));
-    }
-
-    public void removeDatasetFieldValue(int index) {
-        datasetFieldValues.remove(index);
-    }
-
-    public void addDatasetFieldCompoundValue(int index) {
-        datasetFieldCompoundValues.add(index,
-                                       DatasetFieldCompoundValue.createNewEmptyDatasetFieldCompoundValue(this));
-    }
-
-    public void removeDatasetFieldCompoundValue(int index) {
-        datasetFieldCompoundValues.remove(index);
-    }
-
-
     /**
      * If this is a FieldType.TEXT or FieldType.TEXTBOX, then run it through the markup checker
      *
@@ -663,5 +630,5 @@ public class DatasetField implements Serializable {
 
     } // end: needsTextCleaning
 
-}
+
 }

@@ -5,14 +5,6 @@
  */
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValidator;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -81,19 +73,19 @@ public class DatasetFieldValidatorTest {
         DatasetFieldType dft = new DatasetFieldType("test", FieldType.TEXT, false);
         dft.setRequired(true);
         value.setDatasetFieldType(dft);
-        value.setSingleValue("");
+        value.setFieldValue("");
         dfv.setValue("");
         result = instance.isValid(value, ctx);
         assertEquals(false, result);
 
         //Fill in a value - should be valid now....
-        value.setSingleValue("value");
+        value.setFieldValue("value");
         result = instance.isValid(value, ctx);
         assertEquals(true, result);
 
         //if not required - can be blank
         dft.setRequired(false);
-        value.setSingleValue("");
+        value.setFieldValue("");
         result = instance.isValid(value, ctx);
         assertEquals(true, result);
     }

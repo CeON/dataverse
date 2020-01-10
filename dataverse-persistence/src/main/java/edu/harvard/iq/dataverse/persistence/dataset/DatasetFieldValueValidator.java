@@ -5,11 +5,10 @@
  */
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -45,8 +44,8 @@ public class DatasetFieldValueValidator implements ConstraintValidator<ValidateD
             return true;
         }
 
-        if (value.getDatasetField().getParentDatasetFieldCompoundValue() != null
-                && value.getDatasetField().getParentDatasetFieldCompoundValue().getParentDatasetField().getTemplate() != null) {
+        if (value.getDatasetField().getDatasetFieldParent().isDefined()
+                && value.getDatasetField().getDatasetFieldParent().get().getTemplate() != null) {
             return true;
         }
 

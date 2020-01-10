@@ -5,7 +5,6 @@
  */
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
 import org.apache.commons.lang3.StringUtils;
@@ -42,17 +41,6 @@ public class DatasetFieldCompoundValue implements Serializable {
             return Integer.compare(o1.getDisplayOrder(), o2.getDisplayOrder());
         }
     };
-
-    public static DatasetFieldCompoundValue createNewEmptyDatasetFieldCompoundValue(DatasetField dsf) {
-        DatasetFieldCompoundValue compoundValue = new DatasetFieldCompoundValue();
-        compoundValue.setParentDatasetField(dsf);
-
-        for (DatasetFieldType dsfType : dsf.getDatasetFieldType().getChildDatasetFieldTypes()) {
-            compoundValue.getChildDatasetFields().add(DatasetField.createNewEmptyChildDatasetField(dsfType, compoundValue));
-        }
-
-        return compoundValue;
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -118,19 +106,6 @@ public class DatasetFieldCompoundValue implements Serializable {
     @Override
     public String toString() {
         return "DatasetFieldCompoundValue[ id=" + id + " ]";
-    }
-
-    public DatasetFieldCompoundValue copy() {
-        DatasetFieldCompoundValue compoundValue = new DatasetFieldCompoundValue();
-        compoundValue.setDisplayOrder(displayOrder);
-
-        for (DatasetField subField : childDatasetFields) {
-            DatasetField subFieldCopy = subField.copy();
-            subFieldCopy.setParentDatasetFieldCompoundValue(compoundValue);
-            compoundValue.getChildDatasetFields().add(subFieldCopy);
-        }
-
-        return compoundValue;
     }
 
     public Map<DatasetField, String> getDisplayValueMap() {

@@ -22,6 +22,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -358,14 +359,14 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
      */
     @OneToMany(mappedBy = "parentDatasetFieldType", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("displayOrder ASC")
-    private Collection<DatasetFieldType> childDatasetFieldTypes;
+    private List<DatasetFieldType> childDatasetFieldTypes;
 
-    public Collection<DatasetFieldType> getChildDatasetFieldTypes() {
+    public List<DatasetFieldType> getChildDatasetFieldTypes() {
         return this.childDatasetFieldTypes;
     }
 
     public void setChildDatasetFieldTypes(Collection<DatasetFieldType> childDatasetFieldTypes) {
-        this.childDatasetFieldTypes = childDatasetFieldTypes;
+        this.childDatasetFieldTypes = new ArrayList<>(childDatasetFieldTypes);
     }
 
     @ManyToOne(cascade = CascadeType.MERGE)
@@ -436,14 +437,24 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         this.advancedSearchFieldType = advancedSearchFieldType;
     }
 
+    /**
+     * Indicates if field is primitive (if
+     */
     public boolean isPrimitive() {
         return !isCompound();
     }
 
     public boolean isCompound() {
+        if (childDatasetFieldTypes.isEmpty()){
+            return false;
+        }
+
+        DatasetFieldType firstDSFT = childDatasetFieldTypes.get(0);
+
         return getChildDatasetFieldTypes().stream()
-                .map(DatasetFieldType::getFieldType)
-                .distinct()
+                .filter(childDSFT -> firstDSFT.getName().equals(childDSFT.getName()) &&
+                        firstDSFT.getDescription().equals(childDSFT.getDescription()) &&
+                        firstDSFT.getFieldType().equals(childDSFT.getFieldType()))
                 .limit(2)
                 .count() <=1;
     }

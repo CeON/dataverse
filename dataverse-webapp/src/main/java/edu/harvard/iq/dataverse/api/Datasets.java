@@ -71,9 +71,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
@@ -631,11 +629,10 @@ public class Datasets extends AbstractApiBean {
             dsv.setVersionState(DatasetVersion.VersionState.DRAFT);
 
             List<ControlledVocabularyValue> controlledVocabularyItemsToRemove = new ArrayList<ControlledVocabularyValue>();
-            List<DatasetFieldValue> datasetFieldValueItemsToRemove = new ArrayList<DatasetFieldValue>();
-            List<DatasetFieldCompoundValue> datasetFieldCompoundValueItemsToRemove = new ArrayList<DatasetFieldCompoundValue>();
+            List<DatasetField> dsfChildsToRemove = new ArrayList<>();
+            boolean found = false;
 
             for (DatasetField updateField : fields) {
-                boolean found = false;
                 for (DatasetField dsf : dsv.getDatasetFields()) {
                     if (dsf.getDatasetFieldType().equals(updateField.getDatasetFieldType())) {
                         if (dsf.getDatasetFieldType().isAllowMultiples()) {
@@ -667,58 +664,35 @@ public class Datasets extends AbstractApiBean {
 
                                 }
                             } else {
-                                if (!updateField.getDatasetFieldType().isCompound()) {
-                                    if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                        if (dsf.getFieldDisplayValue().equals(updateField.getFieldDisplayValue())) {
+                                for (DatasetField dfcv : updateField.getDatasetFieldsChildren()) {
+                                    String deleteVal = getCompoundDisplayValue(dfcv);
+                                    for (DatasetField existing : dsf.getDatasetFieldsChildren()) {
+
+                                        String existingString = getCompoundDisplayValue(existing);
+                                        if (existingString.equals(deleteVal)) {
                                             found = true;
-                                            dsf.setFieldValue(null);
+                                            dsfChildsToRemove.add(existing);
                                         }
-
-                                        if (!found) {
-                                            logger.log(Level.SEVERE,
-                                                       "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + updateField.getFieldDisplayValue() + " not found.");
-                                            return error(Response.Status.BAD_REQUEST,
-                                                         "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + updateField.getFieldDisplayValue() + " not found.");
-                                        }
-
-                                    } else {
-                                        if (dsf.getSingleValue().getDisplayValue().equals(updateField.getSingleValue().getDisplayValue())) {
-                                            found = true;
-                                            dsf.setSingleValue(null);
-                                        }
-
                                     }
-                                } else {
-                                    for (DatasetField dfcv : updateField.getDatasetFieldsChildren()) {
-                                        dfcv.dis
-                                        String deleteVal = getCompoundDisplayValue(dfcv);
-                                        for (DatasetFieldCompoundValue existing : dsf.getDatasetFieldCompoundValues()) {
-                                            String existingString = getCompoundDisplayValue(existing);
-                                            if (existingString.equals(deleteVal)) {
-                                                found = true;
-                                                datasetFieldCompoundValueItemsToRemove.add(existing);
-                                            }
-                                        }
-                                        datasetFieldCompoundValueItemsToRemove.forEach((remove) -> {
-                                            dsf.getDatasetFieldCompoundValues().remove(remove);
-                                        });
-                                        if (!found) {
-                                            logger.log(Level.SEVERE,
-                                                       "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + deleteVal + " not found.");
-                                            return error(Response.Status.BAD_REQUEST,
-                                                         "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + deleteVal + " not found.");
-                                        }
+
+                                    dsfChildsToRemove.forEach((remove) -> dsf.getDatasetFieldsChildren().remove(remove));
+                                    if (!found) {
+                                        logger.log(Level.SEVERE,
+                                                   "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + deleteVal + " not found.");
+                                        return error(Response.Status.BAD_REQUEST,
+                                                     "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + deleteVal + " not found.");
                                     }
                                 }
                             }
-                        } else {
-                            found = true;
-                            dsf.setSingleValue(null);
-                            dsf.setSingleControlledVocabularyValue(null);
                         }
-                        break;
+                    } else {
+                        found = true;
+                        dsf.setFieldValue(null);
+                        dsf.setSingleControlledVocabularyValue(null);
                     }
+                    break;
                 }
+
                 if (!found) {
                     String displayValue = !updateField.getDisplayValue().isEmpty() ?
                             updateField.getDisplayValue() :
@@ -727,6 +701,7 @@ public class Datasets extends AbstractApiBean {
                                "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + displayValue + " not found.");
                     return error(Response.Status.BAD_REQUEST,
                                  "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + displayValue + " not found.");
+
                 }
             }
 
@@ -738,11 +713,13 @@ public class Datasets extends AbstractApiBean {
             return ok(json(managedVersion,
                            settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)));
 
-        } catch (JsonParseException ex) {
+        } catch (
+                JsonParseException ex) {
             logger.log(Level.SEVERE, "Semantic error parsing dataset update Json: " + ex.getMessage(), ex);
             return error(Response.Status.BAD_REQUEST, "Error processing metadata delete: " + ex.getMessage());
 
-        } catch (WrappedResponse ex) {
+        } catch (
+                WrappedResponse ex) {
             logger.log(Level.SEVERE, "Delete metadata error: " + ex.getMessage(), ex);
             return ex.getResponse();
 
@@ -750,9 +727,9 @@ public class Datasets extends AbstractApiBean {
 
     }
 
-    private String getCompoundDisplayValue(DatasetFieldCompoundValue dscv) {
+    private String getCompoundDisplayValue(DatasetField dscv) {
         String returnString = "";
-        for (DatasetField dsf : dscv.getChildDatasetFields()) {
+        for (DatasetField dsf : dscv.getDatasetFieldsChildren()) {
             for (String value : dsf.getValues()) {
                 if (!(value == null)) {
                     returnString += (returnString.isEmpty() ? "" : "; ") + value.trim();
@@ -816,11 +793,9 @@ public class Datasets extends AbstractApiBean {
                         if (dsf.isEmpty() || dsf.getDatasetFieldType().isAllowMultiples() || replaceData) {
                             if (replaceData) {
                                 if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                    dsf.setDatasetFieldCompoundValues(new ArrayList<DatasetFieldCompoundValue>());
-                                    dsf.setDatasetFieldValues(new ArrayList<DatasetFieldValue>());
                                     dsf.getControlledVocabularyValues().clear();
                                 } else {
-                                    dsf.setSingleValue("");
+                                    dsf.setFieldValue("");
                                     dsf.setSingleControlledVocabularyValue(null);
                                 }
                             }
@@ -835,23 +810,16 @@ public class Datasets extends AbstractApiBean {
                                     dsf.setSingleControlledVocabularyValue(updateField.getSingleControlledVocabularyValue());
                                 }
                             } else {
-                                if (!updateField.getDatasetFieldType().isCompound()) {
-                                    if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                        for (DatasetFieldValue dfv : updateField.getDatasetFieldValues()) {
-                                            if (!dsf.getDisplayValue().contains(dfv.getDisplayValue())) {
-                                                dfv.setDatasetField(dsf);
-                                                dsf.getDatasetFieldValues().add(dfv);
-                                            }
-                                        }
-                                    } else {
-                                        dsf.setSingleValue(updateField.getValue());
+                                if (updateField.getDatasetFieldType().isPrimitive()) {
+                                    if (!dsf.getDatasetFieldType().isAllowMultiples()) {
+                                        dsf.setFieldValue(updateField.getValue());
                                     }
                                 } else {
-                                    for (DatasetFieldCompoundValue dfcv : updateField.getDatasetFieldCompoundValues()) {
+                                    for (DatasetField dfcv : updateField.getDatasetFieldsChildren()) {
                                         if (!dsf.getCompoundDisplayValue().contains(updateField.getCompoundDisplayValue())) {
-                                            dfcv.setParentDatasetField(dsf);
+                                            dfcv.setDatasetFieldParent(dsf);
                                             dsf.setDatasetVersion(dsv);
-                                            dsf.getDatasetFieldCompoundValues().add(dfcv);
+                                            dsf.getDatasetFieldsChildren().add(dfcv);
 
                                         }
                                     }
@@ -902,7 +870,7 @@ public class Datasets extends AbstractApiBean {
                     && dsf.getDatasetFieldsChildren().isEmpty() && dsf.getFieldValue().isEmpty()) {
                 error.append("Empty multiple value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(
                         " ");
-            } else if (!dsf.getDatasetFieldType().isAllowMultiples() && dsf.getSingleValue().getValue().isEmpty()) {
+            } else if (!dsf.getDatasetFieldType().isAllowMultiples() && dsf.getDatasetFieldsChildren().isEmpty()) {
                 error.append("Empty value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");
             }
         }
