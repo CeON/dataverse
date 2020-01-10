@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -36,6 +37,7 @@ public class Guestbook implements Serializable {
      * Holds value of the Dataverse
      */
     @ManyToOne
+    @JoinColumn(nullable = true)
     private Dataverse dataverse;
 
     @OneToMany(mappedBy = "guestbook", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
