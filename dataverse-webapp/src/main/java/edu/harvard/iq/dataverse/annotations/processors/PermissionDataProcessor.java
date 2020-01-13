@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.annotations.processors;
 
 
 import edu.harvard.iq.dataverse.annotations.PermissionNeeded;
+import edu.harvard.iq.dataverse.interceptors.Restricted;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import io.vavr.Tuple;
@@ -55,10 +56,8 @@ public class PermissionDataProcessor {
     }
 
     private PermissionNeeded[] extractAnnotations(Method method) {
-        return Option.of(method.getAnnotation(PermissionNeeded.Container.class))
-                .map(PermissionNeeded.Container::value)
-                .orElse(() -> Option.of(method.getAnnotation(PermissionNeeded.class))
-                        .map(a -> new PermissionNeeded[] { a }))
+        return Option.of(method.getAnnotation(Restricted.class))
+                .map(Restricted::value)
                 .getOrElse(new PermissionNeeded[0]);
     }
 

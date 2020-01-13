@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.annotations.processors;
 
 import edu.harvard.iq.dataverse.annotations.PermissionNeeded;
+import edu.harvard.iq.dataverse.interceptors.Restricted;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -147,30 +148,38 @@ class PermissionDataProcessorTest {
 
     // -------------------- INNER CLASSES --------------------
 
-    private static class Annotated {
+    public static class Annotated {
         public void notAnnotated(DvObject o1, DvObject o2) {
             ;
         }
 
-        @PermissionNeeded(needs = {Permission.EditDataset, Permission.AddDataset})
+        @Restricted({
+                @PermissionNeeded(needs = {Permission.EditDataset, Permission.AddDataset})
+        })
         public void unnamedOnly(@PermissionNeeded DvObject o1, @PermissionNeeded DvObject o2) {
             ;
         }
 
-        @PermissionNeeded(on = "source", needs = {Permission.EditDataset})
-        @PermissionNeeded(needs = {Permission.AddDataset})
+        @Restricted({
+                @PermissionNeeded(on = "source", needs = {Permission.EditDataset}),
+                @PermissionNeeded(needs = {Permission.AddDataset})
+        })
         public void mixed(@PermissionNeeded("source") DvObject o1, @PermissionNeeded DvObject o2) {
             ;
         }
 
-        @PermissionNeeded(on = "source", needs = {Permission.EditDataset}, needsOnOwner = {Permission.AddDataset})
+        @Restricted({
+                @PermissionNeeded(on = "source", needs = {Permission.EditDataset}, needsOnOwner = {Permission.AddDataset})
+        })
         public void withOwner(@PermissionNeeded("source") DvObject o1) {
             ;
         }
 
-        @PermissionNeeded(on = "source", needs = {Permission.EditDataset})
-        @PermissionNeeded(on = "target", needs = {Permission.EditDataset})
-        @PermissionNeeded(on = "aux", needs = {Permission.EditDataset})
+        @Restricted({
+                @PermissionNeeded(on = "source", needs = {Permission.EditDataset}),
+                @PermissionNeeded(on = "target", needs = {Permission.EditDataset}),
+                @PermissionNeeded(on = "aux", needs = {Permission.EditDataset})
+        })
         public void multipleNames(String message,
                                   @PermissionNeeded("target") DvObject o1,
                                   @PermissionNeeded("aux") DvObject o2,
