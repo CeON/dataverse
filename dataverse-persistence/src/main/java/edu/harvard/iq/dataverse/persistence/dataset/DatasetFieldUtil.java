@@ -21,6 +21,7 @@ public class DatasetFieldUtil {
 
     // -------------------- LOGIC -------------------
 
+    @Deprecated
     public static List<DatasetField> getFlatDatasetFields(List<DatasetField> datasetFields) {
         List<DatasetField> retList = new LinkedList<>();
         for (DatasetField dsf : datasetFields) {

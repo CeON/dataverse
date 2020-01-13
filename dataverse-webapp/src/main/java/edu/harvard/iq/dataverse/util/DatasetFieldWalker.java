@@ -2,11 +2,8 @@ package edu.harvard.iq.dataverse.util;
 
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,13 +28,13 @@ public class DatasetFieldWalker {
 
         void endField(DatasetField f);
 
-        void primitiveValue(DatasetFieldValue dsfv);
+        void primitiveValue(DatasetField dsfv);
 
         void controledVocabularyValue(ControlledVocabularyValue cvv);
 
-        void startCompoundValue(DatasetFieldCompoundValue dsfcv);
+        void startCompoundValue(DatasetField dsfcv);
 
-        void endCompoundValue(DatasetFieldCompoundValue dsfcv);
+        void endCompoundValue(DatasetField dsfcv);
     }
 
     /**
@@ -55,9 +52,9 @@ public class DatasetFieldWalker {
      * Convenience method to walk over a list of fields. Traversal
      * is done in display order.
      *
-     * @param fields  the fields to go over. Does not have to be sorted.
+     * @param fields             the fields to go over. Does not have to be sorted.
      * @param excludeEmailFields is email excluded from export
-     * @param l       the listener to execute on each field values and structure.
+     * @param l                  the listener to execute on each field values and structure.
      */
     public static void walk(List<DatasetField> fields, Listener l, boolean excludeEmailFields) {
         DatasetFieldWalker joe = new DatasetFieldWalker(l);
@@ -88,19 +85,21 @@ public class DatasetFieldWalker {
             }
 
         } else if (datasetFieldType.isPrimitive()) {
-            for (DatasetFieldValue pv : sort(fld.getDatasetFieldValues(), DatasetFieldValue.DisplayOrder)) {
-                if (excludeEmailFields && FieldType.EMAIL.equals(pv.getDatasetField().getDatasetFieldType().getFieldType())) {
-                    continue;
+            if (datasetFieldType.isAllowMultiples()) {
+                for (DatasetField pv : sort(fld.getDatasetFieldsChildren(), DatasetField.DisplayOrder)) {
+                    if (excludeEmailFields && FieldType.EMAIL.equals(pv.getDatasetFieldType().getFieldType())) {
+                        continue;
+                    }
+                    l.primitiveValue(pv);
                 }
-                l.primitiveValue(pv);
+            } else {
+                l.primitiveValue(fld);
             }
 
         } else if (datasetFieldType.isCompound()) {
-            for (DatasetFieldCompoundValue dsfcv : sort(fld.getDatasetFieldCompoundValues(), DatasetFieldCompoundValue.DisplayOrder)) {
+            for (DatasetField dsfcv : sort(fld.getDatasetFieldsChildren(), DatasetField.DisplayOrder)) {
                 l.startCompoundValue(dsfcv);
-                for (DatasetField dsf : sort(dsfcv.getChildDatasetFields(), DatasetField.DisplayOrder)) {
-                    walk(dsf, excludeEmailFields);
-                }
+                walk(dsfcv, excludeEmailFields);
                 l.endCompoundValue(dsfcv);
             }
         }

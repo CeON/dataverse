@@ -3,9 +3,7 @@ package edu.harvard.iq.dataverse.metadataimport;
 
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.ForeignMetadataFieldMapping;
 import edu.harvard.iq.dataverse.persistence.dataset.ForeignMetadataFormatMapping;
@@ -70,7 +68,9 @@ public class ForeignMetadataImportServiceBean {
 
         } catch (XMLStreamException ex) {
             //Logger.getLogger("global").log(Level.SEVERE, null, ex);
-            throw new EJBException("ERROR occurred while parsing XML fragment  (" + xmlToParse.substring(0, 64) + "...); ", ex);
+            throw new EJBException("ERROR occurred while parsing XML fragment  (" + xmlToParse.substring(0,
+                                                                                                         64) + "...); ",
+                                   ex);
         } finally {
             try {
                 if (xmlr != null) {
@@ -146,10 +146,11 @@ public class ForeignMetadataImportServiceBean {
             if (event == XMLStreamConstants.START_ELEMENT) {
                 String currentElement = xmlr.getLocalName();
 
-                ForeignMetadataFieldMapping mappingDefined = datasetfieldService.findFieldMapping(foreignFormatMapping.getName(), currentPath + currentElement);
+                ForeignMetadataFieldMapping mappingDefined = datasetfieldService.findFieldMapping(foreignFormatMapping.getName(),
+                                                                                                  currentPath + currentElement);
 
                 if (mappingDefined != null) {
-                    DatasetFieldCompoundValue cachedCompoundValue = null;
+                    DatasetField cachedCompoundValue = null;
 
                     // Process attributes, if any are defined in the mapping:
 
@@ -166,7 +167,10 @@ public class ForeignMetadataImportServiceBean {
                                 DatasetFieldType mappedFieldType = datasetfieldService.findByNameOpt(mappedFieldName);
                                 if (mappedFieldType != null) {
                                     try {
-                                        cachedCompoundValue = createDatasetFieldValue(mappedFieldType, cachedCompoundValue, attributeValue, datasetVersion);
+                                        cachedCompoundValue = createDatasetFieldValue(mappedFieldType,
+                                                                                      cachedCompoundValue,
+                                                                                      attributeValue,
+                                                                                      datasetVersion);
                                     } catch (Exception ex) {
                                         logger.warning("Caught unknown exception when processing attribute " + currentPath + currentElement + "{" + attributeName + "} (skipping);");
                                     }
@@ -183,14 +187,21 @@ public class ForeignMetadataImportServiceBean {
                         DatasetFieldType dataverseFieldType = datasetfieldService.findByNameOpt(dataverseFieldName);
                         if (dataverseFieldType != null) {
                             String elementTextPayload = parseText(xmlr);
-                            createDatasetFieldValue(dataverseFieldType, cachedCompoundValue, elementTextPayload, datasetVersion);
+                            createDatasetFieldValue(dataverseFieldType,
+                                                    cachedCompoundValue,
+                                                    elementTextPayload,
+                                                    datasetVersion);
                         } else {
                             throw new EJBException("Bad foreign metadata field mapping: no such DatasetField " + dataverseFieldName + "!");
                         }
                     }
                 } else {
                     // recursively, process the xml stream further down: 
-                    processXMLElement(xmlr, currentPath + currentElement + ":", currentElement, foreignFormatMapping, datasetVersion);
+                    processXMLElement(xmlr,
+                                      currentPath + currentElement + ":",
+                                      currentElement,
+                                      foreignFormatMapping,
+                                      datasetVersion);
                 }
 
             } else if (event == XMLStreamConstants.END_ELEMENT) {
@@ -202,7 +213,7 @@ public class ForeignMetadataImportServiceBean {
     }
 
 
-    private DatasetFieldCompoundValue createDatasetFieldValue(DatasetFieldType dsft, DatasetFieldCompoundValue savedCompoundValue, String elementText, DatasetVersion datasetVersion) {
+    private DatasetField createDatasetFieldValue(DatasetFieldType dsft, DatasetField savedCompoundValue, String elementText, DatasetVersion datasetVersion) {
         if (dsft.isPrimitive()) {
             if (!dsft.isHasParent()) {
                 // simple primitive: 
@@ -227,31 +238,17 @@ public class ForeignMetadataImportServiceBean {
 
                 if (!dsft.isControlledVocabulary()) {
                     logger.fine("Creating a new value for field " + dsfName + ": " + elementText);
-                    DatasetFieldValue newDsfv = new DatasetFieldValue(dsf);
-                    newDsfv.setValue(elementText);
-                    dsf.getDatasetFieldValues().add(newDsfv);
 
-                } else {
-                    // A controlled vocabulary entry: 
-                    // first, let's see if it's a legit control vocab. entry: 
-                    /* not supported yet; though I expect the commented-out code
-                       below to work;
-                    ControlledVocabularyValue legitControlledVocabularyValue = null;
-                    Collection<ControlledVocabularyValue> definedVocabularyValues = dsft.getControlledVocabularyValues();
-                    if (definedVocabularyValues != null) {
-                        for (ControlledVocabularyValue definedVocabValue : definedVocabularyValues) {
-                            if (elementText.equals(definedVocabValue.getStrValue())) {
-                                logger.fine("Yes, " + elementText + " is a valid controlled vocabulary value for the field " + dsfName);
-                                legitControlledVocabularyValue = definedVocabValue;
-                                break;
-                            }
-                        }
+                    if (dsft.isAllowMultiples()) {
+                        DatasetField fieldValue = new DatasetField();
+                        fieldValue.setDatasetFieldParent(dsf);
+                        fieldValue.setFieldValue(elementText);
+                        dsf.getDatasetFieldsChildren().add(fieldValue);
+
+                    } else {
+                        dsf.setFieldValue(elementText);
                     }
-                    if (legitControlledVocabularyValue != null) {
-                        logger.fine("Adding controlled vocabulary value " + elementText + " to field " + dsfName);
-                        dsf.getControlledVocabularyValues().add(legitControlledVocabularyValue);
-                    }
-                    */
+
                 }
                 // No compound values had to be created; returning null:
                 return null;
@@ -263,65 +260,20 @@ public class ForeignMetadataImportServiceBean {
 
                 DatasetField childField = new DatasetField();
                 childField.setDatasetFieldType(dsft);
-                DatasetFieldValue childValue = new DatasetFieldValue(childField);
-                childValue.setValue(elementText);
-                childField.getDatasetFieldValues().add(childValue);
 
 
-                // see if a compound value of the right type has already been 
-                // created and passed to us: 
 
-                DatasetFieldCompoundValue parentCompoundValue = null;
-                DatasetFieldType parentFieldType = dsft.getParentDatasetFieldType();
-                if (parentFieldType == null) {
-                    logger.severe("Child field type with no parent field type defined!");
-                    // we could throw an exception and exit... but maybe we 
-                    // could just skip this field and try to continue - ? 
-                    return null;
+                if (dsft.isAllowMultiples()){
+                    DatasetField childValue = new DatasetField();
+                    childValue.setDatasetFieldParent(childField);
+                    childValue.setFieldValue(elementText);
+                    childField.getDatasetFieldsChildren().add(childValue);
+
+                } else {
+                    childField.setFieldValue(elementText);
                 }
 
-                if (savedCompoundValue != null) {
-                    if (parentFieldType.equals(savedCompoundValue.getParentDatasetField().getDatasetFieldType())) {
-                        parentCompoundValue = savedCompoundValue;
-                    }
-                }
-
-                // if not, create a new one: 
-
-                if (parentCompoundValue == null) {
-                    // and to do that, we need to find or create the "parent"
-                    // dataset field for this compoound value:
-                    // (I put quotes around "parent", because I really feel it 
-                    // is a misnomer, and that the relationship between the compound value
-                    // and the corresponding dataset field should be called 
-                    // "CompoundDatasetField", not "ParentDatasetField") (discuss?)
-                    DatasetField parentField = null;
-
-                    for (DatasetField existingDsf : datasetVersion.getFlatDatasetFields()) {
-                        if (existingDsf.getDatasetFieldType().equals(parentFieldType)) {
-                            parentField = existingDsf;
-                        }
-                    }
-
-                    // if doesn't exist, create a new one: 
-                    if (parentField == null) {
-                        parentField = new DatasetField();
-                        parentField.setDatasetFieldType(parentFieldType);
-                        datasetVersion.getDatasetFields().add(parentField);
-                        parentField.setDatasetVersion(datasetVersion);
-                    }
-
-                    // and then create new compound value: 
-                    parentCompoundValue = new DatasetFieldCompoundValue();
-                    parentCompoundValue.setParentDatasetField(parentField);
-                    parentField.getDatasetFieldCompoundValues().add(parentCompoundValue);
-                }
-
-                childField.setParentDatasetFieldCompoundValue(parentCompoundValue);
-                parentCompoundValue.getChildDatasetFields().add(childField);
-
-                return parentCompoundValue;
-
+                return childField;
             }
         }
 

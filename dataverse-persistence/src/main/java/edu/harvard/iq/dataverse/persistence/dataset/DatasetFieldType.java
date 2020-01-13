@@ -438,7 +438,8 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     /**
-     * Indicates if field is primitive (if
+     * Indicates if field is primitive (if {@link #allowMultiples} is true values will be placed in
+     * {@link DatasetField#getDatasetFieldsChildren()} otherwise in {@link DatasetField#getFieldValue()}).
      */
     public boolean isPrimitive() {
         return !isCompound();

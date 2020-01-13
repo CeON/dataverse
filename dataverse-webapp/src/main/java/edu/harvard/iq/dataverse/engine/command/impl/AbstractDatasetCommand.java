@@ -103,7 +103,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                 // populate invalid fields with N/A
                 constraintViolations.stream()
                         .map(cv -> ((DatasetField) cv.getRootBean()))
-                        .forEach(f -> f.setSingleValue(DatasetField.NA_VALUE));
+                        .forEach(f -> f.setFieldValue(DatasetField.NA_VALUE));
 
             } else {
                 // explode with a helpful message

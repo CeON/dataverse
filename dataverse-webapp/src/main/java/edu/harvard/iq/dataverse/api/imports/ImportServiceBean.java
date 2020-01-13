@@ -283,7 +283,7 @@ public class ImportServiceBean {
                 // For migration and harvest, add NA for missing required values
                 for (ConstraintViolation<DatasetField> v : violations) {
                     DatasetField f = v.getRootBean();
-                    f.setSingleValue(DatasetField.NA_VALUE);
+                    f.setFieldValue(DatasetField.NA_VALUE);
                 }
             }
 
@@ -444,7 +444,7 @@ public class ImportServiceBean {
                     // For migration and harvest, add NA for missing required values
                     for (ConstraintViolation<DatasetField> v : violations) {
                         DatasetField f = v.getRootBean();
-                        f.setSingleValue(DatasetField.NA_VALUE);
+                        f.setFieldValue(DatasetField.NA_VALUE);
                     }
                 } else {
                     // when importing a new dataset, the import will fail

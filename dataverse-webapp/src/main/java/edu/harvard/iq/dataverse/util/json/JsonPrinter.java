@@ -12,9 +12,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetDistributor;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
@@ -682,7 +680,7 @@ public class JsonPrinter {
         }
 
         @Override
-        public void primitiveValue(DatasetFieldValue dsfv) {
+        public void primitiveValue(DatasetField dsfv) {
             if (dsfv.getValue() != null) {
                 valueArrStack.peek().add(dsfv.getValue());
             }
@@ -694,12 +692,12 @@ public class JsonPrinter {
         }
 
         @Override
-        public void startCompoundValue(DatasetFieldCompoundValue dsfcv) {
+        public void startCompoundValue(DatasetField dsfcv) {
             valueArrStack.push(Json.createArrayBuilder());
         }
 
         @Override
-        public void endCompoundValue(DatasetFieldCompoundValue dsfcv) {
+        public void endCompoundValue(DatasetField dsfcv) {
             JsonArray jsonValues = valueArrStack.pop().build();
             if (!jsonValues.isEmpty()) {
                 JsonObjectBuilder jsonField = jsonObjectBuilder();

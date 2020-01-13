@@ -59,9 +59,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
@@ -1332,7 +1330,7 @@ public class IngestServiceBean {
                                                         datasetField
                                                                 .setDatasetFieldParent(dsf)
                                                                 .setFieldValue(fValue);
-                                                    } else if (!valueExists){
+                                                    } else if (!valueExists) {
                                                         dsf.setFieldValue(fValue);
                                                     }
 
@@ -1388,9 +1386,7 @@ public class IngestServiceBean {
                         // make up this compound field; if we find at least one 
                         // of the child values in the map of extracted values, we'll 
                         // create a new compound field value and its child 
-                        // 
-                        DatasetFieldCompoundValue compoundDsfv = new DatasetFieldCompoundValue();
-                        int nonEmptyFields = 0;
+                        //
                         for (DatasetFieldType cdsft : dsft.getChildDatasetFieldTypes()) {
                             String dsfName = cdsft.getName();
                             if (fileMetadataMap.get(dsfName) != null && !fileMetadataMap.get(dsfName).isEmpty()) {
@@ -1407,58 +1403,15 @@ public class IngestServiceBean {
                                         DatasetField childDsf = new DatasetField();
                                         childDsf.setDatasetFieldType(cdsft);
 
-                                        DatasetFieldValue newDsfv = new DatasetFieldValue(childDsf);
-                                        newDsfv.setValue((String) fileMetadataMap.get(dsfName).toArray()[0]);
-                                        childDsf.getDatasetFieldValues().add(newDsfv);
+                                        if (cdsft.isAllowMultiples()) {
+                                            DatasetField fieldChild = new DatasetField();
+                                            fieldChild.setFieldValue((String) fileMetadataMap.get(dsfName).toArray()[0]);
+                                            fieldChild.setDatasetFieldParent(childDsf);
+                                            childDsf.getDatasetFieldsChildren().add(fieldChild);
 
-                                        childDsf.setParentDatasetFieldCompoundValue(compoundDsfv);
-                                        compoundDsfv.getChildDatasetFields().add(childDsf);
-
-                                        nonEmptyFields++;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (nonEmptyFields > 0) {
-                            // let's go through this dataset's fields and find the 
-                            // actual parent for this sub-field: 
-                            for (DatasetField dsf : editVersion.getFlatDatasetFields()) {
-                                if (dsf.getDatasetFieldType().equals(dsft)) {
-
-                                    // Now let's check that the dataset version doesn't already have
-                                    // this compound value - we are only interested in aggregating 
-                                    // unique values. Note that we need to compare compound values 
-                                    // as sets! -- i.e. all the sub fields in 2 compound fields 
-                                    // must match in order for these 2 compounds to be recognized 
-                                    // as "the same":
-
-                                    boolean alreadyExists = false;
-                                    for (DatasetFieldCompoundValue dsfcv : dsf.getDatasetFieldCompoundValues()) {
-                                        int matches = 0;
-
-                                        for (DatasetField cdsf : dsfcv.getChildDatasetFields()) {
-                                            String cdsfName = cdsf.getDatasetFieldType().getName();
-                                            String cdsfValue = cdsf.getDatasetFieldValues().get(0).getValue();
-                                            if (cdsfValue != null && !cdsfValue.equals("")) {
-                                                String extractedValue = (String) fileMetadataMap.get(cdsfName).toArray()[0];
-                                                logger.fine("values: existing: " + cdsfValue + ", extracted: " + extractedValue);
-                                                if (cdsfValue.equals(extractedValue)) {
-                                                    matches++;
-                                                }
-                                            }
+                                        } else {
+                                            childDsf.setFieldValue((String) fileMetadataMap.get(dsfName).toArray()[0]);
                                         }
-                                        if (matches == nonEmptyFields) {
-                                            alreadyExists = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (!alreadyExists) {
-                                        // save this compound value, by attaching it to the 
-                                        // version for proper cascading:
-                                        compoundDsfv.setParentDatasetField(dsf);
-                                        dsf.getDatasetFieldCompoundValues().add(compoundDsfv);
                                     }
                                 }
                             }
