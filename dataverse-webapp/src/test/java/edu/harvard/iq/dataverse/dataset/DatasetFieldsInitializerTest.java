@@ -66,8 +66,8 @@ public class DatasetFieldsInitializerTest {
         DatasetField titleField = DatasetField.createNewEmptyDatasetField(makeTitleFieldType(citationBlock), null);
 
         DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        fillAuthorField(authorField, 0, "John Doe", "John Aff");
-        fillAuthorField(authorField, 1, "Jane Doe", "Jane Aff");
+        fillAuthorField(authorField, "John Doe", "John Aff");
+        fillAuthorField(authorField, "Jane Doe", "Jane Aff");
 
         DatasetField depositorField = DatasetField.createNewEmptyDatasetField(makeDepositorFieldType(citationBlock), null);
         fillDepositorField(depositorField, "John Depositor");
@@ -102,13 +102,13 @@ public class DatasetFieldsInitializerTest {
         fillTitle(titleField, "Some Title");
 
         DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        fillAuthorField(authorField, 0, "John Doe", "John Aff");
-        fillAuthorField(authorField, 1, "Jane Doe", "Jane Aff");
+        fillAuthorField(authorField,  "John Doe", "John Aff");
+        fillAuthorField(authorField,  "Jane Doe", "Jane Aff");
 
         DatasetField keywordField = DatasetField.createNewEmptyDatasetField(makeKeywordFieldType(citationBlock), null);
-        fillKeywordField(keywordField, 0, "term1", "vocabName", "http://example.edu");
-        fillKeywordTermOnlyField(keywordField, 1, "term2");
-        fillKeywordTermOnlyField(keywordField, 2, "term3");
+        fillKeywordField(keywordField, "term1", "vocabName", "http://example.edu");
+        fillKeywordTermOnlyField(keywordField, "term2");
+        fillKeywordTermOnlyField(keywordField, "term3");
 
         DatasetFieldType depositorFieldType = makeDepositorFieldType(citationBlock);
         DatasetFieldType dataOfDepositFieldType = makeDateOfDepositFieldType(citationBlock);
@@ -156,7 +156,7 @@ public class DatasetFieldsInitializerTest {
         fillTitle(titleField, "Some Title");
 
         DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        fillAuthorField(authorField, 0, "John Doe", "John Aff");
+        fillAuthorField(authorField,  "John Doe", "John Aff");
 
         DatasetField boundingBoxField = DatasetField.createNewEmptyDatasetField(makeGeographicBoundingBoxFieldType(geospatialBlock), null);
 
@@ -230,7 +230,7 @@ public class DatasetFieldsInitializerTest {
         fillTitle(titleField, "Some Title");
 
         DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        fillAuthorField(authorField, 0, "John Doe", "John Aff");
+        fillAuthorField(authorField, "John Doe", "John Aff");
 
         List<DatasetField> datasetFields = Lists.newArrayList(titleField, authorField);
 

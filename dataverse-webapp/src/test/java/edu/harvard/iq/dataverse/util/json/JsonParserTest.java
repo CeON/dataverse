@@ -11,9 +11,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -135,14 +133,15 @@ public class JsonParserTest {
     public void testCompoundRepeatsRoundtrip() throws JsonParseException {
         DatasetField expected = new DatasetField();
         expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("coordinate"));
-        List<DatasetFieldCompoundValue> vals = new LinkedList<>();
+        List<DatasetField> vals = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
-            DatasetFieldCompoundValue val = new DatasetFieldCompoundValue();
-            val.setParentDatasetField(expected);
-            val.setChildDatasetFields(Arrays.asList(latLonField("lat", Integer.toString(i * 10)), latLonField("lon", Integer.toString(3 + i * 10))));
+            DatasetField val = new DatasetField();
+            val.setDatasetFieldParent(expected);
+            val.setDatasetFieldsChildren(Arrays.asList(latLonField("lat", Integer.toString(i * 10)),
+                                                       latLonField("lon", Integer.toString(3 + i * 10))));
             vals.add(val);
         }
-        expected.setDatasetFieldCompoundValues(vals);
+        expected.setDatasetFieldsChildren(vals);
 
         JsonObject json = JsonPrinter.json(expected);
 
@@ -156,7 +155,7 @@ public class JsonParserTest {
     DatasetField latLonField(String latLon, String value) {
         DatasetField retVal = new DatasetField();
         retVal.setDatasetFieldType(datasetFieldTypeSvc.findByName(latLon));
-        retVal.setDatasetFieldValues(Collections.singletonList(new DatasetFieldValue(retVal, value)));
+        retVal.setFieldValue(value);
         return retVal;
     }
 
@@ -223,7 +222,7 @@ public class JsonParserTest {
     public void testPrimitiveNoRepeatesFieldRoundTrip() throws JsonParseException {
         DatasetField expected = new DatasetField();
         expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("description"));
-        expected.setDatasetFieldValues(Collections.singletonList(new DatasetFieldValue(expected, "This is a description value")));
+        expected.setFieldValue("This is a description value");
         JsonObject json = JsonPrinter.json(expected);
 
         DatasetField actual = sut.parseField(json);
@@ -235,9 +234,15 @@ public class JsonParserTest {
     public void testPrimitiveRepeatesFieldRoundTrip() throws JsonParseException {
         DatasetField expected = new DatasetField();
         expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("keyword"));
-        expected.setDatasetFieldValues(Arrays.asList(new DatasetFieldValue(expected, "kw1"),
-                                                     new DatasetFieldValue(expected, "kw2"),
-                                                     new DatasetFieldValue(expected, "kw3")));
+        expected.setDatasetFieldsChildren(Arrays.asList(new DatasetField()
+                                                                .setDatasetFieldParent(expected)
+                                                                .setFieldValue("kw1"),
+                                                        new DatasetField()
+                                                                .setDatasetFieldParent(expected)
+                                                                .setFieldValue("kw2"),
+                                                        new DatasetField()
+                                                                .setDatasetFieldParent(expected)
+                                                                .setFieldValue("kw3")));
         JsonObject json = JsonPrinter.json(expected);
 
         DatasetField actual = sut.parseField(json);
@@ -256,7 +261,8 @@ public class JsonParserTest {
     public void testParseCompleteDataverse() throws JsonParseException {
 
         JsonObject dvJson;
-        try (InputStreamReader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("json/dataverse-complete.json"), StandardCharsets.UTF_8)) {
+        try (InputStreamReader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(
+                "json/dataverse-complete.json"), StandardCharsets.UTF_8)) {
             dvJson = Json.createReader(reader).readObject();
             Dataverse actual = sut.parseDataverse(dvJson);
             assertEquals("Scientific Research", actual.getName());
@@ -509,14 +515,23 @@ public class JsonParserTest {
         IpGroup parsed = new JsonParser().parseIpGroup(serialized);
 
         assertEquals(original, parsed);
-        assertTrue(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.1")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.2")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.2.1")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.0")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.250")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.2.1.1")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("2.1.1.1")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61")), parsed));
+        assertTrue(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.1")),
+                                            parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.2")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.2.1")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.0")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.250")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.2.1.1")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("2.1.1.1")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                  IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61")),
+                                             parsed));
 
     }
 
@@ -540,13 +555,26 @@ public class JsonParserTest {
         IpGroup parsed = new JsonParser().parseIpGroup(serialized);
 
         assertEquals(original, parsed);
-        assertTrue(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce60")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce62")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe80::22c9:d0ff:fe47:ce61")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe80::22c9:d0af:fe48:ce61")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("fe79::22c9:d0ff:fe48:ce61")), parsed));
-        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("2.1.1.1")), parsed));
+        assertTrue(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                 IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61")),
+                                            parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                  IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce60")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                  IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce62")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                  IpAddress.valueOf("fe80::22c9:d0ff:fe47:ce61")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                  IpAddress.valueOf("fe80::22c9:d0af:fe48:ce61")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
+                                                                  IpAddress.valueOf("fe79::22c9:d0ff:fe48:ce61")),
+                                             parsed));
+        assertFalse(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("2.1.1.1")),
+                                             parsed));
 
     }
 
@@ -576,7 +604,9 @@ public class JsonParserTest {
         assertEquals("myLabel", fileMetadatas.get(0).getLabel());
         assertEquals("Documentation", fileMetadatas.get(0).getCategories().get(0).getName());
         assertEquals(null, fileMetadatas.get(1).getCategories());
-        List<FileMetadata> codeCoverage = new JsonParser().parseFiles(Json.createArrayBuilder().add(Json.createObjectBuilder().add("label", "myLabel").add("dataFile", Json.createObjectBuilder().add("categories", JsonValue.NULL))).build(), dsv);
+        List<FileMetadata> codeCoverage = new JsonParser().parseFiles(Json.createArrayBuilder().add(Json.createObjectBuilder().add(
+                "label",
+                "myLabel").add("dataFile", Json.createObjectBuilder().add("categories", JsonValue.NULL))).build(), dsv);
         assertEquals(null, codeCoverage.get(0).getCategories());
     }
 
@@ -611,22 +641,7 @@ public class JsonParserTest {
             return false;
         }
 
-        if (ex.getDatasetFieldType().isPrimitive()) {
-            List<DatasetFieldValue> exVals = ex.getDatasetFieldValues();
-            List<DatasetFieldValue> actVals = act.getDatasetFieldValues();
-            if (exVals.size() != actVals.size()) {
-                return false;
-            }
-            Iterator<DatasetFieldValue> exItr = exVals.iterator();
-            for (DatasetFieldValue actVal : actVals) {
-                DatasetFieldValue exVal = exItr.next();
-                if (!exVal.getValue().equals(actVal.getValue())) {
-                    return false;
-                }
-            }
-            return true;
-
-        } else if (ex.getDatasetFieldType().isControlledVocabulary()) {
+        if (ex.getDatasetFieldType().isControlledVocabulary()) {
             List<ControlledVocabularyValue> exVals = ex.getControlledVocabularyValues();
             List<ControlledVocabularyValue> actVals = act.getControlledVocabularyValues();
             if (exVals.size() != actVals.size()) {
@@ -641,26 +656,26 @@ public class JsonParserTest {
             }
             return true;
 
-        } else if (ex.getDatasetFieldType().isCompound()) {
-            List<DatasetFieldCompoundValue> exVals = ex.getDatasetFieldCompoundValues();
-            List<DatasetFieldCompoundValue> actVals = act.getDatasetFieldCompoundValues();
+        } else {
+
+            List<DatasetField> exVals = ex.getDatasetFieldsChildren();
+            List<DatasetField> actVals = act.getDatasetFieldsChildren();
+
+            if (ex.getFieldValue().isDefined() && act.getFieldValue().isDefined()){
+                return ex.getFieldValue().get().equals(act.getFieldValue().get());
+            }
             if (exVals.size() != actVals.size()) {
                 return false;
             }
-            Iterator<DatasetFieldCompoundValue> exItr = exVals.iterator();
-            for (DatasetFieldCompoundValue actVal : actVals) {
-                DatasetFieldCompoundValue exVal = exItr.next();
-                Iterator<DatasetField> exChildItr = exVal.getChildDatasetFields().iterator();
-                Iterator<DatasetField> actChildItr = actVal.getChildDatasetFields().iterator();
-                while (exChildItr.hasNext()) {
-                    assertFieldsEqual(exChildItr.next(), actChildItr.next());
+            Iterator<DatasetField> exItr = exVals.iterator();
+            for (DatasetField actVal : actVals) {
+                DatasetField exVal = exItr.next();
+                if (!exVal.getValue().equals(actVal.getValue())) {
+                    return false;
                 }
             }
             return true;
-
         }
-
-        throw new IllegalArgumentException("Unknown dataset field type '" + ex.getDatasetFieldType() + "'");
     }
 
 

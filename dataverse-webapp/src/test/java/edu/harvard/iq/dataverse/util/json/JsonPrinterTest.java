@@ -9,9 +9,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
@@ -27,9 +25,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -183,16 +179,11 @@ public class JsonPrinterTest {
         DatasetFieldType datasetContactDatasetFieldType = datasetFieldTypeSvc.findByName("datasetContact");
         datasetContactDatasetFieldType.setMetadataBlock(block);
         datasetContactField.setDatasetFieldType(datasetContactDatasetFieldType);
-        List<DatasetFieldCompoundValue> vals = new LinkedList<>();
-        DatasetFieldCompoundValue val = new DatasetFieldCompoundValue();
-        val.setParentDatasetField(datasetContactField);
-        val.setChildDatasetFields(Arrays.asList(
+        datasetContactField.setDatasetFieldsChildren(Arrays.asList(
                 constructPrimitive("datasetContactEmail", "foo@bar.com"),
                 constructPrimitive("datasetContactName", "Foo Bar"),
                 constructPrimitive("datasetContactAffiliation", "Bar University")
         ));
-        vals.add(val);
-        datasetContactField.setDatasetFieldCompoundValues(vals);
         fields.add(datasetContactField);
 
         JsonObject jsonObject = JsonPrinter.json(block, fields, false).build();
@@ -222,16 +213,12 @@ public class JsonPrinterTest {
         DatasetFieldType datasetContactDatasetFieldType = datasetFieldTypeSvc.findByName("datasetContact");
         datasetContactDatasetFieldType.setMetadataBlock(block);
         datasetContactField.setDatasetFieldType(datasetContactDatasetFieldType);
-        List<DatasetFieldCompoundValue> vals = new LinkedList<>();
-        DatasetFieldCompoundValue val = new DatasetFieldCompoundValue();
-        val.setParentDatasetField(datasetContactField);
-        val.setChildDatasetFields(Arrays.asList(
+
+        datasetContactField.setDatasetFieldsChildren(Arrays.asList(
                 constructPrimitive("datasetContactEmail", "foo@bar.com"),
                 constructPrimitive("datasetContactName", "Foo Bar"),
                 constructPrimitive("datasetContactAffiliation", "Bar University")
         ));
-        vals.add(val);
-        datasetContactField.setDatasetFieldCompoundValues(vals);
         fields.add(datasetContactField);
 
         JsonObject jsonObject = JsonPrinter.json(block, fields, true).build();
@@ -255,7 +242,7 @@ public class JsonPrinterTest {
     DatasetField constructPrimitive(String datasetFieldTypeName, String value) {
         DatasetField retVal = new DatasetField();
         retVal.setDatasetFieldType(datasetFieldTypeSvc.findByName(datasetFieldTypeName));
-        retVal.setDatasetFieldValues(Collections.singletonList(new DatasetFieldValue(retVal, value)));
+        retVal.setFieldValue(value);
         return retVal;
     }
 

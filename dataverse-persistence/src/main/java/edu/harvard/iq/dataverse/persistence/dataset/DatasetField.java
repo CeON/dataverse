@@ -168,8 +168,6 @@ public class DatasetField implements Serializable {
         this.template = template;
     }
 
-    // -------------------- PRIVATE --------------------
-
     @OneToMany(mappedBy = "datasetFieldParent", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("displayOrder ASC")
     private List<DatasetField> datasetFieldsChildren = new ArrayList<>();
@@ -202,8 +200,9 @@ public class DatasetField implements Serializable {
         return Option.of(fieldValue);
     }
 
-    public void setFieldValue(String fieldValue) {
+    public DatasetField setFieldValue(String fieldValue) {
         this.fieldValue = fieldValue;
+        return this;
     }
 
     private int displayOrder;
@@ -215,8 +214,6 @@ public class DatasetField implements Serializable {
     public void setDisplayOrder(int displayOrder) {
         this.displayOrder = displayOrder;
     }
-
-    // -------------------- PRIVATE --------------------
 
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(indexes = {@Index(columnList = "datasetfield_id"), @Index(columnList = "controlledvocabularyvalues_id")})

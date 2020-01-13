@@ -454,7 +454,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
 
         return getChildDatasetFieldTypes().stream()
                 .filter(childDSFT -> firstDSFT.getName().equals(childDSFT.getName()) &&
-                        firstDSFT.getDescription().equals(childDSFT.getDescription()) &&
                         firstDSFT.getFieldType().equals(childDSFT.getFieldType()))
                 .limit(2)
                 .count() <=1;

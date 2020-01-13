@@ -4,9 +4,7 @@ import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.dataset.DataCitation;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -20,10 +18,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -408,14 +403,10 @@ public class DataCitationTest {
     private DatasetField createAuthorField(String value) {
         DatasetField author = new DatasetField();
         author.setDatasetFieldType(new DatasetFieldType(DatasetFieldConstant.author, FieldType.TEXT, false));
-        List<DatasetFieldCompoundValue> compoundValues = new LinkedList<>();
-        DatasetFieldCompoundValue compoundValue = new DatasetFieldCompoundValue();
-        compoundValue.setParentDatasetField(author);
-        compoundValue.setChildDatasetFields(Arrays.asList(
-                constructPrimitive(DatasetFieldConstant.authorName, value)
-        ));
-        compoundValues.add(compoundValue);
-        author.setDatasetFieldCompoundValues(compoundValues);
+        DatasetField authorName = constructPrimitive(DatasetFieldConstant.authorName, value);
+        authorName.setDatasetFieldParent(author);
+        author.getDatasetFieldsChildren().add(authorName);
+
         return author;
     }
 
@@ -427,9 +418,7 @@ public class DataCitationTest {
         DatasetField field = new DatasetField();
         field.setDatasetFieldType(
                 new DatasetFieldType(fieldName, FieldType.TEXT, false));
-        field.setDatasetFieldValues(
-                Collections.singletonList(
-                        new DatasetFieldValue(field, value)));
+        field.setFieldValue(value);
         return field;
     }
 }

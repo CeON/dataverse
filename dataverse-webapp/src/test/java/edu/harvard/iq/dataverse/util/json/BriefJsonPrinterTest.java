@@ -38,7 +38,7 @@ public class BriefJsonPrinterTest {
 
         DatasetField titleFld = new DatasetField();
         titleFld.setDatasetFieldType(new DatasetFieldType(DatasetFieldConstant.title, FieldType.TEXT, false));
-        titleFld.setSingleValue("Dataset Title");
+        titleFld.setFieldValue("Dataset Title");
         dsv.setDatasetFields(Collections.singletonList(titleFld));
 
         BriefJsonPrinter sut = new BriefJsonPrinter();

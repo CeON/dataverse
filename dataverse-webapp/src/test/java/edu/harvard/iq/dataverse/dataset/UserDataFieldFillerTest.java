@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
@@ -71,7 +70,7 @@ public class UserDataFieldFillerTest {
         // given
         DatasetFieldType depositorType = new DatasetFieldType(DatasetFieldConstant.depositor, FieldType.TEXT, false);
         DatasetField depositorField = DatasetField.createNewEmptyDatasetField(depositorType, new DatasetVersion());
-        depositorField.setSingleValue("Old depositor");
+        depositorField.setFieldValue("Old depositor");
         
         List<DatasetField> datasetFields = Lists.newArrayList(depositorField);
         
@@ -107,7 +106,7 @@ public class UserDataFieldFillerTest {
         
         DatasetFieldType depositorType = new DatasetFieldType(DatasetFieldConstant.dateOfDeposit, FieldType.TEXT, false);
         DatasetField depositorField = DatasetField.createNewEmptyDatasetField(depositorType, new DatasetVersion());
-        depositorField.setSingleValue("Old date");
+        depositorField.setFieldValue("Old date");
         
         List<DatasetField> datasetFields = Lists.newArrayList(depositorField);
         
@@ -130,7 +129,7 @@ public class UserDataFieldFillerTest {
                 new DatasetFieldType(DatasetFieldConstant.datasetContactEmail, FieldType.TEXT, false)
                 ));
         
-        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(datasetContact, new DatasetFieldCompoundValue());
+        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(datasetContact, new DatasetField());
         
         List<DatasetField> datasetFields = Lists.newArrayList(authorField);
         
@@ -153,8 +152,8 @@ public class UserDataFieldFillerTest {
                 new DatasetFieldType(DatasetFieldConstant.datasetContactEmail, FieldType.TEXT, false)
                 ));
         
-        DatasetField contactField = DatasetField.createNewEmptyChildDatasetField(datasetContact, new DatasetFieldCompoundValue());
-        contactField.getDatasetFieldCompoundValues().get(0).getChildDatasetFields().get(0).setSingleValue("ContactName");
+        DatasetField contactField = DatasetField.createNewEmptyChildDatasetField(datasetContact, new DatasetField());
+        contactField.getDatasetFieldsChildren().get(0).setFieldValue("ContactName");
         
         List<DatasetField> datasetFields = Lists.newArrayList(contactField);
         
@@ -177,7 +176,7 @@ public class UserDataFieldFillerTest {
                 new DatasetFieldType(DatasetFieldConstant.authorIdType, FieldType.TEXT, false)
                 ));
         
-        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(authorType, new DatasetFieldCompoundValue());
+        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(authorType, new DatasetField());
         
         List<DatasetField> datasetFields = Lists.newArrayList(authorField);
         
@@ -214,7 +213,7 @@ public class UserDataFieldFillerTest {
                 authorIdType
                 ));
         
-        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(authorType, new DatasetFieldCompoundValue());
+        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(authorType, new DatasetField());
         
         List<DatasetField> datasetFields = Lists.newArrayList(authorField);
         
@@ -237,8 +236,8 @@ public class UserDataFieldFillerTest {
                 new DatasetFieldType(DatasetFieldConstant.authorIdType, FieldType.TEXT, false)
                 ));
         
-        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(authorType, new DatasetFieldCompoundValue());
-        authorField.getDatasetFieldCompoundValues().get(0).getChildDatasetFields().get(0).setSingleValue("AuthorName");
+        DatasetField authorField = DatasetField.createNewEmptyChildDatasetField(authorType, new DatasetField());
+        authorField.getDatasetFieldsChildren().get(0).setFieldValue("AuthorName");
         
         List<DatasetField> datasetFields = Lists.newArrayList(authorField);
         
