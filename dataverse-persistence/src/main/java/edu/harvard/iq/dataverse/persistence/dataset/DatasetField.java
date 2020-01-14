@@ -83,21 +83,19 @@ public class DatasetField implements Serializable {
         dsf.setDatasetFieldType(dsfType);
 
         if (dsfType.isCompound() || dsfType.isControlledVocabulary()) {
-            dsf.getDatasetFieldsChildren().add(createNewEmptyDatasetFieldCompoundValue(dsf));
+            for (DatasetFieldType childDatasetFieldType : dsfType.getChildDatasetFieldTypes()) {
+                dsf.getDatasetFieldsChildren().add(createNewEmptyDatasetFieldCompoundValue(dsf, childDatasetFieldType));
+            }
         }
 
         return dsf;
 
     }
 
-    public static DatasetField createNewEmptyDatasetFieldCompoundValue(DatasetField dsf) {
+    public static DatasetField createNewEmptyDatasetFieldCompoundValue(DatasetField dsf, DatasetFieldType datasetFieldType) {
         DatasetField compoundValue = new DatasetField();
+        compoundValue.setDatasetFieldType(datasetFieldType);
         compoundValue.setDatasetFieldParent(dsf);
-
-        for (DatasetFieldType dsfType : dsf.getDatasetFieldType().getChildDatasetFieldTypes()) {
-            compoundValue.getDatasetFieldsChildren().add(DatasetField.createNewEmptyChildDatasetField(dsfType,
-                                                                                                      compoundValue));
-        }
 
         return compoundValue;
     }
@@ -316,6 +314,10 @@ public class DatasetField implements Serializable {
 
     public List<String> getRawValuesList() {
         List<String> returnList = new ArrayList<>();
+        if (getFieldValue().isDefined()){
+            returnList.add(getUnsanitizedDisplayValue());
+        }
+
         if (!getDatasetFieldsChildren().isEmpty()) {
             for (DatasetField dsf : getDatasetFieldsChildren()) {
                 returnList.add(dsf.getUnsanitizedDisplayValue());

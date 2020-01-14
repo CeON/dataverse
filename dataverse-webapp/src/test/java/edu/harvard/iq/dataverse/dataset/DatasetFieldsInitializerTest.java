@@ -102,8 +102,8 @@ public class DatasetFieldsInitializerTest {
         fillTitle(titleField, "Some Title");
 
         DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        fillAuthorField(authorField,  "John Doe", "John Aff");
-        fillAuthorField(authorField,  "Jane Doe", "Jane Aff");
+        authorField.getDatasetFieldsChildren().addAll(fillAuthorField(authorField,  "John Doe", "John Aff"));
+        authorField.getDatasetFieldsChildren().addAll(fillAuthorField(authorField,  "Jane Doe", "Jane Aff"));
 
         DatasetField keywordField = DatasetField.createNewEmptyDatasetField(makeKeywordFieldType(citationBlock), null);
         fillKeywordField(keywordField, "term1", "vocabName", "http://example.edu");

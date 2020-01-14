@@ -446,17 +446,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public boolean isCompound() {
-        if (childDatasetFieldTypes.isEmpty()){
-            return false;
-        }
-
-        DatasetFieldType firstDSFT = childDatasetFieldTypes.get(0);
-
-        return getChildDatasetFieldTypes().stream()
-                .filter(childDSFT -> firstDSFT.getName().equals(childDSFT.getName()) &&
-                        firstDSFT.getFieldType().equals(childDSFT.getFieldType()))
-                .limit(2)
-                .count() <=1;
+        return getChildDatasetFieldTypes().size() > 1;
     }
 
     public boolean isChild() {
@@ -536,7 +526,8 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
 
     public String getDisplayName() {
         if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
-            return Optional.ofNullable(getLocaleTitleWithParent()).filter(s -> !s.isEmpty()).orElse(parentDatasetFieldType.getLocaleTitle() + " " + getLocaleTitle());
+            return Optional.ofNullable(getLocaleTitleWithParent()).filter(s -> !s.isEmpty()).orElse(
+                    parentDatasetFieldType.getLocaleTitle() + " " + getLocaleTitle());
         } else {
             return getLocaleTitle();
         }
@@ -561,7 +552,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         } else {
             try {
                 return BundleUtil.getStringFromPropertyFile("datasetfieldtype." + getName() + ".withParent.title",
-                        getMetadataBlock().getName());
+                                                            getMetadataBlock().getName());
             } catch (MissingResourceException e) {
                 return title;
             }
