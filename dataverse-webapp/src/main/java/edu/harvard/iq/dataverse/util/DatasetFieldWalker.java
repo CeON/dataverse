@@ -87,13 +87,12 @@ public class DatasetFieldWalker {
         } else if (datasetFieldType.isPrimitive()) {
             if (datasetFieldType.isAllowMultiples()) {
                 for (DatasetField pv : sort(fld.getDatasetFieldsChildren(), DatasetField.DisplayOrder)) {
-                    if (excludeEmailFields && FieldType.EMAIL.equals(pv.getDatasetFieldType().getFieldType())) {
-                        continue;
-                    }
                     l.primitiveValue(pv);
                 }
             } else {
-                l.primitiveValue(fld);
+                if (!(excludeEmailFields && FieldType.EMAIL.equals(fld.getDatasetFieldType().getFieldType()))) {
+                    l.primitiveValue(fld);
+                }
             }
 
         } else if (datasetFieldType.isCompound()) {

@@ -315,7 +315,6 @@ public class ExportServiceTest {
                     datasetField.getDatasetFieldType().setTitle("Title");
                     datasetField.getDatasetFieldType().setDisplayOrder(1);
                     datasetField.getDatasetFieldType().setUri("http://purl.org/dc/terms/title");
-                    datasetField.setDatasetFieldsChildren(Lists.newArrayList(titleValue));
                 });
 
         DatasetField subjectValue = new DatasetField();
@@ -345,14 +344,12 @@ public class ExportServiceTest {
                 .filter(datasetField -> datasetField.getDatasetFieldType().getName().equals(DatasetFieldConstant.author))
                 .findFirst().get();
 
-        DatasetField datasetFieldCompoundValue = authorField.getDatasetFieldsChildren().get(0);
-
         DatasetFieldType authorFieldType = authorField.getDatasetFieldType();
         authorFieldType.setTitle("Author");
         authorFieldType.setDisplayOrder(2);
         authorFieldType.setUri("http://purl.org/dc/terms/creator");
 
-        datasetFieldCompoundValue.setDatasetFieldsChildren(Lists.newArrayList(setupNameOfAuthor(), setupAffiliationOfAuthor()));
+        authorField.setDatasetFieldsChildren(Lists.newArrayList(setupNameOfAuthor(), setupAffiliationOfAuthor()));
 
     }
 
@@ -362,8 +359,7 @@ public class ExportServiceTest {
 
         DatasetField authorAffiliationDf = new DatasetField();
         authorAffiliationDf.setDatasetFieldType(authorAffiliation);
-        authorAffiliationDf.setDatasetFieldsChildren(Lists.newArrayList(new DatasetField()
-        .setDatasetFieldParent(authorAffiliationDf).setFieldValue("Dataverse.org")));
+        authorAffiliationDf.setFieldValue("Dataverse.org");
 
         return authorAffiliationDf;
     }
@@ -373,8 +369,7 @@ public class ExportServiceTest {
         authorName.setTitle("Name");
 
         DatasetField authorNameDF = new DatasetField();
-        authorNameDF.setDatasetFieldsChildren(Lists.newArrayList(new DatasetField()
-        .setDatasetFieldParent(authorNameDF).setFieldValue("Admin, Dataverse")));
+        authorNameDF.setFieldValue("Admin, Dataverse");
         authorNameDF.setDatasetFieldType(authorName);
 
         return authorNameDF;
