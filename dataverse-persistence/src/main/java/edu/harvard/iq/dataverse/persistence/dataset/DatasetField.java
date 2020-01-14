@@ -336,6 +336,11 @@ public class DatasetField implements Serializable {
      */
     public List<String> getValues_nondisplay() {
         List returnList = new ArrayList();
+
+        if (getFieldValue().isDefined()){
+            returnList.add(fieldValue);
+        }
+
         if (!getDatasetFieldsChildren().isEmpty()) {
             for (DatasetField dsf : getDatasetFieldsChildren()) {
                 String value = dsf.getValue();
