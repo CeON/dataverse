@@ -97,11 +97,13 @@ public class DatasetFieldWalker {
             }
 
         } else if (datasetFieldType.isCompound()) {
+            l.startCompoundValue(fld);
+
             for (DatasetField dsfcv : sort(fld.getDatasetFieldsChildren(), DatasetField.DisplayOrder)) {
-                l.startCompoundValue(dsfcv);
                 walk(dsfcv, excludeEmailFields);
-                l.endCompoundValue(dsfcv);
             }
+
+            l.endCompoundValue(fld);
         }
         l.endField(fld);
     }

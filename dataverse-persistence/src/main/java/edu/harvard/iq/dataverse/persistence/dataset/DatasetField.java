@@ -302,7 +302,7 @@ public class DatasetField implements Serializable {
      */
     public List<String> getValues() {
         List<String> returnList = new ArrayList<>();
-        if (!fieldValue.isEmpty()) {
+        if (!getFieldValue().isEmpty()) {
             returnList.add(getFieldDisplayValue());
         } else {
             for (ControlledVocabularyValue cvv : controlledVocabularyValues) {
