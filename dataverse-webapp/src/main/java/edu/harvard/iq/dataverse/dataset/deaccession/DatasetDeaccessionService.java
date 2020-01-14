@@ -1,10 +1,11 @@
 package edu.harvard.iq.dataverse.dataset.deaccession;
 
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
-import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
-import edu.harvard.iq.dataverse.engine.command.impl.DeaccessionDatasetVersionCommand;
+import edu.harvard.iq.dataverse.annotations.PermissionNeeded;
+import edu.harvard.iq.dataverse.interceptors.LoggedCall;
+import edu.harvard.iq.dataverse.interceptors.Restricted;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.user.Permission;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -14,42 +15,36 @@ import java.util.stream.Collectors;
 @Stateless
 public class DatasetDeaccessionService {
 
-    private EjbDataverseEngine commandEngine;
-    private DataverseRequestServiceBean dvRequestService;
-    private DatasetVersionServiceBean datasetVersionService;
+    DatasetDeaccessionBean deaccessDataset;
 
     // -------------------- CONSTRUCTORS --------------------
 
     @Deprecated
-    public DatasetDeaccessionService() {
-    }
+    public DatasetDeaccessionService() { }
 
     @Inject
-    public DatasetDeaccessionService(EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService,
-                                     DatasetVersionServiceBean datasetVersionService) {
-        this.commandEngine = commandEngine;
-        this.dvRequestService = dvRequestService;
-        this.datasetVersionService = datasetVersionService;
+    public DatasetDeaccessionService(DatasetDeaccessionBean deaccessDataset) {
+        this.deaccessDataset = deaccessDataset;
     }
 
     // -------------------- LOGIC --------------------
-    public DatasetVersion deaccessVersion(DatasetVersion version, String deaccessionReason, String deaccessionForwardURLFor) {
-        version.setVersionNote(deaccessionReason);
-        version.setArchiveNote(deaccessionForwardURLFor);
-
-        return commandEngine.submit(new DeaccessionDatasetVersionCommand(dvRequestService.getDataverseRequest(), version));
+    
+    @LoggedCall
+    @Restricted(@PermissionNeeded(needs = {Permission.PublishDataset}))
+    public List<DatasetVersion> deaccessVersions(@PermissionNeeded Dataset dataset, List<DatasetVersion> versions,
+                                                 String deaccessionReason , String deaccessionForwardURLFor) {
+        return versions.stream()
+                .map(v -> deaccessDataset.deaccessDatasetVersion(dataset, v, deaccessionReason, deaccessionForwardURLFor))
+                .collect(Collectors.toList());
     }
 
-    public List<DatasetVersion> deaccessVersions(List<DatasetVersion> versions, String deaccessionReason ,String deaccessionForwardURLFor) {
-        return versions
-                .stream()
-                .map(version -> deaccessVersion(version, deaccessionReason, deaccessionForwardURLFor)).collect(Collectors.toList());
-    }
-
-    public List<DatasetVersion> deaccessReleasedVersions(List<DatasetVersion> versions, String deaccessionReason ,String deaccessionForwardURLFor) {
-        return versions
-                .stream()
+    @LoggedCall
+    @Restricted(@PermissionNeeded(needs = {Permission.PublishDataset}))
+    public List<DatasetVersion> deaccessReleasedVersions(@PermissionNeeded Dataset dataset, List<DatasetVersion> versions,
+                                                         String deaccessionReason ,String deaccessionForwardURLFor) {
+        return versions.stream()
                 .filter(DatasetVersion::isReleased)
-                .map(version -> deaccessVersion(version, deaccessionReason, deaccessionForwardURLFor)).collect(Collectors.toList());
+                .map(v -> deaccessDataset.deaccessDatasetVersion(dataset, v, deaccessionReason, deaccessionForwardURLFor))
+                .collect(Collectors.toList());
     }
 }

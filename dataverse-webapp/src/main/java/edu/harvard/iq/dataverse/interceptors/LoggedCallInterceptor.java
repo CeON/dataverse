@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.persistence.ActionLogRecord.ActionType;
 import edu.harvard.iq.dataverse.persistence.ActionLogRecord.Result;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
@@ -30,14 +29,16 @@ import static edu.harvard.iq.dataverse.interceptors.InterceptorCommons.createNam
 public class LoggedCallInterceptor {
     private static final Logger logger = Logger.getLogger(LoggedCallInterceptor.class.getSimpleName());
 
-    @EJB
-    ActionLogServiceBean logService;
+    @Inject
+    private ActionLogServiceBean logService;
 
     @Inject
     private DataverseRequestServiceBean requestService;
 
     @Resource
     EJBContext ejbContext;
+
+    // -------------------- LOGIC --------------------
 
     @AroundInvoke
     public Object callRestricted(InvocationContext ctx) throws Exception {
@@ -71,6 +72,8 @@ public class LoggedCallInterceptor {
             logService.log(logRecord);
         }
     }
+
+    // -------------------- PRIVATE --------------------
 
     private void logConstraintViolations(ActionLogRecord logRecord, RuntimeException re) {
         Throwable cause = re;
