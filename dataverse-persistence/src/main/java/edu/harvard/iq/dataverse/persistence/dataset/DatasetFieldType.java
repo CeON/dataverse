@@ -446,7 +446,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public boolean isCompound() {
-        return getChildDatasetFieldTypes().size() > 1;
+        return !getChildDatasetFieldTypes().isEmpty();
     }
 
     public boolean isChild() {

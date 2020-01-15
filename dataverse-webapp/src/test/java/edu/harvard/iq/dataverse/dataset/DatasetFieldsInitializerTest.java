@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.dataset;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
+import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
@@ -22,13 +23,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.extractFieldTypeByName;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillAuthorField;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillDepositorField;
-import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillKeywordField;
-import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillKeywordTermOnlyField;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillTitle;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeAuthorFieldType;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeCitationMetadataBlock;
+import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeDatasetField;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeDateOfDepositFieldType;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeDepositorFieldType;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeGeographicBoundingBoxFieldType;
@@ -65,9 +66,16 @@ public class DatasetFieldsInitializerTest {
 
         DatasetField titleField = DatasetField.createNewEmptyDatasetField(makeTitleFieldType(citationBlock), null);
 
-        DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        fillAuthorField(authorField, "John Doe", "John Aff");
-        fillAuthorField(authorField, "Jane Doe", "Jane Aff");
+        DatasetField authorField = makeDatasetField(makeAuthorFieldType(citationBlock));
+        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
+                                                                   authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
+                                                                   authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType,"John Doe", 0));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorAffiliationType,"John Aff",1));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType,"Jane Doe",2));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorAffiliationType,"Jane Aff",3));
 
         DatasetField depositorField = DatasetField.createNewEmptyDatasetField(makeDepositorFieldType(citationBlock), null);
         fillDepositorField(depositorField, "John Depositor");
@@ -82,11 +90,11 @@ public class DatasetFieldsInitializerTest {
         // then
         assertEquals(2, retDatasetFields.size());
 
-        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
-        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(0).getCompoundRawValue());
+        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
+        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(1).getCompoundRawValue());
 
-        assertEquals(depositorField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
-        assertEquals("John Depositor", retDatasetFields.get(1).getRawValue());
+        assertEquals(depositorField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
+        assertEquals("John Depositor", retDatasetFields.get(0).getRawValue());
     }
 
     @Test
@@ -101,14 +109,30 @@ public class DatasetFieldsInitializerTest {
         DatasetField titleField = DatasetField.createNewEmptyDatasetField(makeTitleFieldType(citationBlock), null);
         fillTitle(titleField, "Some Title");
 
-        DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(citationBlock), null);
-        authorField.getDatasetFieldsChildren().addAll(fillAuthorField(authorField,  "John Doe", "John Aff"));
-        authorField.getDatasetFieldsChildren().addAll(fillAuthorField(authorField,  "Jane Doe", "Jane Aff"));
+        DatasetField authorField = makeDatasetField(makeAuthorFieldType(citationBlock));
+        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
+                                                                 authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
+                                                                        authorField.getDatasetFieldType().getChildDatasetFieldTypes());
 
-        DatasetField keywordField = DatasetField.createNewEmptyDatasetField(makeKeywordFieldType(citationBlock), null);
-        fillKeywordField(keywordField, "term1", "vocabName", "http://example.edu");
-        fillKeywordTermOnlyField(keywordField, "term2");
-        fillKeywordTermOnlyField(keywordField, "term3");
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType,"John Doe", 0));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorAffiliationType,"John Aff",1));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType,"Jane Doe",2));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorAffiliationType,"Jane Aff",3));
+
+        DatasetField keywordField = makeDatasetField(makeKeywordFieldType(citationBlock));
+        DatasetFieldType keywordValueType = extractFieldTypeByName(DatasetFieldConstant.keywordValue,
+                                                                   keywordField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType keywordVocabType = extractFieldTypeByName(DatasetFieldConstant.keywordVocab,
+                                                                   keywordField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType keywordVocabURIType = extractFieldTypeByName(DatasetFieldConstant.keywordVocabURI,
+                                                                   keywordField.getDatasetFieldType().getChildDatasetFieldTypes());
+
+        keywordField.getDatasetFieldsChildren().add(makeDatasetField(keywordField, keywordValueType, "term1", 0));
+        keywordField.getDatasetFieldsChildren().add(makeDatasetField(keywordField, keywordVocabType, "vocabName", 1));
+        keywordField.getDatasetFieldsChildren().add(makeDatasetField(keywordField, keywordVocabURIType, "http://example.edu", 2));
+        keywordField.getDatasetFieldsChildren().add(makeDatasetField(keywordField, keywordValueType, "term2", 3));
+        keywordField.getDatasetFieldsChildren().add(makeDatasetField(keywordField, keywordValueType, "term3", 4));
 
         DatasetFieldType depositorFieldType = makeDepositorFieldType(citationBlock);
         DatasetFieldType dataOfDepositFieldType = makeDateOfDepositFieldType(citationBlock);
@@ -123,14 +147,14 @@ public class DatasetFieldsInitializerTest {
         // then
         assertEquals(5, retDatasetFields.size());
 
-        assertEquals(titleField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
-        assertEquals("Some Title", retDatasetFields.get(0).getRawValue());
+        assertEquals(titleField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
+        assertEquals("Some Title", retDatasetFields.get(1).getRawValue());
 
-        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
-        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(1).getCompoundRawValue());
+        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(2).getDatasetFieldType());
+        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(2).getCompoundRawValue());
 
-        assertEquals(keywordField.getDatasetFieldType(), retDatasetFields.get(2).getDatasetFieldType());
-        assertEquals("term1; vocabName; http://example.edu; term2; ; ; term3; ; ", retDatasetFields.get(2).getCompoundRawValue());
+        assertEquals(keywordField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
+        assertEquals("term1; vocabName; http://example.edu; term2; term3", retDatasetFields.get(0).getCompoundRawValue());
 
         assertEquals(depositorFieldType, retDatasetFields.get(3).getDatasetFieldType());
         assertEquals("", retDatasetFields.get(3).getRawValue());

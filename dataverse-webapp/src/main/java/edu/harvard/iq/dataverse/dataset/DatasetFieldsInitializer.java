@@ -139,22 +139,20 @@ public class DatasetFieldsInitializer {
     // right now, only work for one level of compound objects
     private DatasetField createBlankChildDatasetFields(DatasetField dsf) {
         if (dsf.getDatasetFieldType().isCompound()) {
-            for (DatasetField cv : dsf.getDatasetFieldsChildren()) {
-                // for each compound value; check the datasetfieldTypes associated with its type
-                Set<DatasetFieldType> allChildFieldTypes = new HashSet<>(dsf.getDatasetFieldType().getChildDatasetFieldTypes());
+            // for each compound value; check the datasetfieldTypes associated with its type
+            Set<DatasetFieldType> allChildFieldTypes = new HashSet<>(dsf.getDatasetFieldType().getChildDatasetFieldTypes());
 
-                Set<DatasetFieldType> alreadyPresentChildFieldTypes = new HashSet<>();
-                DatasetFieldType dsft = dsf.getDatasetFieldType();
-                alreadyPresentChildFieldTypes.add(dsft);
+            Set<DatasetFieldType> alreadyPresentChildFieldTypes = dsf.getDatasetFieldsChildren().stream()
+                    .map(DatasetField::getDatasetFieldType)
+                    .collect(Collectors.toSet());
 
 
-                Set<DatasetFieldType> missingChildFieldTypes = SetUtils.difference(allChildFieldTypes,
-                                                                                   alreadyPresentChildFieldTypes);
+            Set<DatasetFieldType> missingChildFieldTypes = SetUtils.difference(allChildFieldTypes,
+                                                                               alreadyPresentChildFieldTypes);
 
-                missingChildFieldTypes.forEach(missingDsf -> {
-                    cv.getDatasetFieldsChildren().add(DatasetField.createNewEmptyChildDatasetField(missingDsf, cv));
-                });
-            }
+            missingChildFieldTypes.forEach(missingDsf -> {
+                dsf.getDatasetFieldsChildren().add(DatasetField.createNewEmptyChildDatasetField(missingDsf, dsf));
+            });
         }
 
         return dsf;
@@ -208,7 +206,7 @@ public class DatasetFieldsInitializer {
     private List<DatasetField> sortDatasetFields(List<DatasetField> dsfList) {
         List<DatasetField> sortedDatasetFields = Lists.newArrayList(dsfList);
         Collections.sort(sortedDatasetFields,
-                         Comparator.comparingInt(df -> df.getDatasetFieldType().getDisplayOrder()));
+                         Comparator.comparingInt(DatasetField::getDisplayOrder));
         return sortedDatasetFields;
     }
 

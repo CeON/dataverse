@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeComplexDatasetFieldType;
@@ -32,6 +33,39 @@ public class MockMetadataFactory {
 
 
     // -------------------- Citation fields --------------------
+
+    public static DatasetField makeDatasetField(DatasetFieldType fieldType){
+        DatasetField datasetField = new DatasetField();
+        datasetField.setDatasetFieldType(fieldType);
+
+        return datasetField;
+    }
+
+    public static DatasetField makeDatasetField(DatasetFieldType fieldType, String fieldValue){
+        DatasetField datasetField = new DatasetField();
+        datasetField.setDatasetFieldType(fieldType);
+        datasetField.setFieldValue(fieldValue);
+
+        return datasetField;
+    }
+
+    public static DatasetField makeDatasetField(DatasetField fieldParent, DatasetFieldType fieldType, String fieldValue, int displayOrder){
+        DatasetField datasetField = new DatasetField();
+        datasetField.setDatasetFieldParent(fieldParent);
+        datasetField.setDatasetFieldType(fieldType);
+        datasetField.setFieldValue(fieldValue);
+        datasetField.setDisplayOrder(displayOrder);
+
+        return datasetField;
+    }
+
+    public static DatasetFieldType extractFieldTypeByName(String fieldName, Collection<DatasetFieldType> fieldTypes){
+        return fieldTypes.stream()
+                .filter(datasetFieldType -> datasetFieldType.getName().equals(fieldName))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Unable to find proper field type."));
+
+    }
 
     public static DatasetFieldType makeTitleFieldType(MetadataBlock metadataBlock) {
         DatasetFieldType titleType = MocksFactory.makeDatasetFieldType(DatasetFieldConstant.title,
@@ -68,12 +102,17 @@ public class MockMetadataFactory {
     }
 
     public static List<DatasetField> fillAuthorField(DatasetField authorField, String authorName, String authorAffiliation) {
-        ArrayList<DatasetField> datasetFields = new ArrayList<>();
+        List<DatasetField> children = authorField.getDatasetFieldsChildren();
 
-        datasetFields.add(createChildDatasetField(authorField, authorName));
-        datasetFields.add(createChildDatasetField(authorField, authorAffiliation));
+        children.stream()
+                .filter(datasetField -> datasetField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorName))
+                .forEach(datasetField -> datasetField.setFieldValue(authorName));
 
-        return datasetFields;
+        children.stream()
+                .filter(datasetField -> datasetField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorAffiliation))
+                .forEach(datasetField -> datasetField.setFieldValue(authorAffiliation));
+
+        return authorField.getDatasetFieldsChildren();
     }
 
 
@@ -116,14 +155,6 @@ public class MockMetadataFactory {
         childField.setFieldValue(childFieldValue);
 
         return childField;
-    }
-
-    public static List<DatasetField> fillKeywordTermOnlyField(DatasetField keywordField, String term) {
-        ArrayList<DatasetField> datasetFields = new ArrayList<>();
-
-        datasetFields.add(createChildDatasetField(keywordField, term));
-
-        return datasetFields;
     }
 
 

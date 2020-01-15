@@ -374,13 +374,19 @@ public final class DatasetVersionDifference {
         return null;
     }
 
+    /**
+     *
+     */
     private int extractFieldValuesCount(DatasetField datasetField) {
         if (datasetField.getDatasetFieldType().isControlledVocabulary()) {
             return datasetField.getControlledVocabularyValues().size();
         }
 
-        return datasetField.getDatasetFieldsChildren().size();
+        if (datasetField.getDatasetFieldType().isCompound()){
+            return datasetField.getDatasetFieldsChildren().size() / datasetField.getDatasetFieldType().getChildDatasetFieldTypes().size();
+        }
 
+        return 1;
     }
 
 
@@ -501,13 +507,13 @@ public final class DatasetVersionDifference {
 
         List<String> values = new ArrayList<String>();
 
-            String originalValue = "";
-            for (DatasetField dsfo : datasetField.getDatasetFieldsChildren()) {
-                if (!dsfo.getDisplayValue().isEmpty()) {
-                    originalValue += dsfo.getDisplayValue() + ", ";
-                }
+        String originalValue = "";
+        for (DatasetField dsfo : datasetField.getDatasetFieldsChildren()) {
+            if (!dsfo.getDisplayValue().isEmpty()) {
+                originalValue += dsfo.getDisplayValue() + ", ";
             }
-            values.add(originalValue);
+        }
+        values.add(originalValue);
         return values;
     }
 

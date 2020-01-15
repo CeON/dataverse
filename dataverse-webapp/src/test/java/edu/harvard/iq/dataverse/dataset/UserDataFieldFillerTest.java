@@ -162,7 +162,7 @@ public class UserDataFieldFillerTest {
         
         // then
         assertEquals(1, datasetFields.size());
-        assertEquals("ContactName; ; ", datasetFields.get(0).getCompoundRawValue());
+        assertEquals("ContactName", datasetFields.get(0).getCompoundRawValue());
     }
     
     @Test
@@ -185,7 +185,7 @@ public class UserDataFieldFillerTest {
         
         // then
         assertEquals(1, datasetFields.size());
-        assertEquals("Doe, John; Aff; ; ", datasetFields.get(0).getCompoundRawValue());
+        assertEquals("Doe, John; Aff", datasetFields.get(0).getCompoundRawValue());
     }
     
     @Test
@@ -246,7 +246,7 @@ public class UserDataFieldFillerTest {
         
         // then
         assertEquals(1, datasetFields.size());
-        assertEquals("AuthorName; ; ; ", datasetFields.get(0).getCompoundRawValue());
+        assertEquals("AuthorName", datasetFields.get(0).getCompoundRawValue());
     }
     
     

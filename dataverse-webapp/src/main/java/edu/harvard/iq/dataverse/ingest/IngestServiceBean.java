@@ -1313,25 +1313,12 @@ public class IngestServiceBean {
                                                 if (!dsft.isControlledVocabulary()) {
                                                     Iterator<DatasetField> dsfvIt = dsf.getDatasetFieldsChildren().iterator();
 
-                                                    boolean valueExists = false;
-
                                                     while (dsfvIt.hasNext()) {
                                                         DatasetField dsfv = dsfvIt.next();
-                                                        if (fValue.equals(dsfv.getValue())) {
-                                                            logger.fine("Value " + fValue + " already exists for field " + dsfName);
-                                                            valueExists = true;
-                                                            break;
+                                                        if (!fValue.equals(dsfv.getValue())) {
+                                                            logger.fine("Creating a new value for field " + dsfName + ": " + fValue);
+                                                            dsfv.setFieldValue(fValue);
                                                         }
-                                                    }
-
-                                                    if (!valueExists && dsft.isPrimitive() && dsft.isAllowMultiples()) {
-                                                        logger.fine("Creating a new value for field " + dsfName + ": " + fValue);
-                                                        DatasetField datasetField = new DatasetField();
-                                                        datasetField
-                                                                .setDatasetFieldParent(dsf)
-                                                                .setFieldValue(fValue);
-                                                    } else if (!valueExists) {
-                                                        dsf.setFieldValue(fValue);
                                                     }
 
                                                 } else {
