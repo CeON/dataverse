@@ -140,13 +140,15 @@ public class FeedbackUtil {
                             contactEmail = subField.getValue();
                             logger.fine("contactEmail: " + contactEmail);
                         }
+
+                        if (contactEmail != null && contactName != null) {
+                            DvObjectContact datasetContact = new DvObjectContact(contactName, contactEmail);
+                            datasetContacts.add(datasetContact);
+                            contactName = null;
+                            contactEmail = null;
+                        }
                     }
-                    if (contactEmail != null) {
-                        DvObjectContact datasetContact = new DvObjectContact(contactName, contactEmail);
-                        datasetContacts.add(datasetContact);
-                    } else {
-                        logger.warning("email missing for contact in dataset " + dataset.getIdentifier());
-                    }
+
             }
         }
         return datasetContacts;
