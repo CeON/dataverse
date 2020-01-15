@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author skraffmiller
@@ -505,16 +506,9 @@ public final class DatasetVersionDifference {
             return datasetField.getValues();
         }
 
-        List<String> values = new ArrayList<String>();
-
-        String originalValue = "";
-        for (DatasetField dsfo : datasetField.getDatasetFieldsChildren()) {
-            if (!dsfo.getDisplayValue().isEmpty()) {
-                originalValue += dsfo.getDisplayValue() + ", ";
-            }
-        }
-        values.add(originalValue);
-        return values;
+        return datasetField.getDatasetFieldsChildren().stream()
+                .map(DatasetField::getDisplayValue)
+                .collect(Collectors.toList());
     }
 
     private void updateSameFieldTypeSummary(DatasetField originalField, DatasetField newField) {
