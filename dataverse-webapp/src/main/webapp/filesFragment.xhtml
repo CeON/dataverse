@@ -74,7 +74,7 @@
             <div class="row" style="margin-bottom:6px;">
                 <div jsf:id="filesHeaderCount" class="col-xs-3 text-left">
                     <!-- Files Count -->
-                    <h:outputFormat value="#{datasetFilesTab.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" styleClass="highlightBold" rendered="#{datasetFilesTab.fileMetadatasSearch.size() gt 0}">
+                    <h:outputFormat value="#{datasetFilesTab.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" rendered="#{datasetFilesTab.fileMetadatasSearch.size() gt 0}">
                         <f:param value="#{(datasetFilesTab.filePaginatorPage * datasetFilesTab.rowsPerPage) + 1}"/>
                         <f:param value="#{Math:min((datasetFilesTab.filePaginatorPage + 1) * datasetFilesTab.rowsPerPage,datasetFilesTab.fileMetadatasSearch.size()) }"/>
                         <f:param value="#{datasetFilesTab.fileMetadatasSearch.size()}"/>
