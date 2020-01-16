@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datafile.FileDownloadServiceBean;
+import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
@@ -49,6 +50,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,19 +58,24 @@ import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -119,6 +126,8 @@ public class DatasetPage implements java.io.Serializable {
     private DatasetMetadataTab metadataTab;
     @Inject
     private DatasetFilesTab datasetFilesTab;
+    @Inject
+    private DatasetService datasetService;
 
     private Dataset dataset = new Dataset();
 
@@ -137,6 +146,8 @@ public class DatasetPage implements java.io.Serializable {
     private Boolean sameTermsOfUseForAllFiles;
     private String thumbnailString = null;
     private String returnToAuthorReason;
+
+    private Date currentEmbargoDate;
 
     // This is the Dataset-level thumbnail; 
     // it's either the thumbnail of the designated datafile, 
@@ -464,6 +475,7 @@ public class DatasetPage implements java.io.Serializable {
 
             // init the citation
             displayCitation = dataset.getCitation(true, workingVersion);
+            initCurrentEmbargo();
 
 
             if (initFull) {
@@ -1125,6 +1137,14 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     /**
+     *
+     * @return current embargo date set on dataset or [TODAY] whichever is greater
+     */
+    public Date getCurrentEmbargoDate() {
+        return currentEmbargoDate;
+    }
+
+    /**
      * publisher (aka - name of root dataverse)
      *
      * @return the publisher of the version
@@ -1203,4 +1223,48 @@ public class DatasetPage implements java.io.Serializable {
     public void setReturnToAuthorReason(String returnToAuthorReason) {
         this.returnToAuthorReason = returnToAuthorReason;
     }
+
+    public void initCurrentEmbargo() {
+        currentEmbargoDate = dataset.getEmbargoDate().getOrNull();
+    }
+
+    public void setCurrentEmbargoDate(Date currentEmbargoDate) {
+        this.currentEmbargoDate = currentEmbargoDate;
+    }
+
+    public Date getTomorrowsDate() {
+        return Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
+    }
+
+    public void updateEmbargoDate() {
+        Option<Dataset> saveResult = datasetService.updateDatasetEmbargoDate(dataset, currentEmbargoDate);
+        if(saveResult.isDefined()) {
+            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.embargo.save.successMessage"));
+        } else {
+            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.embargo.save.failureMessage"));
+        }
+    }
+
+    public boolean hasDatasetBeenPublished() {
+        return dataset.hasEverBeenPublished();
+    }
+
+    public void liftEmbargo() {
+        currentEmbargoDate = null;
+        updateEmbargoDate();
+    }
+
+    public String getCurrentEmbargoDateForDisplay() {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        return format.format(currentEmbargoDate);
+    }
+
+    public void validateEmbargoDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
+        if(!Objects.isNull(embargoDate) && ((Date) embargoDate).toInstant().isBefore(getTomorrowsDate().toInstant())) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.embargo.save.validationfailureMessage"), null);
+            context.addMessage(toValidate.getClientId(context), message);
+        }
+    }
+
 }

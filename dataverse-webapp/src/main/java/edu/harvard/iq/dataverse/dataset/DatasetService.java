@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.DatasetPage;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.exception.NotAuthenticatedException;
@@ -21,10 +22,12 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +46,7 @@ public class DatasetService {
     private IngestServiceBean ingestService;
     private SettingsServiceBean settingsService;
     private ProvPopupFragmentBean provPopupFragmentBean;
+    private PermissionServiceBean permissionService;
 
 
     // -------------------- CONSTRUCTORS --------------------
@@ -55,7 +59,7 @@ public class DatasetService {
     public DatasetService(EjbDataverseEngine commandEngine, UserNotificationService userNotificationService,
                           DatasetDao datasetDao, DataverseSession session, DataverseRequestServiceBean dvRequestService,
                           IngestServiceBean ingestService, SettingsServiceBean settingsService,
-                          ProvPopupFragmentBean provPopupFragmentBean) {
+                          ProvPopupFragmentBean provPopupFragmentBean, PermissionServiceBean permissionService) {
         this.commandEngine = commandEngine;
         this.userNotificationService = userNotificationService;
         this.datasetDao = datasetDao;
@@ -64,6 +68,7 @@ public class DatasetService {
         this.ingestService = ingestService;
         this.settingsService = settingsService;
         this.provPopupFragmentBean = provPopupFragmentBean;
+        this.permissionService = permissionService;
     }
 
 
@@ -159,6 +164,18 @@ public class DatasetService {
                                                                       null,
                                                                       null));
 
+    }
+
+    // TODO Interceptor annotation here
+    public Option<Dataset> updateDatasetEmbargoDate(Dataset dataset, Date embargoDate) {
+        if(dataset.isLocked()) {
+           logger.log(Level.WARNING, "Dataset is locked. Cannot perform update embargo date");
+           return Option.none();
+        }
+
+        dataset.setEmbargoDate(embargoDate);
+
+        return Option.of(datasetDao.merge(dataset));
     }
 
     // -------------------- PRIVATE --------------------
