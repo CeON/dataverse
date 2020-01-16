@@ -55,7 +55,7 @@ public class SelectGuestBookService {
     }
 
     private boolean isSameGuestbookChosen(Option<Guestbook> selectedGuestbook, Option<Guestbook> previousGuestbook) {
-        return selectedGuestbook.isDefined() && previousGuestbook.isDefined() &&  selectedGuestbook.get() == previousGuestbook.get();
+        return selectedGuestbook.isDefined() && previousGuestbook.isDefined() &&  selectedGuestbook.get().equals(previousGuestbook.get());
     }
 
     private boolean isStillNoGuestbookChosen(Option<Guestbook> selectedGuestbook, Option<Guestbook> previousGuestbook) {
