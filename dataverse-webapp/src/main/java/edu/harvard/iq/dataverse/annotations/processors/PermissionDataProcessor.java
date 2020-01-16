@@ -7,17 +7,16 @@ import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.control.Option;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -34,21 +33,24 @@ public class PermissionDataProcessor {
 
         Map<String, PermissionNeeded> permissionMap = createPermissionMap(extractAnnotations(method));
 
-        BiConsumer<Set<RestrictedObject>, Tuple2<String, DvObject>> updateResultWithParameter = (result, param) -> {
-                PermissionNeeded config = permissionMap.computeIfAbsent(param._1,
-                        s -> { throw new IllegalStateException("No permission data for name: " + s); });
-                DvObject object = param._2;
-                result.add(createRestrictedObject(object, config));
-                if (config.needsOnOwner().length > 0) {
-                    result.add(createRestrictedOwnerObject(object, config));
-                }
-        };
-
         return createNamedParameterStream(method, parameterValues)
-                .collect(HashSet::new, updateResultWithParameter, Set::addAll);
+                .flatMap(t -> createRestrictedObjects(t._2,
+                        getOrThrow(permissionMap, t._1,
+                            () -> new IllegalStateException("No permission data for name: " + t._1))
+                        )
+                )
+                .filter(r -> !r.permissions.isEmpty())
+                .collect(Collectors.toSet());
     }
 
     // -------------------- PRIVATE --------------------
+
+    private <K,V> V getOrThrow(Map<K,V> map, K key, Supplier<RuntimeException> exceptionSupplier) {
+        if (!map.containsKey(key)) {
+            throw exceptionSupplier.get();
+        }
+        return map.get(key);
+    }
 
     private Map<String, PermissionNeeded> createPermissionMap(PermissionNeeded[] configuration) {
         return Arrays.stream(configuration)
@@ -56,18 +58,17 @@ public class PermissionDataProcessor {
     }
 
     private PermissionNeeded[] extractAnnotations(Method method) {
-        return Option.of(method.getAnnotation(Restricted.class))
+        return Optional.ofNullable(method.getAnnotation(Restricted.class))
                 .map(Restricted::value)
-                .getOrElse(new PermissionNeeded[0]);
+                .orElseGet(() -> new PermissionNeeded[0]);
     }
 
-    private RestrictedObject createRestrictedObject(DvObject object, PermissionNeeded config) {
-        return RestrictedObject.of(config.on(), object, toSet(config.needs()), config.allRequired());
-    }
-
-    private RestrictedObject createRestrictedOwnerObject(DvObject object, PermissionNeeded config) {
-        DvObject owner = object != null ? object.getOwner() : null;
-        return RestrictedObject.of(config.on() + "_owner", owner, toSet(config.needsOnOwner()), config.allRequired());
+    private Stream<RestrictedObject> createRestrictedObjects(DvObject object, PermissionNeeded config) {
+        return Stream.of(
+                RestrictedObject.of(config.on(), object, toSet(config.needs()), config.allRequired()),
+                RestrictedObject.of(config.on() + "_owner", object != null ? object.getOwner() : null,
+                        toSet(config.needsOnOwner()), config.allRequired())
+        );
     }
 
     private Set<Permission> toSet(Permission[] array) {
@@ -84,30 +85,16 @@ public class PermissionDataProcessor {
 
         return IntStream.range(0, parameterValues.length)
                 .mapToObj(i -> Tuple.of(annotations[i], parameterValues[i]))
-                .map(t -> Tuple.of(extractName(t._1), t._2))
-                .filter(t -> !Name.EMPTY.equals(t._1))
-                .map(t -> Tuple.of(t._1.name, (DvObject) t._2));
+                .map(t -> Tuple.of(extractNameIfAnnotationExists(t._1), t._2))
+                .filter(t -> t._1.isPresent())
+                .map(t -> Tuple.of(t._1.get(), (DvObject) t._2));
     }
 
-    private Name extractName(Annotation[] annotations) {
+    private Optional<String> extractNameIfAnnotationExists(Annotation[] annotations) {
         return Arrays.stream(annotations)
                 .filter(a -> a instanceof PermissionNeeded)
                 .map(PermissionNeeded.class::cast)
                 .map(PermissionNeeded::value)
-                .map(Name::new)
-                .findFirst()
-                .orElse(Name.EMPTY);
-    }
-
-    // -------------------- INNER CLASSES --------------------
-
-    private static class Name {
-        public final String name;
-
-        public static final Name EMPTY = new Name(null);
-
-        public Name(String name) {
-            this.name = name;
-        }
+                .findFirst(); // it's safe to call, because PermissionNeeded.value is always non-null
     }
 }

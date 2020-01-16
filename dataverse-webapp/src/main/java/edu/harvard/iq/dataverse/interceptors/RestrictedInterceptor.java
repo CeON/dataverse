@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.interceptors.InterceptorCommons.createName;
@@ -34,6 +35,7 @@ import static edu.harvard.iq.dataverse.interceptors.InterceptorCommons.createNam
 @Interceptor
 @Restricted
 public class RestrictedInterceptor {
+    private static final Logger logger = Logger.getLogger(RestrictedInterceptor.class.getSimpleName());
 
     private PermissionDataProcessor permissionDataProcessor = new PermissionDataProcessor();
 
@@ -54,7 +56,7 @@ public class RestrictedInterceptor {
             throw new RuntimeException("Service method: " + createName(method) + " does not define required permissions.");
         }
 
-        logBasicInfo(fetchOrCreateLogRecord(ctx, method, request), restrictedObjects);
+        logBasicInfo(ctx, restrictedObjects);
         List<MissingPermissions> missingPermissions = checkPermissions(restrictedObjects, request);
         if (!missingPermissions.isEmpty()) {
             throw createMissingPermissionException(missingPermissions, method, request);
@@ -68,6 +70,8 @@ public class RestrictedInterceptor {
         }
     }
 
+    // -------------------- PRIVATE ---------------------
+
     private PermissionException createMissingPermissionException(
             List<MissingPermissions> missingPermissions, Method method, DataverseRequest request) {
         MissingPermissions firstMissing = missingPermissions.get(0);
@@ -79,15 +83,12 @@ public class RestrictedInterceptor {
                 null, firstMissing.required, firstMissing.dvObject);
     }
 
-    // -------------------- PRIVATE ---------------------
-
-    private ActionLogRecord fetchOrCreateLogRecord(InvocationContext ctx, Method method, DataverseRequest request) {
-        return (ActionLogRecord) ctx.getContextData().computeIfAbsent(InterceptorCommons.LOG_RECORD_KEY,
-                k -> new ActionLogRecord(ActionType.Command, createName(method))
-                        .setUserIdentifier(request.getUser().getIdentifier()));
-    }
-
-    private void logBasicInfo(ActionLogRecord logRecord, Collection<RestrictedObject> restrictedObjects) {
+    private void logBasicInfo(InvocationContext ctx, Collection<RestrictedObject> restrictedObjects) {
+        ActionLogRecord logRecord  = (ActionLogRecord) ctx.getContextData().get(InterceptorCommons.LOG_RECORD_KEY);
+        if (logRecord == null) {
+            logger.warning("Cannot find action log record in invocation context. Following data won't be saved " +
+                    "into database: " + restrictedObjects);
+        }
         String restrictedObjectsLog = restrictedObjects.stream()
                 .map(r -> "[" + r.name + " : " + extractSafelyObjectName(r) + "]")
                 .collect(Collectors.joining(" "));

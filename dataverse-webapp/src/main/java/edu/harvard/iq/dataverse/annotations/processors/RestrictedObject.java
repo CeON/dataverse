@@ -45,4 +45,16 @@ public class RestrictedObject {
     public int hashCode() {
         return Objects.hash(object, name, permissions, allRequired);
     }
+
+    // -------------------- toString --------------------
+
+    @Override
+    public String toString() {
+        return "RestrictedObject[" +
+                "object=" + object +
+                ", name=" + name +
+                ", permissions=" + permissions +
+                ", allRequired=" + allRequired +
+                "]";
+    }
 }
