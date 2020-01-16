@@ -1,24 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.harvard.iq.dataverse.datafile.page;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
-import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.FileDownloadHelper;
-import edu.harvard.iq.dataverse.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
 import edu.harvard.iq.dataverse.datafile.FileService;
-import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
+import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.UpdateDatasetException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
@@ -27,7 +18,7 @@ import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
-import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
+import edu.harvard.iq.dataverse.guestbook.GuestbookResponseDialog;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -36,13 +27,13 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.Term
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseIcon;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Try;
+import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.ByteArrayContent;
@@ -52,10 +43,10 @@ import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.ValidationException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,11 +69,8 @@ public class FilePage implements java.io.Serializable {
     private Long fileId;
     private String version;
     private DataFile file;
-    private GuestbookResponse guestbookResponse;
     private int selectedTabIndex;
-    private Dataset editDataset;
     private Dataset dataset;
-    private List<DatasetVersion> datasetVersionsForTab;
     private List<FileMetadata> fileMetadatasForTab;
     private String persistentId;
     private List<ExternalTool> configureTools;
@@ -99,12 +87,6 @@ public class FilePage implements java.io.Serializable {
     @EJB
     SettingsServiceBean settingsService;
     @EJB
-    FileDownloadServiceBean fileDownloadService;
-    @EJB
-    GuestbookResponseServiceBean guestbookResponseService;
-    @EJB
-    AuthenticationServiceBean authService;
-    @EJB
     SystemConfig systemConfig;
 
     @Inject
@@ -119,17 +101,17 @@ public class FilePage implements java.io.Serializable {
     @Inject
     FileDownloadHelper fileDownloadHelper;
     @Inject
-    WorldMapPermissionHelper worldMapPermissionHelper;
-    @Inject
     private ExportService exportService;
 
     @Inject
     private FileService fileService;
+    @Inject
+    private GuestbookResponseDialog guestbookResponseDialog;
 
+    
     private static final Logger logger = Logger.getLogger(FilePage.class.getCanonicalName());
 
     public String init() {
-
 
         if (fileId != null || persistentId != null) {
 
@@ -171,6 +153,11 @@ public class FilePage implements java.io.Serializable {
                 return permissionsWrapper.notFound();
             }
 
+            if (!permissionsWrapper.canViewUnpublishedDataset(dvRequestService.getDataverseRequest(), file.getOwner()) &&
+                    file.getOwner().hasActiveEmbargo()) {
+                return permissionsWrapper.notAuthorized();
+            }
+
             RetrieveDatasetVersionResponse retrieveDatasetVersionResponse;
             retrieveDatasetVersionResponse = datasetVersionService.selectRequestedVersion(file.getOwner().getVersions(), version);
             Long getDatasetVersionID = retrieveDatasetVersionResponse.getDatasetVersion().getId();
@@ -198,7 +185,7 @@ public class FilePage implements java.io.Serializable {
                 return permissionsWrapper.notAuthorized();
             }
 
-            this.guestbookResponse = this.guestbookResponseService.initGuestbookResponseForFragment(fileMetadata, session);
+            guestbookResponseDialog.initForDatasetVersion(fileMetadata.getDatasetVersion());
             this.dataset = fileMetadata.getDataFile().getOwner();
 
             // Find external tools based on their type, the file content type, and whether
@@ -305,8 +292,7 @@ public class FilePage implements java.io.Serializable {
         }
 
         JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.editSuccess"));
-        setVersion("DRAFT");
-        init();
+        
         return returnToDraftVersion();
     }
 
@@ -319,8 +305,7 @@ public class FilePage implements java.io.Serializable {
         }
 
         JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("file.message.deleteSuccess"));
-
-        setVersion("DRAFT");
+        
         return returnToDatasetOnly(fileMetadata.getDataFile().getOwner());
     }
 
@@ -418,8 +403,8 @@ public class FilePage implements java.io.Serializable {
             }
 
         }
-        if (priorVersion != null && priorVersion.getFileMetadatasSorted() != null) {
-            for (FileMetadata fmdTest : priorVersion.getFileMetadatasSorted()) {
+        if (priorVersion != null && priorVersion.getAllFilesMetadataSorted() != null) {
+            for (FileMetadata fmdTest : priorVersion.getAllFilesMetadataSorted()) {
                 for (DataFile fileTest : allfiles) {
                     if (fmdTest.getDataFile().equals(fileTest)) {
                         return fmdTest;
@@ -449,8 +434,8 @@ public class FilePage implements java.io.Serializable {
 
         List<DataFile> allfiles = allRelatedFiles();
 
-        if (dvPrevious != null && dvPrevious.getFileMetadatasSorted() != null) {
-            for (FileMetadata fmdTest : dvPrevious.getFileMetadatasSorted()) {
+        if (dvPrevious != null && dvPrevious.getAllFilesMetadataSorted() != null) {
+            for (FileMetadata fmdTest : dvPrevious.getAllFilesMetadataSorted()) {
                 for (DataFile fileTest : allfiles) {
                     if (fmdTest.getDataFile().equals(fileTest)) {
                         return fmdTest;
@@ -502,7 +487,7 @@ public class FilePage implements java.io.Serializable {
             return thumbnailAvailable;
         }
 
-        if (!fileDownloadHelper.canDownloadFile(fileMetadata)) {
+        if (!fileDownloadHelper.canUserDownloadFile(fileMetadata)) {
             thumbnailAvailable = false;
         } else {
             thumbnailAvailable = datafileService.isThumbnailAvailable(fileMetadata.getDataFile());
@@ -534,32 +519,6 @@ public class FilePage implements java.io.Serializable {
     private String returnToDraftVersion() {
 
         return "/file.xhtml?fileId=" + fileId + "&version=DRAFT&faces-redirect=true";
-    }
-
-    public FileDownloadServiceBean getFileDownloadService() {
-        return fileDownloadService;
-    }
-
-    public void setFileDownloadService(FileDownloadServiceBean fileDownloadService) {
-        this.fileDownloadService = fileDownloadService;
-    }
-
-
-    public GuestbookResponseServiceBean getGuestbookResponseService() {
-        return guestbookResponseService;
-    }
-
-    public void setGuestbookResponseService(GuestbookResponseServiceBean guestbookResponseService) {
-        this.guestbookResponseService = guestbookResponseService;
-    }
-
-
-    public GuestbookResponse getGuestbookResponse() {
-        return guestbookResponse;
-    }
-
-    public void setGuestbookResponse(GuestbookResponse guestbookResponse) {
-        this.guestbookResponse = guestbookResponse;
     }
 
 

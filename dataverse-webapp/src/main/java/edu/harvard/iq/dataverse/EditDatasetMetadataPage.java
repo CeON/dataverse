@@ -11,14 +11,15 @@ import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
+import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.ValidationException;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,6 @@ public class EditDatasetMetadataPage implements Serializable {
 
     private Dataset dataset;
     private DatasetVersion workingVersion;
-    private DatasetVersion clone;
     private Map<MetadataBlock, List<DatasetField>> metadataBlocksForEdit;
 
     // -------------------- GETTERS --------------------
@@ -100,7 +100,6 @@ public class EditDatasetMetadataPage implements Serializable {
         }
 
         workingVersion = dataset.getEditVersion();
-        clone = workingVersion.cloneDatasetVersion();
 
         List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(workingVersion.getDatasetFields(),
                 dataset.getOwner().getMetadataBlockRootDataverse());

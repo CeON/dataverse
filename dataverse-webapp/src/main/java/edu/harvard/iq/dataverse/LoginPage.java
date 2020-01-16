@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -19,9 +20,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -100,7 +101,11 @@ public class LoginPage implements java.io.Serializable {
     long op2;
     Long userSum;
 
-    public void init() {
+    public String init() {
+        if (dvRequestService.getDataverseRequest().getUser().isAuthenticated()) {
+            return redirectPage + "?faces-redirect=true";
+        }
+
         Iterator<String> credentialsIterator = authSvc.getAuthenticationProviderIdsOfType(CredentialsAuthenticationProvider.class).iterator();
         if (credentialsIterator.hasNext()) {
             setCredentialsAuthProviderId(credentialsIterator.next());
@@ -108,6 +113,8 @@ public class LoginPage implements java.io.Serializable {
         resetFilledCredentials(null);
         authProvider = authSvc.getAuthenticationProvider(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultAuthProvider));
         random = new Random();
+
+        return "";
     }
 
     public List<AuthenticationProviderDisplayInfo> listCredentialsAuthenticationProviders() {

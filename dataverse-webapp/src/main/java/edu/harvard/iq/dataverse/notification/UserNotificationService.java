@@ -7,10 +7,13 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
+import org.awaitility.Awaitility;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,13 +69,12 @@ public class UserNotificationService {
 
         userNotificationDao.flush();
 
-        EmailNotificationDto emailNotificationDto = mailMapper.toDto(userNotification, dvObjectId, notificationObjectType);
-
-        executorService.submit(() -> sendEmail(emailNotificationDto));
+        executorService.submit(() -> sendEmail(userNotification.getId(), notificationObjectType));
     }
 
     /**
      * Saves notification to database, then sends email asynchronously.
+     *
      * @param notificationObjectType - type has to match correct #{@link NotificationType}
      */
     public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
@@ -86,14 +88,48 @@ public class UserNotificationService {
 
         userNotificationDao.flush();
 
-        EmailNotificationDto emailNotificationDto = mailMapper.toDto(userNotification, dvObjectId, notificationObjectType);
-
-        executorService.submit(() -> sendEmail(emailNotificationDto, requestor));
+        executorService.submit(() -> sendEmail(userNotification.getId(), notificationObjectType, requestor));
     }
 
+    /**
+     * Saves notification to database, then sends email asynchronously.
+     *
+     * @param notificationObjectType - type has to match correct #{@link NotificationType}
+     * @param comment                - custom user message added to notification on '{@link NotificationType#RETURNEDDS}
+     */
+    public void sendNotificationWithEmail(AuthenticatedUser dataverseUser,
+                                          Timestamp sendDate,
+                                          NotificationType type,
+                                          long dvObjectId,
+                                          NotificationObjectType notificationObjectType,
+                                          String comment) {
+
+        UserNotification userNotification = sendNotification(dataverseUser, sendDate, type, dvObjectId, comment);
+
+        userNotificationDao.flush();
+
+        executorService.submit(() -> sendEmail(userNotification.getId(), notificationObjectType));
+    }
     // -------------------- PRIVATE --------------------
 
-    private boolean sendEmail(EmailNotificationDto emailNotificationDto, AuthenticatedUser requester) {
+    /**
+     * Sends an email, Awaitility is necessary since we have to wait until previous transaction will be committed,
+     * otherwise there is a chance that we won't be able to retrieve necessary data from database.
+     */
+    private boolean sendEmail(long emailNotificationid, NotificationObjectType notificationObjectType, AuthenticatedUser requester) {
+        UserNotification notification = Awaitility.await()
+                .with()
+                .pollDelay(Duration.ofSeconds(1))
+                .pollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> userNotificationDao.find(emailNotificationid), Objects::nonNull);
+
+
+        EmailNotificationDto emailNotificationDto = mailMapper.toDto(notification,
+                                                                     notification.getObjectId(),
+                                                                     notificationObjectType,
+                                                                     notification.getReturnToAuthorReason());
+
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto, requester);
 
         if (emailSent) {
@@ -103,7 +139,20 @@ public class UserNotificationService {
         return emailSent;
     }
 
-    private boolean sendEmail(EmailNotificationDto emailNotificationDto) {
+    private boolean sendEmail(long emailNotificationid, NotificationObjectType notificationObjectType) {
+        UserNotification notification = Awaitility.await()
+                .with()
+                .pollDelay(Duration.ofSeconds(1))
+                .pollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(5))
+                .until(() -> userNotificationDao.find(emailNotificationid), Objects::nonNull);
+
+        EmailNotificationDto emailNotificationDto = mailMapper.toDto(notification,
+                                                                     notification.getObjectId(),
+                                                                     notificationObjectType,
+                                                                     notification.getReturnToAuthorReason());
+
+
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto);
 
         if (emailSent) {
@@ -133,6 +182,19 @@ public class UserNotificationService {
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectId);
+
+        userNotificationDao.save(userNotification);
+
+        return userNotification;
+    }
+
+    private UserNotification sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, long dvObjectId, String returnToAuthorReason) {
+        UserNotification userNotification = new UserNotification();
+        userNotification.setUser(dataverseUser);
+        userNotification.setSendDate(sendDate);
+        userNotification.setType(type);
+        userNotification.setObjectId(dvObjectId);
+        userNotification.setReturnToAuthorReason(returnToAuthorReason);
 
         userNotificationDao.save(userNotification);
 

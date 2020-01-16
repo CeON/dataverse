@@ -129,14 +129,14 @@ public class DatasetVersion implements Serializable {
     @OneToMany(mappedBy = "datasetVersion", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     @OrderBy("label")
     // this is not our preferred ordering, which is with the AlphaNumericComparator, but does allow the files to be grouped by category
-    private List<FileMetadata> fileMetadatas = new ArrayList();
+    private List<FileMetadata> fileMetadatas = new ArrayList<>();
 
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "termsOfUseAndAccess_id")
     private TermsOfUseAndAccess termsOfUseAndAccess = new TermsOfUseAndAccess();
 
     @OneToMany(mappedBy = "datasetVersion", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    private List<DatasetField> datasetFields = new ArrayList();
+    private List<DatasetField> datasetFields = new ArrayList<>();
 
     @Temporal(value = TemporalType.TIMESTAMP)
     @Column(nullable = false)
@@ -203,9 +203,18 @@ public class DatasetVersion implements Serializable {
         return fileMetadatas;
     }
 
-    public List<FileMetadata> getFileMetadatasSorted() {
+    public List<FileMetadata> getAllFilesMetadataSorted() {
         List<FileMetadata> result = newArrayList(fileMetadatas);
         Collections.sort(result, FileMetadata.compareByDisplayOrder);
+        return result;
+    }
+
+    public List<FileMetadata> getOnlyFilesMetadataNotUnderEmbargoSorted() {
+        List<FileMetadata> result = newArrayList();
+        if (!dataset.hasActiveEmbargo()) {
+            result = getAllFilesMetadataSorted();
+        }
+
         return result;
     }
 
@@ -1536,5 +1545,4 @@ public class DatasetVersion implements Serializable {
         }
         return ++maxDisplayOrder;
     }
-
 }

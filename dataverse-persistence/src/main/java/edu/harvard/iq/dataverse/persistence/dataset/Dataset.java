@@ -1,8 +1,5 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion.VersionState;
-import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess.License;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.AlternativePersistentIdentifier;
 import edu.harvard.iq.dataverse.persistence.DvObject;
@@ -15,6 +12,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataverse.link.DatasetLinkingDataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.Guestbook;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
+import io.vavr.control.Option;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -35,6 +33,7 @@ import javax.persistence.TemporalType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -117,6 +116,12 @@ public class Dataset extends DvObjectContainer {
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "guestbook_id", unique = false, nullable = true, insertable = true, updatable = true)
     private Guestbook guestbook;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date guestbookChangeTime;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date embargoDate;
 
     @OneToMany(mappedBy = "dataset", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetLinkingDataverse> datasetLinkingDataverses;
@@ -221,6 +226,27 @@ public class Dataset extends DvObjectContainer {
         this.guestbook = guestbook;
     }
 
+    /**
+     * Timer used mainly for OAI exporters to determinate whether metadata was changed or not,
+     *  since license in exporters could be changed based on guestbook.
+     *
+     */
+    public Option<Date> getGuestbookChangeTime() {
+        return Option.of(guestbookChangeTime);
+    }
+
+    public void setGuestbookChangeTime(Date guestbookChangeTime) {
+        this.guestbookChangeTime = guestbookChangeTime;
+    }
+
+    public Option<Date> getEmbargoDate() {
+        return Option.of(embargoDate);
+    }
+
+    public void setEmbargoDate(Date embargoDate) {
+        this.embargoDate = embargoDate;
+    }
+
     public String getPersistentURL() {
         return new GlobalId(this).toURL().toString();
     }
@@ -249,6 +275,10 @@ public class Dataset extends DvObjectContainer {
             }
         }
         return hasDeaccessionedVersions; // since any published version would have already returned
+    }
+
+    public boolean hasActiveEmbargo() {
+        return this.getEmbargoDate().isDefined() && Instant.now().isBefore(this.getEmbargoDate().get().toInstant());
     }
 
     public DatasetVersion getLatestVersion() {

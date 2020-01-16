@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.engine.command.Command;
@@ -20,11 +15,12 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
+import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -154,6 +150,10 @@ public class PermissionsWrapper implements java.io.Serializable {
 
     public boolean canUpdateDataset(DataverseRequest dr, Dataset dataset) {
         return doesSessionUserHaveDataSetPermission(dr, dataset, Permission.EditDataset);
+    }
+    public boolean canCurrentUserUpdateDataset(Dataset dataset) {
+        DataverseRequest dataverseRequest = dvRequestService.getDataverseRequest();
+        return doesSessionUserHaveDataSetPermission(dataverseRequest, dataset, Permission.EditDataset);
     }
 
     public boolean canUpdateAndPublishDataset(DataverseRequest dr, Dataset dataset) {

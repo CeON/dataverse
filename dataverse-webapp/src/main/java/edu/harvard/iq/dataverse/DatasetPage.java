@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.datafile.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
@@ -10,6 +11,7 @@ import edu.harvard.iq.dataverse.dataset.tab.DatasetMetadataTab;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import edu.harvard.iq.dataverse.engine.command.exception.NoDatasetFilesException;
 import edu.harvard.iq.dataverse.engine.command.impl.AbstractSubmitToArchiveCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreatePrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CuratePublishedDatasetVersionCommand;
@@ -28,11 +30,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
-import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
-import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
-import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
@@ -47,24 +45,23 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
-import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Either;
+import io.vavr.control.Try;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omnifaces.cdi.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,43 +96,23 @@ public class DatasetPage implements java.io.Serializable {
     @EJB
     DataverseDao dataverseDao;
     @EJB
-    DatasetFieldServiceBean fieldService;
-    @EJB
-    IngestServiceBean ingestService;
-    @EJB
     EjbDataverseEngine commandEngine;
     @Inject
     DataverseSession session;
     @EJB
-    UserNotificationService userNotificationService;
-    @EJB
     MapLayerMetadataServiceBean mapLayerMetadataService;
     @EJB
-    DataverseFieldTypeInputLevelServiceBean dataverseFieldTypeInputLevelService;
-    @EJB
     SettingsServiceBean settingsService;
-    @EJB
-    SystemConfig systemConfig;
     @EJB
     GuestbookResponseServiceBean guestbookResponseService;
     @EJB
     FileDownloadServiceBean fileDownloadService;
-    @EJB
-    ExternalToolServiceBean externalToolService;
-    @EJB
-    TermsOfUseFormMapper termsOfUseFormMapper;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
     PermissionsWrapper permissionsWrapper;
     @Inject
-    FileDownloadHelper fileDownloadHelper;
-    @Inject
     ThumbnailServiceWrapper thumbnailServiceWrapper;
-    @Inject
-    SettingsWrapper settingsWrapper;
-    @Inject
-    ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     private ExportService exportService;
     @Inject
@@ -157,10 +134,9 @@ public class DatasetPage implements java.io.Serializable {
     private String version;
 
     private boolean stateChanged = false;
-
     private Boolean sameTermsOfUseForAllFiles;
-
     private String thumbnailString = null;
+    private String returnToAuthorReason;
 
     // This is the Dataset-level thumbnail; 
     // it's either the thumbnail of the designated datafile, 
@@ -261,6 +237,10 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean canPublishDataverse() {
         return permissionsWrapper.canIssuePublishDataverseCommand(dataset.getOwner());
+    }
+
+    public boolean isLatestDatasetWithAnyFilesIncluded(){
+        return !dataset.getLatestVersion().getFileMetadatas().isEmpty();
     }
 
     public boolean canViewUnpublishedDataset() {
@@ -394,7 +374,6 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String init(boolean initFull) {
-
         if (dataset.getId() != null || versionId != null || persistentId != null) { // view mode for a dataset     
 
             DatasetVersionServiceBean.RetrieveDatasetVersionResponse retrieveDatasetVersionResponse = null;
@@ -495,6 +474,7 @@ public class DatasetPage implements java.io.Serializable {
 
                 datasetNextMajorVersion = this.dataset.getNextMajorVersionString();
                 datasetNextMinorVersion = this.dataset.getNextMinorVersionString();
+                returnToAuthorReason = StringUtils.EMPTY;
 
                 setExistReleasedVersion(resetExistRealeaseVersion());
                 //moving setVersionTabList to tab change event
@@ -570,16 +550,10 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String sendBackToContributor() {
-        try {
-            //FIXME - Get Return Comment from sendBackToContributor popup
-            Command<Dataset> cmd = new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, "");
-            dataset = commandEngine.submit(cmd);
-            JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.reject.success"));
-        } catch (CommandException ex) {
-            String message = ex.getMessage();
-            logger.log(Level.SEVERE, "sendBackToContributor: {0}", message);
-            JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.reject.failure", Collections.singletonList(message)));
-        }
+        Try.of(() -> commandEngine.submit(new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, returnToAuthorReason)))
+                .onSuccess(ds -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.reject.success")))
+                .onFailure(throwable -> logger.log(Level.SEVERE, "Sending back to Contributor failed:", throwable))
+                .onFailure(throwable -> JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.reject.failure", Collections.singletonList(throwable.getMessage()))));
 
         return returnToLatestVersion();
     }
@@ -588,7 +562,7 @@ public class DatasetPage implements java.io.Serializable {
         try {
             Command<Dataset> cmd = new SubmitDatasetForReviewCommand(dvRequestService.getDataverseRequest(), dataset);
             dataset = commandEngine.submit(cmd);
-            //JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.submit.success"));
+
         } catch (CommandException ex) {
             String message = ex.getMessage();
             logger.log(Level.SEVERE, "submitDataset: {0}", message);
@@ -646,6 +620,9 @@ public class DatasetPage implements java.io.Serializable {
             } catch (CommandException ex) {
                 JsfHelper.addFlashErrorMessage(ex.getLocalizedMessage());
                 logger.severe(ex.getMessage());
+            } catch (NoDatasetFilesException ex){
+                JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.publish.error.noFiles"));
+                logger.log(Level.SEVERE,"", ex);
             }
 
         } else {
@@ -1088,10 +1065,6 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    public boolean isUserCanCreatePrivateURL() {
-        return dataset.getLatestVersion().isDraft();
-    }
-
     public String getPrivateUrlLink(PrivateUrl privateUrl) {
         return privateUrl.getLink();
     }
@@ -1142,6 +1115,13 @@ public class DatasetPage implements java.io.Serializable {
     public List<String> getDatasetAuthors() {
         assert (workingVersion != null);
         return workingVersion.getDatasetAuthorNames();
+    }
+
+    /**
+     * @return Comment written by dataset admin explaining why was the dataset "Returned to Author"
+     */
+    public String getReturnToAuthorReason() {
+        return returnToAuthorReason;
     }
 
     /**
@@ -1218,5 +1198,9 @@ public class DatasetPage implements java.io.Serializable {
             return Optional.empty();
         }
         return Optional.of(workingVersion.getFileMetadatas().get(0).getTermsOfUse());
+    }
+
+    public void setReturnToAuthorReason(String returnToAuthorReason) {
+        this.returnToAuthorReason = returnToAuthorReason;
     }
 }
