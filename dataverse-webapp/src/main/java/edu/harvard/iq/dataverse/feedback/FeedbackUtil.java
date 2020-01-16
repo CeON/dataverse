@@ -131,7 +131,8 @@ public class FeedbackUtil {
             if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.datasetContact)) {
                 String contactName = null;
                 String contactEmail = null;
-                    for (DatasetField subField : dsf.getDatasetFieldsChildren()) {
+
+                for (DatasetField subField : dsf.getDatasetFieldsChildren()) {
                         if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.datasetContactName)) {
                             contactName = subField.getValue();
                             logger.fine("contactName: " + contactName);
@@ -141,13 +142,12 @@ public class FeedbackUtil {
                             logger.fine("contactEmail: " + contactEmail);
                         }
 
-                        if (contactEmail != null && contactName != null) {
-                            DvObjectContact datasetContact = new DvObjectContact(contactName, contactEmail);
-                            datasetContacts.add(datasetContact);
-                            contactName = null;
-                            contactEmail = null;
-                        }
                     }
+
+                if (contactEmail != null) {
+                    DvObjectContact datasetContact = new DvObjectContact(contactName, contactEmail);
+                    datasetContacts.add(datasetContact);
+                }
 
             }
         }
