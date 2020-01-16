@@ -1517,6 +1517,7 @@ div.filesTable .ui-paginator {
 
 .citation-block .alert.alert-info.bg-citation {
 	padding: 10px 26px 10px 24px;
+<<<<<<< HEAD
 
 	.citation-download {
 		padding-bottom: 3.5px;
@@ -1531,6 +1532,22 @@ div.filesTable .ui-paginator {
 	padding: 44px 31px 48px 31px;
 }
 
+=======
+
+	.citation-download {
+		padding-bottom: 3.5px;
+	}
+
+	.citation-standards {
+		margin-bottom: -4px;
+	}
+}
+
+.metadata-panel-body {
+	padding: 44px 31px 48px 31px;
+}
+
+>>>>>>> f902c698bbdf8f0141c5928cf50549ce5dc826ea
 .glyphicon.glyphicon-question-sign.tooltip-icon {
 	margin-left: 4px;
 }
