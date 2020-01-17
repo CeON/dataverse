@@ -557,7 +557,7 @@
                                     </ui:fragment>
                                     <!-- Embargo -->
                                     <ui:fragment
-                                            rendered="#{DatasetPage.hasActiveEmbargo()}">
+                                            rendered="#{DatasetPage.dataset.hasActiveEmbargo()}">
                                     <div class="form-group" >
                                         <label class="col-sm-3 control-label">
                                             #{bundle['dataset.embargo.title']}
@@ -717,6 +717,7 @@
                                     pattern="dd/MM/yyyy"
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
+                                    timeZone="UTC"
                             />
                             <p:message id="embargoMsg" for="embargoDatePicker" display="text" />
                         </div>

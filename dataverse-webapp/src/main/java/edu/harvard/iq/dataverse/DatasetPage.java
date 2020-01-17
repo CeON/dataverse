@@ -1233,7 +1233,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public Date getTomorrowsDate() {
-        return Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
+        return Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS));
     }
 
     public void updateEmbargoDate() {
@@ -1256,19 +1256,16 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public void validateEmbargoDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
-        if(!Objects.isNull(embargoDate) && ((Date) embargoDate).toInstant().isBefore(getTomorrowsDate().toInstant())) {
+        if(!Objects.isNull(embargoDate) &&
+                ((Date) embargoDate).toInstant().isBefore(getTomorrowsDate().toInstant())) {
             ((UIInput) toValidate).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.embargo.save.validationfailureMessage"), null);
             context.addMessage(toValidate.getClientId(context), message);
         }
     }
 
-    public boolean hasActiveEmbargo() {
-        return dataset.hasActiveEmbargo();
-    }
-
     public boolean isUserUnderEmbargo() {
-        return hasActiveEmbargo() && !permissionsWrapper.canViewUnpublishedDataset(dvRequestService.getDataverseRequest(), dataset);
+        return dataset.hasActiveEmbargo() && !permissionsWrapper.canViewUnpublishedDataset(dvRequestService.getDataverseRequest(), dataset);
     }
 
     public boolean isUserAbleToSetOrUpdateEmbargo() {
