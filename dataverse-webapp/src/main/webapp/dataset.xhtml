@@ -233,7 +233,7 @@
                                                            action="#{DatasetPage.initCurrentEmbargo()}"
                                                            update="setEmbargoPanel"
                                                            oncomplete="PF('setEmbargoConfirmation').show()"
-                                                           rendered="#{!DatasetPage.hasDatasetBeenPublished() or not empty DatasetPage.currentEmbargoDate}"
+                                                           rendered="#{DatasetPage.isUserAbleToSetOrUpdateEmbargo() or DatasetPage.isUserAbleToLiftEmbargo()}"
                                             >
                                                 <h:outputText
                                                         value="#{bundle['dataset.editBtn.itemLabel.embargo']}"/>
@@ -434,7 +434,7 @@
                                 </ui:fragment>
                             </div>
                             <!-- BEGIN: DATASET SUMMARY -->
-                            <div id="dataset-summary-metadata" class="row panel panel-default"
+                            <div jsf:id="dataset-summary-metadata" class="row panel panel-default"
                                  jsf:rendered="#{!widgetWrapper.widgetView and !DatasetPage.workingVersion.deaccessioned and
                                                     (!empty DatasetPage.datasetSummaryFields or !empty DatasetPage.workingVersion.fileMetadatas) }">
                                 <div class="panel-body metadata-panel-body">
@@ -497,7 +497,7 @@
                                     </ui:repeat>
 
                                     <ui:fragment
-                                            rendered="#{!empty DatasetPage.workingVersion.fileMetadatas and !DatasetPage.sameTermsOfUseForAllFiles}">
+                                            rendered="#{!empty DatasetPage.workingVersion.fileMetadatas and !DatasetPage.sameTermsOfUseForAllFiles and !DatasetPage.isUserUnderEmbargo()}">
                                         <div class="form-group">
                                             <label class="col-sm-3 control-label">
                                                 #{bundle['dataset.files.license']}
@@ -511,7 +511,7 @@
                                         </div>
                                     </ui:fragment>
                                     <ui:fragment
-                                            rendered="#{!empty DatasetPage.workingVersion.fileMetadatas and DatasetPage.sameTermsOfUseForAllFiles}">
+                                            rendered="#{!empty DatasetPage.workingVersion.fileMetadatas and DatasetPage.sameTermsOfUseForAllFiles and !DatasetPage.isUserUnderEmbargo()}">
                                         <div class="form-group"
                                              jsf:rendered="#{DatasetPage.termsOfUseOfFirstFile.get().termsOfUseType == termsOfUseTypeEnum.LICENSE_BASED}">
                                             <label class="col-sm-3 control-label">
@@ -554,6 +554,21 @@
                                                         rendered="#{DatasetPage.termsOfUseOfFirstFile.get().restrictType == restrictTypeEnum.CUSTOM}"/>
                                             </div>
                                         </div>
+                                    </ui:fragment>
+                                    <!-- Embargo -->
+                                    <ui:fragment
+                                            rendered="#{DatasetPage.hasActiveEmbargo()}">
+                                    <div class="form-group" >
+                                        <label class="col-sm-3 control-label">
+                                            #{bundle['dataset.embargo.title']}
+                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                  data-toggle="tooltip" data-placement="auto right"
+                                                  data-original-title="#{bundle['dataset.embargo.description']}"></span>
+                                        </label>
+                                        <div class="col-sm-9">
+                                            #{DatasetPage.currentEmbargoDateForDisplay}
+                                        </div>
+                                    </div>
                                     </ui:fragment>
                                 </div>
                             </div>
@@ -708,13 +723,13 @@
                         <div class="button-block">
                             <p:commandButton value="#{bundle['dataset.embargo.setEmbargo']}"
                                              action="#{DatasetPage.updateEmbargoDate()}"
-                                             update="setEmbargoPanel,:messagePanel"
-                                             rendered="#{!DatasetPage.hasDatasetBeenPublished()}"
+                                             update="setEmbargoPanel,:messagePanel, dataset-summary-metadata"
+                                             rendered="#{DatasetPage.isUserAbleToSetOrUpdateEmbargo()}"
                                              oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('setEmbargoConfirmation').hide(); } else { #{DatasetPage.initCurrentEmbargo()}; }"
                             />
                             <p:commandButton value="#{bundle['dataset.embargo.removeEmbargo']}"
                                              onclick="PF('setEmbargoConfirmation').hide();PF('removeEmbargoConfirmation').show()"
-                                             rendered="#{!empty(DatasetPage.currentEmbargoDate)}" update="setEmbargoPanel"/>
+                                             rendered="#{DatasetPage.isUserAbleToLiftEmbargo()}" update="setEmbargoPanel"/>
                             <p:commandButton styleClass="btn btn-default"
                                              value="#{bundle.close}"
                                              onclick="PF('setEmbargoConfirmation').hide();"
@@ -734,7 +749,7 @@
                         <p:commandButton value="#{bundle['dataset.embargo.removeEmbargoConfirm']}"
                                          immediate="true"
                                          action="#{DatasetPage.liftEmbargo()}"
-                                         update="setEmbargoPanel,:messagePanel"
+                                         update="setEmbargoPanel,:messagePanel, dataset-summary-metadata"
                                          onclick="PF('removeEmbargoConfirmation').hide();"/>
                         <p:commandButton value="#{bundle.cancel}"
                                          onclick="PF('removeEmbargoConfirmation').hide();PF('setEmbargoConfirmation').show();"

@@ -1245,17 +1245,13 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    public boolean hasDatasetBeenPublished() {
-        return dataset.hasEverBeenPublished();
-    }
-
     public void liftEmbargo() {
         currentEmbargoDate = null;
         updateEmbargoDate();
     }
 
     public String getCurrentEmbargoDateForDisplay() {
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         return format.format(currentEmbargoDate);
     }
 
@@ -1267,4 +1263,19 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
+    public boolean hasActiveEmbargo() {
+        return dataset.hasActiveEmbargo();
+    }
+
+    public boolean isUserUnderEmbargo() {
+        return hasActiveEmbargo() && !permissionsWrapper.canViewUnpublishedDataset(dvRequestService.getDataverseRequest(), dataset);
+    }
+
+    public boolean isUserAbleToSetOrUpdateEmbargo() {
+        return !dataset.hasEverBeenPublished() || session.getUser().isSuperuser();
+    }
+
+    public boolean isUserAbleToLiftEmbargo() {
+        return dataset.hasActiveEmbargo();
+    }
 }
