@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import io.vavr.control.Option;
 
 import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
