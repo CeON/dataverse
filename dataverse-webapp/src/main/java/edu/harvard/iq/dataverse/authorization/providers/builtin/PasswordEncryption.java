@@ -50,7 +50,7 @@ public final class PasswordEncryption implements java.io.Serializable {
             byte[] salt = new byte[16];
             random.nextBytes(salt);
             
-            byte[] hash = generateHash(plainText, salt, iterations, 0);
+            byte[] hash = generateHash(plainText, salt, iterations, 512);
             
             Encoder base64Encoder = Base64.getEncoder().withoutPadding();
             String saltString = base64Encoder.encodeToString(salt).replace('+', '.');
