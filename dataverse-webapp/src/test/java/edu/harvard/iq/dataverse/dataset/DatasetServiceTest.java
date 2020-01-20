@@ -2,13 +2,14 @@ package edu.harvard.iq.dataverse.dataset;
 
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailCommand;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
-import io.vavr.control.Option;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,11 @@ public class DatasetServiceTest {
     @Mock
     private DatasetDao datasetDao;
 
+    @Mock
+    private PermissionsWrapper permissionsWrapper;
+
+    @Mock
+    private DataverseSession session;
 
     @Test
     public void changeDatasetThumbnail() {
@@ -89,31 +95,59 @@ public class DatasetServiceTest {
     }
 
     @Test
-    public void updateDatasetEmbargoDate() {
+    public void setDatasetEmbargoDate() {
         // given
         Dataset dataset = new Dataset();
         Date embargoDate = Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(2, ChronoUnit.DAYS));
         when(datasetDao.merge(dataset)).thenReturn(dataset);
 
         // when
-        Option<Dataset> result = datasetService.updateDatasetEmbargoDate(dataset, embargoDate);
+        Dataset result = datasetService.setDatasetEmbargoDate(dataset, embargoDate);
 
         // then
-        Assertions.assertTrue(result.isDefined());
-        Assertions.assertEquals(embargoDate, result.flatMap(Dataset::getEmbargoDate).get());
+        Assertions.assertEquals(embargoDate, result.getEmbargoDate().getOrNull());
     }
 
     @Test
-    public void updateDatasetEmbargoDate_lockedDataset() {
+    public void setDatasetEmbargoDate_lockedDataset() {
         // given
         Dataset dataset = new Dataset();
-        dataset.addLock(new DatasetLock(DatasetLock.Reason.InReview, MocksFactory.makeAuthenticatedUser("Jerzy", "Kiler")));
+        DatasetLock lock = new DatasetLock(DatasetLock.Reason.InReview, MocksFactory.makeAuthenticatedUser("Jurek", "Kiler"));
+        lock.setId(1L);
+        dataset.addLock(lock);
         Date embargoDate = Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(2, ChronoUnit.DAYS));
 
         // when
-        Option<Dataset> result = datasetService.updateDatasetEmbargoDate(dataset, embargoDate);
+        Exception exception = Assertions.assertThrows(IllegalStateException.class, () -> {
+            datasetService.setDatasetEmbargoDate(dataset, embargoDate);
+        });
 
         // then
-        Assertions.assertTrue(result.isEmpty());
+        String message = "Update embargo date failed. Dataset is locked. [DatasetLock[ id=1 ]]";
+        Assertions.assertEquals(message, exception.getMessage());
+        Assertions.assertTrue(dataset.getEmbargoDate().isEmpty());
     }
+
+//    @Test
+//    public void setDatasetEmbargoDate_publishedDataset_notSuperuser() {
+//        // given
+//        Dataset dataset = MocksFactory.makeDataset();
+//        DatasetVersion version1 = new DatasetVersion();
+//        DatasetVersion version2 = new DatasetVersion();
+//        dataset.setVersions(Lists.newArrayList(version1, version2));
+//        when(permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), dataset)).thenReturn(true);
+//        when(permissionsWrapper.canUpdateAndPublishDataset(dvRequestService.getDataverseRequest(), dataset)).thenReturn(false);
+//
+//        Date embargoDate = Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(2, ChronoUnit.DAYS));
+//
+//        // when
+//        Exception exception = Assertions.assertThrows(IllegalStateException.class, () -> {
+//            datasetService.setDatasetEmbargoDate(dataset, embargoDate);
+//        });
+//
+//        // then
+//        String message = "Update embargo date failed. Dataset is locked. [DatasetLock[ id=1 ]]";
+//        Assertions.assertEquals(message, exception.getMessage());
+//        Assertions.assertTrue(dataset.getEmbargoDate().isEmpty());
+//    }
 }

@@ -22,7 +22,6 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -166,16 +165,17 @@ public class DatasetService {
 
     }
 
-    // TODO Interceptor annotation here
-    public Option<Dataset> updateDatasetEmbargoDate(Dataset dataset, Date embargoDate) {
-        if(dataset.isLocked()) {
-           logger.log(Level.WARNING, "Dataset is locked. Cannot perform update embargo date");
-           return Option.none();
+    // TODO interceptor
+    public Dataset setDatasetEmbargoDate(Dataset dataset, Date embargoDate) throws IllegalStateException {
+        if(dataset.hasEverBeenPublished() && !session.getUser().isSuperuser()) {
+            throw new IllegalStateException("Setting embargo date failed. Dataset is in wrong state.");
         }
+        return updateDatasetEmbargoDate(dataset, embargoDate);
+    }
 
-        dataset.setEmbargoDate(embargoDate);
-
-        return Option.of(datasetDao.merge(dataset));
+    // TODO interceptor
+    public Dataset liftDatasetEmbargoDate(Dataset dataset) {
+        return updateDatasetEmbargoDate(dataset, null);
     }
 
     // -------------------- PRIVATE --------------------
@@ -185,5 +185,15 @@ public class DatasetService {
             throw new NotAuthenticatedException();
         }
         return (AuthenticatedUser) session.getUser();
+    }
+
+    private Dataset updateDatasetEmbargoDate(Dataset dataset, Date embargoDate) throws IllegalStateException {
+        if(dataset.isLocked()) {
+            logger.log(Level.WARNING, "Dataset is locked. Cannot perform update embargo date");
+            throw new IllegalStateException("Update embargo date failed. Dataset is locked. " + dataset.getLocks().toString());
+        }
+
+        dataset.setEmbargoDate(embargoDate);
+        return datasetDao.merge(dataset);
     }
 }

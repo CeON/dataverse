@@ -728,7 +728,7 @@
                                              rendered="#{DatasetPage.isUserAbleToSetOrUpdateEmbargo()}"
                                              oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('setEmbargoConfirmation').hide(); } else { #{DatasetPage.initCurrentEmbargo()}; }"
                             />
-                            <p:commandButton value="#{bundle['dataset.embargo.removeEmbargo']}"
+                            <p:commandButton value="#{bundle['dataset.embargo.lift.button']}"
                                              onclick="PF('setEmbargoConfirmation').hide();PF('removeEmbargoConfirmation').show()"
                                              rendered="#{DatasetPage.isUserAbleToLiftEmbargo()}" update="setEmbargoPanel"/>
                             <p:commandButton styleClass="btn btn-default"
@@ -744,10 +744,13 @@
                 <p:dialog styleClass="smallPopUp" header="#{bundle['dataset.embargo.header']}"
                           widgetVar="removeEmbargoConfirmation" modal="true" closable="false">
                     <p class="text-warning"><span
-                            class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.embargo.removeConfirmationText']}
+                            class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.embargo.lift.confirmationText']}
+                    </p>
+                    <p jsf:rendered="#{DatasetPage.dataset.hasEverBeenPublished()}" class="text-warning"><span
+                            class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.embargo.lift.publishedConfirmationText']}
                     </p>
                     <div class="button-block">
-                        <p:commandButton value="#{bundle['dataset.embargo.removeEmbargoConfirm']}"
+                        <p:commandButton value="#{bundle['dataset.embargo.lift.confirmButton']}"
                                          immediate="true"
                                          action="#{DatasetPage.liftEmbargo()}"
                                          update="setEmbargoPanel,:messagePanel, dataset-summary-metadata"
