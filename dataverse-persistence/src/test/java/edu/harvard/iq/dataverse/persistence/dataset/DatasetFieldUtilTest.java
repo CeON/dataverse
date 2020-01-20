@@ -1,7 +1,9 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
+import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import jersey.repackaged.com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,6 +11,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.extractFieldTypeByName;
+import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeAuthorFieldType;
+import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeDatasetField;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertNotEquals;
@@ -16,23 +21,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DatasetFieldUtilTest {
 
-
     // -------------------- TESTS --------------------
 
     @Test
     public void getFlatDatasetFields() {
         // given
-        DatasetFieldType fieldType1Child1 = MocksFactory.makeChildDatasetFieldType("field1Child1", FieldType.TEXT, false);
-        DatasetFieldType fieldType1Child2 = MocksFactory.makeChildDatasetFieldType("field1Child1", FieldType.TEXT, false);
+        DatasetFieldType fieldType1Child1 = MocksFactory.makeChildDatasetFieldType("field1Child1",
+                                                                                   FieldType.TEXT,
+                                                                                   false);
+        DatasetFieldType fieldType1Child2 = MocksFactory.makeChildDatasetFieldType("field1Child1",
+                                                                                   FieldType.TEXT,
+                                                                                   false);
         DatasetFieldType fieldType1 = MocksFactory.makeComplexDatasetFieldType("field1", false, new MetadataBlock(),
-                fieldType1Child1, fieldType1Child2);
-        DatasetFieldType fieldType2 = MocksFactory.makeDatasetFieldType("field2", FieldType.TEXT, false, new MetadataBlock());
+                                                                               fieldType1Child1, fieldType1Child2);
+        DatasetFieldType fieldType2 = MocksFactory.makeDatasetFieldType("field2",
+                                                                        FieldType.TEXT,
+                                                                        false,
+                                                                        new MetadataBlock());
 
         List<DatasetField> field1 = MocksFactory.makeEmptyDatasetFields(fieldType1, 2);
         List<DatasetField> field2 = MocksFactory.makeEmptyDatasetFields(fieldType2, 5);
 
         List<DatasetField> datasetFields = Stream.concat(field1.stream(), field2.stream())
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
+        ;
 
         // when
         List<DatasetField> flatDatasetFields = DatasetFieldUtil.getFlatDatasetFields(datasetFields);
@@ -110,9 +122,18 @@ public class DatasetFieldUtilTest {
     @Test
     public void mergeDatasetFields() {
         // given
-        DatasetFieldType fieldType1 = MocksFactory.makeDatasetFieldType("field1", FieldType.TEXT, false, new MetadataBlock());
-        DatasetFieldType fieldType2 = MocksFactory.makeDatasetFieldType("field2", FieldType.TEXT, false, new MetadataBlock());
-        DatasetFieldType fieldType3 = MocksFactory.makeDatasetFieldType("field3", FieldType.TEXT, false, new MetadataBlock());
+        DatasetFieldType fieldType1 = MocksFactory.makeDatasetFieldType("field1",
+                                                                        FieldType.TEXT,
+                                                                        false,
+                                                                        new MetadataBlock());
+        DatasetFieldType fieldType2 = MocksFactory.makeDatasetFieldType("field2",
+                                                                        FieldType.TEXT,
+                                                                        false,
+                                                                        new MetadataBlock());
+        DatasetFieldType fieldType3 = MocksFactory.makeDatasetFieldType("field3",
+                                                                        FieldType.TEXT,
+                                                                        false,
+                                                                        new MetadataBlock());
 
         DatasetField field1 = MocksFactory.makeEmptyDatasetFields(fieldType1, 1).get(0);
         DatasetField field2 = MocksFactory.makeEmptyDatasetFields(fieldType2, 1).get(0);
@@ -130,5 +151,120 @@ public class DatasetFieldUtilTest {
         assertEquals(field1, mergedDatasetFields.get(0));
         assertEquals(field3, mergedDatasetFields.get(1));
         assertEquals(field4, mergedDatasetFields.get(2));
+    }
+
+    @Test
+    public void mergeFieldsToOldModel_WithCompoundFields() {
+        //given
+        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
+                                                                 authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
+                                                                        authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+
+        String AUTHORNAME1 = "John Doe";
+        String AUTHORAFFILIATION1 = "John Aff";
+        String AUTHORNAME2 = "Jane Doe";
+        String AUTHORAFFILIATION2 = "Jane Aff";
+
+
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME1, 0));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField,
+                                                                    authorAffiliationType,
+                                                                    AUTHORAFFILIATION1,
+                                                                    1));
+
+
+        DatasetField authorField2 = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME2, 2));
+        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField,
+                                                                     authorAffiliationType,
+                                                                     AUTHORAFFILIATION2,
+                                                                     3));
+
+
+        //when
+        List<DatasetField> datasetFields = DatasetFieldUtil.mergeFieldsToOldModel(Lists.newArrayList(authorField,
+                                                                                                     authorField2));
+
+        //then
+        Assert.assertEquals(4, datasetFields.get(0).getDatasetFieldsChildren().size());
+
+        List<String> allFieldValues = datasetFields.get(0).getDatasetFieldsChildren().stream()
+                .map(datasetField -> datasetField.getFieldValue().get())
+                .collect(Collectors.toList());
+
+        Assert.assertTrue(allFieldValues.containsAll(Lists.newArrayList(AUTHORAFFILIATION1,
+                                                                        AUTHORAFFILIATION2,
+                                                                        AUTHORNAME1,
+                                                                        AUTHORNAME2)));
+    }
+
+    @Test
+    public void mergeFieldsToOldModel_WithSimpleFields() {
+        //given
+        String AUTHORNAME1 = "John Doe";
+        String AUTHORNAME2 = "Jane Doe";
+
+        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        authorField.setFieldValue(AUTHORNAME1);
+        authorField.getDatasetFieldType()
+                .getChildDatasetFieldTypes().clear();
+
+        DatasetField authorField2 = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        authorField2.setFieldValue(AUTHORNAME2);
+        authorField2.getDatasetFieldType()
+                .getChildDatasetFieldTypes().clear();
+
+        //when
+        List<DatasetField> datasetFields = DatasetFieldUtil.mergeFieldsToOldModel(Lists.newArrayList(authorField,
+                                                                                                     authorField2));
+
+        //then
+        Assert.assertEquals(2, datasetFields.size());
+
+        List<String> allFieldValues = datasetFields.stream()
+                .map(datasetField -> datasetField.getFieldValue().get())
+                .collect(Collectors.toList());
+
+        Assert.assertTrue(allFieldValues.containsAll(Lists.newArrayList(AUTHORNAME1,
+                                                                        AUTHORNAME2)));
+    }
+
+    @Test
+    public void joinFieldValues() {
+        //given
+        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
+                                                                 authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
+                                                                        authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+
+        String AUTHORNAME1 = "John Doe";
+        String AUTHORAFFILIATION1 = "John Aff";
+        String AUTHORNAME2 = "Jane Doe";
+        String AUTHORAFFILIATION2 = "Jane Aff";
+
+
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME1, 0));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField,
+                                                                    authorAffiliationType,
+                                                                    AUTHORAFFILIATION1,
+                                                                    1));
+
+
+        DatasetField authorField2 = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME2, 2));
+        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField,
+                                                                     authorAffiliationType,
+                                                                     AUTHORAFFILIATION2,
+                                                                     3));
+
+        //when
+        String joinedValues = DatasetFieldUtil.joinCompoundFieldValues(Lists.newArrayList(authorField, authorField2));
+
+        //then
+        Assert.assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", joinedValues);
+
     }
 }

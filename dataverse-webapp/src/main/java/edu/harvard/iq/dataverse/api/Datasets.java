@@ -72,8 +72,10 @@ import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -130,6 +132,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.jsonByBlocks;
@@ -758,19 +761,19 @@ public class Datasets extends AbstractApiBean {
             JsonObject json = Json.createReader(rdr).readObject();
             DatasetVersion dsv = ds.getEditVersion();
 
-            List<DatasetField> fields = new LinkedList<>();
+            List<DatasetField> freshFieldsModel = new LinkedList<>();
             DatasetField singleField = null;
 
             JsonArray fieldsJson = json.getJsonArray("fields");
             if (fieldsJson == null) {
                 singleField = jsonParser().parseField(json, Boolean.FALSE);
-                fields.add(singleField);
+                freshFieldsModel.add(singleField);
             } else {
-                fields = jsonParser().parseMultipleFields(json);
+                freshFieldsModel = jsonParser().parseMultipleFields(json);
             }
 
 
-            String valdationErrors = validateDatasetFieldValues(fields);
+            String valdationErrors = validateDatasetFieldValues(freshFieldsModel);
 
             if (!valdationErrors.isEmpty()) {
                 logger.log(Level.SEVERE,
@@ -785,58 +788,78 @@ public class Datasets extends AbstractApiBean {
             // and compare to the version fields  
             //if exist add/replace values
             //if not add entire dsf
-            for (DatasetField updateField : fields) {
-                boolean found = false;
-                for (DatasetField dsf : dsv.getDatasetFields()) {
-                    if (dsf.getDatasetFieldType().equals(updateField.getDatasetFieldType())) {
-                        found = true;
-                        if (dsf.isEmpty() || dsf.getDatasetFieldType().isAllowMultiples() || replaceData) {
+            Map<FieldType, List<DatasetField>> updatedFieldsGroupedByType = freshFieldsModel.stream()
+                    .collect(Collectors.groupingBy(datasetField -> datasetField.getDatasetFieldType().getFieldType()));
+
+            Map<FieldType, List<DatasetField>> oldFieldsGroupedByType = dsv.getDatasetFields().stream()
+                    .collect(Collectors.groupingBy(datasetField -> datasetField.getDatasetFieldType().getFieldType()));
+
+            ArrayList<DatasetField> fieldsToAdd = new ArrayList<>();
+
+            for (Map.Entry<FieldType, List<DatasetField>> updatedFields : updatedFieldsGroupedByType.entrySet()) {
+                for (DatasetField updateField : updatedFields.getValue()) {
+                    for (DatasetField oldField : oldFieldsGroupedByType.get(updatedFields.getKey())) {
+                        if (oldField.isEmpty() || oldField.getDatasetFieldType().isAllowMultiples() || replaceData) {
                             if (replaceData) {
-                                if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                    dsf.getControlledVocabularyValues().clear();
+                                if (oldField.getDatasetFieldType().isAllowMultiples()) {
+                                    oldField.getControlledVocabularyValues().clear();
                                 } else {
-                                    dsf.setFieldValue("");
-                                    dsf.setSingleControlledVocabularyValue(null);
+                                    oldField.setFieldValue("");
+                                    oldField.setSingleControlledVocabularyValue(null);
                                 }
                             }
                             if (updateField.getDatasetFieldType().isControlledVocabulary()) {
-                                if (dsf.getDatasetFieldType().isAllowMultiples()) {
+                                if (oldField.getDatasetFieldType().isAllowMultiples()) {
                                     for (ControlledVocabularyValue cvv : updateField.getControlledVocabularyValues()) {
-                                        if (!dsf.getDisplayValue().contains(cvv.getStrValue())) {
-                                            dsf.getControlledVocabularyValues().add(cvv);
+                                        if (!oldField.getDisplayValue().contains(cvv.getStrValue())) {
+                                            oldField.getControlledVocabularyValues().add(cvv);
                                         }
                                     }
                                 } else {
-                                    dsf.setSingleControlledVocabularyValue(updateField.getSingleControlledVocabularyValue());
+                                    oldField.setSingleControlledVocabularyValue(updateField.getSingleControlledVocabularyValue());
                                 }
                             } else {
                                 if (updateField.getDatasetFieldType().isPrimitive()) {
-                                    if (!dsf.getDatasetFieldType().isAllowMultiples()) {
-                                        dsf.setFieldValue(updateField.getValue());
+                                    if (oldField.getDatasetFieldType().isAllowMultiples()) {
+                                        if (!oldField.getFieldValue().getOrElse("").equals(updateField.getFieldValue().getOrElse(
+                                                ""))) {
+
+                                            updateField.setDatasetVersion(dsv);
+                                            fieldsToAdd.add(updateField);
+                                        }
+                                    } else {
+                                        oldField.setFieldValue(updateField.getValue());
                                     }
                                 } else {
-                                    for (DatasetField dfcv : updateField.getDatasetFieldsChildren()) {
-                                        if (!dsf.getCompoundDisplayValue().contains(updateField.getCompoundDisplayValue())) {
-                                            dfcv.setDatasetFieldParent(dsf);
-                                            dsf.setDatasetVersion(dsv);
-                                            dsf.getDatasetFieldsChildren().add(dfcv);
+                                    if (!DatasetFieldUtil.joinCompoundFieldValues(updateField).equals(
+                                            DatasetFieldUtil.joinCompoundFieldValues(
+                                                    oldField))) {
 
-                                        }
+                                        updateField.setDatasetVersion(dsv);
+                                        fieldsToAdd.add(updateField);
                                     }
                                 }
                             }
                         } else {
-                            if (!dsf.isEmpty() && !dsf.getDatasetFieldType().isAllowMultiples() || !replaceData) {
+                            if (!oldField.isEmpty() && !oldField.getDatasetFieldType().isAllowMultiples() || !replaceData) {
                                 return error(Response.Status.BAD_REQUEST,
-                                             "You may not add data to a field that already has data and does not allow multiples. Use replace=true to replace existing data (" + dsf.getDatasetFieldType().getDisplayName() + ")");
+                                             "You may not add data to a field that already has data and does not allow multiples. Use replace=true to replace existing data (" + oldField.getDatasetFieldType().getDisplayName() + ")");
                             }
                         }
                         break;
                     }
-                }
-                if (!found) {
-                    updateField.setDatasetVersion(dsv);
-                    dsv.getDatasetFields().add(updateField);
+
+                    updatedFieldsGroupedByType.entrySet().stream()
+                            .filter(fieldTypeListEntry -> !oldFieldsGroupedByType.containsKey(fieldTypeListEntry.getKey()))
+                            .map(Map.Entry::getValue)
+                            .forEach(fieldNotFound -> {
+                                fieldNotFound.forEach(datasetField -> {
+                                    datasetField.setDatasetVersion(dsv);
+                                    dsv.getDatasetFields().add(datasetField);
+                                });
+                            });
+
+                    dsv.getDatasetFields().addAll(fieldsToAdd);
                 }
             }
             boolean updateDraft = ds.getLatestVersion().isDraft();
