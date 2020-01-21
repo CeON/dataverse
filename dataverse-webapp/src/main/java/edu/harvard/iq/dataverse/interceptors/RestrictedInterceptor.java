@@ -8,7 +8,6 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.persistence.ActionLogRecord;
-import edu.harvard.iq.dataverse.persistence.ActionLogRecord.ActionType;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import org.apache.commons.collections4.CollectionUtils;
@@ -88,6 +87,7 @@ public class RestrictedInterceptor {
         if (logRecord == null) {
             logger.warning("Cannot find action log record in invocation context. Following data won't be saved " +
                     "into database: " + restrictedObjects);
+            return;
         }
         String restrictedObjectsLog = restrictedObjects.stream()
                 .map(r -> "[" + r.name + " : " + extractSafelyObjectName(r) + "]")
