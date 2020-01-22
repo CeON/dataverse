@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.annotations.PermissionNeeded;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.engine.command.exception.NotAuthenticatedException;
@@ -14,6 +15,8 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetGuestbookComman
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetThumbnailCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
+import edu.harvard.iq.dataverse.interceptors.LoggedCall;
+import edu.harvard.iq.dataverse.interceptors.Restricted;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -21,6 +24,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
+import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
@@ -170,16 +174,18 @@ public class DatasetService {
         return commandEngine.submit(new UpdateDatasetGuestbookCommand(dvRequestService.getDataverseRequest(), editedDataset));
     }
 
-    // TODO interceptor
-    public Dataset setDatasetEmbargoDate(Dataset dataset, Date embargoDate) throws IllegalStateException {
+    @LoggedCall
+    @Restricted(@PermissionNeeded(needs = {Permission.EditDataset}))
+    public Dataset setDatasetEmbargoDate(@PermissionNeeded Dataset dataset, Date embargoDate) throws IllegalStateException {
         if(dataset.hasEverBeenPublished() && !session.getUser().isSuperuser()) {
             throw new IllegalStateException("Setting embargo date failed. Dataset is in wrong state.");
         }
         return updateDatasetEmbargoDate(dataset, embargoDate);
     }
 
-    // TODO interceptor
-    public Dataset liftDatasetEmbargoDate(Dataset dataset) {
+    @LoggedCall
+    @Restricted(@PermissionNeeded(needs = {Permission.EditDataset}))
+    public Dataset liftDatasetEmbargoDate(@PermissionNeeded Dataset dataset) {
         return updateDatasetEmbargoDate(dataset, null);
     }
 
