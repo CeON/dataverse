@@ -186,6 +186,10 @@ body {
 	padding: 15px 20px;
 	border-radius: $border-radius;
 	margin-bottom: 20px;
+
+	p {
+		margin: 0;
+	}
 }
 
 .ui-message, .ui-messages {
@@ -456,6 +460,10 @@ input, textarea {
 
 .ui-widget-content label.ui-state-disabled {
 	background: none;
+}
+
+div.edit-compound-field .ui-message, .ui-message-form {
+	margin: 6px 0;
 }
 
 /* Checkboxes */
@@ -885,6 +893,11 @@ input.fancy-checkbox[type=checkbox] {
 				& + td {
 					border-left: none;
 				}
+
+				&:only-child {
+					border-left: 1px solid $gray-border-color;
+					border-right: 1px solid $gray-border-color;
+				}
 			}
 
 			+ tr td {
@@ -964,7 +977,7 @@ tr.ui-state-hover, .ui-widget-content tr.ui-state-hover {
 	color: $main-text-color;
 }
 
-#datasetForm\:tabView\:versionsTable {
+div[id$="versionsTable"] {
 	th, td {
 		&:not(:last-child) {
 			border-right: none;
@@ -1471,6 +1484,11 @@ div.filesTable .ui-paginator {
 				position: unset;
 				transform: none;
 			}
+
+			> span.text-muted {
+				position: static;
+				font-size: 21.5em;
+			}
 		}
 	} 
 }
@@ -1535,12 +1553,30 @@ div.filesTable .ui-paginator {
 	margin-left: 4px;
 }
 
-#datasetForm\:tabView\:versionsTab td {
+div[id$="versionsTable"] td {
 	padding: 14px 20px;
 }
 
 .ui-datatable.ui-widget.no-alternating-row-colors .ui-datatable-odd td {
 	background: #fff;
+}
+
+div.filesTable {
+	thead[id$="filesTable_head"] tr {
+		background: none;
+	}
+
+	.ui-widget-header {
+		font-weight: normal;
+	}
+
+	.col-file-metadata:only-child {
+		padding: 10px 20px;
+	}
+}
+
+#datasetForm\:tabView\:filesTable\:filesHeaderBlock .col-xs-6 {
+	padding: 0 4px;
 }
 
 /* Modal */
