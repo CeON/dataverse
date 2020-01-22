@@ -705,21 +705,37 @@
                                 <f:param value="#{DatasetPage.currentEmbargoDateForDisplay}"/>
                             </h:outputFormat>
                         </p>
-                        <div>
-                            <p:outputLabel for="embargoDatePicker" value="Embargo: " />
+                        <div jsf:rendered="#{DatasetPage.isUserAbleToSetOrUpdateEmbargo()}">
+                            <p:outputLabel for="embargoDatePicker" value="#{bundle['dataset.embargo.calendar.label']}" />
                             <p:calendar
                                     id="embargoDatePicker"
+                                    rendered="#{!DatasetPage.isMaximumEmbargoLengthSet()}"
                                     value="#{DatasetPage.currentEmbargoDate}"
                                     showButtonBar="true"
                                     mindate="#{DatasetPage.getTomorrowsDate()}"
                                     effect="drop"
                                     navigator="true"
-                                    pattern="dd/MM/yyyy"
+                                    pattern="yyyy-MM-dd"
+                                    validator="#{DatasetPage.validateEmbargoDate}"
+                                    locale="#{dataverseSession.localeCode}"
+                                    timeZone="UTC"
+                            />
+                            <p:calendar
+                                    id="embargoDatePickerMaxLimited"
+                                    rendered="#{DatasetPage.isMaximumEmbargoLengthSet()}"
+                                    value="#{DatasetPage.currentEmbargoDate}"
+                                    showButtonBar="true"
+                                    mindate="#{DatasetPage.getTomorrowsDate()}"
+                                    maxdate="#{DatasetPage.getMaximumEmbargoDate()}"
+                                    effect="drop"
+                                    navigator="true"
+                                    pattern="yyyy-MM-dd"
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
                                     timeZone="UTC"
                             />
                             <p:message id="embargoMsg" for="embargoDatePicker" display="text" />
+                            <p:message id="embargoMsgMaxLimited" for="embargoDatePickerMaxLimited" display="text" />
                         </div>
                         <div class="button-block">
                             <p:commandButton value="#{bundle['dataset.embargo.setEmbargo']}"

@@ -66,6 +66,7 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1253,13 +1254,14 @@ public class DatasetPage implements java.io.Serializable {
         return format.format(currentEmbargoDate);
     }
 
+    public String getMaximumEmbargoDateForDisplay() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return format.format(getMaximumEmbargoDate());
+    }
+
     public void validateEmbargoDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
-        if(!Objects.isNull(embargoDate) &&
-                ((Date) embargoDate).toInstant().isBefore(getTomorrowsDate().toInstant())) {
-            ((UIInput) toValidate).setValid(false);
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.embargo.validate.min.failureMessage"), null);
-            context.addMessage(toValidate.getClientId(context), message);
-        }
+        validateVersusMinimumDate(context, toValidate, embargoDate);
+        validateVersusMaximumDate(context, toValidate, embargoDate);
     }
 
     public boolean isUserUnderEmbargo() {
@@ -1272,5 +1274,37 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean isUserAbleToLiftEmbargo() {
         return dataset.hasActiveEmbargo();
+    }
+
+    public boolean isMaximumEmbargoLengthSet() {
+        return settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.MaximumEmbargoLength) > 0;
+    }
+
+    public Date getMaximumEmbargoDate() {
+        return Date.from(Instant
+                .now().atOffset(ZoneOffset.UTC)
+                .plus(settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaximumEmbargoLength), ChronoUnit.MONTHS)
+                .toInstant());
+    }
+
+    // -------------------- PRIVATE ---------------------
+    private void validateVersusMaximumDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
+        if(isMaximumEmbargoLengthSet() &&
+                !Objects.isNull(embargoDate) &&
+                ((Date) embargoDate).toInstant().isAfter(getMaximumEmbargoDate().toInstant())) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("dataset.embargo.validate.max.failureMessage", getMaximumEmbargoDateForDisplay()), null);
+            context.addMessage(toValidate.getClientId(context), message);
+        }
+    }
+
+    private void validateVersusMinimumDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
+        if(!Objects.isNull(embargoDate) &&
+                ((Date) embargoDate).toInstant().isBefore(getTomorrowsDate().toInstant())) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.embargo.validate.min.failureMessage"), null);
+            context.addMessage(toValidate.getClientId(context), message);
+        }
     }
 }
