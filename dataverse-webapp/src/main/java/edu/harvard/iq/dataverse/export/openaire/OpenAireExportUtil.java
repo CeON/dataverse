@@ -39,6 +39,7 @@ public class OpenAireExportUtil {
     private static final String RIGHTS_URI_CLOSED_ACCESS = "info:eu-repo/semantics/closedAccess";
     private static final String RIGHTS_URI_RESTRICTED_ACCESS = "info:eu-repo/semantics/restrictedAccess";
     private static final String RIGHTS_URI_OPEN_ACCESS = "info:eu-repo/semantics/openAccess";
+    private static final String RIGHTS_URI_EMBARGOED_ACCESS = "info:eu-repo/semantics/embargoedAccess";
 
     public static String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     public static String SCHEMA_VERSION = "4.1";
@@ -1112,7 +1113,7 @@ public class OpenAireExportUtil {
         xmlw.writeStartElement("rightsList"); // <rightsList>
         if (dataset.isEmbargoActive()) {
             writeRightsHeader(xmlw, language);
-            xmlw.writeAttribute("rightsURI", "info:eu-repo/semantics/embargoedAccess");
+            xmlw.writeAttribute("rightsURI", RIGHTS_URI_EMBARGOED_ACCESS);
             xmlw.writeEndElement();
         } else {
             List<FileDTO> files = Optional.ofNullable(dataset.getDatasetVersion())

@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.FileDTO;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -78,7 +80,7 @@ public class OpenAireExportUtilTest {
     @Test
     public void testWriteCreatorsElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-simplified.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-simplified.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeCreatorsElement(writer.xml, dto, null);
 
@@ -128,7 +130,7 @@ public class OpenAireExportUtilTest {
     @Test
     public void testWriteCreatorsElementWithOrganizations() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-organizations.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-organizations.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeCreatorsElement(writer.xml, dto, null);
 
@@ -169,7 +171,7 @@ public class OpenAireExportUtilTest {
             throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-organizations-comma.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-organizations-comma.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeCreatorsElement(writer.xml, dto, null);
         writer.close();
@@ -199,7 +201,7 @@ public class OpenAireExportUtilTest {
     public void testWriteTitleElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-simplified.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-simplified.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeTitlesElement(writer.xml, dto, null);
 
@@ -242,7 +244,7 @@ public class OpenAireExportUtilTest {
     public void testWritePublicationYearElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-simplified.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-simplified.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writePublicationYearElement(writer.xml, dto, null, null);
 
@@ -263,7 +265,7 @@ public class OpenAireExportUtilTest {
     public void testSubjectsElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeSubjectsElement(writer.xml, dto, null);
         writer.close();
@@ -290,7 +292,7 @@ public class OpenAireExportUtilTest {
     public void testWriteContributorsElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-simplified.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-simplified.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeContributorsElement(writer.xml, dto, null);
 
@@ -323,7 +325,7 @@ public class OpenAireExportUtilTest {
             throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-organizations.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-organizations.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeContributorsElement(writer.xml, dto, null);
 
@@ -367,7 +369,7 @@ public class OpenAireExportUtilTest {
             throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-organizations-comma.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-organizations-comma.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeContributorsElement(writer.xml, dto, null);
 
@@ -403,7 +405,7 @@ public class OpenAireExportUtilTest {
             throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeContributorsElement(writer.xml, dto, null);
 
@@ -459,7 +461,7 @@ public class OpenAireExportUtilTest {
     public void testWriteDatesElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         OpenAireExportUtil.writeDatesElement(writer.xml, datasetDto, null);
 
         writer.close();
@@ -479,7 +481,7 @@ public class OpenAireExportUtilTest {
         // given
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         datasetDto.setEmbargoDate("2020-01-01");
         datasetDto.setPublicationDate("2019-01-01");
         datasetDto.setEmbargoActive(true);
@@ -508,7 +510,7 @@ public class OpenAireExportUtilTest {
     public void testWriteLanguageElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         String language = OpenAireExportUtil.getLanguage(writer.xml, dto);
         OpenAireExportUtil.writeFullElement(writer.xml, null, "language", null, language, null);
@@ -531,7 +533,7 @@ public class OpenAireExportUtilTest {
     public void testWriteResourceTypeElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeResourceTypeElement(writer.xml, dto, null);
 
@@ -553,7 +555,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAlternateIdentifierElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
 
         OpenAireExportUtil.writeAlternateIdentifierElement(writer.xml, dto, null);
@@ -581,7 +583,7 @@ public class OpenAireExportUtilTest {
     public void testWriteRelatedIdentifierElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeRelatedIdentifierElement(writer.xml, dto, null);
 
@@ -607,7 +609,7 @@ public class OpenAireExportUtilTest {
     public void testWriteEmptySizeElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         {
             // set an empty file list
@@ -636,7 +638,7 @@ public class OpenAireExportUtilTest {
     public void testWriteSizeElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeSizeElement(writer.xml, dto, null);
 
@@ -660,7 +662,7 @@ public class OpenAireExportUtilTest {
     public void testWriteEmptyFormatElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         {
             // set an empty file list
@@ -690,7 +692,7 @@ public class OpenAireExportUtilTest {
     public void testWriteFormatElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeFormatElement(writer.xml, dto, null);
 
@@ -714,7 +716,7 @@ public class OpenAireExportUtilTest {
     public void testWriteEmptyVersionElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         {
             // Fragment must be enclosed in a fake root element.
@@ -741,7 +743,7 @@ public class OpenAireExportUtilTest {
     public void testWriteVersionElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         {
             dto.setVersionNumber(2L);
@@ -766,7 +768,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_openAccess_sameLicenses() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         datasetDto.setHasActiveGuestbook(false);
         OpenAireExportUtil.writeAccessRightsElement(writer.xml, datasetDto, null);
         writer.close();
@@ -789,7 +791,7 @@ public class OpenAireExportUtilTest {
     public void testWriteDescriptionsElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeDescriptionsElement(writer.xml, dto, null);
 
@@ -828,7 +830,7 @@ public class OpenAireExportUtilTest {
     public void testWriteGeoLocationElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeGeoLocationsElement(writer.xml, dto, null);
 
@@ -867,7 +869,7 @@ public class OpenAireExportUtilTest {
     public void testWriteGeoLocationElement2() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-simplified.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-simplified.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeGeoLocationsElement(writer.xml, dto, null);
 
@@ -897,7 +899,7 @@ public class OpenAireExportUtilTest {
     public void testWriteFundingReferencesElement() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeFundingReferencesElement(writer.xml, dto, null);
 
@@ -923,7 +925,7 @@ public class OpenAireExportUtilTest {
             throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-updated.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-updated.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         {
             // Fragment must be enclosed in a fake root element.
@@ -947,7 +949,7 @@ public class OpenAireExportUtilTest {
             throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-updated.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-updated.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         OpenAireExportUtil.writeFundingReferencesElement(writer.xml, dto, null);
 
@@ -965,7 +967,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_restrictedAccess_withGuestbook() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         datasetDto.setHasActiveGuestbook(true);
         OpenAireExportUtil.writeAccessRightsElement(writer.xml, datasetDto, null);
         writer.close();
@@ -980,7 +982,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_restrictedAccess_withoutGuestbook() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-with-one-restrictedFile.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-with-one-restrictedFile.txt");
         datasetDto.setHasActiveGuestbook(false);
         OpenAireExportUtil.writeAccessRightsElement(writer.xml, datasetDto, null);
         writer.close();
@@ -994,7 +996,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_restrictedAccess_allFilesRestricted() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-with-all-restrictedFiles.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-with-all-restrictedFiles.txt");
         datasetDto.setHasActiveGuestbook(false);
         OpenAireExportUtil.writeAccessRightsElement(writer.xml, datasetDto, null);
         writer.close();
@@ -1008,7 +1010,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_openAccess_allFilesAllRightsReserved() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-with-all-allRightsReservedFiles.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-with-all-allRightsReservedFiles.txt");
         datasetDto.setHasActiveGuestbook(false);
         OpenAireExportUtil.writeAccessRightsElement(writer.xml, datasetDto, null);
         writer.close();
@@ -1022,7 +1024,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_openAccess_differentLicenses() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         dto.getFiles().get(1).setLicenseName("\"Apache Software License 2.0\"");
         dto.getFiles().get(1).setLicenseUrl("https://www.apache.org/licenses/LICENSE-2.0");
@@ -1039,7 +1041,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_openAccess_licenseAndAllRightsReserved() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         dto.getFiles().get(1).setTermsOfUseType(FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED.toString());
         dto.getFiles().get(1).setLicenseName("");
@@ -1057,7 +1059,7 @@ public class OpenAireExportUtilTest {
     public void testWriteAccessRightElement_restrictedAccess_withRestrictedFile() throws XMLStreamException, IOException, URISyntaxException {
         Writer writer = new Writer();
 
-        DatasetDTO datasetDto = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO datasetDto = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         DatasetVersionDTO dto = datasetDto.getDatasetVersion();
         dto.getFiles().get(1).setTermsOfUseType(FileTermsOfUse.TermsOfUseType.RESTRICTED.toString());
         dto.getFiles().get(1).setLicenseName("");
@@ -1076,7 +1078,7 @@ public class OpenAireExportUtilTest {
         // given
         Writer writer = new Writer();
 
-        DatasetDTO dataset = createDatasetDAOFromJson("txt/export/openaire/dataset-all-defaults.txt");
+        DatasetDTO dataset = createDatasetDTOFromJson("txt/export/openaire/dataset-all-defaults.txt");
         dataset.setEmbargoActive(true);
 
         // when
@@ -1092,10 +1094,10 @@ public class OpenAireExportUtilTest {
 
     // -------------------- PRIVATE ---------------------
 
-    private DatasetDTO createDatasetDAOFromJson(String filePath) throws URISyntaxException, FileNotFoundException {
+    private DatasetDTO createDatasetDTOFromJson(String filePath) throws URISyntaxException, IOException {
         File file = new File(Paths.get(getClass().getClassLoader()
                 .getResource(filePath).toURI()).toUri());
-        String text = new Scanner(file).useDelimiter("\\Z").next();
+        String text = FileUtils.readFileToString(file, Charset.defaultCharset());
         Gson gson = new Gson();
         return gson.fromJson(text, DatasetDTO.class);
     }
