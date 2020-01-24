@@ -12,6 +12,7 @@
         <f:viewAction action="#{UsersChart.init}" />
         <f:viewAction action="#{FilesChart.init}" />
         <f:viewAction action="#{FilesStorageChart.init}" />
+        <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseDao.findRootDataverse(), bundle['metrics.title'])}"/>
     </f:metadata>
 
     <ui:composition template="/dataverse_template.xhtml">
@@ -38,7 +39,7 @@
                              type="bar"
                              model="#{PublishedDatasetsChart.publishedDatasetsModel}"
                              style="height:300px"
-                             responsive="true" />
+                    />
                 </p:panelGrid>
             </h:form>
 
@@ -110,12 +111,26 @@
                              type="bar"
                              model="#{UsersChart.usersChart}"
                              style="height:300px"
-                             responsive="true" />
+                    />
                 </p:panelGrid>
             </h:form>
+
+            <script type="text/javascript">
+                function customizeChart()
+                {
+                    this.cfg.legend = {
+                        show: false
+                    };
+                    this.cfg.highlighter = {
+                        show: true,
+                        tooltipLocation: 'n',
+                        useAxesFormatters: false,
+                        tooltipAxes: 'y'
+                    };
+                }
+            </script>
         </ui:define>
     </ui:composition>
-
 </h:body>
 </f:view>
 </html>

@@ -57,7 +57,7 @@ public class ChartCreator {
         chartSeries.setLabel(yAxisLabel);
 
         model.setTitle(title);
-        model.setLegendPosition("ne");
+        model.setExtender("customizeChart");
 
         Axis xAxis = model.getAxis(AxisType.X);
         xAxis.setLabel(xAxisLabel);
