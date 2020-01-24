@@ -74,7 +74,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -1249,12 +1248,12 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String getCurrentEmbargoDateForDisplay() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
         return format.format(currentEmbargoDate);
     }
 
     public void validateEmbargoDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
-        if(!Objects.isNull(embargoDate) &&
+        if(embargoDate != null &&
                 ((Date) embargoDate).toInstant().isBefore(getTomorrowsDate().toInstant())) {
             ((UIInput) toValidate).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("dataset.embargo.validate.min.failureMessage"), null);

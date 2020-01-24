@@ -40,7 +40,8 @@ import java.util.logging.Logger;
 public class DatasetService {
 
     private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
-
+    private static final String DATASET_LOCKED_FOR_UPDATE_MESSAGE = "Update embargo date failed. Dataset is locked. ";
+    private static final String DATASET_IN_WRONG_STATE_MESSAGE = "Setting embargo date failed. Dataset is in wrong state.";
 
     private EjbDataverseEngine commandEngine;
     private UserNotificationService userNotificationService;
@@ -178,7 +179,7 @@ public class DatasetService {
     @Restricted(@PermissionNeeded(needs = {Permission.EditDataset}))
     public Dataset setDatasetEmbargoDate(@PermissionNeeded Dataset dataset, Date embargoDate) throws IllegalStateException {
         if(dataset.hasEverBeenPublished() && !session.getUser().isSuperuser()) {
-            throw new IllegalStateException("Setting embargo date failed. Dataset is in wrong state.");
+            throw new IllegalStateException(getDatasetInWrongStateMessage());
         }
         return updateDatasetEmbargoDate(dataset, embargoDate);
     }
@@ -189,6 +190,13 @@ public class DatasetService {
         return updateDatasetEmbargoDate(dataset, null);
     }
 
+    String getDatasetLockedMessage(Dataset dataset) {
+        return DATASET_LOCKED_FOR_UPDATE_MESSAGE + dataset.getLocks().toString();
+    }
+
+    String getDatasetInWrongStateMessage() {
+        return DATASET_IN_WRONG_STATE_MESSAGE;
+    }
     // -------------------- PRIVATE --------------------
 
     private AuthenticatedUser retrieveAuthenticatedUser() {
@@ -201,10 +209,11 @@ public class DatasetService {
     private Dataset updateDatasetEmbargoDate(Dataset dataset, Date embargoDate) throws IllegalStateException {
         if(dataset.isLocked()) {
             logger.log(Level.WARNING, "Dataset is locked. Cannot perform update embargo date");
-            throw new IllegalStateException("Update embargo date failed. Dataset is locked. " + dataset.getLocks().toString());
+            throw new IllegalStateException(getDatasetLockedMessage(dataset));
         }
 
         dataset.setEmbargoDate(embargoDate);
         return datasetDao.merge(dataset);
     }
+
 }

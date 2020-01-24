@@ -669,7 +669,7 @@ public class DatasetFilesTab implements Serializable {
     }
 
     public String getEmbargoDateForDisplay() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
         return format.format(dataset.getEmbargoDate().getOrNull());
     }
 

@@ -116,13 +116,12 @@ public class DatasetServiceTest {
         dataset.addLock(lock);
         Date embargoDate = Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(2, ChronoUnit.DAYS));
 
-        // when
+        // when & then
         Exception exception = Assertions.assertThrows(IllegalStateException.class, () -> {
             datasetService.setDatasetEmbargoDate(dataset, embargoDate);
         });
 
-        // then
-        String message = "Update embargo date failed. Dataset is locked. [DatasetLock[ id=1 ]]";
+        String message = datasetService.getDatasetLockedMessage(dataset);
         Assertions.assertEquals(message, exception.getMessage());
         Assertions.assertTrue(dataset.getEmbargoDate().isEmpty());
     }
@@ -144,8 +143,7 @@ public class DatasetServiceTest {
             datasetService.setDatasetEmbargoDate(dataset, embargoDate);
         });
 
-        // then
-        String message = "Setting embargo date failed. Dataset is in wrong state.";
+        String message = datasetService.getDatasetInWrongStateMessage();
         Assertions.assertEquals(message, exception.getMessage());
         Assertions.assertTrue(dataset.getEmbargoDate().isEmpty());
     }

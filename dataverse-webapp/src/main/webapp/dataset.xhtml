@@ -714,7 +714,7 @@
                                     mindate="#{DatasetPage.getTomorrowsDate()}"
                                     effect="drop"
                                     navigator="true"
-                                    pattern="dd/MM/yyyy"
+                                    pattern="#{settingsWrapper.getSettingValue(':DefaultDateFormat')}"
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
                                     timeZone="UTC"
