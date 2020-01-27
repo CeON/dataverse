@@ -195,8 +195,12 @@ public class DashboardUsersPage implements java.io.Serializable {
      *
      * @return
      */
-    public String getMaximumEmbargoLength() {
-        return NumberFormat.getInstance().format(settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaximumEmbargoLength));
+    public String getMaximumEmbargoLengthString() {
+        return NumberFormat.getInstance().format(getMaximumEmbargoLength());
+    }
+
+    public int getMaximumEmbargoLength() {
+        return settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaximumEmbargoLength).intValue();
     }
 
     public boolean isMaximumEmbargoLengthSet() {
