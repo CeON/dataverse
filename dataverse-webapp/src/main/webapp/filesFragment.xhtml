@@ -92,16 +92,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="row" style="margin-bottom:6px;">
-                    <div jsf:id="filesHeaderCount" class="col-xs-3 text-left">
-                        <!-- Files Count -->
-                        <h:outputFormat value="#{datasetFilesTab.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" styleClass="highlightBold" rendered="#{datasetFilesTab.fileMetadatasSearch.size() gt 0}">
-                            <f:param value="#{(datasetFilesTab.filePaginatorPage * datasetFilesTab.rowsPerPage) + 1}"/>
-                            <f:param value="#{Math:min((datasetFilesTab.filePaginatorPage + 1) * datasetFilesTab.rowsPerPage,datasetFilesTab.fileMetadatasSearch.size()) }"/>
-                            <f:param value="#{datasetFilesTab.fileMetadatasSearch.size()}"/>
-                        </h:outputFormat>
-                    </div>
-
+            </div>
+            <div class="row" style="margin-bottom:15px;">
+                <div jsf:id="filesHeaderCount" class="col-xs-3 text-left">
+                    <!-- Files Count -->
+                    <h:outputFormat value="#{datasetFilesTab.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" rendered="#{datasetFilesTab.fileMetadatasSearch.size() gt 0}">
+                        <f:param value="#{(datasetFilesTab.filePaginatorPage * datasetFilesTab.rowsPerPage) + 1}"/>
+                        <f:param value="#{Math:min((datasetFilesTab.filePaginatorPage + 1) * datasetFilesTab.rowsPerPage,datasetFilesTab.fileMetadatasSearch.size()) }"/>
+                        <f:param value="#{datasetFilesTab.fileMetadatasSearch.size()}"/>
+                    </h:outputFormat>
+                </div>
                     <div class="col-xs-9">
                         <p:outputPanel id="filesButtons">
                         <div jsf:id="uploadComputeBlock" class="button-block pull-right no-margin-top"
@@ -134,15 +134,22 @@
                     </div>
                 </div>
 
-                <div class="row" jsf:rendered="#{datasetFilesTab.fileLabelSearchTerm.equals('') ?
-                            datasetFilesTab.workingVersion.fileMetadatas.size() gt datasetFilesTab.rowsPerPage :
-                            datasetFilesTab.fileMetadatasSearch.size() gt datasetFilesTab.rowsPerPage}">
-                    <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
-                        <!-- SELECTION MESSAGE -->
-                        <p>
-                            <h:outputFormat rendered="#{datasetFilesTab.selectedFiles.size() gt 0}"
-                                            value="#{bundle['file.numFilesSelected']}">
-                                <f:param value="#{datasetFilesTab.selectedFiles.size()}"/>
+            <div class="row" jsf:rendered="#{datasetFilesTab.fileLabelSearchTerm.equals('') ?
+                        datasetFilesTab.workingVersion.fileMetadatas.size() gt datasetFilesTab.rowsPerPage :
+                        datasetFilesTab.fileMetadatasSearch.size() gt datasetFilesTab.rowsPerPage}">
+                <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;">
+                    <!-- SELECTION MESSAGE -->
+                    <p>
+                        <h:outputFormat rendered="#{datasetFilesTab.selectedFiles.size() gt 0}"
+                                        value="#{bundle['file.numFilesSelected']}">
+                            <f:param value="#{datasetFilesTab.selectedFiles.size()}"/>
+                        </h:outputFormat>
+                        <ui:fragment rendered="#{!datasetFilesTab.isAllFilesSelected()}">
+                        &#160;
+                        <p:commandLink action="#{datasetFilesTab.selectAllFiles}" update="@form">
+                            <h:outputFormat value="#{bundle['file.selectAllFiles']}">
+                                <f:param value="#{datasetFilesTab.fileMetadatasSearch.size()}"/>
+                                <f:param value="#{datasetFilesTab.fileLabelSearchTerm.equals('') ? '.' : bundle['file.selectAllFiles.suffixForSearching']}" />
                             </h:outputFormat>
                             <ui:fragment rendered="#{!datasetFilesTab.isAllFilesSelected()}">
                             &#160;

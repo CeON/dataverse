@@ -150,7 +150,7 @@ public class DatasetPage implements java.io.Serializable {
 
     private Date currentEmbargoDate;
 
-    // This is the Dataset-level thumbnail; 
+    // This is the Dataset-level thumbnail;
     // it's either the thumbnail of the designated datafile, 
     // or scaled down uploaded "logo" file, or randomly selected
     // image datafile from this dataset. 

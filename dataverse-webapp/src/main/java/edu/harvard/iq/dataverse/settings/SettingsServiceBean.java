@@ -483,7 +483,13 @@ public class SettingsServiceBean {
          * Example: for setting value = 3 and date 12DEC2019, effective maximum embargo date for user
          * trying to set embargo for his dataset is 12MAR2020 (3 months from [date])
          */
-        MaximumEmbargoLength
+        MaximumEmbargoLength,
+
+        /**
+         * Application wide format for dates.
+         * Use this whenever you want to print date on GUI.
+         */
+        DefaultDateFormat
         ;
 
         @Override
