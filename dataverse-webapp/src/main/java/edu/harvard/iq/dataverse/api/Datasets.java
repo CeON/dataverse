@@ -618,94 +618,83 @@ public class Datasets extends AbstractApiBean {
             JsonObject json = Json.createReader(rdr).readObject();
             DatasetVersion dsv = ds.getEditVersion();
 
-            List<DatasetField> fields = new LinkedList<>();
+            List<DatasetField> fields;
             DatasetField singleField = null;
 
             JsonArray fieldsJson = json.getJsonArray("fields");
             if (fieldsJson == null) {
-                singleField = jsonParser().parseField(json, Boolean.FALSE);
-                fields.add(singleField);
+                fields = new LinkedList<>(jsonParser().parseField(json, Boolean.FALSE));
             } else {
                 fields = jsonParser().parseMultipleFields(json);
             }
 
             dsv.setVersionState(DatasetVersion.VersionState.DRAFT);
 
-            List<ControlledVocabularyValue> controlledVocabularyItemsToRemove = new ArrayList<ControlledVocabularyValue>();
+            List<ControlledVocabularyValue> controlledVocabularyItemsToRemove = new ArrayList<>();
             List<DatasetField> dsfChildsToRemove = new ArrayList<>();
-            boolean found = false;
 
-            for (DatasetField updateField : fields) {
-                for (DatasetField dsf : dsv.getDatasetFields()) {
-                    if (dsf.getDatasetFieldType().equals(updateField.getDatasetFieldType())) {
-                        if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                            if (updateField.getDatasetFieldType().isControlledVocabulary()) {
-                                if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                    for (ControlledVocabularyValue cvv : updateField.getControlledVocabularyValues()) {
-                                        for (ControlledVocabularyValue existing : dsf.getControlledVocabularyValues()) {
+            Map<FieldType, List<DatasetField>> fieldsToRemoveGroupedByType = fields.stream()
+                    .collect(Collectors.groupingBy(datasetField -> datasetField.getDatasetFieldType().getFieldType()));
+
+            Map<FieldType, List<DatasetField>> oldFieldsGroupedByType = dsv.getDatasetFields().stream()
+                    .collect(Collectors.groupingBy(datasetField -> datasetField.getDatasetFieldType().getFieldType()));
+
+            for (Map.Entry<FieldType, List<DatasetField>> fieldsToRemoveEntry : fieldsToRemoveGroupedByType.entrySet()) {
+                for (DatasetField removableField : fieldsToRemoveEntry.getValue()) {
+                    for (DatasetField oldField : oldFieldsGroupedByType.get(fieldsToRemoveEntry.getKey())) {
+                        if (oldField.getDatasetFieldType().isAllowMultiples()) {
+                            if (oldField.getDatasetFieldType().isControlledVocabulary()) {
+                                if (oldField.getDatasetFieldType().isAllowMultiples()) {
+                                    for (ControlledVocabularyValue cvv : removableField.getControlledVocabularyValues()) {
+                                        for (ControlledVocabularyValue existing : oldField.getControlledVocabularyValues()) {
                                             if (existing.getStrValue().equals(cvv.getStrValue())) {
-                                                found = true;
                                                 controlledVocabularyItemsToRemove.add(existing);
                                             }
                                         }
-                                        if (!found) {
-                                            logger.log(Level.SEVERE,
-                                                       "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + cvv.getStrValue() + " not found.");
-                                            return error(Response.Status.BAD_REQUEST,
-                                                         "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + cvv.getStrValue() + " not found.");
-                                        }
                                     }
                                     for (ControlledVocabularyValue remove : controlledVocabularyItemsToRemove) {
-                                        dsf.getControlledVocabularyValues().remove(remove);
+                                        oldField.getControlledVocabularyValues().remove(remove);
                                     }
 
                                 } else {
-                                    if (dsf.getSingleControlledVocabularyValue().getStrValue().equals(updateField.getSingleControlledVocabularyValue().getStrValue())) {
-                                        found = true;
-                                        dsf.setSingleControlledVocabularyValue(null);
+                                    if (oldField.getSingleControlledVocabularyValue().getStrValue().equals(
+                                            removableField.getSingleControlledVocabularyValue().getStrValue())) {
+                                        oldField.setSingleControlledVocabularyValue(null);
                                     }
 
                                 }
                             } else {
-                                for (DatasetField dfcv : updateField.getDatasetFieldsChildren()) {
-                                    String deleteVal = getCompoundDisplayValue(dfcv);
-                                    for (DatasetField existing : dsf.getDatasetFieldsChildren()) {
 
-                                        String existingString = getCompoundDisplayValue(existing);
-                                        if (existingString.equals(deleteVal)) {
-                                            found = true;
-                                            dsfChildsToRemove.add(existing);
+                                if (removableField.getDatasetFieldType().isPrimitive()) {
+                                    if (oldField.getFieldValue().getOrElse("").equals(removableField.getFieldValue().getOrElse(
+                                            ""))) {
+
+                                        if (oldField.getDatasetFieldType().isAllowMultiples()) {
+
+                                            dsfChildsToRemove.add(oldField);
+                                        } else {
+                                            oldField.setFieldValue(null);
                                         }
                                     }
+                                } else {
+                                    if (DatasetFieldUtil.joinCompoundFieldValues(removableField).equals(
+                                            DatasetFieldUtil.joinCompoundFieldValues(
+                                                    oldField))) {
 
-                                    dsfChildsToRemove.forEach((remove) -> dsf.getDatasetFieldsChildren().remove(remove));
-                                    if (!found) {
-                                        logger.log(Level.SEVERE,
-                                                   "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + deleteVal + " not found.");
-                                        return error(Response.Status.BAD_REQUEST,
-                                                     "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + deleteVal + " not found.");
+                                        dsfChildsToRemove.addAll(oldField.getDatasetFieldsChildren());
                                     }
                                 }
                             }
                         }
-                    } else {
-                        found = true;
-                        dsf.setFieldValue(null);
-                        dsf.setSingleControlledVocabularyValue(null);
                     }
-                    break;
                 }
+            }
 
-                if (!found) {
-                    String displayValue = !updateField.getDisplayValue().isEmpty() ?
-                            updateField.getDisplayValue() :
-                            updateField.getCompoundDisplayValue();
-                    logger.log(Level.SEVERE,
-                               "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + displayValue + " not found.");
-                    return error(Response.Status.BAD_REQUEST,
-                                 "Delete metadata failed: " + updateField.getDatasetFieldType().getDisplayName() + ": " + displayValue + " not found.");
-
-                }
+            if (dsfChildsToRemove.isEmpty() && controlledVocabularyItemsToRemove.isEmpty()) {
+                logger.log(Level.SEVERE,
+                           "Delete metadata failed no fields to remove were found.");
+                return error(Response.Status.BAD_REQUEST,
+                             "Delete metadata failed no fields to remove were found.");
             }
 
 
@@ -728,18 +717,6 @@ public class Datasets extends AbstractApiBean {
 
         }
 
-    }
-
-    private String getCompoundDisplayValue(DatasetField dscv) {
-        String returnString = "";
-        for (DatasetField dsf : dscv.getDatasetFieldsChildren()) {
-            for (String value : dsf.getValues()) {
-                if (!(value == null)) {
-                    returnString += (returnString.isEmpty() ? "" : "; ") + value.trim();
-                }
-            }
-        }
-        return returnString;
     }
 
     @PUT
@@ -766,8 +743,7 @@ public class Datasets extends AbstractApiBean {
 
             JsonArray fieldsJson = json.getJsonArray("fields");
             if (fieldsJson == null) {
-                singleField = jsonParser().parseField(json, Boolean.FALSE);
-                freshFieldsModel.add(singleField);
+                freshFieldsModel.addAll(jsonParser().parseField(json, Boolean.FALSE));
             } else {
                 freshFieldsModel = jsonParser().parseMultipleFields(json);
             }
@@ -784,8 +760,8 @@ public class Datasets extends AbstractApiBean {
 
             dsv.setVersionState(DatasetVersion.VersionState.DRAFT);
 
-            //loop through the update fields     
-            // and compare to the version fields  
+            //loop through the update fields
+            // and compare to the version fields
             //if exist add/replace values
             //if not add entire dsf
             Map<FieldType, List<DatasetField>> updatedFieldsGroupedByType = freshFieldsModel.stream()
@@ -841,10 +817,8 @@ public class Datasets extends AbstractApiBean {
                                 }
                             }
                         } else {
-                            if (!oldField.isEmpty() && !oldField.getDatasetFieldType().isAllowMultiples() || !replaceData) {
-                                return error(Response.Status.BAD_REQUEST,
-                                             "You may not add data to a field that already has data and does not allow multiples. Use replace=true to replace existing data (" + oldField.getDatasetFieldType().getDisplayName() + ")");
-                            }
+                            return error(Response.Status.BAD_REQUEST,
+                                         "You may not add data to a field that already has data and does not allow multiples. Use replace=true to replace existing data (" + oldField.getDatasetFieldType().getDisplayName() + ")");
                         }
                         break;
                     }
@@ -1544,7 +1518,7 @@ public class Datasets extends AbstractApiBean {
 
         // -------------------------------------
         // (2) Get the Dataset Id
-        //  
+        //
         // -------------------------------------
         Dataset dataset;
 
@@ -1759,7 +1733,7 @@ public class Datasets extends AbstractApiBean {
                             // refresh the dataset:
                             dataset = findDatasetOrDie(id);
                         }
-                        // kick of dataset reindexing, in case the locks removed 
+                        // kick of dataset reindexing, in case the locks removed
                         // affected the search card:
                         indexService.indexDataset(dataset, true);
                         return ok("locks removed");
@@ -1772,7 +1746,7 @@ public class Datasets extends AbstractApiBean {
                     execCommand(new RemoveLockCommand(req, dataset, lock.getReason()));
                     // refresh the dataset:
                     dataset = findDatasetOrDie(id);
-                    // ... and kick of dataset reindexing, in case the lock removed 
+                    // ... and kick of dataset reindexing, in case the lock removed
                     // affected the search card:
                     indexService.indexDataset(dataset, true);
                     return ok("lock type " + lock.getReason() + " removed");

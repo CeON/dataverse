@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess.License;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Parses JSON objects into domain objects.
@@ -377,7 +379,7 @@ public class JsonParser {
         List<DatasetField> fields = new LinkedList<>();
         for (JsonObject fieldJson : fieldsArray.getValuesAs(JsonObject.class)) {
             try {
-                fields.add(parseField(fieldJson, testType));
+                fields.addAll(parseField(fieldJson, testType));
             } catch (CompoundVocabularyException ex) {
                 DatasetFieldType fieldType = datasetFieldSvc.findByNameOpt(fieldJson.getString("typeName", ""));
                 if (lenient && (DatasetFieldConstant.geographicCoverage).equals(fieldType.getName())) {
@@ -535,12 +537,12 @@ public class JsonParser {
     }
 
 
-    public DatasetField parseField(JsonObject json) throws JsonParseException {
+    public List<DatasetField> parseField(JsonObject json) throws JsonParseException {
         return parseField(json, true);
     }
 
 
-    public DatasetField parseField(JsonObject json, Boolean testType) throws JsonParseException {
+    public List<DatasetField> parseField(JsonObject json, Boolean testType) throws JsonParseException {
         if (json == null) {
             return null;
         }
@@ -569,6 +571,18 @@ public class JsonParser {
 
         if (type.isCompound()) {
             List<DatasetField> vals = parseCompoundValue(type, json, testType);
+
+            Map<FieldType, List<DatasetField>> groupedCompoundFields = vals.stream()
+                    .collect(Collectors.groupingBy(datasetField -> datasetField.getDatasetFieldType().getFieldType()));
+
+            for (List<DatasetField> groupedFields : groupedCompoundFields.values()) {
+
+                for (DatasetField groupedField : groupedFields) {
+                    DatasetField parentCompoundField = new DatasetField();
+                    parentCompoundField.setDatasetFieldType(type);
+                }
+            }
+
             for (DatasetField dsfcv : vals) {
                 dsfcv.setDatasetFieldParent(ret);
             }
@@ -614,7 +628,7 @@ public class JsonParser {
                     JsonObject childFieldJson = obj.getJsonObject(fieldName);
                     DatasetField f = null;
                     try {
-                        f = parseField(childFieldJson, testType);
+                        f = parseField(childFieldJson, testType).get(0);
                     } catch (ControlledVocabularyException ex) {
                         vocabExceptions.add(ex);
                     }
@@ -638,7 +652,7 @@ public class JsonParser {
                 JsonObject childFieldJson = value.getJsonObject(key);
                 DatasetField f = null;
                 try {
-                    f  = parseField(childFieldJson, testType);
+                    f  = parseField(childFieldJson, testType).get(0);
                 } catch (ControlledVocabularyException ex) {
                     vocabExceptions.add(ex);
                 }
