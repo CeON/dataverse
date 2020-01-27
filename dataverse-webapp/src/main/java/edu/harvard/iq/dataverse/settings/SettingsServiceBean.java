@@ -476,8 +476,8 @@ public class SettingsServiceBean {
          * Unlike the FQDN option above, this would be a complete URL,
          * with the protocol, port number etc.
          */
-        SiteUrl
-        ;
+        SiteUrl,
+        PrivacyPolicy;
 
         @Override
         public String toString() {
