@@ -570,21 +570,6 @@
                                         </div>
                                     </div>
                                     </ui:fragment>
-                                    <!-- Embargo -->
-                                    <ui:fragment
-                                            rendered="#{DatasetPage.dataset.hasActiveEmbargo()}">
-                                    <div class="form-group" >
-                                        <label class="col-sm-3 control-label">
-                                            #{bundle['dataset.embargo.title']}
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right"
-                                                  data-original-title="#{bundle['dataset.embargo.description']}"></span>
-                                        </label>
-                                        <div class="col-sm-9">
-                                            #{DatasetPage.currentEmbargoDateForDisplay}
-                                        </div>
-                                    </div>
-                                    </ui:fragment>
                                 </div>
                             </div>
                             <!-- END: DATASET SUMMARY -->

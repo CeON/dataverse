@@ -13,7 +13,7 @@
     <f:metadata>
         <f:viewParam name="dataverseId" value="#{dataverseDao.findRootDataverse().id}"/>
         <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
-        <f:viewAction action="#{MaximumEmbargoPage.init}"/>
+        <f:viewAction action="#{MaximumEmbargoPage.init()}"/>
         <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseDao.findRootDataverse())}"/>
         <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb('/dashboard.xhtml?dataverseId='.concat(dataverseDao.findRootDataverse().getId()), bundle['dashboard.title'])}"/>
         <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb(bundle['dashboard.card.maximumembargo.manage'])}"/>
