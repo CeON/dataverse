@@ -42,11 +42,13 @@
                                             </div>
                                             <div class="ui-inputnumber" jsf:rendered="#{MaximumEmbargoPage.maximumEmbargoSet}">
                                                 <h:outputLabel for="maxembargoval" value="#{bundle['dashboard.card.maximumembargo.input.label']}" />
+                                                <h:outputText value="&#160;" />
                                                 <p:spinner id="maxembargoval"
                                                            value="#{MaximumEmbargoPage.maximumEmbargoLength}"
                                                            min="1"
                                                            rotate="false"
                                                            converter="javax.faces.Integer"
+                                                           maxlength="5"
                                                 />
                                             </div>
 
