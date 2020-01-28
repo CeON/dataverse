@@ -35,54 +35,11 @@ public class DatasetFieldUtil {
         return retList;
     }
 
-    public static List<DatasetField> mergeFieldsToOldModel(List<DatasetField> fieldsToMerge) {
-        ArrayList<DatasetField> fieldsToModify = new ArrayList<>(fieldsToMerge);
-        ArrayList<DatasetField> mergedFields = new ArrayList<>();
-
-        Map<FieldType, List<DatasetField>> fieldsGroupedByType = fieldsToModify.stream()
-                .collect(Collectors.groupingBy(datasetField -> datasetField.getDatasetFieldType().getFieldType()));
-
-        for (List<DatasetField> datasetFields : fieldsGroupedByType.values()) {
-            if (datasetFields.size() > 1 && datasetFields.get(0).getDatasetFieldType().isCompound()) {
-                for (int secondLoop = 1; secondLoop < datasetFields.size(); secondLoop++) {
-
-                    datasetFields.get(0).getDatasetFieldsChildren().addAll(
-                            datasetFields.get(secondLoop).getDatasetFieldsChildren());
-                }
-            }
-
-            if (datasetFields.get(0).getDatasetFieldType().isCompound()) {
-                mergedFields.add(datasetFields.get(0));
-            } else {
-                mergedFields.addAll(datasetFields);
-            }
-        }
-
-        return mergedFields;
-    }
-
     public static String joinCompoundFieldValues(DatasetField fieldsToJoin) {
 
         return fieldsToJoin.getDatasetFieldsChildren().stream()
                 .filter(datasetField -> datasetField.getFieldValue().isDefined())
                 .map(datasetField -> datasetField.getFieldValue().get())
-                .collect(Collectors.joining("; "));
-    }
-
-    public static String joinPrimitiveFieldValues(List<DatasetField> fieldsToJoin) {
-
-        return fieldsToJoin.stream()
-                .filter(datasetField -> datasetField.getFieldValue().isDefined())
-                .map(datasetField -> datasetField.getFieldValue().get())
-                .collect(Collectors.joining("; "));
-    }
-
-    public String getCompoundDisplayValue(DatasetField parentDsf) {
-
-        return parentDsf.getDatasetFieldsChildren().stream()
-                .filter(datasetField -> datasetField.getFieldValue().isDefined())
-                .map(datasetField -> datasetField.getFieldValue().get())
-                .map(String::trim)
                 .collect(Collectors.joining("; "));
     }
 

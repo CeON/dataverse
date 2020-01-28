@@ -31,10 +31,6 @@ public class DatasetFieldWalker {
         void primitiveValue(DatasetField dsfv);
 
         void controledVocabularyValue(ControlledVocabularyValue cvv);
-
-        void startCompoundValue(DatasetField dsfcv);
-
-        void endCompoundValue(DatasetField dsfcv);
     }
 
     /**
@@ -85,14 +81,9 @@ public class DatasetFieldWalker {
             }
 
         } else if (datasetFieldType.isPrimitive()) {
-            if (datasetFieldType.isAllowMultiples()) {
-                for (DatasetField pv : sort(fld.getDatasetFieldsChildren(), DatasetField.DisplayOrder)) {
-                    l.primitiveValue(pv);
-                }
-            } else {
-                if (!(excludeEmailFields && FieldType.EMAIL.equals(fld.getDatasetFieldType().getFieldType()))) {
-                    l.primitiveValue(fld);
-                }
+
+            if (!(excludeEmailFields && FieldType.EMAIL.equals(fld.getDatasetFieldType().getFieldType()))) {
+                l.primitiveValue(fld);
             }
 
         } else if (datasetFieldType.isCompound()) {

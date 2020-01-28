@@ -140,8 +140,9 @@ public class DatasetField implements Serializable {
         return datasetFieldType;
     }
 
-    public void setDatasetFieldType(DatasetFieldType datasetField) {
+    public DatasetField setDatasetFieldType(DatasetFieldType datasetField) {
         this.datasetFieldType = datasetField;
+        return this;
     }
 
     @ManyToOne

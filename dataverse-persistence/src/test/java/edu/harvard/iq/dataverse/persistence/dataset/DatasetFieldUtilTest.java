@@ -154,84 +154,6 @@ public class DatasetFieldUtilTest {
     }
 
     @Test
-    public void mergeFieldsToOldModel_WithCompoundFields() {
-        //given
-        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
-        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
-                                                                 authorField.getDatasetFieldType().getChildDatasetFieldTypes());
-        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
-                                                                        authorField.getDatasetFieldType().getChildDatasetFieldTypes());
-
-        String AUTHORNAME1 = "John Doe";
-        String AUTHORAFFILIATION1 = "John Aff";
-        String AUTHORNAME2 = "Jane Doe";
-        String AUTHORAFFILIATION2 = "Jane Aff";
-
-
-        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME1, 0));
-        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField,
-                                                                    authorAffiliationType,
-                                                                    AUTHORAFFILIATION1,
-                                                                    1));
-
-
-        DatasetField authorField2 = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
-        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME2, 2));
-        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField,
-                                                                     authorAffiliationType,
-                                                                     AUTHORAFFILIATION2,
-                                                                     3));
-
-
-        //when
-        List<DatasetField> datasetFields = DatasetFieldUtil.mergeFieldsToOldModel(Lists.newArrayList(authorField,
-                                                                                                     authorField2));
-
-        //then
-        Assert.assertEquals(4, datasetFields.get(0).getDatasetFieldsChildren().size());
-
-        List<String> allFieldValues = datasetFields.get(0).getDatasetFieldsChildren().stream()
-                .map(datasetField -> datasetField.getFieldValue().get())
-                .collect(Collectors.toList());
-
-        Assert.assertTrue(allFieldValues.containsAll(Lists.newArrayList(AUTHORAFFILIATION1,
-                                                                        AUTHORAFFILIATION2,
-                                                                        AUTHORNAME1,
-                                                                        AUTHORNAME2)));
-    }
-
-    @Test
-    public void mergeFieldsToOldModel_WithSimpleFields() {
-        //given
-        String AUTHORNAME1 = "John Doe";
-        String AUTHORNAME2 = "Jane Doe";
-
-        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
-        authorField.setFieldValue(AUTHORNAME1);
-        authorField.getDatasetFieldType()
-                .getChildDatasetFieldTypes().clear();
-
-        DatasetField authorField2 = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
-        authorField2.setFieldValue(AUTHORNAME2);
-        authorField2.getDatasetFieldType()
-                .getChildDatasetFieldTypes().clear();
-
-        //when
-        List<DatasetField> datasetFields = DatasetFieldUtil.mergeFieldsToOldModel(Lists.newArrayList(authorField,
-                                                                                                     authorField2));
-
-        //then
-        Assert.assertEquals(2, datasetFields.size());
-
-        List<String> allFieldValues = datasetFields.stream()
-                .map(datasetField -> datasetField.getFieldValue().get())
-                .collect(Collectors.toList());
-
-        Assert.assertTrue(allFieldValues.containsAll(Lists.newArrayList(AUTHORNAME1,
-                                                                        AUTHORNAME2)));
-    }
-
-    @Test
     public void joinFieldValues() {
         //given
         DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
@@ -242,8 +164,6 @@ public class DatasetFieldUtilTest {
 
         String AUTHORNAME1 = "John Doe";
         String AUTHORAFFILIATION1 = "John Aff";
-        String AUTHORNAME2 = "Jane Doe";
-        String AUTHORAFFILIATION2 = "Jane Aff";
 
 
         authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME1, 0));
@@ -252,19 +172,11 @@ public class DatasetFieldUtilTest {
                                                                     AUTHORAFFILIATION1,
                                                                     1));
 
-
-        DatasetField authorField2 = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
-        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME2, 2));
-        authorField2.getDatasetFieldsChildren().add(makeDatasetField(authorField,
-                                                                     authorAffiliationType,
-                                                                     AUTHORAFFILIATION2,
-                                                                     3));
-
         //when
-        String joinedValues = DatasetFieldUtil.joinCompoundFieldValues(Lists.newArrayList(authorField, authorField2));
+        String joinedValues = DatasetFieldUtil.joinCompoundFieldValues(authorField);
 
         //then
-        Assert.assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", joinedValues);
+        Assert.assertEquals("John Doe; John Aff", joinedValues);
 
     }
 }

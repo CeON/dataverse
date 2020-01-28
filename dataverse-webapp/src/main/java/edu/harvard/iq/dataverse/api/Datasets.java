@@ -738,12 +738,12 @@ public class Datasets extends AbstractApiBean {
             JsonObject json = Json.createReader(rdr).readObject();
             DatasetVersion dsv = ds.getEditVersion();
 
-            List<DatasetField> freshFieldsModel = new LinkedList<>();
+            List<DatasetField> freshFieldsModel;
             DatasetField singleField = null;
 
             JsonArray fieldsJson = json.getJsonArray("fields");
             if (fieldsJson == null) {
-                freshFieldsModel.addAll(jsonParser().parseField(json, Boolean.FALSE));
+                freshFieldsModel = new LinkedList<>(jsonParser().parseField(json, Boolean.FALSE));
             } else {
                 freshFieldsModel = jsonParser().parseMultipleFields(json);
             }

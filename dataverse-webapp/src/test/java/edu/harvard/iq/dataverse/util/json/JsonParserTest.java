@@ -22,10 +22,12 @@ import edu.harvard.iq.dataverse.persistence.group.IpGroup;
 import edu.harvard.iq.dataverse.persistence.user.GuestUser;
 import edu.harvard.iq.dataverse.qualifiers.TestBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import io.vavr.API;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -45,6 +47,7 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -52,11 +55,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -130,26 +133,31 @@ public class JsonParserTest {
     }
 
     @Test
-    public void testCompoundRepeatsRoundtrip() throws JsonParseException {
-        DatasetField expected = new DatasetField();
-        expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("coordinate"));
-        List<DatasetField> vals = new LinkedList<>();
+    public void testCompoundRepeatsRoundtrip() {
+        ArrayList<DatasetField> expectedFields = new ArrayList<>();
+
         for (int i = 0; i < 5; i++) {
-            DatasetField val = new DatasetField();
-            val.setDatasetFieldParent(expected);
-            val.setDatasetFieldsChildren(Arrays.asList(latLonField("lat", Integer.toString(i * 10)),
-                                                       latLonField("lon", Integer.toString(3 + i * 10))));
-            vals.add(val);
+            DatasetField expected = new DatasetField();
+            expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("coordinate"));
+            expected.setDatasetFieldsChildren(Arrays.asList(latLonField("lat", Integer.toString(i * 10)),
+                                                            latLonField("lon", Integer.toString(3 + i * 10))));
+            expectedFields.add(expected);
         }
-        expected.setDatasetFieldsChildren(vals);
 
-        JsonObject json = JsonPrinter.json(expected);
+        List<JsonObject> parsedFields = expectedFields.stream()
+                .map(JsonPrinter::json)
+                .peek(System.out::println)
+                .collect(Collectors.toList());
 
-        System.out.println("json = " + json);
+        List<DatasetField> actualFields = parsedFields.stream()
+                .flatMap(jsonObject -> API.unchecked(() -> sut.parseField(jsonObject)).get().stream())
+                .collect(Collectors.toList());
 
-        DatasetField actual = sut.parseField(json);
-
-        assertFieldsEqual(expected, actual);
+        Assertions.assertAll(() -> assertFieldsEqual(expectedFields.get(0), actualFields.get(0)),
+                             () -> assertFieldsEqual(expectedFields.get(1), actualFields.get(1)),
+                             () -> assertFieldsEqual(expectedFields.get(2), actualFields.get(2)),
+                             () -> assertFieldsEqual(expectedFields.get(3), actualFields.get(3)),
+                             () -> assertFieldsEqual(expectedFields.get(4), actualFields.get(4)));
     }
 
     DatasetField latLonField(String latLon, String value) {
@@ -167,7 +175,7 @@ public class JsonParserTest {
         expected.setControlledVocabularyValues(Collections.singletonList(fieldType.getControlledVocabularyValue("ark")));
         JsonObject json = JsonPrinter.json(expected);
 
-        DatasetField actual = sut.parseField(json);
+        DatasetField actual = sut.parseField(json).get(0);
         assertFieldsEqual(expected, actual);
 
     }
@@ -182,7 +190,7 @@ public class JsonParserTest {
                                                              fieldType.getControlledVocabularyValue("cs")));
 
         JsonObject json = JsonPrinter.json(expected);
-        DatasetField actual = sut.parseField(json);
+        DatasetField actual = sut.parseField(json).get(0);
         assertFieldsEqual(expected, actual);
 
     }
@@ -225,29 +233,36 @@ public class JsonParserTest {
         expected.setFieldValue("This is a description value");
         JsonObject json = JsonPrinter.json(expected);
 
-        DatasetField actual = sut.parseField(json);
+        DatasetField actual = sut.parseField(json).get(0);
 
         assertFieldsEqual(actual, expected);
     }
 
     @Test
     public void testPrimitiveRepeatesFieldRoundTrip() throws JsonParseException {
-        DatasetField expected = new DatasetField();
-        expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("keyword"));
-        expected.setDatasetFieldsChildren(Arrays.asList(new DatasetField()
-                                                                .setDatasetFieldParent(expected)
-                                                                .setFieldValue("kw1"),
-                                                        new DatasetField()
-                                                                .setDatasetFieldParent(expected)
-                                                                .setFieldValue("kw2"),
-                                                        new DatasetField()
-                                                                .setDatasetFieldParent(expected)
-                                                                .setFieldValue("kw3")));
-        JsonObject json = JsonPrinter.json(expected);
+        List<DatasetField> expectedFields = Arrays.asList(new DatasetField()
+                                                                  .setDatasetFieldType(datasetFieldTypeSvc.findByName(
+                                                                          "keyword"))
+                                                                  .setFieldValue("kw1"),
+                                                          new DatasetField()
+                                                                  .setDatasetFieldType(datasetFieldTypeSvc.findByName(
+                                                                          "keyword"))
+                                                                  .setFieldValue("kw2"),
+                                                          new DatasetField()
+                                                                  .setDatasetFieldType(datasetFieldTypeSvc.findByName(
+                                                                          "keyword"))
+                                                                  .setFieldValue("kw3"));
 
-        DatasetField actual = sut.parseField(json);
+        List<DatasetField> actualFields = expectedFields.stream()
+                .map(JsonPrinter::json)
+                .flatMap(jsonObject -> API.unchecked(() -> sut.parseField(jsonObject)).get().stream())
+                .collect(Collectors.toList());
 
-        assertFieldsEqual(actual, expected);
+
+
+        Assertions.assertAll(() -> assertFieldsEqual(expectedFields.get(0), actualFields.get(0)),
+                             () -> assertFieldsEqual(expectedFields.get(1), actualFields.get(1)),
+                             () -> assertFieldsEqual(expectedFields.get(2), actualFields.get(2)));
     }
 
     /**
@@ -661,7 +676,7 @@ public class JsonParserTest {
             List<DatasetField> exVals = ex.getDatasetFieldsChildren();
             List<DatasetField> actVals = act.getDatasetFieldsChildren();
 
-            if (ex.getFieldValue().isDefined() && act.getFieldValue().isDefined()){
+            if (ex.getFieldValue().isDefined() && act.getFieldValue().isDefined()) {
                 return ex.getFieldValue().get().equals(act.getFieldValue().get());
             }
             if (exVals.size() != actVals.size()) {

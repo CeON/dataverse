@@ -75,6 +75,20 @@
                 "typeClass": "primitive",
                 "value": "Dataverse.org"
               }
+            },
+            {
+              "authorName": {
+                "typeName": "authorName",
+                "multiple": false,
+                "typeClass": "primitive",
+                "value": "Admin, Dataverse"
+              },
+              "authorAffiliation": {
+                "typeName": "authorAffiliation",
+                "multiple": false,
+                "typeClass": "primitive",
+                "value": "Dataverse.org"
+              }
             }
           ]
         },
