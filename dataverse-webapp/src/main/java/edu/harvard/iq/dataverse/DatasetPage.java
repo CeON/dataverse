@@ -1251,12 +1251,12 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String getCurrentEmbargoDateForDisplay() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
         return currentEmbargoDate != null ? format.format(currentEmbargoDate) : "";
     }
 
     public String getMaximumEmbargoDateForDisplay() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
         return getMaximumEmbargoDate().isDefined() ? format.format(getMaximumEmbargoDate().get()) : "";
     }
 
