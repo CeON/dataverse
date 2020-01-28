@@ -26,7 +26,7 @@ public class ChartCreator {
 
         String xLabel = BundleUtil.getStringFromBundle("metrics.year");
         String yLabel = BundleUtil.getStringFromBundle("metrics.chart.legend." + chartType + ".label");
-        String title = BundleUtil.getStringFromBundle("metrics.chart." + chartType + "title.");
+        String title = BundleUtil.getStringFromBundle("metrics.chart." + chartType + ".title");
 
         BarChartModel model = createBarModel(yearlyMetrics, title, xLabel, yLabel);
         model.addSeries(createYearlySeries(yearlyMetrics, yLabel));
