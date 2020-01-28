@@ -3,7 +3,7 @@ package edu.harvard.iq.dataverse.annotations.processors.permissions;
 
 import edu.harvard.iq.dataverse.annotations.PermissionNeeded;
 import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.DvObjectExtractor;
-import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.Empty;
+import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.CastingExtractor;
 import edu.harvard.iq.dataverse.interceptors.Restricted;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
@@ -106,10 +106,8 @@ public class PermissionDataProcessor {
 
     private DvObject extractIfNeeded(Object object, Class<? extends DvObjectExtractor> extractorClass) {
         try {
-            return extractorClass.equals(Empty.class)
-                    ? (DvObject) object
-                    : extractorClass.newInstance()
-                        .extract(object);
+            return extractorClass.newInstance()
+                    .extract(object);
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new IllegalStateException("Cannot instantiate extractor", ex);
         }

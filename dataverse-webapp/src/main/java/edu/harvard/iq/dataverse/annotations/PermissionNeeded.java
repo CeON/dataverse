@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.annotations;
 
 import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.DvObjectExtractor;
-import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.Empty;
+import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.CastingExtractor;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 
 import java.lang.annotation.ElementType;
@@ -36,7 +36,7 @@ public @interface PermissionNeeded {
     String value() default "";
     String on() default "";
     Permission[] needs() default { };
-    Class<? extends DvObjectExtractor> extractor() default Empty.class;
+    Class<? extends DvObjectExtractor> extractor() default CastingExtractor.class;
     boolean allRequired() default false;
 
     @Target({ElementType.PARAMETER})
