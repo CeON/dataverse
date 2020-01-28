@@ -63,6 +63,7 @@ public class ChartCreator {
 
         Axis xAxis = model.getAxis(AxisType.X);
         xAxis.setLabel(xAxisLabel);
+        xAxis.setTickAngle(45);
 
         Long maxCountMetric = calculateMaxCountMetric(metrics);
 
