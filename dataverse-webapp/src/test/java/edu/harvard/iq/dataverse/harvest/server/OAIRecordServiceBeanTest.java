@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -68,7 +69,7 @@ class OAIRecordServiceBeanTest {
         //given
         Dataset dataset = setupDatasetData();
         DatasetVersion releasedVersion = dataset.getReleasedVersion();
-        dataset.setGuestbookChangeTime(null);
+        dataset.setLastChangeForExporterTime(null);
         releasedVersion.setReleaseTime(Date.from(Instant.ofEpochMilli(DATASET_VERSION_UPDATED_RELEASE_TIME)));
 
         HashMap<String, OAIRecord> oaiRecords = new HashMap<>();
@@ -88,7 +89,7 @@ class OAIRecordServiceBeanTest {
         //given
         Dataset dataset = setupDatasetData();
         DatasetVersion releasedVersion = dataset.getReleasedVersion();
-        dataset.setGuestbookChangeTime(null);
+        dataset.setLastChangeForExporterTime(null);
         releasedVersion.setReleaseTime(Date.from(Instant.ofEpochMilli(DATASET_VERSION_OLDER_RELEASE_TIME)));
 
         HashMap<String, OAIRecord> oaiRecords = new HashMap<>();
@@ -100,6 +101,28 @@ class OAIRecordServiceBeanTest {
 
         //then
         Assert.assertEquals(Instant.ofEpochMilli(OAI_RECORD_UPDATE_TIME), oaiRecord.getLastUpdateTime().toInstant());
+        Assert.assertEquals(0, oaiRecords.size());
+
+    }
+
+    @Test
+    public void updateOaiRecordForDataset_WithoutUpdates_EmbargoExpired() {
+        //given
+        oaiRecordServiceBean.setSystemClock(Clock.systemDefaultZone());
+
+        Dataset dataset = setupDatasetData();
+        dataset.setLastChangeForExporterTime(Date.from(Instant.now(Clock.systemDefaultZone()).minus(1, ChronoUnit.DAYS)));
+        dataset.setEmbargoDate(Date.from(dataset.getLastChangeForExporterTime().get().toInstant().plus(12, ChronoUnit.HOURS)));
+
+        HashMap<String, OAIRecord> oaiRecords = new HashMap<>();
+        OAIRecord oaiRecord = setupOaiRecord(oaiRecords);
+        oaiRecord.setRemoved(false);
+
+        //when
+        oaiRecordServiceBean.updateOaiRecordForDataset(dataset,"setName", oaiRecords, Logger.getGlobal());
+
+        //then
+        Assert.assertEquals(Instant.now(Clock.systemDefaultZone()), oaiRecord.getLastUpdateTime().toInstant());
         Assert.assertEquals(0, oaiRecords.size());
 
     }
@@ -158,7 +181,7 @@ class OAIRecordServiceBeanTest {
         datasetVersion.setReleaseTime(Date.from(Instant.ofEpochMilli(DATASET_VERSION_RELEASE_TIME)));
         datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
         dataset.setVersions(Lists.newArrayList(datasetVersion));
-        dataset.setGuestbookChangeTime(Date.from(Instant.ofEpochMilli(GUESTBOOK_CHANGE_TIME)));
+        dataset.setLastChangeForExporterTime(Date.from(Instant.ofEpochMilli(GUESTBOOK_CHANGE_TIME)));
         dataset.setGlobalId(new GlobalId("doi", "nice", "ID1"));
         return dataset;
     }

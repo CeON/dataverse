@@ -118,7 +118,7 @@ public class Dataset extends DvObjectContainer {
     private Guestbook guestbook;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date guestbookChangeTime;
+    private Date lastChangeForExporterTime;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date embargoDate;
@@ -231,12 +231,12 @@ public class Dataset extends DvObjectContainer {
      *  since license in exporters could be changed based on guestbook.
      *
      */
-    public Option<Date> getGuestbookChangeTime() {
-        return Option.of(guestbookChangeTime);
+    public Option<Date> getLastChangeForExporterTime() {
+        return Option.of(lastChangeForExporterTime);
     }
 
-    public void setGuestbookChangeTime(Date guestbookChangeTime) {
-        this.guestbookChangeTime = guestbookChangeTime;
+    public void setLastChangeForExporterTime(Date lastchangeforexportertime) {
+        this.lastChangeForExporterTime = lastchangeforexportertime;
     }
 
     public Option<Date> getEmbargoDate() {

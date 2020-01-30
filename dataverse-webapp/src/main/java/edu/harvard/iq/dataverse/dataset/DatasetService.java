@@ -31,6 +31,8 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -213,6 +215,7 @@ public class DatasetService {
         }
 
         dataset.setEmbargoDate(embargoDate);
+        dataset.setLastChangeForExporterTime(Date.from(Instant.now(Clock.systemDefaultZone())));
         return datasetDao.merge(dataset);
     }
 
