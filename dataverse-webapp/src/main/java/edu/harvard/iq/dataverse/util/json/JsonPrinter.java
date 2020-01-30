@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.util.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.common.Util;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
@@ -464,9 +466,11 @@ public class JsonPrinter {
         JsonObjectBuilder blockBld = jsonObjectBuilder();
 
         blockBld.add("displayName", block.getLocaleDisplayName());
+        ArrayNode arrayNode = new ObjectMapper().createArrayNode();
         final JsonArrayBuilder fieldsArray = Json.createArrayBuilder();
 
         DatasetFieldWalker.walk(fields, new DatasetFieldsToJson(fieldsArray), excludeEmailFromExport);
+        DatasetFieldWalker.walk(fields, new JacksonWalker(arrayNode), excludeEmailFromExport);
 
         blockBld.add("fields", fieldsArray);
         return blockBld;
@@ -646,7 +650,6 @@ public class JsonPrinter {
     }
 
     private static class DatasetFieldsToJson implements DatasetFieldWalker.Listener {
-
         Deque<JsonObjectBuilder> objectStack = new LinkedList<>();
         Deque<JsonArrayBuilder> valueArrStack = new LinkedList<>();
         JsonObjectBuilder result = null;
@@ -692,12 +695,12 @@ public class JsonPrinter {
         }
 
         @Override
-        public void startCompoundValue(DatasetField dsfcv) {
+        public void startChildField(DatasetField dsfcv) {
             valueArrStack.push(Json.createArrayBuilder());
         }
 
         @Override
-        public void endCompoundValue(DatasetField dsfcv) {
+        public void endChildField(DatasetField dsfcv) {
             JsonArray jsonValues = valueArrStack.pop().build();
             if (!jsonValues.isEmpty()) {
                 JsonObjectBuilder jsonField = jsonObjectBuilder();

@@ -31,6 +31,10 @@ public class DatasetFieldWalker {
         void primitiveValue(DatasetField dsfv);
 
         void controledVocabularyValue(ControlledVocabularyValue cvv);
+
+        void startChildField(DatasetField dsf);
+
+        void endChildField(DatasetField dsf);
     }
 
     /**
@@ -53,6 +57,7 @@ public class DatasetFieldWalker {
      * @param l                  the listener to execute on each field values and structure.
      */
     public static void walk(List<DatasetField> fields, Listener l, boolean excludeEmailFields) {
+
         DatasetFieldWalker joe = new DatasetFieldWalker(l);
         for (DatasetField dsf : sort(fields, DatasetField.DisplayOrder)) {
             joe.walk(dsf, excludeEmailFields);
@@ -87,13 +92,13 @@ public class DatasetFieldWalker {
             }
 
         } else if (datasetFieldType.isCompound()) {
-            l.startCompoundValue(fld);
+            l.startChildField(fld);
 
             for (DatasetField dsfcv : sort(fld.getDatasetFieldsChildren(), DatasetField.DisplayOrder)) {
                 walk(dsfcv, excludeEmailFields);
             }
 
-            l.endCompoundValue(fld);
+            l.endChildField(fld);
         }
         l.endField(fld);
     }
