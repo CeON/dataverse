@@ -1,3 +1,8 @@
+
+/*
+ *  This version of library contains Dataverse specific modifications. Every of such modification is marked by comment with text: "dataverse_change".
+ */
+
 /*
  * Rebind bootstrap UI components after Primefaces ajax calls
  */
@@ -222,6 +227,32 @@ function handleResizeDialog(dialog) {
                 calculateResize();
             });
         });
+
+        // dataverse_change: fix the "width" attribute on body, so that it doesn't break the page when not needed
+
+        function fixBodyWidth() {
+            var backdrop = $('div.ui-widget-overlay.ui-dialog-mask');
+            var wrapper = $('#body-wrapper');
+
+            if (backdrop.length === 0 || el.width() < win.width()) {
+                // if no modal is shown or it fits on the screen, remove the values
+                doc.css('width', '');
+                wrapper.css('max-width', '');
+            }
+            else {
+                doc.css('width', el.width() + 'px');
+                wrapper.css('max-width', document.documentElement.clientWidth + 'px');
+            }
+        }
+
+        $(window).resize(function() {
+            fixBodyWidth();
+        });
+
+        $(window).resize();
+        setInterval(fixBodyWidth, 500);
+
+        // dataverse_change: end
 }
 
 /*
