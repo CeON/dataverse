@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.search.query;
 
-import java.util.Arrays;
-
 /**
  * Enum containing all possible object types that
  * can be assigned to dvObject in search.
@@ -37,9 +35,6 @@ public enum SearchObjectType {
      * Returns enum based on value from solr index.
      */
     public static SearchObjectType fromSolrValue(String solrValue) {
-        return Arrays.asList(SearchObjectType.values()).stream()
-                .filter(type -> type.getSolrValue().equals(solrValue))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Provided value does not represent known indexed dvObject type"));
+        return valueOf(solrValue.toUpperCase());
     }
 }

@@ -2,14 +2,43 @@ package edu.harvard.iq.dataverse.search.query;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SearchForTypesTest {
 
     // -------------------- TESTS --------------------
 
+    @Test
+    public void toogleType__remove_type() {
+        // given
+        SearchForTypes typesToSearch = SearchForTypes.byTypes(SearchObjectType.DATAVERSES, SearchObjectType.FILES);
+        // when
+        SearchForTypes resultTypesToSearch = typesToSearch.toogleType(SearchObjectType.FILES);
+        // then
+        assertThat(resultTypesToSearch.getTypes(), contains(SearchObjectType.DATAVERSES));
+    }
+    
+    @Test
+    public void toogleType__add_type() {
+        // given
+        SearchForTypes typesToSearch = SearchForTypes.byTypes(SearchObjectType.DATAVERSES, SearchObjectType.FILES);
+        // when
+        SearchForTypes resultTypesToSearch = typesToSearch.toogleType(SearchObjectType.DATASETS);
+        // then
+        assertThat(resultTypesToSearch.getTypes(), containsInAnyOrder(SearchObjectType.DATAVERSES, SearchObjectType.DATASETS, SearchObjectType.FILES));
+    }
+    
+    @Test
+    public void containsOnly() {
+        // when & then
+        assertTrue(SearchForTypes.byTypes(SearchObjectType.DATAVERSES).containsOnly(SearchObjectType.DATAVERSES));
+        assertFalse(SearchForTypes.byTypes(SearchObjectType.DATAVERSES, SearchObjectType.FILES).containsOnly(SearchObjectType.DATAVERSES));
+    }
+    
     @Test
     public void byType() {
         // when
@@ -23,7 +52,7 @@ public class SearchForTypesTest {
         // when
         SearchForTypes typesToSearch = SearchForTypes.byTypes(SearchObjectType.DATAVERSES, SearchObjectType.DATAVERSES);
         // then
-        assertThat(typesToSearch.getTypes(), containsInAnyOrder(SearchObjectType.DATAVERSES));
+        assertThat(typesToSearch.getTypes(), contains(SearchObjectType.DATAVERSES));
     }
 
     @Test

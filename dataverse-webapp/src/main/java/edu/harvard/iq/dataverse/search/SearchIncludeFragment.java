@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.search;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
@@ -88,7 +87,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     private String dataversePath = null;
 
     private String selectedTypesString;
-    private List<SearchObjectType> selectedTypesList = new ArrayList<>();
+    private SearchForTypes selectedTypes = SearchForTypes.all();
     private String searchFieldType = SearchFields.TYPE;
     private String searchFieldSubtree = SearchFields.SUBTREE;
     private String searchFieldNameSort = SearchFields.NAME_SORT;
@@ -246,17 +245,10 @@ public class SearchIncludeFragment implements java.io.Serializable {
         filterQueriesFinal.addAll(filterQueries);
         
         
-        selectedTypesList = Lists.newArrayList(selectedTypesString.split(":"))
-                .stream()
-                .map(typeString -> SearchObjectType.fromSolrValue(typeString))
-                .collect(Collectors.toList());
-        
-
-//        List<String> filterQueriesFinal = new ArrayList<>(filterQueriesWithoutType);
-//        filterQueriesFinal.add(typeFilterQuery);
-//        
-//        List<String> filterQueriesFinalAllTypes = new ArrayList<>(filterQueriesWithoutType);
-//        filterQueriesFinalAllTypes.add(SearchFields.TYPE + ":(dataverses OR datasets OR files)");
+        selectedTypes = SearchForTypes.byTypes(
+                Arrays.stream(selectedTypesString.split(":"))
+                    .map(typeString -> SearchObjectType.fromSolrValue(typeString))
+                    .collect(Collectors.toList()));
 
         int paginationStart = (page - 1) * paginationGuiRows;
 
@@ -271,7 +263,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
             
             solrQueryResponse = searchService.search(dataverseRequestService.getDataverseRequest(), Collections.singletonList(dataverse), 
-                    queryToPassToSolr, SearchForTypes.byTypes(selectedTypesList), filterQueriesFinal, sortField, sortOrder, 
+                    queryToPassToSolr, selectedTypes, filterQueriesFinal, sortField, sortOrder, 
                     paginationStart, false, numRows, false);
             
             // This 2nd search() is for populating the facets: -- L.A. 
@@ -749,43 +741,18 @@ public class SearchIncludeFragment implements java.io.Serializable {
         friendlyNames.add(localizedFacetName);
         return friendlyNames;
     }
-
-    public boolean selectedTypesContainsDataverse() {
-        return selectedTypesList.contains(SearchObjectType.DATAVERSES);
-    }
-    public boolean selectedTypesContainsDataverseOnly() {
-        return selectedTypesList.size() == 1 && selectedTypesList.get(0) == SearchObjectType.DATAVERSES;
-    }
     
-    public boolean selectedTypesContainsDataset() {
-        return selectedTypesList.contains(SearchObjectType.DATASETS);
-    }
-    public boolean selectedTypesContainsDatasetOnly() {
-        return selectedTypesList.size() == 1 && selectedTypesList.get(0) == SearchObjectType.DATASETS;
-    }
-    
-    public boolean selectedTypesContainsFile() {
-        return selectedTypesList.contains(SearchObjectType.FILES);
-    }
-    public boolean selectedTypesContainsFileOnly() {
-        return selectedTypesList.size() == 1 && selectedTypesList.get(0) == SearchObjectType.FILES;
-    }
-    
-    public String getNewSelectedTypes(String typeClickedString) {
-        SearchObjectType typeClicked = SearchObjectType.fromSolrValue(typeClickedString);
+    public String getNewSelectedTypes(SearchObjectType typeClicked) {
+        SearchForTypes newTypesSelected = selectedTypes.toogleType(typeClicked);
         
-        List<SearchObjectType> newTypesSelected = new ArrayList<>(selectedTypesList);
-        
-        if (newTypesSelected.contains(typeClicked)) {
-            newTypesSelected.remove(typeClicked);
-        } else {
-            newTypesSelected.add(typeClicked);
-        }
-        
-        return newTypesSelected.stream()
+        return newTypesSelected.getTypes().stream()
                 .map(t -> t.getSolrValue())
                 .collect(Collectors.joining(":"));
 
+    }
+
+    public SearchForTypes getSelectedTypes() {
+        return selectedTypes;
     }
 
     public String getErrorFromSolr() {

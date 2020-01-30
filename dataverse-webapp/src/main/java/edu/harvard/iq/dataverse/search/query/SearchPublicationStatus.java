@@ -43,9 +43,6 @@ public enum SearchPublicationStatus {
      * Returns enum based on value from solr index.
      */
     public static SearchPublicationStatus fromSolrValue(String solrValue) {
-        return Arrays.asList(SearchPublicationStatus.values()).stream()
-                .filter(type -> type.getSolrValue().equals(solrValue))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Provided value does not represent known publication status"));
+        return valueOf(solrValue.toUpperCase());
     }
 }

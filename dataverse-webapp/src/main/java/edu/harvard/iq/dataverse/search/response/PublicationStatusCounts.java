@@ -79,6 +79,7 @@ public class PublicationStatusCounts {
             break;
         case DEACCESSIONED:
             deaccessionedCount = count;
+            break;
         default:
             break;
         }

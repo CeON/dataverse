@@ -31,6 +31,37 @@ public class SearchForTypes {
 
     // -------------------- LOGIC --------------------
     
+    public boolean contains(SearchObjectType type) {
+        return types.contains(type);
+    }
+    
+    public boolean containsOnly(SearchObjectType type) {
+        return types.size() == 1 && types.contains(type);
+    }
+    
+    /**
+     * Returns new {@link SearchForTypes} object with
+     * either:
+     * <p>
+     * additional type if original {@link SearchForTypes}
+     * does not contain it.
+     * <p>
+     * removed type if original {@link SearchForTypes} does
+     * contain it.
+     * <p>
+     * Method do not modify original {@link SearchForTypes}
+     */
+    public SearchForTypes toogleType(SearchObjectType type) {
+        Set<SearchObjectType> newTypes = new HashSet<>(types);
+        
+        if (newTypes.contains(type)) {
+            newTypes.remove(type);
+        } else {
+            newTypes.add(type);
+        }
+        return new SearchForTypes(newTypes);
+    }
+    
     /**
      * Returns {@link SearchForTypes} with assigned dvObject types according
      * to the given types

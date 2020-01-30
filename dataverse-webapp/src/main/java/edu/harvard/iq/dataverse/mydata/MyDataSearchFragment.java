@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.mydata;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
@@ -28,12 +27,9 @@ import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
-import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
 import edu.harvard.iq.dataverse.search.query.SearchForTypes;
 import edu.harvard.iq.dataverse.search.query.SearchObjectType;
-import edu.harvard.iq.dataverse.search.query.SortBy;
 import edu.harvard.iq.dataverse.search.response.FacetCategory;
-import edu.harvard.iq.dataverse.search.response.FacetLabel;
 import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -124,7 +120,7 @@ public class MyDataSearchFragment implements java.io.Serializable {
     private Dataverse dataverse;
     private String dataversePath = null;
     private String selectedTypesString;
-    private List<SearchObjectType> selectedTypesList = new ArrayList<>();
+    private SearchForTypes selectedTypes = SearchForTypes.all();
 
     private Map<String, Long> previewCountbyType = new HashMap<>();
     private int page = 1;
@@ -261,6 +257,10 @@ public class MyDataSearchFragment implements java.io.Serializable {
 
     public String getSelectedTypesString() {
         return selectedTypesString;
+    }
+
+    public SearchForTypes getSelectedTypes() {
+        return selectedTypes;
     }
 
     public Long getFacetCountDatasets() {
@@ -424,40 +424,11 @@ public class MyDataSearchFragment implements java.io.Serializable {
         friendlyNames.add(valueWithoutQuotes);
         return friendlyNames;
     }
-
-    public boolean selectedTypesContainsDataverse() {
-        return selectedTypesList.contains(SearchObjectType.DATAVERSES);
-    }
-    public boolean selectedTypesContainsDataverseOnly() {
-        return selectedTypesList.size() == 1 && selectedTypesList.get(0) == SearchObjectType.DATAVERSES;
-    }
     
-    public boolean selectedTypesContainsDataset() {
-        return selectedTypesList.contains(SearchObjectType.DATASETS);
-    }
-    public boolean selectedTypesContainsDatasetOnly() {
-        return selectedTypesList.size() == 1 && selectedTypesList.get(0) == SearchObjectType.DATASETS;
-    }
-    
-    public boolean selectedTypesContainsFile() {
-        return selectedTypesList.contains(SearchObjectType.FILES);
-    }
-    public boolean selectedTypesContainsFileOnly() {
-        return selectedTypesList.size() == 1 && selectedTypesList.get(0) == SearchObjectType.FILES;
-    }
-    
-    public String getNewSelectedTypes(String typeClickedString) {
-        SearchObjectType typeClicked = SearchObjectType.fromSolrValue(typeClickedString);
+    public String getNewSelectedTypes(SearchObjectType typeClicked) {
+        SearchForTypes newTypesSelected = selectedTypes.toogleType(typeClicked);
         
-        List<SearchObjectType> newTypesSelected = new ArrayList<>(selectedTypesList);
-        
-        if (newTypesSelected.contains(typeClicked)) {
-            newTypesSelected.remove(typeClicked);
-        } else {
-            newTypesSelected.add(typeClicked);
-        }
-        
-        return newTypesSelected.stream()
+        return newTypesSelected.getTypes().stream()
                 .map(t -> t.getSolrValue())
                 .collect(Collectors.joining(":"));
     }
@@ -718,13 +689,13 @@ public class MyDataSearchFragment implements java.io.Serializable {
         // ---------------------------------
         DataverseRequest dataverseRequest = dataverseRequestService.getDataverseRequest();
         
-        selectedTypesList = Lists.newArrayList(selectedTypesString.split(":"))
-                .stream()
-                .map(typeString -> SearchObjectType.fromSolrValue(typeString))
-                .collect(Collectors.toList());
+        selectedTypes = SearchForTypes.byTypes(
+                Arrays.stream(selectedTypesString.split(":"))
+                    .map(typeString -> SearchObjectType.fromSolrValue(typeString))
+                    .collect(Collectors.toList()));
 
         List<Long> roleIdsForFilters = roleFilters.isEmpty() ? rolePermissionHelper.getRoleIdList() : rolePermissionHelper.findRolesIdsByNames(roleFilters);
-        MyDataFilterParams filterParams = new MyDataFilterParams(dataverseRequest, toMyDataFinderFormat(selectedTypesList),
+        MyDataFilterParams filterParams = new MyDataFilterParams(dataverseRequest, toMyDataFinderFormat(selectedTypes),
                 pub_states, roleIdsForFilters, searchTerm);
         if (filterParams.hasError()) {
             return filterParams.getErrorMessage() + filterParams.getErrorMessage();
@@ -765,7 +736,7 @@ public class MyDataSearchFragment implements java.io.Serializable {
                     dataverseRequest,
                     null,
                     searchTerm,
-                    SearchForTypes.byTypes(selectedTypesList),
+                    selectedTypes,
                     filterQueries,
                     SearchFields.RELEASE_OR_CREATE_DATE,
                     SortOrder.desc,
@@ -795,7 +766,7 @@ public class MyDataSearchFragment implements java.io.Serializable {
                         dataverseRequest,
                         null,
                         searchTerm,
-                        SearchForTypes.byTypes(selectedTypesList),
+                        selectedTypes,
                         filterQueries,
                         SearchFields.RELEASE_OR_CREATE_DATE,
                         SortOrder.desc,
@@ -894,18 +865,16 @@ public class MyDataSearchFragment implements java.io.Serializable {
 
     // -------------------- PRIVATE ---------------------
 
-    private List<String> toMyDataFinderFormat(List<SearchObjectType> selectedTypesList) {
+    private List<String> toMyDataFinderFormat(SearchForTypes selectedTypes) {
         List<String> myDataFinderTypes = new ArrayList<>();
-        for(SearchObjectType type : selectedTypesList) {
-            if(type == SearchObjectType.DATAVERSES) {
-                myDataFinderTypes.add(DvObject.DATAVERSE_DTYPE_STRING);
-            }
-            if(type == SearchObjectType.DATASETS) {
-                myDataFinderTypes.add(DvObject.DATASET_DTYPE_STRING);
-            }
-            if(type == SearchObjectType.FILES) {
-                myDataFinderTypes.add(DvObject.DATAFILE_DTYPE_STRING);
-            }
+        if (selectedTypes.contains(SearchObjectType.DATAVERSES)) {
+            myDataFinderTypes.add(DvObject.DATAVERSE_DTYPE_STRING);
+        }
+        if (selectedTypes.contains(SearchObjectType.DATASETS)) {
+            myDataFinderTypes.add(DvObject.DATASET_DTYPE_STRING);
+        }
+        if (selectedTypes.contains(SearchObjectType.FILES)) {
+            myDataFinderTypes.add(DvObject.DATAFILE_DTYPE_STRING);
         }
         return myDataFinderTypes;
     }
