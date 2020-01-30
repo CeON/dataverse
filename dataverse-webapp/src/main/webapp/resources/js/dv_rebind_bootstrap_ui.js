@@ -1,8 +1,3 @@
-
-/*
- *  This version of library contains Dataverse specific modifications. Every of such modification is marked by comment with text: "dataverse_change".
- */
-
 /*
  * Rebind bootstrap UI components after Primefaces ajax calls
  */
@@ -228,8 +223,6 @@ function handleResizeDialog(dialog) {
             });
         });
 
-        // dataverse_change: fix the "width" attribute on body, so that it doesn't break the page when not needed
-
         function fixBodyWidth() {
             var backdrop = $('div.ui-widget-overlay.ui-dialog-mask');
             var wrapper = $('#body-wrapper');
@@ -251,8 +244,6 @@ function handleResizeDialog(dialog) {
 
         $(window).resize();
         setInterval(fixBodyWidth, 500);
-
-        // dataverse_change: end
 }
 
 /*
