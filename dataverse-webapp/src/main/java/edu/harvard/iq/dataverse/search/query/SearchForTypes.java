@@ -51,7 +51,7 @@ public class SearchForTypes {
      * <p>
      * Method do not modify original {@link SearchForTypes}
      */
-    public SearchForTypes toogleType(SearchObjectType type) {
+    public SearchForTypes toggleType(SearchObjectType type) {
         Set<SearchObjectType> newTypes = new HashSet<>(types);
         
         if (newTypes.contains(type)) {

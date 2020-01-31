@@ -743,7 +743,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     }
     
     public String getNewSelectedTypes(SearchObjectType typeClicked) {
-        SearchForTypes newTypesSelected = selectedTypes.toogleType(typeClicked);
+        SearchForTypes newTypesSelected = selectedTypes.toggleType(typeClicked);
         
         return newTypesSelected.getTypes().stream()
                 .map(t -> t.getSolrValue())

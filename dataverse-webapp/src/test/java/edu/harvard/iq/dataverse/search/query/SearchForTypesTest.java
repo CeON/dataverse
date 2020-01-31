@@ -13,21 +13,21 @@ public class SearchForTypesTest {
     // -------------------- TESTS --------------------
 
     @Test
-    public void toogleType__remove_type() {
+    public void toggleType__remove_type() {
         // given
         SearchForTypes typesToSearch = SearchForTypes.byTypes(SearchObjectType.DATAVERSES, SearchObjectType.FILES);
         // when
-        SearchForTypes resultTypesToSearch = typesToSearch.toogleType(SearchObjectType.FILES);
+        SearchForTypes resultTypesToSearch = typesToSearch.toggleType(SearchObjectType.FILES);
         // then
         assertThat(resultTypesToSearch.getTypes(), contains(SearchObjectType.DATAVERSES));
     }
     
     @Test
-    public void toogleType__add_type() {
+    public void toggleType__add_type() {
         // given
         SearchForTypes typesToSearch = SearchForTypes.byTypes(SearchObjectType.DATAVERSES, SearchObjectType.FILES);
         // when
-        SearchForTypes resultTypesToSearch = typesToSearch.toogleType(SearchObjectType.DATASETS);
+        SearchForTypes resultTypesToSearch = typesToSearch.toggleType(SearchObjectType.DATASETS);
         // then
         assertThat(resultTypesToSearch.getTypes(), containsInAnyOrder(SearchObjectType.DATAVERSES, SearchObjectType.DATASETS, SearchObjectType.FILES));
     }
