@@ -475,6 +475,16 @@ public class SettingsServiceBean {
          * with the protocol, port number etc.
          */
         SiteUrl,
+        PrivacyPolicy,
+
+        /**
+         * Dataverse admin can configure application-wide maximum length for embargo.
+         * @value number of months
+         * For any given date, maximum embargo for that date is: [date] + [MaximumEmbargoLength]
+         * Example: for setting value = 3 and date 12DEC2019, effective maximum embargo date for user
+         * trying to set embargo for his dataset is 12MAR2020 (3 months from [date])
+         */
+        MaximumEmbargoLength,
 
         /**
          * Application wide format for dates.
