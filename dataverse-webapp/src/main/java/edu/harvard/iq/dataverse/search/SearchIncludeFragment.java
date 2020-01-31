@@ -20,7 +20,7 @@ import edu.harvard.iq.dataverse.search.response.FacetCategory;
 import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
 import org.apache.commons.lang.StringUtils;
-import org.omnifaces.cdi.ViewScoped;
+import javax.faces.view.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
