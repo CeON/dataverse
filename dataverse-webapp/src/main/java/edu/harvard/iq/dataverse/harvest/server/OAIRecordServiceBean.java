@@ -304,10 +304,6 @@ public class OAIRecordServiceBean implements java.io.Serializable {
                     .getOrElse(false);
     }
 
-    private Boolean isEmbargoFutureDate(Dataset dataset) {
-        return dataset.getEmbargoDate().map(eDate -> eDate.after(Date.from(Instant.now(systemClock)))).getOrElse(false);
-    }
-
     public void setSystemClock(Clock systemClock) {
         this.systemClock = systemClock;
     }

@@ -227,10 +227,11 @@ public class Dataset extends DvObjectContainer {
     }
 
     /**
-     * Timer used for OAI exporters. Holds metadata accessibility last change time.
-     * Example: gestbook and embargo operations can happen after dataset was published that
-     * affect metadata visibility for harvesting clients, without directly changing
-     * metadata itself.
+     * Time of last changes that could affect exporters results, but are not related to specific dataset version.
+     * Example: Guestbook assigning and embargo date change can happen after dataset
+     * was published and without generating new dataset version.
+     * This operations can affect the final result of some exporters which
+     * should be reflected in OAI incremental imports.
      */
     public Option<Date> getLastChangeForExporterTime() {
         return Option.of(lastChangeForExporterTime);

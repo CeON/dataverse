@@ -32,7 +32,7 @@ class OAIRecordServiceBeanTest {
     private EntityManager entityManager;
 
     private static final long OAI_RECORD_UPDATE_TIME = 123456;
-    private static final long GUESTBOOK_CHANGE_TIME = 1234567;
+    private static final long DATASET_METADATA_CHANGE_TIME = 1234567;
     private static final long UTC_CLOCK_TIME = 12345678;
 
     private static final long DATASET_VERSION_OLDER_RELEASE_TIME = 123;
@@ -108,10 +108,11 @@ class OAIRecordServiceBeanTest {
     @Test
     public void updateOaiRecordForDataset_WithoutUpdates_EmbargoExpired() {
         //given
-        oaiRecordServiceBean.setSystemClock(Clock.systemDefaultZone());
+        Clock presentTime = Clock.fixed(Instant.now(), ZoneId.of("UTC"));
+        oaiRecordServiceBean.setSystemClock(presentTime);
 
         Dataset dataset = setupDatasetData();
-        dataset.setLastChangeForExporterTime(Date.from(Instant.now(Clock.systemDefaultZone()).minus(1, ChronoUnit.DAYS)));
+        dataset.setLastChangeForExporterTime(Date.from(presentTime.instant().minus(1, ChronoUnit.DAYS)));
         dataset.setEmbargoDate(Date.from(dataset.getLastChangeForExporterTime().get().toInstant().plus(12, ChronoUnit.HOURS)));
 
         HashMap<String, OAIRecord> oaiRecords = new HashMap<>();
@@ -122,7 +123,7 @@ class OAIRecordServiceBeanTest {
         oaiRecordServiceBean.updateOaiRecordForDataset(dataset,"setName", oaiRecords, Logger.getGlobal());
 
         //then
-        Assert.assertEquals(Instant.now(Clock.systemDefaultZone()), oaiRecord.getLastUpdateTime().toInstant());
+        Assert.assertEquals(presentTime.instant(), oaiRecord.getLastUpdateTime().toInstant());
         Assert.assertEquals(0, oaiRecords.size());
 
     }
@@ -181,7 +182,7 @@ class OAIRecordServiceBeanTest {
         datasetVersion.setReleaseTime(Date.from(Instant.ofEpochMilli(DATASET_VERSION_RELEASE_TIME)));
         datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
         dataset.setVersions(Lists.newArrayList(datasetVersion));
-        dataset.setLastChangeForExporterTime(Date.from(Instant.ofEpochMilli(GUESTBOOK_CHANGE_TIME)));
+        dataset.setLastChangeForExporterTime(Date.from(Instant.ofEpochMilli(DATASET_METADATA_CHANGE_TIME)));
         dataset.setGlobalId(new GlobalId("doi", "nice", "ID1"));
         return dataset;
     }
