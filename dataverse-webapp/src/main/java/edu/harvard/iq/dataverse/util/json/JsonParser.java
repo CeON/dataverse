@@ -377,7 +377,8 @@ public class JsonParser {
         List<DatasetField> fields = new LinkedList<>();
         for (JsonObject fieldJson : fieldsArray.getValuesAs(JsonObject.class)) {
             try {
-                fields.addAll(parseField(fieldJson, testType));
+                List<DatasetField> c = parseField(fieldJson, testType);
+                fields.addAll(c);
             } catch (CompoundVocabularyException ex) {
                 DatasetFieldType fieldType = datasetFieldSvc.findByNameOpt(fieldJson.getString("typeName", ""));
                 if (lenient && (DatasetFieldConstant.geographicCoverage).equals(fieldType.getName())) {

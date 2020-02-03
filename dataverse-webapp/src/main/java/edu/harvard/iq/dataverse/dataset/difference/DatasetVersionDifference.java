@@ -67,6 +67,7 @@ public final class DatasetVersionDifference {
 
             updateSameFieldTypeSummary(originalDatasetField, newDatasetField);
         }
+
         for (DatasetFieldType removedFieldType : SetUtils.difference(originalDatasetFieldTypes, newDatasetFieldTypes)) {
             DatasetField originalDatasetField = extractFieldWithType(originalVersion.getDatasetFields(),
                                                                      removedFieldType);
@@ -76,6 +77,7 @@ public final class DatasetVersionDifference {
                 addToSummary(originalDatasetField, null);
             }
         }
+
         for (DatasetFieldType addedFieldType : SetUtils.difference(newDatasetFieldTypes, originalDatasetFieldTypes)) {
             DatasetField newDatasetField = extractFieldWithType(newVersion.getDatasetFields(), addedFieldType);
             if (!newDatasetField.isEmpty()) {
@@ -359,7 +361,7 @@ public final class DatasetVersionDifference {
     // -------------------- PRIVATE --------------------
 
     private Set<DatasetFieldType> extractDatasetFieldTypes(DatasetVersion datasetVersion) {
-        Set<DatasetFieldType> datasetFieldTypes = new HashSet<DatasetFieldType>();
+        Set<DatasetFieldType> datasetFieldTypes = new HashSet<>();
         for (DatasetField dsfo : datasetVersion.getDatasetFields()) {
             datasetFieldTypes.add(dsfo.getDatasetFieldType());
         }
