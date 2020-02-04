@@ -323,7 +323,7 @@
                                 <div id="fileMetadataBlock" class="col-xs-12">
                                     <div class="text-muted">
                                         <h:outputText id="fileTypeOutputRegular" value="#{FilePage.fileMetadata.dataFile.friendlyType}" rendered="#{!(FilePage.fileMetadata.dataFile.tabularData)}"/>
-                                        <h:outputText id="fileTypeOutputTabular" value="#{bundle['file.type.tabularData']}" rendered="#{FilePage.fileMetadata.dataFile.tabularData}"/>
+                                        <h:outputText id="fileTypeOutputTabular" value="#{bundle['file.type.tabular_data']}" rendered="#{FilePage.fileMetadata.dataFile.tabularData}"/>
                                         <h:outputText id="fileSize" value=" - #{FilePage.fileMetadata.dataFile.friendlySize}" />
                                         <h:outputText id="fileCreatePublishDate" value=" - #{bundle['file.lastupdated.label']}: #{FilePage.fileMetadata.fileDateToDisplay}" rendered="#{!(empty FilePage.fileMetadata.id)}"/>
                                         <div class="checksum-block" jsf:rendered="#{!FilePage.file.tabularData}">

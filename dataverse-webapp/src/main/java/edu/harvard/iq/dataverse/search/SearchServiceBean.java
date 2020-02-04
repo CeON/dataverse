@@ -53,7 +53,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -62,14 +61,22 @@ import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Stateless
 public class SearchServiceBean {
 
     private static final Logger logger = Logger.getLogger(SearchServiceBean.class.getCanonicalName());
-    
-    
+    private static final String FACETGROUP_FILETYPE = "fileTypeGroupFacet";
+    private static final String FACETGROUP_FILETAG = "fileTag";
+    private static final String FACETGROUP_FILEACCESS = "fileAccess";
+    private static final String FACETGROUP_PUBLICATIONSTATUS = "publicationStatus";
+    private static final String FACETGROUP_PUBLICATIONDATE = "publicationDate";
+    private static final String FACETBUNDLE_MASK_GROUP_AND_VALUE = "facets.search.fieldtype.%s.%s.label";
+    private static final String FACETBUNDLE_MASK_VALUE = "facets.search.fieldtype.%s.label";
+    private static final String FACETGROUP_DVCATEGORY = "dvCategory";
+    private static final String FACETBUNDLE_MASK_DVCATEGORY_VALUE = "dataverse.type.selectTab.%s";
+
+
     public enum SortOrder {
 
         asc, desc;
@@ -608,7 +615,7 @@ public class SearchServiceBean {
 //                logger.info("field: " + facetField.getName() + " " + facetFieldCount.getName() + " (" + facetFieldCount.getCount() + ")");
                 if (facetFieldCount.getCount() > 0) {
                     FacetLabel facetLabel = new FacetLabel(facetFieldCount.getName(),
-                            getLocaleFacetName(facetFieldCount.getName()),
+                            getLocaledFacetName(facetFieldCount.getName(), facetField.getName()),
                             facetFieldCount.getCount());
                     // quote field facets
                     facetLabel.setFilterQuery(facetField.getName() + ":\"" + facetFieldCount.getName() + "\"");
@@ -676,7 +683,7 @@ public class SearchServiceBean {
                         stringBuilder.append(getCapitalizedName(part.toLowerCase()) + " ");
                     }
                     String friendlyNameWithTrailingSpace = stringBuilder.toString();
-                    String friendlyName = getLocaleFacetName(friendlyNameWithTrailingSpace.replaceAll(" $", ""));
+                    String friendlyName = getLocaledFacetName(friendlyNameWithTrailingSpace.replaceAll(" $", ""), facetField.getName());
                     facetCategory.setFriendlyName(friendlyName);
 //                    logger.info("adding <<<" + staticSearchField + ":" + friendlyName + ">>>");
                     staticSolrFieldFriendlyNamesBySolrField.put(staticSearchField, friendlyName);
@@ -758,7 +765,7 @@ public class SearchServiceBean {
         }
 
         solrQueryResponse.setDvObjectCounts(queryResponse.getFacetField("dvObjectType"));
-        solrQueryResponse.setPublicationStatusCounts(queryResponse.getFacetField("publicationStatus"));
+        solrQueryResponse.setPublicationStatusCounts(queryResponse.getFacetField(FACETGROUP_PUBLICATIONSTATUS));
 
         return solrQueryResponse;
     }
@@ -918,35 +925,101 @@ public class SearchServiceBean {
 
     }
 
-    public String getLocaleFacetName(String name) {
-        return getLocaleFacetName(name, datasetFieldService.findAllOrderedByName());
+    public String getLocaledFacetName(String facetValue, String facetFieldGroupName) {
+        return getLocaledFacetName(facetValue, datasetFieldService.findAllOrderedByName(), facetFieldGroupName);
     }
 
-    public String getLocaleFacetName(String name, List<DatasetFieldType> datasetFields ) {
-        final String key = toBundleNameFormat(name);
-        try {
-            String displayName = getStringFromBundle(format("facets.search.fieldtype.%s.label", name));
-            if(isNotBlank(displayName)) {
-                return displayName;
-            }
-            displayName = BundleUtil.getStringFromBundle(name);
-            if(isNotBlank(displayName)) {
-                return displayName;
-            }
-            displayName = BundleUtil.getStringFromBundle("dataverse.type.selectTab." + key);
-            if(isNotBlank(displayName)) {
-                return displayName;
-            }
-            for(DatasetFieldType datasetField : datasetFields) {
-                displayName = BundleUtil.getStringFromPropertyFile("controlledvocabulary."
-                                + datasetField.getName() + "." + key,
-                        datasetField.getMetadataBlock().getName().toLowerCase());
-                if(isNotBlank(displayName)) {
-                    return displayName;
+    public String getLocaledFacetName(String facetFieldGroupName) {
+        return getLocaledFacetName(facetFieldGroupName, datasetFieldService.findAllOrderedByName(), facetFieldGroupName);
+    }
+
+    private String getLocaledFacetName(String facetValue, List<DatasetFieldType> datasetFields, String facetFieldName) {
+
+        final String formattedFacetFieldName = Optional.of(facetFieldName)
+                .map(this::removeSolrFieldSuffix)
+                .orElse(facetFieldName);
+
+        List<DatasetFieldType> matchingFields = datasetFields.stream()
+                .filter(dsField -> dsField.getName().equals(formattedFacetFieldName))
+                .collect(Collectors.toList());
+
+        if(matchingFields.size() > 1) {
+            throw new IllegalStateException("DatasetFieldType.name should be unique");
+        } else if(matchingFields.size() == 0) {
+            return translateNonDatasetFieldTypeFacet(facetValue, facetFieldName);
+        } else {
+            return translateDatasetFieldTypeFacet(facetValue, matchingFields.get(0));
+        }
+    }
+
+    private String translateDatasetFieldTypeFacet(String facetTitle, DatasetFieldType dsfType) {
+        final String formattedTitle = toBundleNameFormat(removeSolrFieldSuffix(facetTitle));
+
+        if(formattedTitle.equals(toBundleNameFormat(dsfType.getName()))) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_GROUP_AND_VALUE, dsfType.getName(), dsfType.getName()));
+        }
+
+        if(facetTitle.equals(dsfType.getTitle())) {
+            if (dsfType.isFacetable()) {
+                if (dsfType.getParentDatasetFieldType() != null) {
+                    return dsfType.getLocaleTitleWithParent();
                 }
+
+                return getStringFromBundle(format(FACETBUNDLE_MASK_VALUE, dsfType.getName()));
             }
-        } catch (MissingResourceException | NullPointerException e) {
-            return name;
+        } else if(dsfType.isControlledVocabulary()) {
+            return BundleUtil.getStringFromPropertyFile("controlledvocabulary."
+                            + dsfType.getName() + "." + formattedTitle,
+                    dsfType.getMetadataBlock().getName().toLowerCase());
+        }
+
+        return facetTitle;
+    }
+
+    private String translateNonDatasetFieldTypeFacet(String facetValue, String facetFieldName) {
+        if(facetValue.equals(facetFieldName)) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_GROUP_AND_VALUE, facetFieldName, facetFieldName));
+        }
+
+        String formattedValue = toBundleNameFormat(facetValue);
+
+        if(facetFieldName.equals(FACETGROUP_DVCATEGORY) && facetValue.equals("Dataverse Category")) {
+            return  getStringFromBundle("facets.search.fieldtype.dvCategory.label");
+        } else if(facetFieldName.equals(FACETGROUP_DVCATEGORY)) {
+            return  getStringFromBundle(format(FACETBUNDLE_MASK_DVCATEGORY_VALUE, formattedValue));
+        }
+
+
+        if(facetFieldName.equals(FACETGROUP_FILETYPE)) {
+            return  getStringFromBundle(format(FACETBUNDLE_MASK_GROUP_AND_VALUE, facetFieldName, formattedValue));
+        }
+
+        if(facetFieldName.equals(FACETGROUP_FILETAG) && facetValue.equals("File Tag")) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_VALUE, formattedValue));
+        }
+
+        if(facetFieldName.equals(FACETGROUP_FILEACCESS)) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_GROUP_AND_VALUE, facetFieldName, formattedValue));
+        }
+
+        if(facetFieldName.equals(FACETGROUP_PUBLICATIONSTATUS) && facetValue.equals("Publication Status")) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_VALUE, facetFieldName));
+        } else if(facetFieldName.equals(FACETGROUP_PUBLICATIONSTATUS)) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_GROUP_AND_VALUE, facetFieldName, formattedValue));
+        }
+
+        if(facetFieldName.equals(FACETGROUP_PUBLICATIONDATE) && facetValue.equals("Publication Year")) {
+            return getStringFromBundle(format(FACETBUNDLE_MASK_VALUE, facetFieldName));
+        }
+
+        return facetValue;
+    }
+
+    private String removeSolrFieldSuffix(String name) {
+        if(name.endsWith("_ss")) {
+            name = name.substring(0, name.length() - 3);
+        } else if (name.endsWith("_s")) {
+            name = name.substring(0, name.length() - 2);
         }
         return name;
     }

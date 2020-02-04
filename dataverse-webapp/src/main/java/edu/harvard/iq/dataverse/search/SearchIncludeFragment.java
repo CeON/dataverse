@@ -744,13 +744,13 @@ public class SearchIncludeFragment implements java.io.Serializable {
             return null;
         }
         String key = parts[0];
-        String value = parts[1];
+        String value = parts[1].replaceAll("^\"", "").replaceAll("\"$", "");
 
         List<String> friendlyNames = new ArrayList<>();
 
-        friendlyNames.add(searchService.getLocaleFacetName(key));
+        friendlyNames.add(searchService.getLocaledFacetName(key));
 
-        String localizedFacetName = searchService.getLocaleFacetName(value.replaceAll("^\"", "").replaceAll("\"$", ""));
+        String localizedFacetName = searchService.getLocaledFacetName(value, key);
         friendlyNames.add(localizedFacetName);
         return friendlyNames;
     }
