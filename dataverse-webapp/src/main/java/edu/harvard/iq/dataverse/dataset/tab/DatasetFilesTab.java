@@ -42,7 +42,8 @@ import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.PrimefacesUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.omnifaces.cdi.ViewScoped;
+
+import javax.faces.view.ViewScoped;
 import org.primefaces.event.data.PageEvent;
 
 import javax.ejb.EJBException;
@@ -53,9 +54,9 @@ import javax.inject.Named;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
-
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -666,6 +667,11 @@ public class DatasetFilesTab implements Serializable {
 
     public boolean isAllFilesSelected() {
         return selectedFiles.size() >= allCurrentFilesCount();
+    }
+
+    public String getEmbargoDateForDisplay() {
+        SimpleDateFormat format = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
+        return format.format(dataset.getEmbargoDate().getOrNull());
     }
 
     // -------------------- PRIVATE --------------------
