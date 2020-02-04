@@ -233,9 +233,6 @@ public class SearchServiceBean {
 
         addDvObjectTypeFilterQuery(solrQuery, typesToSearch);
         
-        // -----------------------------------
-        // PERMISSION FILTER QUERY
-        // -----------------------------------
         String permissionFilterQuery = permissionQueryBuilder.buildPermissionFilterQuery(dataverseRequest);
         if (!permissionFilterQuery.isEmpty()) {
             solrQuery.addFilterQuery(permissionFilterQuery);
@@ -259,9 +256,6 @@ public class SearchServiceBean {
          *
          */
 
-        
-        // Logged in user, has publication status facet
-        //
         if (dataverseRequest.getUser().isAuthenticated()) {
             solrQuery.addFacetField(SearchFields.PUBLICATION_STATUS);
         }

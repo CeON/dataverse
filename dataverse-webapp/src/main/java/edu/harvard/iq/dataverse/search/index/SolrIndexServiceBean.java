@@ -123,15 +123,15 @@ public class SolrIndexServiceBean {
 
     }
 
-    private void persistToSolr(Collection<PermissionsSolrDoc> docs) throws SolrServerException, IOException {
-        if (docs.isEmpty()) {
+    private void persistToSolr(Collection<PermissionsSolrDoc> permissionDocs) throws SolrServerException, IOException {
+        if (permissionDocs.isEmpty()) {
             // This method is routinely called with an empty list of docs.
             logger.fine("nothing to persist");
             return;
         }
         logger.fine("persisting to Solr...");
         List<SolrInputDocument> inputDocs = new ArrayList<>();
-        docs.forEach(d -> inputDocs.add(SearchUtil.createSolrDoc(d)));
+        permissionDocs.forEach(permissionDoc -> inputDocs.add(SearchUtil.createSolrDoc(permissionDoc)));
         /**
          * @todo Do something with these responses from Solr.
          */

@@ -29,6 +29,7 @@ public class PermissionsSolrDocFactory {
 
     // -------------------- CONSTRUCTORS --------------------
 
+    @Deprecated
     public PermissionsSolrDocFactory() {
         // JEE requirement
     }

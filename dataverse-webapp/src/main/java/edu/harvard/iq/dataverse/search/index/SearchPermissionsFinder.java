@@ -12,12 +12,14 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
+import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,8 +54,8 @@ public class SearchPermissionsFinder {
     // -------------------- LOGIC --------------------
     
     /**
-     * @return A list of strings on which Solr will JOIN to enforce permissions
-     * @todo Should we make a PermStrings object? Probably.
+     * Returns {@link SearchPermissions} on which Solr will JOIN
+     * to enforce permissions.
      */
     public SearchPermissions findDataversePerms(Dataverse dataverse) {
         List<String> permStrings = new ArrayList<>();
@@ -95,7 +97,7 @@ public class SearchPermissionsFinder {
             publicFrom = SearchPermissions.ALWAYS_PUBLIC;
         } else if (version.isReleased()) {
             publicFrom = dataset.getEmbargoDate()
-                    .map(d -> d.toInstant())
+                    .map(Date::toInstant)
                     .getOrElse(SearchPermissions.NEVER_PUBLIC);
         }
         
@@ -151,10 +153,8 @@ public class SearchPermissionsFinder {
                 roleAssigneeCache.computeIfAbsent(roleAssignment.getAssigneeIdentifier(), identifier -> roleAssigneeService.getRoleAssignee(identifier));
                 RoleAssignee userOrGroup = roleAssigneeCache.get(roleAssignment.getAssigneeIdentifier());
                 
-                String indexableUserOrGroupPermissionString = getIndexableStringForUserOrGroup(userOrGroup);
-                if (indexableUserOrGroupPermissionString != null) {
-                    permStrings.add(indexableUserOrGroupPermissionString);
-                }
+                Option.of(getIndexableStringForUserOrGroup(userOrGroup))
+                    .peek(permStrings::add);
             }
         }
         return permStrings;
