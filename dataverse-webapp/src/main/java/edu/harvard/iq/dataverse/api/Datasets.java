@@ -619,7 +619,6 @@ public class Datasets extends AbstractApiBean {
             DatasetVersion dsv = ds.getEditVersion();
 
             List<DatasetField> fields;
-            DatasetField singleField = null;
 
             JsonArray fieldsJson = json.getJsonArray("fields");
             if (fieldsJson == null) {
@@ -642,7 +641,7 @@ public class Datasets extends AbstractApiBean {
             for (Map.Entry<FieldType, List<DatasetField>> fieldsToRemoveEntry : fieldsToRemoveGroupedByType.entrySet()) {
                 for (DatasetField removableField : fieldsToRemoveEntry.getValue()) {
                     for (DatasetField oldField : oldFieldsGroupedByType.get(fieldsToRemoveEntry.getKey())) {
-                        if (oldField.getDatasetFieldType().isAllowMultiples()) {
+
                             if (oldField.getDatasetFieldType().isControlledVocabulary()) {
                                 if (oldField.getDatasetFieldType().isAllowMultiples()) {
                                     for (ControlledVocabularyValue cvv : removableField.getControlledVocabularyValues()) {
@@ -669,14 +668,10 @@ public class Datasets extends AbstractApiBean {
                                     if (oldField.getFieldValue().getOrElse("").equals(removableField.getFieldValue().getOrElse(
                                             ""))) {
 
-                                        if (oldField.getDatasetFieldType().isAllowMultiples()) {
-
-                                            dsfChildsToRemove.add(oldField);
-                                        } else {
                                             oldField.setFieldValue(null);
-                                        }
                                     }
                                 } else {
+
                                     if (DatasetFieldUtil.joinCompoundFieldValues(removableField).equals(
                                             DatasetFieldUtil.joinCompoundFieldValues(
                                                     oldField))) {
@@ -685,18 +680,20 @@ public class Datasets extends AbstractApiBean {
                                     }
                                 }
                             }
-                        }
                     }
                 }
             }
 
             if (dsfChildsToRemove.isEmpty() && controlledVocabularyItemsToRemove.isEmpty()) {
                 logger.log(Level.SEVERE,
-                           "Delete metadata failed no fields to remove were found.");
+                           "Delete metadata failed, no fields to remove were found.");
                 return error(Response.Status.BAD_REQUEST,
-                             "Delete metadata failed no fields to remove were found.");
+                             "Delete metadata failed, no fields to remove were found.");
             }
 
+            fields.stream()
+            .map(DatasetField::getDatasetFieldsChildren)
+            .forEach(datasetFields -> datasetFields.removeAll(dsfChildsToRemove));
 
             boolean updateDraft = ds.getLatestVersion().isDraft();
             DatasetVersion managedVersion = updateDraft
