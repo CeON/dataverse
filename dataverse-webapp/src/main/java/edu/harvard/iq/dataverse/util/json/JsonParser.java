@@ -656,12 +656,8 @@ public class JsonParser {
     public List<DatasetField> parsePrimitiveValue(DatasetFieldType dft, JsonObject json) throws JsonParseException {
 
         List<DatasetField> vals = new LinkedList<>();
-        if (dft.isAllowMultiples()) {
-            try {
-                json.getJsonArray("value").getValuesAs(JsonObject.class);
-            } catch (ClassCastException cce) {
-                throw new JsonParseException("Invalid values submitted for " + dft.getName() + ". It should be an array of values.");
-            }
+        if (dft.isAllowMultiples() && json.get("value").getValueType().equals(ValueType.ARRAY)) {
+
             for (JsonString val : json.getJsonArray("value").getValuesAs(JsonString.class)) {
                 DatasetField datasetFieldValue = new DatasetField();
                 datasetFieldValue.setDisplayOrder(vals.size() - 1);

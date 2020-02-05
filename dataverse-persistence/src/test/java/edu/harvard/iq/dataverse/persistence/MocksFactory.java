@@ -247,34 +247,29 @@ public class MocksFactory {
         return retVal;
     }
 
-    public static List<DatasetField> makeEmptyDatasetFields(DatasetFieldType datasetFieldType, int numberOfValues) {
+    public static DatasetField makeEmptyDatasetField(DatasetFieldType datasetFieldType, int numberOfValues) {
         DatasetField datasetField = new DatasetField();
-        ArrayList<DatasetField> datasetFields = new ArrayList<>();
 
         datasetField.setDatasetFieldType(datasetFieldType);
 
         if (datasetFieldType.isPrimitive()) {
             if (!datasetFieldType.isControlledVocabulary()) {
-                for (int i = 0; i < numberOfValues; ++i) {
-                    DatasetField dsfValueField = new DatasetField();
-                    dsfValueField.setId(nextId());
-
-                    datasetFields.add(dsfValueField);
-                }
+               datasetField.setFieldValue("testValue");
             }
         } else {
             for (int i = 0; i < numberOfValues; ++i) {
                 DatasetField dsfValueField = new DatasetField();
                 dsfValueField.setId(nextId());
                 dsfValueField.setDatasetFieldParent(datasetField);
-                datasetFields.add(dsfValueField);
+                dsfValueField.setDatasetFieldType(datasetFieldType.getChildDatasetFieldTypes().get(i));
+                datasetField.getDatasetFieldsChildren().add(dsfValueField);
 
             }
 
         }
         datasetField.setId(nextId());
 
-        return datasetFields;
+        return datasetField;
     }
 
     public static DataverseRole makeRole(String name) {

@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -40,6 +41,19 @@ public class DatasetFieldUtil {
         return fieldsToJoin.getDatasetFieldsChildren().stream()
                 .filter(datasetField -> datasetField.getFieldValue().isDefined())
                 .map(datasetField -> datasetField.getFieldValue().get())
+                .collect(Collectors.joining("; "));
+    }
+
+    public static String joinAllValues(Collection<DatasetField> fields) {
+        return fields.stream()
+                .filter(datasetField -> !datasetField.isEmpty())
+                .map(datasetField -> {
+                    if (datasetField.getDatasetFieldType().isPrimitive()) {
+                        return datasetField.getRawValue();
+                    } else {
+                        return datasetField.getCompoundRawValue();
+                    }
+                })
                 .collect(Collectors.joining("; "));
     }
 

@@ -65,11 +65,8 @@ public class DatasetFieldParser {
 
             } else if (dsfType.isPrimitive()) {
 
-                if (!(excludeEmailFields && FieldType.EMAIL.equals(dsf.getDatasetFieldType().getFieldType()))) {
-
-                    dsf.getFieldValue()
-                            .peek(fieldValue -> addValueToList(fieldNode, dsfType, fieldValue));
-                }
+                dsf.getFieldValue()
+                        .peek(fieldValue -> addValueToList(fieldNode, dsfType, fieldValue));
 
             } else if (dsfType.isCompound()) {
                 JsonArrayBuilder dsfChildArray;
@@ -82,7 +79,7 @@ public class DatasetFieldParser {
 
                 parsedData.put(dsfType,
                                new ParserDataHolder(fieldNode,
-                                                          parseChildren(excludeEmailFields, dsf, dsfChildArray)));
+                                                    parseChildren(excludeEmailFields, dsf, dsfChildArray)));
             }
         }
 
@@ -97,6 +94,11 @@ public class DatasetFieldParser {
 
         JsonObjectBuilder childKey = Json.createObjectBuilder();
         for (DatasetField dsfChild : dsf.getDatasetFieldsChildren()) {
+
+            if (excludeEmailFields && FieldType.EMAIL.equals(dsfChild.getDatasetFieldType().getFieldType())) {
+                continue;
+            }
+
             JsonObjectBuilder childObject = Json.createObjectBuilder();
 
             DatasetFieldType childType = dsfChild.getDatasetFieldType();
@@ -113,11 +115,8 @@ public class DatasetFieldParser {
 
             } else if (childType.isPrimitive()) {
 
-                if (!(excludeEmailFields && FieldType.EMAIL.equals(dsfChild.getDatasetFieldType().getFieldType()))) {
-
-                    dsfChild.getFieldValue()
-                            .peek(fieldValue -> childObject.add("value", fieldValue));
-                }
+                dsfChild.getFieldValue()
+                        .peek(fieldValue -> childObject.add("value", fieldValue));
 
             }
 
@@ -159,13 +158,22 @@ public class DatasetFieldParser {
                     } else if (parserEntries.getKey().isCompound()) {
 
                         parentDsf.add("value", parserData.getChildValues().orElseGet(Json::createArrayBuilder));
-                    } else if (parserEntries.getKey().isControlledVocabulary()){
-                        JsonArrayBuilder parserArray = Json.createArrayBuilder();
+                    } else if (parserEntries.getKey().isControlledVocabulary()) {
 
-                        parserData.getPrimitiveValues().orElseGet(ArrayList::new)
-                                .forEach(parserArray::add);
+                        if (parserEntries.getKey().isAllowMultiples()){
+                            JsonArrayBuilder parserArray = Json.createArrayBuilder();
 
-                        parentDsf.add("value", parserArray);
+                            parserData.getPrimitiveValues().orElseGet(ArrayList::new)
+                                    .forEach(parserArray::add);
+
+                            parentDsf.add("value", parserArray);
+                        } else {
+
+                            parserData.getPrimitiveValues().ifPresent(values -> {
+                                parentDsf.add("value", values.get(0));
+                            });
+                        }
+
                     }
 
                     return parentDsf;
@@ -179,7 +187,7 @@ public class DatasetFieldParser {
                         fieldValue)))
                 .onEmpty(() -> parsedData.put(dsfType, new ParserDataHolder(fieldNode,
                                                                             Lists.newArrayList(
-                                                                                          fieldValue))));
+                                                                                    fieldValue))));
     }
 
     static private <T> Iterable<T> sort(List<T> list, Comparator<T> cmp) {

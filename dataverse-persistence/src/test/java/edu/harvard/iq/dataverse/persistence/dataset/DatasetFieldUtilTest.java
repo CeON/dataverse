@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.extractFieldTypeByName;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeAuthorFieldType;
@@ -39,25 +37,21 @@ public class DatasetFieldUtilTest {
                                                                         false,
                                                                         new MetadataBlock());
 
-        List<DatasetField> field1 = MocksFactory.makeEmptyDatasetFields(fieldType1, 2);
-        List<DatasetField> field2 = MocksFactory.makeEmptyDatasetFields(fieldType2, 5);
+        DatasetField field1 = MocksFactory.makeEmptyDatasetField(fieldType1, 2);
+        DatasetField field2 = MocksFactory.makeEmptyDatasetField(fieldType2, 1);
 
-        List<DatasetField> datasetFields = Stream.concat(field1.stream(), field2.stream())
-                .collect(Collectors.toList());
-        ;
+        List<DatasetField> datasetFields = com.google.common.collect.Lists.newArrayList(field1, field2);
+
 
         // when
         List<DatasetField> flatDatasetFields = DatasetFieldUtil.getFlatDatasetFields(datasetFields);
 
         // then
         assertThat(flatDatasetFields, contains(
-                field1.get(0),
-                field1.get(1),
-                field2.get(0),
-                field2.get(1),
-                field2.get(2),
-                field2.get(3),
-                field2.get(4)));
+                field1,
+                field1.getDatasetFieldsChildren().get(0),
+                field1.getDatasetFieldsChildren().get(1),
+                field2));
     }
 
     @Test
@@ -70,9 +64,9 @@ public class DatasetFieldUtilTest {
         DatasetFieldType fieldType2 = MocksFactory.makeDatasetFieldType("field2", FieldType.TEXT, false, block1);
         DatasetFieldType fieldType3 = MocksFactory.makeDatasetFieldType("field3", FieldType.TEXT, false, block2);
 
-        DatasetField field1 = MocksFactory.makeEmptyDatasetFields(fieldType1, 1).get(0);
-        DatasetField field2 = MocksFactory.makeEmptyDatasetFields(fieldType2, 1).get(0);
-        DatasetField field3 = MocksFactory.makeEmptyDatasetFields(fieldType3, 1).get(0);
+        DatasetField field1 = MocksFactory.makeEmptyDatasetField(fieldType1, 1);
+        DatasetField field2 = MocksFactory.makeEmptyDatasetField(fieldType2, 1);
+        DatasetField field3 = MocksFactory.makeEmptyDatasetField(fieldType3, 1);
 
         List<DatasetField> datasetFields = Lists.newArrayList(field1, field2, field3);
 
@@ -102,9 +96,9 @@ public class DatasetFieldUtilTest {
         DatasetFieldType fieldType2 = MocksFactory.makeDatasetFieldType("field2", FieldType.TEXT, false, block1);
         DatasetFieldType fieldType3 = MocksFactory.makeDatasetFieldType("field3", FieldType.TEXT, false, block2);
 
-        DatasetField field1 = MocksFactory.makeEmptyDatasetFields(fieldType1, 1).get(0);
-        DatasetField field2 = MocksFactory.makeEmptyDatasetFields(fieldType2, 1).get(0);
-        DatasetField field3 = MocksFactory.makeEmptyDatasetFields(fieldType3, 1).get(0);
+        DatasetField field1 = MocksFactory.makeEmptyDatasetField(fieldType1, 1);
+        DatasetField field2 = MocksFactory.makeEmptyDatasetField(fieldType2, 1);
+        DatasetField field3 = MocksFactory.makeEmptyDatasetField(fieldType3, 1);
 
         List<DatasetField> datasetFields = Lists.newArrayList(field1, field2, field3);
 
@@ -135,12 +129,12 @@ public class DatasetFieldUtilTest {
                                                                         false,
                                                                         new MetadataBlock());
 
-        DatasetField field1 = MocksFactory.makeEmptyDatasetFields(fieldType1, 1).get(0);
-        DatasetField field2 = MocksFactory.makeEmptyDatasetFields(fieldType2, 1).get(0);
+        DatasetField field1 = MocksFactory.makeEmptyDatasetField(fieldType1, 1);
+        DatasetField field2 = MocksFactory.makeEmptyDatasetField(fieldType2, 1);
         List<DatasetField> datasetFields1 = Lists.newArrayList(field1, field2);
 
-        DatasetField field3 = MocksFactory.makeEmptyDatasetFields(fieldType2, 1).get(0);
-        DatasetField field4 = MocksFactory.makeEmptyDatasetFields(fieldType3, 1).get(0);
+        DatasetField field3 = MocksFactory.makeEmptyDatasetField(fieldType2, 1);
+        DatasetField field4 = MocksFactory.makeEmptyDatasetField(fieldType3, 1);
         List<DatasetField> datasetFields2 = Lists.newArrayList(field3, field4);
 
         // when
