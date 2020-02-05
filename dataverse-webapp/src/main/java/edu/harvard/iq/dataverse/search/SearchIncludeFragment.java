@@ -748,9 +748,9 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
         List<String> friendlyNames = new ArrayList<>();
 
-        friendlyNames.add(searchService.getLocaledFacetName(key));
+        friendlyNames.add(searchService.getLocaleFacetCategoryName(key));
 
-        String localizedFacetName = searchService.getLocaledFacetName(value, key);
+        String localizedFacetName = searchService.getLocaleFacetLabelName(value, key);
         friendlyNames.add(localizedFacetName);
         return friendlyNames;
     }
