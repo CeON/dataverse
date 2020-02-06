@@ -237,10 +237,10 @@ function handleResizeDialog(dialog) {
  * fixes body style attribute being set incorrectly and/or nor removed when closing modal
  */
 function fixBodyWidth(dialog_element) {
-    if (typeof dialog === 'string') {
+    if (typeof dialog_element === 'string') {
         var dialog = $('div[id$="' + dialog_element + '"]');
     }
-    else if (typeof dialog === 'object') {
+    else if (typeof dialog_element === 'object') {
         var dialog = $('div[id$="' + dialog_element.data.dialog_id + '"]');
     }
 
