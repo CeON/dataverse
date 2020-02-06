@@ -217,7 +217,7 @@ public class SearchServiceBean {
                                                                    datasetFieldType.isFacetable());
 
             String solrField = dsfSolrField.getNameSearchable();
-            String displayName = datasetFieldType.getDisplayName(); //getLocaleFacetCategoryName(datasetFieldType.getName());
+            String displayName = datasetFieldType.getDisplayName();
             solrFieldsToHightlightOnMap.put(solrField, displayName);
         }
         for (Map.Entry<String, String> entry : solrFieldsToHightlightOnMap.entrySet()) {
@@ -596,7 +596,7 @@ public class SearchServiceBean {
         boolean draftsAvailable = false;
         boolean unpublishedAvailable = false;
         boolean deaccessionedAvailable = false;
-        boolean hideMetadataSourceFacet = false;
+        boolean hideMetadataSourceFacet = true;
         for (FacetField facetField : queryResponse.getFacetFields()) {
             FacetCategory facetCategory = new FacetCategory();
             List<FacetLabel> facetLabelList = new ArrayList<>();
@@ -670,17 +670,9 @@ public class SearchServiceBean {
                     Logger.getLogger(SearchServiceBean.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 if (staticSearchField != null && facetField.getName().equals(staticSearchField)) {
-                    String[] parts = name.split("_");
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (String part : parts) {
-                        stringBuilder.append(getCapitalizedName(part.toLowerCase()) + " ");
-                    }
-                    String friendlyNameWithTrailingSpace = stringBuilder.toString();
                     String friendlyName = getLocaleFacetCategoryName(facetField.getName());
                     facetCategory.setFriendlyName(friendlyName);
-//                    logger.info("adding <<<" + staticSearchField + ":" + friendlyName + ">>>");
                     staticSolrFieldFriendlyNamesBySolrField.put(staticSearchField, friendlyName);
-                    // stop examining the declared/static fields in the SearchFields object. we found a match
                     break;
                 }
             }
