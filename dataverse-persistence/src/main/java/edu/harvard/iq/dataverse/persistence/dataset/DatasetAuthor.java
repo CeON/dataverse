@@ -116,7 +116,7 @@ public class DatasetAuthor {
 
     public String getIdentifierAsUrl() {
         if (idType != null && !idType.isEmpty() && idValue != null && !idValue.isEmpty()) {
-            DatasetFieldValueValidator datasetFieldValueValidator = new DatasetFieldValueValidator();
+            DatasetFieldValidator datasetFieldValueValidator = new DatasetFieldValidator();
             switch (idType) {
                 case "ORCID":
                     if (datasetFieldValueValidator.isValidAuthorIdentifier(idValue, getValidPattern(REGEX_ORCID))) {

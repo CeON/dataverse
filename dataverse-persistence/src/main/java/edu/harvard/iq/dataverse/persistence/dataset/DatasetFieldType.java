@@ -359,7 +359,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
      */
     @OneToMany(mappedBy = "parentDatasetFieldType", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("displayOrder ASC")
-    private List<DatasetFieldType> childDatasetFieldTypes;
+    private List<DatasetFieldType> childDatasetFieldTypes = new ArrayList<>();
 
     public List<DatasetFieldType> getChildDatasetFieldTypes() {
         return this.childDatasetFieldTypes;

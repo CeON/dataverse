@@ -14,8 +14,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.validation.ConstraintValidatorContext;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author skraffmi
@@ -41,53 +44,159 @@ public class DatasetFieldValidatorTest {
     public void tearDown() {
     }
 
-
-    /**
-     * Test of isValid method, of class DatasetFieldValidator.
-     */
     @Test
     public void testIsValid() {
         System.out.println("isValid");
-        DatasetField value = new DatasetField();
-
-        final ConstraintValidatorContext ctx =
-                Mockito.mock(ConstraintValidatorContext.class);
-        DatasetFieldValidator instance = new DatasetFieldValidator();
-        //If its a template field it is always valid
-        value.setTemplate(new Template());
-        boolean expResult = true;
-        boolean result = instance.isValid(value, ctx);
-        assertEquals(expResult, result);
-
-
-        //if not template and required
-        value.setTemplate(null);
+        DatasetField df = new DatasetField();
         DatasetVersion datasetVersion = new DatasetVersion();
         Dataset dataset = new Dataset();
         Dataverse dataverse = new Dataverse();
         dataset.setOwner(dataverse);
         datasetVersion.setDataset(dataset);
-        value.setDatasetVersion(datasetVersion);
+        DatasetFieldType dft = new DatasetFieldType();
+        dft.setFieldType(FieldType.TEXT);
+        //Test Text against regular expression that takes a 5 character string
+        dft.setValidationFormat("^[a-zA-Z ]{5,5}$");
+        df.setDatasetFieldType(dft);
+        df.setFieldValue("asdfg");
+        df.setDatasetVersion(datasetVersion);
 
-        DatasetFieldValue dfv = new DatasetFieldValue();
-        DatasetFieldType dft = new DatasetFieldType("test", FieldType.TEXT, false);
-        dft.setRequired(true);
-        value.setDatasetFieldType(dft);
-        value.setFieldValue("");
-        dfv.setValue("");
-        result = instance.isValid(value, ctx);
-        assertEquals(false, result);
+        final ConstraintValidatorContext ctx =
+                Mockito.mock(ConstraintValidatorContext.class);
+        DatasetFieldValidator instance = new DatasetFieldValidator();
+        boolean expResult = true;
+        boolean result = instance.isValid(df, ctx);
+        assertEquals(expResult, result);
 
         //Fill in a value - should be valid now....
-        value.setFieldValue("value");
-        result = instance.isValid(value, ctx);
+        df.setFieldValue("value");
+        result = instance.isValid(df, ctx);
         assertEquals(true, result);
 
         //if not required - can be blank
         dft.setRequired(false);
-        value.setFieldValue("");
-        result = instance.isValid(value, ctx);
+        df.setFieldValue("");
+        result = instance.isValid(df, ctx);
         assertEquals(true, result);
+
+        //Make string too long - should fail.
+        df.setFieldValue("asdfgX");
+        result = instance.isValid(df, ctx);
+        assertEquals(false, result);
+
+        //Make string too long - should fail.
+        df.setFieldValue("asdf");
+        result = instance.isValid(df, ctx);
+        assertEquals(false, result);
+
+        //Now lets try Dates
+        dft.setFieldType(FieldType.DATE);
+        dft.setValidationFormat(null);
+        df.setFieldValue("1999AD");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("44BCE");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("2004-10-27");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("2002-08");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("[1999?]");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("Blergh");
+        result = instance.isValid(df, ctx);
+        assertEquals(false, result);
+
+        //Float
+        dft.setFieldType(FieldType.FLOAT);
+        df.setFieldValue("44");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("44 1/2");
+        result = instance.isValid(df, ctx);
+        assertEquals(false, result);
+
+        //Integer
+        dft.setFieldType(FieldType.INT);
+        df.setFieldValue("44");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("-44");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+        df.setFieldValue("12.14");
+        result = instance.isValid(df, ctx);
+        assertEquals(false, result);
+
+        //URL
+        dft.setFieldType(FieldType.URL);
+        df.setFieldValue("http://cnn.com");
+        result = instance.isValid(df, ctx);
+        assertEquals(true, result);
+
+
+        df.setFieldValue("espn.com");
+        result = instance.isValid(df, ctx);
+        assertEquals(false, result);
+
+    }
+
+    @Test
+    public void testIsValidAuthorIdentifierOrcid() {
+        DatasetFieldValidator validator = new DatasetFieldValidator();
+        Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_ORCID);
+        assertTrue(validator.isValidAuthorIdentifier("0000-0002-1825-0097", pattern));
+        // An "X" at the end of an ORCID is less common but still valid.
+        assertTrue(validator.isValidAuthorIdentifier("0000-0002-1694-233X", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("0000 0002 1825 0097", pattern));
+        assertFalse(validator.isValidAuthorIdentifier(" 0000-0002-1825-0097", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("0000-0002-1825-0097 ", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
+    }
+
+    @Test
+    public void testIsValidAuthorIdentifierIsni() {
+        DatasetFieldValidator validator = new DatasetFieldValidator();
+        Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_ISNI);
+        assertTrue(validator.isValidAuthorIdentifier("0000000121032683", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
+    }
+
+    @Test
+    public void testIsValidAuthorIdentifierLcna() {
+        DatasetFieldValidator validator = new DatasetFieldValidator();
+        Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_LCNA);
+        assertTrue(validator.isValidAuthorIdentifier("n82058243", pattern));
+        assertTrue(validator.isValidAuthorIdentifier("foobar123", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
+    }
+
+    @Test
+    public void testIsValidAuthorIdentifierViaf() {
+        DatasetFieldValidator validator = new DatasetFieldValidator();
+        Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_VIAF);
+        assertTrue(validator.isValidAuthorIdentifier("172389567", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
+    }
+
+    @Test
+    public void testIsValidAuthorIdentifierGnd() {
+        DatasetFieldValidator validator = new DatasetFieldValidator();
+        Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_GND);
+        assertTrue(validator.isValidAuthorIdentifier("4079154-3", pattern));
+        assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
     }
 
 }
