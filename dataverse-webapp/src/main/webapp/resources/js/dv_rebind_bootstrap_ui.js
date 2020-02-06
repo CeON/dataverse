@@ -236,25 +236,25 @@ function handleResizeDialog(dialog) {
 /*
  * fixes body style attribute being set incorrectly and/or nor removed when closing modal
  */
-function fixBodyWidth(dialog) {
+function fixBodyWidth(dialog_element) {
     if (typeof dialog === 'string') {
-        var el = $('div[id$="' + dialog + '"]');
+        var dialog = $('div[id$="' + dialog_element + '"]');
     }
     else if (typeof dialog === 'object') {
-        var el = $('div[id$="' + dialog.data.dialog_id + '"]');
+        var dialog = $('div[id$="' + dialog_element.data.dialog_id + '"]');
     }
 
     var doc = $('body');
     var win = $(window);
     var wrapper = $('#body-wrapper');
 
-    if (!dialog || el.width() < win.width()) {
+    if (!dialog_element || dialog.width() < win.width()) {
         // if no modal is shown or it fits on the screen, remove the values
         doc.css('width', '');
         wrapper.css('max-width', '');
     }
     else {
-        doc.css('width', el.width() + 'px');
+        doc.css('width', dialog.width() + 'px');
         wrapper.css('max-width', document.documentElement.clientWidth + 'px');
     }
 }
