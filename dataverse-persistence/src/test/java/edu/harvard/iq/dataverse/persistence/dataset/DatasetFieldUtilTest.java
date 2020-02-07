@@ -169,7 +169,7 @@ public class DatasetFieldUtilTest {
                                                                     1));
 
         //when
-        String joinedValues = DatasetFieldUtil.joinCompoundFieldValues(authorField);
+        String joinedValues = DatasetFieldUtil.joinAllValues(authorField);
 
         //then
         Assert.assertEquals("John Doe; John Aff", joinedValues);
@@ -183,7 +183,7 @@ public class DatasetFieldUtilTest {
         fillAuthorField(authorField,  "John Doe", "John Aff");
 
         //when
-        String values = DatasetFieldUtil.joinCompoundFieldValues(authorField);
+        String values = DatasetFieldUtil.joinAllValues(authorField);
 
         //then
         Assert.assertEquals("John Doe; John Aff", values);

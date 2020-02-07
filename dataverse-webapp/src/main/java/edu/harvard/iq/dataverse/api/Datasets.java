@@ -672,8 +672,8 @@ public class Datasets extends AbstractApiBean {
                                     }
                                 } else {
 
-                                    if (DatasetFieldUtil.joinCompoundFieldValues(removableField).equals(
-                                            DatasetFieldUtil.joinCompoundFieldValues(
+                                    if (DatasetFieldUtil.joinAllValues(removableField).equals(
+                                            DatasetFieldUtil.joinAllValues(
                                                     oldField))) {
 
                                         dsfChildsToRemove.addAll(oldField.getDatasetFieldsChildren());
@@ -804,8 +804,8 @@ public class Datasets extends AbstractApiBean {
                                         oldField.setFieldValue(updateField.getValue());
                                     }
                                 } else {
-                                    if (!DatasetFieldUtil.joinCompoundFieldValues(updateField).equals(
-                                            DatasetFieldUtil.joinCompoundFieldValues(
+                                    if (!DatasetFieldUtil.joinAllValues(updateField).equals(
+                                            DatasetFieldUtil.joinAllValues(
                                                     oldField))) {
 
                                         updateField.setDatasetVersion(dsv);
