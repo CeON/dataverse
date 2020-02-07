@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
+import edu.harvard.iq.dataverse.persistence.MockMetadataFactory;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.extractFieldTypeByName;
+import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.fillAuthorField;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeAuthorFieldType;
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeDatasetField;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -171,6 +173,40 @@ public class DatasetFieldUtilTest {
 
         //then
         Assert.assertEquals("John Doe; John Aff", joinedValues);
+
+    }
+
+    @Test
+    public void joinCompoundFieldValues() {
+        //given
+        DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(new MetadataBlock()), null);
+        fillAuthorField(authorField,  "John Doe", "John Aff");
+
+        //when
+        String values = DatasetFieldUtil.joinCompoundFieldValues(authorField);
+
+        //then
+        Assert.assertEquals("John Doe; John Aff", values);
+    }
+
+    @Test
+    public void joinAllValues() {
+        //given
+        DatasetFieldType titleType = MockMetadataFactory.makeTitleFieldType(new MetadataBlock());
+
+        DatasetField firstField = new DatasetField();
+        firstField.setFieldValue("first");
+        firstField.setDatasetFieldType(titleType);
+
+        DatasetField secondField = new DatasetField();
+        secondField.setFieldValue("second");
+        secondField.setDatasetFieldType(titleType);
+
+        //when
+        String values = DatasetFieldUtil.joinAllValues(Lists.newArrayList(firstField, secondField));
+
+        //then
+        Assert.assertEquals("first; second", values);
 
     }
 }

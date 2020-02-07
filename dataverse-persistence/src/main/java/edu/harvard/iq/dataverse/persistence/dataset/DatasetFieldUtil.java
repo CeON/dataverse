@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -36,14 +38,14 @@ public class DatasetFieldUtil {
         return retList;
     }
 
-    public static String joinCompoundFieldValues(DatasetField fieldsToJoin) {
+    public static String joinCompoundFieldValues(DatasetField fieldToJoin) {
 
-        return fieldsToJoin.getDatasetFieldsChildren().stream()
-                .filter(datasetField -> datasetField.getFieldValue().isDefined())
-                .map(datasetField -> datasetField.getFieldValue().get())
-                .collect(Collectors.joining("; "));
+        return joinAllValues(Lists.newArrayList(fieldToJoin));
     }
 
+    /**
+     * Joins values of the fields with ';' delimiter.
+     */
     public static String joinAllValues(Collection<DatasetField> fields) {
         return fields.stream()
                 .filter(datasetField -> !datasetField.isEmpty())
