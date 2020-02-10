@@ -90,11 +90,11 @@ public class DatasetFieldsInitializerTest {
         // then
         assertEquals(2, retDatasetFields.size());
 
-        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
-        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(1).getCompoundRawValue());
+        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
+        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(0).getCompoundRawValue());
 
-        assertEquals(depositorField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
-        assertEquals("John Depositor", retDatasetFields.get(0).getRawValue());
+        assertEquals(depositorField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
+        assertEquals("John Depositor", retDatasetFields.get(1).getRawValue());
     }
 
     @Test
@@ -147,14 +147,14 @@ public class DatasetFieldsInitializerTest {
         // then
         assertEquals(5, retDatasetFields.size());
 
-        assertEquals(titleField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
-        assertEquals("Some Title", retDatasetFields.get(1).getRawValue());
+        assertEquals(titleField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
+        assertEquals("Some Title", retDatasetFields.get(0).getRawValue());
 
-        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(2).getDatasetFieldType());
-        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(2).getCompoundRawValue());
+        assertEquals(authorField.getDatasetFieldType(), retDatasetFields.get(1).getDatasetFieldType());
+        assertEquals("John Doe; John Aff; Jane Doe; Jane Aff", retDatasetFields.get(1).getCompoundRawValue());
 
-        assertEquals(keywordField.getDatasetFieldType(), retDatasetFields.get(0).getDatasetFieldType());
-        assertEquals("term1; vocabName; http://example.edu; term2; term3", retDatasetFields.get(0).getCompoundRawValue());
+        assertEquals(keywordField.getDatasetFieldType(), retDatasetFields.get(2).getDatasetFieldType());
+        assertEquals("term1; vocabName; http://example.edu; term2; term3", retDatasetFields.get(2).getCompoundRawValue());
 
         assertEquals(depositorFieldType, retDatasetFields.get(3).getDatasetFieldType());
         assertEquals("", retDatasetFields.get(3).getRawValue());

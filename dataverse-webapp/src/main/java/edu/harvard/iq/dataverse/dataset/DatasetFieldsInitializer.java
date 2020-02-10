@@ -205,8 +205,10 @@ public class DatasetFieldsInitializer {
 
     private List<DatasetField> sortDatasetFields(List<DatasetField> dsfList) {
         List<DatasetField> sortedDatasetFields = Lists.newArrayList(dsfList);
-        Collections.sort(sortedDatasetFields,
-                         Comparator.comparingInt(DatasetField::getDisplayOrder));
+        
+        Collections.sort(sortedDatasetFields, Comparator
+                .comparingInt(DatasetField::getDisplayOrder)
+                .thenComparingInt((DatasetField dsf) -> dsf.getDatasetFieldType().getDisplayOrder()));
         return sortedDatasetFields;
     }
 

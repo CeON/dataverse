@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
+import io.vavr.Tuple2;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -8,7 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.Map.Entry;
+import static java.util.stream.Collectors.*;
 
 /**
  * Utility class with common operations on dataset fields
@@ -54,7 +58,7 @@ public class DatasetFieldUtil {
     public static String joinAllValues(Collection<DatasetField> fields) {
         return fields.stream()
                 .map(DatasetFieldUtil::joinAllValues)
-                .collect(Collectors.joining("; "));
+                .collect(joining("; "));
     }
 
     /**
@@ -96,7 +100,31 @@ public class DatasetFieldUtil {
 
         return metadataBlocks;
     }
+    
+    public static Map<MetadataBlock, List<DatasetFieldsByType>> groupByBlockAndType(List<DatasetField> datasetFields) {
+        Map<MetadataBlock, List<DatasetFieldsByType>> fieldsByBlockAndType = new LinkedHashMap<>();
+        
+        groupByBlock(datasetFields).entrySet().stream()
+            .forEach(blockAndFields -> fieldsByBlockAndType.put(blockAndFields.getKey(), groupByType(blockAndFields.getValue())));
 
+        return fieldsByBlockAndType;
+    }
+    
+    public static List<DatasetFieldsByType> groupByType(List<DatasetField> datasetFields) {
+        List<DatasetFieldsByType> fieldsByTypes = new ArrayList<>();
+        
+        Map<DatasetFieldType, List<DatasetField>> fieldsByTypesMap = datasetFields.stream()
+                .collect(groupingBy(
+                            DatasetField::getDatasetFieldType,
+                            LinkedHashMap::new,
+                            mapping(Function.identity(), toList())));
+        
+        fieldsByTypesMap.entrySet().stream()
+            .forEach(typeAndFields -> fieldsByTypes.add(new DatasetFieldsByType(typeAndFields.getKey(), typeAndFields.getValue())));
+        
+        return fieldsByTypes;
+    }
+    
     /**
      * Returns merged dataset fields from two given dataset field lists.
      * Merging is based on equality of {@link DatasetField#getDatasetFieldType()}.

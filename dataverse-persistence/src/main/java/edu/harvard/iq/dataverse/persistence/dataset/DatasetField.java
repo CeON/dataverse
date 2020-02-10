@@ -301,11 +301,11 @@ public class DatasetField implements Serializable {
     public List<String> getValues() {
         List<String> returnList = new ArrayList<>();
         if (!getFieldValue().isEmpty()) {
-            returnList.add(getFieldDisplayValue());
+            returnList.add(getFieldDisplayValue(fieldValue, datasetFieldType));
         } else {
             for (ControlledVocabularyValue cvv : controlledVocabularyValues) {
                 if (cvv != null && cvv.getLocaleStrValue() != null) {
-                    returnList.add(cvv.getLocaleStrValue());
+                    returnList.add(getFieldDisplayValue(cvv.getLocaleStrValue(), datasetFieldType));
                 }
             }
         }
@@ -370,25 +370,25 @@ public class DatasetField implements Serializable {
         return returnList;
     }
 
-    public String getFieldDisplayValue() { //dsf value
+    private String getFieldDisplayValue(String value, DatasetFieldType fieldType) {
         String retVal = "";
-        if (!StringUtils.isBlank(this.getValue()) && !DatasetField.NA_VALUE.equals(this.getValue())) {
-            String format = getDatasetFieldType().getDisplayFormat();
+        if (!StringUtils.isBlank(value) && !DatasetField.NA_VALUE.equals(value)) {
+            String format = fieldType.getDisplayFormat();
             if (StringUtils.isBlank(format)) {
                 format = "#VALUE";
             }
-            String sanitizedValue = !getDatasetFieldType().isSanitizeHtml() ?
-                    this.getValue() :
-                    MarkupChecker.sanitizeBasicHTML(this.getValue());
+            String sanitizedValue = !fieldType.isSanitizeHtml() ?
+                    value :
+                    MarkupChecker.sanitizeBasicHTML(value);
 
-            if (!getDatasetFieldType().isSanitizeHtml() && getDatasetFieldType().isEscapeOutputText()) {
+            if (!fieldType.isSanitizeHtml() && fieldType.isEscapeOutputText()) {
                 sanitizedValue = MarkupChecker.stripAllTags(sanitizedValue);
             }
 
             // replace the special values in the format (note: we replace #VALUE last since we don't
             // want any issues if the value itself has #NAME in it)
             String displayValue = format
-                    .replace("#NAME", getDatasetFieldType().getTitle() == null ? "" : getDatasetFieldType().getTitle())
+                    .replace("#NAME", fieldType.getTitle() == null ? "" : fieldType.getTitle())
                     .replace("#EMAIL", BundleUtil.getStringFromBundle("dataset.email.hiddenMessage"))
                     .replace("#VALUE", sanitizedValue);
             retVal = displayValue;
