@@ -86,7 +86,7 @@ public class DatasetFieldUtil {
     }
 
     public static Map<MetadataBlock, List<DatasetField>> groupByBlock(List<DatasetField> datasetFields) {
-        Map<MetadataBlock, List<DatasetField>> metadataBlocks = new TreeMap<>(Comparator.comparingLong(mb -> mb.getId()));
+        Map<MetadataBlock, List<DatasetField>> metadataBlocks = new TreeMap<>(Comparator.comparingLong(MetadataBlock::getId));
 
         for (DatasetField dsf : datasetFields) {
             MetadataBlock metadataBlockOfField = dsf.getDatasetFieldType().getMetadataBlock();

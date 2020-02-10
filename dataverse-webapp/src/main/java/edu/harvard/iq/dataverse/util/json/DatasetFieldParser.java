@@ -44,18 +44,8 @@ public class DatasetFieldParser {
     public JsonArrayBuilder parseDatasetFields(List<DatasetField> dsfFields, boolean excludeEmailFields) {
         for (DatasetField dsf : dsfFields) {
 
-            JsonObjectBuilder fieldNode;
             DatasetFieldType dsfType = dsf.getDatasetFieldType();
-
-            if (parsedData.containsKey(dsf.getDatasetFieldType())) {
-                fieldNode = parsedData.get(dsf.getDatasetFieldType()).getParentDsf();
-            } else {
-
-                fieldNode = Json.createObjectBuilder();
-                fieldNode.add("typeName", dsfType.getName());
-                fieldNode.add("multiple", dsfType.isAllowMultiples());
-                fieldNode.add("typeClass", typeClassString(dsfType));
-            }
+            JsonObjectBuilder fieldNode = prepareDatasetFieldObject(dsf, dsfType, parsedData);
 
             if (dsfType.isControlledVocabulary()) {
                 for (ControlledVocabularyValue cvv
@@ -66,7 +56,7 @@ public class DatasetFieldParser {
             } else if (dsfType.isPrimitive()) {
 
                 dsf.getFieldValue()
-                        .peek(fieldValue -> addValueToList(fieldNode, dsfType, fieldValue));
+                        .peek(fieldValue -> addValueToList(fieldNode, dsfType, fieldValue, parsedData));
 
             } else if (dsfType.isCompound()) {
                 JsonArrayBuilder dsfChildArray;
@@ -83,9 +73,24 @@ public class DatasetFieldParser {
             }
         }
 
-        transferValuesToDsfParent().forEach(dsfParent -> fieldsArray.add(dsfParent));
+        transferValuesToDsfParent(parsedData).forEach(dsfParent -> fieldsArray.add(dsfParent));
 
         return fieldsArray;
+    }
+
+    private JsonObjectBuilder prepareDatasetFieldObject(DatasetField dsf, DatasetFieldType dsfType, Map<DatasetFieldType, ParserDataHolder> parsedData) {
+        JsonObjectBuilder fieldNode;
+
+        if (parsedData.containsKey(dsf.getDatasetFieldType())) {
+            fieldNode = parsedData.get(dsf.getDatasetFieldType()).getParentDsf();
+        } else {
+
+            fieldNode = Json.createObjectBuilder();
+            fieldNode.add("typeName", dsfType.getName());
+            fieldNode.add("multiple", dsfType.isAllowMultiples());
+            fieldNode.add("typeClass", typeClassString(dsfType));
+        }
+        return fieldNode;
     }
 
     // -------------------- PRIVATE --------------------
@@ -134,7 +139,7 @@ public class DatasetFieldParser {
      * it is needed because you need to add values to fields at the end of parsing,
      * otherwise there is no way to modify those values (which is needed if you have multiple fields of the same {@link DatasetFieldType}
      */
-    private List<JsonObjectBuilder> transferValuesToDsfParent() {
+    private List<JsonObjectBuilder> transferValuesToDsfParent(Map<DatasetFieldType, ParserDataHolder> parsedData) {
         return parsedData.entrySet().stream()
                 .sorted(Comparator.comparing(entry -> entry.getKey().getDisplayOrder()))
                 .map(parserEntries -> {
@@ -143,36 +148,14 @@ public class DatasetFieldParser {
 
                     if (parserEntries.getKey().isPrimitive() && !parserEntries.getKey().isControlledVocabulary()) {
 
-                        parserData.getPrimitiveValues().ifPresent(fieldValues -> {
-                            if (fieldValues.size() > 1) {
-                                JsonArrayBuilder parserArray = Json.createArrayBuilder();
-
-                                fieldValues.forEach(parserArray::add);
-                                parentDsf.add("value", parserArray);
-
-                            } else if (fieldValues.size() == 1) {
-                                parentDsf.add("value", fieldValues.get(0));
-                            }
-                        });
+                        parsePrimitiveField(parserData, parentDsf);
 
                     } else if (parserEntries.getKey().isCompound()) {
 
                         parentDsf.add("value", parserData.getChildValues().orElseGet(Json::createArrayBuilder));
                     } else if (parserEntries.getKey().isControlledVocabulary()) {
 
-                        if (parserEntries.getKey().isAllowMultiples()){
-                            JsonArrayBuilder parserArray = Json.createArrayBuilder();
-
-                            parserData.getPrimitiveValues().orElseGet(ArrayList::new)
-                                    .forEach(parserArray::add);
-
-                            parentDsf.add("value", parserArray);
-                        } else {
-
-                            parserData.getPrimitiveValues().ifPresent(values -> {
-                                parentDsf.add("value", values.get(0));
-                            });
-                        }
+                        parseVocabularyValues(parserEntries, parserData, parentDsf);
 
                     }
 
@@ -181,7 +164,37 @@ public class DatasetFieldParser {
                 .collect(Collectors.toList());
     }
 
-    private Option<ParserDataHolder> addValueToList(JsonObjectBuilder fieldNode, DatasetFieldType dsfType, String fieldValue) {
+    private void parsePrimitiveField(ParserDataHolder parserData, JsonObjectBuilder parentDsf) {
+        parserData.getPrimitiveValues().ifPresent(fieldValues -> {
+            if (fieldValues.size() > 1) {
+                JsonArrayBuilder parserArray = Json.createArrayBuilder();
+
+                fieldValues.forEach(parserArray::add);
+                parentDsf.add("value", parserArray);
+
+            } else if (fieldValues.size() == 1) {
+                parentDsf.add("value", fieldValues.get(0));
+            }
+        });
+    }
+
+    private void parseVocabularyValues(Map.Entry<DatasetFieldType, ParserDataHolder> parserEntries, ParserDataHolder parserData, JsonObjectBuilder parentDsf) {
+        if (parserEntries.getKey().isAllowMultiples()){
+            JsonArrayBuilder parserArray = Json.createArrayBuilder();
+
+            parserData.getPrimitiveValues().orElseGet(ArrayList::new)
+                    .forEach(parserArray::add);
+
+            parentDsf.add("value", parserArray);
+        } else {
+
+            parserData.getPrimitiveValues().ifPresent(values -> {
+                parentDsf.add("value", values.get(0));
+            });
+        }
+    }
+
+    private Option<ParserDataHolder> addValueToList(JsonObjectBuilder fieldNode, DatasetFieldType dsfType, String fieldValue, Map<DatasetFieldType, ParserDataHolder> parsedData) {
         return Option.of(parsedData.get(dsfType))
                 .peek(parserDataHolder -> parserDataHolder.getPrimitiveValues().ifPresent(values -> values.add(
                         fieldValue)))
