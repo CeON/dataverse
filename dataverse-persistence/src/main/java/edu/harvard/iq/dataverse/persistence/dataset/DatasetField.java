@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -315,7 +314,7 @@ public class DatasetField implements Serializable {
 
     public List<String> getRawValuesList() {
         List<String> returnList = new ArrayList<>();
-        if (getFieldValue().isDefined()){
+        if (getFieldValue().isDefined()) {
             returnList.add(getUnsanitizedDisplayValue());
         }
 
@@ -340,7 +339,7 @@ public class DatasetField implements Serializable {
     public List<String> getValues_nondisplay() {
         List returnList = new ArrayList();
 
-        if (getFieldValue().isDefined()){
+        if (getFieldValue().isDefined()) {
             returnList.add(fieldValue);
         }
 
@@ -566,20 +565,19 @@ public class DatasetField implements Serializable {
 
     public boolean removeBlankDatasetFieldValues() {
         if (this.getDatasetFieldType().isPrimitive()) {
-            if (this.getDatasetFieldType().isControlledVocabulary()) {
-                return this.getControlledVocabularyValues().isEmpty();
-            } else if (this.getDatasetFieldType().isCompound()) {
-                Iterator<DatasetField> cvIt = this.getDatasetFieldsChildren().iterator();
-                while (cvIt.hasNext()) {
-                    DatasetField cv = cvIt.next();
-                    cv.getDatasetFieldsChildren().removeIf(DatasetField::removeBlankDatasetFieldValues);
-                    if (cv.getDatasetFieldsChildren().isEmpty()) {
-                        cvIt.remove();
-                    }
+            if (!this.getDatasetFieldType().isControlledVocabulary()) {
+
+                if (StringUtils.isBlank(this.fieldValue)) {
+                    setFieldValue(null);
+                    return true;
                 }
-                return this.getDatasetFieldsChildren().isEmpty();
+
+            } else { // controlled vocab
+                return this.getControlledVocabularyValues().isEmpty();
             }
-            return false;
+        } else if (this.getDatasetFieldType().isCompound()) {
+            this.getDatasetFieldsChildren().removeIf(DatasetField::removeBlankDatasetFieldValues);
+            return this.getDatasetFieldsChildren().isEmpty();
         }
         return false;
     }
