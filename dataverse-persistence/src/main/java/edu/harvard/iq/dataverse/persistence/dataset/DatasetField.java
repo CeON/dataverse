@@ -551,16 +551,7 @@ public class DatasetField implements Serializable {
     }
 
     public DatasetField copy() {
-        DatasetField dsf = new DatasetField();
-        dsf.setDatasetFieldType(datasetFieldType);
-        dsf.setControlledVocabularyValues(controlledVocabularyValues);
-
-        for (DatasetField dsfChildren : getDatasetFieldsChildren()) {
-            dsfChildren.setDatasetFieldParent(dsf);
-            dsf.getDatasetFieldsChildren().add(dsfChildren.copy());
-        }
-
-        return dsf;
+        return DatasetFieldUtil.copyDatasetFieldToBank(this);
     }
 
     public boolean removeBlankDatasetFieldValues() {

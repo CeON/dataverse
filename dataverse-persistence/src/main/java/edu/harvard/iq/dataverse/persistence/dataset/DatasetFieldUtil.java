@@ -57,11 +57,36 @@ public class DatasetFieldUtil {
                 .collect(Collectors.joining("; "));
     }
 
+    public static DatasetField copyDatasetFieldToBank(DatasetField originalDsf){
+        DatasetField dsf = new DatasetField();
+        dsf.setDatasetFieldType(originalDsf.getDatasetFieldType());
+        dsf.setControlledVocabularyValues(originalDsf.getControlledVocabularyValues());
+
+        for (DatasetField dsfChildren : originalDsf.getDatasetFieldsChildren()) {
+            dsf.getDatasetFieldsChildren().add(copyDatasetFieldToBank(dsfChildren, dsf));
+        }
+
+        return dsf;
+    }
+
+    public static DatasetField copyDatasetFieldToBank(DatasetField originalDsf, DatasetField parentDsf){
+        DatasetField dsf = new DatasetField();
+        dsf.setDatasetFieldType(originalDsf.getDatasetFieldType());
+        dsf.setControlledVocabularyValues(originalDsf.getControlledVocabularyValues());
+        dsf.setDatasetFieldParent(parentDsf);
+
+        for (DatasetField dsfChildren : originalDsf.getDatasetFieldsChildren()) {
+            dsf.getDatasetFieldsChildren().add(copyDatasetFieldToBank(dsfChildren, dsf));
+        }
+
+        return dsf;
+    }
+
     public static List<DatasetField> copyDatasetFields(List<DatasetField> copyFromList) {
         List<DatasetField> retList = new ArrayList<>();
 
         for (DatasetField sourceDsf : copyFromList) {
-            retList.add(sourceDsf.copy());
+            retList.add(copyDatasetFieldToBank(sourceDsf));
         }
 
         return retList;
