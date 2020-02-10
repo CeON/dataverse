@@ -52,7 +52,7 @@
                 </ui:fragment>
             </p:column><!-- end: version number column -->
 
-            <!-- start: description column -->
+            <!-- start: summary column -->
             <p:column id="summaryColumn" headerText="#{bundle['file.dataFilesTab.versions.headers.summary']}">
                 <ui:fragment rendered="#{versionSummary.differenceFromPreviousVersion != null}">
                     <ui:fragment rendered="#{!empty(versionSummary.differenceFromPreviousVersion.summaryDataForNote)}">
@@ -116,7 +116,7 @@
                                oncomplete="PF('detailsBlocks').show();post_differences();"
                                update="@form"
                                value="#{bundle['file.dataFilesTab.versions.viewDetails.btn']}"></p:commandLink>
-            </p:column><!-- end: description column -->
+            </p:column><!-- end: summary column -->
 
             <!-- contributor column -->
             <p:column headerText="#{bundle['file.dataFilesTab.versions.headers.contributors']}" class="col-sm-3">
