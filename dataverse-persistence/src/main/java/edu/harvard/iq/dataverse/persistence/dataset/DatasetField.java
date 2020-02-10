@@ -551,7 +551,7 @@ public class DatasetField implements Serializable {
     }
 
     public DatasetField copy() {
-        return DatasetFieldUtil.copyDatasetFieldToBank(this);
+        return DatasetFieldUtil.copyDatasetField(this);
     }
 
     public boolean removeBlankDatasetFieldValues() {

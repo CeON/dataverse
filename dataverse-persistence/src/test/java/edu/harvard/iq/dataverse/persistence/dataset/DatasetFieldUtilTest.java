@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.persistence.MockMetadataFactory;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -20,6 +21,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DatasetFieldUtilTest {
+
+    private static String AUTHOR_NAME = "John Doe";
+    private static String AUTHOR_AFFILIATION = "John Aff";
 
     // -------------------- TESTS --------------------
 
@@ -152,21 +156,8 @@ public class DatasetFieldUtilTest {
     @Test
     public void joinFieldValues() {
         //given
-        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
-        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
-                                                                 authorField.getDatasetFieldType().getChildDatasetFieldTypes());
-        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
-                                                                        authorField.getDatasetFieldType().getChildDatasetFieldTypes());
 
-        String AUTHORNAME1 = "John Doe";
-        String AUTHORAFFILIATION1 = "John Aff";
-
-
-        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, AUTHORNAME1, 0));
-        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField,
-                                                                    authorAffiliationType,
-                                                                    AUTHORAFFILIATION1,
-                                                                    1));
+        DatasetField authorField = prepareAuthorField(AUTHOR_NAME, AUTHOR_AFFILIATION);
 
         //when
         String joinedValues = DatasetFieldUtil.joinAllValues(authorField);
@@ -208,5 +199,43 @@ public class DatasetFieldUtilTest {
         //then
         Assert.assertEquals("first; second", values);
 
+    }
+
+    @Test
+    public void copyDatasetField() {
+        //given
+        DatasetField authorField = prepareAuthorField(AUTHOR_NAME, AUTHOR_AFFILIATION);
+        List<DatasetField> originalAuthorChildren = authorField.getDatasetFieldsChildren();
+
+        //when
+        DatasetField copiedField = DatasetFieldUtil.copyDatasetField(authorField);
+        List<DatasetField> copiedAuthorChildren = copiedField.getDatasetFieldsChildren();
+
+        //then
+        Assertions.assertAll(() -> Assert.assertEquals(authorField.getDatasetFieldType(), copiedField.getDatasetFieldType()),
+                             () -> Assert.assertEquals(originalAuthorChildren.get(0).getDatasetFieldType(), copiedAuthorChildren.get(0).getDatasetFieldType()),
+                             () -> Assert.assertEquals(originalAuthorChildren.get(0).getFieldValue().getOrNull(), copiedAuthorChildren.get(0).getFieldValue().getOrNull()),
+                             () -> Assert.assertEquals(originalAuthorChildren.get(1).getDatasetFieldType(), copiedAuthorChildren.get(1).getDatasetFieldType()),
+                             () -> Assert.assertEquals(originalAuthorChildren.get(1).getFieldValue().getOrNull(), copiedAuthorChildren.get(1).getFieldValue().getOrNull())
+        );
+
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private DatasetField prepareAuthorField(String authorNameValue, String authorAffiliationValue) {
+        DatasetField authorField = makeDatasetField(makeAuthorFieldType(new MetadataBlock()));
+        DatasetFieldType authorNameType = extractFieldTypeByName(DatasetFieldConstant.authorName,
+                                                                 authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+        DatasetFieldType authorAffiliationType = extractFieldTypeByName(DatasetFieldConstant.authorAffiliation,
+                                                                        authorField.getDatasetFieldType().getChildDatasetFieldTypes());
+
+
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField, authorNameType, authorNameValue, 0));
+        authorField.getDatasetFieldsChildren().add(makeDatasetField(authorField,
+                                                                    authorAffiliationType,
+                                                                    authorAffiliationValue,
+                                                                    1));
+        return authorField;
     }
 }

@@ -57,26 +57,19 @@ public class DatasetFieldUtil {
                 .collect(Collectors.joining("; "));
     }
 
-    public static DatasetField copyDatasetFieldToBank(DatasetField originalDsf){
+    /**
+     * Copies original datasetfield to newly created datasetfield alongside values and type.
+     * @param originalDsf datasetfield to copy.
+     * @return Copied datasetfield
+     */
+    public static DatasetField copyDatasetField(DatasetField originalDsf){
         DatasetField dsf = new DatasetField();
         dsf.setDatasetFieldType(originalDsf.getDatasetFieldType());
         dsf.setControlledVocabularyValues(originalDsf.getControlledVocabularyValues());
+        dsf.setFieldValue(originalDsf.getFieldValue().getOrNull());
 
         for (DatasetField dsfChildren : originalDsf.getDatasetFieldsChildren()) {
-            dsf.getDatasetFieldsChildren().add(copyDatasetFieldToBank(dsfChildren, dsf));
-        }
-
-        return dsf;
-    }
-
-    public static DatasetField copyDatasetFieldToBank(DatasetField originalDsf, DatasetField parentDsf){
-        DatasetField dsf = new DatasetField();
-        dsf.setDatasetFieldType(originalDsf.getDatasetFieldType());
-        dsf.setControlledVocabularyValues(originalDsf.getControlledVocabularyValues());
-        dsf.setDatasetFieldParent(parentDsf);
-
-        for (DatasetField dsfChildren : originalDsf.getDatasetFieldsChildren()) {
-            dsf.getDatasetFieldsChildren().add(copyDatasetFieldToBank(dsfChildren, dsf));
+            dsf.getDatasetFieldsChildren().add(copyDatasetField(dsfChildren, dsf));
         }
 
         return dsf;
@@ -86,7 +79,7 @@ public class DatasetFieldUtil {
         List<DatasetField> retList = new ArrayList<>();
 
         for (DatasetField sourceDsf : copyFromList) {
-            retList.add(copyDatasetFieldToBank(sourceDsf));
+            retList.add(copyDatasetField(sourceDsf));
         }
 
         return retList;
@@ -123,5 +116,21 @@ public class DatasetFieldUtil {
         }
 
         return new ArrayList<>(datasetFieldsMap.values());
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private static DatasetField copyDatasetField(DatasetField originalDsf, DatasetField parentDsf){
+        DatasetField dsf = new DatasetField();
+        dsf.setDatasetFieldType(originalDsf.getDatasetFieldType());
+        dsf.setControlledVocabularyValues(originalDsf.getControlledVocabularyValues());
+        dsf.setFieldValue(originalDsf.getFieldValue().getOrNull());
+        dsf.setDatasetFieldParent(parentDsf);
+
+        for (DatasetField dsfChildren : originalDsf.getDatasetFieldsChildren()) {
+            dsf.getDatasetFieldsChildren().add(copyDatasetField(dsfChildren, dsf));
+        }
+
+        return dsf;
     }
 }
