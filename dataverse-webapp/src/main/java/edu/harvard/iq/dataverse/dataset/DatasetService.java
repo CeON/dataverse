@@ -26,11 +26,14 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
+import edu.harvard.iq.dataverse.search.index.SolrIndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -51,7 +54,7 @@ public class DatasetService {
     private IngestServiceBean ingestService;
     private SettingsServiceBean settingsService;
     private ProvPopupFragmentBean provPopupFragmentBean;
-    private PermissionServiceBean permissionService;
+    private SolrIndexServiceBean solrIndexService;
 
 
     // -------------------- CONSTRUCTORS --------------------
@@ -64,7 +67,8 @@ public class DatasetService {
     public DatasetService(EjbDataverseEngine commandEngine, UserNotificationService userNotificationService,
                           DatasetDao datasetDao, DataverseSession session, DataverseRequestServiceBean dvRequestService,
                           IngestServiceBean ingestService, SettingsServiceBean settingsService,
-                          ProvPopupFragmentBean provPopupFragmentBean, PermissionServiceBean permissionService) {
+                          ProvPopupFragmentBean provPopupFragmentBean, PermissionServiceBean permissionService,
+                          SolrIndexServiceBean solrIndexService) {
         this.commandEngine = commandEngine;
         this.userNotificationService = userNotificationService;
         this.datasetDao = datasetDao;
@@ -73,7 +77,7 @@ public class DatasetService {
         this.ingestService = ingestService;
         this.settingsService = settingsService;
         this.provPopupFragmentBean = provPopupFragmentBean;
-        this.permissionService = permissionService;
+        this.solrIndexService = solrIndexService;
     }
 
 
@@ -213,7 +217,12 @@ public class DatasetService {
         }
 
         dataset.setEmbargoDate(embargoDate);
-        return datasetDao.merge(dataset);
+        dataset.setLastChangeForExporterTime(Date.from(Instant.now(Clock.systemDefaultZone())));
+        dataset = datasetDao.mergeAndFlush(dataset);
+      
+        solrIndexService.indexPermissionsOnSelfAndChildren(dataset);
+        
+        return dataset;
     }
 
 }

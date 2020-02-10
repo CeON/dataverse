@@ -19,13 +19,7 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.GuestUser;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import edu.harvard.iq.dataverse.search.DvObjectSolrDoc;
-import edu.harvard.iq.dataverse.search.FacetCategory;
 import edu.harvard.iq.dataverse.search.FileView;
-import edu.harvard.iq.dataverse.search.IndexBatchServiceBean;
-import edu.harvard.iq.dataverse.search.IndexResponse;
-import edu.harvard.iq.dataverse.search.IndexServiceBean;
-import edu.harvard.iq.dataverse.search.IndexUtil;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchFilesServiceBean;
@@ -33,12 +27,20 @@ import edu.harvard.iq.dataverse.search.SearchServiceBean;
 import edu.harvard.iq.dataverse.search.SearchUtil;
 import edu.harvard.iq.dataverse.search.SolrField;
 import edu.harvard.iq.dataverse.search.SolrFieldFactory;
-import edu.harvard.iq.dataverse.search.SolrIndexServiceBean;
-import edu.harvard.iq.dataverse.search.SolrQueryResponse;
-import edu.harvard.iq.dataverse.search.SolrSearchResult;
-import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
+import edu.harvard.iq.dataverse.search.index.PermissionsSolrDoc;
+import edu.harvard.iq.dataverse.search.index.PermissionsSolrDocFactory;
+import edu.harvard.iq.dataverse.search.index.IndexBatchServiceBean;
+import edu.harvard.iq.dataverse.search.index.IndexResponse;
+import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
+import edu.harvard.iq.dataverse.search.index.IndexUtil;
+import edu.harvard.iq.dataverse.search.index.SolrIndexServiceBean;
+import edu.harvard.iq.dataverse.search.query.SearchForTypes;
+import edu.harvard.iq.dataverse.search.query.SortBy;
+import edu.harvard.iq.dataverse.search.response.FacetCategory;
+import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
+import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
 import org.apache.solr.client.solrj.SolrServerException;
 
 import javax.ejb.EJB;
@@ -97,6 +99,8 @@ public class Index extends AbstractApiBean {
     SearchFilesServiceBean searchFilesService;
     @EJB
     private SolrFieldFactory solrFieldFactory;
+    @EJB
+    private PermissionsSolrDocFactory solrDocFactory;
 
     public static String contentChanged = "contentChanged";
     public static String contentIndexed = "contentIndexed";
@@ -584,13 +588,13 @@ public class Index extends AbstractApiBean {
 
         String sortField = SearchFields.ID;
         int paginationStart = 0;
-        boolean dataRelatedToMe = false;
         int numResultsPerPage = Integer.MAX_VALUE;
         SolrQueryResponse solrQueryResponse;
         List<Dataverse> dataverses = new ArrayList<>();
         dataverses.add(subtreeScope);
         try {
-            solrQueryResponse = searchService.search(createDataverseRequest(user), dataverses, query, filterQueries, sortField, SortOrder.asc, paginationStart, dataRelatedToMe, numResultsPerPage);
+            solrQueryResponse = searchService.search(createDataverseRequest(user), dataverses, query, SearchForTypes.all(), filterQueries,
+                    sortField, SortOrder.asc, paginationStart, numResultsPerPage);
         } catch (SearchException ex) {
             return error(Response.Status.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage() + ": " + ex.getCause().getLocalizedMessage());
         }
@@ -598,7 +602,7 @@ public class Index extends AbstractApiBean {
         JsonArrayBuilder itemsArrayBuilder = Json.createArrayBuilder();
         List<SolrSearchResult> solrSearchResults = solrQueryResponse.getSolrSearchResults();
         for (SolrSearchResult solrSearchResult : solrSearchResults) {
-            itemsArrayBuilder.add(solrSearchResult.getType() + ":" + solrSearchResult.getNameSort());
+            itemsArrayBuilder.add(solrSearchResult.getType().getSolrValue() + ":" + solrSearchResult.getNameSort());
         }
 
         return ok(itemsArrayBuilder);
@@ -622,21 +626,22 @@ public class Index extends AbstractApiBean {
         if (dvObjectToLookUp == null) {
             return error(Status.BAD_REQUEST, "Could not find DvObject based on id " + dvObjectId);
         }
-        List<DvObjectSolrDoc> solrDocs = SolrIndexService.determineSolrDocs(dvObjectToLookUp);
+        List<PermissionsSolrDoc> solrDocs = solrDocFactory.determinePermissionsDocsOnSelfOnly(dvObjectToLookUp);
 
         JsonObjectBuilder data = Json.createObjectBuilder();
 
         JsonArrayBuilder permissionsData = Json.createArrayBuilder();
 
-        for (DvObjectSolrDoc solrDoc : solrDocs) {
+        for (PermissionsSolrDoc solrDoc : solrDocs) {
             JsonObjectBuilder dataDoc = Json.createObjectBuilder();
             dataDoc.add(SearchFields.ID, solrDoc.getSolrId());
             dataDoc.add(SearchFields.NAME_SORT, solrDoc.getNameOrTitle());
             JsonArrayBuilder perms = Json.createArrayBuilder();
-            for (String perm : solrDoc.getPermissions()) {
+            for (String perm : solrDoc.getPermissions().getPermissions()) {
                 perms.add(perm);
             }
             dataDoc.add(SearchFields.DISCOVERABLE_BY, perms);
+            dataDoc.add(SearchFields.DISCOVERABLE_BY_PUBLIC_FROM, solrDoc.getPermissions().getPublicFrom().toString());
             permissionsData.add(dataDoc);
         }
         data.add("perms", permissionsData);
