@@ -171,20 +171,22 @@
                 <div class="panel panel-default">
                     <div class="panel-heading text-info">
                         <h:outputText
-                                value="#{blockDiff.get(0).oldValue.datasetFieldType.metadataBlock.displayName}"/>
+                                value="#{blockDiff.get(0).fieldType.metadataBlock.displayName}"/>
                     </div>
                     <p:dataTable id="byBlockInner" styleClass="dvnDifferanceTable" var="fieldDiff" value="#{blockDiff}">
                         <p:column styleClass="versionValue">
-                            <h:outputText value="#{fieldDiff.oldValue.datasetFieldType.localeTitle}" />
+                            <h:outputText value="#{fieldDiff.fieldType.localeTitle}" />
                         </p:column>
+                        <ui:repeat value="#{fieldDiff.generatePairs}" var="pairValues">
                         <p:column styleClass="versionDetails">
-                            <h:outputText rendered="#{fieldDiff.oldValue.datasetFieldType.primitive and !(fieldDiff.oldValue.isEmpty())}" value="#{fieldDiff.oldValue.displayValue}" />
-                            <h:outputText rendered="#{!fieldDiff.oldValue.datasetFieldType.primitive and !(fieldDiff.oldValue.isEmpty())}" value="#{fieldDiff.oldValue.compoundDisplayValue}" />
+                            <h:outputText rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}" value="#{pairValues._1.getOrNull.displayValue}" />
+                            <h:outputText rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}" value="#{pairValues._1.getOrNull.compoundDisplayValue}" />
                         </p:column>
                         <p:column styleClass="versionDetails" >
-                            <h:outputText rendered="#{fieldDiff.newValue.datasetFieldType.primitive and !(fieldDiff.newValue.isEmpty())}" value="#{fieldDiff.newValue.displayValue}" />
-                            <h:outputText rendered="#{!fieldDiff.newValue.datasetFieldType.primitive and !(fieldDiff.newValue.isEmpty())}" value="#{fieldDiff.newValue.compoundDisplayValue}" />
+                            <h:outputText rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}" value="#{pairValues._2.getOrNull.displayValue}" />
+                            <h:outputText rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}" value="#{pairValues._2.getOrNull.compoundDisplayValue}" />
                         </p:column>
+                        </ui:repeat>
                     </p:dataTable>
                 </div>
             </ui:repeat>
