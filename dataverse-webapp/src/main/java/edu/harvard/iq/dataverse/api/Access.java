@@ -22,7 +22,6 @@ import edu.harvard.iq.dataverse.dataaccess.DataFileZipper;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataaccess.OptionalAccessService;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
-import edu.harvard.iq.dataverse.datafile.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.datafile.FilePermissionsService;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
@@ -100,6 +99,7 @@ import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 
 /**
@@ -220,6 +220,9 @@ public class Access extends AbstractApiBean {
         try {
             df = findDataFileOrDie(fileId);
         } catch (WrappedResponse ex) {
+            if(ex.getResponse().getStatusInfo().equals(FORBIDDEN)) {
+                throw new ForbiddenException();
+            }
             logger.warning("Access: datafile service could not locate a DataFile object for id " + fileId + "!");
             throw new NotFoundException();
         }

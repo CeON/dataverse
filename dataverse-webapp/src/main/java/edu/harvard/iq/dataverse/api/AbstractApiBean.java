@@ -41,6 +41,7 @@ import edu.harvard.iq.dataverse.persistence.dataverse.link.DatasetLinkingDataver
 import edu.harvard.iq.dataverse.persistence.dataverse.link.DataverseLinkingDataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.GuestUser;
+import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.User;
@@ -71,8 +72,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.StringReader;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -466,12 +469,25 @@ public abstract class AbstractApiBean {
                 if (datafile == null) {
                     throw new WrappedResponse(notFound(BundleUtil.getStringFromBundle("find.datafile.error.datafile.not.found.id", Collections.singletonList(id))));
                 }
+
+                boolean canUserAccessFile = permissionSvc.requestOn(createDataverseRequest(findUserOrDie()), datafile.getOwner()).has(Permission.ViewUnpublishedDataset);
+                if (datafile.getOwner().hasActiveEmbargo() && !canUserAccessFile) {
+                    throw new WrappedResponse(
+                            forbidden(BundleUtil.getStringFromBundle("find.datafile.error.datafile.forbidden.embargo",
+                                    Collections.singletonList(id),
+                                    getEmbargoDateForDisplay(datafile.getOwner().getEmbargoDate().get()))));
+                }
                 return datafile;
             } catch (NumberFormatException nfe) {
                 throw new WrappedResponse(
                         badRequest(BundleUtil.getStringFromBundle("find.datafile.error.datafile.not.found.bad.id", Collections.singletonList(id))));
             }
         }
+    }
+
+    private String getEmbargoDateForDisplay(Date embargoDate) {
+        SimpleDateFormat format = new SimpleDateFormat(settingsSvc.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
+        return embargoDate != null ? format.format(embargoDate) : "";
     }
 
     protected DatasetLinkingDataverse findDatasetLinkingDataverseOrDie(String datasetId, String linkingDataverseId) throws WrappedResponse {
@@ -753,6 +769,7 @@ public abstract class AbstractApiBean {
         r.getHeaders().add("Access-Control-Allow-Origin", "*");
         return r;
     }
+
 }
 
 class LazyRef<T> {
@@ -778,4 +795,5 @@ class LazyRef<T> {
     public T get() {
         return ref.get();
     }
+
 }
