@@ -58,6 +58,8 @@ public final class DatasetVersionDifference {
         //Compare Data
 
         // metadata field difference
+        sortDatasetFields(newVersion.getDatasetFields());
+        sortDatasetFields(originalVersion.getDatasetFields());
 
         Set<DatasetFieldType> originalDatasetFieldTypes = extractDatasetFieldTypes(originalVersion);
         Set<DatasetFieldType> newDatasetFieldTypes = extractDatasetFieldTypes(newVersion);
@@ -75,7 +77,7 @@ public final class DatasetVersionDifference {
         for (DatasetFieldType removedFieldType : SetUtils.difference(originalDatasetFieldTypes, newDatasetFieldTypes)) {
             List<DatasetField> originalDatasetField = extractFieldsWithType(originalVersion.getDatasetFields(),
                                                                             removedFieldType);
-            if (!originalDatasetField.isEmpty()) {
+            if (originalDatasetField.stream().noneMatch(DatasetField::isEmpty)) {
 
                 int valuesCount = originalDatasetField.stream()
                         .mapToInt(this::extractFieldValuesCount)
@@ -91,7 +93,7 @@ public final class DatasetVersionDifference {
 
         for (DatasetFieldType addedFieldType : SetUtils.difference(newDatasetFieldTypes, originalDatasetFieldTypes)) {
             List<DatasetField> newDatasetField = extractFieldsWithType(newVersion.getDatasetFields(), addedFieldType);
-            if (!newDatasetField.isEmpty()) {
+            if (newDatasetField.stream().noneMatch(DatasetField::isEmpty)) {
 
                 int valuesCount = newDatasetField.stream()
                         .mapToInt(this::extractFieldValuesCount)
@@ -149,6 +151,15 @@ public final class DatasetVersionDifference {
         initDatasetFilesDifferencesList();
 
         fileNote = buildFileNote();
+    }
+
+    private void sortDatasetFields(List<DatasetField> fields) {
+        fields.sort(Comparator.comparing(DatasetField::getDatasetFieldType)
+        .thenComparing(DatasetField::getDisplayOrder));
+
+        fields.forEach(datasetField -> datasetField.getDatasetFieldsChildren()
+                .sort(Comparator.comparing(DatasetField::getDatasetFieldType)
+                              .thenComparing(DatasetField::getDisplayOrder)));
     }
 
     // -------------------- GETTERS --------------------
@@ -424,7 +435,9 @@ public final class DatasetVersionDifference {
         MetadataBlock blockToUpdate = dsfo.getDatasetFieldType().getMetadataBlock();
         List<DatasetFieldDiff> blockListDiffToUpdate = extractOrCreateDiffForBlock(blockToUpdate);
 
-        blockListDiffToUpdate.add(new DatasetFieldDiff(Lists.newArrayList(dsfo), Lists.newArrayList(dsfn), dsfo.getDatasetFieldType()));
+        blockListDiffToUpdate.add(new DatasetFieldDiff(Lists.newArrayList(dsfo),
+                                                       Lists.newArrayList(dsfn),
+                                                       dsfo.getDatasetFieldType()));
     }
 
     private void addToSummary(List<DatasetField> dsfo, List<DatasetField> dsfn) {
@@ -508,18 +521,6 @@ public final class DatasetVersionDifference {
         return true;
     }
 
-    private List<String> extractValuesToCompare(DatasetField datasetField) {
-
-        if (datasetField.getDatasetFieldType().isPrimitive()) {
-            return datasetField.getValues();
-        }
-
-        return datasetField.getDatasetFieldsChildren().stream()
-                .sorted(Comparator.comparing(DatasetField::getDatasetFieldType))
-                .map(DatasetField::getDisplayValue)
-                .collect(Collectors.toList());
-    }
-
     private void updateSameFieldTypesSummary(List<DatasetField> originalFields, List<DatasetField> newFields) {
         int totalAdded = 0;
         int totalDeleted = 0;
@@ -564,6 +565,17 @@ public final class DatasetVersionDifference {
             }
             addToSummary(originalFields, newFields);
         }
+    }
+
+    private List<String> extractValuesToCompare(DatasetField datasetField) {
+
+        if (datasetField.getDatasetFieldType().isPrimitive()) {
+            return datasetField.getValues();
+        }
+
+        return datasetField.getDatasetFieldsChildren().stream()
+                .map(DatasetField::getDisplayValue)
+                .collect(Collectors.toList());
     }
 
     private String buildFileNote() {
