@@ -515,6 +515,7 @@ public final class DatasetVersionDifference {
         }
 
         return datasetField.getDatasetFieldsChildren().stream()
+                .sorted(Comparator.comparing(DatasetField::getDatasetFieldType))
                 .map(DatasetField::getDisplayValue)
                 .collect(Collectors.toList());
     }
