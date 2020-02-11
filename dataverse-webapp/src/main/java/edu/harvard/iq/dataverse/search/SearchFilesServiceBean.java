@@ -4,6 +4,10 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.User;
+import edu.harvard.iq.dataverse.search.query.SearchForTypes;
+import edu.harvard.iq.dataverse.search.query.SearchObjectType;
+import edu.harvard.iq.dataverse.search.query.SortBy;
+import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -24,7 +28,6 @@ public class SearchFilesServiceBean {
     public FileView getFileView(DatasetVersion datasetVersion, User user, String userSuppliedQuery) {
         Dataverse dataverse = null;
         List<String> filterQueries = new ArrayList<>();
-        filterQueries.add(SearchFields.TYPE + ":" + SearchConstants.FILES);
         filterQueries.add(SearchFields.PARENT_ID + ":" + datasetVersion.getDataset().getId());
         /**
          * @todo In order to support searching for files based on dataset
@@ -36,15 +39,15 @@ public class SearchFilesServiceBean {
         String finalQuery = SearchUtil.determineFinalQuery(userSuppliedQuery);
         SortBy sortBy = getSortBy(finalQuery);
         int paginationStart = 0;
-        boolean onlyDataRelatedToMe = false;
         int numResultsPerPage = 25;
         SolrQueryResponse solrQueryResponse = null;
         List<Dataverse> dataverses = new ArrayList<>();
         dataverses.add(dataverse);
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-            solrQueryResponse = searchService.search(new DataverseRequest(user, httpServletRequest), dataverses, finalQuery, filterQueries,
-                    sortBy.getField(), sortBy.getOrder(), paginationStart, onlyDataRelatedToMe, numResultsPerPage);
+            solrQueryResponse = searchService.search(new DataverseRequest(user, httpServletRequest), dataverses, finalQuery, 
+                    SearchForTypes.byTypes(SearchObjectType.FILES), filterQueries,
+                    sortBy.getField(), sortBy.getOrder(), paginationStart, numResultsPerPage);
         } catch (SearchException ex) {
             logger.info(SearchException.class + " searching for files: " + ex);
             return null;
