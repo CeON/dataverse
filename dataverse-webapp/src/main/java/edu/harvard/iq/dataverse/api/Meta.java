@@ -9,13 +9,19 @@ package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
 
 import javax.ejb.EJB;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -64,15 +70,25 @@ public class Meta {
     DataFileServiceBean datafileService;
 
     @EJB
+    private VariableServiceBean dataVariableService;
+
+    @EJB
+    PermissionServiceBean permissionService;
+
+    @EJB
     DatasetDao datasetDao;
+
 
     @Deprecated
     @Path("variable/{varId}")
     @GET
     @Produces({"application/xml"})
-
     public String variable(@PathParam("varId") Long varId, @QueryParam("exclude") String exclude, @QueryParam("include") String include, @Context HttpHeaders header, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         String retValue = "";
+
+        if(isRestrictedByEmbargo(varId)) {
+            throw new ForbiddenException();
+        }
 
         ByteArrayOutputStream outStream = null;
         try {
@@ -115,6 +131,10 @@ public class Meta {
             throw new NotFoundException();
         }
 
+        if(isRestrictedByEmbargo(dataFile.getOwner())) {
+            throw new ForbiddenException();
+        }
+
         String fileName = dataFile.getFileMetadata().getLabel().replaceAll("\\.tab$", "-ddi.xml");
         response.setHeader("Content-disposition", "attachment; filename=\"" + fileName + "\"");
         response.setHeader("Content-Type", "application/xml; name=\"" + fileName + "\"");
@@ -154,6 +174,10 @@ public class Meta {
             throw new NotFoundException();
         }
 
+        if(isRestrictedByEmbargo(datasetId)) {
+            throw new ForbiddenException();
+        }
+
         String retValue = "";
 
         ByteArrayOutputStream outStream = null;
@@ -179,4 +203,16 @@ public class Meta {
         return retValue;
     }
 
+    private boolean isRestrictedByEmbargo(Dataset ds) {
+        return ds.hasActiveEmbargo() && !permissionService.on(ds).has(Permission.ViewUnpublishedDataset);
+    }
+
+    private boolean isRestrictedByEmbargo(Long dataVariableId) {
+        DataVariable dataVariable = dataVariableService.find(dataVariableId);
+        if(dataVariable == null) {
+            throw new BadRequestException("There is no data variable with id: " + dataVariableId);
+        }
+        Dataset dataFileOwner = dataVariable.getDataTable().getDataFile().getOwner();
+        return isRestrictedByEmbargo(dataFileOwner);
+    }
 }
