@@ -55,15 +55,6 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
             return false;
         }
 
-        if (value.getTemplate() != null) {
-            return true;
-        }
-
-        if (value.getDatasetFieldParent().isDefined()
-                && value.getDatasetFieldParent().get().getTemplate() != null) {
-            return true;
-        }
-
         if (StringUtils.isBlank(value.getValue()) || StringUtils.equals(value.getValue(), DatasetField.NA_VALUE)) {
             return true;
         }
@@ -197,10 +188,6 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
         }
 
         if (fieldType.equals(FieldType.EMAIL)) {
-            if (dsfType.isRequiredInDataverse() && value.getValue() == null) { // FIXME isRequiredInDataverse is transient (will not work in api)
-                return false;
-            }
-
             return EMailValidator.isEmailValid(value.getValue(), context);
 
         }
