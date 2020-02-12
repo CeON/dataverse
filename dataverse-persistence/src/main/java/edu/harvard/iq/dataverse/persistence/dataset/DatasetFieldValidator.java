@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.persistence.dataset;
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
+import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
@@ -14,8 +16,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 /**
@@ -39,8 +44,7 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
         if (isTemplateDatasetField(value)) {
             return true;
         }
-        if (((dsfType.isPrimitive() && dsfType.isRequired()) || (dsfType.isPrimitive() && value.isRequired()))
-                && StringUtils.isBlank(value.getValue())) {
+        if (StringUtils.isBlank(value.getValue()) && dsfType.isPrimitive() && isRequiredInDataverse(value)) {
             try {
                 context.buildConstraintViolationWithTemplate(dsfType.getDisplayName() + " " + BundleUtil.getStringFromBundle(
                         "isrequired")).addConstraintViolation();
@@ -193,7 +197,7 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
         }
 
         if (fieldType.equals(FieldType.EMAIL)) {
-            if (value.isRequired() && value.getValue() == null) {
+            if (dsfType.isRequiredInDataverse() && value.getValue() == null) { // FIXME isRequiredInDataverse is transient (will not work in api)
                 return false;
             }
 
@@ -204,9 +208,13 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
     }
 
     private boolean isTemplateDatasetField(DatasetField dsf) {
+        return getTopParentDatasetField(dsf).getTemplate() != null;
+    }
+
+    private DatasetField getTopParentDatasetField(DatasetField dsf) {
         return dsf.getDatasetFieldParent()
-                .map(this::isTemplateDatasetField)
-                .getOrElse(() -> dsf.getTemplate() != null);
+                .map(this::getTopParentDatasetField)
+                .getOrElse(dsf);
     }
 
     private boolean isValidDate(String dateString, String pattern) {
@@ -237,5 +245,29 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
 
     public boolean isValidAuthorIdentifier(String userInput, Pattern pattern) {
         return pattern.matcher(userInput).matches();
+    }
+    
+    private boolean isRequiredInDataverse(DatasetField field) {
+      
+      DatasetFieldType fieldType = field.getDatasetFieldType();
+      if (fieldType.isRequired()) {
+          return true;
+      }
+      
+      Dataverse dv = getDataverse(field).getMetadataBlockRootDataverse();
+      
+      return dv.getDataverseFieldTypeInputLevels()
+              .stream()
+              .filter(inputLevel -> inputLevel.getDatasetFieldType().equals(field.getDatasetFieldType()))
+              .map(inputLevel -> inputLevel.isRequired())
+              .findFirst()
+              .orElse(false);
+    }
+
+    private Dataverse getDataverse(DatasetField field) {
+        return getTopParentDatasetField(field)
+                .getDatasetVersion()
+                .getDataset()
+                .getOwner();
     }
 }
