@@ -485,7 +485,9 @@ public class SettingsServiceBean {
 
         /**
          * Email of mail overseer: if present, a copy of every mail sent by the application
-         * will be sent to that address
+         * will be sent to that address.
+         *
+         * By default it is not set, so the feature is turned off.
          */
         MailOverseerAddress
         ;
