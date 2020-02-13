@@ -223,23 +223,21 @@
                                 <h:outputText value="#{fieldDiff.fieldType.localeTitle}"/>
                             </p:column>
                             <p:column styleClass="versionDetails">
-                                <ui:repeat value="#{fieldDiff.generatePairs()}" var="valuepair1">
                                     <h:outputText
                                             rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}"
-                                            value="#{valuepair1._1().getOrNull().getDisplayValue()}"/>
+                                            value="#{fieldDiff.generatePairs()._1()}"/>
                                     <h:outputText
                                             rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}"
-                                            value="#{valuepair1._1().getOrNull().compoundDisplayValue}"/>
-                                </ui:repeat>
+                                            value="#{fieldDiff.generatePairs()._1()}"/>
                             </p:column>
                             <p:column styleClass="versionDetails">
                                 <ui:repeat value="#{fieldDiff.generatePairs()}" var="valuepair2">
                                     <h:outputText
                                             rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}"
-                                            value="#{valuepair2._2().getOrNull().getDisplayValue()}"/>
+                                            value="#{fieldDiff.generatePairs()._2()}"/>
                                     <h:outputText
                                             rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}"
-                                            value="#{valuepair2._2().getOrNull().compoundDisplayValue}"/>
+                                            value="#{fieldDiff.generatePairs()._2()}"/>
                                 </ui:repeat>
                             </p:column>
 
