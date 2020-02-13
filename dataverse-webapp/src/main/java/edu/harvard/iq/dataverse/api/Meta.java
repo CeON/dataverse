@@ -13,14 +13,12 @@ import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -73,7 +71,10 @@ public class Meta {
     private VariableServiceBean dataVariableService;
 
     @EJB
-    PermissionServiceBean permissionService;
+    private PermissionServiceBean permissionService;
+
+    @Inject
+    private AccessService accessService;
 
     @EJB
     DatasetDao datasetDao;
@@ -86,7 +87,7 @@ public class Meta {
     public String variable(@PathParam("varId") Long varId, @QueryParam("exclude") String exclude, @QueryParam("include") String include, @Context HttpHeaders header, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         String retValue = "";
 
-        if(isRestrictedByEmbargo(varId)) {
+        if(accessService.isRestrictedByEmbargo(varId)) {
             throw new ForbiddenException();
         }
 
@@ -131,7 +132,7 @@ public class Meta {
             throw new NotFoundException();
         }
 
-        if(isRestrictedByEmbargo(dataFile.getOwner())) {
+        if(accessService.isRestrictedByEmbargo(dataFile.getOwner())) {
             throw new ForbiddenException();
         }
 
@@ -174,7 +175,7 @@ public class Meta {
             throw new NotFoundException();
         }
 
-        if(isRestrictedByEmbargo(datasetId)) {
+        if(accessService.isRestrictedByEmbargo(datasetId)) {
             throw new ForbiddenException();
         }
 
@@ -201,18 +202,5 @@ public class Meta {
         response.setHeader("Access-Control-Allow-Origin", "*");
 
         return retValue;
-    }
-
-    private boolean isRestrictedByEmbargo(Dataset ds) {
-        return ds.hasActiveEmbargo() && !permissionService.on(ds).has(Permission.ViewUnpublishedDataset);
-    }
-
-    private boolean isRestrictedByEmbargo(Long dataVariableId) {
-        DataVariable dataVariable = dataVariableService.find(dataVariableId);
-        if(dataVariable == null) {
-            throw new BadRequestException("There is no data variable with id: " + dataVariableId);
-        }
-        Dataset dataFileOwner = dataVariable.getDataTable().getDataFile().getOwner();
-        return isRestrictedByEmbargo(dataFileOwner);
     }
 }

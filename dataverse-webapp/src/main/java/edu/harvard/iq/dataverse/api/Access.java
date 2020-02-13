@@ -6,6 +6,7 @@
 
 package edu.harvard.iq.dataverse.api;
 
+import com.amazonaws.services.glacier.model.MissingParameterValueException;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
@@ -89,12 +90,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -148,6 +147,8 @@ public class Access extends AbstractApiBean {
     PermissionsWrapper permissionsWrapper;
     @EJB
     private FilePermissionsService filePermissionsService;
+    @Inject
+    private AccessService accessService;
 
 
     private static final String API_KEY_HEADER = "X-Dataverse-key";
@@ -175,7 +176,7 @@ public class Access extends AbstractApiBean {
 
         if (gbrecs == null && df.isReleased()) {
             // Write Guestbook record if not done previously and file is released
-            User apiTokenUser = getApiTokenUser(apiToken).orElse(null);
+            User apiTokenUser = accessService.getApiTokenUser(apiToken).orElse(null);
             gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, apiTokenUser);
             guestbookResponseService.save(gbr);
         }
@@ -249,7 +250,7 @@ public class Access extends AbstractApiBean {
 
         if (gbrecs == null && df.isReleased()) {
             // Write Guestbook record if not done previously and file is released
-            User apiTokenUser = getApiTokenUser(apiToken).orElse(null);
+            User apiTokenUser = accessService.getApiTokenUser(apiToken).orElse(null);
             gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, apiTokenUser);
         }
 
@@ -379,7 +380,7 @@ public class Access extends AbstractApiBean {
             throw new BadRequestException("tabular data required");
         }
 
-        if(isRestrictedByEmbargo(dataFile.getOwner())) {
+        if(accessService.isRestrictedByEmbargo(dataFile.getOwner())) {
             throw new ForbiddenException();
         }
 
@@ -419,7 +420,7 @@ public class Access extends AbstractApiBean {
     public String dataVariableMetadataDDI(@PathParam("varId") Long varId, @QueryParam("exclude") String exclude, @QueryParam("include") String include, @Context HttpHeaders header, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         String retValue = "";
 
-        if(isRestrictedByEmbargo(varId)) {
+        if(accessService.isRestrictedByEmbargo(varId)) {
             throw new ForbiddenException();
         }
 
@@ -512,7 +513,7 @@ public class Access extends AbstractApiBean {
                 ? headers.getHeaderString(API_KEY_HEADER)
                 : apiTokenParam;
 
-        User apiTokenUser = getApiTokenUser(apiToken).orElse(null); //for use in adding gb records if necessary
+        User apiTokenUser = accessService.getApiTokenUser(apiToken).orElse(null); //for use in adding gb records if necessary
 
         Boolean getOrig = false;
         for (String key : uriInfo.getQueryParameters().keySet()) {
@@ -607,13 +608,15 @@ public class Access extends AbstractApiBean {
 
                                         zipper.addToManifest(fileName + " (" + mimeType + ") " + " skipped because the total size of the download bundle exceeded the limit of " + zipDownloadSizeLimit + " bytes.\r\n");
                                     }
-                                } else if (isRestrictedByEmbargo(file.getOwner())) {
+                                } else if (accessService.isRestrictedByEmbargo(file.getOwner())) {
                                     if (zipper == null) {
                                         fileManifest = fileManifest + "File with id=" + file.getId() +
-                                                " IS EMBARGOED UNTILL "+ file.getOwner().getEmbargoDate().get().toInstant().atOffset(ZoneOffset.UTC) + "\r\n";
+                                                " IS EMBARGOED UNTILL "+ file.getOwner().getEmbargoDate().getOrElseThrow(() ->
+                                                new MissingParameterValueException("[Couldn't retrive embargo date]")).toInstant() + "\r\n";
                                     } else {
                                         zipper.addToManifest("File with id=" + file.getId() +
-                                                " IS EMBARGOED UNTILL + "+ file.getOwner().getEmbargoDate().get().toInstant().atOffset(ZoneOffset.UTC) + "\r\n");
+                                                " IS EMBARGOED UNTILL "+ file.getOwner().getEmbargoDate().getOrElseThrow(() ->
+                                                new MissingParameterValueException("[Couldn't retrive embargo date]")).toInstant() + "\r\n");
                                     }
                                 } else if (file.getFileMetadata().getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
                                     if (zipper == null) {
@@ -685,7 +688,7 @@ public class Access extends AbstractApiBean {
             return null;
         }
 
-        if(isRestrictedByEmbargo(df.getOwner())) {
+        if(accessService.isRestrictedByEmbargo(df.getOwner())) {
             logger.warning("Preview: datafile id[" + fileId + "] is restricted by embargo");
             return null;
         }
@@ -1297,7 +1300,7 @@ public class Access extends AbstractApiBean {
 
         boolean published = false;
 
-        if(isRestrictedByEmbargo(df.getOwner(), apiToken)) {
+        if(accessService.isRestrictedByEmbargo(df.getOwner(), apiToken)) {
             return false;
         }
 
@@ -1564,39 +1567,5 @@ public class Access extends AbstractApiBean {
         return false;
     }
 
-    private boolean isRestrictedByEmbargo(Dataset ds) {
-        return ds.hasActiveEmbargo() && !permissionService.on(ds).has(Permission.ViewUnpublishedDataset);
-    }
 
-    private boolean isRestrictedByEmbargo(Dataset ds, String apiToken) {
-        Optional<User> apiTokenUser = getApiTokenUser(apiToken);
-        if(!apiTokenUser.isPresent()) {
-            return ds.hasActiveEmbargo() && !permissionService.on(ds).has(Permission.ViewUnpublishedDataset);
-        }
-        return apiTokenUser.map(user -> ds.hasActiveEmbargo() &&
-                    !permissionService.requestOn(createDataverseRequest(user), ds).has(Permission.ViewUnpublishedDataset))
-                .orElse(false);
-    }
-
-    private boolean isRestrictedByEmbargo(Long dataVariableId) {
-        DataVariable dataVariable = findDataVariable(dataVariableId);
-        if(dataVariable == null) {
-            throw new BadRequestException("There is no data variable with id: " + dataVariableId);
-        }
-        Dataset dataFileOwner = dataVariable.getDataTable().getDataFile().getOwner();
-        return isRestrictedByEmbargo(dataFileOwner);
-    }
-
-    private Optional<User> getApiTokenUser(String apiToken) {
-        User apiTokenUser = null;
-        if ((apiToken != null) && (apiToken.length() != 64)) {
-            try {
-                apiTokenUser = findUserOrDie();
-            } catch (WrappedResponse wr) {
-                logger.log(Level.FINE, "Message from findUserOrDie(): {0}", wr.getMessage());
-                return Optional.empty();
-            }
-        }
-        return Optional.ofNullable(apiTokenUser);
-    }
 }
