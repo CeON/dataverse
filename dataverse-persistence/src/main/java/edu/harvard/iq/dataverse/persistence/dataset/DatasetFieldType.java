@@ -115,14 +115,14 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     private Map<String, ControlledVocabularyValue> controlledVocabularyValuesByStrValue;
 
     @Transient
-    private boolean requiredDV;
+    private boolean requiredInDataverse;
 
-    public void setRequiredDV(boolean requiredDV) {
-        this.requiredDV = requiredDV;
+    public void setRequiredInDataverse(boolean requiredInDataverse) {
+        this.requiredInDataverse = requiredInDataverse;
     }
 
-    public boolean isRequiredDV() {
-        return this.requiredDV;
+    public boolean isRequiredInDataverse() {
+        return this.requiredInDataverse;
     }
 
     @Transient

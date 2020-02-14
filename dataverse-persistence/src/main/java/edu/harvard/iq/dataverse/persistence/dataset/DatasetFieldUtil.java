@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import io.vavr.Tuple2;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -11,8 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.Map.Entry;
-import static java.util.stream.Collectors.*;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Utility class with common operations on dataset fields
@@ -123,6 +124,14 @@ public class DatasetFieldUtil {
             .forEach(typeAndFields -> fieldsByTypes.add(new DatasetFieldsByType(typeAndFields.getKey(), typeAndFields.getValue())));
         
         return fieldsByTypes;
+    }
+    
+    public static List<DatasetField> flattenDatasetFieldsFromBlocks(Map<MetadataBlock, List<DatasetFieldsByType>> fieldsByBlocksAndTypes) {
+        
+        return fieldsByBlocksAndTypes.entrySet().stream()
+            .flatMap(blockAndFieldsByType -> blockAndFieldsByType.getValue().stream())
+            .flatMap(fieldsByType -> fieldsByType.getDatasetFields().stream())
+            .collect(toList());
     }
     
     /**

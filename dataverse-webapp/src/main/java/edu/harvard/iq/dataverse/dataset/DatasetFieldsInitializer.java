@@ -5,12 +5,14 @@ import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import org.apache.commons.collections4.SetUtils;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,7 +47,7 @@ public class DatasetFieldsInitializer {
      * for metadata view. Preparing consists of following steps:
      * <ul>
      * <li>Filter empty fields</li>
-     * <li>Sort fields by {@link DatasetFieldType#getDisplayOrder()}</li>
+     * <li>Sort fields by {@link DatasetField#getDisplayOrder()} and {@link DatasetFieldType#getDisplayOrder()}</li>
      * </ul>
      *
      * @param datasetFields - initial dataset fields
@@ -64,8 +66,7 @@ public class DatasetFieldsInitializer {
      * <ul>
      * <li>Create blank fields if they are not present in current fields</li>
      * <li>Filter empty fields from metadata blocks not defined by dataverse</li>
-     * <li>Sort fields by {@link DatasetFieldType#getDisplayOrder()}</li>
-     * <li>Setting {@link DatasetField#isInclude()} flag</li>
+     * <li>Sort fields by {@link DatasetField#getDisplayOrder()} and {@link DatasetFieldType#getDisplayOrder()}</li>
      * </ul>
      *
      * @param datasetFields           - initial dataset fields
@@ -81,24 +82,68 @@ public class DatasetFieldsInitializer {
 
         newDatasetFields = sortDatasetFieldsRecursively(newDatasetFields);
 
-        updateDatasetFieldIncludeFlag(newDatasetFields, metadataBlocksDataverse);
-
         return newDatasetFields;
     }
 
     /**
      * Groups dataset fields with the same metadata block and
-     * updates {@link MetadataBlock#isEmpty()} and {@link MetadataBlock#isHasRequired()}
-     * flags.
+     * updates {@link MetadataBlock#isEmpty()}, {@link MetadataBlock#isHasRequired()}
+     * {@link DatasetFieldsByType#isInclude()} and {@link DatasetFieldType#isRequiredInDataverse()} flags.
      *
      * @param datasetFields - fields to group
      * @return grouped dataset fields
      */
-    public Map<MetadataBlock, List<DatasetField>> groupAndUpdateEmptyAndRequiredFlag(List<DatasetField> datasetFields) {
-        Map<MetadataBlock, List<DatasetField>> metadataBlocks = DatasetFieldUtil.groupByBlock(datasetFields);
+    public Map<MetadataBlock, List<DatasetFieldsByType>> groupAndUpdateFlagsForEdit(List<DatasetField> datasetFields, Dataverse metadataBlocksDataverse) {
+        updateRequiredFlag(datasetFields, metadataBlocksDataverse);
+
+        Map<MetadataBlock, List<DatasetFieldsByType>> metadataBlocks = DatasetFieldUtil.groupByBlockAndType(datasetFields);
+
+        updateDatasetFieldIncludeFlag(metadataBlocks, metadataBlocksDataverse);
         updateEmptyAndHasRequiredFlag(metadataBlocks);
 
         return metadataBlocks;
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private void updateRequiredFlag(List<DatasetField> datasetFields, Dataverse metadataBlocksDataverse) {
+        
+        List<DatasetFieldType> allFieldTypes = datasetFields.stream()
+                .map(DatasetField::getDatasetFieldType)
+                .collect(Collectors.toList());
+        
+        datasetFields.stream()
+            .flatMap(field -> field.getDatasetFieldsChildren().stream())
+            .map(DatasetField::getDatasetFieldType)
+            .forEach(allFieldTypes::add);
+        
+        Set<DatasetFieldType> requiredFieldTypesOnInputLevel = metadataBlocksDataverse.getDataverseFieldTypeInputLevels()
+                .stream()
+                .filter(inputLevel -> inputLevel.isRequired())
+                .map(inputLevel -> inputLevel.getDatasetFieldType())
+                .collect(Collectors.toSet());
+        
+        for (DatasetFieldType fieldType: allFieldTypes) {
+            fieldType.setRequiredInDataverse(isFieldTypeRequiredInDataverse(fieldType, requiredFieldTypesOnInputLevel));
+        }
+    }
+
+    private boolean isFieldTypeRequiredInDataverse(DatasetFieldType fieldType, Set<DatasetFieldType> requiredFieldTypesOnInputLevel) {
+        
+        if (fieldType.isRequired() || fieldType.isHasRequiredChildren()) {
+            return true;
+        }
+        
+        if (!fieldType.isHasChildren() && requiredFieldTypesOnInputLevel.contains(fieldType)) {
+            return true;
+        }
+        for (DatasetFieldType child : fieldType.getChildDatasetFieldTypes()) {
+            if (requiredFieldTypesOnInputLevel.contains(child)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /***
@@ -106,14 +151,15 @@ public class DatasetFieldsInitializer {
      * Note: Updated to retrieve DataverseFieldTypeInputLevel objects in single query
      *
      */
-    public List<DatasetField> updateDatasetFieldIncludeFlag(List<DatasetField> datasetFields, Dataverse metadataBlocksDataverse) {
+    private void updateDatasetFieldIncludeFlag(Map<MetadataBlock, List<DatasetFieldsByType>> metadataBlocks, Dataverse metadataBlocksDataverse) {
 
-        List<DatasetField> flatDatasetFields = DatasetFieldUtil.getFlatDatasetFields(datasetFields);
-        List<Long> datasetFieldTypeIds = new ArrayList<>();
-
-        for (DatasetField dsf : flatDatasetFields) {
-            datasetFieldTypeIds.add(dsf.getDatasetFieldType().getId());
-        }
+        List<DatasetFieldsByType> allFieldsByType = metadataBlocks.entrySet().stream()
+                .flatMap(blockAndFieldsByType -> blockAndFieldsByType.getValue().stream())
+                .collect(Collectors.toList());
+        
+        List<Long> datasetFieldTypeIds = allFieldsByType.stream()
+                .map(fieldsByType -> fieldsByType.getDatasetFieldType().getId())
+                .collect(Collectors.toList());
 
         List<Long> fieldTypeIdsToHide = dataverseFieldTypeInputLevelService
                 .findByDataverseIdAndDatasetFieldTypeIdList(metadataBlocksDataverse.getId(),
@@ -121,19 +167,14 @@ public class DatasetFieldsInitializer {
                 .filter(inputLevel -> !inputLevel.isInclude())
                 .map(inputLevel -> inputLevel.getDatasetFieldType().getId())
                 .collect(Collectors.toList());
-
-
-        for (DatasetField dsf : flatDatasetFields) {
-            dsf.setInclude(true);
-            if (fieldTypeIdsToHide.contains(dsf.getDatasetFieldType().getId())) {
-                dsf.setInclude(false);
+        
+        for (DatasetFieldsByType fieldsByType : allFieldsByType) {
+            fieldsByType.setInclude(true);
+            if (fieldTypeIdsToHide.contains(fieldsByType.getDatasetFieldType().getId())) {
+                fieldsByType.setInclude(false);
             }
         }
-
-        return flatDatasetFields;
     }
-
-    // -------------------- PRIVATE --------------------
 
     // TODO: clean up init methods and get them to work, cascading all the way down.
     // right now, only work for one level of compound objects
@@ -236,18 +277,18 @@ public class DatasetFieldsInitializer {
         return newDatasetFields;
     }
 
-    private void updateEmptyAndHasRequiredFlag(Map<MetadataBlock, List<DatasetField>> metadataBlocksForEdit) {
-        for (MetadataBlock mdb : metadataBlocksForEdit.keySet()) {
-            mdb.setEmpty(allFieldsEmpty(metadataBlocksForEdit.get(mdb)));
-            mdb.setHasRequired(anyFieldsRequired(metadataBlocksForEdit.get(mdb)));
+    private void updateEmptyAndHasRequiredFlag(Map<MetadataBlock, List<DatasetFieldsByType>> metadataBlocks) {
+        for (MetadataBlock mdb : metadataBlocks.keySet()) {
+            mdb.setEmpty(allFieldsEmpty(metadataBlocks.get(mdb)));
+            mdb.setHasRequired(anyFieldsRequired(metadataBlocks.get(mdb)));
         }
     }
 
-    private boolean anyFieldsRequired(List<DatasetField> datasetFields) {
-        return datasetFields.stream().anyMatch(DatasetField::isRequired);
+    private boolean anyFieldsRequired(List<DatasetFieldsByType> list) {
+        return list.stream().anyMatch(fieldsByType -> fieldsByType.getDatasetFieldType().isRequiredInDataverse());
     }
 
-    private boolean allFieldsEmpty(List<DatasetField> datasetFields) {
-        return datasetFields.stream().allMatch(DatasetField::isEmptyForDisplay);
+    private boolean allFieldsEmpty(List<DatasetFieldsByType> list) {
+        return list.stream().allMatch(DatasetFieldsByType::areAllFieldsEmpty);
     }
 }

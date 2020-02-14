@@ -6,11 +6,11 @@ import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,6 +40,7 @@ import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeTitle
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeUnitOfAnalysisFieldType;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -164,7 +165,7 @@ public class DatasetFieldsInitializerTest {
     }
 
     @Test
-    public void groupAndUpdateEmptyAndRequiredFlag() {
+    public void groupAndUpdateFlagsForEdit() {
         // given
         Dataverse dataverse = new Dataverse();
         Dataset dataset = new Dataset();
@@ -191,7 +192,7 @@ public class DatasetFieldsInitializerTest {
 
 
         // when
-        Map<MetadataBlock, List<DatasetField>> retMetadataBlocks = datasetFieldsInitializer.groupAndUpdateEmptyAndRequiredFlag(datasetFields);
+        Map<MetadataBlock, List<DatasetFieldsByType>> retMetadataBlocks = datasetFieldsInitializer.groupAndUpdateFlagsForEdit(datasetFields, dataverse);
 
         // then
         assertEquals(3, retMetadataBlocks.size());
@@ -211,7 +212,7 @@ public class DatasetFieldsInitializerTest {
     }
 
     @Test
-    public void updateDatasetFieldIncludeFlag() {
+    public void groupAndUpdateFlagsForEdit__check_include_flag() {
         //given
         Dataverse dataverse = new Dataverse();
         Dataset dataset = new Dataset();
@@ -224,16 +225,22 @@ public class DatasetFieldsInitializerTest {
                 .thenReturn(prepareHiddenFields(Lists.newArrayList(titleField.get())));
 
         //when
-        List<DatasetField> updatedDsf = datasetFieldsInitializer.updateDatasetFieldIncludeFlag(datasetFields, dataverse);
+        Map<MetadataBlock, List<DatasetFieldsByType>> updatedDsf = datasetFieldsInitializer.groupAndUpdateFlagsForEdit(datasetFields, dataverse);
 
-        Optional<DatasetField> titleDsf = updatedDsf.stream()
-                .filter(datasetField -> datasetField.getDatasetFieldType().getName().equals("title"))
+        Optional<DatasetFieldsByType> titleFields = updatedDsf.values().stream()
+                .flatMap(fieldsByTypes -> fieldsByTypes.stream())
+                .filter(fieldByType -> fieldByType.getDatasetFieldType().getName().equals("title"))
                 .findAny();
 
         //then
-        Assert.assertEquals(3, updatedDsf.stream().filter(DatasetField::isInclude).count());
-        Assert.assertTrue(titleDsf.isPresent());
-        Assert.assertFalse(titleDsf.get().isInclude());
+        
+        assertAll(
+                () -> assertEquals(1, updatedDsf.values().stream()
+                            .flatMap(fieldsByTypes -> fieldsByTypes.stream())
+                            .filter(DatasetFieldsByType::isInclude).count()),
+                
+                () -> assertTrue(titleFields.isPresent()),
+                () -> assertFalse(titleFields.get().isInclude()));
     }
 
     // -------------------- PRIVATE --------------------
