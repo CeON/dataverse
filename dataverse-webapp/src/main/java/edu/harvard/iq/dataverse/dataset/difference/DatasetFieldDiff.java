@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
@@ -26,7 +27,12 @@ public class DatasetFieldDiff extends MultipleItemDiff<DatasetField> {
         this.fieldType = fieldType;
     }
 
-    // -------------------- GETTERS --------------------
+    public DatasetFieldDiff(DatasetField oldValue, DatasetField newValue, DatasetFieldType fieldType) {
+        super(Lists.newArrayList(oldValue), Lists.newArrayList(newValue));
+        this.fieldType = fieldType;
+    }
+
+// -------------------- GETTERS --------------------
 
     public DatasetFieldType getFieldType() {
         return fieldType;
