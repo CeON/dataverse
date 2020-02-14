@@ -25,12 +25,12 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
 import org.apache.commons.lang3.StringUtils;
-import javax.faces.view.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.ConstraintViolation;
@@ -152,7 +152,7 @@ public class CreateDatasetPage implements Serializable {
     }
 
     public String save() {
-        applyDatasetFieldsFromMetadataBlocks();
+        workingVersion.setDatasetFields(DatasetFieldUtil.flattenDatasetFieldsFromBlocks(metadataBlocksForEdit));
 
         Set<ConstraintViolation> constraintViolations = workingVersion.validate();
         if (!constraintViolations.isEmpty()) {
@@ -218,17 +218,6 @@ public class CreateDatasetPage implements Serializable {
 
             file.getFileMetadata().setTermsOfUse(termsOfUse);
         }
-    }
-
-    private void applyDatasetFieldsFromMetadataBlocks() {
-        List<DatasetField> datasetFields = new ArrayList<>();
-        
-        metadataBlocksForEdit.entrySet().stream()
-            .flatMap(blockAndFieldsByType -> blockAndFieldsByType.getValue().stream())
-            .flatMap(fieldsByType -> fieldsByType.getDatasetFields().stream())
-            .forEach(datasetFields::add);
-        
-        workingVersion.setDatasetFields(datasetFields);
     }
 
     private void handleSuccessOrPartialSuccessMessages(int filesToSaveCount, AddFilesResult addFilesResult) {

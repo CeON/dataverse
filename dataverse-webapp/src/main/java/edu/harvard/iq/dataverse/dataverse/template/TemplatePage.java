@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataset.DatasetFieldsInitializer;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
@@ -16,14 +17,13 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
-import javax.faces.view.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -168,7 +168,7 @@ public class TemplatePage implements java.io.Serializable {
 
     public String save() {
 
-        applyDatasetFieldsFromMetadataBlocks();
+        template.setDatasetFields(DatasetFieldUtil.flattenDatasetFieldsFromBlocks(mdbForEdit));
 
         Try<Template> templateOperation;
 
@@ -205,17 +205,6 @@ public class TemplatePage implements java.io.Serializable {
 
     private boolean isCreatingTemplate() {
         return ownerId != null;
-    }
-    
-    private void applyDatasetFieldsFromMetadataBlocks() {
-        List<DatasetField> datasetFields = new ArrayList<>();
-        
-        mdbForEdit.entrySet().stream()
-            .flatMap(blockAndFieldsByType -> blockAndFieldsByType.getValue().stream())
-            .flatMap(fieldsByType -> fieldsByType.getDatasetFields().stream())
-            .forEach(datasetFields::add);
-        
-        template.setDatasetFields(datasetFields);
     }
 
 }

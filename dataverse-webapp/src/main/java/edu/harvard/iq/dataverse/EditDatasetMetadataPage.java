@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
@@ -22,7 +23,6 @@ import javax.inject.Named;
 import javax.validation.ValidationException;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -115,7 +115,7 @@ public class EditDatasetMetadataPage implements Serializable {
     }
 
     public String save() {
-        applyDatasetFieldsFromMetadataBlocks();
+        workingVersion.setDatasetFields(DatasetFieldUtil.flattenDatasetFieldsFromBlocks(metadataBlocksForEdit));
         
         Try<Dataset> updateDataset = Try.of(() -> datasetVersionService.updateDatasetVersion(workingVersion, true))
                 .onFailure(this::handleUpdateDatasetExceptions);
@@ -132,17 +132,6 @@ public class EditDatasetMetadataPage implements Serializable {
     }
 
     // -------------------- PRIVATE --------------------
-
-    private void applyDatasetFieldsFromMetadataBlocks() {
-        List<DatasetField> datasetFields = new ArrayList<>();
-        
-        metadataBlocksForEdit.entrySet().stream()
-            .flatMap(blockAndFieldsByType -> blockAndFieldsByType.getValue().stream())
-            .flatMap(fieldsByType -> fieldsByType.getDatasetFields().stream())
-            .forEach(datasetFields::add);
-        
-        workingVersion.setDatasetFields(datasetFields);
-    }
 
     private String returnToLatestVersion() {
         dataset = datasetDao.find(dataset.getId());

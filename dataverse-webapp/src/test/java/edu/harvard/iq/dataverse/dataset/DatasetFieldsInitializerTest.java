@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,6 +40,7 @@ import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeTitle
 import static edu.harvard.iq.dataverse.persistence.MockMetadataFactory.makeUnitOfAnalysisFieldType;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -233,12 +233,14 @@ public class DatasetFieldsInitializerTest {
                 .findAny();
 
         //then
-        Assert.assertEquals(1, updatedDsf.values().stream()
-                .flatMap(fieldsByTypes -> fieldsByTypes.stream())
-                .filter(DatasetFieldsByType::isInclude).count());
         
-        Assert.assertTrue(titleFields.isPresent());
-        Assert.assertFalse(titleFields.get().isInclude());
+        assertAll(
+                () -> assertEquals(1, updatedDsf.values().stream()
+                            .flatMap(fieldsByTypes -> fieldsByTypes.stream())
+                            .filter(DatasetFieldsByType::isInclude).count()),
+                
+                () -> assertTrue(titleFields.isPresent()),
+                () -> assertFalse(titleFields.get().isInclude()));
     }
 
     // -------------------- PRIVATE --------------------
