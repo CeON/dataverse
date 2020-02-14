@@ -87,7 +87,9 @@ public final class DatasetVersionDifference {
                                    0,
                                    valuesCount,
                                    0);
-                originalDatasetField.forEach(datasetField -> addToSummary(datasetField, null));
+
+                addToSummary(originalDatasetField, Lists.newArrayList(),
+                             originalDatasetField.get(0).getDatasetFieldType());
             }
         }
 
@@ -100,7 +102,8 @@ public final class DatasetVersionDifference {
                         .sum();
 
                 updateBlockSummary(newDatasetField.get(0).getDatasetFieldType().getMetadataBlock(), valuesCount, 0, 0);
-                newDatasetField.forEach(datasetField -> addToSummary(null, datasetField));
+                addToSummary(Lists.newArrayList(), newDatasetField,
+                             newDatasetField.get(0).getDatasetFieldType());
             }
         }
 
@@ -440,12 +443,11 @@ public final class DatasetVersionDifference {
                                                        dsfo.getDatasetFieldType()));
     }
 
-    private void addToSummary(List<DatasetField> dsfo, List<DatasetField> dsfn) {
+    private void addToSummary(List<DatasetField> dsfo, List<DatasetField> dsfn, DatasetFieldType fieldType) {
 
-        MetadataBlock blockToUpdate = dsfo.get(0).getDatasetFieldType().getMetadataBlock();
-        List<DatasetFieldDiff> blockListDiffToUpdate = extractOrCreateDiffForBlock(blockToUpdate);
+        List<DatasetFieldDiff> blockListDiffToUpdate = extractOrCreateDiffForBlock(fieldType.getMetadataBlock());
 
-        blockListDiffToUpdate.add(new DatasetFieldDiff(dsfo, dsfn, dsfo.get(0).getDatasetFieldType()));
+        blockListDiffToUpdate.add(new DatasetFieldDiff(dsfo, dsfn, fieldType));
     }
 
     private List<DatasetFieldDiff> extractOrCreateDiffForBlock(MetadataBlock blockToUpdate) {
@@ -563,7 +565,7 @@ public final class DatasetVersionDifference {
                                    totalDeleted,
                                    totalChanged);
             }
-            addToSummary(originalFields, newFields);
+            addToSummary(originalFields, newFields, datasetFieldType);
         }
     }
 

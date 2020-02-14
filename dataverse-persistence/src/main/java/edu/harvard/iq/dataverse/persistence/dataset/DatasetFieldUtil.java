@@ -59,6 +59,12 @@ public class DatasetFieldUtil {
     public static String joinAllValues(Collection<DatasetField> fields) {
         return fields.stream()
                 .map(DatasetFieldUtil::joinAllValues)
+                .map(joinedValues -> {
+                    if (joinedValues.endsWith("; ")){
+                        return joinedValues.substring(0, joinedValues.length() - 2);
+                    }
+                    return joinedValues;
+                })
                 .collect(joining("; "));
     }
 
