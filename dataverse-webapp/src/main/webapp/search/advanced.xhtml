@@ -34,7 +34,7 @@
                     <!-- Dataverses Block -->
                     <div class="panel panel-default">
                         <div data-toggle="collapse" data-target="#panelCollapseDataversesFieldList"
-                             class="panel-heading">
+                             class="panel-heading" tabindex="0">
                             <h:outputText
                                     value="#{AdvancedSearchPage.dataversesSearchBlock.blockDisplayName}"/> &#160;<span
                                 class="glyphicon glyphicon-chevron-up"/>
@@ -76,7 +76,7 @@
                              jsf:rendered="#{not empty mdb}">
                             <div data-toggle="collapse"
                                  data-target="#panelCollapseCitationFieldList#{status.index}"
-                                 class="panel-heading">
+                                 class="panel-heading" tabindex="0">
                                 <h:outputText
                                         value="#{bundle['advanced.search.header.datasets']}: #{mdb.blockDisplayName}"/> &#160;<span
                                     class="glyphicon #{status.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}"/>

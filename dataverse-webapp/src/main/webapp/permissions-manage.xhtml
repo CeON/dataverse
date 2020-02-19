@@ -29,7 +29,7 @@
                         <p:fragment id="configureSettings">
                             <c:if test="#{managePermissionsPage.dvObject.instanceofDataverse}">
                                 <div class="panel panel-default">
-                                    <div data-toggle="collapse" data-target="#panelCollapsePermissions" class="panel-heading text-info">
+                                    <div data-toggle="collapse" data-target="#panelCollapsePermissions" class="panel-heading text-info" tabindex="0">
                                         #{bundle['dataverse.permissions.title']} <span class="glyphicon glyphicon-chevron-up"/>
                                         
                                         <span class="text-muted small pull-right">#{bundle['dataverse.permissions.description']}</span>
@@ -94,7 +94,7 @@
 
                         <!-- Role Assignments Panel -->
                         <div class="panel panel-default">
-                            <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info">
+                            <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info" tabindex="0">
                                 #{bundle['dataverse.permissions.usersOrGroups']} <span class="glyphicon #{!managePermissionsPage.dvObject.instanceofDataverse ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
                                 
                                 <span class="text-muted small pull-right">#{bundle['dataverse.permissions.usersOrGroups.description']}</span>
@@ -151,7 +151,7 @@
 
                         <!-- Roles Panel -->
                         <div class="panel panel-default">
-                            <div data-toggle="collapse" data-target="#panelCollapseRoles" class="panel-heading text-info">
+                            <div data-toggle="collapse" data-target="#panelCollapseRoles" class="panel-heading text-info" tabindex="0">
                                 #{bundle['dataverse.permissions.roles']} <span class="glyphicon glyphicon-chevron-down"/>
                                 
                                 <span class="text-muted small pull-right">#{bundle['dataverse.permissions.roles.description']}</span>

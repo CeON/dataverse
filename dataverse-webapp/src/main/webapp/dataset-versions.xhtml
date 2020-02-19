@@ -169,7 +169,7 @@
         <ui:fragment rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.detailDataByBlock)}">
             <ui:repeat value="#{datasetVersionsTab.versionsDifferenceForDialog.detailDataByBlock}" var="blockDiff">
                 <div class="panel panel-default">
-                    <div class="panel-heading text-info">
+                    <div class="panel-heading text-info" tabindex="0">
                         <h:outputText
                                 value="#{blockDiff.get(0).oldValue.datasetFieldType.metadataBlock.displayName}"/>
                     </div>
@@ -191,7 +191,7 @@
         </ui:fragment>
             <div class="panel panel-default"
                  jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList)}">
-            <div class="panel-heading text-info">
+            <div class="panel-heading text-info" tabindex="0">
                 <h:outputText id="outputTextAddedRemoved" value="#{bundle['file.viewDiffDialog.files.addedRemoved']}"/>
             </div>
             <p:dataTable id="diffFilesDataTable" styleClass="dvnDifferanceTable"  value="#{datasetVersionsTab.versionsDifferenceForDialog.datasetFilesDiffList}" var="fileDiff"
@@ -227,7 +227,7 @@
             </div>
             <div class="panel panel-default"
                  jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFilesReplacementList)}">
-                <div class="panel-heading text-info">
+                <div class="panel-heading text-info" tabindex="0">
                     <h:outputText id="outputTextReplacedFiles" value="#{bundle['file.viewDiffDialog.files.replaced']}"/>
                 </div>
             <p:dataTable id="replacemetFilesDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable"
@@ -266,7 +266,7 @@
         </div>
 
             <div class="panel panel-default" jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.datasetFileTermsDiffList)}">
-            <div class="panel-heading text-info">
+            <div class="panel-heading text-info" tabindex="0">
                 <h:outputText value="#{bundle['file.viewDiffDialog.fileTerms.header']}"/>
             </div>
             <p:dataTable id="termsDiffDataTable" style="border-top:1px solid #ddd;" styleClass="dvnDifferanceTable"
