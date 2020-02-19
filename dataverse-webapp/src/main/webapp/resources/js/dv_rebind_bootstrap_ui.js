@@ -10,11 +10,11 @@ function bind_bsui_components(){
     
     // Collapse Header Icons
     $('div[id^="panelCollapse"]').on('shown.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+      $(this).siblings('.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
     });
 
     $('div[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+      $(this).siblings('.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
     });
     
     // Button dropdown menus 
@@ -275,12 +275,3 @@ function handle_dropdown_popup_scroll(){
         }
     });
 }
-
-/* Fix collapsible headers not responding to the keyboard */
-
-$(document).ready(function () {
-    $(document).on('keyup', '.panel-heading',function(e){
-        if(e.which==13 || e.which==32)
-            $(this).click()
-    });
-});
