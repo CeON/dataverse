@@ -30,6 +30,7 @@ import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayOutputStream;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /*
@@ -74,7 +75,7 @@ public class Meta {
     private PermissionServiceBean permissionService;
 
     @Inject
-    private AccessService accessService;
+    private EmbargoAccessService embargoAccessService;
 
     @EJB
     DatasetDao datasetDao;
@@ -87,7 +88,8 @@ public class Meta {
     public String variable(@PathParam("varId") Long varId, @QueryParam("exclude") String exclude, @QueryParam("include") String include, @Context HttpHeaders header, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         String retValue = "";
 
-        if(accessService.isRestrictedByEmbargo(varId)) {
+        Optional<Dataset> datasetOptional = getDatasetFromDataVariable(varId);
+        if(datasetOptional.isPresent() && embargoAccessService.isRestrictedByEmbargo(datasetOptional.get())) {
             throw new ForbiddenException();
         }
 
@@ -132,7 +134,7 @@ public class Meta {
             throw new NotFoundException();
         }
 
-        if(accessService.isRestrictedByEmbargo(dataFile.getOwner())) {
+        if(embargoAccessService.isRestrictedByEmbargo(dataFile.getOwner())) {
             throw new ForbiddenException();
         }
 
@@ -175,7 +177,7 @@ public class Meta {
             throw new NotFoundException();
         }
 
-        if(accessService.isRestrictedByEmbargo(datasetId)) {
+        if(embargoAccessService.isRestrictedByEmbargo(dataset)) {
             throw new ForbiddenException();
         }
 
@@ -202,5 +204,9 @@ public class Meta {
         response.setHeader("Access-Control-Allow-Origin", "*");
 
         return retValue;
+    }
+
+    private Optional<Dataset> getDatasetFromDataVariable(Long dataVariableId) {
+        return Optional.ofNullable(dataVariableService.find(dataVariableId).getDataTable().getDataFile().getOwner());
     }
 }
