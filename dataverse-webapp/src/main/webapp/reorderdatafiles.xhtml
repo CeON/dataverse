@@ -36,6 +36,9 @@
                              emptyMessage="#{bundle['file.notFound.tip']}"
                              styleClass="filesTable"
                 >
+                
+                    <p:ajax event="rowReorder" update="filesTable" />
+                
                     <p:column headerText="#{bundle.file}">
 
                         <ui:fragment rendered="#{!empty fileMetadata.dataFile.globalIdString}">
@@ -95,7 +98,8 @@
                         </div>
                     </p:column>
                     
-                    <p:column headerText="#{bundle['file.reorder.action.header']}">
+                    <p:column headerText="#{bundle['file.reorder.action.header']}"
+                              styleClass="text-center" width="120">
                         <p:commandLink title="#{bundle['file.reorder.moveUp']}"
                                        styleClass="btn btn-default btn-sm bootstrap-button-tooltip"
                                        actionListener="#{ReorderDataFilesPage.moveUp(rowIndex)}"
