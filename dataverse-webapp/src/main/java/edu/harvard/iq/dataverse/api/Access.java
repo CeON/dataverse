@@ -1304,12 +1304,13 @@ public class Access extends AbstractApiBean {
         boolean published = false;
 
         Optional<User> apiTokenUser = getApiTokenUser(apiToken);
-        if(apiTokenUser.isPresent() && embargoAccessService.isRestrictedByEmbargo(df.getOwner(), apiTokenUser.get(), dvRequestService.getDataverseRequest())) {
-            return false;
-        } else if(!apiTokenUser.isPresent() && !embargoAccessService.isRestrictedByEmbargo(df.getOwner())) {
+        boolean isRestrictedByEmbargo = apiTokenUser
+                    .map(user -> embargoAccessService.isRestrictedByEmbargo(df.getOwner(), user, dvRequestService.getDataverseRequest()))
+                    .orElseGet(() -> embargoAccessService.isRestrictedByEmbargo(df.getOwner()));
+
+        if(isRestrictedByEmbargo) {
             return false;
         }
-
 
         /*
         SEK 7/26/2018 for 3661 relying on the version state of the dataset versions
@@ -1549,9 +1550,7 @@ public class Access extends AbstractApiBean {
             logger.log(Level.FINE, "Session-based auth: user {0} has NO access rights on the requested datafile.", user.getIdentifier());
         }
 
-        if (apiTokenUser.isPresent()) {
-            logger.log(Level.FINE, "Token-based auth: user {0} has NO access rights on the requested datafile.", apiTokenUser.get().getIdentifier());
-        }
+        apiTokenUser.ifPresent(tokenUser -> logger.log(Level.FINE, "Token-based auth: user {0} has NO access rights on the requested datafile.", tokenUser.getIdentifier()));
 
         return false;
     }
