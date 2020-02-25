@@ -46,7 +46,8 @@ public class DatasetFieldValidatorTest {
 
     @Test
     public void testIsValid() {
-        System.out.println("isValid");
+
+        //given
         DatasetField df = new DatasetField();
         DatasetVersion datasetVersion = new DatasetVersion();
         Dataset dataset = new Dataset();
@@ -63,6 +64,8 @@ public class DatasetFieldValidatorTest {
 
         final ConstraintValidatorContext ctx =
                 Mockito.mock(ConstraintValidatorContext.class);
+
+        //when & then
         DatasetFieldValidator instance = new DatasetFieldValidator();
         boolean expResult = true;
         boolean result = instance.isValid(df, ctx);
@@ -155,8 +158,11 @@ public class DatasetFieldValidatorTest {
 
     @Test
     public void testIsValidAuthorIdentifierOrcid() {
+        //given
         DatasetFieldValidator validator = new DatasetFieldValidator();
         Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_ORCID);
+
+        //when & then
         assertTrue(validator.isValidAuthorIdentifier("0000-0002-1825-0097", pattern));
         // An "X" at the end of an ORCID is less common but still valid.
         assertTrue(validator.isValidAuthorIdentifier("0000-0002-1694-233X", pattern));
@@ -168,16 +174,22 @@ public class DatasetFieldValidatorTest {
 
     @Test
     public void testIsValidAuthorIdentifierIsni() {
+        //given
         DatasetFieldValidator validator = new DatasetFieldValidator();
         Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_ISNI);
+
+        //when & then
         assertTrue(validator.isValidAuthorIdentifier("0000000121032683", pattern));
         assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
     }
 
     @Test
     public void testIsValidAuthorIdentifierLcna() {
+        //given
         DatasetFieldValidator validator = new DatasetFieldValidator();
         Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_LCNA);
+
+        //when & then
         assertTrue(validator.isValidAuthorIdentifier("n82058243", pattern));
         assertTrue(validator.isValidAuthorIdentifier("foobar123", pattern));
         assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
@@ -185,16 +197,22 @@ public class DatasetFieldValidatorTest {
 
     @Test
     public void testIsValidAuthorIdentifierViaf() {
+        //given
         DatasetFieldValidator validator = new DatasetFieldValidator();
         Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_VIAF);
+
+        //when & then
         assertTrue(validator.isValidAuthorIdentifier("172389567", pattern));
         assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
     }
 
     @Test
     public void testIsValidAuthorIdentifierGnd() {
+        //given
         DatasetFieldValidator validator = new DatasetFieldValidator();
         Pattern pattern = DatasetAuthor.getValidPattern(DatasetAuthor.REGEX_GND);
+
+        //when & then
         assertTrue(validator.isValidAuthorIdentifier("4079154-3", pattern));
         assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
     }

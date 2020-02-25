@@ -163,7 +163,7 @@ public class DatasetFieldUtilTest {
         String joinedValues = DatasetFieldUtil.joinAllValues(authorField);
 
         //then
-        Assert.assertEquals("John Doe; John Aff", joinedValues);
+        Assert.assertEquals(AUTHOR_NAME + "; " + AUTHOR_AFFILIATION, joinedValues);
 
     }
 
@@ -171,13 +171,13 @@ public class DatasetFieldUtilTest {
     public void joinCompoundFieldValues() {
         //given
         DatasetField authorField = DatasetField.createNewEmptyDatasetField(makeAuthorFieldType(new MetadataBlock()), null);
-        fillAuthorField(authorField,  "John Doe", "John Aff");
+        fillAuthorField(authorField,  AUTHOR_NAME, AUTHOR_AFFILIATION);
 
         //when
         String values = DatasetFieldUtil.joinAllValues(authorField);
 
         //then
-        Assert.assertEquals("John Doe; John Aff", values);
+        Assert.assertEquals(AUTHOR_NAME + "; " + AUTHOR_AFFILIATION, values);
     }
 
     @Test

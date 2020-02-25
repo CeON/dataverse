@@ -134,6 +134,7 @@ public class JsonParserTest {
 
     @Test
     public void testCompoundRepeatsRoundtrip() {
+        //given
         ArrayList<DatasetField> expectedFields = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
@@ -144,15 +145,16 @@ public class JsonParserTest {
             expectedFields.add(expected);
         }
 
+        //when
         List<JsonObject> parsedFields = expectedFields.stream()
                 .map(JsonPrinter::json)
-                .peek(System.out::println)
                 .collect(Collectors.toList());
 
         List<DatasetField> actualFields = parsedFields.stream()
                 .flatMap(jsonObject -> API.unchecked(() -> sut.parseField(jsonObject)).get().stream())
                 .collect(Collectors.toList());
 
+        //then
         Assertions.assertAll(() -> assertFieldsEqual(expectedFields.get(0), actualFields.get(0)),
                              () -> assertFieldsEqual(expectedFields.get(1), actualFields.get(1)),
                              () -> assertFieldsEqual(expectedFields.get(2), actualFields.get(2)),
@@ -169,19 +171,24 @@ public class JsonParserTest {
 
     @Test
     public void testControlledVocalNoRepeatsRoundTrip() throws JsonParseException {
+        //given
         DatasetField expected = new DatasetField();
         DatasetFieldType fieldType = datasetFieldTypeSvc.findByName("publicationIdType");
         expected.setDatasetFieldType(fieldType);
         expected.setControlledVocabularyValues(Collections.singletonList(fieldType.getControlledVocabularyValue("ark")));
-        JsonObject json = JsonPrinter.json(expected);
 
+        //when
+        JsonObject json = JsonPrinter.json(expected);
         DatasetField actual = sut.parseField(json).get(0);
+
+        //then
         assertFieldsEqual(expected, actual);
 
     }
 
     @Test
     public void testControlledVocalRepeatsRoundTrip() throws JsonParseException {
+        //given
         DatasetField expected = new DatasetField();
         DatasetFieldType fieldType = datasetFieldTypeSvc.findByName("subject");
         expected.setDatasetFieldType(fieldType);
@@ -189,8 +196,11 @@ public class JsonParserTest {
                                                              fieldType.getControlledVocabularyValue("law"),
                                                              fieldType.getControlledVocabularyValue("cs")));
 
+        //when
         JsonObject json = JsonPrinter.json(expected);
         DatasetField actual = sut.parseField(json).get(0);
+
+        //then
         assertFieldsEqual(expected, actual);
 
     }
@@ -201,6 +211,8 @@ public class JsonParserTest {
         // This Json String is a compound field that contains the wrong
         // fieldType as a child ("description" is not a child of "coordinate").
         // It should throw a JsonParseException when it encounters the invalid child.
+
+        //given
         String compoundString = "{ " +
                 "            \"typeClass\": \"compound\"," +
                 "            \"multiple\": true," +
@@ -218,28 +230,34 @@ public class JsonParserTest {
                 "            " +
                 "          }";
 
-        String text = compoundString;
-        JsonReader jsonReader = Json.createReader(new StringReader(text));
+        //when
+        JsonReader jsonReader = Json.createReader(new StringReader(compoundString));
         JsonObject obj = jsonReader.readObject();
 
+        //then
         sut.parseField(obj);
     }
 
 
     @Test
     public void testPrimitiveNoRepeatesFieldRoundTrip() throws JsonParseException {
+        //given
         DatasetField expected = new DatasetField();
         expected.setDatasetFieldType(datasetFieldTypeSvc.findByName("description"));
         expected.setFieldValue("This is a description value");
-        JsonObject json = JsonPrinter.json(expected);
 
+        //when
+        JsonObject json = JsonPrinter.json(expected);
         DatasetField actual = sut.parseField(json).get(0);
 
+        //then
         assertFieldsEqual(actual, expected);
     }
 
     @Test
-    public void testPrimitiveRepeatesFieldRoundTrip() throws JsonParseException {
+    public void testPrimitiveRepeatesFieldRoundTrip() {
+
+        //given
         List<DatasetField> expectedFields = Arrays.asList(new DatasetField()
                                                                   .setDatasetFieldType(datasetFieldTypeSvc.findByName(
                                                                           "keyword"))
@@ -253,13 +271,14 @@ public class JsonParserTest {
                                                                           "keyword"))
                                                                   .setFieldValue("kw3"));
 
+        //when
         List<DatasetField> actualFields = expectedFields.stream()
                 .map(JsonPrinter::json)
                 .flatMap(jsonObject -> API.unchecked(() -> sut.parseField(jsonObject)).get().stream())
                 .collect(Collectors.toList());
 
 
-
+        //then
         Assertions.assertAll(() -> assertFieldsEqual(expectedFields.get(0), actualFields.get(0)),
                              () -> assertFieldsEqual(expectedFields.get(1), actualFields.get(1)),
                              () -> assertFieldsEqual(expectedFields.get(2), actualFields.get(2)));
@@ -274,12 +293,14 @@ public class JsonParserTest {
      */
     @Test
     public void testParseCompleteDataverse() throws JsonParseException {
-
+        //given
         JsonObject dvJson;
         try (InputStreamReader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(
                 "json/dataverse-complete.json"), StandardCharsets.UTF_8)) {
             dvJson = Json.createReader(reader).readObject();
             Dataverse actual = sut.parseDataverse(dvJson);
+
+            //when & then
             assertEquals("Scientific Research", actual.getName());
             assertEquals("science", actual.getAlias());
             assertEquals("Scientific Research University", actual.getAffiliation());
