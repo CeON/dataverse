@@ -94,10 +94,10 @@
                     <div class="button-block">
                         <p:outputPanel id="filesButtons">
                             <div>
-                                <p:commandButton tabindex="1000" id="save" value="#{bundle.saveChanges}"
+                                <p:commandButton id="save" value="#{bundle.saveChanges}"
                                                  action="#{ReorderDataFilesPage.saveFileOrder}"
                                                  onclick="PF('blockFileForm').show();"/>
-                                <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}"
+                                <p:commandButton id="cancel" value="#{bundle.cancel}"
                                                  action="#{ReorderDataFilesPage.returnToPreviousPage}" process="@this"
                                                  update="@form"
                                                  oncomplete="javascript:post_cancel_edit_files_or_metadata()">
