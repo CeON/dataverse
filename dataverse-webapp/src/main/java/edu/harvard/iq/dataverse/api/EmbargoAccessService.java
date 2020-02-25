@@ -32,9 +32,6 @@ public class EmbargoAccessService extends AbstractApiBean {
     }
 
     public boolean isRestrictedByEmbargo(Dataset dataset, User user, DataverseRequest dvRequest) {
-        if(user != null) {
-            return isRestrictedByEmbargo(dataset);
-        }
-        return dataset.hasActiveEmbargo() && !permissionService.requestOn(dvRequest, dataset).has(Permission.ViewUnpublishedDataset);
+        return isRestrictedByEmbargo(dataset);
     }
 }

@@ -78,22 +78,14 @@ public class EmbargoAccessServiceIT extends WebappArquillianDeployment {
     }
 
     @Test
-    public void shouldCheckEmbargoRestrictionForExplicitUserAndDvRequest_nullUser() {
+    public void shouldCheckEmbargoRestrictionForExplicitUserAndDvRequest_noEmbargo() {
         // given
         Dataset dataset = datasetDao.find(57L);
-        dataset.setEmbargoDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+        User user = MocksFactory.makeAuthenticatedUser("Jurek", "Kiler");
+        dataverseSession.setUser(user);
 
         // when&then
-        Assert.assertTrue(embargoAccess.isRestrictedByEmbargo(dataset, null, dvRequest.getDataverseRequest()));
-    }
-
-    @Test
-    public void shouldCheckEmbargoRestrictionForExplicitUserAndDvRequest_nullUser_noEmbargo() {
-        // given
-        Dataset dataset = datasetDao.find(57L);
-
-        // when&then
-        Assert.assertFalse(embargoAccess.isRestrictedByEmbargo(dataset, null, dvRequest.getDataverseRequest()));
+        Assert.assertFalse(embargoAccess.isRestrictedByEmbargo(dataset, user, dvRequest.getDataverseRequest()));
     }
 
 }
