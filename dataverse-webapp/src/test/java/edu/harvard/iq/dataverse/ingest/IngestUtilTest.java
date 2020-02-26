@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IngestUtilTest {
 
-    String logFile = "/tmp/testLogFile";
-
     @Test
     /**
      * Test adding duplicate file name labels to a dataset version with no
