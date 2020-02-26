@@ -6,15 +6,16 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import io.vavr.control.Option;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import javax.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,27 +26,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class DatasetFieldValidatorTest {
 
-    public DatasetFieldValidatorTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
-    @Test
-    public void testIsValid() {
+    @ParameterizedTest
+    @MethodSource("datasetFieldValues")
+    public void testIsValid(String fieldValue, Option<FieldType> fieldType, Option<String> validationFormat,boolean expectedResult) {
 
         //given
         DatasetField df = new DatasetField();
@@ -71,88 +54,11 @@ public class DatasetFieldValidatorTest {
         boolean result = instance.isValid(df, ctx);
         assertEquals(expResult, result);
 
-        //Fill in a value - should be valid now....
-        df.setFieldValue("value");
+        df.setFieldValue(fieldValue);
+        fieldType.peek(dft::setFieldType);
+        validationFormat.peek(dft::setValidationFormat);
         result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        //if not required - can be blank
-        dft.setRequired(false);
-        df.setFieldValue("");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        //Make string too long - should fail.
-        df.setFieldValue("asdfgX");
-        result = instance.isValid(df, ctx);
-        assertEquals(false, result);
-
-        //Make string too long - should fail.
-        df.setFieldValue("asdf");
-        result = instance.isValid(df, ctx);
-        assertEquals(false, result);
-
-        //Now lets try Dates
-        dft.setFieldType(FieldType.DATE);
-        dft.setValidationFormat(null);
-        df.setFieldValue("1999AD");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("44BCE");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("2004-10-27");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("2002-08");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("[1999?]");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("Blergh");
-        result = instance.isValid(df, ctx);
-        assertEquals(false, result);
-
-        //Float
-        dft.setFieldType(FieldType.FLOAT);
-        df.setFieldValue("44");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("44 1/2");
-        result = instance.isValid(df, ctx);
-        assertEquals(false, result);
-
-        //Integer
-        dft.setFieldType(FieldType.INT);
-        df.setFieldValue("44");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("-44");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-        df.setFieldValue("12.14");
-        result = instance.isValid(df, ctx);
-        assertEquals(false, result);
-
-        //URL
-        dft.setFieldType(FieldType.URL);
-        df.setFieldValue("http://cnn.com");
-        result = instance.isValid(df, ctx);
-        assertEquals(true, result);
-
-
-        df.setFieldValue("espn.com");
-        result = instance.isValid(df, ctx);
-        assertEquals(false, result);
+        assertEquals(expectedResult, result);
 
     }
 
@@ -215,6 +121,28 @@ public class DatasetFieldValidatorTest {
         //when & then
         assertTrue(validator.isValidAuthorIdentifier("4079154-3", pattern));
         assertFalse(validator.isValidAuthorIdentifier("junk", pattern));
+    }
+
+    private static Stream<Arguments> datasetFieldValues() {
+        return Stream.of(
+                Arguments.of("value", Option.none(), Option.none(), true),
+                Arguments.of("", Option.none(), Option.none(), true),
+                Arguments.of("asdf", Option.none(), Option.none(), false),
+                Arguments.of("asdfgx", Option.none(), Option.none(), false),
+                Arguments.of("1999AD", Option.of(FieldType.DATE), Option.some(null), true),
+                Arguments.of("44BCE", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("2004-10-27", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("2002-08", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("[1999?]", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("Blergh", Option.none(), Option.none(), false),
+                Arguments.of("44", Option.of(FieldType.FLOAT), Option.none(), true),
+                Arguments.of("44 1/2", Option.of(FieldType.FLOAT), Option.none(), false),
+                Arguments.of("44", Option.of(FieldType.INT), Option.none(), true),
+                Arguments.of("-44", Option.of(FieldType.INT), Option.none(), true),
+                Arguments.of("12.14", Option.of(FieldType.INT), Option.none(), false),
+                Arguments.of("http://cnn.com", Option.of(FieldType.URL), Option.none(), true),
+                Arguments.of("espn.com", Option.none(), Option.none(), false)
+        );
     }
 
 }
