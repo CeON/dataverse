@@ -1237,66 +1237,39 @@ div.panelSearchForm input.search-input {
 
 /* Carousel */
 
-#featuredDataversesList .item {
-	img {
-		margin: 0 15px;
-	}
-
-	.icon-dataverse {
-		top: 5px;
-		margin-left: 12px;
-		margin-right: 16px;
-	}
-}
-
-#featuredDataversesBlock div.customNavigation {
-	width: auto;
-
-	a.btn {
-		&:active {
-			box-shadow: none;
-		}
-
-		&.prev1,
-		&.next1 {
-			padding-left: 0;
-			padding-right: 0;
-		}
-	}
-
-	span.glyphicon {
-		font-size: 1em;
-		color: $icon-color;
-		border: 1px solid $gray-border-color;
-		border-radius: 333px;
-		width: 29px;
-		height: 29px;
-		box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 2px 0px;
-		margin: 0 auto;
-		line-height: 25px;
-		padding-left: 1px;
-	}
-}
-
-#carouselBlocksWrapper {
-	border-bottom: 0;
-	width: calc(100% + 91px);
-	margin-left: -31px;
-
-	a {
-		color: $link-color;
-	}
-}
-
-.owl-carousel .item {
-	display: block;
-	border: 1px solid $gray-border-color;
-	text-align: left;
-	border-radius: $border-radius;
-}
-
 #featuredDataversesBlock {
 	border-top: 0;
+
+	div.customNavigation {
+		width: auto;
+		margin: 42px 0;
+		padding: 0;
+	
+		a.btn {
+			&:active {
+				box-shadow: none;
+			}
+	
+			&.prev1,
+			&.next1 {
+				padding-left: 0;
+				padding-right: 0;
+			}
+		}
+	
+		span.glyphicon {
+			font-size: 1em;
+			color: $icon-color;
+			border: 1px solid $gray-border-color;
+			border-radius: 333px;
+			width: 29px;
+			height: 29px;
+			box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 2px 0px;
+			margin: 0 auto;
+			line-height: 25px;
+			padding-left: 1px;
+		}
+	}
 }
 
 #featuredDataversesList {
@@ -1306,6 +1279,16 @@ div.panelSearchForm input.search-input {
 		display: table;
 		height: 100%;
 		width: calc(100% - 20px);
+
+		img {
+			margin: 0 15px;
+		}
+	
+		.icon-dataverse {
+			top: 5px;
+			margin-left: 12px;
+			margin-right: 16px;
+		}
 
 		div {
 			display: table-cell;
@@ -1319,38 +1302,53 @@ div.panelSearchForm input.search-input {
 	} 
 }
 
-/* Center carousel elements */
+#carouselBlocksWrapper {
+	border-bottom: 0;
+	width: calc(100% + 91px);
+	margin-left: -31px;
 
-#carouselBlocksWrapper.owl-center-elements .owl-carousel {
-	.owl-wrapper-outer {
-		text-align: center;
+	a {
+		color: $link-color;
 	}
 
-	.owl-wrapper {
-		width: auto !important;
-		display: inline-block !important;
-	}
-}
-
-/* Responsive carousel offscreen buttons fix */
-
-#carouselBlocksWrapper.owl-shrink-container {
-	width: calc(100% + 10px);
-	margin-left: 10px;
-}
-
-/* Hide prev/next buttons when not necessary, also fix improper width */
-
-#carouselBlocksWrapper.owl-hide-navigation {
-	width: calc(100% + 30px);
-	margin-left: 0;
-
-	.customNavigation {
-		display: none;
+	.owl-carousel .item {
+		display: table;
+		height: 110px;
+		border: 1px solid $gray-border-color;
+		text-align: left;
+		border-radius: $border-radius;
 	}
 
-	#featuredDataversesList {
-		width: 100%;
+	/* Center carousel elements */
+	&.owl-center-elements .owl-carousel {
+		.owl-wrapper-outer {
+			text-align: center;
+		}
+	
+		.owl-wrapper {
+			width: auto !important;
+			display: inline-block !important;
+		}
+	}
+
+	/* Responsive carousel offscreen buttons fix */
+	&.owl-shrink-container {
+		width: calc(100% + 10px);
+		margin-left: 10px;
+	}
+
+	/* Hide prev/next buttons when not necessary, also fix improper width */
+	&.owl-hide-navigation {
+		width: calc(100% + 30px);
+		margin-left: 0;
+	
+		.customNavigation {
+			display: none;
+		}
+	
+		#featuredDataversesList {
+			width: 100%;
+		}
 	}
 }
 
