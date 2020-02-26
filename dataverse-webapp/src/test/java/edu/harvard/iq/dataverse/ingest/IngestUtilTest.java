@@ -6,23 +6,16 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import org.dataverse.unf.UNFUtil;
-import org.dataverse.unf.UnfException;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.ConstraintViolation;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataset;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IngestUtilTest {
 
@@ -105,8 +98,8 @@ public class IngestUtilTest {
         }
 
         // check filenames are unique and unaltered
-        assertEquals(file1NameAltered, true);
-        assertEquals(file2NameAltered, true);
+        assertTrue(file1NameAltered);
+        assertTrue(file2NameAltered);
 
         // try to add data files with "-1" duplicates and see if it gets incremented to "-2"
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
@@ -121,8 +114,8 @@ public class IngestUtilTest {
         }
 
         // check filenames are unique and unaltered
-        assertEquals(file1NameAltered, true);
-        assertEquals(file2NameAltered, true);
+        assertTrue(file1NameAltered);
+        assertTrue(file2NameAltered);
     }
 
     @Test
@@ -206,8 +199,8 @@ public class IngestUtilTest {
         }
 
         // check filenames are unique and unaltered
-        assertEquals(file1NameAltered, true);
-        assertEquals(file2NameAltered, true);
+        assertTrue(file1NameAltered);
+        assertTrue(file2NameAltered);
 
         // try to add data files with "-1" duplicates and see if it gets incremented to "-2"
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
@@ -222,8 +215,8 @@ public class IngestUtilTest {
         }
 
         // check filenames are unique and unaltered
-        assertEquals(file1NameAltered, true);
-        assertEquals(file2NameAltered, true);
+        assertTrue(file1NameAltered);
+        assertTrue(file2NameAltered);
     }
 
     @Test
@@ -331,9 +324,9 @@ public class IngestUtilTest {
         }
 
         // check filenames are unique
-        assertEquals(file1NameAltered, true);
-        assertEquals(file2NameAltered, true);
-        assertEquals(file3NameAltered, false);
+        assertTrue(file1NameAltered);
+        assertTrue(file2NameAltered);
+        assertFalse(file3NameAltered);
 
         // add duplicate file in root
         datasetVersion.getFileMetadatas().add(fmd3);
@@ -355,9 +348,9 @@ public class IngestUtilTest {
         }
 
         // check filenames are unique
-        assertEquals(file1NameAltered, true);
-        assertEquals(file2NameAltered, true);
-        assertEquals(file3NameAltered, true);
+        assertTrue(file1NameAltered);
+        assertTrue(file2NameAltered);
+        assertTrue(file3NameAltered);
     }
 
     @Test
@@ -437,7 +430,7 @@ public class IngestUtilTest {
         }
 
         // check filename is altered since tabular and will change to .tab after ingest
-        assertEquals(file2NameAltered, true);
+        assertTrue(file2NameAltered);
     }
 
     @Test
@@ -445,7 +438,7 @@ public class IngestUtilTest {
         IngestUtil.recalculateDatasetVersionUNF(null);
         DatasetVersion dsvNoFile = new DatasetVersion();
         IngestUtil.recalculateDatasetVersionUNF(dsvNoFile);
-        assertEquals(null, dsvNoFile.getUNF());
+        assertNull(dsvNoFile.getUNF());
 
         List<Dataset> datasets = new ArrayList<>();
         Dataset dataset = new Dataset();
@@ -454,7 +447,7 @@ public class IngestUtilTest {
         dataset.setIdentifier("12345");
         DatasetVersion dsv1 = new DatasetVersion();
         dsv1.setDataset(dataset);
-        dsv1.setId(42l);
+        dsv1.setId(42L);
         dsv1.setVersionState(DatasetVersion.VersionState.DRAFT);
         List<DatasetVersion> datasetVersions = new ArrayList<>();
         datasetVersions.add(dsv1);
@@ -463,7 +456,7 @@ public class IngestUtilTest {
         DataTable dataTable = new DataTable();
         dataTable.setUnf("unfOnDataTable");
         datafile1.setDataTable(dataTable);
-        assertEquals(true, datafile1.isTabularData());
+        assertTrue(datafile1.isTabularData());
 
         FileMetadata fmd1 = new FileMetadata();
         fmd1.setId(1L);
@@ -476,7 +469,7 @@ public class IngestUtilTest {
         dataset.setVersions(datasetVersions);
         datasets.add(dataset);
 
-        assertEquals(null, dsv1.getUNF());
+        assertNull(dsv1.getUNF());
         IngestUtil.recalculateDatasetVersionUNF(dsv1);
         assertEquals("UNF:6:rDlgOhoEkEQQdwtLRHjmtw==", dsv1.getUNF());
 
@@ -486,7 +479,7 @@ public class IngestUtilTest {
     public void recalculateDatasetVersionUNF_expectedNullUnf() {
         DatasetVersion dsv1 = new DatasetVersion();
         IngestUtil.recalculateDatasetVersionUNF(dsv1);
-        assertEquals(null, dsv1.getUNF());
+        assertNull(dsv1.getUNF());
     }
 
     @Test
@@ -497,7 +490,7 @@ public class IngestUtilTest {
 
     @Test
     public void shouldHaveUnf_null_expectedFalse() {
-        assertEquals(false, IngestUtil.shouldHaveUnf(null));
+        assertFalse(IngestUtil.shouldHaveUnf(null));
     }
 
 }
