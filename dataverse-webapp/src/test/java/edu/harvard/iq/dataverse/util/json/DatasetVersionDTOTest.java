@@ -7,12 +7,12 @@ package edu.harvard.iq.dataverse.util.json;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -51,12 +51,9 @@ public class DatasetVersionDTOTest {
     }
 
     @Test
-    public void testReadDataSet() throws FileNotFoundException {
-        File file = new File("src/test/resources/json/JsonDatasetVersion.txt");
-        String text = "";
-        try(Scanner scanner = new Scanner(file)) {
-            text = scanner.useDelimiter("\\Z").next();
-        }
+    public void testReadDataSet() throws IOException {
+        String filePath = "src/test/resources/json/JsonDatasetVersion.txt";
+        String text = new String(Files.readAllBytes(Paths.get(filePath)));
         Gson gson = new Gson();
         DatasetVersionDTO dto = gson.fromJson(text, DatasetVersionDTO.class);
 
@@ -84,7 +81,6 @@ public class DatasetVersionDTOTest {
         FieldDTO authorDTO = dto.getMetadataBlocks().get("citation").getFields().get(1);
 
         // write both dto's to json to compare them with gson parser
-
         JsonElement expected = gson.toJsonTree(expectedDTO, FieldDTO.class);
         JsonElement result = gson.toJsonTree(authorDTO);
 
