@@ -4,12 +4,10 @@ import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import org.junit.Test;
 
+import javax.validation.ConstraintViolation;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeFileMetadata;
@@ -167,4 +165,83 @@ public class DatasetVersionTest {
 
         return datasetVersion;
     }
+
+    @Test
+    public void validate() {
+
+        DatasetVersion datasetVersion = new DatasetVersion();
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setLabel("foo.png");
+        fileMetadata.setDirectoryLabel("/has/leading/slash");
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+
+        Set<ConstraintViolation> violations1 = datasetVersion.validate();
+        assertEquals(1, violations1.size());
+        ConstraintViolation violation1 = violations1.iterator().next();
+        assertEquals("Directory Name cannot contain leading or trailing file separators.", violation1.getMessage());
+
+        // reset
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        Set<ConstraintViolation> violations2 = datasetVersion.validate();
+        assertEquals(0, violations2.size());
+
+        fileMetadata.setDirectoryLabel("has/trailing/slash/");
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        Set<ConstraintViolation> violations3 = datasetVersion.validate();
+        assertEquals(1, violations3.size());
+        assertEquals("Directory Name cannot contain leading or trailing file separators.", violations3.iterator().next().getMessage());
+
+        // reset
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        Set<ConstraintViolation> violations4 = datasetVersion.validate();
+        assertEquals(0, violations4.size());
+
+        fileMetadata.setDirectoryLabel("just/right");
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        Set<ConstraintViolation> violations5 = datasetVersion.validate();
+        assertEquals(0, violations5.size());
+
+        // reset
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        Set<ConstraintViolation> violations6 = datasetVersion.validate();
+        assertEquals(0, violations6.size());
+
+        fileMetadata.setDirectoryLabel("");
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        Set<ConstraintViolation> violations7 = datasetVersion.validate();
+        assertEquals(0, violations7.size());
+
+        // reset
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        Set<ConstraintViolation> violations8 = datasetVersion.validate();
+        assertEquals(0, violations8.size());
+
+        fileMetadata.setDirectoryLabel(null);
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        Set<ConstraintViolation> violations9 = datasetVersion.validate();
+        assertEquals(0, violations9.size());
+
+        // reset
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        Set<ConstraintViolation> violations10 = datasetVersion.validate();
+        assertEquals(0, violations10.size());
+
+        String singleCharacter = "a";
+        fileMetadata.setDirectoryLabel(singleCharacter);
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        Set<ConstraintViolation> violations11 = datasetVersion.validate();
+        assertEquals(0, violations11.size());
+
+        // reset
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        Set<ConstraintViolation> violations12 = datasetVersion.validate();
+        assertEquals(0, violations12.size());
+
+        fileMetadata.setDirectoryLabel("/leadingAndTrailing/");
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        Set<ConstraintViolation> violations13 = datasetVersion.validate();
+        assertEquals(1, violations13.size());
+
+    }
+
 }

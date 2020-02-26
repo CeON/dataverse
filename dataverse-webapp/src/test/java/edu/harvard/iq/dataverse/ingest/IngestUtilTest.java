@@ -441,84 +441,6 @@ public class IngestUtilTest {
     }
 
     @Test
-    public void testDirectoryLabels() {
-
-        DatasetVersion datasetVersion = new DatasetVersion();
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setLabel("foo.png");
-        fileMetadata.setDirectoryLabel("/has/leading/slash");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-
-        Set<ConstraintViolation> violations1 = datasetVersion.validate();
-        assertEquals(1, violations1.size());
-        ConstraintViolation violation1 = violations1.iterator().next();
-        assertEquals("Directory Name cannot contain leading or trailing file separators.", violation1.getMessage());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations2 = datasetVersion.validate();
-        assertEquals(0, violations2.size());
-
-        fileMetadata.setDirectoryLabel("has/trailing/slash/");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations3 = datasetVersion.validate();
-        assertEquals(1, violations3.size());
-        assertEquals("Directory Name cannot contain leading or trailing file separators.", violations3.iterator().next().getMessage());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations4 = datasetVersion.validate();
-        assertEquals(0, violations4.size());
-
-        fileMetadata.setDirectoryLabel("just/right");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations5 = datasetVersion.validate();
-        assertEquals(0, violations5.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations6 = datasetVersion.validate();
-        assertEquals(0, violations6.size());
-
-        fileMetadata.setDirectoryLabel("");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations7 = datasetVersion.validate();
-        assertEquals(0, violations7.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations8 = datasetVersion.validate();
-        assertEquals(0, violations8.size());
-
-        fileMetadata.setDirectoryLabel(null);
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations9 = datasetVersion.validate();
-        assertEquals(0, violations9.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations10 = datasetVersion.validate();
-        assertEquals(0, violations10.size());
-
-        String singleCharacter = "a";
-        fileMetadata.setDirectoryLabel(singleCharacter);
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations11 = datasetVersion.validate();
-        assertEquals(0, violations11.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations12 = datasetVersion.validate();
-        assertEquals(0, violations12.size());
-
-        fileMetadata.setDirectoryLabel("/leadingAndTrailing/");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations13 = datasetVersion.validate();
-        assertEquals(1, violations13.size());
-
-    }
-
-    @Test
     public void recalculateDatasetVersionUNF() {
         IngestUtil.recalculateDatasetVersionUNF(null);
         DatasetVersion dsvNoFile = new DatasetVersion();
@@ -576,20 +498,6 @@ public class IngestUtilTest {
     @Test
     public void shouldHaveUnf_null_expectedFalse() {
         assertEquals(false, IngestUtil.shouldHaveUnf(null));
-    }
-
-    @Test
-    public void testUnfUtil() {
-        String[] unfValues = {"a", "b", "c"};
-        String datasetUnfValue = null;
-        try {
-            datasetUnfValue = UNFUtil.calculateUNF(unfValues);
-        } catch (IOException ex) {
-            Logger.getLogger(IngestUtilTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnfException ex) {
-            Logger.getLogger(IngestUtilTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        assertEquals("UNF:6:FWBO/a1GcxDnM3fNLdzrHw==", datasetUnfValue);
     }
 
 }
