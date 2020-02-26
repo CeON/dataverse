@@ -10,11 +10,11 @@ function bind_bsui_components(){
     
     // Collapse Header Icons
     $('div[id^="panelCollapse"]').on('shown.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+      $(this).siblings('.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
     });
 
     $('div[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+      $(this).siblings('.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
     });
     
     // Button dropdown menus 
@@ -224,7 +224,7 @@ function handleResizeDialog(dialogElement) {
     
     calculateResize();
     
-    el.find('textarea').each(function(index){
+    dialog.find('textarea').each(function(index){
         $(this).on('keyup change cut paste focus', function(){
             calculateResize();
         });

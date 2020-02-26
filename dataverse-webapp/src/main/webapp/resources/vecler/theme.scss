@@ -116,6 +116,29 @@ body {
 	color: $main-text-color;
 }
 
+/* "Skip to content" label */
+.sr-only.impaired-navigation:focus {
+	top: -1px;
+	left: 0;
+	right: 0;
+	z-index: 931;
+	
+	margin: 0 auto;
+	padding: 0.3em 1em;
+
+	height: auto;
+	width: 15em;
+	clip: unset;
+
+	border-radius: 0 0 0.5em 0.5em;
+	border: 1px solid #fff;
+	outline: none;
+	
+	background: $icon-color;
+	color: #fff;
+	text-align: center;
+}
+
 .btn {
 	font-size: 15px;
 }
@@ -862,8 +885,6 @@ div[id$="notifications"].ui-tabs-panel {
 	}
 }
 
-div[id$="notifications"].ui-tabs-panel 
-
 /* Tables */
 
 .ui-datatable.ui-widget, .ui-autocomplete-panel {
@@ -951,10 +972,10 @@ div[id$="notifications"].ui-tabs-panel
 		}
 	}
 
-	.ui-datatable-odd {
+	&:not(.no-alternating-row-colors) .ui-datatable-odd {
 		background: none;
 
-		td {
+		 td {
 			background: $search-result-desc-color;
 
 			.ui-chkbox-box::before, .ui-chkbox-icon::before {
@@ -1024,7 +1045,8 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 	margin: 0 5px 0 1px;
 }
 
-.panel-default > div.panel-heading {
+.panel-default > .panel-heading {
+	display: block;
 	padding: 16px 20px 14px 20px;
 	border-bottom: 1px solid $gray-border-color;
 	background: $search-result-desc-color;
@@ -1081,6 +1103,15 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 		table.table {
 			margin-bottom: 0;
 		}
+	}
+}
+
+.ui-datatable-scrollable-body {
+	height: auto !important;
+	max-height: 300px;
+
+	tbody td.ui-selection-column {
+		padding: 14px 20px;
 	}
 }
 
@@ -1150,7 +1181,8 @@ div.panelSearchForm input.search-input {
 	background-color: $main-color;
 }
 
-#metrics-block.col-xs-3 {
+#metrics-block.col-xs-4 {
+	padding: 0;
 	border: none;
 	color: $main-text-color;
 }
@@ -1601,7 +1633,7 @@ div[id$="versionsTable"] td {
 	padding: 14px 20px;
 }
 
-.ui-datatable.ui-widget.no-alternating-row-colors .ui-datatable-odd td {
+.ui-datatable.ui-widget.no-alternating-row-colors .ui-datatable-odd:not(.ui-state-highlight):not(:hover) td {
 	background: #fff;
 }
 
@@ -1763,6 +1795,21 @@ div.filesTable {
 
 	.form-horizontal .form-group {
 		margin-right: -14px;
+	}
+
+	/* Fixed bottom button placement */
+	padding-bottom: 100px;
+	box-sizing: content-box;
+
+	.ui-dialog-content {
+		position: static;
+
+		.button-block {
+			position: absolute;
+			left: 15px;
+			right: 15px;
+			bottom: 0;
+		}
 	}
 }
 
