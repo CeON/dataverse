@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -324,11 +325,13 @@ public class JsonParserTest {
 
     @Test
     public void testParseThemeDataverse() throws JsonParseException {
-
+        //given
         JsonObject dvJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/dataverse-theme.json")) {
             InputStreamReader reader = new InputStreamReader(jsonFile, StandardCharsets.UTF_8);
             dvJson = Json.createReader(reader).readObject();
+
+            //when & then
             Dataverse actual = sut.parseDataverse(dvJson);
             assertEquals("testDv", actual.getName());
             assertEquals("testAlias", actual.getAlias());
@@ -359,11 +362,13 @@ public class JsonParserTest {
      */
     @Test
     public void testParseMinimalDataverse() throws JsonParseException {
-
+        //given
         JsonObject dvJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/minimal-dataverse.json")) {
             InputStreamReader reader = new InputStreamReader(jsonFile, StandardCharsets.UTF_8);
             dvJson = Json.createReader(reader).readObject();
+
+            //when & then
             Dataverse actual = sut.parseDataverse(dvJson);
             assertEquals("testDv", actual.getName());
             assertEquals("testAlias", actual.getAlias());
@@ -385,9 +390,12 @@ public class JsonParserTest {
      */
     @Test(expected = JsonParseException.class)
     public void testParseNoAliasDataverse() throws JsonParseException, IOException {
+        //given
         JsonObject dvJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/no-alias-dataverse.json")) {
             dvJson = Json.createReader(jsonFile).readObject();
+
+            //when & then
             Dataverse actual = sut.parseDataverse(dvJson);
         }
     }
@@ -400,9 +408,12 @@ public class JsonParserTest {
      */
     @Test(expected = JsonParseException.class)
     public void testParseNoNameDataverse() throws JsonParseException, IOException {
+        //given
         JsonObject dvJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/no-name-dataverse.json")) {
             dvJson = Json.createReader(jsonFile).readObject();
+
+            //when & then
             Dataverse actual = sut.parseDataverse(dvJson);
         }
     }
@@ -416,9 +427,12 @@ public class JsonParserTest {
      */
     @Test(expected = JsonParseException.class)
     public void testParseNoContactEmailsDataverse() throws JsonParseException, IOException {
+        //given
         JsonObject dvJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/no-contacts-dataverse.json")) {
             dvJson = Json.createReader(jsonFile).readObject();
+
+            //when & then
             Dataverse actual = sut.parseDataverse(dvJson);
         }
     }
@@ -435,16 +449,21 @@ public class JsonParserTest {
      */
     @Test
     public void testDateRoundtrip() throws ParseException {
+        //given
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         c.clear();
         c.set(2015, 8, 15);
         Date d = c.getTime();
         String generated = JsonPrinter.format(d);
         System.err.println(generated);
+
+        //when
         Date parsedDate = sut.parseDate(generated);
         Calendar p = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         p.clear();
         p.setTime(parsedDate);
+
+        //then
         assertEquals(c.get(Calendar.YEAR), p.get(Calendar.YEAR));
         assertEquals(c.get(Calendar.MONTH), p.get(Calendar.MONTH));
         assertEquals(c.get(Calendar.DAY_OF_MONTH), p.get(Calendar.DAY_OF_MONTH));
@@ -460,13 +479,18 @@ public class JsonParserTest {
      */
     @Test
     public void testDateTimeRoundtrip() throws ParseException {
+        //given
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("Europe/Amsterdam"));
         c.clear();
         c.set(2015, 8, 15, 13, 37, 56);
         Date d = c.getTime();
         String generated = JsonPrinter.format(d);
         System.err.println(generated);
+
+        //when
         Date parsedDate = sut.parseTime(generated);
+
+        //then
         assertEquals(d, parsedDate);
     }
 
@@ -477,12 +501,17 @@ public class JsonParserTest {
      */
     @Test(expected = NullPointerException.class)
     public void testParseEmptyDataset() throws JsonParseException {
+        //given
         JsonObject dsJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/empty-dataset.json")) {
             InputStreamReader reader = new InputStreamReader(jsonFile, StandardCharsets.UTF_8);
             dsJson = Json.createReader(reader).readObject();
             System.out.println(dsJson != null);
+
+            //when
             Dataset actual = sut.parseDataset(dsJson);
+
+            //then
             assertEquals("10.5072", actual.getAuthority());
             assertEquals("doi", actual.getProtocol());
         } catch (IOException ioe) {
@@ -499,18 +528,21 @@ public class JsonParserTest {
      */
     @Test(expected = JsonParseException.class)
     public void testParseOvercompleteDatasetVersion() throws JsonParseException, IOException {
+        //given
         JsonObject dsJson;
         try (InputStream jsonFile = ClassLoader.getSystemResourceAsStream("json/complete-dataset-version.json")) {
             InputStreamReader reader = new InputStreamReader(jsonFile, StandardCharsets.UTF_8);
             dsJson = Json.createReader(reader).readObject();
             System.out.println(dsJson != null);
+
+            //when & then
             DatasetVersion actual = sut.parseDatasetVersion(dsJson);
         }
     }
 
     @Test
     public void testIpGroupRoundTrip() {
-
+        //given
         IpGroup original = new IpGroup();
         original.setDescription("Ip group description");
         original.setDisplayName("Test-ip-group");
@@ -526,15 +558,17 @@ public class JsonParserTest {
 
         System.out.println(serialized.toString());
 
+        //when
         IpGroup parsed = new JsonParser().parseIpGroup(serialized);
 
+        //then
         assertEquals(original, parsed);
 
     }
 
     @Test
     public void testIpGroupRoundTrip_singleIpv4Address() {
-
+        //given
         IpGroupProvider ipGroupProvider = new IpGroupProvider(null);
         IpGroup original = new IpGroup();
         original.setDescription("Ip group description");
@@ -548,8 +582,10 @@ public class JsonParserTest {
 
         System.out.println(serialized.toString());
 
+        //when
         IpGroup parsed = new JsonParser().parseIpGroup(serialized);
 
+        //then
         assertEquals(original, parsed);
         assertTrue(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(), IpAddress.valueOf("1.1.1.1")),
                                             parsed));
@@ -573,7 +609,7 @@ public class JsonParserTest {
 
     @Test
     public void testIpGroupRoundTrip_singleIpv6Address() {
-
+        //given
         IpGroupProvider ipGroupProvider = new IpGroupProvider(null);
         IpGroup original = new IpGroup();
         original.setDescription("Ip group description");
@@ -588,8 +624,10 @@ public class JsonParserTest {
 
         System.out.println(serialized.toString());
 
+        //when
         IpGroup parsed = new JsonParser().parseIpGroup(serialized);
 
+        //then
         assertEquals(original, parsed);
         assertTrue(ipGroupProvider.contains(new DataverseRequest(GuestUser.get(),
                                                                  IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61")),
@@ -616,6 +654,7 @@ public class JsonParserTest {
 
     @Test
     public void testparseFiles() throws JsonParseException {
+        //given
         JsonArrayBuilder metadatasJsonBuilder = Json.createArrayBuilder();
         JsonObjectBuilder fileMetadataGood = Json.createObjectBuilder();
         fileMetadataGood.add("label", "myLabel");
@@ -635,15 +674,17 @@ public class JsonParserTest {
         metadatasJsonBuilder.add(fileMetadataBad);
         JsonArray metadatasJson = metadatasJsonBuilder.build();
         DatasetVersion dsv = createEmptyDatasetVersion();
+        //when
         List<FileMetadata> fileMetadatas = new JsonParser().parseFiles(metadatasJson, dsv);
-        System.out.println("fileMetadatas: " + fileMetadatas);
+
+        //then
         assertEquals("myLabel", fileMetadatas.get(0).getLabel());
         assertEquals("Documentation", fileMetadatas.get(0).getCategories().get(0).getName());
-        assertEquals(null, fileMetadatas.get(1).getCategories());
+        assertNull(fileMetadatas.get(1).getCategories());
         List<FileMetadata> codeCoverage = new JsonParser().parseFiles(Json.createArrayBuilder().add(Json.createObjectBuilder().add(
                 "label",
                 "myLabel").add("dataFile", Json.createObjectBuilder().add("categories", JsonValue.NULL))).build(), dsv);
-        assertEquals(null, codeCoverage.get(0).getCategories());
+        assertNull(codeCoverage.get(0).getCategories());
     }
 
     @Test
