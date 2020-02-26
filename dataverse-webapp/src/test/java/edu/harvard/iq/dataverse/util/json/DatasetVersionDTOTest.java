@@ -5,6 +5,8 @@
  */
 package edu.harvard.iq.dataverse.util.json;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -23,7 +25,6 @@ import org.junit.Test;
 
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
-import junit.framework.Assert;
 
 /**
  * @author ellenk
@@ -84,6 +85,6 @@ public class DatasetVersionDTOTest {
         JsonElement expected = gson.toJsonTree(expectedDTO, FieldDTO.class);
         JsonElement result = gson.toJsonTree(authorDTO);
 
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 }
