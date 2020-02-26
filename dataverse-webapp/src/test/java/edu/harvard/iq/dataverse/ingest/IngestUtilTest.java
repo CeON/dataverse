@@ -27,11 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class IngestUtilTest {
 
     @Test
-    /**
-     * Test adding duplicate file name labels to a dataset version with no
-     * subdirectories.
-     */
-    public void testCheckForDuplicateFileNamesNoDirectories() throws Exception {
+    public void checkForDuplicateFileNamesFinal_noDirectories() throws Exception {
 
         SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
 
@@ -130,12 +126,7 @@ public class IngestUtilTest {
     }
 
     @Test
-    /**
-     * Test adding duplicate file name labels to a dataset version with empty
-     * directory labels. This should simulate what happens when uploading a file
-     * via the file upload UI.
-     */
-    public void testCheckForDuplicateFileNamesWithEmptyDirectoryLabels() throws Exception {
+    public void checkForDuplicateFileNamesFinal_emptyDirectoryLabels() throws Exception {
 
         SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
 
@@ -236,11 +227,7 @@ public class IngestUtilTest {
     }
 
     @Test
-    /**
-     * Test adding duplicate file name labels with directories, including a
-     * duplicate file name label in another directory.
-     */
-    public void testCheckForDuplicateFileNamesWithDirectories() throws Exception {
+    public void checkForDuplicateFileNamesFinal_withDirectories() throws Exception {
 
         SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
 
@@ -374,11 +361,7 @@ public class IngestUtilTest {
     }
 
     @Test
-    /**
-     * Test tabular files (e.g., .dta) are changed when .tab files with the same
-     * name exist.
-     */
-    public void testCheckForDuplicateFileNamesTabular() throws Exception {
+    public void checkForDuplicateFileNamesFinal_tabularFiles() throws Exception {
 
         SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
 
@@ -536,7 +519,7 @@ public class IngestUtilTest {
     }
 
     @Test
-    public void testRecalculateDatasetVersionUNF() {
+    public void recalculateDatasetVersionUNF() {
         IngestUtil.recalculateDatasetVersionUNF(null);
         DatasetVersion dsvNoFile = new DatasetVersion();
         IngestUtil.recalculateDatasetVersionUNF(dsvNoFile);
@@ -578,21 +561,20 @@ public class IngestUtilTest {
     }
 
     @Test
-    public void testShouldHaveUnf() {
+    public void recalculateDatasetVersionUNF_expectedNullUnf() {
         DatasetVersion dsv1 = new DatasetVersion();
         IngestUtil.recalculateDatasetVersionUNF(dsv1);
         assertEquals(null, dsv1.getUNF());
     }
 
     @Test
-    public void testGetUnfValuesOfFiles() {
+    public void getUnfValuesOfFiles_null_expectedEmptyList() {
         List<String> emptyList = new ArrayList<>();
         assertEquals(emptyList, IngestUtil.getUnfValuesOfFiles(null));
-
     }
 
     @Test
-    public void testshouldHaveUnf() {
+    public void shouldHaveUnf_null_expectedFalse() {
         assertEquals(false, IngestUtil.shouldHaveUnf(null));
     }
 
