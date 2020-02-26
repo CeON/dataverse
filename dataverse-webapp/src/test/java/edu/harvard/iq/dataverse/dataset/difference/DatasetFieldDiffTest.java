@@ -22,7 +22,7 @@ class DatasetFieldDiffTest {
         fillAuthorField(secondAuthor,  "John 2", "John 2");
 
         //when
-        Tuple2<String, String> valuePairs = new DatasetFieldDiff(authorField, secondAuthor, authorField.getDatasetFieldType()).generatePairs();
+        Tuple2<String, String> valuePairs = new DatasetFieldDiff(authorField, secondAuthor, authorField.getDatasetFieldType()).generatePairOfJoinedValues();
 
         //then
 

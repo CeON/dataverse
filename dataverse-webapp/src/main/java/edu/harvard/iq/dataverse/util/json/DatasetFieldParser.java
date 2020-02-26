@@ -78,6 +78,8 @@ public class DatasetFieldParser {
         return fieldsArray;
     }
 
+    // -------------------- PRIVATE --------------------
+
     private JsonObjectBuilder prepareDatasetFieldObject(DatasetField dsf, DatasetFieldType dsfType, Map<DatasetFieldType, ParserDataHolder> parsedData) {
         JsonObjectBuilder fieldNode;
 
@@ -92,8 +94,6 @@ public class DatasetFieldParser {
         }
         return fieldNode;
     }
-
-    // -------------------- PRIVATE --------------------
 
     private JsonArrayBuilder parseChildren(boolean excludeEmailFields, DatasetField dsf, JsonArrayBuilder dsfChildArray) {
 

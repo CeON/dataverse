@@ -225,19 +225,19 @@
                             <p:column styleClass="versionDetails">
                                     <h:outputText
                                             rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}"
-                                            value="#{fieldDiff.generatePairs()._1()}"/>
+                                            value="#{fieldDiff.generatePairOfJoinedValues()._1()}"/>
                                     <h:outputText
                                             rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}"
-                                            value="#{fieldDiff.generatePairs()._1()}"/>
+                                            value="#{fieldDiff.generatePairOfJoinedValues()._1()}"/>
                             </p:column>
                             <p:column styleClass="versionDetails">
-                                <ui:repeat value="#{fieldDiff.generatePairs()}" var="valuepair2">
+                                <ui:repeat value="#{fieldDiff.generatePairOfJoinedValues()}" var="valuepair2">
                                     <h:outputText
                                             rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}"
-                                            value="#{fieldDiff.generatePairs()._2()}"/>
+                                            value="#{fieldDiff.generatePairOfJoinedValues()._2()}"/>
                                     <h:outputText
                                             rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}"
-                                            value="#{fieldDiff.generatePairs()._2()}"/>
+                                            value="#{fieldDiff.generatePairOfJoinedValues()._2()}"/>
                                 </ui:repeat>
                             </p:column>
 

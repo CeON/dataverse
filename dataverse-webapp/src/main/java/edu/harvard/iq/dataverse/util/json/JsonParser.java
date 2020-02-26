@@ -557,8 +557,8 @@ public class JsonParser {
             throw new JsonParseException("incorrect  typeClass for field " + json.getString("typeName", "") + ", should be controlledVocabulary");
         }
 
-        DatasetField ret = new DatasetField();
-        ret.setDatasetFieldType(type);
+        DatasetField datasetField = new DatasetField();
+        datasetField.setDatasetFieldType(type);
 
         ArrayList<DatasetField> parsedFields = new ArrayList<>();
 
@@ -569,16 +569,16 @@ public class JsonParser {
             for (ControlledVocabularyValue cvv : vals) {
                 cvv.setDatasetFieldType(type);
             }
-            ret.setControlledVocabularyValues(vals);
-            parsedFields.add(ret);
+            datasetField.setControlledVocabularyValues(vals);
+            parsedFields.add(datasetField);
 
         } else {
             // primitive
             List<DatasetField> values = parsePrimitiveValue(type, json);
 
             if (values.size() == 1){
-                ret.setFieldValue(values.get(0).getValue());
-                parsedFields.add(ret);
+                datasetField.setFieldValue(values.get(0).getValue());
+                parsedFields.add(datasetField);
             } else {
                 parsedFields.addAll(values);
             }

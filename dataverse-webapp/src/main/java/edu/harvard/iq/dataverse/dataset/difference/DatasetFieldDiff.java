@@ -43,7 +43,7 @@ public class DatasetFieldDiff extends MultipleItemDiff<DatasetField> {
     /**
      * Generates DatasetFields joined value pair's so you can compare old and new values.
      */
-    public Tuple2<String, String> generatePairs() {
+    public Tuple2<String, String> generatePairOfJoinedValues() {
         return Tuple.of(DatasetFieldUtil.joinAllValues(getOldValue()), DatasetFieldUtil.joinAllValues(getNewValue()));
     }
 }

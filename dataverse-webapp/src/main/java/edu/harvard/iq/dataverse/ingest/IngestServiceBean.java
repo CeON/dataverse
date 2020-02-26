@@ -1375,7 +1375,7 @@ public class IngestServiceBean {
                         // of the child values in the map of extracted values, we'll 
                         // create a new compound field value and its child 
                         //
-                        DatasetField missingField = new DatasetField();
+                        List<DatasetField> missingFields = new ArrayList<>();
                         int nonEmptyFields = 0;
                         for (DatasetFieldType cdsft : dsft.getChildDatasetFieldTypes()) {
                             String dsfName = cdsft.getName();
@@ -1394,7 +1394,7 @@ public class IngestServiceBean {
                                         childDsf.setDatasetFieldType(cdsft);
                                         childDsf.setFieldValue((String) fileMetadataMap.get(dsfName).toArray()[0]);
 
-                                        missingField = childDsf;
+                                        missingFields.add(childDsf);
 
                                         nonEmptyFields++;
                                     }
@@ -1438,8 +1438,10 @@ public class IngestServiceBean {
                                     if (!alreadyExists) {
                                         // save this compound value, by attaching it to the
                                         // version for proper cascading:
-                                        missingField.setDatasetFieldParent(dsf);
-                                        dsf.getDatasetFieldsChildren().add(missingField);
+                                        missingFields.forEach(missingField -> {
+                                            missingField.setDatasetFieldParent(dsf);
+                                            dsf.getDatasetFieldsChildren().add(missingField);
+                                        });
                                     }
                                 }
                             }

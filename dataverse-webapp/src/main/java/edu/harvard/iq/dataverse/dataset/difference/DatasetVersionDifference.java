@@ -77,7 +77,7 @@ public final class DatasetVersionDifference {
         for (DatasetFieldType removedFieldType : SetUtils.difference(originalDatasetFieldTypes, newDatasetFieldTypes)) {
             List<DatasetField> originalDatasetField = extractFieldsWithType(originalVersion.getDatasetFields(),
                                                                             removedFieldType);
-            if (originalDatasetField.stream().noneMatch(DatasetField::isEmpty)) {
+            if (originalDatasetField.stream().anyMatch(dsf -> !dsf.isEmpty())) {
 
                 int valuesCount = originalDatasetField.stream()
                         .mapToInt(this::extractFieldValuesCount)
@@ -95,7 +95,7 @@ public final class DatasetVersionDifference {
 
         for (DatasetFieldType addedFieldType : SetUtils.difference(newDatasetFieldTypes, originalDatasetFieldTypes)) {
             List<DatasetField> newDatasetField = extractFieldsWithType(newVersion.getDatasetFields(), addedFieldType);
-            if (newDatasetField.stream().noneMatch(DatasetField::isEmpty)) {
+            if (newDatasetField.stream().anyMatch(dsf -> !dsf.isEmpty())) {
 
                 int valuesCount = newDatasetField.stream()
                         .mapToInt(this::extractFieldValuesCount)
