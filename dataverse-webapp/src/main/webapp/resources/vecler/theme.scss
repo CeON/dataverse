@@ -116,6 +116,29 @@ body {
 	color: $main-text-color;
 }
 
+/* "Skip to content" label */
+.sr-only.impaired-navigation:focus {
+	top: -1px;
+	left: 0;
+	right: 0;
+	z-index: 931;
+	
+	margin: 0 auto;
+	padding: 0.3em 1em;
+
+	height: auto;
+	width: 15em;
+	clip: unset;
+
+	border-radius: 0 0 0.5em 0.5em;
+	border: 1px solid #fff;
+	outline: none;
+	
+	background: $icon-color;
+	color: #fff;
+	text-align: center;
+}
+
 .btn {
 	font-size: 15px;
 }
@@ -323,7 +346,7 @@ tr.ui-state-highlight .ui-icon {
 }
 
 .ui-button.ui-state-default {
-	&[id*="Cancel"], &[id*="cancel"] {
+	&[id*="Cancel"], &[id*="cancel"], &[class="button-cancel"] {
 		border: none;
 		box-shadow: none;
 	}
@@ -732,6 +755,12 @@ input.fancy-checkbox[type=checkbox] {
 	
 		color: #fff;
 	}
+	&.label-info {
+		background: $icon-color;
+		border: 1px solid $icon-color;
+	
+		color: #fff;
+	}
 	&.label-default {
 		background: #fff;
 		border: 1px solid $main-color;
@@ -835,6 +864,25 @@ input.fancy-checkbox[type=checkbox] {
 			cursor: default;
 		}
 	}
+
+	.ui-tabs-panel {
+		padding: 1em 0;
+	}
+}
+
+div[id$="notifications"].ui-tabs-panel {
+	div.notification-item:last-child div.notification-item-cell {
+		border-bottom: none;
+	}
+
+	div.notification-item-cell {
+		padding: 0.8em;
+
+		.text-icon-inline {
+			position: relative;
+			top: 0.2em;
+		}
+	}
 }
 
 /* Tables */
@@ -924,10 +972,10 @@ input.fancy-checkbox[type=checkbox] {
 		}
 	}
 
-	.ui-datatable-odd {
+	&:not(.no-alternating-row-colors) .ui-datatable-odd {
 		background: none;
 
-		td {
+		 td {
 			background: $search-result-desc-color;
 
 			.ui-chkbox-box::before, .ui-chkbox-icon::before {
@@ -997,7 +1045,8 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 	margin: 0 5px 0 1px;
 }
 
-.panel-default > div.panel-heading {
+.panel-default > .panel-heading {
+	display: block;
 	padding: 16px 20px 14px 20px;
 	border-bottom: 1px solid $gray-border-color;
 	background: $search-result-desc-color;
@@ -1054,6 +1103,15 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 		table.table {
 			margin-bottom: 0;
 		}
+	}
+}
+
+.ui-datatable-scrollable-body {
+	height: auto !important;
+	max-height: 300px;
+
+	tbody td.ui-selection-column {
+		padding: 14px 20px;
 	}
 }
 
@@ -1123,7 +1181,8 @@ div.panelSearchForm input.search-input {
 	background-color: $main-color;
 }
 
-#metrics-block.col-xs-3 {
+#metrics-block.col-xs-4 {
+	padding: 0;
 	border: none;
 	color: $main-text-color;
 }
@@ -1286,6 +1345,9 @@ div.panelSearchForm input.search-input {
 		margin-left: 4px;
 	}
 
+	.ui-datalist-item hr {
+		margin: 0 0 28px 0;
+	}
 }
 
 .facetTypeChBox.facetLink {
@@ -1310,6 +1372,10 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 }
 
 /* Search results */
+
+.card-content-container {
+	margin-left: 60px;
+}
 
 #resultsCountPaginatorBlock {
 	margin-bottom: 8px;
@@ -1395,16 +1461,22 @@ table[id$="resultsTable"] {
 		}
 	}
 
-	span.label {
-		position: relative;
-		top: -8px;
-		line-height: 12px;
+	.label-container {
+		margin-top: -8px;
+
+		span.label {
+			line-height: 12px;
+		}
 	}
 
 	.file-tags-block {
 		position: relative;
 		top: 15px;
 		margin-bottom: 15px;
+	}
+
+	.resultDatasetCitationBlock {
+		margin-left: 0;
 	}
 }
 
@@ -1561,7 +1633,7 @@ div[id$="versionsTable"] td {
 	padding: 14px 20px;
 }
 
-.ui-datatable.ui-widget.no-alternating-row-colors .ui-datatable-odd td {
+.ui-datatable.ui-widget.no-alternating-row-colors .ui-datatable-odd:not(.ui-state-highlight):not(:hover) td {
 	background: #fff;
 }
 
@@ -1723,6 +1795,42 @@ div.filesTable {
 
 	.form-horizontal .form-group {
 		margin-right: -14px;
+	}
+
+	/* Fixed bottom button placement */
+	padding-bottom: 100px;
+	box-sizing: content-box;
+
+	.ui-dialog-content {
+		position: static;
+
+		.button-block {
+			position: absolute;
+			left: 15px;
+			right: 15px;
+			bottom: 0;
+		}
+	}
+}
+
+.form-horizontal .button-block {
+	button.button-cancel, a.button-cancel {
+		padding: 6px 12px;
+		color: $link-color;
+
+		&:last-child {
+			border: 1px solid transparent;
+			box-shadow: none;
+
+			&:active {
+				box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+			}
+		}
+
+		span.ui-button-text {
+			line-height: 1.42857143;
+			padding: 0;
+		}
 	}
 }
 

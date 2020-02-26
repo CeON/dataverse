@@ -13,36 +13,36 @@
         <ui:repeat value="#{metadataBlocks}" var="metadataBlockVal" varStatus="block">
             <div class="panel panel-default" jsf:rendered="#{(showAllBlocks or metadataBlockVal.key.displayOnCreate or !metadataBlockVal.key.isEmpty()
                                                              or metadataBlockVal.key.isHasRequired())}">
-                <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info">
+                <a data-toggle="collapse" href="#panelCollapse#{block.index}" class="panel-heading text-info" tabindex="0">
                     #{metadataBlockVal.key.localeDisplayName} <span class="glyphicon #{block.first || expandAllBlocks  ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
-                </div>
+                </a>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first || expandAllBlocks ? 'in' : ''}">
                     <div class="panel-body">
                         <ui:repeat value="#{metadataBlockVal.value}" var="fieldsByType">
-                            
+
                             <p:outputPanel id="fieldsByTypeFragment" rendered="#{((showAllFields
-                                                            or fieldsByType.datasetFieldType.displayOnCreate 
-                                                            or !fieldsByType.areAllFieldsEmpty() 
+                                                            or fieldsByType.datasetFieldType.displayOnCreate
+                                                            or !fieldsByType.areAllFieldsEmpty()
                                                             or fieldsByType.datasetFieldType.requiredInDataverse)
                                                      and fieldsByType.include)}"
                                         styleClass="form-group">
-                                        
+
                                 <label for="metadata_#{fieldsByType.datasetFieldType.name}" class="col-sm-3 control-label">
                                     #{fieldsByType.datasetFieldType.localeTitle}
                                     <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" rendered="#{fieldsByType.datasetFieldType.requiredInDataverse }" /><!-- dsf.required  or fieldsByType.datasetFieldType.hasRequiredChildren -->
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{fieldsByType.datasetFieldType.localeDescription}"></span>
                                 </label>
-                                    
-                                    
-                                    
+
+
+
                                 <div class="col-sm-9 form-group">
                                     <ui:fragment rendered="#{!fieldsByType.datasetFieldType.controlledVocabulary}">
                                     <ui:repeat value="#{fieldsByType.datasetFields}" var="datasetField" varStatus="valCount" >
-                                    
+
                                         <div class="form-col-container form-group
                                                 #{fieldsByType.datasetFieldType.compound ? 'edit-compound-field form-field-group':'edit-field'}">
-                                        
+
                                             <!-- Main field -->
                                             <div class="col-xs-9 form-col-container" jsf:rendered="#{fieldsByType.datasetFieldType.primitive}">
                                                 <ui:include src="datasetFieldForEditFragment.xhtml">
@@ -50,7 +50,7 @@
                                                     <ui:param name="showAddReplicationForTitleButton" value="#{showAddReplicationForTitleButton}" />
                                                 </ui:include>
                                             </div>
-                                    
+
                                             <!-- Sub Fields -->
                                             <div class="col-xs-9 form-col-container" jsf:rendered="#{fieldsByType.datasetFieldType.compound}">
                                                 <ui:repeat value="#{datasetField.datasetFieldsChildren}" var="subdsf">
@@ -65,19 +65,19 @@
                                                         <label class="control-label" for="metadata_#{subdsf.datasetFieldType.name}">
                                                             #{subdsf.datasetFieldType.localeTitle}
                                                             <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" rendered="#{subdsf.datasetFieldType.requiredInDataverse}" />
-                                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                            <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0"
                                                                   data-toggle="tooltip" data-placement="auto right" data-original-title="#{subdsf.datasetFieldType.localeDescription}"></span>
                                                         </label>
-                                                        
+
                                                         <ui:fragment rendered="#{!subdsf.datasetFieldType.controlledVocabulary}">
                                                             <ui:include src="datasetFieldForEditFragment.xhtml">
                                                                 <ui:param name="datasetField" value="#{subdsf}"/>
                                                                 <ui:param name="showAddReplicationForTitleButton" value="#{showAddReplicationForTitleButton}" />
                                                             </ui:include>
                                                         </ui:fragment>
-                                                        
+
                                                         <div jsf:rendered="#{subdsf.datasetFieldType.controlledVocabulary}">
-                                                            <p:selectOneMenu value="#{subdsf.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;"
+                                                            <p:selectOneMenu tabindex="#{block.index+1}" value="#{subdsf.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;"
                                                                              rendered="#{!subdsf.datasetFieldType.allowMultiples}">
                                                                 <f:selectItem itemLabel="#{bundle.select}" itemValue="" noSelectionOption="true"/>
                                                                 <f:selectItems value="#{subdsf.datasetFieldType.controlledVocabularyValues}" var="cvv" itemLabel="#{cvv.localeStrValue}" itemValue="#{cvv}" />
@@ -95,19 +95,19 @@
                                                     </div>
                                                 </ui:repeat>
                                             </div>
-                                    
-                                    
-                                    
+
+
+
                                             <!-- Add / Remove buttons -->
                                             <div class="col-xs-3 field-add-delete" jsf:rendered="#{fieldsByType.datasetFieldType.allowMultiples and !fieldsByType.datasetFieldType.controlledVocabulary}">
-                                                <p:commandLink title="#{bundle.add}"
+                                                <p:commandLink tabindex="#{block.index+1}" title="#{bundle.add}"
                                                                styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{fieldsByType.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                actionListener="#{fieldsByType.addEmptyDatasetField(valCount.index + 1)}"
                                                                update=":#{p:resolveClientIds('@id(fieldsByTypeFragment)', view)}"
                                                                >
                                                     <span class="glyphicon glyphicon-plus no-text"/>
                                                 </p:commandLink>
-                                                <p:commandLink title="#{bundle.delete}"
+                                                <p:commandLink tabindex="#{block.index+1}" title="#{bundle.delete}"
                                                                styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{fieldsByType.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                rendered="#{fieldsByType.datasetFields.size() > 1}"
                                                                actionListener="#{fieldsByType.removeDatasetField(valCount.index)}"
@@ -117,13 +117,13 @@
                                                 </p:commandLink>
                                             </div>
                                         </div>
-                                    
+
                                     </ui:repeat>
                                     </ui:fragment>
-                                    
+
                                     <!-- Controlled vocabulary field -->
                                     <ui:fragment rendered="#{fieldsByType.datasetFieldType.controlledVocabulary}">
-                                        <p:selectOneMenu
+                                        <p:selectOneMenu tabindex="#{block.index+1}"
                                                          value="#{fieldsByType.datasetFields.get(0).singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;" styleClass="form-control primitive SELECT TESTTEST"
                                                          rendered="#{!fieldsByType.datasetFieldType.allowMultiples}">
                                             <f:selectItem itemLabel="#{bundle.select}" itemValue="" noSelectionOption="true"/>
@@ -140,7 +140,7 @@
                                             <span class="ui-message-error-detail">#{fieldsByType.datasetFields.get(0).validationMessage}</span>
                                         </div>
                                     </ui:fragment>
-                                    
+
                                 </div>
                             </p:outputPanel>
                         </ui:repeat>
