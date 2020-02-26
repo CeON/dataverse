@@ -53,7 +53,7 @@ public class DatasetVersionDTOTest {
 
     @Test
     public void testReadDataSet() throws FileNotFoundException {
-        File file = new File("src/test/java/edu/harvard/iq/dataverse/util/json/JsonDatasetVersion.txt");
+        File file = new File("src/test/resources/json/JsonDatasetVersion.txt");
         String text = new Scanner(file).useDelimiter("\\Z").next();
         Gson gson = new Gson();
         DatasetVersionDTO dto = gson.fromJson(text, DatasetVersionDTO.class);
