@@ -422,10 +422,9 @@ public class Access extends AbstractApiBean {
     public String dataVariableMetadataDDI(@PathParam("varId") Long varId, @QueryParam("exclude") String exclude, @QueryParam("include") String include, @Context HttpHeaders header, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         String retValue = "";
 
-        Optional<Dataset> datasetOptional = getDatasetFromDataVariable(varId);
-        if(datasetOptional.isPresent() && embargoAccessService.isRestrictedByEmbargo(datasetOptional.get())) {
-            throw new ForbiddenException();
-        }
+        getDatasetFromDataVariable(varId)
+                .filter(dt -> embargoAccessService.isRestrictedByEmbargo(dt))
+                .ifPresent(dt -> { throw new ForbiddenException(); });
 
         ByteArrayOutputStream outStream = null;
         try {
@@ -1305,8 +1304,8 @@ public class Access extends AbstractApiBean {
 
         Optional<User> apiTokenUser = getApiTokenUser(apiToken);
         boolean isRestrictedByEmbargo = apiTokenUser
-                    .map(user -> embargoAccessService.isRestrictedByEmbargo(df.getOwner(), user, dvRequestService.getDataverseRequest()))
-                    .orElseGet(() -> embargoAccessService.isRestrictedByEmbargo(df.getOwner()));
+                    .map(user -> embargoAccessService.isRestrictedByEmbargo(df.getOwner()))
+                    .orElse(false);
 
         if(isRestrictedByEmbargo) {
             return false;

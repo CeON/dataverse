@@ -1,10 +1,8 @@
 package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import edu.harvard.iq.dataverse.persistence.user.User;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -31,7 +29,4 @@ public class EmbargoAccessService extends AbstractApiBean {
         return dataset.hasActiveEmbargo() && !permissionService.on(dataset).has(Permission.ViewUnpublishedDataset);
     }
 
-    public boolean isRestrictedByEmbargo(Dataset dataset, User user, DataverseRequest dvRequest) {
-        return isRestrictedByEmbargo(dataset);
-    }
 }

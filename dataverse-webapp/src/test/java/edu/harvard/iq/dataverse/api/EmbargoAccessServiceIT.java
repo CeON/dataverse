@@ -5,10 +5,8 @@ import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.user.GuestUser;
-import edu.harvard.iq.dataverse.persistence.user.User;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -62,30 +60,4 @@ public class EmbargoAccessServiceIT extends WebappArquillianDeployment {
         // when&then
         Assert.assertTrue(embargoAccess.isRestrictedByEmbargo(dataset));
     }
-
-    @Test
-    public void shouldCheckEmbargoRestrictionForExplicitUserAndDvRequest_userWithoutPermissions() {
-        // given
-        Dataset dataset = datasetDao.find(57L);
-        dataset.setEmbargoDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-
-        User user = MocksFactory.makeAuthenticatedUser("Jurek", "Kiler");
-        dataverseSession.setUser(user);
-
-
-        // when&then
-        Assert.assertTrue(embargoAccess.isRestrictedByEmbargo(dataset, user, dvRequest.getDataverseRequest()));
-    }
-
-    @Test
-    public void shouldCheckEmbargoRestrictionForExplicitUserAndDvRequest_noEmbargo() {
-        // given
-        Dataset dataset = datasetDao.find(57L);
-        User user = MocksFactory.makeAuthenticatedUser("Jurek", "Kiler");
-        dataverseSession.setUser(user);
-
-        // when&then
-        Assert.assertFalse(embargoAccess.isRestrictedByEmbargo(dataset, user, dvRequest.getDataverseRequest()));
-    }
-
 }
