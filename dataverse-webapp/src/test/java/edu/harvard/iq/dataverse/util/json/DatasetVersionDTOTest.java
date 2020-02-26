@@ -9,7 +9,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
-import edu.harvard.iq.dataverse.common.Util;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,7 +18,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +27,6 @@ import java.util.Scanner;
  * @author ellenk
  */
 public class DatasetVersionDTOTest {
-    private final DateFormat dateFormat = Util.getDateTimeFormat();
-
     public DatasetVersionDTOTest() {
     }
 
