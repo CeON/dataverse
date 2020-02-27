@@ -77,7 +77,7 @@
                                                         </ui:fragment>
 
                                                         <div jsf:rendered="#{subdsf.datasetFieldType.controlledVocabulary}">
-                                                            <p:selectOneMenu tabindex="#{block.index+1}" value="#{subdsf.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;"
+                                                            <p:selectOneMenu value="#{subdsf.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;"
                                                                              rendered="#{!subdsf.datasetFieldType.allowMultiples}">
                                                                 <f:selectItem itemLabel="#{bundle.select}" itemValue="" noSelectionOption="true"/>
                                                                 <f:selectItems value="#{subdsf.datasetFieldType.controlledVocabularyValues}" var="cvv" itemLabel="#{cvv.localeStrValue}" itemValue="#{cvv}" />
@@ -100,14 +100,14 @@
 
                                             <!-- Add / Remove buttons -->
                                             <div class="col-xs-3 field-add-delete" jsf:rendered="#{fieldsByType.datasetFieldType.allowMultiples and !fieldsByType.datasetFieldType.controlledVocabulary}">
-                                                <p:commandLink tabindex="#{block.index+1}" title="#{bundle.add}"
+                                                <p:commandLink title="#{bundle.add}"
                                                                styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{fieldsByType.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                actionListener="#{fieldsByType.addEmptyDatasetField(valCount.index + 1)}"
                                                                update=":#{p:resolveClientIds('@id(fieldsByTypeFragment)', view)}"
                                                                >
                                                     <span class="glyphicon glyphicon-plus no-text"/>
                                                 </p:commandLink>
-                                                <p:commandLink tabindex="#{block.index+1}" title="#{bundle.delete}"
+                                                <p:commandLink title="#{bundle.delete}"
                                                                styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{fieldsByType.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                rendered="#{fieldsByType.datasetFields.size() > 1}"
                                                                actionListener="#{fieldsByType.removeDatasetField(valCount.index)}"
