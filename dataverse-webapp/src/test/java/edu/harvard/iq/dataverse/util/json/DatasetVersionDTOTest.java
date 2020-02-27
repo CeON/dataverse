@@ -8,14 +8,15 @@ package edu.harvard.iq.dataverse.util.json;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
+import org.apache.commons.io.IOUtils;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -52,8 +53,7 @@ public class DatasetVersionDTOTest {
 
     @Test
     public void testReadDataSet() throws IOException {
-        String filePath = "src/test/resources/txt/util/JsonDatasetVersion.txt";
-        String text = new String(Files.readAllBytes(Paths.get(filePath)));
+        String text = readFileToString("txt/util/JsonDatasetVersion.txt")
         Gson gson = new Gson();
         DatasetVersionDTO dto = gson.fromJson(text, DatasetVersionDTO.class);
 
@@ -85,5 +85,9 @@ public class DatasetVersionDTOTest {
         JsonElement result = gson.toJsonTree(authorDTO);
 
         assertEquals(expected, result);
+    }
+
+    private String readFileToString(String resourcePath) throws IOException {
+        return IOUtils.resourceToString(resourcePath, StandardCharsets.UTF_8, getClass().getClassLoader());
     }
 }
