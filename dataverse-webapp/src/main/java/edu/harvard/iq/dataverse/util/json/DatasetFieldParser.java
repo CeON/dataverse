@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.typeClassString;
@@ -50,7 +51,13 @@ public class DatasetFieldParser {
             if (dsfType.isControlledVocabulary()) {
                 for (ControlledVocabularyValue cvv
                         : sort(dsf.getControlledVocabularyValues(), ControlledVocabularyValue.DisplayOrder)) {
-                    parsedData.put(dsfType, new ParserDataHolder(fieldNode, Lists.newArrayList(cvv.getStrValue())));
+
+                    Option.of(parsedData.get(dsfType))
+                            .peek(parserDataHolder -> parserDataHolder.getPrimitiveValues().ifPresent(values -> values.add(
+                                    cvv.getStrValue())))
+                            .onEmpty(() -> parsedData.put(dsfType,
+                                                          new ParserDataHolder(fieldNode,
+                                                                               Lists.newArrayList(cvv.getStrValue()))));
                 }
 
             } else if (dsfType.isPrimitive()) {
@@ -112,11 +119,13 @@ public class DatasetFieldParser {
             childObject.add("typeClass", typeClassString(childType));
 
             if (childType.isControlledVocabulary()) {
-                for (ControlledVocabularyValue cvv
-                        : sort(dsfChild.getControlledVocabularyValues(),
-                               ControlledVocabularyValue.DisplayOrder)) {
-                    childObject.add("value", cvv.getStrValue());
-                }
+                List<ControlledVocabularyValue> controlledVocab = dsfChild.getControlledVocabularyValues();
+
+                List<String> vocabValues = controlledVocab.stream()
+                        .map(ControlledVocabularyValue::getStrValue)
+                        .collect(Collectors.toList());
+
+                parseVocabularyValues(childType, vocabValues, childObject);
 
             } else if (childType.isPrimitive()) {
 
@@ -155,7 +164,9 @@ public class DatasetFieldParser {
                         parentDsf.add("value", parserData.getChildValues().orElseGet(Json::createArrayBuilder));
                     } else if (parserEntries.getKey().isControlledVocabulary()) {
 
-                        parseVocabularyValues(parserEntries, parserData, parentDsf);
+                        parseVocabularyValues(parserEntries.getKey(),
+                                              parserData.getPrimitiveValues().orElse(Lists.newArrayList()),
+                                              parentDsf);
 
                     }
 
@@ -178,18 +189,18 @@ public class DatasetFieldParser {
         });
     }
 
-    private void parseVocabularyValues(Map.Entry<DatasetFieldType, ParserDataHolder> parserEntries, ParserDataHolder parserData, JsonObjectBuilder parentDsf) {
-        if (parserEntries.getKey().isAllowMultiples()){
+    private void parseVocabularyValues(DatasetFieldType datasetFieldType, List<String> values, JsonObjectBuilder parentDsf) {
+        if (datasetFieldType.isAllowMultiples()) {
             JsonArrayBuilder parserArray = Json.createArrayBuilder();
 
-            parserData.getPrimitiveValues().orElseGet(ArrayList::new)
+            Optional.of(values).orElseGet(ArrayList::new)
                     .forEach(parserArray::add);
 
             parentDsf.add("value", parserArray);
         } else {
 
-            parserData.getPrimitiveValues().ifPresent(values -> {
-                parentDsf.add("value", values.get(0));
+            Optional.of(values).ifPresent(strings -> {
+                parentDsf.add("value", strings.get(0));
             });
         }
     }

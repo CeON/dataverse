@@ -111,8 +111,7 @@ public class DatasetFieldUtil {
     public static Map<MetadataBlock, List<DatasetFieldsByType>> groupByBlockAndType(List<DatasetField> datasetFields) {
         Map<MetadataBlock, List<DatasetFieldsByType>> fieldsByBlockAndType = new LinkedHashMap<>();
         
-        groupByBlock(datasetFields).entrySet().stream()
-            .forEach(blockAndFields -> fieldsByBlockAndType.put(blockAndFields.getKey(), groupByType(blockAndFields.getValue())));
+        groupByBlock(datasetFields).forEach((key, value) -> fieldsByBlockAndType.put(key, groupByType(value)));
 
         return fieldsByBlockAndType;
     }
@@ -126,8 +125,7 @@ public class DatasetFieldUtil {
                             LinkedHashMap::new,
                             mapping(Function.identity(), toList())));
         
-        fieldsByTypesMap.entrySet().stream()
-            .forEach(typeAndFields -> fieldsByTypes.add(new DatasetFieldsByType(typeAndFields.getKey(), typeAndFields.getValue())));
+        fieldsByTypesMap.forEach((key, value) -> fieldsByTypes.add(new DatasetFieldsByType(key, value)));
         
         return fieldsByTypes;
     }
