@@ -52,7 +52,7 @@ public class DatasetVersionDTOTest {
 
     @Test
     public void testReadDataSet() throws IOException {
-        String filePath = "src/test/resources/json/JsonDatasetVersion.txt";
+        String filePath = "src/test/resources/txt/util/JsonDatasetVersion.txt";
         String text = new String(Files.readAllBytes(Paths.get(filePath)));
         Gson gson = new Gson();
         DatasetVersionDTO dto = gson.fromJson(text, DatasetVersionDTO.class);
