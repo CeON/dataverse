@@ -17,7 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 import org.apache.commons.io.IOUtils;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -53,7 +52,7 @@ public class DatasetVersionDTOTest {
 
     @Test
     public void testReadDataSet() throws IOException {
-        String text = readFileToString("txt/util/JsonDatasetVersion.txt")
+        String text = readFileToString("txt/util/JsonDatasetVersion.txt");
         Gson gson = new Gson();
         DatasetVersionDTO dto = gson.fromJson(text, DatasetVersionDTO.class);
 
