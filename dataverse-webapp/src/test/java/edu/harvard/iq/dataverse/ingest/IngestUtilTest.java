@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -97,7 +98,6 @@ public class IngestUtilTest {
             }
         }
 
-        // check filenames are unique and unaltered
         assertTrue(file1NameAltered);
         assertTrue(file2NameAltered);
 
@@ -113,7 +113,6 @@ public class IngestUtilTest {
             }
         }
 
-        // check filenames are unique and unaltered
         assertTrue(file1NameAltered);
         assertTrue(file2NameAltered);
     }
@@ -198,7 +197,6 @@ public class IngestUtilTest {
             }
         }
 
-        // check filenames are unique and unaltered
         assertTrue(file1NameAltered);
         assertTrue(file2NameAltered);
 
@@ -214,7 +212,6 @@ public class IngestUtilTest {
             }
         }
 
-        // check filenames are unique and unaltered
         assertTrue(file1NameAltered);
         assertTrue(file2NameAltered);
     }
@@ -434,63 +431,66 @@ public class IngestUtilTest {
     }
 
     @Test
-    public void recalculateDatasetVersionUNF() {
+    public void recalculateDatasetVersionUNF_nullVersion_expectedNoException() {
         IngestUtil.recalculateDatasetVersionUNF(null);
+    }
+
+    @Test
+    public void recalculateDatasetVersionUNF_noFileVersion_expectedNullUnf() {
         DatasetVersion dsvNoFile = new DatasetVersion();
         IngestUtil.recalculateDatasetVersionUNF(dsvNoFile);
         assertNull(dsvNoFile.getUNF());
+    }
 
-        List<Dataset> datasets = new ArrayList<>();
+    @Test
+    public void recalculateDatasetVersionUNF() {
+        //GIVEN
         Dataset dataset = new Dataset();
         dataset.setProtocol("doi");
         dataset.setAuthority("fakeAuthority");
         dataset.setIdentifier("12345");
-        DatasetVersion dsv1 = new DatasetVersion();
-        dsv1.setDataset(dataset);
-        dsv1.setId(42L);
-        dsv1.setVersionState(DatasetVersion.VersionState.DRAFT);
-        List<DatasetVersion> datasetVersions = new ArrayList<>();
-        datasetVersions.add(dsv1);
 
-        DataFile datafile1 = new DataFile("application/octet-stream");
+        DatasetVersion datasetVersion = new DatasetVersion();
+        datasetVersion.setDataset(dataset);
+        datasetVersion.setId(42L);
+        datasetVersion.setVersionState(DatasetVersion.VersionState.DRAFT);
+
+        List<DatasetVersion> datasetVersions = new ArrayList<>();
+        datasetVersions.add(datasetVersion);
+        dataset.setVersions(datasetVersions);
+
         DataTable dataTable = new DataTable();
         dataTable.setUnf("unfOnDataTable");
-        datafile1.setDataTable(dataTable);
-        assertTrue(datafile1.isTabularData());
 
-        FileMetadata fmd1 = new FileMetadata();
-        fmd1.setId(1L);
-        fmd1.setLabel("datafile1.txt");
-        fmd1.setDataFile(datafile1);
-        datafile1.getFileMetadatas().add(fmd1);
-        dsv1.getFileMetadatas().add(fmd1);
-        fmd1.setDatasetVersion(dsv1);
+        DataFile dataFile = new DataFile("application/octet-stream");
+        dataFile.setDataTable(dataTable);
 
-        dataset.setVersions(datasetVersions);
-        datasets.add(dataset);
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(1L);
+        fileMetadata.setLabel("datafile1.txt");
+        fileMetadata.setDataFile(dataFile);
 
-        assertNull(dsv1.getUNF());
-        IngestUtil.recalculateDatasetVersionUNF(dsv1);
-        assertEquals("UNF:6:rDlgOhoEkEQQdwtLRHjmtw==", dsv1.getUNF());
+        dataFile.getFileMetadatas().add(fileMetadata);
+        datasetVersion.getFileMetadatas().add(fileMetadata);
+        fileMetadata.setDatasetVersion(datasetVersion);
 
-    }
+        //WHEN
+        IngestUtil.recalculateDatasetVersionUNF(datasetVersion);
 
-    @Test
-    public void recalculateDatasetVersionUNF_expectedNullUnf() {
-        DatasetVersion dsv1 = new DatasetVersion();
-        IngestUtil.recalculateDatasetVersionUNF(dsv1);
-        assertNull(dsv1.getUNF());
+        //THEN
+        assertAll(
+                () -> assertEquals("UNF:6:rDlgOhoEkEQQdwtLRHjmtw==", datasetVersion.getUNF()),
+                () -> assertTrue(dataFile.isTabularData())
+        );
     }
 
     @Test
     public void getUnfValuesOfFiles_null_expectedEmptyList() {
-        List<String> emptyList = new ArrayList<>();
-        assertEquals(emptyList, IngestUtil.getUnfValuesOfFiles(null));
+        assertEquals(Collections.emptyList(), IngestUtil.getUnfValuesOfFiles(null));
     }
 
     @Test
     public void shouldHaveUnf_null_expectedFalse() {
         assertFalse(IngestUtil.shouldHaveUnf(null));
     }
-
 }
