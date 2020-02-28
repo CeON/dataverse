@@ -30,15 +30,27 @@ public class Consent {
     @OneToMany(mappedBy = "consent", cascade = CascadeType.ALL)
     private List<ConsentAction> consentActions = new ArrayList<>();
 
+    @Column(nullable = false)
+    private int displayOrder;
+
+    @Column(nullable = false)
+    private boolean required;
+
+    @Column(nullable = false)
+    private boolean hidden;
+
     // -------------------- CONSTRUCTORS --------------------
 
     protected Consent() {
     }
 
-    public Consent(Long id, String name, List<ConsentDetails> consentDetails) {
+    public Consent(Long id, String name, List<ConsentDetails> consentDetails, int displayOrder, boolean required, boolean hidden) {
         this.id = id;
         this.name = name;
         this.consentDetails = consentDetails;
+        this.displayOrder = displayOrder;
+        this.required = required;
+        this.hidden = hidden;
     }
 
     // -------------------- GETTERS --------------------
@@ -67,5 +79,37 @@ public class Consent {
      */
     public List<ConsentAction> getConsentActions() {
         return consentActions;
+    }
+
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    /**
+     * Determines if the consent is required to be accepted.
+     */
+    public boolean isRequired() {
+        return required;
+    }
+
+    /**
+     * Determines if the consent is hidden from the user.
+     */
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

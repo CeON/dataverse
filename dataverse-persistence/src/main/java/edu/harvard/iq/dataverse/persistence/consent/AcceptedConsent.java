@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.consent;
 
 import edu.harvard.iq.dataverse.persistence.config.LocaleConverter;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -13,15 +14,14 @@ import javax.persistence.ManyToOne;
 import java.util.Locale;
 
 @Entity
-public class ConsentDetails {
+public class AcceptedConsent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "consent_id")
-    private Consent consent;
+    @Column(updatable = false)
+    private String name;
 
     @Column(nullable = false, updatable = false)
     @Convert(converter = LocaleConverter.class)
@@ -30,15 +30,24 @@ public class ConsentDetails {
     @Column(nullable = false, updatable = false)
     private String text;
 
+    @Column(nullable = false)
+    private boolean required;
+
+    @ManyToOne
+    @JoinColumn(nullable = false, updatable = false, name = "user_id")
+    private AuthenticatedUser user;
+
     // -------------------- CONSTRUCTORS --------------------
 
-    protected ConsentDetails() {
+    protected AcceptedConsent() {
     }
 
-    public ConsentDetails(Consent consent, Locale language, String text) {
-        this.consent = consent;
+    public AcceptedConsent(String name, Locale language, String text, boolean required, AuthenticatedUser user) {
+        this.name = name;
         this.language = language;
         this.text = text;
+        this.required = required;
+        this.user = user;
     }
 
     // -------------------- GETTERS --------------------
@@ -47,18 +56,19 @@ public class ConsentDetails {
         return id;
     }
 
-    public Consent getConsent() {
-        return consent;
+    public String getName() {
+        return name;
     }
 
-    /**
-     * Language that the consent text is in.
-     */
     public Locale getLanguage() {
         return language;
     }
 
     public String getText() {
         return text;
+    }
+
+    public boolean isRequired() {
+        return required;
     }
 }
