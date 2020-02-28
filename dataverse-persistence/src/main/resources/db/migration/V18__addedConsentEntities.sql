@@ -27,8 +27,8 @@ create table consentdetails
             primary key,
     text text not null,
     language varchar(255) not null,
-    hidden boolean not null,
-    required boolean not null,
+    hidden boolean not null default false,
+    required boolean not null default false,
     consent_id bigint not null
         constraint fk_consentdetails_consent_id
             references consent
