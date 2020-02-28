@@ -75,7 +75,7 @@ public class Consent {
     }
 
     /**
-     * Actions that will be taken for this consent if for example user will accept it.
+     * Applicable actions for a given consent will be taken if for example user will accept it.
      * Can be empty.
      */
     public List<ConsentAction> getConsentActions() {

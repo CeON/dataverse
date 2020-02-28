@@ -42,11 +42,11 @@ public class AcceptedConsent {
     protected AcceptedConsent() {
     }
 
-    public AcceptedConsent(String name, Locale language, String text, boolean required, AuthenticatedUser user) {
-        this.name = name;
-        this.language = language;
-        this.text = text;
-        this.required = required;
+    public AcceptedConsent(ConsentDetails acceptedConsentDetails, AuthenticatedUser user) {
+        this.name = acceptedConsentDetails.getConsent().getName();
+        this.language = acceptedConsentDetails.getLanguage();
+        this.text = acceptedConsentDetails.getText();
+        this.required = acceptedConsentDetails.getConsent().isRequired();
         this.user = user;
     }
 
