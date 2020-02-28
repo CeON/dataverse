@@ -5,7 +5,10 @@ create table consent
             primary key,
     name varchar(255)
         constraint consent_name_key
-            unique
+            unique,
+    displayorder integer not null default 0,
+    hidden boolean not null default false,
+    required boolean not null default false
 );
 
 create table consentaction
@@ -27,9 +30,21 @@ create table consentdetails
             primary key,
     text text not null,
     language varchar(255) not null,
-    hidden boolean not null default false,
-    required boolean not null default false,
     consent_id bigint not null
         constraint fk_consentdetails_consent_id
             references consent
+);
+
+create table acceptedconsent
+(
+    id serial
+        constraint acceptedconsent_pkey
+            primary key,
+    name varchar(255) not null,
+    language varchar(255) not null,
+    text text not null,
+    required boolean not null,
+    user_id bigint not null
+        constraint fk_acceptedconsent_user_id
+            references authenticateduser
 );
