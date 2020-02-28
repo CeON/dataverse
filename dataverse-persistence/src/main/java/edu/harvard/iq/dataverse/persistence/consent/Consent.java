@@ -24,7 +24,7 @@ public class Consent {
     @Column(unique = true, updatable = false)
     private String name;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "consent", cascade = CascadeType.ALL)
     private List<ConsentDetails> consentDetails = new ArrayList<>();
 
     @OneToMany(mappedBy = "consent", cascade = CascadeType.ALL)

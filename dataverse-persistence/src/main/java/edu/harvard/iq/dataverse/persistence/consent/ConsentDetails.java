@@ -21,11 +21,11 @@ public class ConsentDetails {
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "consent_id")
-    private Consent parent;
+    private Consent consent;
 
     @Column(nullable = false, updatable = false)
     @Convert(converter = LocaleConverter.class)
-    private Locale textLanguage;
+    private Locale language;
 
     @Column(nullable = false, updatable = false)
     private String text;
@@ -41,9 +41,9 @@ public class ConsentDetails {
     protected ConsentDetails() {
     }
 
-    public ConsentDetails(Consent parent, Locale textLanguage, String text, boolean required, boolean hidden) {
-        this.parent = parent;
-        this.textLanguage = textLanguage;
+    public ConsentDetails(Consent consent, Locale language, String text, boolean required, boolean hidden) {
+        this.consent = consent;
+        this.language = language;
         this.text = text;
         this.required = required;
         this.hidden = hidden;
@@ -55,15 +55,15 @@ public class ConsentDetails {
         return id;
     }
 
-    public Consent getParent() {
-        return parent;
+    public Consent getConsent() {
+        return consent;
     }
 
     /**
      * Language that the consent text is in.
      */
-    public Locale getTextLanguage() {
-        return textLanguage;
+    public Locale getLanguage() {
+        return language;
     }
 
     public String getText() {
