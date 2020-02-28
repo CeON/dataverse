@@ -44,7 +44,8 @@ public class Consent {
     protected Consent() {
     }
 
-    public Consent(Long id, String name, List<ConsentDetails> consentDetails, int displayOrder, boolean required, boolean hidden) {
+    public Consent(Long id, String name, List<ConsentDetails> consentDetails,
+                   int displayOrder, boolean required, boolean hidden) {
         this.id = id;
         this.name = name;
         this.consentDetails = consentDetails;
