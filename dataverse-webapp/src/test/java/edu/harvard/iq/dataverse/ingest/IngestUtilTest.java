@@ -6,9 +6,11 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,65 +25,22 @@ public class IngestUtilTest {
     @Test
     public void checkForDuplicateFileNamesFinal_noDirectories() throws Exception {
 
-        SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
+         Dataset dataset = makeDataset();
+       DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
-        // create dataset
-        Dataset dataset = makeDataset();
-
-        // create dataset version
-        DatasetVersion datasetVersion = dataset.getEditVersion();
-        datasetVersion.setCreateTime(dateFmt.parse("20001012"));
-        datasetVersion.setLastUpdateTime(datasetVersion.getLastUpdateTime());
-        datasetVersion.setId(MocksFactory.nextId());
-        datasetVersion.setReleaseTime(dateFmt.parse("20010101"));
-        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
-        datasetVersion.setMinorVersionNumber(0L);
-        datasetVersion.setVersionNumber(1L);
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-
-        // create datafiles
         List<DataFile> dataFileList = new ArrayList<>();
-        DataFile datafile1 = new DataFile("application/octet-stream");
-        datafile1.setStorageIdentifier("datafile1.txt");
-        datafile1.setFilesize(200);
-        datafile1.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile1.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile1.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile1.setOwner(dataset);
-        datafile1.setIngestDone();
-        datafile1.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile1.setChecksumValue("Unknown");
+        DataFile datafile1 = createDataFile(dataset, "application/octet-stream", "datafile1.txt");
 
-        // set metadata and add verson
-        FileMetadata fmd1 = new FileMetadata();
-        fmd1.setId(1L);
-        fmd1.setLabel("datafile1.txt");
-        fmd1.setDataFile(datafile1);
+        FileMetadata fmd1 = createFileMetadata(datasetVersion, datafile1, 1L, "datafile1.txt");
         datafile1.getFileMetadatas().add(fmd1);
         datasetVersion.getFileMetadatas().add(fmd1);
-        fmd1.setDatasetVersion(datasetVersion);
 
         dataFileList.add(datafile1);
 
-        DataFile datafile2 = new DataFile("application/octet-stream");
-        datafile2.setStorageIdentifier("datafile2.txt");
-        datafile2.setFilesize(200);
-        datafile2.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile2.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setOwner(dataset);
-        datafile2.setIngestDone();
-        datafile2.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile2.setChecksumValue("Unknown");
-
-        // set metadata and add version
-        FileMetadata fmd2 = new FileMetadata();
-        fmd2.setId(2L);
-        fmd2.setLabel("datafile2.txt");
-        fmd2.setDataFile(datafile2);
+        DataFile datafile2 = createDataFile(dataset, "application/octet-stream", "datafile2.txt");
+        FileMetadata fmd2 = createFileMetadata(datasetVersion, datafile2, 2L, "datafile2.txt");
         datafile2.getFileMetadatas().add(fmd2);
         datasetVersion.getFileMetadatas().add(fmd2);
-        fmd2.setDatasetVersion(datasetVersion);
 
         dataFileList.add(datafile2);
 
@@ -117,29 +76,20 @@ public class IngestUtilTest {
         assertTrue(file2NameAltered);
     }
 
-    @Test
-    public void checkForDuplicateFileNamesFinal_emptyDirectoryLabels() throws Exception {
+    @NotNull
+    private FileMetadata createFileMetadata(DatasetVersion datasetVersion, DataFile datafile1, long l, String s) {
+        FileMetadata fmd1 = new FileMetadata();
+        fmd1.setId(l);
+        fmd1.setLabel(s);
+        fmd1.setDataFile(datafile1);
+        fmd1.setDatasetVersion(datasetVersion);
+        return fmd1;
+    }
 
-        SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
-
-        // create dataset
-        Dataset dataset = makeDataset();
-
-        // create dataset version
-        DatasetVersion datasetVersion = dataset.getEditVersion();
-        datasetVersion.setCreateTime(dateFmt.parse("20001012"));
-        datasetVersion.setLastUpdateTime(datasetVersion.getLastUpdateTime());
-        datasetVersion.setId(MocksFactory.nextId());
-        datasetVersion.setReleaseTime(dateFmt.parse("20010101"));
-        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
-        datasetVersion.setMinorVersionNumber(0L);
-        datasetVersion.setVersionNumber(1L);
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-
-        // create datafiles
-        List<DataFile> dataFileList = new ArrayList<>();
-        DataFile datafile1 = new DataFile("application/octet-stream");
-        datafile1.setStorageIdentifier("datafile1.txt");
+    @NotNull
+    private DataFile createDataFile(Dataset dataset, String s, String s2) {
+        DataFile datafile1 = new DataFile(s);
+        datafile1.setStorageIdentifier(s2);
         datafile1.setFilesize(200);
         datafile1.setModificationTime(new Timestamp(new Date().getTime()));
         datafile1.setCreateDate(new Timestamp(new Date().getTime()));
@@ -148,39 +98,43 @@ public class IngestUtilTest {
         datafile1.setIngestDone();
         datafile1.setChecksumType(DataFile.ChecksumType.SHA1);
         datafile1.setChecksumValue("Unknown");
+        return datafile1;
+    }
 
-        // set metadata and add verson
-        FileMetadata fmd1 = new FileMetadata();
-        fmd1.setId(1L);
-        fmd1.setLabel("datafile1.txt");
+    private DatasetVersion getDatasetVersion(Dataset dataset) throws ParseException {
+        DatasetVersion datasetVersion = dataset.getEditVersion();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        datasetVersion.setCreateTime(dateFormat.parse("20001012"));
+        datasetVersion.setLastUpdateTime(datasetVersion.getLastUpdateTime());
+        datasetVersion.setId(MocksFactory.nextId());
+        datasetVersion.setReleaseTime(dateFormat.parse("20010101"));
+        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
+        datasetVersion.setMinorVersionNumber(0L);
+        datasetVersion.setVersionNumber(1L);
+        datasetVersion.setFileMetadatas(new ArrayList<>());
+        return datasetVersion;
+    }
+
+    @Test
+    public void checkForDuplicateFileNamesFinal_emptyDirectoryLabels() throws Exception {
+
+        Dataset dataset = makeDataset();
+        DatasetVersion datasetVersion = getDatasetVersion(dataset);
+
+        List<DataFile> dataFileList = new ArrayList<>();
+        DataFile datafile1 = createDataFile(dataset, "application/octet-stream", "datafile1.txt");
+        FileMetadata fmd1 = createFileMetadata(datasetVersion, datafile1, 1L, "datafile1.txt");
         fmd1.setDirectoryLabel("");
-        fmd1.setDataFile(datafile1);
         datafile1.getFileMetadatas().add(fmd1);
         datasetVersion.getFileMetadatas().add(fmd1);
-        fmd1.setDatasetVersion(datasetVersion);
 
         dataFileList.add(datafile1);
 
-        DataFile datafile2 = new DataFile("application/octet-stream");
-        datafile2.setStorageIdentifier("datafile2.txt");
-        datafile2.setFilesize(200);
-        datafile2.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile2.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setOwner(dataset);
-        datafile2.setIngestDone();
-        datafile2.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile2.setChecksumValue("Unknown");
-
-        // set metadata and add version
-        FileMetadata fmd2 = new FileMetadata();
-        fmd2.setId(2L);
-        fmd2.setLabel("datafile2.txt");
+        DataFile datafile2 = createDataFile(dataset, "application/octet-stream", "datafile2.txt");
+        FileMetadata fmd2 = createFileMetadata(datasetVersion, datafile2, 2L, "datafile2.txt");
         fmd2.setDirectoryLabel("");
-        fmd2.setDataFile(datafile2);
         datafile2.getFileMetadatas().add(fmd2);
         datasetVersion.getFileMetadatas().add(fmd2);
-        fmd2.setDatasetVersion(datasetVersion);
 
         dataFileList.add(datafile2);
 
@@ -219,82 +173,27 @@ public class IngestUtilTest {
     @Test
     public void checkForDuplicateFileNamesFinal_withDirectories() throws Exception {
 
-        SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
-
-        // create dataset
         Dataset dataset = makeDataset();
+        DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
-        // create dataset version
-        DatasetVersion datasetVersion = dataset.getEditVersion();
-        datasetVersion.setCreateTime(dateFmt.parse("20001012"));
-        datasetVersion.setLastUpdateTime(datasetVersion.getLastUpdateTime());
-        datasetVersion.setId(MocksFactory.nextId());
-        datasetVersion.setReleaseTime(dateFmt.parse("20010101"));
-        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
-        datasetVersion.setMinorVersionNumber(0L);
-        datasetVersion.setVersionNumber(1L);
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-
-        // create datafiles
         List<DataFile> dataFileList = new ArrayList<>();
-        DataFile datafile1 = new DataFile("application/octet-stream");
-        datafile1.setStorageIdentifier("subdir/datafile1.txt");
-        datafile1.setFilesize(200);
-        datafile1.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile1.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile1.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile1.setOwner(dataset);
-        datafile1.setIngestDone();
-        datafile1.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile1.setChecksumValue("Unknown");
-
-        // set metadata and add version
-        FileMetadata fmd1 = new FileMetadata();
-        fmd1.setId(1L);
-        fmd1.setLabel("datafile1.txt");
+        DataFile datafile1 = createDataFile(dataset, "application/octet-stream", "subdir/datafile1.txt");
+        FileMetadata fmd1 = createFileMetadata(datasetVersion, datafile1, 1L, "datafile1.txt");
         fmd1.setDirectoryLabel("subdir");
-        fmd1.setDataFile(datafile1);
         datafile1.getFileMetadatas().add(fmd1);
         datasetVersion.getFileMetadatas().add(fmd1);
-        fmd1.setDatasetVersion(datasetVersion);
 
         dataFileList.add(datafile1);
 
-        DataFile datafile2 = new DataFile("application/octet-stream");
-        datafile2.setStorageIdentifier("subdir/datafile2.txt");
-        datafile2.setFilesize(200);
-        datafile2.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile2.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setOwner(dataset);
-        datafile2.setIngestDone();
-        datafile2.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile2.setChecksumValue("Unknown");
-
-        // set metadata and add version
-        FileMetadata fmd2 = new FileMetadata();
-        fmd2.setId(2L);
-        fmd2.setLabel("datafile2.txt");
+        DataFile datafile2 = createDataFile(dataset, "application/octet-stream", "subdir/datafile2.txt");
+        FileMetadata fmd2 = createFileMetadata(datasetVersion, datafile2, 2L, "datafile2.txt");
         fmd2.setDirectoryLabel("subdir");
-        fmd2.setDataFile(datafile2);
         datafile2.getFileMetadatas().add(fmd2);
         datasetVersion.getFileMetadatas().add(fmd2);
-        fmd2.setDatasetVersion(datasetVersion);
 
         dataFileList.add(datafile2);
 
-        DataFile datafile3 = new DataFile("application/octet-stream");
-        datafile3.setStorageIdentifier("datafile2.txt");
-        datafile3.setFilesize(200);
-        datafile3.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile3.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile3.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile3.setOwner(dataset);
-        datafile3.setIngestDone();
-        datafile3.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile3.setChecksumValue("Unknown");
-
-        // set metadata and add version
+        DataFile datafile3 = createDataFile(dataset, "application/octet-stream", "datafile2.txt");
         FileMetadata fmd3 = new FileMetadata();
         fmd3.setId(3L);
         fmd3.setLabel("datafile2.txt");
@@ -353,62 +252,18 @@ public class IngestUtilTest {
     @Test
     public void checkForDuplicateFileNamesFinal_tabularFiles() throws Exception {
 
-        SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMdd");
-
-        // create dataset
         Dataset dataset = makeDataset();
+        DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
-        // create dataset version
-        DatasetVersion datasetVersion = dataset.getEditVersion();
-        datasetVersion.setCreateTime(dateFmt.parse("20001012"));
-        datasetVersion.setLastUpdateTime(datasetVersion.getLastUpdateTime());
-        datasetVersion.setId(MocksFactory.nextId());
-        datasetVersion.setReleaseTime(dateFmt.parse("20010101"));
-        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
-        datasetVersion.setMinorVersionNumber(0L);
-        datasetVersion.setVersionNumber(1L);
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-
-        // create datafiles
         List<DataFile> dataFileList = new ArrayList<>();
-        DataFile datafile1 = new DataFile("application/x-strata");
-        datafile1.setStorageIdentifier("foobar.dta");
-        datafile1.setFilesize(200);
-        datafile1.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile1.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile1.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile1.setOwner(dataset);
-        datafile1.setIngestDone();
-        datafile1.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile1.setChecksumValue("Unknown");
-        DataTable dt1 = new DataTable();
-        dt1.setOriginalFileFormat("application/x-stata");
-        datafile1.setDataTable(dt1);
+        DataFile datafile1 = createTabularDataFile(dataset);
 
-        // set metadata and add version
-        FileMetadata fmd1 = new FileMetadata();
-        fmd1.setId(1L);
-        fmd1.setLabel("foobar.tab");
-        fmd1.setDataFile(datafile1);
+        FileMetadata fmd1 = createFileMetadata(datasetVersion, datafile1, 1L, "foobar.tab");
         datafile1.getFileMetadatas().add(fmd1);
         datasetVersion.getFileMetadatas().add(fmd1);
-        fmd1.setDatasetVersion(datasetVersion);
 
-        DataFile datafile2 = new DataFile("application/x-strata");
-        datafile2.setStorageIdentifier("foobar.dta");
-        datafile2.setFilesize(200);
-        datafile2.setModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setCreateDate(new Timestamp(new Date().getTime()));
-        datafile2.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-        datafile2.setOwner(dataset);
-        datafile2.setIngestDone();
-        datafile2.setChecksumType(DataFile.ChecksumType.SHA1);
-        datafile2.setChecksumValue("Unknown");
-        DataTable dt2 = new DataTable();
-        dt2.setOriginalFileFormat("application/x-stata");
-        datafile2.setDataTable(dt2);
+        DataFile datafile2 = createTabularDataFile(dataset);
 
-        // set metadata and add version
         FileMetadata fmd2 = new FileMetadata();
         fmd2.setId(2L);
         fmd2.setLabel("foobar.dta");
@@ -428,6 +283,15 @@ public class IngestUtilTest {
 
         // check filename is altered since tabular and will change to .tab after ingest
         assertTrue(file2NameAltered);
+    }
+
+    @NotNull
+    private DataFile createTabularDataFile(Dataset dataset) {
+        DataFile datafile1 = createDataFile(dataset, "application/x-strata", "foobar.dta");
+        DataTable dt1 = new DataTable();
+        dt1.setOriginalFileFormat("application/x-stata");
+        datafile1.setDataTable(dt1);
+        return datafile1;
     }
 
     @Test
@@ -465,14 +329,10 @@ public class IngestUtilTest {
         DataFile dataFile = new DataFile("application/octet-stream");
         dataFile.setDataTable(dataTable);
 
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(1L);
-        fileMetadata.setLabel("datafile1.txt");
-        fileMetadata.setDataFile(dataFile);
+        FileMetadata fileMetadata = createFileMetadata(datasetVersion, dataFile, 1L, "datafile1.txt");
 
         dataFile.getFileMetadatas().add(fileMetadata);
         datasetVersion.getFileMetadatas().add(fileMetadata);
-        fileMetadata.setDatasetVersion(datasetVersion);
 
         //WHEN
         IngestUtil.recalculateDatasetVersionUNF(datasetVersion);
