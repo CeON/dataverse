@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BundleUtilTest {
 
     @Test
-    public void testGetStringFromBundle() {
+    public void getStringFromBundle() {
         assertAll(
             () -> assertEquals(StringUtils.EMPTY, BundleUtil.getStringFromBundle(null)),
             () -> assertEquals(StringUtils.EMPTY, BundleUtil.getStringFromBundle("")),
@@ -23,7 +24,7 @@ public class BundleUtilTest {
     }
 
     @Test
-    public void testGetStringFromBundleWithArguments() {
+    public void getStringFromBundleWithArguments() {
         assertAll(
             () -> assertEquals("You have successfully created your dataverse! To learn more about what you can do with your dataverse, "+
                             "check out the <a href=\"http://guides.dataverse.org/en/4.0/user/dataverse-management.html\" title=\"Dataverse Management - " +
@@ -60,27 +61,27 @@ public class BundleUtilTest {
             () -> assertEquals("The saved search has been successfully linked to "
                                  + "<a href=\"/dataverse/dvAlias\" title=\"DV Name\">DV Name</a>.",
                          BundleUtil.getStringFromBundle("dataverse.saved.search.success",
-                            Arrays.asList("<a href=\"/dataverse/dvAlias\" title=\"DV Name\">DV Name</a>"))),
+                                 Collections.singletonList("<a href=\"/dataverse/dvAlias\" title=\"DV Name\">DV Name</a>"))),
             () -> assertEquals("Your institutional log in for TestShib Test IdP matches an email address already being used for a Dataverse "
                                  + "account. By entering your current Dataverse password below, your existing Dataverse account can be "
                                  + "converted to use your institutional log in. After converting, you will only need to use your institutional log in.",
                          BundleUtil.getStringFromBundle("shib.welcomeExistingUserMessage",
-                            Arrays.asList("TestShib Test IdP"))),
+                                 Collections.singletonList("TestShib Test IdP"))),
             () -> assertEquals("Your institutional log in for your institution matches an email address already being used for a Dataverse "
                                  + "account. By entering your current Dataverse password below, your existing Dataverse account can be "
                                  + "converted to use your institutional log in. After converting, you will only need to use your institutional log in.",
                          BundleUtil.getStringFromBundle("shib.welcomeExistingUserMessage",
-                            Arrays.asList(BundleUtil.getStringFromBundle("shib.welcomeExistingUserMessageDefaultInstitution"))))
+                                 Collections.singletonList(BundleUtil.getStringFromBundle("shib.welcomeExistingUserMessageDefaultInstitution"))))
         );
     }
 
     @Test
-    public void testStringFromPropertyFile() {
+    public void getStringFromPropertyFile() {
         assertEquals("ZIP", BundleUtil.getStringFromPropertyFile("application/zip", "MimeTypeFacets"));
     }
 
     @Test
-    public void testStringFromPropertyFileException() {
+    public void getStringFromPropertyFile_expectedEmpty() {
         String stringFromPropertyFile = BundleUtil.getStringFromPropertyFile("FAKE", "MimeTypeFacets");
         assertEquals(StringUtils.EMPTY, stringFromPropertyFile);
     }
