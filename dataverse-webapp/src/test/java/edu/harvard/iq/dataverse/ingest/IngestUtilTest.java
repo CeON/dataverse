@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataset;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,8 +26,9 @@ public class IngestUtilTest {
     @Test
     public void checkForDuplicateFileNamesFinal_noDirectories() throws Exception {
 
-         Dataset dataset = makeDataset();
-       DatasetVersion datasetVersion = getDatasetVersion(dataset);
+        //GIVEN
+        Dataset dataset = makeDataset();
+        DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
         List<DataFile> dataFileList = new ArrayList<>();
         DataFile datafile1 = createDataFile(dataset, "application/octet-stream", "datafile1.txt");
@@ -44,36 +46,22 @@ public class IngestUtilTest {
 
         dataFileList.add(datafile2);
 
+        //WHEN
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        boolean file1NameAltered = false;
-        boolean file2NameAltered = false;
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("datafile1-1.txt")) {
-                file1NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-1.txt")) {
-                file2NameAltered = true;
-            }
-        }
-
-        assertTrue(file1NameAltered);
-        assertTrue(file2NameAltered);
+        //THEN
+        assertAll(
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile1-1.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-1.txt")))
+        );
 
         // try to add data files with "-1" duplicates and see if it gets incremented to "-2"
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("datafile1-2.txt")) {
-                file1NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-2.txt")) {
-                file2NameAltered = true;
-            }
-        }
-
-        assertTrue(file1NameAltered);
-        assertTrue(file2NameAltered);
+        assertAll(
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile1-2.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-2.txt")))
+        );
     }
 
     @NotNull
@@ -84,6 +72,11 @@ public class IngestUtilTest {
         fmd1.setDataFile(datafile1);
         fmd1.setDatasetVersion(datasetVersion);
         return fmd1;
+    }
+
+    @NotNull
+    private Predicate<DataFile> fileMetadataHasLabel(String s) {
+        return df -> df.getFileMetadata().getLabel().equals(s);
     }
 
     @NotNull
@@ -117,7 +110,7 @@ public class IngestUtilTest {
 
     @Test
     public void checkForDuplicateFileNamesFinal_emptyDirectoryLabels() throws Exception {
-
+        //GIVEN
         Dataset dataset = makeDataset();
         DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
@@ -138,41 +131,27 @@ public class IngestUtilTest {
 
         dataFileList.add(datafile2);
 
+        //WHEN
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        boolean file1NameAltered = false;
-        boolean file2NameAltered = false;
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("datafile1-1.txt")) {
-                file1NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-1.txt")) {
-                file2NameAltered = true;
-            }
-        }
-
-        assertTrue(file1NameAltered);
-        assertTrue(file2NameAltered);
+        //THEN
+        assertAll(
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile1-1.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-1.txt")))
+        );
 
         // try to add data files with "-1" duplicates and see if it gets incremented to "-2"
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("datafile1-2.txt")) {
-                file1NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-2.txt")) {
-                file2NameAltered = true;
-            }
-        }
-
-        assertTrue(file1NameAltered);
-        assertTrue(file2NameAltered);
+        assertAll(
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile1-2.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-2.txt")))
+        );
     }
 
     @Test
     public void checkForDuplicateFileNamesFinal_withDirectories() throws Exception {
-
+        //GIVEN
         Dataset dataset = makeDataset();
         DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
@@ -202,27 +181,15 @@ public class IngestUtilTest {
 
         dataFileList.add(datafile3);
 
+        //WHEN
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        boolean file1NameAltered = false;
-        boolean file2NameAltered = false;
-        boolean file3NameAltered = true;
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("datafile1-1.txt")) {
-                file1NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-1.txt")) {
-                file2NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2.txt")) {
-                file3NameAltered = false;
-            }
-        }
-
-        // check filenames are unique
-        assertTrue(file1NameAltered);
-        assertTrue(file2NameAltered);
-        assertFalse(file3NameAltered);
+        //THEN
+        assertAll(
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile1-1.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-1.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2.txt")))
+        );
 
         // add duplicate file in root
         datasetVersion.getFileMetadatas().add(fmd3);
@@ -231,27 +198,16 @@ public class IngestUtilTest {
         // try to add data files with "-1" duplicates and see if it gets incremented to "-2"
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("datafile1-2.txt")) {
-                file1NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-2.txt")) {
-                file2NameAltered = true;
-            }
-            if (df.getFileMetadata().getLabel().equals("datafile2-1.txt")) {
-                file3NameAltered = true;
-            }
-        }
-
-        // check filenames are unique
-        assertTrue(file1NameAltered);
-        assertTrue(file2NameAltered);
-        assertTrue(file3NameAltered);
+        assertAll(
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile1-2.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-2.txt"))),
+                () -> assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("datafile2-1.txt")))
+        );
     }
 
     @Test
     public void checkForDuplicateFileNamesFinal_tabularFiles() throws Exception {
-
+        //GIVEN
         Dataset dataset = makeDataset();
         DatasetVersion datasetVersion = getDatasetVersion(dataset);
 
@@ -272,17 +228,12 @@ public class IngestUtilTest {
 
         dataFileList.add(datafile2);
 
+        //WHEN
         IngestUtil.checkForDuplicateFileNamesFinal(datasetVersion, dataFileList);
 
-        boolean file2NameAltered = false;
-        for (DataFile df : dataFileList) {
-            if (df.getFileMetadata().getLabel().equals("foobar-1.dta")) {
-                file2NameAltered = true;
-            }
-        }
-
+        //THEN
         // check filename is altered since tabular and will change to .tab after ingest
-        assertTrue(file2NameAltered);
+        assertTrue(dataFileList.stream().anyMatch(fileMetadataHasLabel("foobar-1.dta")));
     }
 
     @NotNull
