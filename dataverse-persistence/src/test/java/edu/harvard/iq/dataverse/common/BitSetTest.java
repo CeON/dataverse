@@ -29,11 +29,8 @@ public class BitSetTest {
         sut = new BitSet();
     }
 
-    /**
-     * Test of set method, of class BitSet.
-     */
     @Test
-    public void testSet() {
+    public void set() {
         for (short i : BitSet.allIndices()) {
             sut.set(i);
             assertTrue(sut.isSet(i));
@@ -41,7 +38,7 @@ public class BitSetTest {
     }
 
     @Test
-    public void testSetByParameter() {
+    public void set_byParameter() {
         BitSet tSut = BitSet.emptySet();
         List<Integer> indices = Arrays.asList(0, 1, 4, 6, 7, 8, 20, 31);
         indices.forEach(i -> assertFalse(tSut.isSet(i)));
@@ -52,11 +49,8 @@ public class BitSetTest {
         assertTrue(tSut.isEmpty());
     }
 
-    /**
-     * Test of unset method, of class BitSet.
-     */
     @Test
-    public void testUnset() {
+    public void unset() {
         sut = BitSet.fullSet();
         for (short i : BitSet.allIndices()) {
             sut.unset(i);
@@ -64,20 +58,14 @@ public class BitSetTest {
         }
     }
 
-    /**
-     * Test of copy method, of class BitSet.
-     */
     @Test
-    public void testCopy() {
+    public void copy() {
         sut = new BitSet(new java.util.Random().nextLong());
         assertEquals(sut.getBits(), sut.copy().getBits());
     }
 
-    /**
-     * Test of union method, of class BitSet.
-     */
     @Test
-    public void testUnion() {
+    public void union() {
         BitSet sut1 = randomSet();
         BitSet sut2 = randomSet();
         sut = sut1.copy().union(sut2);
@@ -90,11 +78,8 @@ public class BitSetTest {
         }
     }
 
-    /**
-     * Test of intersect method, of class BitSet.
-     */
     @Test
-    public void testIntersect() {
+    public void intersect() {
         BitSet sut1 = randomSet();
         BitSet sut2 = randomSet();
         sut = sut1.copy().intersect(sut2);
@@ -107,11 +92,8 @@ public class BitSetTest {
         }
     }
 
-    /**
-     * Test of xor method, of class BitSet.
-     */
     @Test
-    public void testXor() {
+    public void xor() {
         BitSet sut1 = randomSet();
         BitSet sut2 = randomSet();
         sut = sut1.copy().xor(sut2);
@@ -125,18 +107,15 @@ public class BitSetTest {
     }
 
     @Test
-    public void testAsEnumSet() {
+    public void from_enumSet() {
         EnumSet<TestEnum> est = EnumSet.of(TestEnum.Hello, TestEnum.This, TestEnum.Test);
 
         sut = BitSet.from(est);
         assertEquals(est, sut.asSetOf(TestEnum.class));
     }
 
-    /**
-     * Test of getBits method, of class BitSet.
-     */
     @Test
-    public void testGetBits() {
+    public void getBits() {
         sut.set(0);
         sut.set(1);
         sut.set(2);
