@@ -31,7 +31,7 @@ public class BitSetTest {
 
     @Test
     public void set() {
-        for (short i : BitSet.allIndices()) {
+        for(short i : BitSet.allIndices()) {
             sut.set(i);
             assertTrue(sut.isSet(i));
         }
@@ -66,43 +66,46 @@ public class BitSetTest {
 
     @Test
     public void union() {
+        //GIVEN
         BitSet sut1 = randomSet();
         BitSet sut2 = randomSet();
+
+        //WHEN
         sut = sut1.copy().union(sut2);
+
+        //THEN
         for (short i : BitSet.allIndices()) {
-            if (sut.isSet(i)) {
-                assertTrue(sut1.isSet(i) || sut2.isSet(i));
-            } else {
-                assertFalse(sut1.isSet(i) && sut2.isSet(i));
-            }
+            assertEquals(sut1.isSet(i) || sut2.isSet(i), sut.isSet(i));
         }
     }
 
     @Test
     public void intersect() {
+        //GIVEN
         BitSet sut1 = randomSet();
         BitSet sut2 = randomSet();
+
+        //WHEN
         sut = sut1.copy().intersect(sut2);
+
+        //THEN
         for (short i : BitSet.allIndices()) {
-            if (sut.isSet(i)) {
-                assertTrue(sut1.isSet(i) && sut2.isSet(i));
-            } else {
-                assertFalse(sut1.isSet(i) && sut2.isSet(i));
-            }
+            assertEquals(sut1.isSet(i) && sut2.isSet(i), sut.isSet(i));
         }
     }
 
     @Test
     public void xor() {
+        //GIVEN
         BitSet sut1 = randomSet();
         BitSet sut2 = randomSet();
+
+        //WHEN
         sut = sut1.copy().xor(sut2);
+
+        //THEN
         for (short i : BitSet.allIndices()) {
-            if (sut.isSet(i)) {
-                assertTrue(sut1.isSet(i) ^ sut2.isSet(i));
-            } else {
-                assertFalse(sut1.isSet(i) ^ sut2.isSet(i));
-            }
+            assertEquals(sut1.isSet(i) ^ sut2.isSet(i), sut.isSet(i));
         }
     }
 
@@ -116,9 +119,12 @@ public class BitSetTest {
 
     @Test
     public void getBits() {
+        //GIVEN
         sut.set(0);
         sut.set(1);
         sut.set(2);
+
+        //WHEN & THEN
         assertEquals(0b111, sut.getBits());
     }
 
