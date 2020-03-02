@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
 import edu.harvard.iq.dataverse.license.dto.LicenseSimpleDto;
-import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import io.vavr.Tuple2;
@@ -13,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 import org.primefaces.event.ReorderEvent;
 
 import javax.faces.view.ViewScoped;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 

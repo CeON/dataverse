@@ -126,10 +126,10 @@ public class ReorderDataFilesPage implements java.io.Serializable {
             return "/dataset.xhtml?persistentId=" +
                     datasetVersion.getDataset().getGlobalId().asString() + "&version=DRAFT&faces-redirect=true";
         }
-        return "/dataset.xhtml?persistentId=" +
-        datasetVersion.getDataset().getGlobalId().asString()
-        + "&faces-redirect=true&version="
-        + datasetVersion.getVersionNumber() + "." + datasetVersion.getMinorVersionNumber();
+        return "/dataset.xhtml?persistentId="
+                    + datasetVersion.getDataset().getGlobalId().asString()
+                    + "&faces-redirect=true&version="
+                    + datasetVersion.getVersionNumber() + "." + datasetVersion.getMinorVersionNumber();
     }
 
     public DatasetVersion getDatasetVersion() {
