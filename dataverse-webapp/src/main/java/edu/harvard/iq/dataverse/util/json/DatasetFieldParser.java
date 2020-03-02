@@ -122,6 +122,7 @@ public class DatasetFieldParser {
                 List<ControlledVocabularyValue> controlledVocab = dsfChild.getControlledVocabularyValues();
 
                 List<String> vocabValues = controlledVocab.stream()
+                        .sorted(Comparator.comparing(ControlledVocabularyValue::getDisplayOrder))
                         .map(ControlledVocabularyValue::getStrValue)
                         .collect(Collectors.toList());
 
