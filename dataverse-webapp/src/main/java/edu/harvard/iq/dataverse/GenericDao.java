@@ -17,4 +17,8 @@ public class GenericDao {
     public <T> T merge(T entity) {
         return em.merge(entity);
     }
+
+    public <T> void save(T entity) {
+        em.persist(entity);
+    }
 }

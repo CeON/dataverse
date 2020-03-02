@@ -1,26 +1,39 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-     xmlns:h="http://java.sun.com/jsf/html"
-     xmlns:f="http://java.sun.com/jsf/core"
-     xmlns:ui="http://java.sun.com/jsf/facelets"
-     xmlns:p="http://primefaces.org/ui">
-    
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
     <div class="form-group">
         <label for="position" class="col-sm-3 control-label">
-            #{bundle['user.acccountterms']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
+            #{bundle['user.acccountterms']} <span class="glyphicon glyphicon-asterisk text-danger"
+                                                  title="#{bundle.requiredField}"/>
             <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0"
-                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.acccountterms.tip']}"></span>
+                  data-toggle="tooltip" data-placement="auto right"
+                  data-original-title="#{bundle['user.acccountterms.tip']}"/>
         </label>
         <div class="col-sm-9">
             <div id="terms-agreement-block" class="well">
                 <h:outputText value="#{systemConfig.getApplicationTermsOfUse(dataverseSession.locale)}" escape="false"/>
             </div>
             <div class="checkbox">
-              <p:selectBooleanCheckbox id="terms" required="true" 
-                                       requiredMessage="#{bundle['user.acccountterms.required']}"
-                                       itemLabel="#{bundle['user.acccountterms.iagree']}">
-                <f:validator validatorId="requiredCheckboxValidator"/>
-              </p:selectBooleanCheckbox>
-              <p:message for="terms" display="text" />
+                <p:repeat value="#{DataverseUserPage.consents}" var="consent">
+
+                    <ui:fragment rendered="#{consent.required}">
+                        <span class="glyphicon glyphicon-asterisk text-danger"
+                              title="#{bundle.requiredField}"/>
+                    </ui:fragment>
+
+                    <p:selectBooleanCheckbox id="terms"
+                                             style="margin-left: 0.5%"
+                                             value="#{consent.consentDetails.accepted}"
+                                             required="#{consent.required}"
+                                             requiredMessage="#{bundle['user.acccountterms.required']}"
+                                             itemLabel="#{consent.consentDetails.text}">
+                        <f:validator validatorId="requiredCheckboxValidator"/>
+                    </p:selectBooleanCheckbox>
+                    <p:message for="terms" display="text"/>
+                </p:repeat>
             </div>
         </div>
     </div>
