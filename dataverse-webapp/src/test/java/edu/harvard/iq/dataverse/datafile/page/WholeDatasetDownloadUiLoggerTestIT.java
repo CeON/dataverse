@@ -29,7 +29,7 @@ import static org.junit.Assert.assertThat;
 public class WholeDatasetDownloadUiLoggerTestIT extends WebappArquillianDeployment {
 
     @Inject
-    WholeDatasetDownloadUiLogger datasetDownloadUiLogger;
+    private WholeDatasetDownloadUiLogger datasetDownloadUiLogger;
 
     @Inject
     private DatasetDao datasetDao;
@@ -80,6 +80,6 @@ public class WholeDatasetDownloadUiLoggerTestIT extends WebappArquillianDeployme
 
     private int extractNumberOfLoggedDownloads() {
         DownloadDatasetLog downloadDatasetLog = genericDao.find(DRAFT_DATASET_WITH_FILES_ID, DownloadDatasetLog.class);
-        return downloadDatasetLog != null ? downloadDatasetLog.getCount() : 0;
+        return downloadDatasetLog != null ? downloadDatasetLog.getDownloadCount() : 0;
     }
 }

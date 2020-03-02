@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.dataset;
 
 import edu.harvard.iq.dataverse.persistence.dataset.DownloadDatasetLog;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,17 +26,17 @@ public class DownloadDatasetLogServiceTest {
     private static final int COUNT = 1;
 
     @Mock
-    DownloadDatasetLog testLog;
+    private DownloadDatasetLog testLog;
 
     @Mock
-    EntityManager em;
+    private EntityManager em;
 
     @InjectMocks
-    DownloadDatasetLogService downloadDatasetLogService;
+    private DownloadDatasetLogService downloadDatasetLogService;
 
     @Before
     public void setUp() {
-        when(testLog.getCount()).thenReturn(COUNT);
+        when(testLog.getDownloadCount()).thenReturn(COUNT);
         when(em.find(DownloadDatasetLog.class, EXISTING_ENTRY_ID)).thenReturn(testLog);
         when(em.find(DownloadDatasetLog.class, NON_EXISTING_ENTRY_ID)).thenReturn(null);
     }
@@ -61,18 +62,20 @@ public class DownloadDatasetLogServiceTest {
     @Test
     public void incrementDownloadCountForDataset_whenNoEntryExistsYet() {
         // when
-        downloadDatasetLogService.incrementDownloadCountForDataset(NON_EXISTING_ENTRY_ID);
+        int countAfterIncrement = downloadDatasetLogService.incrementDownloadCountForDataset(NON_EXISTING_ENTRY_ID);
 
         // then
         verify(em, times(1)).persist(any(DownloadDatasetLog.class));
+        assertThat(countAfterIncrement, is(1));
     }
 
     @Test
     public void incrementDownloadCountForDataset_whenEntryExists() {
         // when
-        downloadDatasetLogService.incrementDownloadCountForDataset(EXISTING_ENTRY_ID);
+        int countAfterIncrement = downloadDatasetLogService.incrementDownloadCountForDataset(EXISTING_ENTRY_ID);
 
         // then
-        verify(testLog, times(1)).setCount(eq(COUNT + 1));
+        verify(testLog, times(1)).setDownloadCount(eq(COUNT + 1));
+        assertThat(countAfterIncrement, is(COUNT + 1));
     }
 }

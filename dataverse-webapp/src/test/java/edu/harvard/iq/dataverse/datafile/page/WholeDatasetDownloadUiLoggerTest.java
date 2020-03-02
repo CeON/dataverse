@@ -36,7 +36,7 @@ public class WholeDatasetDownloadUiLoggerTest {
     private DownloadDatasetLogService downloadDatasetLogService;
 
     @InjectMocks
-    WholeDatasetDownloadUiLogger wholeDatasetDownloadUiLogger;
+    private WholeDatasetDownloadUiLogger wholeDatasetDownloadUiLogger;
 
     @Test
     public void shouldDoNothingIfNullInput() {

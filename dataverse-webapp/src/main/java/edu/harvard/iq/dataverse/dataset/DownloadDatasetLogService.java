@@ -14,20 +14,29 @@ public class DownloadDatasetLogService {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Returns the count of whole dataset downloads for the given dataset id
+     */
     public int fetchDownloadCountForDataset(Long datasetId) {
         DownloadDatasetLog log = em.find(DownloadDatasetLog.class, datasetId);
-        return log != null ? log.getCount() : 0;
+        return log != null ? log.getDownloadCount() : 0;
     }
 
-    public void incrementDownloadCountForDataset(Long datasetId) {
+    /**
+     * Increments the count of whole dataset downloads for the given dataset id and returns the incremented value
+     */
+    public int incrementDownloadCountForDataset(Long datasetId) {
         DownloadDatasetLog log = em.find(DownloadDatasetLog.class, datasetId);
         if (log == null) {
             DownloadDatasetLog datasetLog = new DownloadDatasetLog();
             datasetLog.setDatasetId(datasetId);
-            datasetLog.setCount(1);
+            datasetLog.setDownloadCount(1);
             em.persist(datasetLog);
+            return 1;
         } else {
-            log.setCount(log.getCount() + 1);
+            int newCount = log.getDownloadCount() + 1;
+            log.setDownloadCount(newCount);
+            return newCount;
         }
     }
 }
