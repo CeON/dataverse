@@ -1,136 +1,116 @@
 package edu.harvard.iq.dataverse.common;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author rmp553
  */
 public class MarkupCheckerTest {
 
-    public MarkupCheckerTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
-    private void msg(String s) {
-        System.out.println(s);
-    }
-
-    private void msgu(String s) {
-        msg("--------------------------------------");
-        msg(s);
-    }
-
-    /**
-     * Test of sanitizeBasicHTML method, of class MarkupChecker.
-     */
     @Test
-    public void testSanitizeBasicHTML() {
-        System.out.println("sanitizeBasicHTML");
-
-        /*String safeStr = "<img src=\"some/png.png\" alt=\"bee\" class=\"some-class\">";
-        String sanitized = MarkupChecker.sanitizeBasicHTML(safeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-         */
+    public void sanitizeBasicHTML_script() {
+        //GIVEN
         String safeStr = "<script>alert('hi')</script>";
+        //WHEN
         String sanitized = MarkupChecker.sanitizeBasicHTML(safeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(sanitized.equals(""));
+        //THEN
+        assertEquals("", sanitized);
+    }
 
+    @Test
+    public void sanitizeBasicHTML_map() {
+        //GIVEN
         String unsafeStr = "<map name=\"rtdcCO\">";
-        safeStr = "<map name=\"rtdcCO\"></map>";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        unsafeStr = "<area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\">";
-        safeStr = unsafeStr;//"<map name=\"rtdcCO\"></map>";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        unsafeStr = "<map name=\"rtdcCO\"><area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\"></map>";
-        safeStr = unsafeStr;//"<map name=\"rtdcCO\"></map>";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        unsafeStr = "<p>hello</";
-        safeStr = "<p>hello&lt;/</p>";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        unsafeStr = "<h1>hello</h2>";
-        safeStr = "<h1>hello</h1>";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        unsafeStr = "the <a href=\"http://dataverse.org\" target=\"_blank\">Dataverse project</a> in a new window";
-        safeStr = "the \n<a href=\"http://dataverse.org\" target=\"_blank\" rel=\"nofollow\">Dataverse project</a> in a new window";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        unsafeStr = "the <a href=\"http://dataverse.org\">Dataverse project</a> in a new window";
-        safeStr = "the \n<a href=\"http://dataverse.org\" rel=\"nofollow\" target=\"_blank\">Dataverse project</a> in a new window";
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        this.msgu("safeStr: " + safeStr + "\nsanitized: " + sanitized);
-        assertTrue(safeStr.equals(sanitized));
-
-        //test null
-        unsafeStr = null;
-        sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        assertNull(sanitized);
-
-    }
-
-    /**
-     * Test of stripAllTags method, of class MarkupChecker.
-     */
-    @Test
-    public void testStripAllTags() {
-
-        System.out.println("stripAllTags");
-        String unsafe = "";
-        String expResult = "";
-        String result = MarkupChecker.stripAllTags(unsafe);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-
-        //test null
-        unsafe = null;
-        result = MarkupChecker.stripAllTags(unsafe);
-        assertNull(result);
-
+        String safeStr = "<map name=\"rtdcCO\"></map>";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(safeStr, sanitized);
     }
 
     @Test
-    public void testEscapeHtml() {
+    public void sanitizeBasicHTML_area() {
+        //GIVEN
+        String unsafeStr = "<area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\">";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(unsafeStr, sanitized);
+    }
+
+    @Test
+    public void sanitizeBasicHTML_mapAndArea() {
+        //GIVEN
+        String unsafeStr = "<map name=\"rtdcCO\"><area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\"></map>";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(unsafeStr, sanitized);
+    }
+
+    @Test
+    public void sanitizeBasicHTML_paragraph() {
+        //GIVEN
+        String unsafeStr = "<p>hello</";
+        String safeStr = "<p>hello&lt;/</p>";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(safeStr, sanitized);
+    }
+
+    @Test
+    public void sanitizeBasicHTML_heading() {
+        //GIVEN
+        String unsafeStr = "<h1>hello</h2>";
+        String safeStr = "<h1>hello</h1>";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(safeStr, sanitized);
+    }
+
+    @Test
+    public void sanitizeBasicHTML_anchor() {
+        //GIVEN
+        String unsafeStr = "the <a href=\"http://dataverse.org\" target=\"_blank\">Dataverse project</a> in a new window";
+        String safeStr = "the \n<a href=\"http://dataverse.org\" target=\"_blank\" rel=\"nofollow\">Dataverse project</a> in a new window";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(safeStr, sanitized);
+    }
+
+    @Test
+    public void sanitizeBasicHTML_anchor2() {
+        //GIVEN
+        String unsafeStr = "the <a href=\"http://dataverse.org\">Dataverse project</a> in a new window";
+        String safeStr = "the \n<a href=\"http://dataverse.org\" rel=\"nofollow\" target=\"_blank\">Dataverse project</a> in a new window";
+        //WHEN
+        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
+        //THEN
+        assertEquals(safeStr, sanitized);
+    }
+
+    @Test
+    public void sanitizeBasicHTML_null() {
+        assertNull(MarkupChecker.sanitizeBasicHTML(null));
+    }
+
+    @Test
+    public void stripAllTags() {
+        assertEquals("", MarkupChecker.stripAllTags(""));
+    }
+
+    @Test
+    public void stripAllTags_null() {
+        assertNull(MarkupChecker.stripAllTags(null));
+    }
+
+    @Test
+    public void escapeHtml() {
         assertEquals("foo&lt;br&gt;bar", MarkupChecker.escapeHtml("foo<br>bar"));
     }
 
