@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.settings;
 
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
-import edu.harvard.iq.dataverse.api.ApiBlockingFilter;
+import edu.harvard.iq.dataverse.api.filters.ApiBlockingFilter;
 import edu.harvard.iq.dataverse.persistence.ActionLogRecord;
 import edu.harvard.iq.dataverse.persistence.Setting;
 import edu.harvard.iq.dataverse.persistence.SettingDao;
@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 @Stateless
 public class SettingsServiceBean {
 
+    private static final String KEY_AND_POSTFIX_SEPARATOR = ".";
+    
     /**
      * Some convenient keys for the settings. Note that the setting's
      * name is really a {@code String}, but it's good to have the compiler look
@@ -113,6 +115,11 @@ public class SettingsServiceBean {
         DebugOAuthAccountType,
         /**
          * Application-wide Terms of Use per installation.
+         * Setting can be postfixed with language code to
+         * obtain translated versions of terms of use.
+         * It is assumed that not postfixed setting is
+         * the default one (used in case if language specific
+         * version is not present).
          */
         ApplicationTermsOfUse,
         /**
@@ -466,6 +473,15 @@ public class SettingsServiceBean {
          * with the protocol, port number etc.
          */
         SiteUrl,
+        
+        /**
+         * Text with privacy policy content.
+         * Setting can be postfixed with language code to
+         * obtain translated versions of terms of use.
+         * It is assumed that not postfixed setting is
+         * the default one (used in case if language specific
+         * version is not present).
+         */
         PrivacyPolicy,
 
         /**
@@ -530,6 +546,27 @@ public class SettingsServiceBean {
      */
     public String getValueForKey(Key key) {
         return get(key.toString());
+    }
+
+    /**
+     * Returns value of setting with key that is postfixed.
+     * It can be used if setting has static base key part and dynamic
+     * postfix.
+     * <p>
+     * Example of such setting is {@link Key#ApplicationTermsOfUse}.
+     * It can be posfixed with language code to obtain translated
+     * values:
+     * <code>
+     * getValueForKeyWithPostfix(Key.ApplicationTermsOfUse, "de")
+     * getValueForKeyWithPostfix(Key.ApplicationTermsOfUse, "fr")
+     * </code>
+     * 
+     * @param key
+     * @param postfix
+     * @return setting value or empty string if setting not present
+     */
+    public String getValueForKeyWithPostfix(Key key, String postfix) {
+        return get(key.toString() + KEY_AND_POSTFIX_SEPARATOR + postfix);
     }
 
     /**

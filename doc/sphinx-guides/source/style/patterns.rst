@@ -248,7 +248,7 @@ Here are additional form elements that are common across many pages, including r
               </p>
               <label class="control-label" for="metadata_dsDescriptionValue">
                   Text <span class="glyphicon glyphicon-asterisk text-danger"></span>
-                  <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto right" data-original-title="A summary describing the purpose, nature, and scope of the Dataset."></span>
+                  <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0" data-toggle="tooltip" data-placement="auto right" data-original-title="A summary describing the purpose, nature, and scope of the Dataset."></span>
               </label>
               <div>
                   <textarea id="datasetForm:description" name="datasetForm:description" cols="60" rows="5" tabindex="1" maxlength="2147483647" class="ui-inputfield ui-inputtextarea ui-widget ui-state-default ui-corner-all form-control ui-inputtextarea-resizable" role="textbox" aria-disabled="false" aria-readonly="false" aria-multiline="true" data-autosize-on="true" placeholder="" style="overflow: hidden; word-wrap: break-word; height: 114px;"></textarea>
@@ -261,7 +261,7 @@ Here are additional form elements that are common across many pages, including r
           <div class="form-col-container col-sm-6">
                <label class="control-label" for="metadata_dsDescriptionDate">
                    Date
-                   <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto right" data-original-title="In cases where a Dataset contains more than one description (for example, one might be supplied by the data producer and another prepared by the data repository where the data are deposited), the date attribute is used to distinguish between the two descriptions. The date attribute follows the ISO convention of YYYY-MM-DD."></span>
+                   <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0" data-toggle="tooltip" data-placement="auto right" data-original-title="In cases where a Dataset contains more than one description (for example, one might be supplied by the data producer and another prepared by the data repository where the data are deposited), the date attribute is used to distinguish between the two descriptions. The date attribute follows the ISO convention of YYYY-MM-DD."></span>
               </label>
               <div>
                 <input id="datasetForm:inputText" name="datasetForm:inputText" type="text" tabindex="1" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all form-control " role="textbox" aria-disabled="false" aria-readonly="false" placeholder="YYYY-MM-DD">
@@ -282,7 +282,7 @@ Here are additional form elements that are common across many pages, including r
           <label class="control-label" for="metadata_#{subdsf.datasetFieldType.name}">
               #{subdsf.datasetFieldType.localeTitle}
               <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" />
-              <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto right" data-original-title="#{subdsf.datasetFieldType.localeDescription}"></span>
+              <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0" data-toggle="tooltip" data-placement="auto right" data-original-title="#{subdsf.datasetFieldType.localeDescription}"></span>
           </label>
           <div>
               <p:inputTextarea value="#{dsfv.valueForEdit}" id="description" tabindex="#{block.index+1}" rows="5" cols="60" styleClass="form-control" />
@@ -385,10 +385,10 @@ Form buttons typically appear at the bottom of a form, aligned to the left. They
 	<div class="panel panel-default code-example">
 	  <div class="panel-body">
 	  	<div class="button-block">
-	  		<button id="datasetForm:save" name="datasetForm:save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn btn-default" onclick="return false;" tabindex="1000" type="submit" role="button" aria-disabled="false">
+	  		<button id="datasetForm:save" name="datasetForm:save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn btn-default" onclick="return false;" type="submit" role="button" aria-disabled="false">
 	  			<span class="ui-button-text ui-c">Save Changes</span>
 	  		</button>
-	  		<button id="datasetForm:cancel" name="datasetForm:cancel" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn btn-default" onclick="return false;" tabindex="1000" type="submit" role="button" aria-disabled="false">
+	  		<button id="datasetForm:cancel" name="datasetForm:cancel" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn btn-default" onclick="return false;" type="submit" role="button" aria-disabled="false">
 	  			<span class="ui-button-text ui-c">Cancel</span>
 	  		</button>
   		</div>
@@ -663,9 +663,9 @@ The most common of our containers, the `Panels component <http://getbootstrap.co
 
         <div class="panel-group">
             <div class="panel panel-default">
-                <div data-toggle="collapse" data-target="#panelCollapse0" class="panel-heading">
+                <a data-toggle="collapse" href="#panelCollapse0" class="panel-heading">
                     <span class="text-info">Panel Heading &nbsp;<span class="glyphicon glyphicon-chevron-up"></span></span>
-                </div>
+                </a>
                 <div id="panelCollapse0" class="collapse in">
                     <div class="panel-body metadata-panel-body">
                         <div class="form-group col-sm-12">
@@ -691,9 +691,9 @@ The most common of our containers, the `Panels component <http://getbootstrap.co
   </div>
 
   <div class="panel panel-default">
-    <div data-toggle="collapse" data-target="#panelCollapse0" class="panel-heading">
+    <a data-toggle="collapse" href="#panelCollapse0" class="panel-heading">
       <span class="text-info">Panel Heading &#160;<span class="glyphicon glyphicon-chevron-up"/></span>
-    </div>
+    </a>
     <div id="panelCollapse0" class="panel-body form-horizontal collapse in">
       <div class="form-group">
         <label class="col-sm-4 control-label">
