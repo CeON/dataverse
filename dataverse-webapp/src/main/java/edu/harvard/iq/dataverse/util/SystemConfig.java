@@ -44,6 +44,7 @@ public class SystemConfig {
      * A JVM option for where files are stored on the file system.
      */
     public static final String FILES_DIRECTORY = "dataverse.files.directory";
+    public static final String TRUE = "true";
 
 
     @EJB
@@ -498,6 +499,16 @@ public class SystemConfig {
         return configuredLocales;
     }
 
+    public boolean isShowPrivacyPolicyFooterLinkRendered() {
+        String rendered = settingsService.getValueForKey(Key.ShowPrivacyPolicyFooterLink);
+        return TRUE.equals(rendered);
+    }
+
+    public boolean isShowTermsOfUseFooterLinkRendered() {
+        String rendered = settingsService.getValueForKey(Key.ShowTermsOfUseFooterLink);
+        return TRUE.equals(rendered);
+    }
+
     private String getFromBundleIfEmptyLocalizedProperty(Key key, Locale locale, String bundleKey) {
         String result = settingsService.getValueForKeyWithPostfix(key, locale.toLanguageTag());
         
@@ -509,4 +520,6 @@ public class SystemConfig {
 
         return result.equals(StringUtils.EMPTY) ? BundleUtil.getStringFromBundle(bundleKey) : result;
     }
+
+
 }
