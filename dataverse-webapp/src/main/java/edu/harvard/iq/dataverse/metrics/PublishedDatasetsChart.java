@@ -24,7 +24,7 @@ public class PublishedDatasetsChart implements Serializable {
     private List<ChartMetrics> yearlyStats = new ArrayList<>();
     private List<ChartMetrics> chartMetrics = new ArrayList<>();
 
-    private String mode = "YEAR";
+    private String mode = "YEAR_CUMULATIVE";
     private int selectedYear;
 
     // -------------------- CONSTRUCTORS --------------------
@@ -67,7 +67,7 @@ public class PublishedDatasetsChart implements Serializable {
             selectedYear = yearlyStats.get(0).getYear();
         }
 
-        chartModel = chartCreator.createYearlyChart(metricsService.countPublishedDatasets(), CHART_TYPE);
+        chartModel = chartCreator.createYearlyCumulativeChart(metricsService.countPublishedDatasets(), CHART_TYPE);
     }
 
     public void changeDatasetMetricsModel() {

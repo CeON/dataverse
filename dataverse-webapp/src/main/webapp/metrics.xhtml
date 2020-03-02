@@ -28,8 +28,8 @@
                     <h:panelGrid columns="3" style="margin-bottom:10px;" cellpadding="25">
                         <p:selectOneRadio id="model" value="#{PublishedDatasetsChart.mode}" style="padding-left: 10px">
                             <p:ajax event="change" update="publishedDatasetsForm" listener="#{PublishedDatasetsChart.changeDatasetMetricsModel}"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.datasets.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.datasets.radiobutton.yearlyCumulative.label']}" itemValue="YEAR_CUMULATIVE"/>
+                            <f:selectItem itemLabel="#{bundle['metrics.section.datasets.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.datasets.radiobutton.monthly.label']}" itemValue="MONTH"/>
                         </p:selectOneRadio>
                         <p:selectOneMenu id="years" value="#{PublishedDatasetsChart.selectedYear}" disabled="#{PublishedDatasetsChart.mode != 'MONTH'}">
@@ -54,8 +54,8 @@
                     <h:panelGrid columns="3" style="margin-bottom:10px;" cellpadding="25">
                         <p:selectOneRadio id="files_mode" value="#{FilesChart.mode}" style="padding-left: 10px">
                             <p:ajax event="change" update="filesCountForm" listener="#{FilesChart.changeChartGrouping}"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.files.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.files.radiobutton.yearlyCumulative.label']}" itemValue="YEAR_CUMULATIVE"/>
+                            <f:selectItem itemLabel="#{bundle['metrics.section.files.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.files.radiobutton.monthly.label']}" itemValue="MONTH"/>
                         </p:selectOneRadio>
                         <p:selectOneMenu id="files_years" value="#{FilesChart.selectedYear}" disabled="#{FilesChart.mode != 'MONTH'}">
@@ -79,8 +79,8 @@
                     <h:panelGrid columns="3" style="margin-bottom:10px;" cellpadding="25">
                         <p:selectOneRadio id="filesStorage_mode" value="#{FilesStorageChart.mode}" style="padding-left: 10px">
                             <p:ajax event="change" update="filesStorageCountForm" listener="#{FilesStorageChart.changeChartGrouping}"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.filesStorage.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.filesStorage.radiobutton.yearlyCumulative.label']}" itemValue="YEAR_CUMULATIVE"/>
+                            <f:selectItem itemLabel="#{bundle['metrics.section.filesStorage.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.filesStorage.radiobutton.monthly.label']}" itemValue="MONTH"/>
                         </p:selectOneRadio>
                         <p:selectOneMenu id="filesStorage_years" value="#{FilesStorageChart.selectedYear}" disabled="#{FilesStorageChart.mode != 'MONTH'}">
@@ -104,8 +104,8 @@
                     <h:panelGrid columns="3" style="margin-bottom:10px;" cellpadding="25">
                         <p:selectOneRadio id="users_mode" value="#{UsersChart.mode}" style="padding-left: 10px">
                             <p:ajax event="change" update="usersCountForm" listener="#{UsersChart.changeChartGrouping}"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.users.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.users.radiobutton.yearlyCumulative.label']}" itemValue="YEAR_CUMULATIVE"/>
+                            <f:selectItem itemLabel="#{bundle['metrics.section.users.radiobutton.yearly.label']}" itemValue="YEAR"/>
                             <f:selectItem itemLabel="#{bundle['metrics.section.users.radiobutton.monthly.label']}" itemValue="MONTH"/>
                         </p:selectOneRadio>
                         <p:selectOneMenu id="users_years" value="#{UsersChart.selectedYear}" disabled="#{UsersChart.mode != 'MONTH'}">
