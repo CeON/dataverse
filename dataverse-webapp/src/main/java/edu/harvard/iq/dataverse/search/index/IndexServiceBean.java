@@ -30,7 +30,6 @@ import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrField;
 import edu.harvard.iq.dataverse.search.SolrFieldFactory;
-import edu.harvard.iq.dataverse.search.SolrField.SolrType;
 import edu.harvard.iq.dataverse.search.query.SearchPublicationStatus;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -1049,13 +1048,13 @@ public class IndexServiceBean {
                     }
                     datafileSolrInputDocument.addField(SearchFields.ID, fileSolrDocId);
 
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_FRIENDLY, fileMetadata.getDataFile().getFriendlyType());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_FRIENDLY, fileMetadata.getDataFile().getFriendlyTypeForIndex(Locale.ENGLISH));
                     datafileSolrInputDocument.addField(SearchFields.FILE_CONTENT_TYPE, fileMetadata.getDataFile().getContentType());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, fileMetadata.getDataFile().getFriendlyType());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, fileMetadata.getDataFile().getFriendlyTypeForIndex(Locale.ENGLISH));
                     // For the file type facets, we have a property file that maps mime types
                     // to facet-friendly names; "application/fits" should become "FITS", etc.:
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE, FileUtil.getFacetFileType(fileMetadata.getDataFile()));
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, FileUtil.getFacetFileType(fileMetadata.getDataFile()));
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE, FileUtil.getFacetFileTypeForIndex(fileMetadata.getDataFile(), Locale.ENGLISH));
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, FileUtil.getFacetFileTypeForIndex(fileMetadata.getDataFile(), Locale.ENGLISH));
                     datafileSolrInputDocument.addField(SearchFields.FILE_SIZE_IN_BYTES, fileMetadata.getDataFile().getFilesize());
                     if (DataFile.ChecksumType.MD5.equals(fileMetadata.getDataFile().getChecksumType())) {
                         /**
@@ -1153,11 +1152,13 @@ public class IndexServiceBean {
      * Murray Research Archive uses "1 (Generations)" and "yes (Follow-up
      * permitted)".
      */
-    private String getTopicClassificationTermOrTermAndVocabulary(DatasetField topicClassDatasetField) {
+    private String getTopicClassificationTermOrTermAndVocabulary(DatasetField topicClassDatasetField) { //
         String finalValue = null;
         String topicClassVocab = null;
         String topicClassValue = null;
-        for (DatasetField sibling : topicClassDatasetField.getParentDatasetFieldCompoundValue().getChildDatasetFields()) {
+        for (DatasetField sibling : topicClassDatasetField.getDatasetFieldParent().
+                getOrElseThrow(() -> new IllegalStateException("There was no parent dataset field present."))
+                .getDatasetFieldsChildren()) {
             DatasetFieldType datasetFieldType = sibling.getDatasetFieldType();
             String name = datasetFieldType.getName();
             if (name.equals(DatasetFieldConstant.topicClassVocab)) {
