@@ -7,9 +7,11 @@ import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import javax.faces.view.ViewScoped;
+import io.vavr.Tuple2;
+import org.primefaces.event.ReorderEvent;
 
 import javax.ejb.EJB;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -32,6 +34,8 @@ public class ReorderDataFilesPage implements java.io.Serializable {
     private DatasetVersion datasetVersion = new DatasetVersion();
     private List<FileMetadata> fileMetadatas;
     private List<FileMetadata> fileMetadatasCopy;
+    private Tuple2<Integer, Integer> lastReorderFromAndTo;
+    private FileMetadata lastReorderFileMetadata;
 
     /**
      * Initializes all properties requested by frontend.
@@ -62,13 +66,32 @@ public class ReorderDataFilesPage implements java.io.Serializable {
     public void moveUp(int fileIndex) {
         FileMetadata fileToMove = fileMetadatasCopy.remove(fileIndex);
         fileMetadatasCopy.add(fileIndex - 1, fileToMove);
+
+        lastReorderFromAndTo = new Tuple2<Integer, Integer>(fileIndex, fileIndex - 1);
+        lastReorderFileMetadata = fileToMove;
     }
-    
+
     public void moveDown(int fileIndex) {
         FileMetadata fileToMove = fileMetadatasCopy.remove(fileIndex);
         fileMetadatasCopy.add(fileIndex + 1, fileToMove);
+
+        lastReorderFromAndTo = new Tuple2<Integer, Integer>(fileIndex, fileIndex + 1);
+        lastReorderFileMetadata = fileToMove;
     }
-    
+
+    public void onRowReorder(ReorderEvent event) {
+        lastReorderFromAndTo = new Tuple2<Integer, Integer>(event.getFromIndex(), event.getToIndex());
+        lastReorderFileMetadata = fileMetadatasCopy.get(event.getToIndex());
+    }
+
+    public void undoLastReorder() {
+        FileMetadata fileMoved = fileMetadatasCopy.remove(lastReorderFromAndTo._2().intValue());
+        fileMetadatasCopy.add(lastReorderFromAndTo._1(), fileMoved);
+
+        lastReorderFromAndTo = null;
+        lastReorderFileMetadata = null;
+    }
+
     /**
      * Reorders files display order if any were reordered, saves the changes to the database
      * and returns to the previous page.
@@ -104,9 +127,9 @@ public class ReorderDataFilesPage implements java.io.Serializable {
                     datasetVersion.getDataset().getGlobalId().asString() + "&version=DRAFT&faces-redirect=true";
         }
         return "/dataset.xhtml?persistentId=" +
-                datasetVersion.getDataset().getGlobalId().asString()
-                + "&faces-redirect=true&version="
-                + datasetVersion.getVersionNumber() + "." + datasetVersion.getMinorVersionNumber();
+        datasetVersion.getDataset().getGlobalId().asString()
+        + "&faces-redirect=true&version="
+        + datasetVersion.getVersionNumber() + "." + datasetVersion.getMinorVersionNumber();
     }
 
     public DatasetVersion getDatasetVersion() {
@@ -115,6 +138,14 @@ public class ReorderDataFilesPage implements java.io.Serializable {
 
     public List<FileMetadata> getFileMetadatas() {
         return fileMetadatas;
+    }
+
+    public Tuple2<Integer, Integer> getLastReorderFromAndTo() {
+        return lastReorderFromAndTo;
+    }
+
+    public FileMetadata getLastReorderFileMetadata() {
+        return lastReorderFileMetadata;
     }
 
     public void setDatasetVersion(DatasetVersion datasetVersion) {
