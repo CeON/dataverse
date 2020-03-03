@@ -508,12 +508,15 @@ public class SettingsServiceBean {
         MailOverseerAddress,
 
         /**
-         * Following two properties if set to 'true' will enable application to show links
-         * to pages with Privacy Policy and Terms of Use in the footer.
-         *
-         * By default these are set to 'false', so links won't be shown.
+         * Show link to Privacy Policy page in the footer (if set to 'true').
+         * By default is set to 'false', so link won't be shown.
          */
         ShowPrivacyPolicyFooterLink,
+
+        /**
+         * Show link to Terms of Use page in the footer (if set to 'true').
+         * By default is set to 'false', so link won't be shown.
+         */
         ShowTermsOfUseFooterLink
         ;
 

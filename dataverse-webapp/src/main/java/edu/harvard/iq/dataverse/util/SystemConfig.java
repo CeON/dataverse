@@ -500,13 +500,11 @@ public class SystemConfig {
     }
 
     public boolean isShowPrivacyPolicyFooterLinkRendered() {
-        String rendered = settingsService.getValueForKey(Key.ShowPrivacyPolicyFooterLink);
-        return TRUE.equals(rendered);
+        return settingsService.isTrueForKey(Key.ShowPrivacyPolicyFooterLink);
     }
 
     public boolean isShowTermsOfUseFooterLinkRendered() {
-        String rendered = settingsService.getValueForKey(Key.ShowTermsOfUseFooterLink);
-        return TRUE.equals(rendered);
+        return settingsService.isTrueForKey(Key.ShowTermsOfUseFooterLink);
     }
 
     private String getFromBundleIfEmptyLocalizedProperty(Key key, Locale locale, String bundleKey) {
