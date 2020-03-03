@@ -21,8 +21,11 @@ import java.util.List;
 @RequiredPermissions(Permission.EditDataset)
 public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Dataset> {
 
-    public SubmitDatasetForReviewCommand(DataverseRequest aRequest, Dataset dataset) {
+    private final String comment;
+
+    public SubmitDatasetForReviewCommand(DataverseRequest aRequest, Dataset dataset, String comment) {
         super(aRequest, dataset);
+        this.comment = comment;
     }
 
     @Override
@@ -58,15 +61,14 @@ public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Datase
         updateDatasetUser(ctxt);
 
         AuthenticatedUser requestor = getUser().isAuthenticated() ? (AuthenticatedUser) getUser() : null;
+        List<AuthenticatedUser> curators = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
 
-        List<AuthenticatedUser> authUsers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
-        for (AuthenticatedUser au : authUsers) {
-
+        for (AuthenticatedUser au : curators) {
             Option.of(requestor)
                     .peek(user -> ctxt.notifications().sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
-                                                                                 savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, requestor))
+                                                                                 savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, requestor, comment))
                     .onEmpty(() -> ctxt.notifications().sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
-                                                                                  savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION));
+                                                                                  savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, comment));
         }
 
         boolean doNormalSolrDocCleanUp = true;

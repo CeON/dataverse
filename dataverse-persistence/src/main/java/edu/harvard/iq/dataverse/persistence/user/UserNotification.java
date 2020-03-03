@@ -113,7 +113,8 @@ public class UserNotification implements Serializable {
     }
 
     /**
-     * required for {@link NotificationType.RETURNEDDS} only
+     * required only for {@link NotificationType.RETURNEDDS}
+     * optional for {@link NotificationType.SUBMITDDS}
      * @return provided by user reason for dataset publish rejection
      */
     public String getReturnToAuthorReason() {

@@ -92,6 +92,7 @@ import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import io.vavr.control.Either;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -1369,9 +1370,16 @@ public class Datasets extends AbstractApiBean {
 
     @POST
     @Path("{id}/submitForReview")
-    public Response submitForReview(@PathParam("id") String idSupplied) {
+    public Response submitForReview(@PathParam("id") String idSupplied, String jsonBody) {
         try {
-            Dataset updatedDataset = execCommand(new SubmitDatasetForReviewCommand(createDataverseRequest(findUserOrDie()), findDatasetOrDie(idSupplied)));
+            String userMessage = StringUtils.EMPTY;
+            if(!jsonBody.isEmpty()) {
+                StringReader rdr = new StringReader(jsonBody);
+                JsonObject json = Json.createReader(rdr).readObject();
+                userMessage = json.getString("comment", StringUtils.EMPTY);
+            }
+
+            Dataset updatedDataset = execCommand(new SubmitDatasetForReviewCommand(createDataverseRequest(findUserOrDie()), findDatasetOrDie(idSupplied), userMessage));
             JsonObjectBuilder result = Json.createObjectBuilder();
 
             boolean inReview = updatedDataset.isLockedFor(DatasetLock.Reason.InReview);
