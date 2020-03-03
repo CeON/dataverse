@@ -16,6 +16,9 @@ public class ConsentMapper {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Maps entity to dto with Locale filtering since we only need to display one language version of consent to user.
+     */
     public ConsentDto consentToConsentDto(Consent consent, Locale consentLocale) {
 
         ConsentDetails consentWithUserLocale = consent.getConsentDetails().stream()
@@ -43,11 +46,15 @@ public class ConsentMapper {
     }
 
     public AcceptedConsent consentDtoToAcceptedConsent(ConsentDto consentDto, AuthenticatedUser user) {
-       return new AcceptedConsent(consentDto.getName(),
-                            consentDto.getConsentDetails().getLanguage(),
-                            consentDto.getConsentDetails().getText(),
-                            consentDto.isRequired(),
-                            user);
+
+        AcceptedConsent acceptedConsent = new AcceptedConsent(consentDto.getName(),
+                                                              consentDto.getConsentDetails().getLanguage(),
+                                                              consentDto.getConsentDetails().getText(),
+                                                              consentDto.isRequired(),
+                                                              user);
+        user.getAcceptedConsents().add(acceptedConsent);
+
+        return acceptedConsent;
     }
 
     // -------------------- PRIVATE --------------------

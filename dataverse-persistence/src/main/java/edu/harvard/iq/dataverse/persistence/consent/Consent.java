@@ -99,6 +99,10 @@ public class Consent {
 
     // -------------------- SETTERS --------------------
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setDisplayOrder(int displayOrder) {
         this.displayOrder = displayOrder;
     }

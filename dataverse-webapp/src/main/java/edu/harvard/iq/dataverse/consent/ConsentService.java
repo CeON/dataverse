@@ -35,9 +35,7 @@ public class ConsentService {
 
         return consents.stream()
                 .map(consent -> consentMapper.consentToConsentDto(consent, preferredLocale))
-                .sorted(Comparator.comparing(ConsentDto::isRequired)
-                                .reversed()
-                                .thenComparing(ConsentDto::getDisplayOrder))
+                .sorted(Comparator.comparing(ConsentDto::getDisplayOrder))
                 .collect(Collectors.toList());
     }
 

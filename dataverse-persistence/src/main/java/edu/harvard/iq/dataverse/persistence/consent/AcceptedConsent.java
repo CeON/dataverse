@@ -71,4 +71,8 @@ public class AcceptedConsent {
     public boolean isRequired() {
         return required;
     }
+
+    public AuthenticatedUser getUser() {
+        return user;
+    }
 }

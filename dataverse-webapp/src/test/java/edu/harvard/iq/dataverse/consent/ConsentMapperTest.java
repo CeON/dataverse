@@ -6,88 +6,62 @@ import edu.harvard.iq.dataverse.persistence.consent.Consent;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentDetails;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
-@ExtendWith(MockitoExtension.class)
-class ConsentServiceTest {
-
-    @Mock
-    private ConsentDao consentDao;
+class ConsentMapperTest {
 
     private ConsentMapper consentMapper = new ConsentMapper();
 
-    @InjectMocks
-    private ConsentService consentService;
-
     private static final Locale PREFERRED_LOCALE = Locale.CHINA;
 
-    @BeforeEach
-    void setUp() {
-        consentService = new ConsentService(consentDao, consentMapper);
-    }
-
     @Test
-    public void prepareConsentsForView() {
+    public void consentToConsentDto() {
         //given
-        List<Consent> testConsents = prepareTestConsents();
+        List<Consent> consents = prepareTestConsents();
 
         //when
-        List<ConsentDto> preperedConsents = consentService.prepareConsentsForView(Locale.CHINA, testConsents);
+        List<ConsentDto> preperedConsents = consents.stream()
+                .map(consent -> consentMapper.consentToConsentDto(consent, Locale.CHINA))
+                .collect(Collectors.toList());
 
         //then
-        Assertions.assertAll(() -> Assertions.assertEquals(testConsents.get(2).getName(),
+        Assertions.assertAll(() -> Assertions.assertEquals(consents.get(0).getName(),
                                                            preperedConsents.get(0).getName()),
-                             () -> Assertions.assertEquals(testConsents.get(2).getConsentDetails().get(0).getText(),
+                             () -> Assertions.assertEquals(consents.get(0).getConsentDetails().get(0).getText(),
                                                            preperedConsents.get(0).getConsentDetails().getText()),
-                             () -> Assertions.assertEquals(testConsents.get(0).getName(),
+                             () -> Assertions.assertEquals(consents.get(1).getName(),
                                                            preperedConsents.get(1).getName()),
-                             () -> Assertions.assertEquals(testConsents.get(0).getConsentDetails().get(0).getText(),
+                             () -> Assertions.assertEquals(consents.get(1).getConsentDetails().get(1).getText(),
                                                            preperedConsents.get(1).getConsentDetails().getText()),
-                             () -> Assertions.assertEquals(testConsents.get(1).getName(),
+                             () -> Assertions.assertEquals(consents.get(2).getName(),
                                                            preperedConsents.get(2).getName()),
-                             () -> Assertions.assertEquals(testConsents.get(1).getConsentDetails().get(1).getText(),
+                             () -> Assertions.assertEquals(consents.get(2).getConsentDetails().get(0).getText(),
                                                            preperedConsents.get(2).getConsentDetails().getText()));
 
     }
 
     @Test
-    public void findConsentsForView() {
-        //given & when
-        Mockito.when(consentDao.findConsentsForDisplay(Mockito.any())).thenAnswer(Answers.RETURNS_MOCKS);
-        consentService.findConsentsForView(PREFERRED_LOCALE);
-
-        //then
-        Mockito.verify(consentDao, Mockito.times(1)).findConsentsForDisplay(PREFERRED_LOCALE);
-    }
-
-    @Test
-    public void saveAcceptedConsents() {
+    public void consentDtoToAcceptedConsent() {
         //given
+        List<ConsentDto> consentDtos = prepareTestDtoConsents();
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
-        List<ConsentDto> testDtoConsents = prepareTestDtoConsents();
 
         //when
-        List<AcceptedConsent> acceptedConsents = consentService.saveAcceptedConsents(testDtoConsents,
-                                                                                     authenticatedUser);
+        List<AcceptedConsent> acceptedConsents = consentDtos.stream()
+                .map(consentDto -> consentMapper.consentDtoToAcceptedConsent(consentDto, authenticatedUser))
+                .collect(Collectors.toList());
 
         //then
-        Assertions.assertAll(() -> Assertions.assertEquals(1, acceptedConsents.size()),
-                             () -> Assertions.assertEquals(testDtoConsents.get(0).getName(),
-                                                           acceptedConsents.get(0).getName()),
-                             () -> Assertions.assertEquals(testDtoConsents.get(0).getConsentDetails().getText(),
-                                                           acceptedConsents.get(0).getText()),
-                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(0).getName(),
-                                                           acceptedConsents.get(0).getName()));
+        Assertions.assertAll(() -> Assertions.assertEquals(consentDtos.get(0).getName(), acceptedConsents.get(0).getName()),
+                             () -> Assertions.assertEquals(consentDtos.get(0).getConsentDetails().getText(), acceptedConsents.get(0).getText()),
+                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(0).getName(), consentDtos.get(0).getName()),
+                             () -> Assertions.assertEquals(consentDtos.get(1).getName(), acceptedConsents.get(1).getName()),
+                             () -> Assertions.assertEquals(consentDtos.get(1).getConsentDetails().getText(), acceptedConsents.get(1).getText()),
+                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(1).getName(), consentDtos.get(1).getName()));
 
     }
 
