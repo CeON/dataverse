@@ -15,23 +15,35 @@
             <div id="terms-agreement-block" class="well">
                 <h:outputText value="#{systemConfig.getApplicationTermsOfUse(dataverseSession.locale)}" escape="false"/>
             </div>
+
+            <div class="checkbox">
+                <p:selectBooleanCheckbox id="terms" required="true"
+                                         requiredMessage="#{bundle['user.acccountterms.required']}"
+                                         itemLabel="#{bundle['user.acccountterms.iagree']}">
+                    <o:validator validatorId="requiredCheckboxValidator"/>
+                </p:selectBooleanCheckbox>
+                <p:message for="terms" display="text" />
+            </div>
+
             <div class="checkbox">
                 <p:repeat value="#{DataverseUserPage.consents}" var="consent">
 
-                    <ui:fragment rendered="#{consent.required}">
-                        <span class="glyphicon glyphicon-asterisk text-danger"
-                              title="#{bundle.requiredField}"/>
-                    </ui:fragment>
-
-                    <p:selectBooleanCheckbox id="terms"
-                                             style="margin-left: 0.5%"
+                    <p:selectBooleanCheckbox id="consent"
                                              value="#{consent.consentDetails.accepted}"
-                                             requiredMessage="#{bundle['user.consent.required']}"
-                                             itemLabel="#{consent.consentDetails.text}">
+                                             requiredMessage="#{bundle['user.consent.required']}">
 
-                            <o:validator validatorId="requiredCheckboxValidator" disabled="#{!consent.required}"/>
+                        <o:validator validatorId="requiredCheckboxValidator" disabled="#{!consent.required}"/>
                     </p:selectBooleanCheckbox>
-                    <p:message for="terms" display="text"/>
+
+                    <p:outputLabel for="consent" styleClass="consent-label">
+                        #{consent.consentDetails.text}
+                        <ui:fragment rendered="#{consent.required}">
+                            <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
+                        </ui:fragment>
+                    </p:outputLabel>
+
+
+                    <p:message for="consent" display="text"/>
                 </p:repeat>
             </div>
         </div>
