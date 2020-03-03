@@ -1,8 +1,7 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
     <div class="form-group">
         <label for="position" class="col-sm-3 control-label">
@@ -27,10 +26,10 @@
                     <p:selectBooleanCheckbox id="terms"
                                              style="margin-left: 0.5%"
                                              value="#{consent.consentDetails.accepted}"
-                                             required="#{consent.required}"
                                              requiredMessage="#{bundle['user.acccountterms.required']}"
                                              itemLabel="#{consent.consentDetails.text}">
-                        <f:validator validatorId="requiredCheckboxValidator"/>
+
+                            <o:validator validatorId="requiredCheckboxValidator" disabled="#{!consent.required}"/>
                     </p:selectBooleanCheckbox>
                     <p:message for="terms" display="text"/>
                 </p:repeat>

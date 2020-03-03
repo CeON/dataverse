@@ -17,8 +17,8 @@ public class ConsentDao {
 
     public List<Consent> findConsentsForDisplay(Locale preferredLanguage) {
 
-        return em.createQuery("SELECT cons FROM Consent cons JOIN cons.consentDetails details" +
-                                      " WHERE cons.hidden = false AND details.language = :lang OR details.language = :defaultLanugage",
+        return em.createQuery("SELECT DISTINCT cons FROM Consent cons JOIN cons.consentDetails details" +
+                                      " WHERE cons.hidden = false AND (details.language = :lang OR details.language = :defaultLanugage)",
                               Consent.class)
                 .setParameter("lang", preferredLanguage)
                 .setParameter("defaultLanugage", Locale.ENGLISH)
@@ -28,4 +28,5 @@ public class ConsentDao {
     public void saveConsents(AcceptedConsent acceptedConsent){
         em.persist(acceptedConsent);
     }
+
 }
