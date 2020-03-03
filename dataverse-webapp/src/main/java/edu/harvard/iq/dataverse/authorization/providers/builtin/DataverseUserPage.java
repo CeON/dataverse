@@ -151,10 +151,6 @@ public class DataverseUserPage implements java.io.Serializable {
     private List<String> passwordErrors;
     private List<ConsentDto> consents;
 
-    public List<ConsentDto> getConsents() {
-        return consents;
-    }
-
     public String init() {
 
 
@@ -798,6 +794,10 @@ public class DataverseUserPage implements java.io.Serializable {
 
     public String getLocalizedDisplayNameForLanguage(String language) {
         return getLocalizedDisplayNameForLanguage(Locale.forLanguageTag(language));
+    }
+
+    public List<ConsentDto> getConsents() {
+        return consents;
     }
 
     // -------------------- PRIVATE ---------------------
