@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.license.dto.LicenseMapper;
 import edu.harvard.iq.dataverse.license.dto.LicenseSimpleDto;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
+import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.event.ReorderEvent;
@@ -72,7 +73,7 @@ public class LicenseReorderPage implements Serializable {
         LicenseSimpleDto licenseToMove = licenses.remove(licenseIndex);
         licenses.add(licenseIndex - 1, licenseToMove);
 
-        lastReorderFromAndTo = new Tuple2<Integer, Integer>(licenseIndex, licenseIndex - 1);
+        lastReorderFromAndTo = Tuple.of(licenseIndex, licenseIndex - 1);
         lastReorderLicense = licenseToMove;
     }
 
@@ -80,12 +81,12 @@ public class LicenseReorderPage implements Serializable {
         LicenseSimpleDto licenseToMove = licenses.remove(licenseIndex);
         licenses.add(licenseIndex + 1, licenseToMove);
 
-        lastReorderFromAndTo = new Tuple2<Integer, Integer>(licenseIndex, licenseIndex + 1);
+        lastReorderFromAndTo = Tuple.of(licenseIndex, licenseIndex + 1);
         lastReorderLicense = licenseToMove;
     }
 
     public void onRowReorder(ReorderEvent event) {
-        lastReorderFromAndTo = new Tuple2<Integer, Integer>(event.getFromIndex(), event.getToIndex());
+        lastReorderFromAndTo = Tuple.of(event.getFromIndex(), event.getToIndex());
         lastReorderLicense = licenses.get(event.getToIndex());
     }
 
