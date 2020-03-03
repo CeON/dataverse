@@ -600,13 +600,13 @@ public class DataverseUserPage implements java.io.Serializable {
 
     public boolean isEmailIsVerified() {
 
-        return currentUser.getEmailConfirmed() != null && confirmEmailService.findSingleConfirmEmailDataByUser(
-                currentUser) == null;
+        return currentUser.getEmailConfirmed() != null &&
+                confirmEmailService.findSingleConfirmEmailDataByUser(currentUser) == null;
     }
 
     public boolean isEmailNotVerified() {
-        return currentUser.getEmailConfirmed() == null || confirmEmailService.findSingleConfirmEmailDataByUser(
-                currentUser) != null;
+        return currentUser.getEmailConfirmed() == null ||
+                confirmEmailService.findSingleConfirmEmailDataByUser(currentUser) != null;
     }
 
     public boolean isEmailGrandfathered() {
@@ -621,8 +621,8 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getUserLocalizedNotificationsLanguageForDisplay() {
-        String displayLanguage = StringUtils.capitalize(currentUser.getNotificationsLanguage().getDisplayLanguage(
-                session.getLocale()));
+        String displayLanguage = StringUtils
+                .capitalize(currentUser.getNotificationsLanguage().getDisplayLanguage(session.getLocale()));
 
         return isUserLanguageConfigured() ?
                 displayLanguage :

@@ -25,7 +25,7 @@ public class ConsentDao {
                 .getResultList();
     }
 
-    public void saveConsents(AcceptedConsent acceptedConsent){
+    public void saveAcceptedConsent(AcceptedConsent acceptedConsent){
         em.persist(acceptedConsent);
     }
 

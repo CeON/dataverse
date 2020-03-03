@@ -52,7 +52,7 @@ public class ConsentService {
                 .map(consentDto -> consentMapper.consentDtoToAcceptedConsent(consentDto, consentAccepter))
                 .collect(Collectors.toList());
 
-        acceptedConsents.forEach(acceptedConsent -> consentDao.saveConsents(acceptedConsent));
+        acceptedConsents.forEach(acceptedConsent -> consentDao.saveAcceptedConsent(acceptedConsent));
 
         return acceptedConsents;
     }
