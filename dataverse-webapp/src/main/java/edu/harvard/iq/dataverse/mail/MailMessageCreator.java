@@ -388,6 +388,7 @@ public class MailMessageCreator {
                         getDatasetDraftLink(version.getDataset()),
                         version.getDataset().getOwner().getDisplayName(),
                         getDataverseLink(version.getDataset().getOwner()),
+                        "",
                         "");
                 return messageText;
             case RETURNEDDS:
@@ -431,11 +432,11 @@ public class MailMessageCreator {
     }
 
     private String addUserCustomMessage(EmailNotificationDto notificationDto, String messagePrefix) {
-        if(StringUtils.isNotEmpty(notificationDto.getReturnToAuthorReason())) {
+        if(StringUtils.isNotEmpty(notificationDto.getCustomUserMessage())) {
             return "\n\n"
                     + messagePrefix
                     + "\n\n"
-                    + notificationDto.getReturnToAuthorReason();
+                    + notificationDto.getCustomUserMessage();
         }
          return StringUtils.EMPTY;
     }

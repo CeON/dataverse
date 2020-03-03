@@ -148,7 +148,7 @@ public class UserNotificationService {
         EmailNotificationDto emailNotificationDto = mailMapper.toDto(notification,
                                                                      notification.getObjectId(),
                                                                      notificationObjectType,
-                                                                     notification.getReturnToAuthorReason());
+                                                                     notification.getAdditionalMessage());
 
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto, requester);
 
@@ -170,7 +170,7 @@ public class UserNotificationService {
         EmailNotificationDto emailNotificationDto = mailMapper.toDto(notification,
                                                                      notification.getObjectId(),
                                                                      notificationObjectType,
-                                                                     notification.getReturnToAuthorReason());
+                                                                     notification.getAdditionalMessage());
 
 
         Boolean emailSent = mailService.sendNotificationEmail(emailNotificationDto);
@@ -204,7 +204,7 @@ public class UserNotificationService {
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectId);
         userNotification.setRequestor(requestor);
-        userNotification.setReturnToAuthorReason(userMessage);
+        userNotification.setAdditionalMessage(userMessage);
 
         userNotificationDao.save(userNotification);
 
@@ -223,13 +223,13 @@ public class UserNotificationService {
         return userNotification;
     }
 
-    private UserNotification sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, long dvObjectId, String returnToAuthorReason) {
+    private UserNotification sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, NotificationType type, long dvObjectId, String userMessage) {
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
         userNotification.setType(type);
         userNotification.setObjectId(dvObjectId);
-        userNotification.setReturnToAuthorReason(returnToAuthorReason);
+        userNotification.setAdditionalMessage(userMessage);
 
         userNotificationDao.save(userNotification);
 
