@@ -26,7 +26,7 @@
                     <p:selectBooleanCheckbox id="terms"
                                              style="margin-left: 0.5%"
                                              value="#{consent.consentDetails.accepted}"
-                                             requiredMessage="#{bundle['user.acccountterms.required']}"
+                                             requiredMessage="#{bundle['user.consent.required']}"
                                              itemLabel="#{consent.consentDetails.text}">
 
                             <o:validator validatorId="requiredCheckboxValidator" disabled="#{!consent.required}"/>
