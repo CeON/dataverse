@@ -168,7 +168,9 @@
                                                             #{DataverseUserPage.getRequestorEmail(item)}
                                                         </o:param>
                                                         <o:param rendered="#{not empty DataverseUserPage.getReasonForReturn(item)}">
-                                                            #{bundle['notification.wasSubmittedForReview.contributorMessage.prefix'] + " " + DataverseUserPage.getReasonForReturn(item)}
+                                                            #{bundle['notification.wasSubmittedForReview.contributorMessage.prefix']
+                                                                .concat(" ")
+                                                                .concat(DataverseUserPage.getReasonForReturn(item))}
                                                         </o:param>
                                                     </h:outputFormat>
                                                 </ui:fragment>
