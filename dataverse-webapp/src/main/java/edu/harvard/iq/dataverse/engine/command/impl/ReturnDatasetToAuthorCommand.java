@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
+import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowComment;
 import io.vavr.control.Option;
 
@@ -53,16 +54,17 @@ public class ReturnDatasetToAuthorCommand extends AbstractDatasetCommand<Dataset
             Then remove reviewers from the autors list
             Finally send a notification to the remaining (non-reviewing) authors - Hey! your dataset was rejected.
         */
-        AuthenticatedUser requestor = getUser().isAuthenticated() ? (AuthenticatedUser) getUser() : null;
+        Option<AuthenticatedUser> requestorOption = Option.of(getUser())
+                .filter(User::isAuthenticated)
+                .map(user -> (AuthenticatedUser)user)
+                .orElse(Option.none());
         List<AuthenticatedUser> reviewers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         List<AuthenticatedUser> authors = ctxt.permissions().getUsersWithPermissionOn(Permission.EditDataset, savedDataset);
         authors.removeAll(reviewers);
         for (AuthenticatedUser au : authors) {
-            Option.of(requestor)
+            requestorOption
                     .peek(user -> ctxt.notifications().sendNotificationWithEmail(au, getTimestamp(), NotificationType.RETURNEDDS,
-                            savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, requestor, comment))
-                    .onEmpty(() -> ctxt.notifications().sendNotificationWithEmail(au, getTimestamp(), NotificationType.RETURNEDDS,
-                            savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, comment));
+                            savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, user, comment));
         }
 
 

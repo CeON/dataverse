@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
+import edu.harvard.iq.dataverse.persistence.user.User;
 import io.vavr.control.Option;
 
 import java.sql.Timestamp;
@@ -60,15 +61,16 @@ public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Datase
 
         updateDatasetUser(ctxt);
 
-        AuthenticatedUser requestor = getUser().isAuthenticated() ? (AuthenticatedUser) getUser() : null;
+        Option<AuthenticatedUser> requestorOption = Option.of(getUser())
+                .filter(User::isAuthenticated)
+                .map(user -> (AuthenticatedUser)user)
+                .orElse(Option.none());
         List<AuthenticatedUser> curators = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
 
         for (AuthenticatedUser au : curators) {
-            Option.of(requestor)
+            requestorOption
                     .peek(user -> ctxt.notifications().sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
-                                                                                 savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, requestor, comment))
-                    .onEmpty(() -> ctxt.notifications().sendNotificationWithEmail(au, new Timestamp(new Date().getTime()), NotificationType.SUBMITTEDDS,
-                                                                                  savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, comment));
+                                                                                 savedDataset.getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION, user, comment));
         }
 
         boolean doNormalSolrDocCleanUp = true;
