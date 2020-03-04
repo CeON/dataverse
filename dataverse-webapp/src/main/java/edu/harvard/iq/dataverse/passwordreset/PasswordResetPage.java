@@ -6,6 +6,8 @@ import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProvider;
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.consent.ConsentDto;
+import edu.harvard.iq.dataverse.consent.ConsentService;
 import edu.harvard.iq.dataverse.persistence.ActionLogRecord;
 import edu.harvard.iq.dataverse.persistence.config.ValidateEmail;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -15,16 +17,15 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
-import javax.faces.view.ViewScoped;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -52,6 +53,11 @@ public class PasswordResetPage implements java.io.Serializable {
 
     @EJB
     PasswordValidatorServiceBean passwordValidatorService;
+
+    @Inject
+    private ConsentService consentService;
+
+    private List<ConsentDto> consents;
 
     /**
      * The unique string used to look up a user and continue the password reset
@@ -93,6 +99,7 @@ public class PasswordResetPage implements java.io.Serializable {
             passwordResetData = passwordResetExecResponse.getPasswordResetData();
             if (passwordResetData != null) {
                 user = passwordResetData.getBuiltinUser();
+                consents = consentService.prepareConsentsForView(session.getLocale());
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                                                                     BundleUtil.getStringFromBundle("passwdVal.passwdReset.resetLinkTitle"),
@@ -138,6 +145,7 @@ public class PasswordResetPage implements java.io.Serializable {
             String builtinAuthProviderId = BuiltinAuthenticationProvider.PROVIDER_ID;
             AuthenticatedUser au = authSvc.lookupUser(builtinAuthProviderId, user.getUserName());
             session.setUser(au);
+            consentService.saveAcceptedConsents(consents, au);
             return "/dataverse.xhtml?alias=" + dataverseDao.findRootDataverse().getAlias() + "faces-redirect=true";
         } else {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, response.getMessageSummary(), response.getMessageDetail()));
@@ -220,5 +228,9 @@ public class PasswordResetPage implements java.io.Serializable {
             String defaultPasswordResetAlertMessage = BundleUtil.getStringFromBundle("passwdReset.newPasswd.details");
             return defaultPasswordResetAlertMessage;
         }
+    }
+
+    public List<ConsentDto> getConsents() {
+        return consents;
     }
 }

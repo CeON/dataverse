@@ -31,16 +31,13 @@ public class ConsentService {
 
     // -------------------- LOGIC --------------------
 
-    public List<ConsentDto> prepareConsentsForView(Locale preferredLocale, List<Consent> consents) {
+    public List<ConsentDto> prepareConsentsForView(Locale preferredLocale) {
+        List<Consent> consents = consentDao.findConsentsForDisplay(preferredLocale);
 
         return consents.stream()
                 .map(consent -> consentMapper.consentToConsentDto(consent, preferredLocale))
                 .sorted(Comparator.comparing(ConsentDto::getDisplayOrder))
                 .collect(Collectors.toList());
-    }
-
-    public List<Consent> findConsentsForView(Locale preferredLocale) {
-        return consentDao.findConsentsForDisplay(preferredLocale);
     }
 
     public List<AcceptedConsent> saveAcceptedConsents(List<ConsentDto> consents, AuthenticatedUser consentAccepter){

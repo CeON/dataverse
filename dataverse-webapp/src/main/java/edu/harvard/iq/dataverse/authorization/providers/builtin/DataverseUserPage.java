@@ -171,7 +171,7 @@ public class DataverseUserPage implements java.io.Serializable {
                               BundleUtil.getStringFromBundle("user.message.signup.label"),
                               BundleUtil.getStringFromBundle("user.message.signup.tip"));
                 userDisplayInfo = new AuthenticatedUserDisplayInfo();
-                consents = consentService.prepareConsentsForView(session.getLocale(), consentService.findConsentsForView(session.getLocale()));
+                consents = consentService.prepareConsentsForView(session.getLocale());
 
                 return "";
             }

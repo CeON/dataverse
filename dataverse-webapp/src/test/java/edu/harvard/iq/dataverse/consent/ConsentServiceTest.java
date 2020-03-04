@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -42,7 +41,8 @@ class ConsentServiceTest {
         List<Consent> testConsents = prepareTestConsents();
 
         //when
-        List<ConsentDto> preperedConsents = consentService.prepareConsentsForView(Locale.CHINA, testConsents);
+        Mockito.when(consentDao.findConsentsForDisplay(Mockito.any())).thenReturn(testConsents);
+        List<ConsentDto> preperedConsents = consentService.prepareConsentsForView(Locale.CHINA);
 
         //then
         Assertions.assertAll(() -> Assertions.assertEquals(testConsents.get(2).getName(),
@@ -58,16 +58,6 @@ class ConsentServiceTest {
                              () -> Assertions.assertEquals(testConsents.get(1).getConsentDetails().get(1).getText(),
                                                            preperedConsents.get(2).getConsentDetails().getText()));
 
-    }
-
-    @Test
-    public void findConsentsForView() {
-        //given & when
-        Mockito.when(consentDao.findConsentsForDisplay(Mockito.any())).thenAnswer(Answers.RETURNS_MOCKS);
-        consentService.findConsentsForView(PREFERRED_LOCALE);
-
-        //then
-        Mockito.verify(consentDao, Mockito.times(1)).findConsentsForDisplay(PREFERRED_LOCALE);
     }
 
     @Test

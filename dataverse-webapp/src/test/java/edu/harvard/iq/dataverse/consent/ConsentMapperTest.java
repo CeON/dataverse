@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 class ConsentMapperTest {
 
@@ -19,49 +18,88 @@ class ConsentMapperTest {
     private static final Locale PREFERRED_LOCALE = Locale.CHINA;
 
     @Test
-    public void consentToConsentDto() {
+    public void consentToConsentDto_onlyEnglishRequiredConsent() {
         //given
-        List<Consent> consents = prepareTestConsents();
+        Consent cosnent = prepareTestConsents().get(0);
 
         //when
-        List<ConsentDto> preperedConsents = consents.stream()
-                .map(consent -> consentMapper.consentToConsentDto(consent, Locale.CHINA))
-                .collect(Collectors.toList());
+        ConsentDto preparedConsent = consentMapper.consentToConsentDto(cosnent, Locale.CHINA);
 
         //then
-        Assertions.assertAll(() -> Assertions.assertEquals(consents.get(0).getName(),
-                                                           preperedConsents.get(0).getName()),
-                             () -> Assertions.assertEquals(consents.get(0).getConsentDetails().get(0).getText(),
-                                                           preperedConsents.get(0).getConsentDetails().getText()),
-                             () -> Assertions.assertEquals(consents.get(1).getName(),
-                                                           preperedConsents.get(1).getName()),
-                             () -> Assertions.assertEquals(consents.get(1).getConsentDetails().get(1).getText(),
-                                                           preperedConsents.get(1).getConsentDetails().getText()),
-                             () -> Assertions.assertEquals(consents.get(2).getName(),
-                                                           preperedConsents.get(2).getName()),
-                             () -> Assertions.assertEquals(consents.get(2).getConsentDetails().get(0).getText(),
-                                                           preperedConsents.get(2).getConsentDetails().getText()));
+        Assertions.assertAll(() -> Assertions.assertEquals(cosnent.getName(),
+                                                           preparedConsent.getName()),
+                             () -> Assertions.assertEquals(cosnent.getConsentDetails().get(0).getText(),
+                                                           preparedConsent.getConsentDetails().getText()),
+                             () -> Assertions.assertEquals(cosnent.isRequired(),
+                                                           preparedConsent.isRequired()));
 
     }
 
     @Test
-    public void consentDtoToAcceptedConsent() {
+    public void consentToConsentDto_onlyEnglishPolishRequiredConsent() {
         //given
-        List<ConsentDto> consentDtos = prepareTestDtoConsents();
+        Consent cosnent = prepareTestConsents().get(1);
+
+        //when
+        ConsentDto preparedConsent = consentMapper.consentToConsentDto(cosnent, Locale.CHINA);
+
+        //then
+        Assertions.assertAll(() -> Assertions.assertEquals(cosnent.getName(),
+                                                           preparedConsent.getName()),
+                             () -> Assertions.assertEquals(cosnent.getConsentDetails().get(1).getText(),
+                                                           preparedConsent.getConsentDetails().getText()),
+                             () -> Assertions.assertEquals(cosnent.isRequired(),
+                                                           preparedConsent.isRequired()));
+
+    }
+
+    @Test
+    public void consentToConsentDto_onlyEnglishNonRequiredConsent() {
+        //given
+        Consent cosnent = prepareTestConsents().get(2);
+
+        //when
+        ConsentDto preparedConsent = consentMapper.consentToConsentDto(cosnent, Locale.CHINA);
+
+        //then
+        Assertions.assertAll(() -> Assertions.assertEquals(cosnent.getName(),
+                                                           preparedConsent.getName()),
+                             () -> Assertions.assertEquals(cosnent.getConsentDetails().get(0).getText(),
+                                                           preparedConsent.getConsentDetails().getText()),
+                             () -> Assertions.assertEquals(cosnent.isRequired(),
+                                                           preparedConsent.isRequired()));
+
+    }
+
+    @Test
+    public void consentDtoToAcceptedConsent_onlyAcceptedConsent() {
+        //given
+        ConsentDto consentDto = prepareTestDtoConsents().get(0);
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
 
         //when
-        List<AcceptedConsent> acceptedConsents = consentDtos.stream()
-                .map(consentDto -> consentMapper.consentDtoToAcceptedConsent(consentDto, authenticatedUser))
-                .collect(Collectors.toList());
+        AcceptedConsent acceptedConsents =  consentMapper.consentDtoToAcceptedConsent(consentDto, authenticatedUser);
 
         //then
-        Assertions.assertAll(() -> Assertions.assertEquals(consentDtos.get(0).getName(), acceptedConsents.get(0).getName()),
-                             () -> Assertions.assertEquals(consentDtos.get(0).getConsentDetails().getText(), acceptedConsents.get(0).getText()),
-                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(0).getName(), consentDtos.get(0).getName()),
-                             () -> Assertions.assertEquals(consentDtos.get(1).getName(), acceptedConsents.get(1).getName()),
-                             () -> Assertions.assertEquals(consentDtos.get(1).getConsentDetails().getText(), acceptedConsents.get(1).getText()),
-                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(1).getName(), consentDtos.get(1).getName()));
+        Assertions.assertAll(() -> Assertions.assertEquals(consentDto.getName(), acceptedConsents.getName()),
+                             () -> Assertions.assertEquals(consentDto.getConsentDetails().getText(), acceptedConsents.getText()),
+                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(0).getName(), consentDto.getName()));
+
+    }
+
+    @Test
+    public void consentDtoToAcceptedConsent_onlyNonAcceptedConsent() {
+        //given
+        ConsentDto consentDto = prepareTestDtoConsents().get(1);
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+
+        //when
+        AcceptedConsent acceptedConsents =  consentMapper.consentDtoToAcceptedConsent(consentDto, authenticatedUser);
+
+        //then
+        Assertions.assertAll(() -> Assertions.assertEquals(consentDto.getName(), acceptedConsents.getName()),
+                             () -> Assertions.assertEquals(consentDto.getConsentDetails().getText(), acceptedConsents.getText()),
+                             () -> Assertions.assertEquals(authenticatedUser.getAcceptedConsents().get(0).getName(), consentDto.getName()));
 
     }
 
@@ -99,7 +137,7 @@ class ConsentMapperTest {
         requiredPolEng.getConsentDetails().add(reqPolEngDetails);
         requiredPolEng.getConsentDetails().add(reqPolEngDetails2);
 
-        Consent nonRequiredEnglish = new Consent("requiredEnglish", 0, false, false);
+        Consent nonRequiredEnglish = new Consent("nonRequiredEnglish", 0, false, false);
         nonRequiredEnglish.setId(3L);
         ConsentDetails nonReqEnglish = new ConsentDetails(nonRequiredEnglish, Locale.ENGLISH, "non required consent");
         nonReqEnglish.setId(4L);
