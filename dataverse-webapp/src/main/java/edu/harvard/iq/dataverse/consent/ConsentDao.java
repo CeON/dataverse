@@ -7,7 +7,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Locale;
 
 @Stateless
 public class ConsentDao {
@@ -15,13 +14,11 @@ public class ConsentDao {
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
 
-    public List<Consent> findConsentsForDisplay(Locale preferredLanguage) {
+    public List<Consent> findNotHiddenConsents() {
 
         return em.createQuery("SELECT DISTINCT cons FROM Consent cons JOIN cons.consentDetails details" +
-                                      " WHERE cons.hidden = false AND (details.language = :lang OR details.language = :defaultLanugage)",
+                                      " WHERE cons.hidden = false",
                               Consent.class)
-                .setParameter("lang", preferredLanguage)
-                .setParameter("defaultLanugage", Locale.ENGLISH)
                 .getResultList();
     }
 

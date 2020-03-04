@@ -41,7 +41,7 @@ class ConsentServiceTest {
         List<Consent> testConsents = prepareTestConsents();
 
         //when
-        Mockito.when(consentDao.findConsentsForDisplay(Mockito.any())).thenReturn(testConsents);
+        Mockito.when(consentDao.findNotHiddenConsents()).thenReturn(testConsents);
         List<ConsentDto> preperedConsents = consentService.prepareConsentsForView(Locale.CHINA);
 
         //then

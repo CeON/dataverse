@@ -32,7 +32,7 @@ public class ConsentService {
     // -------------------- LOGIC --------------------
 
     public List<ConsentDto> prepareConsentsForView(Locale preferredLocale) {
-        List<Consent> consents = consentDao.findConsentsForDisplay(preferredLocale);
+        List<Consent> consents = consentDao.findNotHiddenConsents();
 
         return consents.stream()
                 .map(consent -> consentMapper.consentToConsentDto(consent, preferredLocale))
