@@ -1058,7 +1058,7 @@ div[id$="notifications"].ui-tabs-panel {
 		}
 	}
 
-	&:not(.no-alternating-row-colors) .ui-datatable-odd {
+	&:not(.no-alternating-row-colors) .ui-datatable-odd:not(.ui-state-highlight):not(:hover) {
 		background: none;
 
 		 td {
@@ -1203,6 +1203,19 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 
 .files-table-right {
 	width: 8em;
+}
+
+/* Disable selecting single table row accidentally */
+.ui-datatable-selectable td {
+	cursor: default;
+
+	&:active {
+		pointer-events: none;
+	
+		* {
+			pointer-events: auto;
+		}
+	}
 }
 
 /* AJAX loading spinner */
