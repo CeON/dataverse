@@ -235,11 +235,21 @@
                                                                     and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                     and DatasetPage.canUpdateDataset()
                                                                     and !permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
-                                            <button type="button"
-                                                    class="btn btn-default btn-access #{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
-                                                    onclick="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'return false;' : 'sentToReview();'}">
-                                                <span class="glyphicon glyphicon-globe"/> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}
-                                            </button>
+                                            <p:commandLink
+                                                    id="sentToReviewButton"
+                                                    styleClass="btn btn-default btn-access #{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
+                                                    oncomplete="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'return false;' : 'sentToReview();'}"
+                                                    actionListener="#{DatasetPage.loadFilesTermDiffs()}"
+                                                    value="#{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}"
+                                                    update="inreview"
+                                                    >
+<!--                                                <span class="glyphicon glyphicon-globe"/> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}-->
+                                            </p:commandLink>
+<!--                                            <p:remoteCommand-->
+<!--                                                    name="loadTermDiffs"-->
+<!--                                                    actionListener="#{DatasetPage.loadFilesTermDiffs()}"-->
+<!--                                                    style="display: none;"-->
+<!--                                            />-->
                                         </ui:fragment>
     
                                         <!-- End: Submit for Review Button -->
@@ -936,12 +946,43 @@
                                  update=":messagePanel  @([id$=Messages])"
                                  actionListener="#{DatasetPage.saveLinkingDataverses}"/>
 
-                <p:dialog id="inreview" header="#{bundle['dataset.submitForReview.submitBtn']}" widgetVar="inreview" modal="true">
+                <p:dialog
+                        id="inreview"
+                        header="#{bundle['dataset.submitForReview.submitBtn']}"
+                        widgetVar="inreview"
+                        modal="true"
+                        styleClass="largePopUp"
+                >
 
                     <p:outputPanel rendered="#{DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                         <p class="text-warning">
                             <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.submitMessage']}
                         </p>
+
+                        <div class="panel panel-default" jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}" >
+                            <div class="panel-heading text-info">
+                                <h:outputText value="#{bundle['file.viewDiffDialog.fileTerms.header']}"/>
+                            </div>
+                            <p:dataTable id="termsDiffDataTable"
+                                         style="border-top:1px solid #ddd;"
+                                         styleClass="dvnDifferanceTable"
+                                         value="#{DatasetPage.fileTermDiffsWithLatestReleased}"
+                                         var="termsDiff">
+                                <p:column styleClass="versionValue">
+                                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']} #{termsDiff.fileSummary.fileId}"/>
+                                    <br/>
+                                    <h:outputText
+                                            value="#{termsDiff.fileSummary.fileChecksumType}: #{termsDiff.fileSummary.fileChecksumValue}"/>
+                                </p:column>
+                                <p:column styleClass="versionDetails">
+                                    <dv:displayTermsOfUse termsOfUse="#{termsDiff.oldTerms}"/>
+                                </p:column>
+                                <p:column styleClass="versionDetails">
+                                    <dv:displayTermsOfUse termsOfUse="#{termsDiff.newTerms}"/>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+
                         <div class="form-group">
                             <label for="returnReasonTextArea" class="col-sm-3 control-label">#{bundle['dataset.reject.messageBox.label']}</label>
                             <div class="col-sm-9">
