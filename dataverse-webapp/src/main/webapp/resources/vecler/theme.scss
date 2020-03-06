@@ -1215,17 +1215,9 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 	width: 8em;
 }
 
-/* Disable selecting single table row accidentally */
+/* Change cursor from pointer to default to avoid confusion */
 .ui-datatable-selectable td {
 	cursor: default;
-
-	&:active {
-		pointer-events: none;
-	
-		* {
-			pointer-events: auto;
-		}
-	}
 }
 
 /* AJAX loading spinner */
