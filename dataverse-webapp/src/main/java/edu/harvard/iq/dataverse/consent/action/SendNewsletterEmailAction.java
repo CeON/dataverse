@@ -6,18 +6,21 @@ import edu.harvard.iq.dataverse.consent.ConsentActionDto;
 import edu.harvard.iq.dataverse.consent.ConsentDetailsDto;
 import edu.harvard.iq.dataverse.mail.EmailContent;
 import edu.harvard.iq.dataverse.mail.MailService;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import io.vavr.control.Try;
 
-public class SendNewsletterEmailAction implements Action{
+class SendNewsletterEmailAction implements Action{
 
     private MailService mailService;
     private String repositoryName;
+    private AuthenticatedUser user;
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public SendNewsletterEmailAction(MailService mailService, String repositoryName) {
+    SendNewsletterEmailAction(MailService mailService, String repositoryName, AuthenticatedUser registeredUser) {
         this.mailService = mailService;
         this.repositoryName = repositoryName;
+        this.user = registeredUser;
     }
 
     // -------------------- LOGIC --------------------
@@ -34,11 +37,14 @@ public class SendNewsletterEmailAction implements Action{
 
     private SendNewsletterEmailContent parseEmailActionContent(ConsentActionDto consentActionDto) {
         ObjectMapper objectMapper = Jackson.getObjectMapper();
-        return Try.of(() -> objectMapper.readValue(consentActionDto.getActionOptions(),
-                                                                                      SendNewsletterEmailContent.class))
+        EmailField emailField = Try.of(() -> objectMapper.readValue(consentActionDto.getActionOptions(),
+                                                                 EmailField.class))
                 .getOrElseThrow(throwable -> new RuntimeException(
                         "There was a problem with parsing consent action with id: " + consentActionDto.getId(),
                         throwable));
+
+
+        return new SendNewsletterEmailContent(user.getFirstName(), user.getLastName(), emailField.getEmail());
     }
 
     private EmailContent prepareEmail(String repositoryName, ConsentActionDto consentActionDto, SendNewsletterEmailContent actionContent){

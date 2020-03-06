@@ -7,6 +7,9 @@ public class SendNewsletterEmailContent {
     private String email;
 
     // -------------------- CONSTRUCTORS --------------------
+    @Deprecated /* Only used for Jackson parser */
+    public SendNewsletterEmailContent() {
+    }
 
     public SendNewsletterEmailContent(String firstName, String lastName, String email) {
         this.firstName = firstName;
