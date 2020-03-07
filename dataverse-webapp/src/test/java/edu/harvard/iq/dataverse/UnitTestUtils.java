@@ -18,11 +18,7 @@ public class UnitTestUtils {
      * @return the requested String
      */
     public static String readFileToString(String relResourcePath) throws IOException {
-        if (relResourcePath.startsWith("src/") || relResourcePath.startsWith("./src/")) {
-            String message = String.format("A relative resource path cannot start with src/; got: %s", relResourcePath);
-            throw new IllegalArgumentException(message);
-        }
-
+        throwExceptionIfPathNotRelative(relResourcePath);
         return IOUtils.resourceToString(relResourcePath, StandardCharsets.UTF_8, UnitTestUtils.class.getClassLoader());
     }
 
@@ -38,11 +34,14 @@ public class UnitTestUtils {
      * @return the requested byte array
      */
     public static byte[] readFileToByteArray(String relResourcePath) throws IOException {
-        if (relResourcePath.startsWith("src/") || relResourcePath.startsWith("./src/")) {
-            String message = String.format("A relative resource path cannot start with src/; got: %s", relResourcePath);
+        throwExceptionIfPathNotRelative(relResourcePath);
+        return IOUtils.resourceToByteArray(relResourcePath, UnitTestUtils.class.getClassLoader());
+    }
+
+    private static void throwExceptionIfPathNotRelative(String path) {
+        if (path.startsWith("src/") || path.startsWith("./src/")) {
+            String message = String.format("A relative resource path cannot start with src/; got: %s", path);
             throw new IllegalArgumentException(message);
         }
-
-        return IOUtils.resourceToByteArray(relResourcePath, UnitTestUtils.class.getClassLoader());
     }
 }
