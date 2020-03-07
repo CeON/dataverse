@@ -16,13 +16,33 @@ public class UnitTestUtils {
      * 
      * @param relResourcePath relative path of the desired resource
      * @return the requested String
-     * @throws IOException
      */
     public static String readFileToString(String relResourcePath) throws IOException {
         if (relResourcePath.startsWith("src/") || relResourcePath.startsWith("./src/")) {
-            throw new IllegalArgumentException("Resource path must be relative");
+            String message = String.format("A relative resource path cannot start with src/; got: %s", relResourcePath);
+            throw new IllegalArgumentException(message);
         }
 
         return IOUtils.resourceToString(relResourcePath, StandardCharsets.UTF_8, UnitTestUtils.class.getClassLoader());
+    }
+
+    /**
+     * Gets the contents of a classpath resource as a byte array.
+     * 
+     * <p>
+     * The path to unit test resources should be relative, because the path changes when the application
+     * is packaged into distributed format (e.g. JAR or WAR).
+     * </p>
+     * 
+     * @param relResourcePath relative path of the desired resource
+     * @return the requested byte array
+     */
+    public static byte[] readFileToByteArray(String relResourcePath) throws IOException {
+        if (relResourcePath.startsWith("src/") || relResourcePath.startsWith("./src/")) {
+            String message = String.format("A relative resource path cannot start with src/; got: %s", relResourcePath);
+            throw new IllegalArgumentException(message);
+        }
+
+        return IOUtils.resourceToByteArray(relResourcePath, UnitTestUtils.class.getClassLoader());
     }
 }
