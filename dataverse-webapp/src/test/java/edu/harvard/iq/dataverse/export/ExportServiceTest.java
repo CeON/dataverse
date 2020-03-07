@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.UnitTestUtils;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
@@ -36,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -88,7 +88,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DATACITE);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/testDatacite.xml"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/testDatacite.xml"), exportedDataset.get());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DCTERMS);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/dcterms.xml"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/dcterms.xml"), exportedDataset.get());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DDI);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/ddi.xml"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/ddi.xml"), exportedDataset.get());
 
         System.out.println(exportedDataset.get());
     }
@@ -137,7 +137,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DDI);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/ddiWithoutEmail.xml"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/ddiWithoutEmail.xml"), exportedDataset.get());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.JSON);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/datasetInJson.json"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/datasetInJson.json"), exportedDataset.get());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.OAIORE);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/oai_ore.json"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/oai_ore.json"), exportedDataset.get());
     }
 
     @Test
@@ -182,7 +182,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.SCHEMADOTORG);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/schemaorg.json"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/schemaorg.json"), exportedDataset.get());
     }
 
     @Test
@@ -197,7 +197,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.OPENAIRE);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/openaire.xml"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/openaire.xml"), exportedDataset.get());
     }
 
     @Test
@@ -212,7 +212,7 @@ public class ExportServiceTest {
                 exportService.exportDatasetVersionAsString(datasetVersion, ExporterType.DUBLINCORE);
 
         //then
-        Assert.assertEquals(readFileToString("exportdata/dublincore.xml"), exportedDataset.get());
+        Assert.assertEquals(UnitTestUtils.readFileToString("exportdata/dublincore.xml"), exportedDataset.get());
     }
 
     @Test
@@ -500,9 +500,5 @@ public class ExportServiceTest {
 
         when(datasetFieldService.findByNameOpt(eq("depositor"))).thenReturn(depositorFieldType);
         when(datasetFieldService.findByNameOpt(eq("dateOfDeposit"))).thenReturn(dateOfDepositFieldType);
-    }
-
-    private String readFileToString(String resourcePath) throws IOException {
-        return IOUtils.resourceToString(resourcePath, StandardCharsets.UTF_8, getClass().getClassLoader());
     }
 }
