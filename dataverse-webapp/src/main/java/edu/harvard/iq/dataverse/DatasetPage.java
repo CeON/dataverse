@@ -4,12 +4,12 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datafile.FileDownloadServiceBean;
-import edu.harvard.iq.dataverse.datafile.file.FileMetadataService;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.dataset.difference.DatasetFileTermDifferenceItem;
+import edu.harvard.iq.dataverse.dataset.difference.LicenseDifferenceFinder;
 import edu.harvard.iq.dataverse.dataset.tab.DatasetFilesTab;
 import edu.harvard.iq.dataverse.dataset.tab.DatasetMetadataTab;
 import edu.harvard.iq.dataverse.engine.command.Command;
@@ -132,7 +132,7 @@ public class DatasetPage implements java.io.Serializable {
     @Inject
     private DatasetService datasetService;
     @Inject
-    private FileMetadataService fileMetadataService;
+    private LicenseDifferenceFinder licenseDifferenceFinder;
 
     private Dataset dataset = new Dataset();
 
@@ -825,10 +825,17 @@ public class DatasetPage implements java.io.Serializable {
         this.selectedDataverseForLinking = sdvfl;
     }
 
-    public void loadFilesTermDiffs() {
+    public void loadFilesTermDiffs(ActionEvent ae) {
         if(workingVersion.isDraft() && dataset.hasEverBeenPublished()) {
-            fileTermDiffsWithLatestReleased = fileMetadataService.getTermsOfUseDifference(workingVersion.getFileMetadatas(), dataset.getReleasedVersion().getFileMetadatas());
+            fileTermDiffsWithLatestReleased = licenseDifferenceFinder.getLicenseDifference(workingVersion.getFileMetadatas(), dataset.getReleasedVersion().getFileMetadatas());
         }
+    }
+
+    public String getWorkingVersionFileName(String fileId) {
+        return fileTermDiffsWithLatestReleased.stream()
+                .filter(item -> item.getFileSummary().getFileId().equals(fileId))
+                .map(DatasetFileTermDifferenceItem::getFileName)
+                .findFirst().orElse(StringUtils.EMPTY);
     }
 
 

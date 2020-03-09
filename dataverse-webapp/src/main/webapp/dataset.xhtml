@@ -235,21 +235,17 @@
                                                                     and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                     and DatasetPage.canUpdateDataset()
                                                                     and !permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
-                                            <p:commandLink
-                                                    id="sentToReviewButton"
+                                            <p:remoteCommand
+                                                    name="loadLicenseDiffs"
+                                                    actionListener="#{DatasetPage.loadFilesTermDiffs}"
+                                                    update="@form"
+                                            />
+                                            <h:commandLink
                                                     styleClass="btn btn-default btn-access #{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
-                                                    oncomplete="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'return false;' : 'sentToReview();'}"
-                                                    actionListener="#{DatasetPage.loadFilesTermDiffs()}"
-                                                    value="#{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}"
-                                                    update="inreview"
-                                                    >
-<!--                                                <span class="glyphicon glyphicon-globe"/> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}-->
-                                            </p:commandLink>
-<!--                                            <p:remoteCommand-->
-<!--                                                    name="loadTermDiffs"-->
-<!--                                                    actionListener="#{DatasetPage.loadFilesTermDiffs()}"-->
-<!--                                                    style="display: none;"-->
-<!--                                            />-->
+                                                    onclick="loadLicenseDiffs(); sentToReview(); return false;"
+                                            >
+                                                <i class="glyphicon glyphicon-globe" /> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}
+                                            </h:commandLink>
                                         </ui:fragment>
     
                                         <!-- End: Submit for Review Button -->
@@ -959,17 +955,34 @@
                             <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.submitMessage']}
                         </p>
 
-                        <div class="panel panel-default" jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}" >
-                            <div class="panel-heading text-info">
-                                <h:outputText value="#{bundle['file.viewDiffDialog.fileTerms.header']}"/>
+                        <div id="version-details-block"
+                             class="clearfix margin-bottom-half"
+                             jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}"
+                        >
+                            <div class="pull-left">
+                                &#160;
                             </div>
+                            <div class="pull-left">
+                                #{bundle['file.viewDiffDialog.version']}: #{DatasetPage.dataset.releasedVersion.semanticVersion}
+                                <br/>
+                                #{bundle['file.viewDiffDialog.lastUpdated']}: #{DatasetPage.dataset.releasedVersion.localeLastUpdateTime}
+                            </div>
+                            <div class="pull-left">
+                                #{bundle['file.viewDiffDialog.version']}: #{DatasetPage.workingVersion.semanticVersion}
+                                <br/>
+                                #{bundle['file.viewDiffDialog.lastUpdated']}: #{DatasetPage.workingVersion.localeLastUpdateTime}
+                            </div>
+                        </div>
+                        <div class="panel panel-default" jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}" >
                             <p:dataTable id="termsDiffDataTable"
                                          style="border-top:1px solid #ddd;"
                                          styleClass="dvnDifferanceTable"
                                          value="#{DatasetPage.fileTermDiffsWithLatestReleased}"
                                          var="termsDiff">
                                 <p:column styleClass="versionValue">
-                                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']} #{termsDiff.fileSummary.fileId}"/>
+                                    <h:outputText value="#{bundle['file.versionDifferences.fileNameDetailTitle']}: #{DatasetPage.getWorkingVersionFileName(termsDiff.fileSummary.fileId)}"/>
+                                    <br/>
+                                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']}: #{termsDiff.fileSummary.fileId}"/>
                                     <br/>
                                     <h:outputText
                                             value="#{termsDiff.fileSummary.fileChecksumType}: #{termsDiff.fileSummary.fileChecksumValue}"/>
