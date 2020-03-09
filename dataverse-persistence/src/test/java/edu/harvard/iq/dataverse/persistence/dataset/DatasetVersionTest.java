@@ -2,7 +2,10 @@ package edu.harvard.iq.dataverse.persistence.dataset;
 
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.validation.ConstraintViolation;
 import java.time.Instant;
@@ -11,9 +14,7 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeFileMetadata;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author michael
@@ -21,38 +22,53 @@ import static org.junit.Assert.assertTrue;
  */
 public class DatasetVersionTest {
 
+    private DatasetVersion datasetVersion;
+    private FileMetadata fileMetadata;
+
+    @BeforeEach
+    void setUp() {
+        datasetVersion = new DatasetVersion();
+        fileMetadata = new FileMetadata();
+        fileMetadata.setLabel("foo.png");
+    }
+
     @Test
-    public void testComparator() {
+    public void compareByVersionComparator() {
+        //given
         DatasetVersion ds1_0 = new DatasetVersion();
-        ds1_0.setId(0l);
-        ds1_0.setVersionNumber(1l);
-        ds1_0.setMinorVersionNumber(0l);
+        ds1_0.setId(0L);
+        ds1_0.setVersionNumber(1L);
+        ds1_0.setMinorVersionNumber(0L);
         ds1_0.setVersionState(DatasetVersion.VersionState.RELEASED);
 
         DatasetVersion ds1_1 = new DatasetVersion();
-        ds1_1.setId(1l);
-        ds1_1.setVersionNumber(1l);
-        ds1_1.setMinorVersionNumber(1l);
+        ds1_1.setId(1L);
+        ds1_1.setVersionNumber(1L);
+        ds1_1.setMinorVersionNumber(1L);
         ds1_1.setVersionState(DatasetVersion.VersionState.RELEASED);
 
         DatasetVersion ds2_0 = new DatasetVersion();
-        ds2_0.setId(2l);
-        ds2_0.setVersionNumber(2l);
-        ds2_0.setMinorVersionNumber(0l);
+        ds2_0.setId(2L);
+        ds2_0.setVersionNumber(2L);
+        ds2_0.setMinorVersionNumber(0L);
         ds2_0.setVersionState(DatasetVersion.VersionState.RELEASED);
 
         DatasetVersion ds_draft = new DatasetVersion();
-        ds_draft.setId(3l);
+        ds_draft.setId(3L);
         ds_draft.setVersionState(DatasetVersion.VersionState.DRAFT);
 
         List<DatasetVersion> expected = Arrays.asList(ds1_0, ds1_1, ds2_0, ds_draft);
         List<DatasetVersion> actual = Arrays.asList(ds2_0, ds1_0, ds_draft, ds1_1);
-        Collections.sort(actual, DatasetVersion.compareByVersion);
+
+        //when
+        actual.sort(DatasetVersion.compareByVersion);
+
+        //then
         assertEquals(expected, actual);
     }
 
     @Test
-    public void testIsInReview() {
+    public void isInReview() {
         Dataset ds = MocksFactory.makeDataset();
 
         DatasetVersion draft = ds.getLatestVersion();
@@ -62,14 +78,14 @@ public class DatasetVersionTest {
 
         DatasetVersion nonDraft = new DatasetVersion();
         nonDraft.setVersionState(DatasetVersion.VersionState.RELEASED);
-        assertEquals(false, nonDraft.isInReview());
+        assertFalse(nonDraft.isInReview());
 
         ds.addLock(null);
         assertFalse(nonDraft.isInReview());
     }
 
     @Test
-    public void testFilteringOutEmbargoedFilesMetadata() {
+    public void getOnlyFilesMetadataNotUnderEmbargoSorted() {
         // given
         Dataset ds = MocksFactory.makeDataset();
         ds.setEmbargoDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
@@ -130,6 +146,31 @@ public class DatasetVersionTest {
         verifyDisplayOrder(version.getFileMetadatas(), 0, "file1.png", 0);
     }
 
+	@Test
+	public void validate_emptyFileMetadata() {
+		datasetVersion.setFileMetadatas(new ArrayList<>());
+		Set<ConstraintViolation> violations2 = datasetVersion.validate();
+		assertEquals(0, violations2.size());
+	}
+
+	@Test
+	public void validate_noDirectoryLabel_expectedNoViolation() {
+		checkConstraintViolations(null, 0);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"/has/leading/slash", "has/trailing/slash/", "/leadingAndTrailing/"})
+	public void validate_expectedViolationWithMessage(String directoryLabel) {
+		Set<ConstraintViolation> violations = checkConstraintViolations(directoryLabel, 1);
+		assertEquals("{directoryname.illegalCharacters}", violations.iterator().next().getMessageTemplate());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"just/right", "", "a"})
+	public void validate_expectedNoViolation(String directoryLabel) {
+		checkConstraintViolations(directoryLabel, 0);
+	}
+
     private void verifySortOrder(List<FileMetadata> metadatas, String label, int expectedOrderIndex) {
         assertEquals(label, metadatas.get(expectedOrderIndex).getLabel());
     }
@@ -166,82 +207,13 @@ public class DatasetVersionTest {
         return datasetVersion;
     }
 
-    @Test
-    public void validate() {
-
-        DatasetVersion datasetVersion = new DatasetVersion();
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setLabel("foo.png");
-        fileMetadata.setDirectoryLabel("/has/leading/slash");
+    private Set<ConstraintViolation> checkConstraintViolations(String directoryLabel, int expectedViolationsNumber) {
+        fileMetadata.setDirectoryLabel(directoryLabel);
         datasetVersion.getFileMetadatas().add(fileMetadata);
 
-        Set<ConstraintViolation> violations1 = datasetVersion.validate();
-        assertEquals(1, violations1.size());
-        ConstraintViolation violation1 = violations1.iterator().next();
-        assertEquals("Directory Name cannot contain leading or trailing file separators.", violation1.getMessage());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations2 = datasetVersion.validate();
-        assertEquals(0, violations2.size());
-
-        fileMetadata.setDirectoryLabel("has/trailing/slash/");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations3 = datasetVersion.validate();
-        assertEquals(1, violations3.size());
-        assertEquals("Directory Name cannot contain leading or trailing file separators.", violations3.iterator().next().getMessage());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations4 = datasetVersion.validate();
-        assertEquals(0, violations4.size());
-
-        fileMetadata.setDirectoryLabel("just/right");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations5 = datasetVersion.validate();
-        assertEquals(0, violations5.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations6 = datasetVersion.validate();
-        assertEquals(0, violations6.size());
-
-        fileMetadata.setDirectoryLabel("");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations7 = datasetVersion.validate();
-        assertEquals(0, violations7.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations8 = datasetVersion.validate();
-        assertEquals(0, violations8.size());
-
-        fileMetadata.setDirectoryLabel(null);
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations9 = datasetVersion.validate();
-        assertEquals(0, violations9.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations10 = datasetVersion.validate();
-        assertEquals(0, violations10.size());
-
-        String singleCharacter = "a";
-        fileMetadata.setDirectoryLabel(singleCharacter);
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations11 = datasetVersion.validate();
-        assertEquals(0, violations11.size());
-
-        // reset
-        datasetVersion.setFileMetadatas(new ArrayList<>());
-        Set<ConstraintViolation> violations12 = datasetVersion.validate();
-        assertEquals(0, violations12.size());
-
-        fileMetadata.setDirectoryLabel("/leadingAndTrailing/");
-        datasetVersion.getFileMetadatas().add(fileMetadata);
-        Set<ConstraintViolation> violations13 = datasetVersion.validate();
-        assertEquals(1, violations13.size());
-
+        Set<ConstraintViolation> violations = datasetVersion.validate();
+        assertEquals(expectedViolationsNumber, violations.size());
+        return violations;
     }
 
 }
