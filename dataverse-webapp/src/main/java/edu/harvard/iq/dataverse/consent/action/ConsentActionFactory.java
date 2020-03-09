@@ -6,12 +6,12 @@ import edu.harvard.iq.dataverse.persistence.consent.ConsentActionType;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import io.vavr.control.Option;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-@Stateless
+@Stateful
 public class ConsentActionFactory {
 
     private MailService mailService;
