@@ -235,17 +235,16 @@
                                                                     and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                                     and DatasetPage.canUpdateDataset()
                                                                     and !permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
-                                            <p:remoteCommand
-                                                    name="loadLicenseDiffs"
+
+                                            <p:commandLink
+                                                    styleClass="btn btn-default btn-access"
+                                                    disabled="#{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked}"
+                                                    oncomplete="PF('inreview').show();"
                                                     actionListener="#{DatasetPage.loadFilesTermDiffs}"
-                                                    update="@form"
-                                            />
-                                            <h:commandLink
-                                                    styleClass="btn btn-default btn-access #{DatasetPage.dataset.latestVersion.inReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
-                                                    onclick="loadLicenseDiffs(); sentToReview(); return false;"
+                                                    update="inreview"
                                             >
-                                                <i class="glyphicon glyphicon-globe" /> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}
-                                            </h:commandLink>
+                                                <span class="glyphicon glyphicon-globe"/> #{DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitForReview.submitBtn']}
+                                            </p:commandLink>
                                         </ui:fragment>
     
                                         <!-- End: Submit for Review Button -->
