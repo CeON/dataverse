@@ -1,97 +1,41 @@
 package edu.harvard.iq.dataverse.common;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author rmp553
  */
 public class MarkupCheckerTest {
 
-    @Test
-    public void sanitizeBasicHTML_script() {
-        //GIVEN
-        String safeStr = "<script>alert('hi')</script>";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(safeStr);
-        //THEN
-        assertEquals("", sanitized);
+    @ParameterizedTest
+    @MethodSource("parametersForSanitizeBasicHTML")
+    public void sanitizeBasicHTML(String inputHtml, String expected) {
+        assertEquals(expected, MarkupChecker.sanitizeBasicHTML(inputHtml));
     }
 
-    @Test
-    public void sanitizeBasicHTML_map() {
-        //GIVEN
-        String unsafeStr = "<map name=\"rtdcCO\">";
-        String safeStr = "<map name=\"rtdcCO\"></map>";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(safeStr, sanitized);
-    }
-
-    @Test
-    public void sanitizeBasicHTML_area() {
-        //GIVEN
-        String unsafeStr = "<area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\">";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(unsafeStr, sanitized);
-    }
-
-    @Test
-    public void sanitizeBasicHTML_mapAndArea() {
-        //GIVEN
-        String unsafeStr = "<map name=\"rtdcCO\"><area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\"></map>";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(unsafeStr, sanitized);
-    }
-
-    @Test
-    public void sanitizeBasicHTML_paragraph() {
-        //GIVEN
-        String unsafeStr = "<p>hello</";
-        String safeStr = "<p>hello&lt;/</p>";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(safeStr, sanitized);
-    }
-
-    @Test
-    public void sanitizeBasicHTML_heading() {
-        //GIVEN
-        String unsafeStr = "<h1>hello</h2>";
-        String safeStr = "<h1>hello</h1>";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(safeStr, sanitized);
-    }
-
-    @Test
-    public void sanitizeBasicHTML_anchor() {
-        //GIVEN
-        String unsafeStr = "the <a href=\"http://dataverse.org\" target=\"_blank\">Dataverse project</a> in a new window";
-        String safeStr = "the \n<a href=\"http://dataverse.org\" target=\"_blank\" rel=\"nofollow\">Dataverse project</a> in a new window";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(safeStr, sanitized);
-    }
-
-    @Test
-    public void sanitizeBasicHTML_anchor2() {
-        //GIVEN
-        String unsafeStr = "the <a href=\"http://dataverse.org\">Dataverse project</a> in a new window";
-        String safeStr = "the \n<a href=\"http://dataverse.org\" rel=\"nofollow\" target=\"_blank\">Dataverse project</a> in a new window";
-        //WHEN
-        String sanitized = MarkupChecker.sanitizeBasicHTML(unsafeStr);
-        //THEN
-        assertEquals(safeStr, sanitized);
+    private static Stream<Arguments> parametersForSanitizeBasicHTML() {
+        return Stream.of(
+                Arguments.of("<script>alert('hi')</script>", ""),
+                Arguments.of("<map name=\"rtdcCO\">", "<map name=\"rtdcCO\"></map>"),
+                Arguments.of("<area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\">",
+                             "<area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\">"),
+                Arguments.of("<map name=\"rtdcCO\"><area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\"></map>",
+                            "<map name=\"rtdcCO\"><area shape=\"rect\" coords=\"42,437,105,450\" href=\"/dvn/dv/rtdc/faces/study/StudyPage.xhtml?globalId=hdl:10904/10006\" title=\"Galactic Center (DHT02)\" alt=\"Galactic Center (DHT02)\"></map>"),
+                Arguments.of("<p>hello</", "<p>hello&lt;/</p>"),
+                Arguments.of("<h1>hello</h2>", "<h1>hello</h1>"),
+                Arguments.of("the <a href=\"http://dataverse.org\" target=\"_blank\">Dataverse project</a> in a new window",
+                        "the \n<a href=\"http://dataverse.org\" target=\"_blank\" rel=\"nofollow\">Dataverse project</a> in a new window"),
+                Arguments.of("the <a href=\"http://dataverse.org\">Dataverse project</a> in a new window",
+                        "the \n<a href=\"http://dataverse.org\" rel=\"nofollow\" target=\"_blank\">Dataverse project</a> in a new window")
+        );
     }
 
     @Test
