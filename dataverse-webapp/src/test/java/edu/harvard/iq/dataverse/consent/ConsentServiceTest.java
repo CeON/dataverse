@@ -71,7 +71,7 @@ class ConsentServiceTest {
         List<ConsentDto> testDtoConsents = prepareTestDtoConsents();
 
         //when
-        List<AcceptedConsent> acceptedConsents = consentService.saveAcceptedConsentsAndExecuteActions(testDtoConsents,
+        List<AcceptedConsent> acceptedConsents = consentService.executeActionsAndSaveAcceptedConsents(testDtoConsents,
                                                                                                       authenticatedUser);
 
         //then

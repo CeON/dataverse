@@ -44,9 +44,9 @@ public class ConsentService {
     }
 
     /**
-     * Saves consents that were accepted and executes actions that were associated with consents if there were any.
+     * Executes actions that were associated with consents if there were any and saves consents that were accepted.
      */
-    public List<AcceptedConsent> saveAcceptedConsentsAndExecuteActions(List<ConsentDto> consents, AuthenticatedUser consentAccepter) {
+    public List<AcceptedConsent> executeActionsAndSaveAcceptedConsents(List<ConsentDto> consents, AuthenticatedUser consentAccepter) {
         List<ConsentDto> acceptedConsentsFromView = consents.stream()
                 .filter(consentDto -> consentDto.getConsentDetails().isAccepted())
                 .collect(Collectors.toList());
