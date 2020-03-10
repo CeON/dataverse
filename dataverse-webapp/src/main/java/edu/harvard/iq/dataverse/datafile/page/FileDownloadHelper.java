@@ -12,7 +12,6 @@ import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
-import edu.harvard.iq.dataverse.persistence.guestbook.Guestbook;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.PrimefacesUtil;
@@ -129,7 +128,7 @@ public class FileDownloadHelper implements java.io.Serializable {
             return;
         }
         
-        if (!hasActiveGuestbook(fileMetadatas) || fileMetadatas.get(0).getDatasetVersion().isDraft()) {
+        if (!fileMetadatas.get(0).getDatasetVersion().isDraft()) {
             GuestbookResponse downloadOnlyGuestbook = guestbookResponseService.initGuestbookResponseForFragment(fileMetadatas.get(0), session);
             writeGuestbookResponsesForFiles(fileMetadatas, fileFormat, downloadOnlyGuestbook);
         }
@@ -138,18 +137,6 @@ public class FileDownloadHelper implements java.io.Serializable {
         startDownloadAccordingToType(fileMetadatas, fileFormat, requestedDownloadType.getTool());
         
         return;
-    }
-
-    private boolean hasActiveGuestbook(List<FileMetadata> fileMetadatas) {
-        Guestbook guestbook = fileMetadatas.get(0).getDatasetVersion().getDataset().getGuestbook();
-        if(guestbook != null) {
-            return !isGuestbookDefault(guestbook);
-        }
-        return false;
-    }
-
-    private boolean isGuestbookDefault(Guestbook guestbook) {
-        return guestbook.getDataverse() == null;
     }
 
     public boolean canUserDownloadFile(FileMetadata fileMetadata) {

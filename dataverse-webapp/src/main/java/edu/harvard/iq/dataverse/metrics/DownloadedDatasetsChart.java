@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ViewScoped
-@Named("FilesDownloadedChart")
-public class DownloadedFilesChart implements Serializable {
+@Named("DatasetsDownloadedChart")
+public class DownloadedDatasetsChart implements Serializable {
 
     private ChartCreator chartCreator;
     private MetricsServiceBean metricsService;
 
-    private final String CHART_TYPE = "filesDownloaded";
+    private final String CHART_TYPE = "datasetsDownloaded";
 
     private BarChartModel chartModel;
     private List<ChartMetrics> yearlyStats = new ArrayList<>();
@@ -29,11 +29,11 @@ public class DownloadedFilesChart implements Serializable {
 
     // -------------------- CONSTRUCTORS --------------------
     @Deprecated
-    public DownloadedFilesChart() {
+    public DownloadedDatasetsChart() {
     }
 
     @Inject
-    public DownloadedFilesChart(ChartCreator chartCreator, MetricsServiceBean metricsService) {
+    public DownloadedDatasetsChart(ChartCreator chartCreator, MetricsServiceBean metricsService) {
         this.chartCreator = chartCreator;
         this.metricsService = metricsService;
     }

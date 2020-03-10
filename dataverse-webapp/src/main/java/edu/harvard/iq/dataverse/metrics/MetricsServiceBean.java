@@ -179,6 +179,20 @@ public class MetricsServiceBean implements Serializable {
                 .getResultList());
     }
 
+    /**
+     * Downloaded Files
+     */
+    public List<ChartMetrics> countDownloadedFiles() {
+        return mapToChartMetrics(em.createNativeQuery(
+                "SELECT\n" +
+                        "    EXTRACT(YEAR FROM gr.responsetime) as year,\n" +
+                        "    EXTRACT(MONTH FROM gr.responsetime) as month,\n" +
+                        "    count (gr.id)\n" +
+                        "    FROM guestbookresponse gr\n" +
+                        "    GROUP BY year, month")
+                .getResultList());
+    }
+
     private List<ChartMetrics> mapToChartMetrics(List<Object[]> result) {
         return result.stream()
                 .peek(dm -> dm[2] = dm[2] instanceof BigDecimal ?  ((BigDecimal) dm[2]).longValue() : dm[2])
