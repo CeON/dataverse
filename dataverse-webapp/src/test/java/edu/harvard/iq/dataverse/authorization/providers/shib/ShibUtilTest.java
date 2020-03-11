@@ -2,10 +2,10 @@ package edu.harvard.iq.dataverse.authorization.providers.shib;
 
 import org.junit.Test;
 
+import edu.harvard.iq.dataverse.UnitTestUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class ShibUtilTest {
      */
     @Test
     public void testGetDisplayNameFromDiscoFeed() throws IOException {
-        String discoFeedExample = new String(Files.readAllBytes(Paths.get("src/test/resources/json/sample-shib-identities.json")));
+        String discoFeedExample = UnitTestUtils.readFileToString("json/sample-shib-identities.json");
 
         String testShib = ShibUtil.getDisplayNameFromDiscoFeed("https://idp.testshib.org/idp/shibboleth", discoFeedExample);
         assertEquals("TestShib Test IdP", testShib);
