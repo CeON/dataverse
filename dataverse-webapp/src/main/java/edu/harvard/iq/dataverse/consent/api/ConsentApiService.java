@@ -52,4 +52,10 @@ public class ConsentApiService {
     public List<String> validateUpdatedConsent(ConsentApiDto updatedConsent, Consent originalConsent){
        return consentValidator.validateConsentEditing(updatedConsent, originalConsent);
     }
+
+    public Consent saveEditedConsent(ConsentApiDto updatedConsent, Consent originalConsent) {
+        Consent remappedConsent = consentMapper.updateAllowedProperties(updatedConsent, originalConsent);
+
+        return consentDao.mergeConsent(remappedConsent);
+    }
 }

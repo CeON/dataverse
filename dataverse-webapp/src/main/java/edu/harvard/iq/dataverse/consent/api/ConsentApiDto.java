@@ -1,31 +1,41 @@
 package edu.harvard.iq.dataverse.consent.api;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 public class ConsentApiDto {
 
-    private long id;
+    private Long id;
     private String name;
-    private List<ConsentDetailsApiDto> consentDetails = new ArrayList<>();
-    private List<ConsentActionApiDto> consentActions = new ArrayList<>();
+    private List<ConsentDetailsApiDto> consentDetails;
+    private List<ConsentActionApiDto> consentActions;
     private int displayOrder;
     private boolean required;
     private boolean hidden;
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public ConsentApiDto(long id, String name, int displayOrder, boolean required, boolean hidden) {
+    public ConsentApiDto(@JsonProperty(value = "id") Long id,
+                         @JsonProperty(value = "name", required = true) String name,
+                         @JsonProperty(value = "displayOrder", required = true) int displayOrder,
+                         @JsonProperty(value = "required", required = true) boolean required,
+                         @JsonProperty(value = "hidden", required = true) boolean hidden,
+                         @JsonProperty(value = "consentDetails", required = true) List<ConsentDetailsApiDto> consentDetails,
+                         @JsonProperty(value = "consentActions", required = true) List<ConsentActionApiDto> consentActions){
         this.id = id;
         this.name = name;
         this.displayOrder = displayOrder;
         this.required = required;
         this.hidden = hidden;
+        this.consentDetails = consentDetails != null ? consentDetails : Lists.newArrayList();
+        this.consentActions = consentActions != null ? consentActions : Lists.newArrayList();
     }
 
     // -------------------- GETTERS --------------------
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

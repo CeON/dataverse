@@ -1431,8 +1431,8 @@ public class Admin extends AbstractApiBean {
             return error(Status.CONFLICT, "There were issues with submitted consent: "+ combinedErrors);
         }
 
-        return consent
-                .map(this::ok)
-                .getOrElse(() -> error(Status.NOT_FOUND, "No consent with alias: " + alias + " could be found."));
+        consentApiService.saveEditedConsent(consentApiDto, consent.get());
+
+        return ok("Consent was successfully edited");
     }
 }

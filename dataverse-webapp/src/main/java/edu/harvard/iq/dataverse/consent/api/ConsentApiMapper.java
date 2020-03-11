@@ -13,11 +13,6 @@ public class ConsentApiMapper {
 
     public ConsentApiDto consentToConsentApiDto(Consent consent) {
 
-        ConsentApiDto consentDto = new ConsentApiDto(consent.getId(),
-                                                     consent.getName(),
-                                                     consent.getDisplayOrder(),
-                                                     consent.isRequired(),
-                                                     consent.isHidden());
 
         List<ConsentDetailsApiDto> consentDetails = consent.getConsentDetails().stream()
                 .map(this::consentDetailsToConsentDetailsDto)
@@ -27,11 +22,38 @@ public class ConsentApiMapper {
                 .map(this::consentActionToConsentActionDto)
                 .collect(Collectors.toList());
 
-        consentDto.getConsentDetails().addAll(consentDetails);
-        consentDto.getConsentActions().addAll(consentActionDtos);
-
-        return consentDto;
+        return new ConsentApiDto(consent.getId(),
+                                 consent.getName(),
+                                 consent.getDisplayOrder(),
+                                 consent.isRequired(),
+                                 consent.isHidden(),
+                                 consentDetails,
+                                 consentActionDtos);
     }
+
+    public Consent updateAllowedProperties(ConsentApiDto updatedConsent, Consent originalConsent){
+        originalConsent.setHidden(updatedConsent.isHidden());
+        originalConsent.setDisplayOrder(updatedConsent.getDisplayOrder());
+
+        List<ConsentDetails> addedConsentDetails = updatedConsent.getConsentDetails().stream()
+                .filter(updatedCons -> updatedCons.getId().isEmpty())
+                .map(updatedCons -> consentDetailsApiDtoToConsentDetails(updatedCons, originalConsent))
+                .collect(Collectors.toList());
+
+        List<ConsentAction> freshConsentActions = updatedConsent.getConsentActions().stream()
+                .filter(updatedCons -> updatedCons.getId().isEmpty())
+                .map(updatedCons -> consentActionApiDtoToConsentAction(updatedCons, originalConsent))
+                .collect(Collectors.toList());
+
+        updateConsentActions(updatedConsent, originalConsent);
+
+        originalConsent.getConsentDetails().addAll(addedConsentDetails);
+        originalConsent.getConsentActions().addAll(freshConsentActions);
+        originalConsent.getConsentActions().removeIf(consentAction -> !isConsentActionPresent(updatedConsent, consentAction));
+
+        return originalConsent;
+    }
+
 
     // -------------------- PRIVATE --------------------
 
@@ -44,4 +66,46 @@ public class ConsentApiMapper {
                                        consentAction.getConsentActionType(),
                                        consentAction.getActionOptions());
     }
+
+    private ConsentDetails consentDetailsApiDtoToConsentDetails(ConsentDetailsApiDto updatedConsentDetails, Consent detailsOwner) {
+        return new ConsentDetails(detailsOwner, updatedConsentDetails.getLanguage(), updatedConsentDetails.getText());
+    }
+
+    private ConsentAction consentActionApiDtoToConsentAction(ConsentActionApiDto updatedConsentAction, Consent actionOwner) {
+
+        return new ConsentAction(actionOwner,
+                                 updatedConsentAction.getConsentActionType(),
+                                 updatedConsentAction.getActionOptions());
+    }
+
+    private void updateConsentActions(ConsentApiDto updatedConsent, Consent originalConsent) {
+        for (ConsentActionApiDto updatedConsentAction : updatedConsent.getConsentActions()) {
+            if (updatedConsentAction.getId().isDefined()){
+
+                for (ConsentAction originalConsAction : originalConsent.getConsentActions()){
+                    if (updatedConsentAction.getId().get().equals(originalConsAction.getId())){
+                        updateConsentAction(updatedConsentAction, originalConsAction);
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    private ConsentAction updateConsentAction(ConsentActionApiDto updatedConsentAction, ConsentAction originalAction) {
+
+        originalAction.setActionOptions(updatedConsentAction.getActionOptions());
+        originalAction.setConsentActionType(updatedConsentAction.getConsentActionType());
+
+        return originalAction;
+    }
+
+    private boolean isConsentActionPresent(ConsentApiDto updatedConsent, ConsentAction consentAction){
+        return updatedConsent.getConsentActions().stream()
+                .anyMatch(consAction -> consAction.getId()
+                        .getOrElse(Long.MAX_VALUE)
+                        .equals(consentAction.getId()));
+    }
+
 }

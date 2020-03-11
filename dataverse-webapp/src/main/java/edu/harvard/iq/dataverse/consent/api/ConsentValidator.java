@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.consent.api;
 
 import edu.harvard.iq.dataverse.persistence.consent.Consent;
+import edu.harvard.iq.dataverse.persistence.consent.ConsentActionType;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentDetails;
 import io.vavr.Tuple2;
 import io.vavr.control.Option;
@@ -10,11 +11,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Stateless
 class ConsentValidator {
 
+    private static final String SEND_NEWSLETTER_PATTERN = "(\"email\"):(\"((.+)@(.+))\")"; //{"email":"test@gmail.com"}
+
+    /**
+     * Checks whether consent was correctly edited.
+     * @return List of errors if there are any.
+     */
     List<String> validateConsentEditing(ConsentApiDto consentApiDto, Consent consent) {
         ArrayList<String> errors = new ArrayList<>();
 
@@ -24,7 +32,9 @@ class ConsentValidator {
         validateDisplayOrder(consentApiDto.getDisplayOrder(), consent.getDisplayOrder())
                 .peek(errors::add);
 
-        validateConsentDetails(consentApiDto.getConsentDetails(), consent.getConsentDetails())
+        errors.addAll(validateConsentDetails(consentApiDto.getConsentDetails(), consent.getConsentDetails()));
+
+        validateConsentActions(consentApiDto.getConsentActions())
                 .peek(errors::add);
 
         return errors;
@@ -48,37 +58,42 @@ class ConsentValidator {
         return Option.none();
     }
 
-    private Option<String> validateConsentDetails(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
+    private List<String> validateConsentDetails(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
+        ArrayList<String> errors = new ArrayList<>();
 
-        if (editedConsentDetails.size() == originalConsentDetails.size()) {
-            editedConsentDetails.sort(Comparator.comparing(consent -> consent.getId().get()));
-            originalConsentDetails.sort(Comparator.comparing(ConsentDetails::getId));
-
-            io.vavr.collection.List<Tuple2<ConsentDetailsApiDto, ConsentDetails>> zippedConsents = io.vavr.collection.List
-                    .ofAll(editedConsentDetails)
-                    .zip(originalConsentDetails);
-
-            return zippedConsents
-                    .map(consents -> validateConsentDetail(consents._1(), consents._2()))
-                    .filter(Option::isDefined)
-                    .get();
-        }
+         checkIfConsentDetailsWasEdited(editedConsentDetails, originalConsentDetails)
+         .peek(errors::add);
 
         List<ConsentDetailsApiDto> freshConsents = editedConsentDetails.stream()
                 .filter(consent -> consent.getId().isEmpty())
                 .collect(Collectors.toList());
 
         if (isFreshConsentContainsDuplicatedLocale(freshConsents, originalConsentDetails)) {
-            return Option.of("New consent detail has duplicated language");
+            errors.add("New consent detail has duplicated language");
         }
 
         for (ConsentDetailsApiDto freshConsent : freshConsents) {
             if (freshConsent.getText().isEmpty()) {
-                return Option.of("New consent detail text cannot be empty");
+                errors.add("New consent detail text cannot be empty");
             }
         }
 
-        return Option.none();
+        return errors;
+    }
+
+    private Option<String> checkIfConsentDetailsWasEdited(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
+
+        editedConsentDetails.sort(Comparator.comparing(consent -> consent.getId().getOrElse(Long.MAX_VALUE)));
+        originalConsentDetails.sort(Comparator.comparing(ConsentDetails::getId));
+
+        io.vavr.collection.List<Tuple2<ConsentDetailsApiDto, ConsentDetails>> zippedConsents = io.vavr.collection.List
+                .ofAll(editedConsentDetails)
+                .zip(originalConsentDetails);
+
+        return zippedConsents
+                .map(consents -> validateConsentDetail(consents._1(), consents._2()))
+                .filter(Option::isDefined)
+                .getOrElse(Option.none());
     }
 
     private Option<String> validateConsentDetail(ConsentDetailsApiDto editedConsentDetail, ConsentDetails originalConsentDetail) {
@@ -99,5 +114,18 @@ class ConsentValidator {
     private boolean isLocaleAmongConsentDetails(Locale locale, List<ConsentDetails> originalConsentDetails) {
         return originalConsentDetails.stream()
                 .anyMatch(consentDetails -> consentDetails.getLanguage().equals(locale));
+    }
+
+    private Option<String> validateConsentActions(List<ConsentActionApiDto> editedConsentActions) {
+        for (ConsentActionApiDto editedConsentAction : editedConsentActions) {
+
+            if (editedConsentAction.getConsentActionType().equals(ConsentActionType.SEND_NEWSLETTER_EMAIL)) {
+                if (!Pattern.compile(SEND_NEWSLETTER_PATTERN).matcher(editedConsentAction.getActionOptions()).find()) {
+                    return Option.of("Action options were not correctly filled out for: "+ ConsentActionType.SEND_NEWSLETTER_EMAIL.toString());
+                }
+            }
+        }
+
+        return Option.none();
     }
 }

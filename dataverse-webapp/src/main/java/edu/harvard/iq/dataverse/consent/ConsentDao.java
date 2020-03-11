@@ -35,13 +35,17 @@ public class ConsentDao {
     public Option<Consent> findConsent(String alias) {
 
         TypedQuery<Consent> query = em.createQuery(
-                "SELECT cons FROM Consent cons JOIN cons.consentDetails JOIN cons.consentActions" +
+                "SELECT cons FROM Consent cons JOIN FETCH cons.consentDetails JOIN FETCH cons.consentActions" +
                         " WHERE cons.name = :consentName",
                 Consent.class)
                 .setParameter("consentName", alias);
 
         return Try.of(() -> Option.of(query.getSingleResult()))
                 .getOrElse(Option::none);
+    }
+
+    public Consent mergeConsent(Consent consent){
+        return em.merge(consent);
     }
 
     public void saveAcceptedConsent(AcceptedConsent acceptedConsent){

@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.api;
 
-import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
@@ -671,7 +671,7 @@ public abstract class AbstractApiBean {
     }
 
     protected Response ok(Object objectToBeSerialized) {
-        String serializedObj = Try.of(() -> Jackson.getObjectMapper().writeValueAsString(objectToBeSerialized))
+        String serializedObj = Try.of(() -> new ObjectMapper().writeValueAsString(objectToBeSerialized))
                 .getOrElseThrow(throwable -> new SerializationException("There was a problem with serializing object",
                                                                         throwable));
 
