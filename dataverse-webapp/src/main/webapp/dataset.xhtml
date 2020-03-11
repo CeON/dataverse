@@ -951,52 +951,55 @@
 
                     <p:outputPanel rendered="#{DatasetPage.isLatestDatasetWithAnyFilesIncluded()}">
                         <p class="text-warning">
-                            <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.submitMessage']}
+                            <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.submitForReview.submitMessage']}
                         </p>
-
-                        <div id="version-details-block"
-                             class="clearfix margin-bottom-half"
-                             jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}"
-                        >
-                            <div class="pull-left">
-                                &#160;
-                            </div>
-                            <div class="pull-left">
-                                #{bundle['file.viewDiffDialog.version']}: #{DatasetPage.dataset.releasedVersion.semanticVersion}
-                                <br/>
-                                #{bundle['file.viewDiffDialog.lastUpdated']}: #{DatasetPage.dataset.releasedVersion.localeLastUpdateTime}
-                            </div>
-                            <div class="pull-left">
-                                #{bundle['file.viewDiffDialog.version']}: #{DatasetPage.workingVersion.semanticVersion}
-                                <br/>
-                                #{bundle['file.viewDiffDialog.lastUpdated']}: #{DatasetPage.workingVersion.localeLastUpdateTime}
-                            </div>
+                        <div jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}">
+                            <p class="text-warning">
+                                <span class="glyphicon glyphicon-warning-sign"/>
+                                <h:outputText escape="false" value="#{bundle['dataset.submitForReview.licenseDiffMessage']}" />
+                            </p>
                         </div>
                         <div class="panel panel-default" jsf:rendered="#{!empty(DatasetPage.fileTermDiffsWithLatestReleased)}" >
                             <p:dataTable id="termsDiffDataTable"
                                          style="border-top:1px solid #ddd;"
-                                         styleClass="dvnDifferanceTable"
                                          value="#{DatasetPage.fileTermDiffsWithLatestReleased}"
-                                         var="termsDiff">
-                                <p:column styleClass="versionValue">
-                                    <h:outputText value="#{bundle['file.versionDifferences.fileNameDetailTitle']}: #{DatasetPage.getWorkingVersionFileName(termsDiff.fileSummary.fileId)}"/>
+                                         var="termsDiff"
+                            >
+                                <f:facet name="header">
+                                    #{bundle['dataset.submitForReview.diffTable.title']}
+                                </f:facet>
+                                <p:column
+                                        styleClass="versionValue"
+                                        headerText="#{bundle['dataset.submitForReview.diffTable.filesColumn']}"
+                                >
+                                    <h:outputText value="#{bundle['dataset.submitForReview.diffTable.fileNameDetailTitle']}: #{DatasetPage.getWorkingVersionFileName(termsDiff.fileSummary.fileId)}"/>
                                     <br/>
-                                    <h:outputText value="#{bundle['file.viewDiffDialog.fileID']}: #{termsDiff.fileSummary.fileId}"/>
+                                    <h:outputText value="#{bundle['dataset.submitForReview.diffTable.fileId']}: #{termsDiff.fileSummary.fileId}"/>
                                     <br/>
                                     <h:outputText
                                             value="#{termsDiff.fileSummary.fileChecksumType}: #{termsDiff.fileSummary.fileChecksumValue}"/>
                                 </p:column>
-                                <p:column styleClass="versionDetails">
+                                <p:column
+                                        styleClass="versionDetails"
+                                        headerText="#{bundle['dataset.submitForReview.diffTable.version.lastreleased']}: #{DatasetPage.dataset.releasedVersion.semanticVersion}
+                                                    &lt;br/&gt;
+                                                    #{bundle['dataset.submitForReview.diffTable.version.lastupdated']}: #{DatasetPage.dataset.releasedVersion.localeLastUpdateTime}"
+                                >
                                     <dv:displayTermsOfUse termsOfUse="#{termsDiff.oldTerms}"/>
                                 </p:column>
-                                <p:column styleClass="versionDetails">
+                                <p:column
+                                        styleClass="versionDetails"
+                                        headerText="#{bundle['dataset.submitForReview.diffTable.version.draft']}
+                                                    &lt;br/&gt;
+                                                    #{bundle['dataset.submitForReview.diffTable.version.lastupdated']}: #{DatasetPage.workingVersion.localeLastUpdateTime}"
+                                >
                                     <dv:displayTermsOfUse termsOfUse="#{termsDiff.newTerms}"/>
                                 </p:column>
                             </p:dataTable>
                         </div>
 
                         <div class="form-group">
-                            <label for="returnReasonTextArea" class="col-sm-3 control-label">#{bundle['dataset.reject.messageBox.label']}</label>
+                            <label for="returnReasonTextArea" class="col-sm-3 control-label">#{bundle['dataset.submitForReview.messageBox.label']}</label>
                             <div class="col-sm-9">
                                 <p:fragment id="submitForReviewMessageFragment">
                                     <p:inputTextarea id="submitForReviewCustomMessage"
@@ -1005,7 +1008,7 @@
                                                      maxlength="255"
                                                      cols="60"
                                                      counter="submitForReviewCounter"
-                                                     counterTemplate="#{bundle['dataset.reject.messageBox.counter']}"
+                                                     counterTemplate="#{bundle['dataset.submitForReview.messageBox.counter']}"
                                                      autoResize="false"
                                                      styleClass="form-control"
                                     >
@@ -1251,14 +1254,6 @@
 
 
             <ui:include src="dataset-deaccession-dialog.xhtml"/>
-
-
-            <script type="text/javascript">
-                /* using this function to prevent syntax errors on conditionally deciding onclick action */
-                function sentToReview() {
-                    PF('inreview').show();
-                }
-            </script>
 
             <script type="text/javascript">
                 PrimeFaces.locales['pl'] = {
