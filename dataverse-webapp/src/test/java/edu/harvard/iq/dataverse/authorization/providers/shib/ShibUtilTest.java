@@ -1,16 +1,17 @@
 package edu.harvard.iq.dataverse.authorization.providers.shib;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
-import edu.harvard.iq.dataverse.UnitTestUtils;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import javax.servlet.http.HttpServletRequest;
+
+import org.junit.Test;
+
+import edu.harvard.iq.dataverse.UnitTestUtils;
 
 public class ShibUtilTest {
 
