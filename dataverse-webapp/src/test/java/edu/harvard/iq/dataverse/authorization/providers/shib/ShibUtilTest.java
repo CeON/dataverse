@@ -1,9 +1,5 @@
 package edu.harvard.iq.dataverse.authorization.providers.shib;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,8 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -26,15 +20,8 @@ public class ShibUtilTest {
      * Test of getDisplayNameFromDiscoFeed method, of class ShibUtil.
      */
     @Test
-    public void testGetDisplayNameFromDiscoFeed() {
-//        System.out.println("getDisplayNameFromDiscoFeed");
-
-        String discoFeedExample = null;
-        try {
-            discoFeedExample = new String(Files.readAllBytes(Paths.get("src/main/webapp/resources/dev/sample-shib-identities.json")));
-        } catch (IOException ex) {
-            Logger.getLogger(ShibUtilTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void testGetDisplayNameFromDiscoFeed() throws IOException {
+        String discoFeedExample = new String(Files.readAllBytes(Paths.get("src/main/webapp/resources/dev/sample-shib-identities.json")));
 
         String testShib = ShibUtil.getDisplayNameFromDiscoFeed("https://idp.testshib.org/idp/shibboleth", discoFeedExample);
         assertEquals("TestShib Test IdP", testShib);
