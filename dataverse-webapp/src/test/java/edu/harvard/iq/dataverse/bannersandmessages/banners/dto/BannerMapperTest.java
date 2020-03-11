@@ -2,6 +2,8 @@ package edu.harvard.iq.dataverse.bannersandmessages.banners.dto;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
+import edu.harvard.iq.dataverse.UnitTestUtils;
 import edu.harvard.iq.dataverse.bannersandmessages.banners.BannerLimits;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseBanner;
@@ -30,11 +32,8 @@ import static edu.harvard.iq.dataverse.common.DateUtil.convertToDate;
 @RunWith(MockitoJUnitRunner.class)
 public class BannerMapperTest {
 
-    private static final Date FROM_TIME = convertToDate(
-            LocalDateTime.of(2018, 10, 1, 9, 15, 45));
-    private static final Date TO_TIME = convertToDate(
-            LocalDateTime.of(2018, 11, 2, 10, 25, 55));
-    private static final Path BANNER_PATH = Paths.get("src/test/resources/images/banner.png");
+    private static final Date FROM_TIME = convertToDate(LocalDateTime.of(2018, 10, 1, 9, 15, 45));
+    private static final Date TO_TIME = convertToDate(LocalDateTime.of(2018, 11, 2, 10, 25, 55));
 
     @Mock
     private UploadedFile uploadedFile;
@@ -42,15 +41,16 @@ public class BannerMapperTest {
     @Mock
     private SettingsWrapper settingsWrapper;
 
-
     private BannerMapper bannerMapper;
+    private byte[] bannerFile;
 
     @Before
     public void setup() throws IOException {
         bannerMapper = new BannerMapper(new BannerLimits(), settingsWrapper);
+        bannerFile = UnitTestUtils.readFileToByteArray("images/banner.png");
 
         Mockito.when(settingsWrapper.getConfiguredLocales()).thenReturn(ImmutableMap.of("pl", "pl", "en", "en"));
-        Mockito.when(uploadedFile.getContents()).thenReturn(Files.readAllBytes(BANNER_PATH));
+        Mockito.when(uploadedFile.getContents()).thenReturn(bannerFile);
         Mockito.when(uploadedFile.getContentType()).thenReturn("image/jpeg");
     }
 
@@ -102,7 +102,6 @@ public class BannerMapperTest {
         Assert.assertEquals(localizedBanner.getContentType(), localizedBannerDto.getFile().getContentType());
         Assert.assertEquals(localizedBanner.getImageName(), localizedBannerDto.getFile().getFileName());
         Assert.assertEquals(localizedBanner.getImageLink().get(), localizedBannerDto.getImageLink());
-
     }
 
     @Test
@@ -133,7 +132,7 @@ public class BannerMapperTest {
         dataverseLocalizedBanner.setContentType("image/jpeg");
         dataverseLocalizedBanner.setLocale("en");
         dataverseLocalizedBanner.setImageName("Best Image");
-        dataverseLocalizedBanner.setImage(Files.readAllBytes(BANNER_PATH));
+        dataverseLocalizedBanner.setImage(bannerFile);
         dataverseLocalizedBanner.setImageLink("www.google.pl");
         dataverseBanner.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBanner));
         return dataverseBanner;
