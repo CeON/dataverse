@@ -114,28 +114,25 @@ public class DashboardDatamovePage implements Serializable {
 
     public void move() {
         if (sourceDataset == null || targetDataverse == null) {
-            // We should never get here, but in case of unexpected validation fail we should be prepared
+            // We should never get here, but in case of some unexpected failure we should be prepared nevertheless
             JsfHelper.addFlashErrorMessage(getStringFromBundle("dashboard.datamove.empty.fields"));
             return;
         }
 
-        Summary summary = new Summary().add(sourceDataset.getDisplayName())
-                .add(extractSourcePersistentId())
-                .add(targetDataverse.getName());
+        Summary summary = new Summary().addParameter(sourceDataset.getDisplayName())
+                .addParameter(extractSourcePersistentId())
+                .addParameter(targetDataverse.getName());
 
         try {
             DataverseRequest dataverseRequest = new DataverseRequest(authenticatedUser, request);
             commandEngine.submit(new MoveDatasetCommand(dataverseRequest, sourceDataset, targetDataverse, forceMove));
-
             logger.info(createMessageWithMoveInfo("Moved"));
-            JsfHelper.addFlashSuccessMessage(getStringFromBundle("dashboard.datamove.message.success", summary.getSummaryParams()));
+            summary.showSuccessMessage();
         } catch (MoveDatasetException mde) {
             logger.log(Level.WARNING, createMessageWithMoveInfo("Unable to move"), mde);
-            summary.add(mde)
-                    .add(createForceInfoIfApplicable(mde));
-            JsfHelper.addErrorMessage(null,
-                    getStringFromBundle("dashboard.datamove.message.failure.summary"),
-                    getStringFromBundle("dashboard.datamove.message.failure.details", summary.getSummaryParams()));
+            summary.addParameter(mde)
+                    .addParameter(createForceInfoIfApplicable(mde));
+            summary.showFailureMessage();
         } catch (CommandException ce) {
             logger.log(Level.WARNING, createMessageWithMoveInfo("Unable to move"), ce);
             JsfHelper.addErrorMessage(null,
@@ -201,23 +198,28 @@ public class DashboardDatamovePage implements Serializable {
     // -------------------- INNER CLASSES ---------------------
 
     private static class Summary {
-        private final List<String> summaryParams = new ArrayList<>();
+        private final List<String> summaryParameters = new ArrayList<>();
 
-        public Summary add(String param) {
-            summaryParams.add(param != null ? param : StringUtils.EMPTY);
+        public Summary addParameter(String param) {
+            summaryParameters.add(param != null ? param : StringUtils.EMPTY);
             return this;
         }
 
-        public Summary add(MoveDatasetException mde) {
-            summaryParams.add(mde.getDetails().stream()
+        public Summary addParameter(MoveDatasetException mde) {
+            summaryParameters.add(mde.getDetails().stream()
                     .map(AdditionalStatus::getMessageKey)
                     .map(BundleUtil::getStringFromBundle)
                     .collect(Collectors.joining(" ")));
             return this;
         }
 
-        public List<String> getSummaryParams() {
-            return summaryParams;
+        public void showSuccessMessage() {
+            JsfHelper.addFlashSuccessMessage(getStringFromBundle("dashboard.datamove.message.success", summaryParameters));
+        }
+
+        public void showFailureMessage() {
+            JsfHelper.addErrorMessage(null, getStringFromBundle("dashboard.datamove.message.failure.summary"),
+                    getStringFromBundle("dashboard.datamove.message.failure.details", summaryParameters));
         }
     }
 }
