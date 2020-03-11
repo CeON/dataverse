@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.metrics;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.primefaces.model.chart.BarChartModel;
 
 import javax.faces.view.ViewScoped;
@@ -10,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ViewScoped
 @Named("PublishedDatasetsChart")
@@ -23,6 +26,8 @@ public class PublishedDatasetsChart implements Serializable {
     private BarChartModel chartModel;
     private List<ChartMetrics> yearlyStats = new ArrayList<>();
     private List<ChartMetrics> chartMetrics = new ArrayList<>();
+
+    private List<Pair<String, String>> tableData = new ArrayList<>();
 
     private String mode = "YEAR_CUMULATIVE";
     private int selectedYear;
@@ -54,6 +59,10 @@ public class PublishedDatasetsChart implements Serializable {
     public int getSelectedYear() {
         return selectedYear;
     }
+    public List<Pair<String, String>> getTableData() {
+        return tableData;
+    }
+
 
     // -------------------- LOGIC --------------------
     public void init() {
@@ -68,6 +77,7 @@ public class PublishedDatasetsChart implements Serializable {
         }
 
         chartModel = chartCreator.createYearlyCumulativeChart(metricsService.countPublishedDatasets(), CHART_TYPE);
+        tableData = loadDataForChartTable(chartModel);
     }
 
     public void changeDatasetMetricsModel() {
@@ -78,6 +88,7 @@ public class PublishedDatasetsChart implements Serializable {
         } else if (isMonthlyChartSelected()) {
             chartModel = chartCreator.createMonthlyChart(chartMetrics, selectedYear, CHART_TYPE);
         }
+        tableData = loadDataForChartTable(chartModel);
     }
 
     // -------------------- PRIVATE ---------------------
@@ -93,6 +104,18 @@ public class PublishedDatasetsChart implements Serializable {
         return mode.equals("YEAR_CUMULATIVE");
     }
 
+    private List<Pair<String, String>> loadDataForChartTable(BarChartModel chartModel) {
+//        List<Pair<String, String>> tableData = new ArrayList<>();
+//        for(Map.Entry<Object, Number> entry : chartModel.getSeries().get(0).getData().entrySet()) {
+//            Pair<String, String> row = new ImmutablePair<>(entry.getKey().toString(), entry.getValue().toString());
+//            tableData.add(row);
+//        }
+        return chartModel.getSeries().get(0).getData().entrySet().stream()
+                .map(entry -> new ImmutablePair<>(entry.getKey().toString(), entry.getValue().toString()))
+                .collect(Collectors.toList());
+
+    }
+
     // -------------------- SETTERS --------------------
     public void setMode(String mode) {
         this.mode = mode;
@@ -104,5 +127,9 @@ public class PublishedDatasetsChart implements Serializable {
 
     public void setYearlyStats(List<ChartMetrics> yearlyStats) {
         this.yearlyStats = yearlyStats;
+    }
+
+    public void setTableData(List<Pair<String, String>> tableData) {
+        this.tableData = tableData;
     }
 }

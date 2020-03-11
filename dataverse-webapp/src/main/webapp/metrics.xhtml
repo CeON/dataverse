@@ -47,6 +47,20 @@
                              responsive="true"
                     />
                 </p:panelGrid>
+
+                <p:dataTable
+                        var="dataRow"
+                        value="#{PublishedDatasetsChart.tableData}"
+                        tableStyleClass="table visuallyhidden"
+                >
+                    <p:column headerText="Year">
+                        <h:outputText value="#{dataRow.left}" />
+                    </p:column>
+
+                    <p:column headerText="Value">
+                        <h:outputText value="#{dataRow.right}" />
+                    </p:column>
+                </p:dataTable>
             </h:form>
 
             <!-- Published Files Chart-->
