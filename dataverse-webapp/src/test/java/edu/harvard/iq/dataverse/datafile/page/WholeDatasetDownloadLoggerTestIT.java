@@ -9,7 +9,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.DownloadDatasetLog;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -17,6 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 import static edu.harvard.iq.dataverse.datafile.DatasetIntegrationTestsHelper.DRAFT_DATASET_WITH_FILES_ID;
@@ -27,6 +29,9 @@ import static org.junit.Assert.assertThat;
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 public class WholeDatasetDownloadLoggerTestIT extends WebappArquillianDeployment {
+
+    @PersistenceContext(unitName = "VDCNet-ejbPU")
+    private EntityManager em;
 
     @Inject
     private WholeDatasetDownloadLogger datasetDownloadUiLogger;
@@ -46,7 +51,7 @@ public class WholeDatasetDownloadLoggerTestIT extends WebappArquillianDeployment
         List<DataFile> filesToDownload = takeFilesMetadataFromPublishedDataset();
 
         // when
-        int countBeforeDownload = extractNumberOfLoggedDownloads();
+        long countBeforeDownload = extractNumberOfLoggedDownloads();
         datasetDownloadUiLogger.incrementLogIfDownloadingWholeDataset(filesToDownload);
 
         // then
@@ -62,7 +67,7 @@ public class WholeDatasetDownloadLoggerTestIT extends WebappArquillianDeployment
         filesToDownload.remove(0);
 
         // when
-        int countBeforeDownload = extractNumberOfLoggedDownloads();
+        long countBeforeDownload = extractNumberOfLoggedDownloads();
         datasetDownloadUiLogger.incrementLogIfDownloadingWholeDataset(filesToDownload);
 
         // then
@@ -80,8 +85,10 @@ public class WholeDatasetDownloadLoggerTestIT extends WebappArquillianDeployment
                 .collect(toList());
     }
 
-    private int extractNumberOfLoggedDownloads() {
-        DownloadDatasetLog downloadDatasetLog = genericDao.find(DRAFT_DATASET_WITH_FILES_ID, DownloadDatasetLog.class);
-        return downloadDatasetLog != null ? downloadDatasetLog.getDownloadCount() : 0;
+    private long extractNumberOfLoggedDownloads() {
+        TypedQuery<Long> numberOfDownloads = em.createQuery(
+                "SELECT COUNT(d) FROM DownloadDatasetLog d WHERE d.datasetId = :datasetId", Long.class);
+        numberOfDownloads.setParameter("datasetId", DRAFT_DATASET_WITH_FILES_ID);
+        return numberOfDownloads.getSingleResult();
     }
 }

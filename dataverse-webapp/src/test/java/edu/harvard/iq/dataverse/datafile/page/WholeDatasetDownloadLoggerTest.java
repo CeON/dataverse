@@ -50,7 +50,7 @@ public class WholeDatasetDownloadLoggerTest {
         wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(filesDownloaded);
 
         // then
-        verify(downloadDatasetLogService, never()).incrementDownloadCountForDataset(anyLong());
+        verify(downloadDatasetLogService, never()).logWholeSetDownload(anyLong());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class WholeDatasetDownloadLoggerTest {
         wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(filesDownloaded);
 
         // then
-        verify(downloadDatasetLogService, never()).incrementDownloadCountForDataset(anyLong());
+        verify(downloadDatasetLogService, never()).logWholeSetDownload(anyLong());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class WholeDatasetDownloadLoggerTest {
         wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(filesDownloaded);
 
         // then
-        verify(downloadDatasetLogService, never()).incrementDownloadCountForDataset(anyLong());
+        verify(downloadDatasetLogService, never()).logWholeSetDownload(anyLong());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class WholeDatasetDownloadLoggerTest {
         wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(fileList);
 
         // then
-        verify(downloadDatasetLogService, times(1)).incrementDownloadCountForDataset(anyLong());
+        verify(downloadDatasetLogService, times(1)).logWholeSetDownload(anyLong());
     }
 
     @Test
@@ -101,7 +101,7 @@ public class WholeDatasetDownloadLoggerTest {
         wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(Collections.singletonList(file));
 
         // then
-        verify(downloadDatasetLogService, times(1)).incrementDownloadCountForDataset(anyLong());
+        verify(downloadDatasetLogService, times(1)).logWholeSetDownload(anyLong());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class WholeDatasetDownloadLoggerTest {
         wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(Collections.singletonList(file));
 
         // then
-        verify(downloadDatasetLogService, never()).incrementDownloadCountForDataset(anyLong());
+        verify(downloadDatasetLogService, never()).logWholeSetDownload(anyLong());
     }
 
     private List<DataFile> createDatafileWithSingleVersionInDataset() {

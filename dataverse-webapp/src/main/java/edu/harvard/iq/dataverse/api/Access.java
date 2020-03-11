@@ -103,7 +103,6 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -495,21 +494,19 @@ public class Access extends AbstractApiBean {
     @GET
     @Produces({"application/zip"})
     public Response datafiles(@PathParam("fileIds") String fileIds, @QueryParam("gbrecs") Boolean gbrecs, @QueryParam("key") String apiTokenParam, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) throws WebApplicationException /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
-        assertOrThrow(() -> StringUtils.isNotBlank(fileIds));
+        assertOrThrowBadRequest(() -> StringUtils.isNotBlank(fileIds));
 
         final long zipDownloadSizeLimit = determineDownloadSizeLimit();
         logger.fine("setting zip download size limit to " + zipDownloadSizeLimit + " bytes.");
 
-        String apiToken = (apiTokenParam == null || StringUtils.EMPTY.equals(apiTokenParam))
-                ? headers.getHeaderString(API_KEY_HEADER)
-                : apiTokenParam;
+        String apiToken = StringUtils.isNotEmpty(apiTokenParam) ? headers.getHeaderString(API_KEY_HEADER) : apiTokenParam;
         User apiTokenUser = getApiTokenUser(apiToken).orElse(null); //for use in adding gb records if necessary
 
-        final boolean getOriginal = shouldSendOriginalFormat(uriInfo.getQueryParameters());
+        final boolean sendOriginalFormat = isOriginalFormatRequested(uriInfo.getQueryParameters());
 
         StreamingOutput stream = (OutputStream outputStream) -> {
             String[] fileIdParams = fileIds.split(",");
-            assertOrThrow(() -> fileIdParams.length > 0);
+            assertOrThrowBadRequest(() -> fileIdParams.length > 0);
             logger.fine(fileIdParams.length + " tokens;");
 
             ZipperWrapper zipperWrapper = new ZipperWrapper();
@@ -548,9 +545,9 @@ public class Access extends AbstractApiBean {
                         response.setHeader("Content-Type", "application/zip; name=\"dataverse_files.zip\"");
                     }
 
-                    long size = computeFileSize(file, getOriginal);
+                    long size = computeFileSize(file, sendOriginalFormat);
                     if (size < (zipDownloadSizeLimit - sizeTotal)) {
-                        sizeTotal += zipperWrapper.getZipper().addFileToZipStream(file, getOriginal);
+                        sizeTotal += zipperWrapper.getZipper().addFileToZipStream(file, sendOriginalFormat);
                         filesToDownload.add(file);
                     } else {
                         String fileName = file.getFileMetadata().getLabel();
@@ -599,13 +596,13 @@ public class Access extends AbstractApiBean {
         return limit != 0 ? limit : Long.MAX_VALUE;
     }
 
-    private void assertOrThrow(Supplier<Boolean> constraint) {
+    private void assertOrThrowBadRequest(Supplier<Boolean> constraint) {
         if (!constraint.get()) {
             throw new BadRequestException();
         }
     }
 
-    private boolean shouldSendOriginalFormat(MultivaluedMap<String, String> queryParameters) {
+    private boolean isOriginalFormatRequested(MultivaluedMap<String, String> queryParameters) {
         return queryParameters
                 .keySet().stream()
                 .filter("format"::equals)

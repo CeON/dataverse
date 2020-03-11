@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.datafile.page;
 
+import com.rometools.utils.Lists;
 import edu.harvard.iq.dataverse.dataset.DownloadDatasetLogService;
-import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -40,7 +40,7 @@ public class WholeDatasetDownloadLogger {
     // -------------------- LOGIC --------------------
 
     public void incrementLogIfDownloadingWholeDataset(List<DataFile> filesToDownload) {
-        if (filesToDownload == null || filesToDownload.isEmpty()) {
+        if (Lists.isEmpty(filesToDownload)) {
             logger.warning("Empty or null file metadata list.");
             return;
         }
@@ -67,7 +67,7 @@ public class WholeDatasetDownloadLogger {
 
     private void updateLogOnWholeDatasetDownload(Dataset dataset, List<DataFile> dataFiles) {
         if (isUserDownloadingAllFilesFromAnyVersion(dataset, dataFiles)) {
-            downloadDatasetLogService.incrementDownloadCountForDataset(dataset.getId());
+            downloadDatasetLogService.logWholeSetDownload(dataset.getId());
         }
     }
 
