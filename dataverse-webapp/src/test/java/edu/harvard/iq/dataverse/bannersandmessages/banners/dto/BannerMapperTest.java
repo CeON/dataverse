@@ -1,14 +1,14 @@
 package edu.harvard.iq.dataverse.bannersandmessages.banners.dto;
 
+import static edu.harvard.iq.dataverse.common.DateUtil.convertToDate;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import edu.harvard.iq.dataverse.UnitTestUtils;
-import edu.harvard.iq.dataverse.bannersandmessages.banners.BannerLimits;
-import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseBanner;
-import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseLocalizedBanner;
-import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,14 +20,12 @@ import org.primefaces.model.ByteArrayContent;
 import org.primefaces.model.UploadedFile;
 import org.springframework.util.StreamUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.Date;
-
-import static edu.harvard.iq.dataverse.common.DateUtil.convertToDate;
+import edu.harvard.iq.dataverse.UnitTestUtils;
+import edu.harvard.iq.dataverse.bannersandmessages.banners.BannerLimits;
+import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseBanner;
+import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseLocalizedBanner;
+import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BannerMapperTest {
