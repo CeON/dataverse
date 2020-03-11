@@ -127,6 +127,7 @@ public class DashboardDatamovePage implements Serializable {
             DataverseRequest dataverseRequest = new DataverseRequest(authenticatedUser, request);
             commandEngine.submit(new MoveDatasetCommand(dataverseRequest, sourceDataset, targetDataverse, forceMove));
             logger.info(createMessageWithMoveInfo("Moved"));
+            resetFields();
             summary.showSuccessMessage();
         } catch (MoveDatasetException mde) {
             logger.log(Level.WARNING, createMessageWithMoveInfo("Unable to move"), mde);
@@ -140,8 +141,8 @@ public class DashboardDatamovePage implements Serializable {
         }
     }
 
-    // -------------------- PRIVATE --------------------
 
+    // -------------------- PRIVATE --------------------
     private String extractSourcePersistentId() {
         return Optional.ofNullable(sourceDataset)
                 .map(Dataset::getGlobalId)
@@ -179,6 +180,11 @@ public class DashboardDatamovePage implements Serializable {
     private boolean isForcingPossible(MoveDatasetException mde) {
         return mde.getDetails().stream()
                 .allMatch(AdditionalStatus::isPassByForcePossible);
+    }
+
+    private void resetFields() {
+        sourceDataset = null;
+        targetDataverse = null;
     }
 
     // -------------------- SETTERS --------------------
