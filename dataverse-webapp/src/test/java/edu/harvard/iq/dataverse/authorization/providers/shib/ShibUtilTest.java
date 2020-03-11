@@ -21,7 +21,7 @@ public class ShibUtilTest {
      */
     @Test
     public void testGetDisplayNameFromDiscoFeed() throws IOException {
-        String discoFeedExample = new String(Files.readAllBytes(Paths.get("src/main/webapp/resources/dev/sample-shib-identities.json")));
+        String discoFeedExample = new String(Files.readAllBytes(Paths.get("src/test/resources/json/sample-shib-identities.json")));
 
         String testShib = ShibUtil.getDisplayNameFromDiscoFeed("https://idp.testshib.org/idp/shibboleth", discoFeedExample);
         assertEquals("TestShib Test IdP", testShib);
