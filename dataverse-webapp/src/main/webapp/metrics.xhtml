@@ -91,6 +91,23 @@
                              style="height:300px; min-width: 500px"
                              responsive="true" />
                 </p:panelGrid>
+
+                <p:dataTable
+                        var="dataRow"
+                        value="#{FilesChart.tableModel.data}"
+                        tableStyleClass=""
+                >
+                    <f:facet name="header">
+                        #{FilesChart.tableModel.title}
+                    </f:facet>
+                    <p:column headerText="#{FilesChart.tableModel.leftColumnName}">
+                        <h:outputText value="#{dataRow.left}" />
+                    </p:column>
+
+                    <p:column headerText="#{FilesChart.tableModel.rightColumnName}">
+                        <h:outputText value="#{dataRow.right}" />
+                    </p:column>
+                </p:dataTable>
             </h:form>
 
             <!-- Published Files Storage Chart-->
@@ -116,6 +133,23 @@
                              style="height:300px; min-width: 500px"
                              responsive="true" />
                 </p:panelGrid>
+
+                <p:dataTable
+                        var="dataRow"
+                        value="#{FilesStorageChart.tableModel.data}"
+                        tableStyleClass=""
+                >
+                    <f:facet name="header">
+                        #{FilesStorageChart.tableModel.title}
+                    </f:facet>
+                    <p:column headerText="#{FilesStorageChart.tableModel.leftColumnName}">
+                        <h:outputText value="#{dataRow.left}" />
+                    </p:column>
+
+                    <p:column headerText="#{FilesStorageChart.tableModel.rightColumnName}">
+                        <h:outputText value="#{dataRow.right}" />
+                    </p:column>
+                </p:dataTable>
             </h:form>
 
             <!-- Downloaded Files-->
@@ -142,6 +176,23 @@
                              responsive="true"
                     />
                 </p:panelGrid>
+
+                <p:dataTable
+                        var="dataRow"
+                        value="#{FilesDownloadedChart.tableModel.data}"
+                        tableStyleClass=""
+                >
+                    <f:facet name="header">
+                        #{FilesDownloadedChart.tableModel.title}
+                    </f:facet>
+                    <p:column headerText="#{FilesDownloadedChart.tableModel.leftColumnName}">
+                        <h:outputText value="#{dataRow.left}" />
+                    </p:column>
+
+                    <p:column headerText="#{FilesDownloadedChart.tableModel.rightColumnName}">
+                        <h:outputText value="#{dataRow.right}" />
+                    </p:column>
+                </p:dataTable>
             </h:form>
 
             <!-- Downloaded Datasets-->
@@ -168,6 +219,23 @@
                              responsive="true"
                     />
                 </p:panelGrid>
+
+                <p:dataTable
+                        var="dataRow"
+                        value="#{DatasetsDownloadedChart.tableModel.data}"
+                        tableStyleClass=""
+                >
+                    <f:facet name="header">
+                        #{DatasetsDownloadedChart.tableModel.title}
+                    </f:facet>
+                    <p:column headerText="#{DatasetsDownloadedChart.tableModel.leftColumnName}">
+                        <h:outputText value="#{dataRow.left}" />
+                    </p:column>
+
+                    <p:column headerText="#{DatasetsDownloadedChart.tableModel.rightColumnName}">
+                        <h:outputText value="#{dataRow.right}" />
+                    </p:column>
+                </p:dataTable>
             </h:form>
 
             <!-- Authenticated Users Chart-->
@@ -194,6 +262,23 @@
                              responsive="true"
                     />
                 </p:panelGrid>
+
+                <p:dataTable
+                        var="dataRow"
+                        value="#{UsersChart.tableModel.data}"
+                        tableStyleClass=""
+                >
+                    <f:facet name="header">
+                        #{UsersChart.tableModel.title}
+                    </f:facet>
+                    <p:column headerText="#{UsersChart.tableModel.leftColumnName}">
+                        <h:outputText value="#{dataRow.left}" />
+                    </p:column>
+
+                    <p:column headerText="#{UsersChart.tableModel.rightColumnName}">
+                        <h:outputText value="#{dataRow.right}" />
+                    </p:column>
+                </p:dataTable>
             </h:form>
 
             <!-- Used in ChartCreator class as extender -->
