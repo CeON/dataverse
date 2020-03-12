@@ -169,7 +169,7 @@ public class LicenseDifferenceFinderTest {
     }
 
     @Test
-    public void create__WITH_CHANGED_FILE_TERMS() throws IOException, JsonParseException {
+    public void shouldGetLicenseDifferences_WITH_CHANGED_FILE_TERMS() throws IOException, JsonParseException {
 
         // given
 
