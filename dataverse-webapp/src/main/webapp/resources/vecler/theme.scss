@@ -1441,6 +1441,58 @@ $navbar-height: 6.8em;
 	margin: 8px;
 }
 
+/* Footer */
+
+#footer {
+	.footer-logos {
+		text-align: center;
+	
+		div {
+			margin-bottom: 1em;
+		}
+	
+		img {
+			background: #fff;
+			margin: 0.5em;
+		}
+	
+		.footer-logos-uw img {
+			height: 3em;
+		}
+	
+		.footer-logos-ue img {
+			height: 4.333em;
+		}
+	
+		.footer-logo-icm {
+			padding: 0.3em;
+		}
+	}
+	
+	.footer-links .row {
+		border-top: 1px solid $gray-border-color;
+		margin: 0;
+		padding-top: 1em;
+		font-size: 0.867em;
+
+		div[class^="col-"] {
+			padding: 0;
+
+			p span {
+				border-left: 1px solid $gray-border-color;
+				margin-left: 1em;
+				padding-left: 1em;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	#footer div[class^="col-"] {
+		text-align: center;
+	}
+}
+
 /* Main page */
 
 #dataverseForm {
