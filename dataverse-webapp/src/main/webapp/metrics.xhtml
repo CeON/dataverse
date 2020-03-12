@@ -5,8 +5,10 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui"
+      xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
 >
+<p:importEnum type="edu.harvard.iq.dataverse.metrics.ChartMode" var="chartMode" allSuffix="ALL_ENUM_VALUES" />
+
 <f:view locale="#{dataverseSession.localeCode}">
 <h:body>
     <f:metadata>
@@ -50,14 +52,17 @@
 
                 <p:dataTable
                         var="dataRow"
-                        value="#{PublishedDatasetsChart.tableData}"
-                        tableStyleClass="table visuallyhidden"
+                        value="#{PublishedDatasetsChart.tableModel.data}"
+                        tableStyleClass=""
                 >
-                    <p:column headerText="Year">
+                    <f:facet name="header">
+                        #{PublishedDatasetsChart.tableModel.title}
+                    </f:facet>
+                    <p:column headerText="#{PublishedDatasetsChart.tableModel.leftColumnName}">
                         <h:outputText value="#{dataRow.left}" />
                     </p:column>
 
-                    <p:column headerText="Value">
+                    <p:column headerText="#{PublishedDatasetsChart.tableModel.rightColumnName}">
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
