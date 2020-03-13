@@ -31,31 +31,62 @@ public class ConsentApiMapper {
                                  consentActionDtos);
     }
 
-    public Consent updateAllowedProperties(ConsentApiDto updatedConsent, Consent originalConsent){
+    public Consent consentApiDtoToConsent(ConsentApiDto consentApiDto) {
+        Consent consent = new Consent(consentApiDto.getName(),
+                                      consentApiDto.getDisplayOrder(),
+                                      consentApiDto.isRequired(),
+                                      consentApiDto.isHidden());
+
+        List<ConsentDetails> freshConsentDetails = consentApiDto.getConsentDetails().stream()
+                .map(cons -> consentDetailsApiDtoToConsentDetails(cons, consent))
+                .collect(Collectors.toList());
+
+        List<ConsentAction> freshConsentActions = consentApiDto.getConsentActions().stream()
+                .map(cons -> consentActionApiDtoToConsentAction(cons, consent))
+                .collect(Collectors.toList());
+
+        consent.getConsentDetails().addAll(freshConsentDetails);
+        consent.getConsentActions().addAll(freshConsentActions);
+
+        return consent;
+    }
+
+    public Consent updateAllowedProperties(ConsentApiDto updatedConsent, Consent originalConsent) {
         originalConsent.setHidden(updatedConsent.isHidden());
         originalConsent.setDisplayOrder(updatedConsent.getDisplayOrder());
+        originalConsent.setRequired(updatedConsent.isRequired());
 
-        List<ConsentDetails> addedConsentDetails = updatedConsent.getConsentDetails().stream()
-                .filter(updatedCons -> updatedCons.getId().isEmpty())
-                .map(updatedCons -> consentDetailsApiDtoToConsentDetails(updatedCons, originalConsent))
-                .collect(Collectors.toList());
+        List<ConsentDetails> addedConsentDetails = mapNewConsentDetails(updatedConsent, originalConsent);
 
-        List<ConsentAction> freshConsentActions = updatedConsent.getConsentActions().stream()
-                .filter(updatedCons -> updatedCons.getId().isEmpty())
-                .map(updatedCons -> consentActionApiDtoToConsentAction(updatedCons, originalConsent))
-                .collect(Collectors.toList());
+        List<ConsentAction> freshConsentActions = mapNewConsentActions(updatedConsent, originalConsent);
 
-        updateConsentActions(updatedConsent, originalConsent);
 
         originalConsent.getConsentDetails().addAll(addedConsentDetails);
+
+        updateConsentActions(updatedConsent, originalConsent);
+        originalConsent.getConsentActions().removeIf(consentAction -> !isConsentActionPresent(updatedConsent,
+                                                                                              consentAction));
         originalConsent.getConsentActions().addAll(freshConsentActions);
-        originalConsent.getConsentActions().removeIf(consentAction -> !isConsentActionPresent(updatedConsent, consentAction));
 
         return originalConsent;
     }
 
 
     // -------------------- PRIVATE --------------------
+
+    private List<ConsentAction> mapNewConsentActions(ConsentApiDto updatedConsent, Consent originalConsent) {
+        return updatedConsent.getConsentActions().stream()
+                .filter(updatedCons -> updatedCons.getId().isPresent())
+                .map(updatedCons -> consentActionApiDtoToConsentAction(updatedCons, originalConsent))
+                .collect(Collectors.toList());
+    }
+
+    private List<ConsentDetails> mapNewConsentDetails(ConsentApiDto updatedConsent, Consent originalConsent) {
+        return updatedConsent.getConsentDetails().stream()
+                .filter(updatedCons -> updatedCons.getId().isPresent())
+                .map(updatedCons -> consentDetailsApiDtoToConsentDetails(updatedCons, originalConsent))
+                .collect(Collectors.toList());
+    }
 
     private ConsentDetailsApiDto consentDetailsToConsentDetailsDto(ConsentDetails consentDetails) {
         return new ConsentDetailsApiDto(consentDetails.getId(), consentDetails.getLanguage(), consentDetails.getText());
@@ -80,10 +111,10 @@ public class ConsentApiMapper {
 
     private void updateConsentActions(ConsentApiDto updatedConsent, Consent originalConsent) {
         for (ConsentActionApiDto updatedConsentAction : updatedConsent.getConsentActions()) {
-            if (updatedConsentAction.getId().isDefined()){
+            if (updatedConsentAction.getId().isPresent()) {
 
-                for (ConsentAction originalConsAction : originalConsent.getConsentActions()){
-                    if (updatedConsentAction.getId().get().equals(originalConsAction.getId())){
+                for (ConsentAction originalConsAction : originalConsent.getConsentActions()) {
+                    if (updatedConsentAction.getId().get().equals(originalConsAction.getId())) {
                         updateConsentAction(updatedConsentAction, originalConsAction);
                     }
 
@@ -101,10 +132,10 @@ public class ConsentApiMapper {
         return originalAction;
     }
 
-    private boolean isConsentActionPresent(ConsentApiDto updatedConsent, ConsentAction consentAction){
+    private boolean isConsentActionPresent(ConsentApiDto updatedConsent, ConsentAction consentAction) {
         return updatedConsent.getConsentActions().stream()
                 .anyMatch(consAction -> consAction.getId()
-                        .getOrElse(Long.MAX_VALUE)
+                        .orElse(Long.MAX_VALUE)
                         .equals(consentAction.getId()));
     }
 

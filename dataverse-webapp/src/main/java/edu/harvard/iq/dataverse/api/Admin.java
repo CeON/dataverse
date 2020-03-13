@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
@@ -58,6 +59,7 @@ import edu.harvard.iq.dataverse.userdata.UserListResult;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -1416,14 +1418,20 @@ public class Admin extends AbstractApiBean {
 
     @Path("/consents/{alias}")
     @PUT
-    public Response editConsent(@PathParam("alias") String alias, ConsentApiDto consentApiDto) {
+    public Response editConsent(@PathParam("alias") String alias, String json) {
         Option<Consent> consent = consentApiService.fetchConsent(alias);
 
         if (consent.isEmpty()){
             return error(Status.NOT_FOUND, "No consent with alias: " + alias + " could be found.");
         }
 
-        List<String> errors = consentApiService.validateUpdatedConsent(consentApiDto, consent.get());
+        Try<ConsentApiDto> editedConsent = Try.of(() -> new ObjectMapper().readValue(json, ConsentApiDto.class));
+
+        if (editedConsent.isFailure()){
+            return error(Status.CONFLICT, "There were issues with mapping submitted consent, make sure consent json is correct");
+        }
+
+        List<String> errors = consentApiService.validateUpdatedConsent(editedConsent.get(), consent.get());
 
         if (!errors.isEmpty()){
             String combinedErrors = String.join(", ", errors);
@@ -1431,8 +1439,32 @@ public class Admin extends AbstractApiBean {
             return error(Status.CONFLICT, "There were issues with submitted consent: "+ combinedErrors);
         }
 
-        consentApiService.saveEditedConsent(consentApiDto, consent.get());
+        consentApiService.saveEditedConsent(editedConsent.get(), consent.get());
 
         return ok("Consent was successfully edited");
     }
+
+    @Path("/consents")
+    @POST
+    public Response createConsent(String json) {
+        Try<ConsentApiDto> createdConsent = Try.of(() -> new ObjectMapper().readValue(json, ConsentApiDto.class));
+
+        if (createdConsent.isFailure()){
+            return error(Status.CONFLICT, "There were issues with mapping submitted consent, make sure consent json is correct");
+        }
+
+        List<String> errors = consentApiService.validateCreatedConsent(createdConsent.get());
+
+        if (!errors.isEmpty()){
+            String combinedErrors = String.join(", ", errors);
+
+            return error(Status.CONFLICT, "There were issues with submitted consent: "+ combinedErrors);
+        }
+
+        consentApiService.saveNewConsent(createdConsent.get());
+
+        return ok("Consent was successfully created");
+
+    }
+
 }

@@ -1,9 +1,10 @@
 package edu.harvard.iq.dataverse.consent.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.vavr.control.Option;
 
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ConsentDetailsApiDto {
 
@@ -16,6 +17,9 @@ public class ConsentDetailsApiDto {
     public ConsentDetailsApiDto(@JsonProperty(value = "id") Long id,
                                 @JsonProperty(value = "language", required = true) Locale language,
                                 @JsonProperty(value = "text", required = true) String text) {
+        Objects.requireNonNull(language);
+        Objects.requireNonNull(text);
+
         this.id = id;
         this.language = language;
         this.text = text;
@@ -23,8 +27,8 @@ public class ConsentDetailsApiDto {
 
     // -------------------- GETTERS --------------------
 
-    public Option<Long> getId() {
-        return Option.of(id);
+    public Optional<Long> getId() {
+        return Optional.ofNullable(id);
     }
 
     public Locale getLanguage() {

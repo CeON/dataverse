@@ -149,7 +149,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private String username;
     boolean nonLocalLoginEnabled;
     private List<String> passwordErrors;
-    private List<ConsentDto> consents;
+    private List<ConsentDto> consents = new ArrayList<>();
 
     public String init() {
 

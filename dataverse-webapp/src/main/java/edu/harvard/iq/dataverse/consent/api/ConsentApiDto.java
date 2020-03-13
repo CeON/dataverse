@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ConsentApiDto {
 
@@ -19,11 +20,17 @@ public class ConsentApiDto {
 
     public ConsentApiDto(@JsonProperty(value = "id") Long id,
                          @JsonProperty(value = "name", required = true) String name,
-                         @JsonProperty(value = "displayOrder", required = true) int displayOrder,
-                         @JsonProperty(value = "required", required = true) boolean required,
-                         @JsonProperty(value = "hidden", required = true) boolean hidden,
+                         @JsonProperty(value = "displayOrder", required = true) Integer displayOrder,
+                         @JsonProperty(value = "required", required = true) Boolean required,
+                         @JsonProperty(value = "hidden", required = true) Boolean hidden,
                          @JsonProperty(value = "consentDetails", required = true) List<ConsentDetailsApiDto> consentDetails,
-                         @JsonProperty(value = "consentActions", required = true) List<ConsentActionApiDto> consentActions){
+                         @JsonProperty(value = "consentActions") List<ConsentActionApiDto> consentActions){
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(displayOrder);
+        Objects.requireNonNull(required);
+        Objects.requireNonNull(hidden);
+        Objects.requireNonNull(consentDetails);
+
         this.id = id;
         this.name = name;
         this.displayOrder = displayOrder;

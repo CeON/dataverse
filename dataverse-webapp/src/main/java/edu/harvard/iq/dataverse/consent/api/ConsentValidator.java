@@ -5,25 +5,28 @@ import edu.harvard.iq.dataverse.persistence.consent.ConsentActionType;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentDetails;
 import io.vavr.Tuple2;
 import io.vavr.control.Option;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Stateless
-class ConsentValidator {
+public class ConsentValidator {
 
     private static final String SEND_NEWSLETTER_PATTERN = "(\"email\"):(\"((.+)@(.+))\")"; //{"email":"test@gmail.com"}
 
     /**
      * Checks whether consent was correctly edited.
+     *
      * @return List of errors if there are any.
      */
-    List<String> validateConsentEditing(ConsentApiDto consentApiDto, Consent consent) {
+    public List<String> validateConsentEditing(ConsentApiDto consentApiDto, Consent consent) {
         ArrayList<String> errors = new ArrayList<>();
 
         validateName(consentApiDto.getName(), consent.getName())
@@ -32,7 +35,22 @@ class ConsentValidator {
         validateDisplayOrder(consentApiDto.getDisplayOrder(), consent.getDisplayOrder())
                 .peek(errors::add);
 
-        errors.addAll(validateConsentDetails(consentApiDto.getConsentDetails(), consent.getConsentDetails()));
+        errors.addAll(validateEditedConsentDetails(consentApiDto.getConsentDetails(), consent.getConsentDetails()));
+
+        validateConsentActions(consentApiDto.getConsentActions())
+                .peek(errors::add);
+
+        return errors;
+    }
+
+    public List<String> validateConsentCreation(ConsentApiDto consentApiDto) {
+        ArrayList<String> errors = new ArrayList<>();
+
+        if (consentApiDto.getName().isEmpty()) {
+            errors.add("Consent name cannot be empty");
+        }
+
+        errors.addAll(validateNewConsentDetails(consentApiDto.getConsentDetails()));
 
         validateConsentActions(consentApiDto.getConsentActions())
                 .peek(errors::add);
@@ -51,39 +69,67 @@ class ConsentValidator {
     }
 
     private Option<String> validateDisplayOrder(int editedDisplayOrder, int originalDisplayOrder) {
-        if (!(editedDisplayOrder == originalDisplayOrder)) {
+        if (editedDisplayOrder != originalDisplayOrder) {
             return Option.of("Consent display order must be equal");
         }
 
         return Option.none();
     }
 
-    private List<String> validateConsentDetails(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
+    private List<String> validateEditedConsentDetails(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
         ArrayList<String> errors = new ArrayList<>();
 
-         checkIfConsentDetailsWasEdited(editedConsentDetails, originalConsentDetails)
-         .peek(errors::add);
+        checkIfConsentDetailsWereCorrectlyEdited(editedConsentDetails, originalConsentDetails)
+                .peek(errors::add);
 
-        List<ConsentDetailsApiDto> freshConsents = editedConsentDetails.stream()
-                .filter(consent -> consent.getId().isEmpty())
-                .collect(Collectors.toList());
-
-        if (isFreshConsentContainsDuplicatedLocale(freshConsents, originalConsentDetails)) {
-            errors.add("New consent detail has duplicated language");
+        if (isEditedConsentsContainsMissingConsents(editedConsentDetails, originalConsentDetails)) {
+            errors.add("There are consents missing");
         }
 
-        for (ConsentDetailsApiDto freshConsent : freshConsents) {
-            if (freshConsent.getText().isEmpty()) {
-                errors.add("New consent detail text cannot be empty");
+        if (isConsentsContainsDuplicatedLocale(editedConsentDetails, originalConsentDetails)) {
+            errors.add("Consent contains duplicated language");
+        }
+
+        if (isFreshConsentContainsDefaultLanguage(editedConsentDetails)){
+            errors.add("Consent needs to contain english version");
+        }
+
+        for (ConsentDetailsApiDto freshConsent : editedConsentDetails) {
+            String missingTextErrorMsg = "New consent detail text cannot be empty";
+
+            if (freshConsent.getText().isEmpty() && !errors.contains(missingTextErrorMsg)) {
+                errors.add(missingTextErrorMsg);
             }
         }
 
         return errors;
     }
 
-    private Option<String> checkIfConsentDetailsWasEdited(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
+    private List<String> validateNewConsentDetails(List<ConsentDetailsApiDto> editedConsentDetails) {
+        ArrayList<String> errors = new ArrayList<>();
 
-        editedConsentDetails.sort(Comparator.comparing(consent -> consent.getId().getOrElse(Long.MAX_VALUE)));
+        if (isFreshConsentContainsDuplicatedLocale(editedConsentDetails)) {
+            errors.add("New consent detail has duplicated language");
+        }
+
+        if (isFreshConsentContainsDefaultLanguage(editedConsentDetails)){
+            errors.add("Consent needs to contain english version");
+        }
+
+        for (ConsentDetailsApiDto freshConsent : editedConsentDetails) {
+            String missingTextErrorMsg = "New consent detail text cannot be empty";
+
+            if (freshConsent.getText().isEmpty() && !errors.contains(missingTextErrorMsg)) {
+                errors.add(missingTextErrorMsg);
+            }
+        }
+
+        return errors;
+    }
+
+    private Option<String> checkIfConsentDetailsWereCorrectlyEdited(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
+
+        editedConsentDetails.sort(Comparator.comparing(consent -> consent.getId().orElse(Long.MAX_VALUE)));
         originalConsentDetails.sort(Comparator.comparing(ConsentDetails::getId));
 
         io.vavr.collection.List<Tuple2<ConsentDetailsApiDto, ConsentDetails>> zippedConsents = io.vavr.collection.List
@@ -99,30 +145,55 @@ class ConsentValidator {
     private Option<String> validateConsentDetail(ConsentDetailsApiDto editedConsentDetail, ConsentDetails originalConsentDetail) {
         if (!editedConsentDetail.getText().equals(originalConsentDetail.getText()) ||
                 !editedConsentDetail.getLanguage().equals(originalConsentDetail.getLanguage())) {
+
             return Option.of("Consent details cannot be edited!");
         }
 
         return Option.none();
     }
 
-    private boolean isFreshConsentContainsDuplicatedLocale(List<ConsentDetailsApiDto> freshConsents, List<ConsentDetails> originalConsentDetails) {
-        return freshConsents.stream()
-                .anyMatch(consent -> isLocaleAmongConsentDetails(consent.getLanguage(), originalConsentDetails));
-
+    private boolean isFreshConsentContainsDuplicatedLocale(List<ConsentDetailsApiDto> freshConsents) {
+        return !freshConsents.stream()
+                .map(ConsentDetailsApiDto::getLanguage)
+                .allMatch(new HashSet<>()::add);
     }
 
-    private boolean isLocaleAmongConsentDetails(Locale locale, List<ConsentDetails> originalConsentDetails) {
-        return originalConsentDetails.stream()
-                .anyMatch(consentDetails -> consentDetails.getLanguage().equals(locale));
+    private boolean isEditedConsentsContainsMissingConsents(List<ConsentDetailsApiDto> freshConsents, List<ConsentDetails> originalConsents) {
+        List<Long> editedConsentsIds = freshConsents.stream()
+                .filter(consentDetailsApiDto -> consentDetailsApiDto.getId().isPresent())
+                .map(consentDetailsApiDto -> consentDetailsApiDto.getId().get())
+                .collect(Collectors.toList());
+
+        List<Long> originalConsentsIds = originalConsents.stream()
+                .map(ConsentDetails::getId)
+                .collect(Collectors.toList());
+
+        return CollectionUtils.containsAll(editedConsentsIds, originalConsentsIds);
+    }
+
+    private boolean isConsentsContainsDuplicatedLocale(List<ConsentDetailsApiDto> freshConsents, List<ConsentDetails> originalConsents) {
+        List<Locale> freshLanguages = freshConsents.stream()
+                .map(ConsentDetailsApiDto::getLanguage)
+                .collect(Collectors.toList());
+
+        List<Locale> originalLanguages = originalConsents.stream()
+                .map(ConsentDetails::getLanguage)
+                .collect(Collectors.toList());
+
+        return CollectionUtils.containsAny(freshLanguages, originalLanguages);
+    }
+
+    private boolean isFreshConsentContainsDefaultLanguage(List<ConsentDetailsApiDto> freshConsents) {
+        return freshConsents.stream()
+                .noneMatch(cons -> cons.getLanguage().equals(Locale.ENGLISH));
     }
 
     private Option<String> validateConsentActions(List<ConsentActionApiDto> editedConsentActions) {
         for (ConsentActionApiDto editedConsentAction : editedConsentActions) {
 
-            if (editedConsentAction.getConsentActionType().equals(ConsentActionType.SEND_NEWSLETTER_EMAIL)) {
-                if (!Pattern.compile(SEND_NEWSLETTER_PATTERN).matcher(editedConsentAction.getActionOptions()).find()) {
-                    return Option.of("Action options were not correctly filled out for: "+ ConsentActionType.SEND_NEWSLETTER_EMAIL.toString());
-                }
+            if (editedConsentAction.getConsentActionType().equals(ConsentActionType.SEND_NEWSLETTER_EMAIL) &&
+                    !Pattern.compile(SEND_NEWSLETTER_PATTERN).matcher(editedConsentAction.getActionOptions()).find()) {
+                return Option.of("Action options were not correctly filled out for: " + ConsentActionType.SEND_NEWSLETTER_EMAIL.toString());
             }
         }
 

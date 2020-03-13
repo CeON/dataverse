@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConsentValidatorTest {
 
@@ -44,15 +45,24 @@ class ConsentValidatorTest {
 
         //then
         Assert.assertFalse(errors.isEmpty());
-        Assertions.assertAll(() -> assertEquals("Consent names must be equal", errors.get(0)),
-                             () -> assertEquals("Consent display order must be equal", errors.get(1)),
-                             () -> assertEquals("Consent details cannot be edited!", errors.get(2)),
-                             () -> assertEquals("New consent detail has duplicated language", errors.get(3)),
-                             () -> assertEquals("New consent detail text cannot be empty", errors.get(4)),
-                             () -> assertEquals("Action options were not correctly filled out for: SEND_NEWSLETTER_EMAIL", errors.get(5)));
+        Assertions.assertAll(() -> assertEquals(7, errors.size()),
+                             () -> assertTrue(containsText("Consent names must be equal", errors)),
+                             () -> assertTrue(containsText("Consent display order must be equal", errors)),
+                             () -> assertTrue(containsText("Consent details cannot be edited!", errors)),
+                             () -> assertTrue(containsText("New consent detail text cannot be empty", errors)),
+                             () -> assertTrue(containsText("Consent contains duplicated language", errors)),
+                             () -> assertTrue(containsText(
+                                     "Action options were not correctly filled out for: SEND_NEWSLETTER_EMAIL",
+                                     errors)),
+                             () -> assertTrue(containsText("There are consents missing", errors)));
     }
 
     // -------------------- PRIVATE --------------------
+
+    private boolean containsText(String textToFind, List<String> errors) {
+        return errors.stream()
+                .anyMatch(error -> error.equals(textToFind));
+    }
 
     private ConsentApiDto prepareTestConsentApiDto() {
         ConsentApiDto cons = new ConsentApiDto(1L,
@@ -65,8 +75,8 @@ class ConsentValidatorTest {
 
         ConsentDetailsApiDto consDetails = new ConsentDetailsApiDto(1L, Locale.ENGLISH, "testCons");
         ConsentActionApiDto consAction = new ConsentActionApiDto(1L,
-                                                                          ConsentActionType.SEND_NEWSLETTER_EMAIL,
-                                                                          "{\"email\":\"test@gmail.com\"}");
+                                                                 ConsentActionType.SEND_NEWSLETTER_EMAIL,
+                                                                 "{\"email\":\"test@gmail.com\"}");
 
         cons.getConsentDetails().add(consDetails);
         cons.getConsentActions().add(consAction);
@@ -86,8 +96,8 @@ class ConsentValidatorTest {
         ConsentDetailsApiDto consDetails = new ConsentDetailsApiDto(1L, Locale.ENGLISH, "");
         ConsentDetailsApiDto consDetails2 = new ConsentDetailsApiDto(null, Locale.ENGLISH, "");
         ConsentActionApiDto consAction = new ConsentActionApiDto(1L,
-                                                                          ConsentActionType.SEND_NEWSLETTER_EMAIL,
-                                                                          "");
+                                                                 ConsentActionType.SEND_NEWSLETTER_EMAIL,
+                                                                 "");
 
         cons.getConsentDetails().add(consDetails);
         cons.getConsentDetails().add(consDetails2);

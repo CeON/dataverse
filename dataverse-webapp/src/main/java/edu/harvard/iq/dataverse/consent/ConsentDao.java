@@ -27,7 +27,7 @@ public class ConsentDao {
 
     public List<Consent> findConsents() {
 
-        return em.createQuery("SELECT DISTINCT cons FROM Consent cons JOIN cons.consentDetails JOIN cons.consentActions",
+        return em.createQuery("SELECT DISTINCT cons FROM Consent cons JOIN FETCH cons.consentDetails",
                               Consent.class)
                 .getResultList();
     }
@@ -35,7 +35,7 @@ public class ConsentDao {
     public Option<Consent> findConsent(String alias) {
 
         TypedQuery<Consent> query = em.createQuery(
-                "SELECT cons FROM Consent cons JOIN FETCH cons.consentDetails JOIN FETCH cons.consentActions" +
+                "SELECT DISTINCT cons FROM Consent cons JOIN FETCH cons.consentDetails" +
                         " WHERE cons.name = :consentName",
                 Consent.class)
                 .setParameter("consentName", alias);

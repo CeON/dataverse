@@ -1,9 +1,10 @@
 package edu.harvard.iq.dataverse.consent.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Preconditions;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentActionType;
-import io.vavr.control.Option;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public class ConsentActionApiDto {
 
@@ -16,7 +17,9 @@ public class ConsentActionApiDto {
     public ConsentActionApiDto(@JsonProperty(value = "id") Long id,
                                @JsonProperty(value = "consentActionType", required = true) ConsentActionType consentActionType,
                                @JsonProperty(value = "actionOptions", required = true) String actionOptions) {
-        Preconditions.checkArgument(consentActionType != null && actionOptions != null);
+        Objects.requireNonNull(consentActionType);
+        Objects.requireNonNull(actionOptions);
+
         this.id = id;
         this.consentActionType = consentActionType;
         this.actionOptions = actionOptions;
@@ -24,8 +27,8 @@ public class ConsentActionApiDto {
 
     // -------------------- GETTERS --------------------
 
-    public Option<Long> getId() {
-        return Option.of(id);
+    public Optional<Long> getId() {
+        return Optional.ofNullable(id);
     }
 
     public ConsentActionType getConsentActionType() {
