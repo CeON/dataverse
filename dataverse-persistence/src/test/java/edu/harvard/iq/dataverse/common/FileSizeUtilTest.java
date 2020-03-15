@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author oscardssmith

@@ -19,7 +19,11 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataset;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IngestUtilTest {
 
