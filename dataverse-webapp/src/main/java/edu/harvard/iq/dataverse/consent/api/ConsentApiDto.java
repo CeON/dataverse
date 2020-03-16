@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.consent.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class ConsentApiDto {
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public ConsentApiDto(@JsonProperty(value = "id") Long id,
+    public ConsentApiDto(@JsonProperty(value = "id")Long id,
                          @JsonProperty(value = "name", required = true) String name,
                          @JsonProperty(value = "displayOrder", required = true) Integer displayOrder,
                          @JsonProperty(value = "required", required = true) Boolean required,
@@ -36,12 +37,13 @@ public class ConsentApiDto {
         this.displayOrder = displayOrder;
         this.required = required;
         this.hidden = hidden;
-        this.consentDetails = consentDetails != null ? consentDetails : Lists.newArrayList();
+        this.consentDetails = consentDetails;
         this.consentActions = consentActions != null ? consentActions : Lists.newArrayList();
     }
 
     // -------------------- GETTERS --------------------
 
+    @Nullable
     public Long getId() {
         return id;
     }
@@ -68,5 +70,11 @@ public class ConsentApiDto {
 
     public boolean isHidden() {
         return hidden;
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

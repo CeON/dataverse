@@ -32,17 +32,40 @@ public class ConsentApiMapperTest {
                              () -> assertEquals(consent.getDisplayOrder(), mappedConsent.getDisplayOrder()),
                              () -> assertEquals(consent.getName(), mappedConsent.getName()),
                              () -> assertEquals(consent.getConsentDetails().get(0).getId(),
-                                                mappedConsent.getConsentDetails().get(0).getId().get()),
+                                                mappedConsent.getConsentDetails().get(0).getId()),
                              () -> assertEquals(consent.getConsentDetails().get(0).getLanguage(),
                                                 mappedConsent.getConsentDetails().get(0).getLanguage()),
                              () -> assertEquals(consent.getConsentDetails().get(0).getText(),
                                                 mappedConsent.getConsentDetails().get(0).getText()),
                              () -> assertEquals(consent.getConsentActions().get(0).getId(),
-                                                mappedConsent.getConsentActions().get(0).getId().get()),
+                                                mappedConsent.getConsentActions().get(0).getId()),
                              () -> assertEquals(consent.getConsentActions().get(0).getActionOptions(),
                                                 mappedConsent.getConsentActions().get(0).getActionOptions()),
                              () -> assertEquals(consent.getConsentActions().get(0).getConsentActionType(),
                                                 mappedConsent.getConsentActions().get(0).getConsentActionType()));
+    }
+
+    @Test
+    public void consentApiDtoToConsent() {
+        //given
+        ConsentApiDto consentApiDto = prepareTestConsentApiDto();
+        consentApiDto.setId(null);
+
+        //when
+        Consent consent = consentApiMapper.consentApiDtoToConsent(consentApiDto);
+
+        //when
+        Assertions.assertAll(() -> assertEquals(consentApiDto.getId(), consent.getId()),
+                             () -> assertEquals(consentApiDto.getDisplayOrder(), consent.getDisplayOrder()),
+                             () -> assertEquals(consentApiDto.getName(), consent.getName()),
+                             () -> assertEquals(consentApiDto.getConsentDetails().get(0).getLanguage(),
+                                                consent.getConsentDetails().get(0).getLanguage()),
+                             () -> assertEquals(consentApiDto.getConsentDetails().get(0).getText(),
+                                                consent.getConsentDetails().get(0).getText()),
+                             () -> assertEquals(consentApiDto.getConsentActions().get(0).getActionOptions(),
+                                                consent.getConsentActions().get(0).getActionOptions()),
+                             () -> assertEquals(consentApiDto.getConsentActions().get(0).getConsentActionType(),
+                                                consent.getConsentActions().get(0).getConsentActionType()));
     }
 
     @Test
@@ -61,18 +84,18 @@ public class ConsentApiMapperTest {
                              () -> assertEquals(updatedConsent.getConsentActions().size(),
                                                 mappedConsent.getConsentActions().size()),
                              () -> assertNotEquals(updatedConsent.getConsentDetails().size(),
-                                                mappedConsent.getConsentDetails().size()),
+                                                   mappedConsent.getConsentDetails().size()),
                              () -> assertNotSame(updatedConsent.getConsentDetails().get(0).getId(),
                                                  mappedConsent.getConsentDetails().get(0).getId()),
                              () -> assertSame(updatedConsent.getConsentDetails().get(0).getLanguage(),
                                               mappedConsent.getConsentDetails().get(0).getLanguage()),
                              () -> assertSame(updatedConsent.getConsentDetails().get(0).getText(),
-                                                 mappedConsent.getConsentDetails().get(1).getText()),
+                                              mappedConsent.getConsentDetails().get(1).getText()),
                              () -> assertSame(updatedConsent.getConsentActions().get(0).getActionOptions(),
-                                                 mappedConsent.getConsentActions().get(0).getActionOptions()),
+                                              mappedConsent.getConsentActions().get(0).getActionOptions()),
                              () -> assertSame(updatedConsent.getConsentActions().get(0).getConsentActionType(),
                                               mappedConsent.getConsentActions().get(0).getConsentActionType())
-                             );
+        );
     }
 
     // -------------------- PRIVATE --------------------

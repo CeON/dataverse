@@ -76,14 +76,14 @@ public class ConsentApiMapper {
 
     private List<ConsentAction> mapNewConsentActions(ConsentApiDto updatedConsent, Consent originalConsent) {
         return updatedConsent.getConsentActions().stream()
-                .filter(updatedCons -> updatedCons.getId().isPresent())
+                .filter(updatedCons -> updatedCons.getId() == null)
                 .map(updatedCons -> consentActionApiDtoToConsentAction(updatedCons, originalConsent))
                 .collect(Collectors.toList());
     }
 
     private List<ConsentDetails> mapNewConsentDetails(ConsentApiDto updatedConsent, Consent originalConsent) {
         return updatedConsent.getConsentDetails().stream()
-                .filter(updatedCons -> updatedCons.getId().isPresent())
+                .filter(updatedCons -> updatedCons.getId() == null)
                 .map(updatedCons -> consentDetailsApiDtoToConsentDetails(updatedCons, originalConsent))
                 .collect(Collectors.toList());
     }
@@ -111,10 +111,10 @@ public class ConsentApiMapper {
 
     private void updateConsentActions(ConsentApiDto updatedConsent, Consent originalConsent) {
         for (ConsentActionApiDto updatedConsentAction : updatedConsent.getConsentActions()) {
-            if (updatedConsentAction.getId().isPresent()) {
+            if (updatedConsentAction.getId() != null) {
 
                 for (ConsentAction originalConsAction : originalConsent.getConsentActions()) {
-                    if (updatedConsentAction.getId().get().equals(originalConsAction.getId())) {
+                    if (updatedConsentAction.getId().equals(originalConsAction.getId())) {
                         updateConsentAction(updatedConsentAction, originalConsAction);
                     }
 
@@ -134,9 +134,8 @@ public class ConsentApiMapper {
 
     private boolean isConsentActionPresent(ConsentApiDto updatedConsent, ConsentAction consentAction) {
         return updatedConsent.getConsentActions().stream()
-                .anyMatch(consAction -> consAction.getId()
-                        .orElse(Long.MAX_VALUE)
-                        .equals(consentAction.getId()));
+                .filter(consAction -> consAction.getId() != null)
+                .anyMatch(consAction -> consAction.getId().equals(consentAction.getId()));
     }
 
 }

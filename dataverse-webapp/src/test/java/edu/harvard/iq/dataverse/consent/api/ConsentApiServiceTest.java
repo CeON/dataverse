@@ -100,6 +100,16 @@ public class ConsentApiServiceTest {
     }
 
     @Test
+    public void validateCreatedConsent() {
+        //when
+        when(consentValidator.validateConsentCreation(any())).thenReturn(new ArrayList<>());
+        consentApiService.validateCreatedConsent(null);
+
+        //when
+        verify(consentValidator, times(1)).validateConsentCreation(null);
+    }
+
+    @Test
     public void saveEditedConsent() {
         //given
         Consent consent = prepareTestConsent();
@@ -113,6 +123,23 @@ public class ConsentApiServiceTest {
         verify(consentMapper, times(1)).updateAllowedProperties(null, consent);
         verify(consentDao, times(1)).mergeConsent(consent);
     }
+
+    @Test
+    public void saveNewConsent() {
+        //given
+        Consent consent = prepareTestConsent();
+
+        //when
+        when(consentMapper.consentApiDtoToConsent(any())).thenReturn(consent);
+        when(consentDao.mergeConsent(consent)).thenReturn(consent);
+        consentApiService.saveNewConsent(null);
+
+        //when
+        verify(consentMapper, times(1)).consentApiDtoToConsent(null);
+        verify(consentDao, times(1)).mergeConsent(consent);
+    }
+
+
 
     // -------------------- PRIVATE --------------------
 

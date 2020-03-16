@@ -31,7 +31,7 @@ class ConsentValidatorTest {
         List<String> errors = consentValidator.validateConsentEditing(consentApiDto, consent);
 
         //then
-        Assert.assertTrue(errors.isEmpty());
+        Assert.assertEquals(0, errors.size());
     }
 
     @Test
@@ -55,6 +55,39 @@ class ConsentValidatorTest {
                                      "Action options were not correctly filled out for: SEND_NEWSLETTER_EMAIL",
                                      errors)),
                              () -> assertTrue(containsText("There are consents missing", errors)));
+    }
+
+    @Test
+    public void validateCreatedConsent_WithCorrectConsent() {
+        //given
+        ConsentApiDto consentApiDto = prepareTestConsentApiDto();
+
+        //when
+        List<String> errors = consentValidator.validateConsentCreation(consentApiDto);
+
+        //when
+        Assert.assertEquals(0, errors.size());
+
+    }
+
+    @Test
+    public void validateCreatedConsent_WithIncorrectConsent() {
+        //given
+        ConsentApiDto consentApiDto = prepareIncorrectlyCreatedConsentApiDto();
+
+        //when
+        List<String> errors = consentValidator.validateConsentCreation(consentApiDto);
+
+        //when
+        Assertions.assertAll(() -> assertEquals(5, errors.size()),
+                             () -> assertTrue(containsText("Consent name cannot be empty", errors)),
+                             () -> assertTrue(containsText("Consent needs to contain english version", errors)),
+                             () -> assertTrue(containsText("New consent detail text cannot be empty", errors)),
+                             () -> assertTrue(containsText("New consent detail has duplicated language", errors)),
+                             () -> assertTrue(containsText(
+                                     "Action options were not correctly filled out for: SEND_NEWSLETTER_EMAIL",
+                                     errors)));
+
     }
 
     // -------------------- PRIVATE --------------------
@@ -93,8 +126,30 @@ class ConsentValidatorTest {
                                                Lists.newArrayList(),
                                                Lists.newArrayList());
 
-        ConsentDetailsApiDto consDetails = new ConsentDetailsApiDto(1L, Locale.ENGLISH, "");
+        ConsentDetailsApiDto consDetails = new ConsentDetailsApiDto(2L, Locale.ENGLISH, "");
         ConsentDetailsApiDto consDetails2 = new ConsentDetailsApiDto(null, Locale.ENGLISH, "");
+        ConsentActionApiDto consAction = new ConsentActionApiDto(1L,
+                                                                 ConsentActionType.SEND_NEWSLETTER_EMAIL,
+                                                                 "");
+
+        cons.getConsentDetails().add(consDetails);
+        cons.getConsentDetails().add(consDetails2);
+        cons.getConsentActions().add(consAction);
+
+        return cons;
+    }
+
+    private ConsentApiDto prepareIncorrectlyCreatedConsentApiDto() {
+        ConsentApiDto cons = new ConsentApiDto(1L,
+                                               "",
+                                               2,
+                                               true,
+                                               false,
+                                               Lists.newArrayList(),
+                                               Lists.newArrayList());
+
+        ConsentDetailsApiDto consDetails = new ConsentDetailsApiDto(1L, Locale.CHINA, "");
+        ConsentDetailsApiDto consDetails2 = new ConsentDetailsApiDto(null, Locale.CHINA, "");
         ConsentActionApiDto consAction = new ConsentActionApiDto(1L,
                                                                  ConsentActionType.SEND_NEWSLETTER_EMAIL,
                                                                  "");

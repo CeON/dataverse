@@ -129,7 +129,7 @@ public class ConsentValidator {
 
     private Option<String> checkIfConsentDetailsWereCorrectlyEdited(List<ConsentDetailsApiDto> editedConsentDetails, List<ConsentDetails> originalConsentDetails) {
 
-        editedConsentDetails.sort(Comparator.comparing(consent -> consent.getId().orElse(Long.MAX_VALUE)));
+        editedConsentDetails.sort(Comparator.comparing(cons -> cons.getId() == null ? Long.MAX_VALUE : cons.getId()));
         originalConsentDetails.sort(Comparator.comparing(ConsentDetails::getId));
 
         io.vavr.collection.List<Tuple2<ConsentDetailsApiDto, ConsentDetails>> zippedConsents = io.vavr.collection.List
@@ -160,19 +160,24 @@ public class ConsentValidator {
 
     private boolean isEditedConsentsContainsMissingConsents(List<ConsentDetailsApiDto> freshConsents, List<ConsentDetails> originalConsents) {
         List<Long> editedConsentsIds = freshConsents.stream()
-                .filter(consentDetailsApiDto -> consentDetailsApiDto.getId().isPresent())
-                .map(consentDetailsApiDto -> consentDetailsApiDto.getId().get())
+                .filter(consentDetailsApiDto -> consentDetailsApiDto.getId() != null)
+                .map(ConsentDetailsApiDto::getId)
                 .collect(Collectors.toList());
 
         List<Long> originalConsentsIds = originalConsents.stream()
                 .map(ConsentDetails::getId)
                 .collect(Collectors.toList());
 
-        return CollectionUtils.containsAll(editedConsentsIds, originalConsentsIds);
+        return !CollectionUtils.containsAll(editedConsentsIds, originalConsentsIds);
     }
 
     private boolean isConsentsContainsDuplicatedLocale(List<ConsentDetailsApiDto> freshConsents, List<ConsentDetails> originalConsents) {
+        List<Long> originalConsentIds = originalConsents.stream()
+                .map(ConsentDetails::getId)
+                .collect(Collectors.toList());
+
         List<Locale> freshLanguages = freshConsents.stream()
+                .filter(cons -> !originalConsentIds.contains(cons.getId()))
                 .map(ConsentDetailsApiDto::getLanguage)
                 .collect(Collectors.toList());
 

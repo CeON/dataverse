@@ -3,8 +3,8 @@ package edu.harvard.iq.dataverse.consent.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentActionType;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ConsentActionApiDto {
 
@@ -27,8 +27,9 @@ public class ConsentActionApiDto {
 
     // -------------------- GETTERS --------------------
 
-    public Optional<Long> getId() {
-        return Optional.ofNullable(id);
+    @Nullable
+    public Long getId() {
+        return id;
     }
 
     public ConsentActionType getConsentActionType() {
@@ -37,5 +38,11 @@ public class ConsentActionApiDto {
 
     public String getActionOptions() {
         return actionOptions;
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
