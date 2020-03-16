@@ -58,7 +58,7 @@ public class DownloadedDatasetsChart implements Serializable {
     // -------------------- LOGIC --------------------
     public void init() {
 
-        chartMetrics = metricsService.countDownloadedFiles();
+        chartMetrics = metricsService.countDownloadedDatasets();
 
         if (chartMetrics.isEmpty()) {
             yearlyStats.add(new ChartMetrics((double) LocalDateTime.now().getYear(), 0L));
