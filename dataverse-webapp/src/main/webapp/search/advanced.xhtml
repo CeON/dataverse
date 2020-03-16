@@ -52,7 +52,8 @@
                                     </label>
                                     <div class="col-sm-6">
                                         <p:inputText id="dvFieldName" styleClass="form-control"
-                                                     rendered="#{searchField.searchFieldType == fieldTypeEnums.TEXT}"
+                                                     rendered="#{searchField.searchFieldType == fieldTypeEnums.TEXT or
+                                                     searchField.searchFieldType == fieldTypeEnums.DATE}"
                                                      value="#{searchField.fieldValue}"/>
 
                                         <div class="ui-inputfield form-control select-scroll-block"
@@ -99,7 +100,8 @@
                                         <div class="col-sm-6">
                                             <p:inputText id="stringSearchValue" styleClass="form-control"
                                                          value="#{item.fieldValue}"
-                                                         rendered="#{item.searchFieldType == fieldTypeEnums.TEXT}"/>
+                                                         rendered="#{item.searchFieldType == fieldTypeEnums.TEXT or 
+                                                         			 item.searchFieldType == fieldTypeEnums.DATE}"/>
                                             <div>
                                                 <p:inputNumber id="rangeSearchMinimum" style="padding-right: 5px"
                                                                placeholder="#{bundle['advanced.search.metadata.from']}"
