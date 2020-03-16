@@ -19,7 +19,7 @@ public class PublishedFilesChart implements Serializable {
     private ChartTableCreator chartTableCreator;
     private MetricsServiceBean metricsService;
 
-    private final String CHART_TYPE = "files";
+    private static final String CHART_TYPE = "files";
 
     private BarChartModel chartModel;
     private ChartTableModel tableModel;
@@ -76,18 +76,20 @@ public class PublishedFilesChart implements Serializable {
         }
 
         chartModel = chartCreator.createYearlyCumulativeChart(chartMetrics, CHART_TYPE);
-        tableModel = chartTableCreator.createChartTable(chartModel, mode);
+        tableModel = chartTableCreator.createChartTable(chartModel);
     }
 
     public void changeChartGrouping() {
         if (isYearlyChartSelected()) {
             chartModel = chartCreator.createYearlyChart(chartMetrics, CHART_TYPE);
+            tableModel = chartTableCreator.createChartTable(chartModel);
         } else if (isYearlyCumulativeChartSelected()) {
             chartModel = chartCreator.createYearlyCumulativeChart(chartMetrics, CHART_TYPE);
+            tableModel = chartTableCreator.createChartTable(chartModel);
         } else if (isMonthlyChartSelected()) {
             chartModel = chartCreator.createMonthlyChart(chartMetrics, selectedYear, CHART_TYPE);
+            tableModel = chartTableCreator.createMonthlyChartTable(chartModel, selectedYear);
         }
-        tableModel = chartTableCreator.createChartTable(chartModel, mode);
     }
 
     // -------------------- PRIVATE ---------------------
