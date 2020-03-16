@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.dataset.difference;
 
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
+import edu.harvard.iq.dataverse.UnitTestUtils;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -14,7 +15,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -178,7 +178,7 @@ public class LicenseDifferenceFinderTest {
         DataFile dataFile2 = MocksFactory.makeDataFile();
         dataFile2.getFileMetadatas().clear();
 
-        DatasetVersion v1 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        DatasetVersion v1 = parseDatasetVersionFromClasspath();
         v1.setDataset(dataset);
 
         FileMetadata v1FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
@@ -190,7 +190,7 @@ public class LicenseDifferenceFinderTest {
         v1.addFileMetadata(v1FileMetadata2);
 
 
-        DatasetVersion v2 = parseDatasetVersionFromClasspath("/json/complete-dataset-version.json");
+        DatasetVersion v2 = parseDatasetVersionFromClasspath();
         v2.setDataset(dataset);
 
         FileMetadata v2FileMetadata1 = buildFileMetadata(10L, "firstFile.txt", 0, dataFile1);
@@ -220,9 +220,8 @@ public class LicenseDifferenceFinderTest {
         assertSame(v2File2Terms, termsDiffs.get(1).getNewTerms());
     }
 
-    private DatasetVersion parseDatasetVersionFromClasspath(String classpath) throws IOException, JsonParseException {
-
-        try (ByteArrayInputStream is = new ByteArrayInputStream(IOUtils.resourceToByteArray(classpath))) {
+    private DatasetVersion parseDatasetVersionFromClasspath() throws IOException, JsonParseException {
+        try (ByteArrayInputStream is = new ByteArrayInputStream(UnitTestUtils.readFileToByteArray("json/complete-dataset-version.json"))) {
             JsonObject jsonObject = Json.createReader(is).readObject();
             JsonParser jsonParser = new JsonParser(datasetFieldService, null, null);
 
