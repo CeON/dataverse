@@ -92,7 +92,6 @@ public class WholeDatasetDownloadLogger {
 
     private List<Set<Long>> createPossibleSetsOfFileIdsFromVersions(Dataset dataset, Set<Long> fileIdSet) {
         return Optional.ofNullable(dataset)
-                .filter(d -> !d.hasActiveEmbargo())
                 .map(Dataset::getVersions)
                 .orElseGet(Collections::emptyList).stream()
                 .filter(DatasetVersion::isReleased)
