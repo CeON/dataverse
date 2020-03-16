@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChartTableModel {
-    private List<Pair<String, String>> data = new ArrayList<>();
+    private List<Pair<String, String>> dataRow = new ArrayList<>();
     private String title;
     private String leftColumnName;
     private String rightColumnName;
@@ -15,16 +15,16 @@ public class ChartTableModel {
     public ChartTableModel() {
     }
 
-    public ChartTableModel(List<Pair<String, String>> data, String title, String leftColumnName, String rightColumnName) {
-        this.data = data;
+    public ChartTableModel(List<Pair<String, String>> dataRow, String title, String leftColumnName, String rightColumnName) {
+        this.dataRow = dataRow;
         this.title = title;
         this.leftColumnName = leftColumnName;
         this.rightColumnName = rightColumnName;
     }
 
     // -------------------- GETTERS --------------------
-    public List<Pair<String, String>> getData() {
-        return data;
+    public List<Pair<String, String>> getDataRow() {
+        return dataRow;
     }
 
     public String getTitle() {
@@ -41,8 +41,8 @@ public class ChartTableModel {
 
     // -------------------- SETTERS --------------------
 
-    public void setData(List<Pair<String, String>> data) {
-        this.data = data;
+    public void setDataRow(List<Pair<String, String>> dataRow) {
+        this.dataRow = dataRow;
     }
 
     public void setTitle(String title) {

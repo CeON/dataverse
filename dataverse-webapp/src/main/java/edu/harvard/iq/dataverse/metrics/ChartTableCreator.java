@@ -1,7 +1,9 @@
 package edu.harvard.iq.dataverse.metrics;
 
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.BarChartModel;
 
 import javax.ejb.Stateless;
@@ -13,10 +15,10 @@ public class ChartTableCreator {
 
     public ChartTableModel createChartTable(BarChartModel barChartModel, ChartMode chartMode) {
         ChartTableModel tableModel = new ChartTableModel();
-        tableModel.setData(loadDataForChartTable(barChartModel));
-        tableModel.setTitle(getChartTableTitle(barChartModel));
-        tableModel.setLeftColumnName(getLeftColumnTitle(chartMode));
-        tableModel.setRightColumnName("values");
+        tableModel.setDataRow(loadDataForChartTable(barChartModel));
+        tableModel.setTitle(barChartModel.getTitle());
+        tableModel.setLeftColumnName(barChartModel.getAxis(AxisType.X).getLabel());
+        tableModel.setRightColumnName(barChartModel.getAxis(AxisType.Y).getLabel());
 
         return tableModel;
     }
@@ -28,11 +30,10 @@ public class ChartTableCreator {
 
     }
 
-    private String getChartTableTitle(BarChartModel barChartModel) {
+    private String getChartTableTitle(BarChartModel barChartModel, ChartMode chartMode) {
+        if(chartMode == ChartMode.MONTLY) {
+            return barChartModel.getTitle() + BundleUtil.getStringFromBundle("metrics.table.titleappendix");
+        }
         return barChartModel.getTitle();
-    }
-
-    private String getLeftColumnTitle(ChartMode chartMode) {
-        return chartMode.getMode();
     }
 }
