@@ -5,7 +5,7 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+      xmlns:p="http://primefaces.org/ui"
 >
 <p:importEnum type="edu.harvard.iq.dataverse.metrics.ChartMode" var="chartMode" allSuffix="ALL_ENUM_VALUES" />
 
@@ -50,10 +50,10 @@
                     />
                 </p:panelGrid>
 
+                <div class="visuallyhidden">
                 <p:dataTable
                         var="dataRow"
                         value="#{PublishedDatasetsChart.tableModel.dataRow}"
-                        tableStyleClass="visuallyhidden"
                 >
                     <f:facet name="header">
                         #{PublishedDatasetsChart.tableModel.title}
@@ -66,6 +66,7 @@
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
+                </div>
             </h:form>
 
             <!-- Published Files Chart-->
@@ -92,10 +93,10 @@
                              responsive="true" />
                 </p:panelGrid>
 
+                <div class="visuallyhidden">
                 <p:dataTable
                         var="dataRow"
                         value="#{FilesChart.tableModel.dataRow}"
-                        tableStyleClass="visuallyhidden"
                 >
                     <f:facet name="header">
                         #{FilesChart.tableModel.title}
@@ -108,6 +109,7 @@
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
+                </div>
             </h:form>
 
             <!-- Published Files Storage Chart-->
@@ -134,10 +136,10 @@
                              responsive="true" />
                 </p:panelGrid>
 
+                <div class="visuallyhidden">
                 <p:dataTable
                         var="dataRow"
                         value="#{FilesStorageChart.tableModel.dataRow}"
-                        tableStyleClass="visuallyhidden"
                 >
                     <f:facet name="header">
                         #{FilesStorageChart.tableModel.title}
@@ -150,6 +152,7 @@
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
+                </div>
             </h:form>
 
             <!-- Downloaded Files-->
@@ -177,10 +180,10 @@
                     />
                 </p:panelGrid>
 
+                <div class="visuallyhidden">
                 <p:dataTable
                         var="dataRow"
                         value="#{FilesDownloadedChart.tableModel.dataRow}"
-                        tableStyleClass="visuallyhidden"
                 >
                     <f:facet name="header">
                         #{FilesDownloadedChart.tableModel.title}
@@ -193,6 +196,7 @@
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
+                </div>
             </h:form>
 
             <!-- Downloaded Datasets-->
@@ -220,10 +224,10 @@
                     />
                 </p:panelGrid>
 
+                <div class="visuallyhidden">
                 <p:dataTable
                         var="dataRow"
                         value="#{DatasetsDownloadedChart.tableModel.dataRow}"
-                        tableStyleClass="visuallyhidden"
                 >
                     <f:facet name="header">
                         #{DatasetsDownloadedChart.tableModel.title}
@@ -236,58 +240,7 @@
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
-            </h:form>
-
-            <!-- Downloaded Files-->
-            <h:form id="filesDownloaded">
-                <h4><h:outputText value="#{bundle['metrics.section.filesDownloaded.title']}" /></h4>
-                <p:panelGrid>
-                    <h:panelGrid columns="3" style="margin-bottom:10px;" cellpadding="25">
-                        <p:selectOneRadio id="filesDownloaded_mode" value="#{FilesDownloadedChart.mode}" style="padding-left: 10px">
-                            <p:ajax event="change" update="filesDownloaded" listener="#{FilesDownloadedChart.changeChartGrouping}"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.filesDownloaded.radiobutton.yearlyCumulative.label']}" itemValue="YEAR_CUMULATIVE"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.filesDownloaded.radiobutton.yearly.label']}" itemValue="YEAR"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.filesDownloaded.radiobutton.monthly.label']}" itemValue="MONTH"/>
-                        </p:selectOneRadio>
-                        <p:selectOneMenu id="filesDownloaded_years" value="#{FilesDownloadedChart.selectedYear}" disabled="#{FilesDownloadedChart.mode != 'MONTH'}">
-                            <p:ajax event="change" update="filesDownloaded" listener="#{FilesDownloadedChart.changeChartGrouping}"/>
-                            <f:selectItems value="#{FilesDownloadedChart.yearlyStats}" var="metrics"
-                                           itemLabel="#{metrics.year}" itemValue="#{metrics.year}"/>
-                        </p:selectOneMenu>
-                    </h:panelGrid>
-                    <p:chart id="filesDownloadedChart"
-                             type="bar"
-                             model="#{FilesDownloadedChart.chartModel}"
-                             style="height:300px; min-width: 500px"
-                             responsive="true"
-                    />
-                </p:panelGrid>
-            </h:form>
-
-            <!-- Downloaded Datasets-->
-            <h:form id="datasetsDownloaded">
-                <h4><h:outputText value="#{bundle['metrics.section.datasetsDownloaded.title']}" /></h4>
-                <p:panelGrid>
-                    <h:panelGrid columns="3" style="margin-bottom:10px;" cellpadding="25">
-                        <p:selectOneRadio id="datasetsDownloaded_mode" value="#{DatasetsDownloadedChart.mode}" style="padding-left: 10px">
-                            <p:ajax event="change" update="datasetsDownloaded" listener="#{DatasetsDownloadedChart.changeChartGrouping}"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.datasetsDownloaded.radiobutton.yearlyCumulative.label']}" itemValue="YEAR_CUMULATIVE"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.datasetsDownloaded.radiobutton.yearly.label']}" itemValue="YEAR"/>
-                            <f:selectItem itemLabel="#{bundle['metrics.section.datasetsDownloaded.radiobutton.monthly.label']}" itemValue="MONTH"/>
-                        </p:selectOneRadio>
-                        <p:selectOneMenu id="datasetsDownloaded_years" value="#{DatasetsDownloadedChart.selectedYear}" disabled="#{DatasetsDownloadedChart.mode != 'MONTH'}">
-                            <p:ajax event="change" update="datasetsDownloaded" listener="#{DatasetsDownloadedChart.changeChartGrouping}"/>
-                            <f:selectItems value="#{DatasetsDownloadedChart.yearlyStats}" var="metrics"
-                                           itemLabel="#{metrics.year}" itemValue="#{metrics.year}"/>
-                        </p:selectOneMenu>
-                    </h:panelGrid>
-                    <p:chart id="datasetsDownloadedChart"
-                             type="bar"
-                             model="#{DatasetsDownloadedChart.chartModel}"
-                             style="height:300px; min-width: 500px"
-                             responsive="true"
-                    />
-                </p:panelGrid>
+                </div>
             </h:form>
 
             <!-- Authenticated Users Chart-->
@@ -315,10 +268,10 @@
                     />
                 </p:panelGrid>
 
+                <div class="visuallyhidden">
                 <p:dataTable
                         var="dataRow"
                         value="#{UsersChart.tableModel.dataRow}"
-                        tableStyleClass="visuallyhidden"
                 >
                     <f:facet name="header">
                         #{UsersChart.tableModel.title}
@@ -331,6 +284,7 @@
                         <h:outputText value="#{dataRow.right}" />
                     </p:column>
                 </p:dataTable>
+                </div>
             </h:form>
 
             <!-- Used in ChartCreator class as extender -->
