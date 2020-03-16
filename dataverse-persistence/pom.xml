@@ -16,7 +16,6 @@
 
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>edu.harvard.iq</groupId>
             <artifactId>dataverse-test-common</artifactId>
