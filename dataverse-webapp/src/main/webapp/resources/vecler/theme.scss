@@ -109,6 +109,7 @@ $ajax_spinner_filter: hue-rotate(170deg) saturate(2);
 
 
 body {
+	margin-bottom: 0;
 	font-family: $font-main;
 	font-size: 15px;
 	color: $main-text-color;
@@ -1444,31 +1445,10 @@ $navbar-height: 6.8em;
 /* Footer */
 
 #footer {
-	.footer-logos {
-		text-align: center;
-	
-		div {
-			margin-bottom: 1em;
-		}
-	
-		img {
-			background: #fff;
-			margin: 0.5em;
-		}
-	
-		.footer-logos-uw img {
-			height: 3em;
-		}
-	
-		.footer-logos-ue img {
-			height: 4.333em;
-		}
-	
-		.footer-logo-icm {
-			padding: 0.3em;
-		}
-	}
-	
+	position: static;
+	height: auto;
+	padding-bottom: 0;
+
 	.footer-links .row {
 		border-top: 1px solid $gray-border-color;
 		margin: 0;
