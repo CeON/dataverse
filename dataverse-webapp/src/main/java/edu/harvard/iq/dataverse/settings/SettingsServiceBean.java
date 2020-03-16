@@ -539,12 +539,12 @@ public class SettingsServiceBean {
         SiteName,
         
         /**
-         * Fullname of the site that will be presented in the header
+         * Full name of the site that will be presented in the header
          * below {@link Key#SiteName}.
          * Setting can be postfixed with language code to
          * obtain translated versions.
          */
-        SiteFullname
+        SiteFullName
         ;
 
 

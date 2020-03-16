@@ -144,8 +144,8 @@ public class SystemConfig {
         return getLocalizedProperty(Key.SiteName, locale);
     }
 
-    public String getSiteFullname(Locale locale) {
-        return getLocalizedProperty(Key.SiteFullname, locale);
+    public String getSiteFullName(Locale locale) {
+        return getLocalizedProperty(Key.SiteFullName, locale);
     }
     
     public String getGuidesBaseUrl() {
