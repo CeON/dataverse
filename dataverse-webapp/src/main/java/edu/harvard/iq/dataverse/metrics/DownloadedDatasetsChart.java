@@ -64,7 +64,7 @@ public class DownloadedDatasetsChart implements Serializable {
 
     // -------------------- LOGIC --------------------
     public void init() {
-        chartMetrics = metricsService.countDownloadedFiles();
+        chartMetrics = metricsService.countDownloadedDatasets();
         mode = ChartMode.CUMULATIVE;
 
         if (chartMetrics.isEmpty()) {

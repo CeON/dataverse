@@ -184,11 +184,25 @@ public class MetricsServiceBean implements Serializable {
      */
     public List<ChartMetrics> countDownloadedFiles() {
         return mapToChartMetrics(em.createNativeQuery(
-                "SELECT\n" +
-                        "    EXTRACT(YEAR FROM gr.responsetime) as year,\n" +
-                        "    EXTRACT(MONTH FROM gr.responsetime) as month,\n" +
-                        "    count (gr.id)\n" +
-                        "    FROM guestbookresponse gr\n" +
+                "SELECT" +
+                        "    EXTRACT(YEAR FROM gr.responsetime) as year," +
+                        "    EXTRACT(MONTH FROM gr.responsetime) as month," +
+                        "    count (gr.id)" +
+                        "    FROM guestbookresponse gr" +
+                        "    GROUP BY year, month")
+                .getResultList());
+    }
+
+    /**
+     * Downloaded Datasets
+     */
+    public List<ChartMetrics> countDownloadedDatasets() {
+        return mapToChartMetrics(em.createNativeQuery(
+                "SELECT" +
+                        "    EXTRACT(YEAR FROM ddl.downloaddate) as year," +
+                        "    EXTRACT(MONTH FROM ddl.downloaddate) as month," +
+                        "    count (ddl.id)" +
+                        "    FROM downloaddatasetlog ddl" +
                         "    GROUP BY year, month")
                 .getResultList());
     }
