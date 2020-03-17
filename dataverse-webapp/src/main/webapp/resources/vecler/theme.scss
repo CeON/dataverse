@@ -1456,6 +1456,38 @@ $navbar-height: 6.8em;
 	}
 }
 
+/* Footer */
+
+#footer {
+	position: static;
+	height: auto;
+	padding-bottom: 0;
+
+	.footer-links .row {
+		border-top: 1px solid $gray-border-color;
+		margin: 0;
+		padding-top: 1em;
+		font-size: 0.867em;
+
+		div[class^="col-"] {
+			padding: 0;
+
+			p span {
+				border-left: 1px solid $gray-border-color;
+				margin-left: 1em;
+				padding-left: 1em;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	#footer div[class^="col-"] {
+		text-align: center;
+	}
+}
+
+
 /* Main page */
 
 #dataverseForm {
