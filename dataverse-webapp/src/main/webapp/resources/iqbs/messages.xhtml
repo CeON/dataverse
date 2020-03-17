@@ -18,8 +18,9 @@
     <!--@elvariable id="globalMessage" type="javax.faces.application.FacesMessage"-->
     <o:importConstants type="javax.faces.application.FacesMessage"/>
 
-    <p:autoUpdate>
-        <p:outputPanel>
+
+    <p:outputPanel>
+        <p:autoUpdate/>
             <o:messages globalOnly="true" var="globalMessage">
 
                 <ui:fragment rendered="#{globalMessage.severity eq FacesMessage.SEVERITY_ERROR}">
@@ -64,8 +65,8 @@
                 </ui:fragment>
 
             </o:messages>
-        </p:outputPanel>
-    </p:autoUpdate>
+    </p:outputPanel>
+
 
     <o:messages id="successMessage" var="message" showDetail="true"
                 rendered="#{not empty facesContext.getMessageList('successMessage')}" redisplay="false">
