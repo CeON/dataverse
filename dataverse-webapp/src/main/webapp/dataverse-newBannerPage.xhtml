@@ -80,7 +80,7 @@
                                         locale="#{dataverseSession.localeCode}"
                                         pattern="yyyy-MM-dd HH:mm"
                                         mask="true"
-                            />
+                            ><f:convertDateTime type="date"/></p:calendar>
                         </div>
                         <div class="col-sm-5 form-col-container">
                             <p:message id="error-message-fromtime" for="message-fromtime" display="text"/>
@@ -105,7 +105,7 @@
                                         locale="#{dataverseSession.localeCode}"
                                         pattern="yyyy-MM-dd HH:mm"
                                         mask="true"
-                            />
+                            ><f:convertDateTime type="date"/></p:calendar>
                         </div>
                         <div class="col-sm-5 form-col-container">
                             <p:message id="error-message-totime" for="message-totime" display="text"/>

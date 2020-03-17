@@ -57,7 +57,7 @@
                                             pattern="yyyy-MM-dd HH:mm"
                                             mask="true"
                                             binding="#{EditTextMessagePage.fromTimeInput}"
-                                />
+                                ><f:convertDateTime type="date" /></p:calendar>
                             </div>
                             <div class="col-sm-5 form-col-container">
                                 <p:message for="message-fromtime" display="text"/>
@@ -80,7 +80,7 @@
                                         pattern="yyyy-MM-dd HH:mm"
                                         mask="true"
                                         binding="#{EditTextMessagePage.toTimeInput}"
-                            />
+                            ><f:convertDateTime type="date" /></p:calendar>
                         </div>
                         <div class="col-sm-5 form-col-container">
                             <p:message for="message-totime" display="text"/>

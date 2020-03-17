@@ -7,7 +7,6 @@
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:o="http://omnifaces.org/ui"
       xmlns:dv="http://dataverse.org/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs"
 >
 
 <!--@elvariable id="dataset" type="edu.harvard.iq.dataverse.persistence.dataset.Dataset"-->
@@ -738,7 +737,7 @@
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
                                     timeZone="UTC"
-                            />
+                            ><f:convertDateTime type="date" /></p:calendar>
                             <p:calendar
                                     id="embargoDatePickerMaxLimited"
                                     rendered="#{DatasetPage.isMaximumEmbargoLengthSet()}"
@@ -752,7 +751,7 @@
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
                                     timeZone="UTC"
-                            />
+                            ><f:convertDateTime type="date" /></p:calendar>
                             <p:message id="embargoMsg" for="embargoDatePicker" display="text" />
                             <p:message id="embargoMsgMaxLimited" for="embargoDatePickerMaxLimited" display="text" />
                         </div>
