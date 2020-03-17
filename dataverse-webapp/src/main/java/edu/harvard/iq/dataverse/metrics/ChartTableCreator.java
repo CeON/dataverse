@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.metrics;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,10 +35,13 @@ public class ChartTableCreator {
     }
 
     private List<Pair<String, String>> loadDataForChartTable(BarChartModel chartModel) {
+        if(chartModel.getSeries().isEmpty()) {
+            return Lists.newArrayList(new ImmutablePair<>("NO DATA", "NO DATA"));
+        }
+
         return chartModel.getSeries().get(0).getData().entrySet().stream()
                 .map(entry -> new ImmutablePair<>(entry.getKey().toString(), entry.getValue().toString()))
                 .collect(Collectors.toList());
-
     }
 
     private String getMonthlyChartTableTitle(BarChartModel barChartModel, int year) {
