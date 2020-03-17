@@ -125,7 +125,7 @@
 
                     <div class="col-sm-12 button-block">
                         <p:commandButton id="move" styleClass="btn btn-default" 
-                                       value="#{bundle['saveChanges']}"
+                                       value="#{bundle['dashboard.datamove.button.move']}"
                                        update="datamove-form"
                                        validateClient="true"
                                        oncomplete="if (args &amp;&amp; !args.validationFailed) PF('datamoveConfirmation').show();">
@@ -152,7 +152,7 @@
                                              action="#{DashboardDatamovePage.move()}"
                                              update="@form,:messagePanel" partialSubmit="true"/>
                             <button class="btn btn-link" onclick="PF('datamoveConfirmation').hide();" type="button">
-                                #{bundle.no}
+                                #{bundle['dashboard.datamove.confirm.no']}
                             </button>
                         </div>
                     </p:dialog>
