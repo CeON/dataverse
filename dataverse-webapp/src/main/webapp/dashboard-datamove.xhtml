@@ -69,7 +69,7 @@
                                         <script>
                                             handle_dropdown_popup_scroll();
                                         </script>
-                                        <p:message for="sourceDatasetMenu"/>
+                                        <p:message for="sourceDatasetMenu" display="text"/>
                                     </div>
                                 </div>
 
@@ -115,7 +115,7 @@
                                         <script>
                                             handle_dropdown_popup_scroll();
                                         </script>
-                                        <p:message for="destinationDataverseMenu"/>
+                                        <p:message for="destinationDataverseMenu" display="text"/>
                                     </div>
                                 </div>             
                                 
@@ -128,16 +128,8 @@
                                        value="#{bundle['dashboard.datamove.button.move']}"
                                        update="datamove-form"
                                        validateClient="true"
-                                       oncomplete="if (args &amp;&amp; !args.validationFailed) PF('datamoveConfirmation').show();">
-                            <!-- if (args &amp;&amp; !args.validationFailed) 
-                             prevents the confirm dialog to pop up (client side) if validation fails -->
-                            <f:param name="DO_DATAMOVE_VALIDATION" value="true"/>
-                        </p:commandButton>
-                        <p:button styleClass="btn btn-link" outcome="dashboard" value="#{bundle['cancel']}">
-                            <!-- dataverse.id resolves to null !
-                                 <f:param name="dataverseId" value="#{dataverse.id}" />
-                            -->
-                        </p:button>
+                                       oncomplete="if (args &amp;&amp; !args.validationFailed) PF('datamoveConfirmation').show();"/>
+                        <p:button styleClass="btn btn-link" outcome="dashboard" value="#{bundle['cancel']}"/>
                     </div>
                     
                     <p:dialog id="datamoveConfirmation" header="#{bundle['dashboard.card.datamove.manage']}" widgetVar="datamoveConfirmation" modal="true">

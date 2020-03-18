@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.dashboard;
 
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
@@ -14,7 +15,6 @@ import edu.harvard.iq.dataverse.engine.command.impl.MoveDatasetCommand;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -25,7 +25,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +42,7 @@ public class DashboardDatamovePage implements Serializable {
     private static final Logger logger = Logger.getLogger(DashboardDatamovePage.class.getCanonicalName());
 
     @Inject
-    HttpServletRequest request;
+    DataverseRequestServiceBean requestService;
 
     @EJB
     private DatasetDao datasetDao;
@@ -64,8 +63,6 @@ public class DashboardDatamovePage implements Serializable {
     private SettingsWrapper settings;
 
     private boolean forceMove = false;
-
-    private AuthenticatedUser authenticatedUser;
 
     private Dataset sourceDataset;
 
@@ -89,9 +86,7 @@ public class DashboardDatamovePage implements Serializable {
 
     public String init() {
         User user = session.getUser();
-        if (user != null && user.isAuthenticated() && user.isSuperuser()) {
-            authenticatedUser = (AuthenticatedUser) user;
-        } else {
+        if (user == null || !user.isAuthenticated() || !user.isSuperuser()) {
             return permissionsWrapper.notAuthorized();
         }
 
@@ -124,7 +119,7 @@ public class DashboardDatamovePage implements Serializable {
                 .addParameter(targetDataverse.getName());
 
         try {
-            DataverseRequest dataverseRequest = new DataverseRequest(authenticatedUser, request);
+            DataverseRequest dataverseRequest = requestService.getDataverseRequest();
             commandEngine.submit(new MoveDatasetCommand(dataverseRequest, sourceDataset, targetDataverse, forceMove));
             logger.info(createMessageWithMoveInfo("Moved"));
             resetFields();
@@ -132,8 +127,8 @@ public class DashboardDatamovePage implements Serializable {
         } catch (MoveDatasetException mde) {
             logger.log(Level.WARNING, createMessageWithMoveInfo("Unable to move"), mde);
             summary.addParameter(mde)
-                    .addParameter(createForceInfoIfApplicable(mde));
-            summary.showFailureMessage();
+                    .addParameter(createForceInfoIfApplicable(mde))
+                    .showFailureMessage();
         } catch (CommandException ce) {
             logger.log(Level.WARNING, createMessageWithMoveInfo("Unable to move"), ce);
             JsfHelper.addErrorMessage(null,
