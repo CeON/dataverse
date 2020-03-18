@@ -2141,6 +2141,12 @@ div.filesTable {
 			display: block;
 			clear: both;
 		}
+
+		/* Fix improperly placed buttons on the new PrimeFaces version 8.0 */
+		-moz-transform: none;
+		-o-transform: none;
+		-webkit-transform: none;
+		transform: none;
 	}
 
 	.ui-state-default, a.btn {

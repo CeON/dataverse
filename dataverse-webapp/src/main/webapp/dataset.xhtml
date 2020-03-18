@@ -737,7 +737,7 @@
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
                                     timeZone="UTC"
-                            ><f:convertDateTime type="date" /></p:calendar>
+                            />
                             <p:calendar
                                     id="embargoDatePickerMaxLimited"
                                     rendered="#{DatasetPage.isMaximumEmbargoLengthSet()}"
@@ -751,7 +751,7 @@
                                     validator="#{DatasetPage.validateEmbargoDate}"
                                     locale="#{dataverseSession.localeCode}"
                                     timeZone="UTC"
-                            ><f:convertDateTime type="date" /></p:calendar>
+                            />
                             <p:message id="embargoMsg" for="embargoDatePicker" display="text" />
                             <p:message id="embargoMsgMaxLimited" for="embargoDatePickerMaxLimited" display="text" />
                         </div>
