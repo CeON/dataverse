@@ -83,7 +83,7 @@ class ConsentValidatorTest {
                              () -> assertTrue(containsText("Consent name cannot be empty", errors)),
                              () -> assertTrue(containsText("Consent needs to contain english version", errors)),
                              () -> assertTrue(containsText("New consent detail text cannot be empty", errors)),
-                             () -> assertTrue(containsText("New consent detail has duplicated language", errors)),
+                             () -> assertTrue(containsText("Consent contains duplicated language", errors)),
                              () -> assertTrue(containsText(
                                      "Action options were not correctly filled out for: SEND_NEWSLETTER_EMAIL",
                                      errors)));

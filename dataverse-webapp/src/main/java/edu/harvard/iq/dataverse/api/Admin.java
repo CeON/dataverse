@@ -1402,7 +1402,7 @@ public class Admin extends AbstractApiBean {
         List<ConsentApiDto> consentApiDtos = consentApiService.listAvailableConsents();
 
         return consentApiDtos.isEmpty() ?
-                error(Status.NOT_FOUND, "No consents could be found")
+                error(Status.NOT_FOUND, BundleUtil.getStringFromBundle("consent.api.consents.failure.noConsents"))
                 : ok(consentApiDtos);
     }
 
@@ -1413,7 +1413,7 @@ public class Admin extends AbstractApiBean {
 
         return consent
                 .map(this::ok)
-                .getOrElse(() -> error(Status.NOT_FOUND, "No consent with alias: " + alias + " could be found."));
+                .getOrElse(() -> error(Status.NOT_FOUND, BundleUtil.getStringFromBundle("consent.api.consentsAlias.failure.noConsents", alias)));
     }
 
     @Path("/consents/{alias}")
@@ -1422,13 +1422,13 @@ public class Admin extends AbstractApiBean {
         Option<Consent> consent = consentApiService.fetchConsent(alias);
 
         if (consent.isEmpty()){
-            return error(Status.NOT_FOUND, "No consent with alias: " + alias + " could be found.");
+            return error(Status.NOT_FOUND, BundleUtil.getStringFromBundle("consent.api.consentsAlias.failure.noConsents", alias));
         }
 
         Try<ConsentApiDto> editedConsent = Try.of(() -> new ObjectMapper().readValue(json, ConsentApiDto.class));
 
         if (editedConsent.isFailure()){
-            return error(Status.CONFLICT, "There were issues with mapping submitted consent, make sure consent json is correct");
+            return error(Status.CONFLICT, BundleUtil.getStringFromBundle("consent.api.consentsAlias.failure.mappingFail"));
         }
 
         List<String> errors = consentApiService.validateUpdatedConsent(editedConsent.get(), consent.get());
@@ -1436,12 +1436,12 @@ public class Admin extends AbstractApiBean {
         if (!errors.isEmpty()){
             String combinedErrors = String.join(", ", errors);
 
-            return error(Status.CONFLICT, "There were issues with submitted consent: "+ combinedErrors);
+            return error(Status.CONFLICT, BundleUtil.getStringFromBundle("consent.api.consents.failure.validationFail") + combinedErrors);
         }
 
         consentApiService.saveEditedConsent(editedConsent.get(), consent.get());
 
-        return ok("Consent was successfully edited");
+        return ok(BundleUtil.getStringFromBundle("consent.api.consentsAlias.success.consentEdited"));
     }
 
     @Path("/consents")
@@ -1450,7 +1450,7 @@ public class Admin extends AbstractApiBean {
         Try<ConsentApiDto> createdConsent = Try.of(() -> new ObjectMapper().readValue(json, ConsentApiDto.class));
 
         if (createdConsent.isFailure()){
-            return error(Status.CONFLICT, "There were issues with mapping submitted consent, make sure consent json is correct");
+            return error(Status.CONFLICT, BundleUtil.getStringFromBundle("consent.api.consentsAlias.failure.mappingFail"));
         }
 
         List<String> errors = consentApiService.validateCreatedConsent(createdConsent.get());
@@ -1458,12 +1458,12 @@ public class Admin extends AbstractApiBean {
         if (!errors.isEmpty()){
             String combinedErrors = String.join(", ", errors);
 
-            return error(Status.CONFLICT, "There were issues with submitted consent: "+ combinedErrors);
+            return error(Status.CONFLICT, BundleUtil.getStringFromBundle("consent.api.consents.failure.validationFail") + combinedErrors);
         }
 
         consentApiService.saveNewConsent(createdConsent.get());
 
-        return ok("Consent was successfully created");
+        return ok(BundleUtil.getStringFromBundle("consent.api.consents.success.consentCreated"));
 
     }
 

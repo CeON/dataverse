@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.consent.api;
 
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.consent.Consent;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentActionType;
 import edu.harvard.iq.dataverse.persistence.consent.ConsentDetails;
@@ -47,7 +48,7 @@ public class ConsentValidator {
         ArrayList<String> errors = new ArrayList<>();
 
         if (consentApiDto.getName().isEmpty()) {
-            errors.add("Consent name cannot be empty");
+            errors.add(BundleUtil.getStringFromBundle("consent.validation.emptyName"));
         }
 
         errors.addAll(validateNewConsentDetails(consentApiDto.getConsentDetails()));
@@ -62,7 +63,7 @@ public class ConsentValidator {
 
     private Option<String> validateName(String editedName, String originalName) {
         if (!editedName.equals(originalName)) {
-            return Option.of("Consent names must be equal");
+            return Option.of(BundleUtil.getStringFromBundle("consent.validation.notEqualNames"));
         }
 
         return Option.none();
@@ -70,7 +71,7 @@ public class ConsentValidator {
 
     private Option<String> validateDisplayOrder(int editedDisplayOrder, int originalDisplayOrder) {
         if (editedDisplayOrder != originalDisplayOrder) {
-            return Option.of("Consent display order must be equal");
+            return Option.of(BundleUtil.getStringFromBundle("consent.validation.notEqualDisplayOrder"));
         }
 
         return Option.none();
@@ -83,19 +84,19 @@ public class ConsentValidator {
                 .peek(errors::add);
 
         if (isEditedConsentsContainsMissingConsents(editedConsentDetails, originalConsentDetails)) {
-            errors.add("There are consents missing");
+            errors.add(BundleUtil.getStringFromBundle("consent.validation.consentMissing"));
         }
 
         if (isConsentsContainsDuplicatedLocale(editedConsentDetails, originalConsentDetails)) {
-            errors.add("Consent contains duplicated language");
+            errors.add(BundleUtil.getStringFromBundle("consent.validation.duplicatedLanguage"));
         }
 
         if (isFreshConsentContainsDefaultLanguage(editedConsentDetails)){
-            errors.add("Consent needs to contain english version");
+            errors.add(BundleUtil.getStringFromBundle("consent.validation.missingDefaultLanguage"));
         }
 
         for (ConsentDetailsApiDto freshConsent : editedConsentDetails) {
-            String missingTextErrorMsg = "New consent detail text cannot be empty";
+            String missingTextErrorMsg = BundleUtil.getStringFromBundle("consent.validation.missingConsentText");
 
             if (freshConsent.getText().isEmpty() && !errors.contains(missingTextErrorMsg)) {
                 errors.add(missingTextErrorMsg);
@@ -109,15 +110,15 @@ public class ConsentValidator {
         ArrayList<String> errors = new ArrayList<>();
 
         if (isFreshConsentContainsDuplicatedLocale(editedConsentDetails)) {
-            errors.add("New consent detail has duplicated language");
+            errors.add(BundleUtil.getStringFromBundle("consent.validation.duplicatedLanguage"));
         }
 
         if (isFreshConsentContainsDefaultLanguage(editedConsentDetails)){
-            errors.add("Consent needs to contain english version");
+            errors.add(BundleUtil.getStringFromBundle("consent.validation.missingDefaultLanguage"));
         }
 
         for (ConsentDetailsApiDto freshConsent : editedConsentDetails) {
-            String missingTextErrorMsg = "New consent detail text cannot be empty";
+            String missingTextErrorMsg = BundleUtil.getStringFromBundle("consent.validation.missingConsentText");
 
             if (freshConsent.getText().isEmpty() && !errors.contains(missingTextErrorMsg)) {
                 errors.add(missingTextErrorMsg);
@@ -146,7 +147,7 @@ public class ConsentValidator {
         if (!editedConsentDetail.getText().equals(originalConsentDetail.getText()) ||
                 !editedConsentDetail.getLanguage().equals(originalConsentDetail.getLanguage())) {
 
-            return Option.of("Consent details cannot be edited!");
+            return Option.of(BundleUtil.getStringFromBundle("consent.validation.editedConsent"));
         }
 
         return Option.none();
@@ -198,7 +199,7 @@ public class ConsentValidator {
 
             if (editedConsentAction.getConsentActionType().equals(ConsentActionType.SEND_NEWSLETTER_EMAIL) &&
                     !Pattern.compile(SEND_NEWSLETTER_PATTERN).matcher(editedConsentAction.getActionOptions()).find()) {
-                return Option.of("Action options were not correctly filled out for: " + ConsentActionType.SEND_NEWSLETTER_EMAIL.toString());
+                return Option.of(BundleUtil.getStringFromBundle("consent.validation.actionOptionsFail") + ConsentActionType.SEND_NEWSLETTER_EMAIL.toString());
             }
         }
 
