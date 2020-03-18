@@ -20,6 +20,7 @@ import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailUtil;
 import edu.harvard.iq.dataverse.mydata.MyDataPage;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
@@ -379,11 +380,10 @@ public class DataverseUserPage implements java.io.Serializable {
              * @todo Move this to
              * AuthenticationServiceBean.createAuthenticatedUser
              */
-            userNotificationService.sendNotification(au,
-                                                     new Timestamp(new Date().getTime()),
-                                                     NotificationType.CREATEACC);
+            userNotificationService.sendNotificationWithEmail(au, new Timestamp(new Date().getTime()),
+                    NotificationType.CREATEACC, null, NotificationObjectType.AUTHENTICATED_USER);
 
-            consentService.saveAcceptedConsents(consents, au);
+            consentService.executeActionsAndSaveAcceptedConsents(consents, au);
             // go back to where user came from
 
             // (but if they came from the login page, then send them to the 

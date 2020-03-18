@@ -52,9 +52,6 @@ public class FileDownloadHelper implements java.io.Serializable {
 
     private RequestedDownloadType requestedDownloadType;
 
-    private WholeDatasetDownloadUiLogger datasetDownloadUiLogger;
-
-
     // -------------------- CONSTRUCTORS --------------------
     
     @Deprecated
@@ -64,14 +61,13 @@ public class FileDownloadHelper implements java.io.Serializable {
     
     @Inject
     public FileDownloadHelper(DataverseSession session, PermissionsWrapper permissionsWrapper,
-            FileDownloadServiceBean fileDownloadService, GuestbookResponseServiceBean guestbookResponseService,
-            RequestedDownloadType requestedDownloadType, WholeDatasetDownloadUiLogger datasetDownloadUiLogger) {
+                              FileDownloadServiceBean fileDownloadService, GuestbookResponseServiceBean guestbookResponseService,
+                              RequestedDownloadType requestedDownloadType) {
         this.session = session;
         this.permissionsWrapper = permissionsWrapper;
         this.fileDownloadService = fileDownloadService;
         this.guestbookResponseService = guestbookResponseService;
         this.requestedDownloadType = requestedDownloadType;
-        this.datasetDownloadUiLogger = datasetDownloadUiLogger;
     }
     
     // -------------------- LOGIC --------------------
@@ -128,15 +124,12 @@ public class FileDownloadHelper implements java.io.Serializable {
             return;
         }
         
-        if (fileMetadatas.get(0).getDatasetVersion().isDraft()) {
+        if (!fileMetadatas.get(0).getDatasetVersion().isDraft()) {
             GuestbookResponse downloadOnlyGuestbook = guestbookResponseService.initGuestbookResponseForFragment(fileMetadatas.get(0), session);
             writeGuestbookResponsesForFiles(fileMetadatas, fileFormat, downloadOnlyGuestbook);
         }
         
-        datasetDownloadUiLogger.incrementLogIfDownloadingWholeDataset(fileMetadatas);
         startDownloadAccordingToType(fileMetadatas, fileFormat, requestedDownloadType.getTool());
-        
-        return;
     }
 
     public boolean canUserDownloadFile(FileMetadata fileMetadata) {

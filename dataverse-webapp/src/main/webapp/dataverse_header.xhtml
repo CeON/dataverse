@@ -43,10 +43,10 @@
                             <i id="site-logo" class="icon-dataverse"></i> 
                             <div>
                                 <div id="site-title">
-                                    #{bundle['header.repod']}
+                                    <h:outputText value="#{systemConfig.getSiteName(dataverseSession.locale)}" escape="false"/>
                                 </div>
                                 <div id="site-subtitle">
-                                    #{bundle['header.repod.subtitle']}
+                                    <h:outputText value="#{systemConfig.getSiteFullName(dataverseSession.locale)}" escape="false"/>
                                 </div>
                             </div>
                         </span>
@@ -67,7 +67,7 @@
                                     <div class="input-group">
                                         <input id="navbarsearch" type="text" class="form-control" size="28" value="" placeholder="#{bundle['header.search.title']}"/>
                                         <span class="input-group-btn">
-                                            <button type="submit" class="btn btn-default btn-access" onclick="window.location = '/dataverse/#{dataverseServiceBean.findRootDataverse().alias}&#63;q=' + document.getElementById('navbarsearch').value;
+                                            <button type="submit" class="btn btn-default btn-access" onclick="window.location = '/dataverse/#{dataverseDao.findRootDataverse().alias}&#63;q=' + document.getElementById('navbarsearch').value;
                                                     return false;">
                                                 <span class="glyphicon glyphicon-search"/> #{bundle.find}
                                             </button>
