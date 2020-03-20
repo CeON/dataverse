@@ -79,7 +79,7 @@ Action Types
    * - Action type
      - Description
    * - SEND_NEWSLETTER_EMAIL
-     - Sends newsletter subscription request for provided email with information about the user after he accepted subscription consent.
+     - Sends a request for newsletter subscription at provided email address. Email will contain information about the user that accepted subscription consent.
 
 .. list-table:: Available options for SEND_NEWSLETTER_EMAIL action type
    :widths: 25 50
