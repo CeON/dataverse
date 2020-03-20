@@ -1,5 +1,6 @@
 Consents
 =========
+Consents are used for user registration where you can define what user has to(or can) accept in order to successfully register account.
 
 Dataverse offers a possibility of adding/editing consents that are for superusers only.
 If you are a logged-in superuser, you can access it by REST api.
@@ -78,15 +79,15 @@ Action Types
    * - Action type
      - Description
    * - SEND_NEWSLETTER_EMAIL
-     - Sends newsletter subscription request for provided email
+     - Sends newsletter subscription request for provided email with information about the user after he accepted subscription consent.
 
-.. list-table:: SEND_NEWSLETTER_EMAIL properties
+.. list-table:: Available options for SEND_NEWSLETTER_EMAIL action type
    :widths: 25 50
 
    * - KEY
      - VALUE
    * - email
-     - testemail@gmail.com
+     - {Email address to the person that manages subscriptions for the newsletter}
 
 Editing consents
 -----------------
