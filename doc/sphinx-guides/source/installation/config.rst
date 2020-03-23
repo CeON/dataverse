@@ -685,101 +685,59 @@ Setting Up Integrations
 
 Before going live, you might want to consider setting up integrations to make it easier for your users to deposit or explore data. See the :doc:`/admin/integrations` section of the Admin Guide for details.
 
-JVM Options
+File Options
 -----------
+Database settings and most JVM options were moved to the file based configuration in order to simplify usage.
 
-JVM stands Java Virtual Machine and as a Java application, Glassfish can read JVM options when it is started. A number of JVM options are configured by the installer below is a complete list of the Dataverse-specific JVM options. You can inspect the configured options by running:
+In order to edit the options you should move dataverse.default.properties file to {HOME_DIR}/.dataverse and rename it to dataverse.properties.
+Now you can edited the desired options and you need to restart the application in order to apply them.
 
-``./asadmin list-jvm-options | egrep 'dataverse|doi'``
-
-When changing values these values with ``asadmin``, you'll need to delete the old value before adding a new one, like this:
-
-``./asadmin delete-jvm-options "-Ddataverse.fqdn=old.example.com"``
-
-``./asadmin create-jvm-options "-Ddataverse.fqdn=dataverse.example.com"``
-
-It's also possible to change these values by stopping Glassfish, editing ``glassfish4/glassfish/domains/domain1/config/domain.xml``, and restarting Glassfish.
-
-dataverse.fqdn
-++++++++++++++
-
-If the Dataverse server has multiple DNS names, this option specifies the one to be used as the "official" host name. For example, you may want to have dataverse.example.edu, and not the less appealing server-123.socsci.example.edu to appear exclusively in all the registered global identifiers, Data Deposit API records, etc.
-
-The password reset feature requires ``dataverse.fqdn`` to be configured.
-
-| Do note that whenever the system needs to form a service URL, by default, it will be formed with ``https://`` and port 443. I.e.,
-| ``https://{dataverse.fqdn}/``
-| If that does not suit your setup, you can define an additional option, ``dataverse.siteUrl``, explained below.
-
-dataverse.siteUrl
+SiteUrl
 +++++++++++++++++
 
-| and specify the protocol and port number you would prefer to be used to advertise the URL for your Dataverse.
-| For example, configured in domain.xml:
-| ``<jvm-options>-Ddataverse.fqdn=dataverse.example.edu</jvm-options>``
-| ``<jvm-options>-Ddataverse.siteUrl=http://${dataverse.fqdn}:8080</jvm-options>``
+| Specify the url you would prefer to be used for your Dataverse.
+| For example:
+| ``SiteUrl=http://dataverse.example.edu:8080``
 
-dataverse.files.directory
-+++++++++++++++++++++++++
-
-This is how you configure the path to which files uploaded by users are stored.
-
-dataverse.auth.password-reset-timeout-in-minutes
-++++++++++++++++++++++++++++++++++++++++++++++++
-
-Users have 60 minutes to change their passwords by default. You can adjust this value here.
-
-dataverse.rserve.host
+RserveConfigured
 +++++++++++++++++++++
 
 Configuration for :doc:`r-rapache-tworavens`.
 
-dataverse.rserve.port
+RserveHost
 +++++++++++++++++++++
 
 Configuration for :doc:`r-rapache-tworavens`.
 
-dataverse.rserve.user
+RservePort
 +++++++++++++++++++++
 
 Configuration for :doc:`r-rapache-tworavens`.
 
-dataverse.rserve.tempdir
+RserveUser
++++++++++++++++++++++
+
+Configuration for :doc:`r-rapache-tworavens`.
+
+RserveTempDir
 ++++++++++++++++++++++++
 Configuration for :doc:`r-rapache-tworavens`.
 
-dataverse.rserve.password
+RservePassword
 +++++++++++++++++++++++++
 
 Configuration for :doc:`r-rapache-tworavens`.
 
 .. _dataverse.dropbox.key:
 
-dataverse.dropbox.key
+DropboxKey
 +++++++++++++++++++++
 
 Dropbox provides a Chooser app, which is a Javascript component that allows you to upload files to Dataverse from Dropbox. It is an optional configuration setting, which requires you to pass it an app key and configure the ``:UploadMethods`` database setting. For more information on setting up your Chooser app, visit https://www.dropbox.com/developers/chooser.
 
-``./asadmin create-jvm-options "-Ddataverse.dropbox.key={{YOUR_APP_KEY}}"``
+.. _DoiBaseUrlString:
 
-dataverse.path.imagemagick.convert
-++++++++++++++++++++++++++++++++++
-
-For overriding the default path to the ``convert`` binary from ImageMagick (``/usr/bin/convert``).
-
-dataverse.dataAccess.thumbnail.image.limit
-++++++++++++++++++++++++++++++++++++++++++
-
-For limiting the size (in bytes) of thumbnail images generated from files.
-
-dataverse.dataAccess.thumbnail.pdf.limit
-++++++++++++++++++++++++++++++++++++++++
-
-For limiting the size (in bytes) of thumbnail images generated from files.
-
-.. _doi.baseurlstring:
-
-doi.baseurlstring
+DoiBaseUrlString
 +++++++++++++++++
 
 As of this writing, "https://mds.datacite.org" (DataCite) and "https://ezid.cdlib.org" (EZID) are the main valid values.
@@ -788,13 +746,11 @@ While the above two options are recommended because they have been tested by the
 
 For example, the Australian Data Archive (ADA) successfully uses the Australian National Data Service (ANDS) API (a proxy for DataCite) to mint their DOIs through Dataverse using a ``doi.baseurlstring`` value of "https://researchdata.ands.org.au/api/doi/datacite" as documented at https://documentation.ands.org.au/display/DOC/ANDS+DataCite+Client+API . As ADA did for ANDS DOI minting, any DOI provider (and their corresponding DOI configuration parameters) other than DataCite must be tested with Dataverse to establish whether or not it will function properly.
 
-Out of the box, Dataverse is configured to use a test MDS DataCite base URL string. You can delete it like this:
+Out of the box, Dataverse is configured to use a test MDS DataCite base URL string.
 
-``./asadmin delete-jvm-options '-Ddoi.baseurlstring=https\://mds.test.datacite.org'``
+You can switch to production DataCite with following change:
 
-Then, to switch to production DataCite, you can issue the following command:
-
-``./asadmin create-jvm-options '-Ddoi.baseurlstring=https\://mds.datacite.org'``
+``DoiBaseUrlString=https://mds.datacite.org``
 
 See also these related database settings below:
 
@@ -805,75 +761,73 @@ See also these related database settings below:
 
 .. _doi.username:
 
-doi.username
+DoiUsername
 ++++++++++++
 
-Used in conjuction with ``doi.baseurlstring``.
+Used in conjuction with ``DoiBaseUrlString`.
 
-Once you have a username from your provider, you can enter it like this:
+Once you have a username from your provider, you can edit it like this:
 
-``./asadmin create-jvm-options '-Ddoi.username=YOUR_USERNAME_HERE'``
+``DoiUsername=YOUR_USERNAME_HERE``
 
-.. _doi.password:
+.. _DoiPassword:
 
-doi.password
+DoiPassword
 ++++++++++++
 
-Used in conjuction with ``doi.baseurlstring``.
+Used in conjuction with ``DoiBaseUrlString``.
 
 Once you have a password from your provider, you can enter it like this:
 
-``./asadmin create-jvm-options '-Ddoi.password=YOUR_PASSWORD_HERE'``
+``DoiPassword=YOUR_PASSWORD_HERE``
 
-.. _dataverse.handlenet.admcredfile:
+.. _HandleNetAdmCredFile:
 
-dataverse.handlenet.admcredfile
-+++++++++++++++++++++++++++++++
+HandleNetAdmCredFile
+++++++++++++++++++++
 
-If you're using **handles**, this JVM setting configures access credentials so your dataverse can talk to your Handle.Net server. This is the private key generated during Handle.Net server installation. Typically the full path is set to ``handle/svr_1/admpriv.bin``. Please refer to `Handle.Net's documentation <http://handle.net/hnr_documentation.html>`_ for more info.
+If you're using **handles**, this setting configures access credentials so your dataverse can talk to your Handle.Net server. This is the private key generated during Handle.Net server installation. Typically the full path is set to ``handle/svr_1/admpriv.bin``. Please refer to `Handle.Net's documentation <http://handle.net/hnr_documentation.html>`_ for more info.
 
-.. _dataverse.handlenet.admprivphrase:
+.. _HandleNetAdmPrivPhrase:
 
-dataverse.handlenet.admprivphrase
+HandleNetAdmPrivPhrase
 +++++++++++++++++++++++++++++++++
-This JVM setting is also part of **handles** configuration. The Handle.Net installer lets you choose whether to encrypt the admcredfile private key or not. If you do encrypt it, this is the pass phrase that it's encrypted with. 
+This setting is also part of **handles** configuration. The Handle.Net installer lets you choose whether to encrypt the admcredfile private key or not. If you do encrypt it, this is the pass phrase that it's encrypted with.
 
-.. _dataverse.handlenet.index:
+.. _HandleNetIndex:
 
-dataverse.handlenet.index
+HandleNetIndex
 +++++++++++++++++++++++++++++++++
 If you want to use different index than the default 300
 
-.. _dataverse.timerServer:
+.. _TimerServer:
 
-dataverse.timerServer
+TimerServer
 +++++++++++++++++++++
 
-This JVM option is only relevant if you plan to run multiple Glassfish servers for redundancy. Only one Glassfish server can act as the dedicated timer server and for details on promoting or demoting a Glassfish server to handle this responsibility, see :doc:`/admin/timers`.
+This option is only relevant if you plan to run multiple Glassfish servers for redundancy. Only one Glassfish server can act as the dedicated timer server and for details on promoting or demoting a Glassfish server to handle this responsibility, see :doc:`/admin/timers`.
 
-.. _dataverse.lang.directory:
+.. _HideSchemaDotOrgDownloadUrls:
 
-dataverse.lang.directory
-++++++++++++++++++++++++
-
-This JVM option is used to configure the path where all the language specific property files are to be stored.  If this option is set then the english property file must be present in the path along with any other language property file.
-
-``./asadmin create-jvm-options '-Ddataverse.lang.directory=PATH_LOCATION_HERE'``
-
-If this value is not set, by default, a Dataverse installation will read the English language property files from the Java Application.
-
-dataverse.files.hide-schema-dot-org-download-urls
+HideSchemaDotOrgDownloadUrls
 +++++++++++++++++++++++++++++++++++++++++++++++++
 
 Please note that this setting is experimental.
 
-By default, download URLs to files will be included in Schema.org JSON-LD output. To prevent these URLs from being included in the output, set ``dataverse.files.hide-schema-dot-org-download-urls`` to true as in the example below.
+By default, download URLs to files will be included in Schema.org JSON-LD output. To prevent these URLs from being included in the output, set ``HideSchemaDotOrgDownloadUrls`` to true as in the example below.
 
-``./asadmin create-jvm-options '-Ddataverse.files.hide-schema-dot-org-download-urls=true'``
+``HideSchemaDotOrgDownloadUrls=true``
 
 Please note that there are other reasons why download URLs may not be included for certain files such as if a guestbook entry is required or if the file is restricted.
 
 For more on Schema.org JSON-LD, see the :doc:`/admin/metadataexport` section of the Admin Guide.
+
+MinutesUntilPasswordResetTokenExpires
++++++++++++++++++++++++++++++++++++++
+
+Indicates amount of minutes before password reset token expires after user requested password reset. 60 minutes by default.
+
+``MinutesUntilPasswordResetTokenExpires=60``
 
 Database Settings
 -----------------
@@ -884,149 +838,116 @@ The most commonly used configuration options are listed first.
 
 The pattern you will observe in curl examples below is that an HTTP ``PUT`` is used to add or modify a setting. If you perform an HTTP ``GET`` (the default when using curl), the output will contain the value of the setting, if it has been set. You can also do a ``GET`` of all settings with ``curl http://localhost:8080/api/admin/settings`` which you may want to pretty-print by piping the output through a tool such as jq by appending ``| jq .``. If you want to remove a setting, use an HTTP ``DELETE`` such as ``curl -X DELETE http://localhost:8080/api/admin/settings/:GuidesBaseUrl`` .
 
-:BlockedApiPolicy
+BlockedApiPolicy
 +++++++++++++++++
 
-Out of the box, all API endpoints are completely open, as mentioned in the section on security above. It is highly recommended that you choose one of the policies below and also configure ``:BlockedApiEndpoints``.
+Out of the box, all API endpoints are completely open, as mentioned in the section on security above. It is highly recommended that you choose one of the policies below and also configure ``BlockedApiEndpoints``.
 
 - localhost-only: Allow from localhost.
-- unblock-key: Require a key defined in ``:BlockedApiKey``.
+- unblock-key: Require a key defined in ``BlockedApiKey``.
 - drop: Disallow the blocked endpoints completely.
 
-``curl -X PUT -d localhost-only http://localhost:8080/api/admin/settings/:BlockedApiPolicy``
-
-:BlockedApiEndpoints
+BlockedApiEndpoints
 ++++++++++++++++++++
 
 A comma separated list of API endpoints to be blocked. For a production installation, "admin" should be blocked (and perhaps "builtin-users" as well), as mentioned in the section on security above:
 
-``curl -X PUT -d "admin,builtin-users" http://localhost:8080/api/admin/settings/:BlockedApiEndpoints``
-
 See the :doc:`/api/index` for a list of API endpoints.
 
-:BlockedApiKey
-++++++++++++++
-
-Used in conjunction with the ``:BlockedApiPolicy`` being set to ``unblock-key``. When calling blocked APIs, add a query parameter of ``unblock-key=theKeyYouChose`` to use the key.
-
-``curl -X PUT -d s3kretKey http://localhost:8080/api/admin/settings/:BlockedApiKey``
-
-BuiltinUsers.KEY
-++++++++++++++++
-
-The key required to create users via API as documented at :doc:`/api/native-api`. Unlike other database settings, this one doesn't start with a colon.
-
-``curl -X PUT -d builtInS3kretKey http://localhost:8080/api/admin/settings/BuiltinUsers.KEY``
-
-:SearchApiRequiresToken
+SearchApiRequiresToken
 +++++++++++++++++++++++
 
 In Dataverse 4.7 and lower, the :doc:`/api/search` required an API token, but as of Dataverse 4.7.1 this is no longer the case. If you prefer the old behavior of requiring API tokens to use the Search API, set ``:SearchApiRequiresToken`` to ``true``.
 
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:SearchApiRequiresToken``
-
 .. _systemEmail:
 
-:SystemEmail
+SystemEmail
 ++++++++++++
 
 This is the email address that "system" emails are sent from such as password reset links. Your Dataverse installation will not send mail without this setting in place.
 
-``curl -X PUT -d 'LibraScholar SWAT Team <support@librascholar.edu>' http://localhost:8080/api/admin/settings/:SystemEmail``
+``SystemEmail=LibraScholar SWAT Team <support@librascholar.edu>``
 
 Note that only the email address is required, which you can supply without the ``<`` and ``>`` signs, but if you include the text, it's the way to customize the name of your support team, which appears in the "from" address in emails as well as in help text in the UI.
 
 Please note that if you're having any trouble sending email, you can refer to "Troubleshooting" under :doc:`installation-main`.
 
-:HomePageCustomizationFile
+HomePageCustomizationFile
 ++++++++++++++++++++++++++
 
 See :ref:`Branding Your Installation` above.
 
-:LogoCustomizationFile
+LogoCustomizationFile
 ++++++++++++++++++++++
 
 See :ref:`Branding Your Installation` above.
 
-:HeaderCustomizationFile
+HeaderCustomizationFile
 ++++++++++++++++++++++++
 
 See :ref:`Branding Your Installation` above.
 
-:DisableRootDataverseTheme
+DisableRootDataverseTheme
 ++++++++++++++++++++++++++
 
 See :ref:`Branding Your Installation` above.
 
-:FooterCustomizationFile
+FooterCustomizationFile
 ++++++++++++++++++++++++
 
 See :ref:`Branding Your Installation` above.
 
-:StyleCustomizationFile
+StyleCustomizationFile
 +++++++++++++++++++++++
 
 See :ref:`Branding Your Installation` above.
 
-:WebAnalyticsCode
+WebAnalyticsCode
 +++++++++++++++++
 
 See :ref:`Web-Analytics-Code` above.
 
-:FooterCopyright
-++++++++++++++++
+.. _DoiProvider:
 
-By default the footer says "Copyright © [YYYY]" but you can add text after the year, as in the example below.
-
-``curl -X PUT -d ", Your Institution" http://localhost:8080/api/admin/settings/:FooterCopyright``
-
-.. _:DoiProvider:
-
-:DoiProvider
+DoiProvider
 ++++++++++++
 
 As of this writing "DataCite" and "EZID" are the only valid options for production installations. Developers using version 4.10 and above are welcome to use the keyword "FAKE" to configure a non-production installation with an non-resolving, in-code provider, which will basically short-circuit the DOI publishing process. ``:DoiProvider`` is only needed if you are using DOI.
 
-``curl -X PUT -d DataCite http://localhost:8080/api/admin/settings/:DoiProvider``
-
-This setting relates to the ``:Protocol``, ``:Authority``, ``:Shoulder``, and ``:IdentifierGenerationStyle`` database settings below as well as the following JVM options:
+This setting relates to the ``Protocol``, ``Authority``, ``Shoulder``, and ``IdentifierGenerationStyle`` file settings below:
 
 - :ref:`doi.baseurlstring`
 - :ref:`doi.username`
 - :ref:`doi.password`
 
-.. _:Protocol:
+.. _Protocol:
 
-:Protocol
+Protocol
 +++++++++
 
 As of this writing "doi" and "hdl" are the only valid option for the protocol for a persistent ID.
 
-``curl -X PUT -d doi http://localhost:8080/api/admin/settings/:Protocol``
+.. _Authority:
 
-.. _:Authority:
-
-:Authority
+Authority
 ++++++++++
 
 Use the authority assigned to you by your DoiProvider or HandleProvider.
 
 Please note that the authority cannot have a slash ("/") in it.
 
-``curl -X PUT -d 10.xxxx http://localhost:8080/api/admin/settings/:Authority``
+.. _Shoulder:
 
-.. _:Shoulder:
-
-:Shoulder
+Shoulder
 ++++++++++++
 
 Out of the box, the DOI shoulder is set to "FK2/" but this is for testing only! When you apply for your DOI namespace, you may have requested a shoulder. The following is only an example and a trailing slash is optional.
 
-``curl -X PUT -d "MyShoulder/" http://localhost:8080/api/admin/settings/:Shoulder``
+``Shoulder=MyShoulder/``
 
-.. _:IdentifierGenerationStyle:
+.. _IdentifierGenerationStyle:
 
-:IdentifierGenerationStyle
+IdentifierGenerationStyle
 ++++++++++++++++++++++++++
 
 By default, Dataverse generates a random 6 character string, pre-pended by the Shoulder if set, to use as the identifier
@@ -1046,20 +967,20 @@ with the single return argument ``identifier``.
 For systems using Postgresql 8.4 or older, the procedural language `plpgsql` should be enabled first.
 We have provided an example :download:`here </_static/util/pg8-createsequence-prep.sql>`.
 
-Please note that ``:IdentifierGenerationStyle`` also plays a role for the "identifier" for files. See the section on ``:DataFilePIDFormat`` below for more details.
+Please note that ``IdentifierGenerationStyle`` also plays a role for the "identifier" for files. See the section on ``DataFilePIDFormat`` below for more details.
 
-.. _:DataFilePIDFormat:
+.. _DataFilePIDFormat:
 
-:DataFilePIDFormat
+DataFilePIDFormat
 ++++++++++++++++++
 
 This setting controls the way that the "identifier" component of a file's persistent identifier (PID) relates to the PID of its "parent" dataset.
 
-By default the identifier for a file is dependent on its parent dataset. For example, if the identifier of a dataset is "TJCLKP", the identifier for a file within that dataset will consist of the parent dataset's identifier followed by a slash ("/"), followed by a random 6 character string, yielding "TJCLKP/MLGWJO". Identifiers in this format are what you should expect if you leave ``:DataFilePIDFormat`` undefined or set it to ``DEPENDENT`` and have not changed the ``:IdentifierGenerationStyle`` setting from its default.
+By default the identifier for a file is dependent on its parent dataset. For example, if the identifier of a dataset is "TJCLKP", the identifier for a file within that dataset will consist of the parent dataset's identifier followed by a slash ("/"), followed by a random 6 character string, yielding "TJCLKP/MLGWJO". Identifiers in this format are what you should expect if you leave ``DataFilePIDFormat`` undefined or set it to ``DEPENDENT`` and have not changed the ``IdentifierGenerationStyle`` setting from its default.
 
-Alternatively, the identifier for File PIDs can be configured to be independent of Dataset PIDs using the setting "``INDEPENDENT``". In this case, file PIDs will not contain the PIDs of their parent datasets, and their PIDs will be generated the exact same way that datasets' PIDs are, based on the ``:IdentifierGenerationStyle`` setting described above (random 6 character strings or sequential numbers, pre-pended by any shoulder).
+Alternatively, the identifier for File PIDs can be configured to be independent of Dataset PIDs using the setting "``INDEPENDENT``". In this case, file PIDs will not contain the PIDs of their parent datasets, and their PIDs will be generated the exact same way that datasets' PIDs are, based on the ``IdentifierGenerationStyle`` setting described above (random 6 character strings or sequential numbers, pre-pended by any shoulder).
 
-The chart below shows examples from each possible combination of parameters from the two settings. ``:IdentifierGenerationStyle`` can be either ``randomString`` (the default) or ``sequentialNumber`` and ``:DataFilePIDFormat`` can be either ``DEPENDENT`` (the default) or ``INDEPENDENT``. In the examples below the "identifier" for the dataset is "TJCLKP" for "randomString" and "100001" for "sequentialNumber".
+The chart below shows examples from each possible combination of parameters from the two settings. ``IdentifierGenerationStyle`` can be either ``randomString`` (the default) or ``sequentialNumber`` and ``:DataFilePIDFormat`` can be either ``DEPENDENT`` (the default) or ``INDEPENDENT``. In the examples below the "identifier" for the dataset is "TJCLKP" for "randomString" and "100001" for "sequentialNumber".
 
 +-----------------+---------------+------------------+
 |                 | randomString  | sequentialNumber |
@@ -1070,41 +991,552 @@ The chart below shows examples from each possible combination of parameters from
 | **INDEPENDENT** |    MLGWJO     |      100002      |
 +-----------------+---------------+------------------+
 
-As seen above, in cases where ``:IdentifierGenerationStyle`` is set to *sequentialNumber* and ``:DataFilePIDFormat`` is set to *DEPENDENT*, each file within a dataset will be assigned a number *within* that dataset starting with "1". 
+As seen above, in cases where ``IdentifierGenerationStyle`` is set to *sequentialNumber* and ``DataFilePIDFormat`` is set to *DEPENDENT*, each file within a dataset will be assigned a number *within* that dataset starting with "1".
 
-Otherwise, if ``:DataFilePIDFormat`` is set to *INDEPENDENT*, then each file will be assigned a PID with the next number in the overall sequence, regardless of what dataset it is in. If the file is created after a dataset with the PID 100001, then the file will be assigned the PID 100002. This option is functional, but it is not a recommended use case.
+Otherwise, if ``DataFilePIDFormat`` is set to *INDEPENDENT*, then each file will be assigned a PID with the next number in the overall sequence, regardless of what dataset it is in. If the file is created after a dataset with the PID 100001, then the file will be assigned the PID 100002. This option is functional, but it is not a recommended use case.
 
-Note that in either case, when using the ``sequentialNumber`` option, datasets and files share the same database sequence that was created as part of the setup described in ``:IdentifierGenerationStyle`` above.
+Note that in either case, when using the ``sequentialNumber`` option, datasets and files share the same database sequence that was created as part of the setup described in ``IdentifierGenerationStyle`` above.
 
-.. _:FilePIDsEnabled:
+.. _FilePIDsEnabled:
 
-:FilePIDsEnabled
+FilePIDsEnabled
 ++++++++++++++++
 
-Toggles publishing of file-based PIDs for the entire installation. By default this setting is absent and Dataverse assumes it to be true.
+Toggles publishing of file-based PIDs for the entire installation. By default this setting assumes it to be true.
 
-If you don't want to register file-based PIDs for your installation, set:
-
-``curl -X PUT -d 'false' http://localhost:8080/api/admin/settings/:FilePIDsEnabled``
+If you don't want to register file-based PIDs for your installation, set it to false.
 
 Note: File-level PID registration was added in 4.9 and is required until version 4.9.3.
 
-:IndependentHandleService
+IndependentHandleService
 +++++++++++++++++++++++++++
 
 Specific for Handle PIDs. Set this setting to true if you want to use a Handle service which is setup to work 'independently' (No communication with the Global Handle Registry). 
-By default this setting is absent and Dataverse assumes it to be false.
+By default this setting is false.
 
-``curl -X PUT -d 'true' http://localhost:8080/api/admin/settings/:IndependentHandleService``
-
-:ApplicationTermsOfUse
+ApplicationTermsOfUse
 ++++++++++++++++++++++
 
 Upload an HTML file containing the Terms of Use to be displayed at sign up. Supported HTML tags are listed under the :doc:`/user/dataset-management` section of the User Guide.
 
-``curl -X PUT -d@/tmp/apptou.html http://localhost:8080/api/admin/settings/:ApplicationTermsOfUse``
+``ApplicationTermsOfUse=@/tmp/apptou.html``
 
 Unfortunately, in most cases, the text file will probably be too big to upload (>1024 characters) due to a bug. A workaround has been posted to https://github.com/IQSS/dataverse/issues/2669
+
+ApiTermsOfUse
+++++++++++++++
+
+Specify a URL where users can read your API Terms of Use.
+API users can retrieve this URL from the SWORD Service Document or the "info" section of our :doc:`/api/native-api` documentation.
+
+``ApiTermsOfUse=https://dataverse.org/best-practices/harvard-api-tou``
+
+.. _ExcludeEmailFromExport:
+
+ExcludeEmailFromExport
++++++++++++++++++++++++
+
+Set ``ExcludeEmailFromExport`` to prevent email addresses for dataset contacts from being exposed in XML or JSON representations of dataset metadata. For a list exported formats such as DDI, see the :doc:`/admin/metadataexport` section of the Admin Guide.
+
+GuidesBaseUrl
+++++++++++++++
+
+Set ``GuidesBaseUrl`` to override the default value "http://guides.dataverse.org". If you are interested in writing your own version of the guides, you may find the :doc:`/developers/documentation` section of the Developer Guide helpful.
+
+GuidesVersion
+++++++++++++++
+
+Set ``GuidesVersion`` to override the version number in the URL of guides. For example, rather than http://guides.dataverse.org/en/4.6/user/account.html the version is overriden to http://guides.dataverse.org/en/1234-new-feature/user/account.html in the example below:
+
+``GuidesVersion=1234-new-feature``
+
+MetricsUrl
++++++++++++
+
+Make the metrics component on the root dataverse a clickable link to a website where you present metrics on your Dataverse installation. This could perhaps be an installation of https://github.com/IQSS/miniverse or any site.
+
+``MetricsUrl=http://metrics.dataverse.example.edu``
+
+
+MaxFileUploadSizeInBytes
++++++++++++++++++++++++++
+
+Set `MaxFileUploadSizeInBytes` to "2147483648", for example, to limit the size of files uploaded to 2 GB.
+
+Notes:
+
+- For SWORD, this size is limited by the Java Integer.MAX_VALUE of 2,147,483,647. (see: https://github.com/IQSS/dataverse/issues/2169)
+
+- If the MaxFileUploadSizeInBytes is NOT set, uploads, including SWORD may be of unlimited size.
+
+- For larger file upload sizes, you may need to configure your reverse proxy timeout. If using apache2 (httpd) with Shibboleth, add a timeout to the ProxyPass defined in etc/httpd/conf.d/ssl.conf (which is described in the :doc:`/installation/shibboleth` setup).
+
+``MaxFileUploadSizeInBytes=2147483648``
+
+ZipDownloadLimit
++++++++++++++++++
+
+For performance reasons, Dataverse will only create zip files on the fly up to 100 MB but the limit can be increased. Here's an example of raising the limit to 1 GB:
+
+``ZipDownloadLimit=1000000000``
+
+TabularIngestSizeLimit
++++++++++++++++++++++++
+
+Threshold in bytes for limiting whether or not "ingest" it attempted for tabular files (which can be resource intensive). For example, with the below in place, files greater than 2 GB in size will not go through the ingest process:
+
+``TabularIngestSizeLimit=2000000000``
+
+(You can set this value to 0 to prevent files from being ingested at all.)
+
+You can override this global setting on a per-format basis for the following formats:
+
+- DTA
+- POR
+- SAV
+- Rdata
+- CSV
+- XLSX
+
+ZipUploadFilesLimit
+++++++++++++++++++++
+
+Limit the number of files in a zip that Dataverse will accept.
+
+SolrHostColonPort
+++++++++++++++++++
+
+By default Dataverse will attempt to connect to Solr on port 8983 on localhost. Use this setting to change the hostname or port. You must restart Glassfish after making this change.
+
+``SolrHostColonPort=localhost:8983``
+
+SolrFullTextIndexing
++++++++++++++++++++++
+
+Whether or not to index the content of files such as PDFs. The default is false.
+
+``SolrFullTextIndexing=false``
+
+SolrMaxFileSizeForFullTextIndexing
++++++++++++++++++++++++++++++++++++
+
+If ``SolrFullTextIndexing`` is set to true, the content of files of any size will be indexed. To set a limit in bytes for which files to index in this way:
+
+``SolrMaxFileSizeForFullTextIndexing=314572800``
+
+SignUpUrl
+++++++++++
+
+The relative path URL to which users will be sent for signup. The default setting is below.
+
+``SignUpUrl=/dataverseuser.xhtml?editMode=CREATE``
+
+
+GeoconnectCreateEditMaps
++++++++++++++++++++++++++
+
+Set ``GeoconnectCreateEditMaps`` to true to allow the user to create GeoConnect Maps. This boolean effects whether the user sees the map button on the dataset page and if the ingest will create a shape file.
+
+``GeoconnectCreateEditMaps=true``
+
+GeoconnectViewMaps
++++++++++++++++++++
+
+Set ``GeoconnectViewMaps`` to true to allow a user to view existing maps. This boolean effects whether a user will see the "Explore" button.
+
+``GeoconnectViewMaps=false``
+
+DatasetPublishPopupCustomTextOnAllVersions
++++++++++++++++++++++++++++++++++++++++++++
+
+Set whether a user will see the custom text when publishing all versions of a dataset
+
+``DatasetPublishPopupCustomTextOnAllVersions=true``
+
+ScrubMigrationData
++++++++++++++++++++
+
+Allow for migration of non-conformant data (especially dates) from DVN 3.x to Dataverse 4.
+
+MinutesUntilConfirmEmailTokenExpires
++++++++++++++++++++++++++++++++++++++
+
+The duration in minutes before "Confirm Email" URLs expire. The default is 1440 minutes (24 hours).  See also the :doc:`/admin/user-administration` section of our Admin Guide.
+
+DefaultAuthProvider
+++++++++++++++++++++
+
+If you have enabled Shibboleth and/or one or more OAuth providers, you may wish to make one of these authentication providers the default when users visit the Log In page. If unset, this will default to ``builtin`` but these valid options (depending if you've done the setup described in the :doc:`shibboleth` or :doc:`oauth2` sections) are:
+
+- ``builtin``
+- ``shib``
+- ``orcid``
+- ``github``
+- ``google``
+
+AllowSignUp
+++++++++++++
+
+Set to false to disallow local accounts to be created. See also the sections on :doc:`shibboleth` and :doc:`oauth2`.
+
+FileFixityChecksumAlgorithm
+++++++++++++++++++++++++++++
+
+Dataverse calculates checksums for uploaded files so that users can determine if their file was corrupted via upload or download. This is sometimes called "file fixity": https://en.wikipedia.org/wiki/File_Fixity
+
+The default checksum algorithm used is MD5 and should be sufficient for establishing file fixity. "SHA-1", "SHA-256" and "SHA-512" are alternate values for this setting. For example:
+
+``FileFixityChecksumAlgorithm=SHA-512``
+
+The fixity algorithm used on existing files can be changed by a superuser using the API. An optional query parameter (num) can be used to limit the number of updates attempted.
+The API call will only update the algorithm and checksum for a file if the existing checksum can be validated against the file.
+Statistics concerning the updates are returned in the response to the API call with details in the log.
+
+``curl http://localhost:8080/api/admin/updateHashValues/{alg}``
+``curl http://localhost:8080/api/admin/updateHashValues/{alg}?num=1``
+
+.. _PVMinLength:
+
+PVMinLength
+++++++++++++
+
+Password policy setting for builtin user accounts: a password's minimum valid character length. The default is 6.
+
+``PVMinLength=6``
+
+.. _PVMaxLength:
+
+PVMaxLength
+++++++++++++
+
+Password policy setting for builtin user accounts: a password's maximum valid character length.
+
+``PVMaxLength=0``
+
+
+.. _PVNumberOfConsecutiveDigitsAllowed:
+
+PVNumberOfConsecutiveDigitsAllowed
++++++++++++++++++++++++++++++++++++
+
+By default, passwords can contain an unlimited number of digits in a row. However, if your password policy specifies otherwise (e.g. only four digits in a row are allowed), then you can issue the following curl command to set the number of consecutive digits allowed (this example uses 4):
+
+``PVNumberOfConsecutiveDigitsAllowed=4``
+
+.. _PVCharacterRules:
+
+PVCharacterRules
++++++++++++++++++
+
+Password policy setting for builtinuser accounts: dictates which types of characters can be required in a password. This setting goes hand-in-hand with :ref:`:PVNumberOfCharacteristics`. The default setting contains two rules:
+
+- one letter
+- one digit
+
+The default setting above is equivalent to specifying "Alphabetical:1,Digit:1".
+
+By specifying "UpperCase:1,LowerCase:1,Digit:1,Special:1", for example, you can put the following four rules in place instead:
+
+- one uppercase letter
+- one lowercase letter
+- one digit
+- one special character
+
+If you have implemented 4 different character rules in this way, you can also optionally increase ``PVNumberOfCharacteristics`` to as high as 4. However, please note that ``PVNumberOfCharacteristics`` cannot be set to a number higher than the number of character rules or you will see the error, "Number of characteristics must be <= to the number of rules".
+
+Also note that the Alphabetical setting should not be used in tandem with the UpperCase or LowerCase settings. The Alphabetical setting encompasses both of those more specific settings, so using it with them will cause your password policy to be unnecessarily confusing, and potentially easier to bypass.
+
+``PVCharacterRules=UpperCase:1,LowerCase:1,Digit:1,Special:1``
+
+``PVNumberOfCharacteristics=3``
+
+.. _PVNumberOfCharacteristics:
+
+PVNumberOfCharacteristics
+++++++++++++++++++++++++++
+
+Password policy setting for builtin user accounts: the number indicates how many of the character rules defined by ``PVCharacterRules`` are required as part of a password. The default is 2. ``PVNumberOfCharacteristics`` cannot be set to a number higher than the number of rules or you will see the error, "Number of characteristics must be <= to the number of rules".
+
+``PVNumberOfCharacteristics=2``
+
+.. _PVGoodStrength:
+
+PVGoodStrength
++++++++++++++++
+
+Password policy setting for builtin user accounts: passwords of equal or greater character length than the :PVGoodStrength setting are always valid, regardless of other password constraints.
+
+``PVGoodStrength=20``
+
+Recommended setting: 20.
+
+.. _ShibPassiveLoginEnabled:
+
+
+ShibPassiveLoginEnabled
+++++++++++++++++++++++++
+
+Set ``ShibPassiveLoginEnabled`` to true to enable passive login for Shibboleth. When this feature is enabled, an additional Javascript file (isPassive.js) will be loaded for every page. It will generate a passive login request to your Shibboleth SP when an anonymous user navigates to the site. A cookie named "_check_is_passive_dv" will be created to keep track of whether or not a passive login request has already been made for the user.
+
+This implementation follows the example on the Shibboleth wiki documentation page for the isPassive feature: https://wiki.shibboleth.net/confluence/display/SHIB2/isPassive
+
+It is recommended that you configure additional error handling for your Service Provider if you enable passive login. A good way of doing this is described in the Shibboleth wiki documentation:
+
+- *In your Service Provider 2.x shibboleth2.xml file, add redirectErrors="#THIS PAGE#" to the Errors element.*
+
+You can set the value of "#THIS PAGE#" to the URL of your Dataverse homepage, or any other page on your site that is accessible to anonymous users and will have the isPassive.js file loaded.
+
+``ShibPassiveLoginEnabled=true``
+
+.. _:PublicInstall:
+
+PublicInstall
++++++++++++++++++++++
+
+Setting an installation to public will remove the ability to restrict data files or datasets. This functionality of Dataverse will be disabled from your installation.
+
+This is useful for specific cases where an installation's files are stored in public access. Because files stored this way do not obey Dataverse's file restrictions, users would still be able to access the files even when they're restricted. In these cases it's best to use :PublicInstall to disable the feature altogether.
+
+``PublicInstall=true``
+
+UploadMethods
+++++++++++++++
+
+This setting controls which upload methods are available to users of your installation of Dataverse. The following upload methods are available:
+
+- ``native/http``: Corresponds to "Upload with HTTP via your browser" and APIs that use HTTP (SWORD and native).
+- ``dcm/rsync+ssh``: Corresponds to "Upload with rsync+ssh via Data Capture Module (DCM)". A lot of setup is required, as explained in the :doc:`/developers/big-data-support` section of the Dev Guide.
+
+Out of the box only ``native/http`` is enabled and will work without further configuration. To add multiple upload method, separate them using a comma like this:
+
+``UploadMethods=native/http,dcm/rsync+ssh``
+
+You'll always want at least one upload method, so the easiest way to remove one of them remove them from setting:
+
+``UploadMethods=native/http``
+
+DownloadMethods
+++++++++++++++++
+
+This setting is experimental and related to Repository Storage Abstraction Layer (RSAL).
+
+``DownloadMethods=rsal/rsync``
+
+GuestbookResponsesPageDisplayLimit
++++++++++++++++++++++++++++++++++++
+
+Limit on how many guestbook entries to display on the guestbook-responses page. By default, only the 5000 most recent entries will be shown. Use the standard settings file in order to change the limit. For example, to set it to 10,000, make the following change:
+
+``GuestbookResponsesPageDisplayLimit=10000``
+
+CustomDatasetSummaryFields
++++++++++++++++++++++++++++
+
+You can replace the default dataset metadata fields that are displayed above files table on the dataset page with a custom list separated by commas using the curl command below.
+
+``CustomDatasetSummaryFields=producer,subtitle,alternativeTitle``
+
+You have to put the datasetFieldType name attribute in the :CustomDatasetSummaryFields setting for this to work. 
+
+AllowApiTokenLookupViaApi
+++++++++++++++++++++++++++
+
+Dataverse 4.8.1 and below allowed API Token lookup via API but for better security this has been disabled by default. Set this to true if you really want the old behavior.
+
+``AllowApiTokenLookupViaApi=true``
+
+ProvCollectionEnabled
+++++++++++++++++++++++
+
+Enable the collection of provenance metadata on Dataverse via the provenance popup.
+
+``ProvCollectionEnabled=true``
+
+MetricsCacheTimeoutMinutes
++++++++++++++++++++++++++++
+
+Sets how long a cached metrics result is used before re-running the query for a request. This timeout is only applied to some of the metrics that query the current state of the system, previous months queries are cached indefinitely. See :doc:`/api/metrics` for more info. The default timeout value is 7 days (10080 minutes). 
+
+``MetricsCacheTimeoutMinutes=10080``
+
+Languages
+++++++++++
+
+Sets which languages should be available. If there is more than one, a dropdown is displayed
+in the header. This should be formated as a JSON array as shown below.
+
+``Languages=[{  "locale":"en", "title":"English"},  {  "locale":"fr", "title":"Français"}]``
+
+InheritParentRoleAssignments
++++++++++++++++++++++++++++++
+
+``InheritParentRoleAssignments`` can be set to a comma-separated list of role aliases or '*' (all) to cause newly created Dataverses to inherit the set of users and/or internal groups who have assignments for those role(s) on the parent Dataverse, i.e. those users/groups will be assigned the same role(s) on the new Dataverse (in addition to the creator of the new Dataverse having an admin role).
+This can be helpful in situations where multiple organizations are sharing one Dataverse instance. The default, if ``::InheritParentRoleAssignments`` is not set is for the creator of the new Dataverse to be the only one assigned a role.
+
+``InheritParentRoleAssignments=admin,curator`
+or 
+``InheritParentRoleAssignments=*``
+
+DefaultDateFormat
++++++++++++++++++
+
+Sets the default format of date that is going to be used in the system.
+
+``DefaultDateFormat=yyyy-MM-dd``
+
+AllRightsReservedTermsOfUseActive
++++++++++++++++++++++++++++++++++
+
+Indicates if All Right Reserved can be selected as file license.
+
+RestrictedAccessTermsOfUseActive
+++++++++++++++++++++++++++++++++
+
+Indicates if Restricted Access can be selected as file license.
+
+OAIServerEnabled
+++++++++++++++++
+
+Enables the option to become OAI-PMH server. For more information about OAI visit https://www.openarchives.org/pmh/
+
+Debug
++++++
+
+Shows information about the search query for developers on 'My Data' page.
+
+SearchApiNonPublicAllowed
++++++++++++++++++++++++++
+
+Enables experimental non-public search with a key/token using the Search API. See also https://github.com/IQSS/dataverse/issues/1299
+
+PIDAsynchRegFileCount
++++++++++++++++++++++
+
+Indicated number for the minimum number of files to send PID registration to asynchronous workflow. It is 10 by default.
+
+``PIDAsynchRegFileCount=10``
+
+SiteName
+++++++++
+
+Indicates name of the site that will be presented in the header.
+
+``SiteName=RepOD``
+
+Setting can be postfixed with language code to obtain translated versions.
+
+``SiteName.pl=RepOD``
+
+SiteFullName
+++++++++++++
+
+Indicates full name of the site that will be presented in the header below SiteName.
+
+``SiteFullName=Repository for Open Data``
+
+Setting can be postfixed with language code to obtain translated versions.
+
+``SiteFullName.pl=Repozytorium Otwartych Danych ``
+
+MaximumEmbargoLength
+++++++++++++++++++++
+
+Sets maximum embargo length in months. By default it is disabled (set to 0).
+
+``MaximumEmbargoLength=0``
+
+ShowPrivacyPolicyFooterLink
++++++++++++++++++++++++++++
+
+Enables showing link to Privacy Policy page in the footer. By default is set to 'false', so link won't be shown.
+
+``ShowPrivacyPolicyFooterLink=false``
+
+ShowTermsOfUseFooterLink
+++++++++++++++++++++++++
+
+Enables showing link to Terms of Use page in the footer. By default is set to 'false', so link won't be shown.
+
+``ShowTermsOfUseFooterLink=false``
+
+JVM Options
+-----------
+
+JVM stands Java Virtual Machine and as a Java application, Glassfish can read JVM options when it is started. A number of JVM options are configured by the installer below is a complete list of the Dataverse-specific JVM options. You can inspect the configured options by running:
+
+``./asadmin list-jvm-options | egrep 'dataverse|doi'``
+
+When changing values these values with ``asadmin``, you'll need to delete the old value before adding a new one, like this:
+
+``./asadmin delete-jvm-options "-Ddataverse.auth.password-reset-timeout-in-minutes=10``
+
+``./asadmin create-jvm-options "-Ddataverse.auth.password-reset-timeout-in-minutes=30"``
+
+It's also possible to change these values by stopping Glassfish, editing ``glassfish4.1.2/glassfish/domains/domain1/config/domain.xml``, and restarting Glassfish.
+
+dataverse.auth.password-reset-timeout-in-minutes
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+Users have 60 minutes to change their passwords by default. You can adjust this value here.
+
+dataverse.files.directory
++++++++++++++++++++++++++
+
+This is how you configure the path to which files uploaded by users are stored.
+
+dataverse.path.imagemagick.convert
+++++++++++++++++++++++++++++++++++
+
+For overriding the default path to the ``convert`` binary from ImageMagick (``/usr/bin/convert``).
+
+dataverse.dataAccess.thumbnail.image.limit
+++++++++++++++++++++++++++++++++++++++++++
+
+For limiting the size (in bytes) of thumbnail images generated from files.
+
+dataverse.dataAccess.thumbnail.pdf.limit
+++++++++++++++++++++++++++++++++++++++++
+
+For limiting the size (in bytes) of thumbnail images generated from files.
+
+dataverse.lang.directory
+++++++++++++++++++++++++
+
+This JVM option is used to configure the path where all the language specific property files are to be stored.  If this option is set then the english property file must be present in the path along with any other language property file.
+
+``./asadmin create-jvm-options '-Ddataverse.lang.directory=PATH_LOCATION_HERE'``
+
+If this value is not set, by default, a Dataverse installation will read the English language property files from the Java Application.
+
+Database Settings
+-----------------
+
+These settings are stored in the ``setting`` database table but can be read and modified via the "admin" endpoint of the :doc:`/api/native-api` for easy scripting.
+
+The most commonly used configuration options are listed first.
+
+The pattern you will observe in curl examples below is that an HTTP ``PUT`` is used to add or modify a setting. If you perform an HTTP ``GET`` (the default when using curl), the output will contain the value of the setting, if it has been set. You can also do a ``GET`` of all settings with ``curl http://localhost:8080/api/admin/settings`` which you may want to pretty-print by piping the output through a tool such as jq by appending ``| jq .``. If you want to remove a setting, use an HTTP ``DELETE`` such as ``curl -X DELETE http://localhost:8080/api/admin/settings/:GuidesBaseUrl`` .
+
+:BlockedApiKey
+++++++++++++++
+
+Used in conjunction with the ``BlockedApiPolicy`` being set to ``unblock-key``. When calling blocked APIs, add a query parameter of ``unblock-key=theKeyYouChose`` to use the key.
+
+``curl -X PUT -d localhost-only http://localhost:8080/api/admin/settings/:BlockedApiPolicy``
+
+BuiltinUsers.KEY
+++++++++++++++++
+
+The key required to create users via API as documented at :doc:`/api/native-api`. Unlike other settings, this one doesn't start with a colon.
+
+``curl -X PUT -d builtInS3kretKey http://localhost:8080/api/admin/settings/BuiltinUsers.KEY``
+
+:FooterCopyright
+++++++++++++++++
+
+By default the footer says "Copyright © [YYYY]" but you can add text after the year, as in the example below.
+
+``curl -X PUT -d ", Your Institution" http://localhost:8080/api/admin/settings/:FooterCopyright``
 
 :ApplicationPrivacyPolicyUrl
 ++++++++++++++++++++++++++++
@@ -1113,47 +1545,16 @@ Specify a URL where users can read your Privacy Policy, linked from the bottom o
 
 ``curl -X PUT -d https://dataverse.org/best-practices/harvard-dataverse-privacy-policy http://localhost:8080/api/admin/settings/:ApplicationPrivacyPolicyUrl``
 
-:ApiTermsOfUse
-++++++++++++++
-
-Specify a URL where users can read your API Terms of Use.
-API users can retrieve this URL from the SWORD Service Document or the "info" section of our :doc:`/api/native-api` documentation.
-
-``curl -X PUT -d https://dataverse.org/best-practices/harvard-api-tou http://localhost:8080/api/admin/settings/:ApiTermsOfUse``
-
-
-.. _:ExcludeEmailFromExport:
-
-:ExcludeEmailFromExport
-+++++++++++++++++++++++
-
-Set ``:ExcludeEmailFromExport`` to prevent email addresses for dataset contacts from being exposed in XML or JSON representations of dataset metadata. For a list exported formats such as DDI, see the :doc:`/admin/metadataexport` section of the Admin Guide.
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:ExcludeEmailFromExport``
 
 :NavbarAboutUrl
 +++++++++++++++
 
-Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for the "About" link in the navbar. 
+Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for the "About" link in the navbar.
 
 Note: The "About" link will not appear in the navbar until this option is set.
 
 ``curl -X PUT -d http://dataverse.example.edu http://localhost:8080/api/admin/settings/:NavbarAboutUrl``
 
-
-:GuidesBaseUrl
-++++++++++++++
-
-Set ``GuidesBaseUrl`` to override the default value "http://guides.dataverse.org". If you are interested in writing your own version of the guides, you may find the :doc:`/developers/documentation` section of the Developer Guide helpful.
-
-``curl -X PUT -d http://dataverse.example.edu http://localhost:8080/api/admin/settings/:GuidesBaseUrl``
-
-:GuidesVersion
-++++++++++++++
-
-Set ``:GuidesVersion`` to override the version number in the URL of guides. For example, rather than http://guides.dataverse.org/en/4.6/user/account.html the version is overriden to http://guides.dataverse.org/en/1234-new-feature/user/account.html in the example below:
-
-``curl -X PUT -d 1234-new-feature http://localhost:8080/api/admin/settings/:GuidesVersion``
 
 :NavbarSupportUrl
 +++++++++++++++++
@@ -1162,13 +1563,6 @@ Set ``:NavbarSupportUrl`` to a fully-qualified URL which will be used for the "S
 Note that this will override the default behaviour for the "Support" menu option, which is to display the dataverse 'feedback' dialog.
 
 ``curl -X PUT -d http://dataverse.example.edu/supportpage.html http://localhost:8080/api/admin/settings/:NavbarSupportUrl``
-
-:MetricsUrl
-+++++++++++
-
-Make the metrics component on the root dataverse a clickable link to a website where you present metrics on your Dataverse installation. This could perhaps be an installation of https://github.com/IQSS/miniverse or any site.
-
-``curl -X PUT -d http://metrics.dataverse.example.edu http://localhost:8080/api/admin/settings/:MetricsUrl``
 
 :StatusMessageHeader
 ++++++++++++++++++++
@@ -1186,83 +1580,6 @@ Alongside the ``:StatusMessageHeader`` you need to add StatusMessageText for the
 
 ``curl -X PUT -d "This appears in a popup." http://localhost:8080/api/admin/settings/:StatusMessageText``
 
-:MaxFileUploadSizeInBytes
-+++++++++++++++++++++++++
-
-Set `MaxFileUploadSizeInBytes` to "2147483648", for example, to limit the size of files uploaded to 2 GB.
-
-Notes:
-
-- For SWORD, this size is limited by the Java Integer.MAX_VALUE of 2,147,483,647. (see: https://github.com/IQSS/dataverse/issues/2169)
-
-- If the MaxFileUploadSizeInBytes is NOT set, uploads, including SWORD may be of unlimited size.
-
-- For larger file upload sizes, you may need to configure your reverse proxy timeout. If using apache2 (httpd) with Shibboleth, add a timeout to the ProxyPass defined in etc/httpd/conf.d/ssl.conf (which is described in the :doc:`/installation/shibboleth` setup).
-
-``curl -X PUT -d 2147483648 http://localhost:8080/api/admin/settings/:MaxFileUploadSizeInBytes``
-
-:ZipDownloadLimit
-+++++++++++++++++
-
-For performance reasons, Dataverse will only create zip files on the fly up to 100 MB but the limit can be increased. Here's an example of raising the limit to 1 GB:
-
-``curl -X PUT -d 1000000000 http://localhost:8080/api/admin/settings/:ZipDownloadLimit``
-
-:TabularIngestSizeLimit
-+++++++++++++++++++++++
-
-Threshold in bytes for limiting whether or not "ingest" it attempted for tabular files (which can be resource intensive). For example, with the below in place, files greater than 2 GB in size will not go through the ingest process:
-
-``curl -X PUT -d 2000000000 http://localhost:8080/api/admin/settings/:TabularIngestSizeLimit``
-
-(You can set this value to 0 to prevent files from being ingested at all.)
-
-You can override this global setting on a per-format basis for the following formats:
-
-- DTA
-- POR
-- SAV
-- Rdata
-- CSV
-- XLSX
-
-For example, if you want your installation of Dataverse to not attempt to ingest Rdata files larger that 1 MB, use this setting:
-
-``curl -X PUT -d 1000000 http://localhost:8080/api/admin/settings/:TabularIngestSizeLimit:Rdata``
-
-:ZipUploadFilesLimit
-++++++++++++++++++++
-
-Limit the number of files in a zip that Dataverse will accept.
-
-:SolrHostColonPort
-++++++++++++++++++
-
-By default Dataverse will attempt to connect to Solr on port 8983 on localhost. Use this setting to change the hostname or port. You must restart Glassfish after making this change.
-
-``curl -X PUT -d localhost:8983 http://localhost:8080/api/admin/settings/:SolrHostColonPort``
-
-:SolrFullTextIndexing
-+++++++++++++++++++++
-
-Whether or not to index the content of files such as PDFs. The default is false.
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:SolrFullTextIndexing``
-
-:SolrMaxFileSizeForFullTextIndexing
-+++++++++++++++++++++++++++++++++++
-
-If ``:SolrFullTextIndexing`` is set to true, the content of files of any size will be indexed. To set a limit in bytes for which files to index in this way:
-
-``curl -X PUT -d 314572800 http://localhost:8080/api/admin/settings/:SolrMaxFileSizeForFullTextIndexing``
-
-:SignUpUrl
-++++++++++
-
-The relative path URL to which users will be sent for signup. The default setting is below.
-
-``curl -X PUT -d '/dataverseuser.xhtml?editMode=CREATE' http://localhost:8080/api/admin/settings/:SignUpUrl``
-
 :TwoRavensUrl
 +++++++++++++
 
@@ -1272,20 +1589,6 @@ The ``:TwoRavensUrl`` option is no longer valid. See :doc:`r-rapache-tworavens` 
 +++++++++++++++++++++
 
 The ``:TwoRavensTabularView`` option is no longer valid. See :doc:`r-rapache-tworavens` and :doc:`external-tools`.
-
-:GeoconnectCreateEditMaps
-+++++++++++++++++++++++++
-
-Set ``GeoconnectCreateEditMaps`` to true to allow the user to create GeoConnect Maps. This boolean effects whether the user sees the map button on the dataset page and if the ingest will create a shape file.
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:GeoconnectCreateEditMaps``
-
-:GeoconnectViewMaps
-+++++++++++++++++++
-
-Set ``GeoconnectViewMaps`` to true to allow a user to view existing maps. This boolean effects whether a user will see the "Explore" button.
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:GeoconnectViewMaps``
 
 :DatasetPublishPopupCustomText
 ++++++++++++++++++++++++++++++
@@ -1298,133 +1601,12 @@ If you have a long text string, you can upload it as a file as in the example be
 
 ``curl -X PUT --upload-file /tmp/long.txt http://localhost:8080/api/admin/settings/:DatasetPublishPopupCustomText``
 
-:DatasetPublishPopupCustomTextOnAllVersions
-+++++++++++++++++++++++++++++++++++++++++++
-
-Set whether a user will see the custom text when publishing all versions of a dataset
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:DatasetPublishPopupCustomTextOnAllVersions``
-
 :SearchHighlightFragmentSize
 ++++++++++++++++++++++++++++
 
 Set ``SearchHighlightFragmentSize`` to override the default value of 100 from https://wiki.apache.org/solr/HighlightingParameters#hl.fragsize . In practice, a value of "320" seemed to fix the issue at https://github.com/IQSS/dataverse/issues/2191
 
 ``curl -X PUT -d 320 http://localhost:8080/api/admin/settings/:SearchHighlightFragmentSize``
-
-:ScrubMigrationData
-+++++++++++++++++++
-
-Allow for migration of non-conformant data (especially dates) from DVN 3.x to Dataverse 4.
-
-:MinutesUntilConfirmEmailTokenExpires
-+++++++++++++++++++++++++++++++++++++
-
-The duration in minutes before "Confirm Email" URLs expire. The default is 1440 minutes (24 hours).  See also the :doc:`/admin/user-administration` section of our Admin Guide.
-
-:DefaultAuthProvider
-++++++++++++++++++++
-
-If you have enabled Shibboleth and/or one or more OAuth providers, you may wish to make one of these authentication providers the default when users visit the Log In page. If unset, this will default to ``builtin`` but these valid options (depending if you've done the setup described in the :doc:`shibboleth` or :doc:`oauth2` sections) are:
-
-- ``builtin``
-- ``shib``
-- ``orcid``
-- ``github``
-- ``google``
-
-Here is an example of setting the default auth provider back to ``builtin``:
-
-``curl -X PUT -d builtin http://localhost:8080/api/admin/settings/:DefaultAuthProvider``
-
-:AllowSignUp
-++++++++++++
-
-Set to false to disallow local accounts to be created. See also the sections on :doc:`shibboleth` and :doc:`oauth2`.
-
-:FileFixityChecksumAlgorithm
-++++++++++++++++++++++++++++
-
-Dataverse calculates checksums for uploaded files so that users can determine if their file was corrupted via upload or download. This is sometimes called "file fixity": https://en.wikipedia.org/wiki/File_Fixity
-
-The default checksum algorithm used is MD5 and should be sufficient for establishing file fixity. "SHA-1", "SHA-256" and "SHA-512" are alternate values for this setting. For example:
-
-``curl -X PUT -d 'SHA-512' http://localhost:8080/api/admin/settings/:FileFixityChecksumAlgorithm``
-
-The fixity algorithm used on existing files can be changed by a superuser using the API. An optional query parameter (num) can be used to limit the number of updates attempted.
-The API call will only update the algorithm and checksum for a file if the existing checksum can be validated against the file.
-Statistics concerning the updates are returned in the response to the API call with details in the log.
-
-``curl http://localhost:8080/api/admin/updateHashValues/{alg}``
-``curl http://localhost:8080/api/admin/updateHashValues/{alg}?num=1``
-
-.. _:PVMinLength:
-
-:PVMinLength
-++++++++++++
-
-Password policy setting for builtin user accounts: a password's minimum valid character length. The default is 6.
-
-``curl -X PUT -d 6 http://localhost:8080/api/admin/settings/:PVMinLength``
-
-
-.. _:PVMaxLength:
-
-:PVMaxLength
-++++++++++++
-
-Password policy setting for builtin user accounts: a password's maximum valid character length.
-
-``curl -X PUT -d 0 http://localhost:8080/api/admin/settings/:PVMaxLength``
-
-
-.. _:PVNumberOfConsecutiveDigitsAllowed:
-
-:PVNumberOfConsecutiveDigitsAllowed
-+++++++++++++++++++++++++++++++++++
-
-By default, passwords can contain an unlimited number of digits in a row. However, if your password policy specifies otherwise (e.g. only four digits in a row are allowed), then you can issue the following curl command to set the number of consecutive digits allowed (this example uses 4):
-
-``curl -X PUT -d 4 http://localhost:8080/api/admin/settings/:PVNumberOfConsecutiveDigitsAllowed``
-
-.. _:PVCharacterRules:
-
-:PVCharacterRules
-+++++++++++++++++
-
-Password policy setting for builtinuser accounts: dictates which types of characters can be required in a password. This setting goes hand-in-hand with :ref:`:PVNumberOfCharacteristics`. The default setting contains two rules:
-
-- one letter
-- one digit
-
-The default setting above is equivalent to specifying "Alphabetical:1,Digit:1".
-
-By specifying "UpperCase:1,LowerCase:1,Digit:1,Special:1", for example, you can put the following four rules in place instead:
-
-- one uppercase letter
-- one lowercase letter
-- one digit
-- one special character
-
-If you have implemented 4 different character rules in this way, you can also optionally increase ``:PVNumberOfCharacteristics`` to as high as 4. However, please note that ``:PVNumberOfCharacteristics`` cannot be set to a number higher than the number of character rules or you will see the error, "Number of characteristics must be <= to the number of rules".
-
-Also note that the Alphabetical setting should not be used in tandem with the UpperCase or LowerCase settings. The Alphabetical setting encompasses both of those more specific settings, so using it with them will cause your password policy to be unnecessarily confusing, and potentially easier to bypass.
-
-``curl -X PUT -d 'UpperCase:1,LowerCase:1,Digit:1,Special:1' http://localhost:8080/api/admin/settings/:PVCharacterRules``
-
-``curl -X PUT -d 3 http://localhost:8080/api/admin/settings/:PVNumberOfCharacteristics``
-
-.. _:PVNumberOfCharacteristics:
-
-:PVNumberOfCharacteristics
-++++++++++++++++++++++++++
-
-Password policy setting for builtin user accounts: the number indicates how many of the character rules defined by ``:PVCharacterRules`` are required as part of a password. The default is 2. ``:PVNumberOfCharacteristics`` cannot be set to a number higher than the number of rules or you will see the error, "Number of characteristics must be <= to the number of rules".
-
-``curl -X PUT -d 2 http://localhost:8080/api/admin/settings/:PVNumberOfCharacteristics``
-
-
-.. _:PVDictionaries:
 
 :PVDictionaries
 +++++++++++++++
@@ -1434,20 +1616,6 @@ Password policy setting for builtin user accounts: set a comma separated list of
 ``DIR=THE_PATH_YOU_WANT_YOUR_DICTIONARY_TO_RESIDE``
 ``sed '/^.\{,3\}$/d' /usr/share/dict/words > $DIR/pwdictionary``
 ``curl -X PUT -d "$DIR/pwdictionary" http://localhost:8080/api/admin/settings/:PVDictionaries``
-
-
-.. _:PVGoodStrength:
-
-:PVGoodStrength
-+++++++++++++++
-
-Password policy setting for builtin user accounts: passwords of equal or greater character length than the :PVGoodStrength setting are always valid, regardless of other password constraints.
-
-``curl -X PUT -d 20 http://localhost:8080/api/admin/settings/:PVGoodStrength``
-
-Recommended setting: 20.
-
-.. _:PVCustomPasswordResetAlertMessage:
 
 :PVCustomPasswordResetAlertMessage
 ++++++++++++++++++++++++++++++++++
@@ -1462,22 +1630,6 @@ Customize the message using the following curl command's syntax:
 
 ``curl -X PUT -d '{0} Action Required:{1} Your current password does not meet all requirements. Please enter a new password meeting the criteria below.' http://localhost:8080/api/admin/settings/:PVCustomPasswordResetAlertMessage``
 
-:ShibPassiveLoginEnabled
-++++++++++++++++++++++++
-
-Set ``:ShibPassiveLoginEnabled`` to true to enable passive login for Shibboleth. When this feature is enabled, an additional Javascript file (isPassive.js) will be loaded for every page. It will generate a passive login request to your Shibboleth SP when an anonymous user navigates to the site. A cookie named "_check_is_passive_dv" will be created to keep track of whether or not a passive login request has already been made for the user.
-
-This implementation follows the example on the Shibboleth wiki documentation page for the isPassive feature: https://wiki.shibboleth.net/confluence/display/SHIB2/isPassive
-
-It is recommended that you configure additional error handling for your Service Provider if you enable passive login. A good way of doing this is described in the Shibboleth wiki documentation:
-
-- *In your Service Provider 2.x shibboleth2.xml file, add redirectErrors="#THIS PAGE#" to the Errors element.*
-
-You can set the value of "#THIS PAGE#" to the URL of your Dataverse homepage, or any other page on your site that is accessible to anonymous users and will have the isPassive.js file loaded.
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:ShibPassiveLoginEnabled``
-
-.. _:ComputeBaseUrl:
 
 :ComputeBaseUrl
 +++++++++++++++
@@ -1495,17 +1647,6 @@ Set the name of the cloud environment you've integrated with your Dataverse inst
 
 ``curl -X PUT -d 'Massachusetts Open Cloud (MOC)' http://localhost:8080/api/admin/settings/:CloudEnvironmentName``
 
-.. _:PublicInstall:
-
-:PublicInstall
-+++++++++++++++++++++
-
-Setting an installation to public will remove the ability to restrict data files or datasets. This functionality of Dataverse will be disabled from your installation.
-
-This is useful for specific cases where an installation's files are stored in public access. Because files stored this way do not obey Dataverse's file restrictions, users would still be able to access the files even when they're restricted. In these cases it's best to use :PublicInstall to disable the feature altogether.
-
-``curl -X PUT -d true http://localhost:8080/api/admin/settings/:PublicInstall``
-
 :DataCaptureModuleUrl
 +++++++++++++++++++++
 
@@ -1519,82 +1660,3 @@ The URL for your Data Capture Module (DCM) installation. This component is exper
 The URL for your Repository Storage Abstraction Layer (RSAL) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/rsal .
 
 ``curl -X PUT -d 'https://rsal.example.edu' http://localhost:8080/api/admin/settings/:RepositoryStorageAbstractionLayerUrl``
-
-:UploadMethods
-++++++++++++++
-
-This setting controls which upload methods are available to users of your installation of Dataverse. The following upload methods are available:
-
-- ``native/http``: Corresponds to "Upload with HTTP via your browser" and APIs that use HTTP (SWORD and native).
-- ``dcm/rsync+ssh``: Corresponds to "Upload with rsync+ssh via Data Capture Module (DCM)". A lot of setup is required, as explained in the :doc:`/developers/big-data-support` section of the Dev Guide.
-
-Out of the box only ``native/http`` is enabled and will work without further configuration. To add multiple upload method, separate them using a comma like this:
-
-``curl -X PUT -d 'native/http,dcm/rsync+ssh' http://localhost:8080/api/admin/settings/:UploadMethods``
-
-You'll always want at least one upload method, so the easiest way to remove one of them is to simply ``PUT`` just the one you want, like this:
-
-``curl -X PUT -d 'native/http' http://localhost:8080/api/admin/settings/:UploadMethods``
-
-:DownloadMethods
-++++++++++++++++
-
-This setting is experimental and related to Repository Storage Abstraction Layer (RSAL).
-
-``curl -X PUT -d 'rsal/rsync' http://localhost:8080/api/admin/settings/:DownloadMethods``
-
-:GuestbookResponsesPageDisplayLimit
-+++++++++++++++++++++++++++++++++++
-
-Limit on how many guestbook entries to display on the guestbook-responses page. By default, only the 5000 most recent entries will be shown. Use the standard settings API in order to change the limit. For example, to set it to 10,000, make the following API call: 
-
-``curl -X PUT -d 10000 http://localhost:8080/api/admin/settings/:GuestbookResponsesPageDisplayLimit``
-
-:CustomDatasetSummaryFields
-+++++++++++++++++++++++++++
-
-You can replace the default dataset metadata fields that are displayed above files table on the dataset page with a custom list separated by commas using the curl command below.
-
-``curl http://localhost:8080/api/admin/settings/:CustomDatasetSummaryFields -X PUT -d 'producer,subtitle,alternativeTitle'``
-
-You have to put the datasetFieldType name attribute in the :CustomDatasetSummaryFields setting for this to work. 
-
-:AllowApiTokenLookupViaApi
-++++++++++++++++++++++++++
-
-Dataverse 4.8.1 and below allowed API Token lookup via API but for better security this has been disabled by default. Set this to true if you really want the old behavior.
-
-``curl -X PUT -d 'true' http://localhost:8080/api/admin/settings/:AllowApiTokenLookupViaApi``
-
-:ProvCollectionEnabled
-++++++++++++++++++++++
-
-Enable the collection of provenance metadata on Dataverse via the provenance popup.
-
-``curl -X PUT -d 'true' http://localhost:8080/api/admin/settings/:ProvCollectionEnabled``
-
-:MetricsCacheTimeoutMinutes
-+++++++++++++++++++++++++++
-
-Sets how long a cached metrics result is used before re-running the query for a request. This timeout is only applied to some of the metrics that query the current state of the system, previous months queries are cached indefinitely. See :doc:`/api/metrics` for more info. The default timeout value is 7 days (10080 minutes). 
-
-``curl -X PUT -d 10080 http://localhost:8080/api/admin/settings/:MetricsCacheTimeoutMinutes``
-
-:Languages
-++++++++++
-
-Sets which languages should be available. If there is more than one, a dropdown is displayed
-in the header. This should be formated as a JSON array as shown below.
-
-``curl http://localhost:8080/api/admin/settings/:Languages -X PUT -d '[{  "locale":"en", "title":"English"},  {  "locale":"fr", "title":"Français"}]'``
-
-:InheritParentRoleAssignments
-+++++++++++++++++++++++++++++
-
-``:InheritParentRoleAssignments`` can be set to a comma-separated list of role aliases or '*' (all) to cause newly created Dataverses to inherit the set of users and/or internal groups who have assignments for those role(s) on the parent Dataverse, i.e. those users/groups will be assigned the same role(s) on the new Dataverse (in addition to the creator of the new Dataverse having an admin role). 
-This can be helpful in situations where multiple organizations are sharing one Dataverse instance. The default, if ``::InheritParentRoleAssignments`` is not set is for the creator of the new Dataverse to be the only one assigned a role.
-
-``curl -X PUT -d 'admin, curator' http://localhost:8080/api/admin/settings/:InheritParentRoleAssignments``
-or 
-``curl -X PUT -d '*' http://localhost:8080/api/admin/settings/:InheritParentRoleAssignments``
-
