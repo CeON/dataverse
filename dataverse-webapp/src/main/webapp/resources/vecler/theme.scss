@@ -1488,10 +1488,24 @@ $navbar-height: 6.8em;
 		}
 	}
 }
+.widget-view {
+	&#footer {
+		position: static;
+	}
+	#footer-logos {
+		display: none;
+	}
+}
 
 @media screen and (max-width: $screen-xs-max) {
-	#footer div[class^="col-"] {
-		text-align: center;
+	#footer {
+		&.widget-view .poweredbylogo {
+			text-align: inherit;
+		}
+		
+		div[class^="col-"] {
+			text-align: center;
+		}
 	}
 }
 
