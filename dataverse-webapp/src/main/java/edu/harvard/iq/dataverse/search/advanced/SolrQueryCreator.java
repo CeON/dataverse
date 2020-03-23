@@ -32,15 +32,7 @@ public class SolrQueryCreator {
                             .append(constructedQuery.isEmpty() ? StringUtils.EMPTY : " AND " + constructedQuery);
                 });
         
-        String daterangeQuery = constructDaterangeQuery(searchBlocks);
-        if (StringUtils.isNotEmpty(daterangeQuery)) {
-        	if (queryBuilder.length() > 0) {
-        		queryBuilder.append(" AND (" + daterangeQuery + ")");
-        	} else {
-        		queryBuilder.append(daterangeQuery);
-        	}
-        }
-        
+
         return queryBuilder.toString()
                 .replaceFirst("AND", StringUtils.EMPTY)
                 .trim();
@@ -49,48 +41,6 @@ public class SolrQueryCreator {
     // -------------------- PRIVATE --------------------
 
 
-    private String constructDaterangeQuery(List<SearchBlock> searchBlocks) {
-
-    	String daterangeLowerLimit = StringUtils.EMPTY;
-    	String daterangeUpperLimit = StringUtils.EMPTY;
-    	
-        for (SearchBlock searchBlock:searchBlocks) {
-        	for (SearchField searchField:searchBlock.getSearchFields()) {
-            	if (searchField.getName().equals("timePeriodCoveredStart")) {
-            		daterangeLowerLimit = ((DateSearchField)searchField).getFieldValue();
-            	} else if (searchField.getName().equals("timePeriodCoveredEnd")) {
-            		daterangeUpperLimit = ((DateSearchField)searchField).getFieldValue();
-            	}
-        		
-        	}
-        }
-        return getDaterangeQueryForDateFields(daterangeLowerLimit, daterangeUpperLimit, searchBlocks);
-    }
-
-    private String getDaterangeQueryForDateFields(String lowerLimit, String upperLimit, List<SearchBlock> searchBlocks) {
-    	StringBuilder queryBuilder = new StringBuilder();
-    	
-    	if (StringUtils.isNotEmpty(lowerLimit) || StringUtils.isNotEmpty(upperLimit)) {
-    		searchBlocks.stream()
-            .flatMap(searchBlock -> searchBlock.getSearchFields().stream())
-            .forEach(searchField -> {
-            	if (searchField.getSearchFieldType().equals(SearchFieldType.DATE)) {
-                    queryBuilder
-                    .append(" OR ")
-                    .append(searchField.getName())
-                    .append(":[")
-                    .append(StringUtils.isEmpty(lowerLimit) ? "*" : lowerLimit)
-                    .append(" TO ")
-                    .append(StringUtils.isEmpty(upperLimit) ? "*" : upperLimit)
-                    .append("]");
-            	}
-
-            });
-    	}
-    	
-    	return queryBuilder.toString().replaceFirst("OR", StringUtils.EMPTY)
-                .trim();
-	}
 
 	private String constructQueryForField(SearchField searchField) {
 
@@ -100,6 +50,8 @@ public class SolrQueryCreator {
             return constructQueryForNumberField((NumberSearchField) searchField);
         } else if (searchField.getSearchFieldType().equals(SearchFieldType.CHECKBOX)) {
             return constructQueryForCheckboxField((CheckboxSearchField) searchField);
+        } else if (searchField.getSearchFieldType().equals(SearchFieldType.DATE)) {
+            return constructQueryForDateField((DateSearchField) searchField);
         } 
 
         return StringUtils.EMPTY;
@@ -150,6 +102,22 @@ public class SolrQueryCreator {
                     .append(numberSearchField.getMinimum() == null ? "*" : numberSearchField.getMinimum())
                     .append(" TO ")
                     .append(numberSearchField.getMaximum() == null ? "*" : numberSearchField.getMaximum())
+                    .append("]");
+        }
+
+        return intQueryBuilder.toString();
+    }
+
+    private String constructQueryForDateField(DateSearchField dateSearchField) {
+        StringBuilder intQueryBuilder = new StringBuilder();
+
+        if (StringUtils.isNotEmpty(dateSearchField.getLowerLimit()) || StringUtils.isNotEmpty(dateSearchField.getUpperLimit())) {
+        	intQueryBuilder
+                    .append(dateSearchField.getName())
+                    .append(":[")
+                    .append(StringUtils.isEmpty(dateSearchField.getLowerLimit()) ? "*" : dateSearchField.getLowerLimit())
+                    .append(" TO ")
+                    .append(StringUtils.isEmpty(dateSearchField.getUpperLimit()) ? "*" : dateSearchField.getUpperLimit())
                     .append("]");
         }
 
