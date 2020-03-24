@@ -36,7 +36,7 @@ To avoid having your users send credentials in the clear, it's strongly recommen
 Privacy Considerations
 ++++++++++++++++++++++
 
-Out of the box, Dataverse will list email addresses of the "contacts" for datasets when users visit a dataset page and click the "Export Metadata" button. If you prefer to exclude email addresses of dataset contacts from metadata export, set :ref:`:ExcludeEmailFromExport <:ExcludeEmailFromExport>` to true.
+Out of the box, Dataverse will list email addresses of the "contacts" for datasets when users visit a dataset page and click the "Export Metadata" button. If you prefer to exclude email addresses of dataset contacts from metadata export, set :ref:`ExcludeEmailFromExport <ExcludeEmailFromExport>` to true.
 
 Additional Recommendations
 ++++++++++++++++++++++++++
@@ -56,14 +56,14 @@ Even if you are satisfied with the out-of-the-box password complexity rules Data
 
 Password complexity rules for "builtin" accounts can be adjusted with a variety of settings documented below. Here's a list:
 
-- :ref:`:PVMinLength`
-- :ref:`:PVMaxLength`
-- :ref:`:PVNumberOfConsecutiveDigitsAllowed`
-- :ref:`:PVCharacterRules`
-- :ref:`:PVNumberOfCharacteristics`
-- :ref:`:PVDictionaries`
-- :ref:`:PVGoodStrength`
-- :ref:`:PVCustomPasswordResetAlertMessage`
+- :ref:`PVMinLength`
+- :ref:`PVMaxLength`
+- :ref:`PVNumberOfConsecutiveDigitsAllowed`
+- :ref:`PVCharacterRules`
+- :ref:`PVNumberOfCharacteristics`
+- :ref:`:PVDictionaries <:PVDictionaries>`
+- :ref:`PVGoodStrength`
+- :ref:`:PVCustomPasswordResetAlertMessage <:PVCustomPasswordResetAlertMessage>`
 
 Network Ports
 -------------
@@ -132,40 +132,34 @@ By default Dataverse attempts to register DOIs for each dataset and file under a
 
 Here are the configuration options for DOIs:
 
-**JVM Options:**
+**File Settings:**
 
-- :ref:`doi.baseurlstring`
-- :ref:`doi.username`
-- :ref:`doi.password`
-
-**Database Settings:**
-
-- :ref:`:DoiProvider <:DoiProvider>`
-- :ref:`:Protocol <:Protocol>`
-- :ref:`:Authority <:Authority>`
-- :ref:`:Shoulder <:Shoulder>`
-- :ref:`:IdentifierGenerationStyle <:IdentifierGenerationStyle>` (optional)
-- :ref:`:DataFilePIDFormat <:DataFilePIDFormat>` (optional)
-- :ref:`:FilePIDsEnabled <:FilePIDsEnabled>` (optional, defaults to true)
+- :ref:`DoiBaseUrlString`
+- :ref:`DoiUsername`
+- :ref:`DoiPassword`
+- :ref:`DoiProvider <DoiProvider>`
+- :ref:`Protocol <Protocol>`
+- :ref:`Authority <Authority>`
+- :ref:`Shoulder <Shoulder>`
+- :ref:`IdentifierGenerationStyle <IdentifierGenerationStyle>` (optional)
+- :ref:`DataFilePIDFormat <DataFilePIDFormat>` (optional)
+- :ref:`FilePIDsEnabled <FilePIDsEnabled>` (optional, defaults to true)
 
 Configuring Dataverse for Handles
 +++++++++++++++++++++++++++++++++
 
 Here are the configuration options for handles:
 
-**JVM Options:**
+**File Settings:**
 
-- :ref:`dataverse.handlenet.admcredfile`
-- :ref:`dataverse.handlenet.admprivphrase`
-- :ref:`dataverse.handlenet.index`
-
-**Database Settings:**
-
-- :ref:`:Protocol <:Protocol>`
-- :ref:`:Authority <:Authority>`
-- :ref:`:IdentifierGenerationStyle <:IdentifierGenerationStyle>` (optional)
-- :ref:`:DataFilePIDFormat <:DataFilePIDFormat>` (optional)
-- :ref:`:IndependentHandleService <:IndependentHandleService>` (optional)
+- :ref:`HandleNetAdmCredFile`
+- :ref:`HandleNetAdmPrivPhrase`
+- :ref:`HandleNetIndex`
+- :ref:`Protocol <Protocol>`
+- :ref:`Authority <Authority>`
+- :ref:`IdentifierGenerationStyle <IdentifierGenerationStyle>` (optional)
+- :ref:`DataFilePIDFormat <DataFilePIDFormat>` (optional)
+- :ref:`IndependentHandleService <IndependentHandleService>` (optional)
 
 Note: If you are **minting your own handles** and plan to set up your own handle service, please refer to `Handle.Net documentation <http://handle.net/hnr_documentation.html>`_.
 
@@ -685,8 +679,8 @@ Setting Up Integrations
 
 Before going live, you might want to consider setting up integrations to make it easier for your users to deposit or explore data. See the :doc:`/admin/integrations` section of the Admin Guide for details.
 
-File Options
------------
+File Settings
+------------
 Database settings and most JVM options were moved to the file based configuration in order to simplify usage.
 
 In order to edit the options you should move dataverse.default.properties file to {HOME_DIR}/.dataverse and rename it to dataverse.properties.
@@ -752,19 +746,19 @@ You can switch to production DataCite with following change:
 
 ``DoiBaseUrlString=https://mds.datacite.org``
 
-See also these related database settings below:
+See also these related file settings below:
 
-- :ref:`:DoiProvider`
-- :ref:`:Protocol`  
-- :ref:`:Authority`
-- :ref:`:Shoulder`
+- :ref:`DoiProvider`
+- :ref:`Protocol`
+- :ref:`Authority`
+- :ref:`Shoulder`
 
-.. _doi.username:
+.. _DoiUsername:
 
 DoiUsername
 ++++++++++++
 
-Used in conjuction with ``DoiBaseUrlString`.
+Used in conjuction with ``DoiBaseUrlString``.
 
 Once you have a username from your provider, you can edit it like this:
 
@@ -775,7 +769,7 @@ Once you have a username from your provider, you can edit it like this:
 DoiPassword
 ++++++++++++
 
-Used in conjuction with ``DoiBaseUrlString``.
+Used in conjuction with ``DoiBaseUrlString``
 
 Once you have a password from your provider, you can enter it like this:
 
@@ -798,7 +792,7 @@ This setting is also part of **handles** configuration. The Handle.Net installer
 
 HandleNetIndex
 +++++++++++++++++++++++++++++++++
-If you want to use different index than the default 300
+If you want to use different index than the default 300.
 
 .. _TimerServer:
 
@@ -828,15 +822,6 @@ MinutesUntilPasswordResetTokenExpires
 Indicates amount of minutes before password reset token expires after user requested password reset. 60 minutes by default.
 
 ``MinutesUntilPasswordResetTokenExpires=60``
-
-Database Settings
------------------
-
-These settings are stored in the ``setting`` database table but can be read and modified via the "admin" endpoint of the :doc:`/api/native-api` for easy scripting.
-
-The most commonly used configuration options are listed first.
-
-The pattern you will observe in curl examples below is that an HTTP ``PUT`` is used to add or modify a setting. If you perform an HTTP ``GET`` (the default when using curl), the output will contain the value of the setting, if it has been set. You can also do a ``GET`` of all settings with ``curl http://localhost:8080/api/admin/settings`` which you may want to pretty-print by piping the output through a tool such as jq by appending ``| jq .``. If you want to remove a setting, use an HTTP ``DELETE`` such as ``curl -X DELETE http://localhost:8080/api/admin/settings/:GuidesBaseUrl`` .
 
 BlockedApiPolicy
 +++++++++++++++++
@@ -916,9 +901,9 @@ As of this writing "DataCite" and "EZID" are the only valid options for producti
 
 This setting relates to the ``Protocol``, ``Authority``, ``Shoulder``, and ``IdentifierGenerationStyle`` file settings below:
 
-- :ref:`doi.baseurlstring`
-- :ref:`doi.username`
-- :ref:`doi.password`
+- :ref:`DoiBaseUrlString`
+- :ref:`DoiUsername`
+- :ref:`DoiPassword`
 
 .. _Protocol:
 
@@ -1007,6 +992,8 @@ Toggles publishing of file-based PIDs for the entire installation. By default th
 If you don't want to register file-based PIDs for your installation, set it to false.
 
 Note: File-level PID registration was added in 4.9 and is required until version 4.9.3.
+
+.. _IndependentHandleService:
 
 IndependentHandleService
 +++++++++++++++++++++++++++
@@ -1228,7 +1215,7 @@ By default, passwords can contain an unlimited number of digits in a row. Howeve
 PVCharacterRules
 +++++++++++++++++
 
-Password policy setting for builtinuser accounts: dictates which types of characters can be required in a password. This setting goes hand-in-hand with :ref:`:PVNumberOfCharacteristics`. The default setting contains two rules:
+Password policy setting for builtinuser accounts: dictates which types of characters can be required in a password. This setting goes hand-in-hand with :ref:`PVNumberOfCharacteristics`. The default setting contains two rules:
 
 - one letter
 - one digit
@@ -1371,9 +1358,9 @@ InheritParentRoleAssignments
 +++++++++++++++++++++++++++++
 
 ``InheritParentRoleAssignments`` can be set to a comma-separated list of role aliases or '*' (all) to cause newly created Dataverses to inherit the set of users and/or internal groups who have assignments for those role(s) on the parent Dataverse, i.e. those users/groups will be assigned the same role(s) on the new Dataverse (in addition to the creator of the new Dataverse having an admin role).
-This can be helpful in situations where multiple organizations are sharing one Dataverse instance. The default, if ``::InheritParentRoleAssignments`` is not set is for the creator of the new Dataverse to be the only one assigned a role.
+This can be helpful in situations where multiple organizations are sharing one Dataverse instance. The default, if ``InheritParentRoleAssignments`` is not set is for the creator of the new Dataverse to be the only one assigned a role.
 
-``InheritParentRoleAssignments=admin,curator`
+``InheritParentRoleAssignments=admin,curator``
 or 
 ``InheritParentRoleAssignments=*``
 
@@ -1436,7 +1423,7 @@ Indicates full name of the site that will be presented in the header below SiteN
 
 Setting can be postfixed with language code to obtain translated versions.
 
-``SiteFullName.pl=Repozytorium Otwartych Danych ``
+``SiteFullName.pl=Repozytorium Otwartych Danych``
 
 MaximumEmbargoLength
 ++++++++++++++++++++
@@ -1608,6 +1595,8 @@ Set ``SearchHighlightFragmentSize`` to override the default value of 100 from ht
 
 ``curl -X PUT -d 320 http://localhost:8080/api/admin/settings/:SearchHighlightFragmentSize``
 
+.. _:PVDictionaries:
+
 :PVDictionaries
 +++++++++++++++
 
@@ -1616,6 +1605,8 @@ Password policy setting for builtin user accounts: set a comma separated list of
 ``DIR=THE_PATH_YOU_WANT_YOUR_DICTIONARY_TO_RESIDE``
 ``sed '/^.\{,3\}$/d' /usr/share/dict/words > $DIR/pwdictionary``
 ``curl -X PUT -d "$DIR/pwdictionary" http://localhost:8080/api/admin/settings/:PVDictionaries``
+
+.. _:PVCustomPasswordResetAlertMessage:
 
 :PVCustomPasswordResetAlertMessage
 ++++++++++++++++++++++++++++++++++
@@ -1630,6 +1621,7 @@ Customize the message using the following curl command's syntax:
 
 ``curl -X PUT -d '{0} Action Required:{1} Your current password does not meet all requirements. Please enter a new password meeting the criteria below.' http://localhost:8080/api/admin/settings/:PVCustomPasswordResetAlertMessage``
 
+.. _:ComputeBaseUrl:
 
 :ComputeBaseUrl
 +++++++++++++++
