@@ -601,7 +601,7 @@ Setting Up Integrations
 Before going live, you might want to consider setting up integrations to make it easier for your users to deposit or explore data. See the :doc:`/admin/integrations` section of the Admin Guide for details.
 
 File Settings
-------------
+-------------
 Database settings and most JVM options were moved to the file based configuration in order to simplify usage.
 
 In order to edit the options you should move dataverse.default.properties file to {HOME_DIR}/.dataverse and rename it to dataverse.properties.
@@ -950,6 +950,13 @@ GuidesBaseUrl
 ++++++++++++++
 
 Set ``GuidesBaseUrl`` to override the default value "http://guides.dataverse.org". If you are interested in writing your own version of the guides, you may find the :doc:`/developers/documentation` section of the Developer Guide helpful.
+
+IP_WHITELIST_KEY
+++++++++++++++++
+
+Sets ip addresses that are allowed to resume :doc:`../developers/workflows`. Use ``;`` as seperator. By default it is local ip.
+
+``IP_WHITELIST_KEY=127.0.0.1;::1``
 
 GuidesVersion
 ++++++++++++++
