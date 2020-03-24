@@ -59,6 +59,13 @@ public class SingleFileFacadeTest {
         dataFile.setProvEntityName("");
         FileMetadata fileToSave = new FileMetadata();
         fileToSave.setDataFile(dataFile);
+        DatasetVersion dsv = new DatasetVersion();
+        dsv.setId(1L);
+        Dataset dataset = new Dataset();
+        dataset.setId(1L);
+        dsv.setDataset(dataset);
+        dataset.setVersions(Lists.newArrayList(dsv));
+        fileToSave.setDatasetVersion(dsv);
 
         String provFreeForm = "provFree";
         HashMap<String, UpdatesEntry> provenanceUpdates = of(checksum, new UpdatesEntry(dataFile, "prov", false, provFreeForm))
