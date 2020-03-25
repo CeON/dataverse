@@ -110,14 +110,14 @@ Persistent Identifiers and Publishing Datasets
 
 Persistent identifiers are a required and integral part of the Dataverse platform. They provide a URL that is guaranteed to resolve to the datasets or files they represent. Dataverse currently supports creating identifiers using DOI and Handle.
 
-By default, the installer configures a default DOI namespace (10.5072) with DataCite as the registration provider. Please note that as of the release 4.9.3, we can no longer use EZID as the provider. Unlike EZID, DataCite requires that you register for a test account, configured with your own prefix (please contact support@datacite.org). Once you receive the login name, password, and prefix for the account, configure the credentials in your domain.xml, as the following two JVM options::
+By default, the installer configures a default DOI namespace (10.5072) with DataCite as the registration provider. Please note that as of the release 4.9.3, we can no longer use EZID as the provider. Unlike EZID, DataCite requires that you register for a test account, configured with your own prefix (please contact support@datacite.org). Once you receive the login name, password, and prefix for the account, configure the credentials in your properties file::
 
-      <jvm-options>-Ddoi.username=...</jvm-options>
-      <jvm-options>-Ddoi.password=...</jvm-options>
+      DoiUsername=...
+      DoiPassword=...
 
-and restart Glassfish. The prefix can be configured via the API (where it is referred to as "Authority"):
+and restart Glassfish. The prefix can be also configured via the properties file (where it is referred to as "Authority"):
 
-``curl -X PUT -d 10.xxxx http://localhost:8080/api/admin/settings/:Authority``
+``Authority=10.xxxx``
 
 Once this is done, you will be able to publish datasets and files, but the persistent identifiers will not be citable, and they will only resolve from the DataCite test environment (and then only if the Dataverse from which you published them is accessible - DOIs minted from your laptop will not resolve). Note that any datasets or files created using the test configuration cannot be directly migrated and would need to be created again once a valid DOI namespace is configured.
 
@@ -925,11 +925,9 @@ By default this setting is false.
 ApplicationTermsOfUse
 ++++++++++++++++++++++
 
-Upload an HTML file containing the Terms of Use to be displayed at sign up. Supported HTML tags are listed under the :doc:`/user/dataset-management` section of the User Guide.
+Set a Terms of Use text to be displayed at sign up.
 
-``ApplicationTermsOfUse=@/tmp/apptou.html``
-
-Unfortunately, in most cases, the text file will probably be too big to upload (>1024 characters) due to a bug. A workaround has been posted to https://github.com/IQSS/dataverse/issues/2669
+``ApplicationTermsOfUse=Terms of Use``
 
 ApiTermsOfUse
 ++++++++++++++
@@ -1548,24 +1546,6 @@ Where the {0} and {1} denote surrounding HTML **bold** tags. It's recommended to
 Customize the message using the following curl command's syntax:
 
 ``curl -X PUT -d '{0} Action Required:{1} Your current password does not meet all requirements. Please enter a new password meeting the criteria below.' http://localhost:8080/api/admin/settings/:PVCustomPasswordResetAlertMessage``
-
-.. _:ComputeBaseUrl:
-
-:ComputeBaseUrl
-+++++++++++++++
-
-Set the base URL for the "Compute" button for a dataset.
-
-``curl -X PUT -d 'https://giji.massopencloud.org/application/dataverse' http://localhost:8080/api/admin/settings/:ComputeBaseUrl``
-
-.. _:CloudEnvironmentName:
-
-:CloudEnvironmentName
-+++++++++++++++++++++
-
-Set the name of the cloud environment you've integrated with your Dataverse installation.
-
-``curl -X PUT -d 'Massachusetts Open Cloud (MOC)' http://localhost:8080/api/admin/settings/:CloudEnvironmentName``
 
 :DataCaptureModuleUrl
 +++++++++++++++++++++
