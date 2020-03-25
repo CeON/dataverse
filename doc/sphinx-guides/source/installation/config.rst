@@ -26,7 +26,7 @@ The :doc:`/api/native-api` contains a useful but potentially dangerous API endpo
 
 By default, all APIs can be operated on remotely and a number of endpoints do not require authentication. https://github.com/IQSS/dataverse/issues/1886 was opened to explore changing these defaults, but until then it is very important to block both the "admin" endpoint (and at least consider blocking ``builtin-users``). For details please see also the section on ``:BlockedApiPolicy`` below.
 
-It's also possible to prevent file uploads via API by adjusting the ``:UploadMethods`` database setting.
+It's also possible to prevent file uploads via API by adjusting the ``UploadMethods`` file setting.
 
 Forcing HTTPS
 +++++++++++++
@@ -61,9 +61,9 @@ Password complexity rules for "builtin" accounts can be adjusted with a variety 
 - :ref:`PVNumberOfConsecutiveDigitsAllowed`
 - :ref:`PVCharacterRules`
 - :ref:`PVNumberOfCharacteristics`
-- :ref:`:PVDictionaries <:PVDictionaries>`
+- :ref:`PVDictionaries <PVDictionaries>`
 - :ref:`PVGoodStrength`
-- :ref:`:PVCustomPasswordResetAlertMessage <:PVCustomPasswordResetAlertMessage>`
+- :ref:`PVCustomPasswordResetAlertMessage <PVCustomPasswordResetAlertMessage>`
 
 Network Ports
 -------------
@@ -123,7 +123,7 @@ Once this is done, you will be able to publish datasets and files, but the persi
 
 To properly configure persistent identifiers for a production installation, an account and associated namespace must be acquired for a fee from a DOI or HDL provider. **DataCite** (https://www.datacite.org) is the recommended DOI provider (see https://dataverse.org/global-dataverse-community-consortium for more on joining DataCite) but **EZID** (http://ezid.cdlib.org) is an option for the University of California according to https://www.cdlib.org/cdlinfo/2017/08/04/ezid-doi-service-is-evolving/ . **Handle.Net** (https://www.handle.net) is the HDL provider.
 
-Once you have your DOI or Handle account credentials and a namespace, configure Dataverse to use them using the JVM options and database settings below.
+Once you have your DOI or Handle account credentials and a namespace, configure Dataverse to use them using the file options.
 
 Configuring Dataverse for DOIs
 ++++++++++++++++++++++++++++++
@@ -183,7 +183,7 @@ Enabling a second authentication provider will result in the Log In page showing
 "Remote only" mode should be considered experimental until https://github.com/IQSS/dataverse/issues/2974 is resolved. For now, "remote only" means:
 
 - Shibboleth or OAuth has been enabled.
-- ``:AllowSignUp`` is set to "false" per the :doc:`config` section to prevent users from creating local accounts via the web interface. Please note that local accounts can also be created via API, and the way to prevent this is to block the ``builtin-users`` endpoint or scramble (or remove) the ``BuiltinUsers.KEY`` database setting per the :doc:`config` section. 
+- ``:AllowSignUp`` is set to "false" per the :doc:`config` section to prevent users from creating local accounts via the web interface. Please note that local accounts can also be created via API, and the way to prevent this is to block the ``builtin-users`` endpoint or scramble (or remove) the ``BuiltinUsers.KEY`` file setting per the :doc:`config` section.
 - The "builtin" authentication provider has been disabled. Note that disabling the builting auth provider means that the API endpoint for converting an account from a remote auth provider will not work. This is the main reason why https://github.com/IQSS/dataverse/issues/2974 is still open. Converting directly from one remote authentication provider to another (i.e. from GitHub to Google) is not supported. Conversion from remote is always to builtin. Then the user initiates a conversion from builtin to remote. Note that longer term, the plan is to permit multiple login options to the same Dataverse account per https://github.com/IQSS/dataverse/issues/3487 (so all this talk of conversion will be moot) but for now users can only use a single login option, as explained in the :doc:`/user/account` section of the User Guide. In short, "remote only" might work for you if you only plan to use a single remote authentication provider such that no conversion between remote authentication providers will be necessary.
 
 File Storage: Local Filesystem vs. S3
@@ -387,17 +387,17 @@ Dataverse allows you to use a custom homepage or welcome page in place of the de
 
 Download this sample: :download:`custom-homepage.html </_static/installation/files/var/www/dataverse/branding/custom-homepage.html>` and place it at ``/var/www/dataverse/branding/custom-homepage.html``.
 
-Once you have the location of your custom homepage HTML file, run this curl command to add it to your settings:
+Once you have the location of your custom homepage HTML file, edit file setting:
 
-``curl -X PUT -d '/var/www/dataverse/branding/custom-homepage.html' http://localhost:8080/api/admin/settings/:HomePageCustomizationFile``
+``HomePageCustomizationFile=/var/www/dataverse/branding/custom-homepage.html``
 
 If you prefer to start with less of a blank slate, you can download the :download:`custom-homepage-dynamic.html </_static/installation/files/var/www/dataverse/branding/custom-homepage-dynamic.html>` template which was built for the Harvard Dataverse, and includes branding messaging, action buttons, search input, subject links, and recent dataset links. This page was built to utilize the :doc:`/api/metrics` to deliver dynamic content to the page via javascript.
 
 Note that the ``custom-homepage.html`` and ``custom-homepage-dynamic.html`` files provided have multiple elements that assume your root dataverse still has an alias of "root". While you were branding your root dataverse, you may have changed the alias to "harvard" or "librascholar" or whatever and you should adjust the custom homepage code as needed.
 
-For more background on what this curl command above is doing, see the "Database Settings" section below. If you decide you'd like to remove this setting, use the following curl command:
+For more background on what this file setting is doing, see the "File Settings" section below. If you decide you'd like to remove this setting, just remove the value:
 
-``curl -X DELETE http://localhost:8080/api/admin/settings/:HomePageCustomizationFile``
+``HomePageCustomizationFile=``
 
 Custom Navbar Logo
 +++++++++++++++++++
@@ -406,22 +406,22 @@ Dataverse allows you to replace the default Dataverse icon and name branding in 
 
 The custom logo image file is expected to be small enough to fit comfortably in the navbar, no more than 50 pixels in height and 160 pixels in width. Create a ``navbar`` directory in your Glassfish ``logos`` directory and place your custom logo there. By Glassfish default, your logo image file will be located at ``/usr/local/glassfish4/glassfish/domains/domain1/docroot/logos/navbar/logo.png``.
 
-Once you have the location of your custom logo image file, run this curl command to add it to your settings:
+Once you have the location of your custom logo image file, edit this file setting:
 
-``curl -X PUT -d '/logos/navbar/logo.png' http://localhost:8080/api/admin/settings/:LogoCustomizationFile``
+``LogoCustomizationFile=/logos/navbar/logo.png``
 
 Custom Header
 +++++++++++++
 
 Download this sample: :download:`custom-header.html </_static/installation/files/var/www/dataverse/branding/custom-header.html>` and place it at ``/var/www/dataverse/branding/custom-header.html``.
 
-Once you have the location of your custom header HTML file, run this curl command to add it to your settings:
+Once you have the location of your custom header HTML file, set this file setting:
 
-``curl -X PUT -d '/var/www/dataverse/branding/custom-header.html' http://localhost:8080/api/admin/settings/:HeaderCustomizationFile``
+``HeaderCustomizationFile=/var/www/dataverse/branding/custom-header.html``
 
-If you have enabled a custom header or navbar logo, you might prefer to disable the theme of the root dataverse. You can do so by setting ``:DisableRootDataverseTheme`` to ``true`` like this:
+If you have enabled a custom header or navbar logo, you might prefer to disable the theme of the root dataverse. You can do so by setting ``DisableRootDataverseTheme`` to ``true`` like this:
 
-``curl -X PUT -d 'true' http://localhost:8080/api/admin/settings/:DisableRootDataverseTheme``
+``DisableRootDataverseTheme=true``
 
 Please note: Disabling the display of the root dataverse theme also disables your ability to edit it. Remember that dataverse owners can set their dataverses to "inherit theme" from the root. Those dataverses will continue to inherit the root dataverse theme (even though it no longer displays on the root). If you would like to edit the root dataverse theme in the future, you will have to re-enable it first.
 
@@ -431,9 +431,9 @@ Custom Footer
 
 Download this sample: :download:`custom-footer.html </_static/installation/files/var/www/dataverse/branding/custom-footer.html>` and place it at ``/var/www/dataverse/branding/custom-footer.html``.
 
-Once you have the location of your custom footer HTML file, run this curl command to add it to your settings:
+Once you have the location of your custom footer HTML file, edit this file setting:
 
-``curl -X PUT -d '/var/www/dataverse/branding/custom-footer.html' http://localhost:8080/api/admin/settings/:FooterCustomizationFile``
+``FooterCustomizationFile=/var/www/dataverse/branding/custom-footer.html``
 
 Custom Stylesheet
 +++++++++++++++++
@@ -442,9 +442,9 @@ You can style your custom homepage, footer and header content with a custom CSS 
 
 Download this sample: :download:`custom-stylesheet.css </_static/installation/files/var/www/dataverse/branding/custom-stylesheet.css>` and place it at ``/var/www/dataverse/branding/custom-stylesheet.css``.
 
-Once you have the location of your custom CSS file, run this curl command to add it to your settings:
+Once you have the location of your custom CSS file, edit this file setting:
 
-``curl -X PUT -d '/var/www/dataverse/branding/custom-stylesheet.css' http://localhost:8080/api/admin/settings/:StyleCustomizationFile``
+``StyleCustomizationFile=/var/www/dataverse/branding/custom-stylesheet.css``
 
 .. _Web-Analytics-Code:
 
@@ -463,9 +463,9 @@ Create your own ``analytics-code.html`` file using the analytics code snippet pr
         // Analytics code here...
     </script>
 
-Once you have the location of your analytics file, run this curl command to add it to your settings:
+Once you have the location of your analytics file, edit this file setting:
 
-``curl -X PUT -d '/var/www/dataverse/branding/analytics-code.html' http://localhost:8080/api/admin/settings/:WebAnalyticsCode``
+``WebAnalyticsCode=/var/www/dataverse/branding/analytics-code.html``
 
 DuraCloud/Chronopolis Integration
 ---------------------------------
@@ -1372,6 +1372,118 @@ Enables showing link to Terms of Use page in the footer. By default is set to 'f
 
 ``ShowTermsOfUseFooterLink=false``
 
+BlockedApiKey
+++++++++++++++
+
+Used in conjunction with the ``BlockedApiPolicy`` being set to ``unblock-key``. When calling blocked APIs, add a query parameter of ``unblock-key=theKeyYouChose`` to use the key.
+
+``BlockedApiKey=localhost-only``
+
+BuiltinUsers.KEY
+++++++++++++++++
+
+The key required to create users via API as documented at :doc:`/api/native-api`.
+
+``BuiltinUsers.KEY=builtInS3kretKey``
+
+FooterCopyright
+++++++++++++++++
+
+By default the footer says "Copyright © [YYYY]" but you can add text after the year, as in the example below.
+
+``FooterCopyright=, Your Institution``
+
+ApplicationPrivacyPolicyUrl
+++++++++++++++++++++++++++++
+
+Specify a URL where users can read your Privacy Policy, linked from the bottom of the page.
+
+``ApplicationPrivacyPolicyUrl=https://dataverse.org/best-practices/harvard-dataverse-privacy-policy``
+
+NavbarAboutUrl
++++++++++++++++
+
+Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for the "About" link in the navbar.
+
+Note: The "About" link will not appear in the navbar until this option is set.
+
+``NavbarAboutUrl=http://dataverse.example.edu``
+
+
+NavbarSupportUrl
++++++++++++++++++
+Set ``NavbarSupportUrl`` to a fully-qualified URL which will be used for the "Support" link in the navbar.
+
+Note that this will override the default behaviour for the "Support" menu option, which is to display the dataverse 'feedback' dialog.
+
+``NavbarSupportUrl=http://dataverse.example.edu/supportpage.html``
+
+StatusMessageHeader
+++++++++++++++++++++
+
+For dynamically adding an informational header to the top of every page. StatusMessageText must also be set for a message to show. For example, "For testing only..." at the top of https://demo.dataverse.org is set with this:
+
+``StatusMessageHeader=For testing only...``
+
+You can make the text clickable and include an additional message in a pop up by setting ``StatusMessageText``.
+
+StatusMessageText
+++++++++++++++++++
+
+Alongside the ``StatusMessageHeader`` you need to add StatusMessageText for the message to show.:
+
+``StatusMessageText=This appears in a popup.``
+
+DatasetPublishPopupCustomText
+++++++++++++++++++++++++++++++
+
+Set custom text a user will view when publishing a dataset. Note that this text is exposed via the "Info" endpoint of the :doc:`/api/native-api`.
+
+``DatasetPublishPopupCustomText=Deposit License Requirements``
+
+SearchHighlightFragmentSize
+++++++++++++++++++++++++++++
+
+Set ``SearchHighlightFragmentSize`` to override the default value of 100 from https://wiki.apache.org/solr/HighlightingParameters#hl.fragsize . In practice, a value of "320" seemed to fix the issue at https://github.com/IQSS/dataverse/issues/2191
+
+``SearchHighlightFragmentSize=320``
+
+.. _PVDictionaries:
+
+PVDictionaries
++++++++++++++++
+
+Password policy setting for builtin user accounts: set a comma separated list of dictionaries containing words that cannot be used in a user password. ``/usr/share/dict/words`` is suggested and shown modified below to not contain words 3 letters or less. You are free to choose a different dictionary. By default, no dictionary is checked.
+
+.. _PVCustomPasswordResetAlertMessage:
+
+PVCustomPasswordResetAlertMessage
+++++++++++++++++++++++++++++++++++
+
+Changes the default info message displayed when a user is required to change their password on login. The default is:
+
+``{0} Reset Password{1} – Our password requirements have changed. Please pick a strong password that matches the criteria below.``
+
+Where the {0} and {1} denote surrounding HTML **bold** tags. It's recommended to put a single space before your custom message for better appearance (as in the default message above). Including the {0} and {1} to bolden part of your message is optional.
+
+Customize the message using the following curl command's syntax:
+
+``PVCustomPasswordResetAlertMessage={0} Action Required:{1} Your current password does not meet all requirements. Please enter a new password meeting the criteria below.``
+
+DataCaptureModuleUrl
++++++++++++++++++++++
+
+The URL for your Data Capture Module (DCM) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/data-capture-module .
+
+``DataCaptureModuleUrl=https://dcm.example.edu``
+
+RepositoryStorageAbstractionLayerUrl
++++++++++++++++++++++++++++++++++++++
+
+The URL for your Repository Storage Abstraction Layer (RSAL) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/rsal .
+
+``RepositoryStorageAbstractionLayerUrl=https://rsal.example.edu``
+
 JVM Options
 -----------
 
@@ -1420,143 +1532,3 @@ This JVM option is used to configure the path where all the language specific pr
 ``./asadmin create-jvm-options '-Ddataverse.lang.directory=PATH_LOCATION_HERE'``
 
 If this value is not set, by default, a Dataverse installation will read the English language property files from the Java Application.
-
-Database Settings
------------------
-
-These settings are stored in the ``setting`` database table but can be read and modified via the "admin" endpoint of the :doc:`/api/native-api` for easy scripting.
-
-The most commonly used configuration options are listed first.
-
-The pattern you will observe in curl examples below is that an HTTP ``PUT`` is used to add or modify a setting. If you perform an HTTP ``GET`` (the default when using curl), the output will contain the value of the setting, if it has been set. You can also do a ``GET`` of all settings with ``curl http://localhost:8080/api/admin/settings`` which you may want to pretty-print by piping the output through a tool such as jq by appending ``| jq .``. If you want to remove a setting, use an HTTP ``DELETE`` such as ``curl -X DELETE http://localhost:8080/api/admin/settings/:GuidesBaseUrl`` .
-
-:BlockedApiKey
-++++++++++++++
-
-Used in conjunction with the ``BlockedApiPolicy`` being set to ``unblock-key``. When calling blocked APIs, add a query parameter of ``unblock-key=theKeyYouChose`` to use the key.
-
-``curl -X PUT -d localhost-only http://localhost:8080/api/admin/settings/:BlockedApiPolicy``
-
-BuiltinUsers.KEY
-++++++++++++++++
-
-The key required to create users via API as documented at :doc:`/api/native-api`. Unlike other settings, this one doesn't start with a colon.
-
-``curl -X PUT -d builtInS3kretKey http://localhost:8080/api/admin/settings/BuiltinUsers.KEY``
-
-:FooterCopyright
-++++++++++++++++
-
-By default the footer says "Copyright © [YYYY]" but you can add text after the year, as in the example below.
-
-``curl -X PUT -d ", Your Institution" http://localhost:8080/api/admin/settings/:FooterCopyright``
-
-:ApplicationPrivacyPolicyUrl
-++++++++++++++++++++++++++++
-
-Specify a URL where users can read your Privacy Policy, linked from the bottom of the page.
-
-``curl -X PUT -d https://dataverse.org/best-practices/harvard-dataverse-privacy-policy http://localhost:8080/api/admin/settings/:ApplicationPrivacyPolicyUrl``
-
-
-:NavbarAboutUrl
-+++++++++++++++
-
-Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for the "About" link in the navbar.
-
-Note: The "About" link will not appear in the navbar until this option is set.
-
-``curl -X PUT -d http://dataverse.example.edu http://localhost:8080/api/admin/settings/:NavbarAboutUrl``
-
-
-:NavbarSupportUrl
-+++++++++++++++++
-Set ``:NavbarSupportUrl`` to a fully-qualified URL which will be used for the "Support" link in the navbar.
-
-Note that this will override the default behaviour for the "Support" menu option, which is to display the dataverse 'feedback' dialog.
-
-``curl -X PUT -d http://dataverse.example.edu/supportpage.html http://localhost:8080/api/admin/settings/:NavbarSupportUrl``
-
-:StatusMessageHeader
-++++++++++++++++++++
-
-For dynamically adding an informational header to the top of every page. StatusMessageText must also be set for a message to show. For example, "For testing only..." at the top of https://demo.dataverse.org is set with this:
-
-``curl -X PUT -d "For testing only..." http://localhost:8080/api/admin/settings/:StatusMessageHeader``
-
-You can make the text clickable and include an additional message in a pop up by setting ``:StatusMessageText``.
-
-:StatusMessageText
-++++++++++++++++++
-
-Alongside the ``:StatusMessageHeader`` you need to add StatusMessageText for the message to show.:
-
-``curl -X PUT -d "This appears in a popup." http://localhost:8080/api/admin/settings/:StatusMessageText``
-
-:TwoRavensUrl
-+++++++++++++
-
-The ``:TwoRavensUrl`` option is no longer valid. See :doc:`r-rapache-tworavens` and :doc:`external-tools`.
-
-:TwoRavensTabularView
-+++++++++++++++++++++
-
-The ``:TwoRavensTabularView`` option is no longer valid. See :doc:`r-rapache-tworavens` and :doc:`external-tools`.
-
-:DatasetPublishPopupCustomText
-++++++++++++++++++++++++++++++
-
-Set custom text a user will view when publishing a dataset. Note that this text is exposed via the "Info" endpoint of the :doc:`/api/native-api`.
-
-``curl -X PUT -d "Deposit License Requirements" http://localhost:8080/api/admin/settings/:DatasetPublishPopupCustomText``
-
-If you have a long text string, you can upload it as a file as in the example below.
-
-``curl -X PUT --upload-file /tmp/long.txt http://localhost:8080/api/admin/settings/:DatasetPublishPopupCustomText``
-
-:SearchHighlightFragmentSize
-++++++++++++++++++++++++++++
-
-Set ``SearchHighlightFragmentSize`` to override the default value of 100 from https://wiki.apache.org/solr/HighlightingParameters#hl.fragsize . In practice, a value of "320" seemed to fix the issue at https://github.com/IQSS/dataverse/issues/2191
-
-``curl -X PUT -d 320 http://localhost:8080/api/admin/settings/:SearchHighlightFragmentSize``
-
-.. _:PVDictionaries:
-
-:PVDictionaries
-+++++++++++++++
-
-Password policy setting for builtin user accounts: set a comma separated list of dictionaries containing words that cannot be used in a user password. ``/usr/share/dict/words`` is suggested and shown modified below to not contain words 3 letters or less. You are free to choose a different dictionary. By default, no dictionary is checked.
-
-``DIR=THE_PATH_YOU_WANT_YOUR_DICTIONARY_TO_RESIDE``
-``sed '/^.\{,3\}$/d' /usr/share/dict/words > $DIR/pwdictionary``
-``curl -X PUT -d "$DIR/pwdictionary" http://localhost:8080/api/admin/settings/:PVDictionaries``
-
-.. _:PVCustomPasswordResetAlertMessage:
-
-:PVCustomPasswordResetAlertMessage
-++++++++++++++++++++++++++++++++++
-
-Changes the default info message displayed when a user is required to change their password on login. The default is:
-
-``{0} Reset Password{1} – Our password requirements have changed. Please pick a strong password that matches the criteria below.``
-
-Where the {0} and {1} denote surrounding HTML **bold** tags. It's recommended to put a single space before your custom message for better appearance (as in the default message above). Including the {0} and {1} to bolden part of your message is optional.
-
-Customize the message using the following curl command's syntax:
-
-``curl -X PUT -d '{0} Action Required:{1} Your current password does not meet all requirements. Please enter a new password meeting the criteria below.' http://localhost:8080/api/admin/settings/:PVCustomPasswordResetAlertMessage``
-
-:DataCaptureModuleUrl
-+++++++++++++++++++++
-
-The URL for your Data Capture Module (DCM) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/data-capture-module .
-
-``curl -X PUT -d 'https://dcm.example.edu' http://localhost:8080/api/admin/settings/:DataCaptureModuleUrl``
-
-:RepositoryStorageAbstractionLayerUrl
-+++++++++++++++++++++++++++++++++++++
-
-The URL for your Repository Storage Abstraction Layer (RSAL) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/rsal .
-
-``curl -X PUT -d 'https://rsal.example.edu' http://localhost:8080/api/admin/settings/:RepositoryStorageAbstractionLayerUrl``
