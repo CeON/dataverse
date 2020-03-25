@@ -10,13 +10,17 @@
     <!--@elvariable id="fieldsByType" type="edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType"-->
 
     <div class="col-sm-9">
+        
+<!--         <ui:include src="#{fieldDisplayRendererManager.obtainRenderer(fieldsByType.datasetFieldType)}"> -->
+<!--             <ui:param name="fieldsByType" value="#{fieldsByType}"/> -->
+<!--         </ui:include> -->
+        
         <ui:fragment rendered="#{fieldsByType.datasetFieldType.name == 'datasetContact'}">
             <p class="help-block">
                 <h:outputText value="#{bundle['dataset.contact.tip']}"/>
             </p>
         </ui:fragment>
         
-        <!--@elvariable id="datasetField" type="edu.harvard.iq.dataverse.persistence.dataset.DatasetField"-->
         <ui:repeat var="datasetField" value="#{fieldsByType.datasetFields}" varStatus="fieldsLoop">
             <ui:fragment rendered="#{!fieldsLoop.first and fieldsByType.datasetFieldType.compound}">
                 <br/>
@@ -30,7 +34,6 @@
                               escape="#{datasetField.datasetFieldType.isEscapeOutputText()}"/>
             </ui:repeat>
             
-            <!--@elvariable id="childField" type="edu.harvard.iq.dataverse.persistence.dataset.DatasetField"-->
             <ui:repeat var="childField" value="#{datasetField.datasetFieldsChildren}" varStatus="childLoop">
                 <h:outputText value=" " rendered="#{!childLoop.first}" />
                 <ui:repeat value="#{childField.values}" var="value" varStatus="valuesLoop">

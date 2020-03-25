@@ -19,7 +19,6 @@ import java.io.Serializable;
 @Named("MaximumEmbargoPage")
 public class DashboardMaximumEmbargoPage implements Serializable {
 
-    @EJB
     private SettingsServiceBean settingsService;
     private DataverseSession session;
     private PermissionsWrapper permissionsWrapper;

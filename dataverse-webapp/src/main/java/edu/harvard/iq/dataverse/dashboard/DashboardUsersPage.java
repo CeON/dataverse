@@ -33,7 +33,6 @@ public class DashboardUsersPage implements java.io.Serializable {
     private DataverseSession session;
     private PermissionsWrapper permissionsWrapper;
     private DashboardUsersService dashboardUsersService;
-    @EJB
     private SettingsServiceBean settingsService;
 
     private static final Logger logger = Logger.getLogger(DashboardUsersPage.class.getCanonicalName());
