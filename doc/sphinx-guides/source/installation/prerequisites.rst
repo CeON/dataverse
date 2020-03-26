@@ -274,17 +274,17 @@ If the installed location of the convert executable is different from ``/usr/bin
 (see the :doc:`config` section for more information on the JVM options)
 
 Installing maven
-================
+----------------
 
-Maven is a tool for managing developer dependencies in various projects. It is needed in order to create war package that will be deployed.::
+Maven is a tool for managing developer dependencies in various projects. It is needed in order to create war package that will be deployed::
 
     # yum install maven
 
 
 Installing git
-================
+--------------
 
-Git is used for cloning a project from our sources.::
+Git is used for cloning a project from our sources::
 
     # yum install git
 
@@ -384,18 +384,17 @@ damage through unauthorized access. It is however still a good idea
 documentation <https://rforge.net/Rserve/doc.html>`_ for more
 information on password encryption and access security.
 
-You should already have the following 4 JVM options added to your
-:fixedwidthplain:`domain.xml` by the Dataverse installer::
+You should have the following 4 file options::
 
-        <jvm-options>-Ddataverse.rserve.host=localhost</jvm-options>
-        <jvm-options>-Ddataverse.rserve.port=6311</jvm-options>
-        <jvm-options>-Ddataverse.rserve.user=rserve</jvm-options>
-        <jvm-options>-Ddataverse.rserve.password=rserve</jvm-options>
+        RserveHost=localhost
+        RservePort=6311
+        RserveUser=rserve
+        RservePassword=rserve
 
 If you have changed the password, make sure it is correctly specified
-in the :fixedwidthplain:`dataverse.rserve.password` option above.  If
+in the :fixedwidthplain:`RservePassword` option above.  If
 Rserve is running on a host that's different from your Dataverse
-server, change the :fixedwidthplain:`dataverse.rserve.host` option
+server, change the :fixedwidthplain:`RserveHost` option
 above as well (and make sure the port 6311 on the Rserve host is not
 firewalled from your Dataverse host).
 
