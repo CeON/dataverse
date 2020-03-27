@@ -130,7 +130,7 @@ If the following doesn't apply, please get in touch as explained in the :doc:`in
 Dataset Cannot Be Published
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Check to make sure you used a fully qualified domain name when installing Dataverse. You can change the ``Fqdn`` File setting after the fact per the :doc:`config` section.
+Check to make sure you used a fully qualified domain name when installing Dataverse. You can change the ``SiteUrl`` File setting after the fact per the :doc:`config` section.
 
 Problems Sending Email
 ^^^^^^^^^^^^^^^^^^^^^^

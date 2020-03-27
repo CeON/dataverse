@@ -47,7 +47,7 @@ If you don't want to be prompted, here is an example of the non-interactive invo
 Glassfish
 ---------
 
-Glassfish Version 4.1.2 is required. There are known issues with newer versions of the Glassfish 4.x series so it should be avoided. For details, see https://github.com/IQSS/dataverse/issues/2628 .
+Glassfish Version 4.1.2 is required.
 
 Installing Glassfish
 ====================
@@ -273,7 +273,7 @@ If the installed location of the convert executable is different from ``/usr/bin
 
 (see the :doc:`config` section for more information on the JVM options)
 
-Installing maven
+Maven
 ----------------
 
 Maven is a tool for managing developer dependencies in various projects. It is needed in order to create war package that will be deployed::
@@ -281,7 +281,7 @@ Maven is a tool for managing developer dependencies in various projects. It is n
     # yum install maven
 
 
-Installing git
+Git
 --------------
 
 Git is used for cloning a project from our sources::
@@ -384,12 +384,13 @@ damage through unauthorized access. It is however still a good idea
 documentation <https://rforge.net/Rserve/doc.html>`_ for more
 information on password encryption and access security.
 
-You should have the following 4 file options::
+You should have the following 5 file options::
 
         RserveHost=localhost
         RservePort=6311
         RserveUser=rserve
         RservePassword=rserve
+        RserveConfigured=true
 
 If you have changed the password, make sure it is correctly specified
 in the :fixedwidthplain:`RservePassword` option above.  If
