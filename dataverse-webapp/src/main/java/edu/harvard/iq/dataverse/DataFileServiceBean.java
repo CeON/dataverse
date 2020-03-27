@@ -1383,7 +1383,7 @@ public class DataFileServiceBean implements java.io.Serializable {
 
             // If it's a ZIP file, we are going to unpack it and create multiple
             // DataFile objects from its contents:
-        } else if (finalType.equals("application/zip")) {
+        } else if (finalType.equals("application/zip" ) && settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.ZipUploadFilesLimit) > 0) {
 
             ZipInputStream unZippedIn = null;
             ZipEntry zipEntry = null;
@@ -1431,7 +1431,7 @@ public class DataFileServiceBean implements java.io.Serializable {
                         // entry is not valid in the current CharSet.
                         //      -- L.A.
                         warningMessage = BundleUtil.getStringFromBundle("dataset.file.zip.unpack.failure");
-                        logger.warning(warningMessage);
+                        logger.warning("Failed to unpack Zip file. (Unknown Character Set used in a file name?) Saving the file as is.");
                         throw new IOException();
                     }
 
@@ -1442,7 +1442,7 @@ public class DataFileServiceBean implements java.io.Serializable {
                     // simply skip them:
 
                     if (!zipEntry.isDirectory()) {
-                        if (fileNumberLimit > 0 && datafiles.size() > fileNumberLimit) {
+                        if (datafiles.size() > fileNumberLimit) {
                             logger.warning("Zip upload - too many files.");
                             warningMessage = BundleUtil.getStringFromBundle("dataset.file.zip.uploadFilesLimit.exceeded", fileNumberLimit);
                             throw new IOException();
