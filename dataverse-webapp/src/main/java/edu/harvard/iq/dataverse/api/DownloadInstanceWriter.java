@@ -361,18 +361,22 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                     // "preprocessed metadata" records for tabular data files are NOT considered "real" downloads, 
                     // so these should not produce guestbook entries: 
 
-                    if (di.getGbr() != null && !(isThumbnailDownload(di) || isPreprocessedMetadataDownload(di))) {
+                    boolean meaningfulDownload = !(isThumbnailDownload(di) || isPreprocessedMetadataDownload(di));
+                    if (di.getGbr() != null && meaningfulDownload) {
                         try {
                             logger.fine("writing guestbook response.");
                             Command<?> cmd = new CreateGuestbookResponseCommand(di.getDataverseRequestService().getDataverseRequest(), di.getGbr(), di.getGbr().getDataFile().getOwner());
                             di.getCommand().submit(cmd);
-                        } catch (CommandException e) {
+                        } catch (CommandException ce) {
+                            logger.log(Level.WARNING, ce, () -> "Exception while writing into guestbook: ");
                         }
                     } else {
                         logger.fine("not writing guestbook response");
 
-                        // If we're downloading preprocessed metadata then we should not check for whole dataset download
-                        checkForWholeDatasetDownload = false;
+                        // Although the guestbook is not present we may still want to log downloading of the whole
+                        // dataset and that depends on the type of file being downloaded (ie. thumbnails and
+                        // preprocessed metadata are excluded)
+                        checkForWholeDatasetDownload = meaningfulDownload;
                     }
 
                     if (checkForWholeDatasetDownload) {
