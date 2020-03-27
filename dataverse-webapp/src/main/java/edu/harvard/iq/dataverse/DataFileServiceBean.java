@@ -1435,7 +1435,7 @@ public class DataFileServiceBean implements java.io.Serializable {
                         throw new IOException();
                     }
 
-                    if (zipEntry == null) {
+                    if (fileNumberLimit <= 0 || zipEntry == null) {
                         break;
                     }
                     // Note that some zip entries may be directories - we
