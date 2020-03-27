@@ -601,8 +601,14 @@
                                          update=":datasetForm:topDatasetBlockFragment,:datasetForm:tabView:filesTable,:messagePanel"
                                          actionListener="#{DatasetPage.refresh}"/>
 
+<<<<<<< HEAD
                         <p:remoteCommand name="showDatasetUnlockedInfo"
                                          actionListener="#{DatasetPage.showDatasetUnlockedInfo()}"/>
+=======
+                        <p:remoteCommand name="pageUnlockedInfo" process="@this"
+                                         update=":messagePanel"
+                                         actionListener="#{DatasetPage.datasetUnlockedInfo()}"/>
+>>>>>>> b26e4bb865fdebc6c2896c68339b5bc19847b3ee
 
                         <script type="text/javascript">
                             $(this).ready(function () {
@@ -618,9 +624,13 @@
                                     // if not locked, has it just been unlocked?
                                     if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
                                         setTimeout(function () {
+<<<<<<< HEAD
                                             //show info that dataset is unlocked and page can be refreshed manually
                                             //autoreload cannot be used because of WCAG rules
                                             showDatasetUnlockedInfo();
+=======
+                                            pageUnlockedInfo();
+>>>>>>> b26e4bb865fdebc6c2896c68339b5bc19847b3ee
                                         }, 1500);
                                     }
                                 }
