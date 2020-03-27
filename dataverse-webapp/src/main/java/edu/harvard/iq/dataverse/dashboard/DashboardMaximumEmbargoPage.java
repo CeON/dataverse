@@ -34,8 +34,9 @@ public class DashboardMaximumEmbargoPage implements Serializable {
     }
 
     @Inject
-    public DashboardMaximumEmbargoPage(DataverseSession session,
+    public DashboardMaximumEmbargoPage(SettingsServiceBean settingsService, DataverseSession session,
                                        PermissionsWrapper permissionsWrapper, DataverseDao dataverseDao) {
+        this.settingsService = settingsService;
         this.session = session;
         this.permissionsWrapper = permissionsWrapper;
         this.dataverseDao = dataverseDao;

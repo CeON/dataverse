@@ -16,12 +16,9 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @Stateless
 public class TextInputFieldRendererFactory implements InputFieldRendererFactory<TextInputFieldRenderer> {
-
-    private static final Logger logger = Logger.getLogger(TextInputFieldRendererFactory.class.getCanonicalName());
     
     private Instance<FieldButtonActionHandler> fieldButtonActionHandlersInstance;
     
@@ -51,9 +48,7 @@ public class TextInputFieldRendererFactory implements InputFieldRendererFactory<
     public TextInputFieldRenderer createRenderer(JsonObject jsonOptions) {
         
         TextInputRendererOptions rendererOptions = Try.of(() -> new Gson().fromJson(jsonOptions, TextInputRendererOptions.class))
-                .onFailure(e -> logger.warning("Invalid syntax of input renderer options for " 
-                                                + TextInputFieldRenderer.class.getSimpleName() + ": (" + jsonOptions + ") "+ e.getMessage()))
-                .getOrElse(new TextInputRendererOptions());
+                .getOrElseThrow((e) -> new InputRendererInvalidConfigException("Invalid syntax of input renderer options " + jsonOptions + ")", e));
         
         if (StringUtils.isNotBlank(rendererOptions.getButtonActionHandler())) {
             return createRendererWithActionHandler(rendererOptions);
@@ -67,8 +62,7 @@ public class TextInputFieldRendererFactory implements InputFieldRendererFactory<
         FieldButtonActionHandler actionHandler = fieldButtonActionHandlers.get(options.getButtonActionHandler());
         
         if (actionHandler == null) {
-            logger.warning("Action handler with name: " + options.getButtonActionHandler() + " doesn't exist.");
-            return new TextInputFieldRenderer();
+            throw new InputRendererInvalidConfigException("Action handler with name: " + options.getButtonActionHandler() + " doesn't exist.");
         }
         
         return new TextInputFieldRenderer(actionHandler, options.getButtonActionTextKey(), options.getActionForOperations());

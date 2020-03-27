@@ -20,8 +20,8 @@ public interface FieldButtonActionHandler {
     String getName();
     
     /**
-     * Defines action that will happen after field button will
-     * be clicked.
+     * Defines action that will happen after field button has
+     * been clicked.
      * 
      * @param datasetField - dataset field on which field button was clicked
      * @param allBlockFields - other fields from the same metadata block (can be used to

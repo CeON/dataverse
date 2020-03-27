@@ -9,6 +9,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -96,12 +98,10 @@ public class TextInputFieldRendererFactoryTest {
                 "{'buttonActionHandler':'notexisting'}").getAsJsonObject();
         
         // when
-        TextInputFieldRenderer renderer = inputFieldRendererFactory.createRenderer(rendererOptions);
-        
+        Executable createRendererOperation = () -> inputFieldRendererFactory.createRenderer(rendererOptions);
         
         // then
-        assertEquals(inputFieldRendererFactory.isFactoryForType(), renderer.getType());
-        assertFalse(renderer.hasActionButton());
+        assertThrows(InputRendererInvalidConfigException.class, createRendererOperation);
     }
     
     @Test
@@ -112,12 +112,11 @@ public class TextInputFieldRendererFactoryTest {
                 + "'actionForOperations':'invalid'}").getAsJsonObject();
         
         // when
-        TextInputFieldRenderer renderer = inputFieldRendererFactory.createRenderer(rendererOptions);
+        Executable createRendererOperation = () -> inputFieldRendererFactory.createRenderer(rendererOptions);
         
         
         // then
-        assertEquals(inputFieldRendererFactory.isFactoryForType(), renderer.getType());
-        assertFalse(renderer.hasActionButton());
+        assertThrows(InputRendererInvalidConfigException.class, createRendererOperation);
     }
     
     @Test

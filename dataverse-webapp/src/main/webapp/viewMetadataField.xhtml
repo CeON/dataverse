@@ -11,10 +11,6 @@
 
     <div class="col-sm-9">
         
-<!--         <ui:include src="#{fieldDisplayRendererManager.obtainRenderer(fieldsByType.datasetFieldType)}"> -->
-<!--             <ui:param name="fieldsByType" value="#{fieldsByType}"/> -->
-<!--         </ui:include> -->
-        
         <ui:fragment rendered="#{fieldsByType.datasetFieldType.name == 'datasetContact'}">
             <p class="help-block">
                 <h:outputText value="#{bundle['dataset.contact.tip']}"/>

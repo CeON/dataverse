@@ -18,12 +18,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 @Stateless
 public class InputFieldRendererManager {
-
-    private static final Logger logger = Logger.getLogger(InputFieldRendererManager.class.getCanonicalName());
     
     private Instance<InputFieldRendererFactory<?>> inputRendererFactoriesInstance;
     
@@ -79,8 +76,8 @@ public class InputFieldRendererManager {
         
         JsonObject jsonOptions = Try.of(() -> jsonParser.parse(rendererOptions))
                  .map(json -> json.getAsJsonObject())
-                 .onFailure(e -> logger.warning("Unable to parse input renderer options for field " + fieldType + " - check your field type configuration"))
-                 .getOrElse(new JsonObject());
+                 .getOrElseThrow((e) -> new InputRendererInvalidConfigException(
+                         "Unable to parse input renderer options for field " + fieldType + " - check your field type configuration", e));
         
         InputFieldRenderer renderer = inputRendererFactories.get(rendererType)
             .createRenderer(jsonOptions);

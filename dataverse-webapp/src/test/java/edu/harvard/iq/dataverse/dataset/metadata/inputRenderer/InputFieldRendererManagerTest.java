@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.dataset.metadata.inputRenderer;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.buttonaction.FieldButtonActionHandler;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.InputRendererType;
@@ -9,6 +8,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,17 +36,17 @@ public class InputFieldRendererManagerTest {
     private Instance<InputFieldRendererFactory<?>> inputRendererFactories;
     
     @Mock
-    private InputFieldRendererFactory<TextInputFieldRenderer> rendererFactory1;
+    private InputFieldRendererFactory<TextInputFieldRenderer> textRendererFactory;
     
     @Mock
-    private InputFieldRendererFactory<VocabSelectInputFieldRenderer> rendererFactory2;
+    private InputFieldRendererFactory<VocabSelectInputFieldRenderer> vocabSelectRendererFactory;
     
     
     @BeforeEach
     public void beforeEach() {
-        when(rendererFactory1.isFactoryForType()).thenReturn(InputRendererType.TEXT);
-        when(rendererFactory2.isFactoryForType()).thenReturn(InputRendererType.VOCABULARY_SELECT);
-        when(inputRendererFactories.iterator()).thenReturn(IteratorUtils.arrayIterator(rendererFactory1, rendererFactory2));
+        when(textRendererFactory.isFactoryForType()).thenReturn(InputRendererType.TEXT);
+        when(vocabSelectRendererFactory.isFactoryForType()).thenReturn(InputRendererType.VOCABULARY_SELECT);
+        when(inputRendererFactories.iterator()).thenReturn(IteratorUtils.arrayIterator(textRendererFactory, vocabSelectRendererFactory));
         
         inputFieldRendererManager.postConstruct();
     }
@@ -62,13 +62,27 @@ public class InputFieldRendererManagerTest {
         
         VocabSelectInputFieldRenderer renderer = Mockito.mock(VocabSelectInputFieldRenderer.class);
         
-        when(rendererFactory2.createRenderer(Mockito.any())).thenReturn(renderer);
+        when(vocabSelectRendererFactory.createRenderer(Mockito.any())).thenReturn(renderer);
         
         // when
         InputFieldRenderer retRenderer = inputFieldRendererManager.obtainRenderer(fieldType);
         
         // then
         assertSame(renderer, retRenderer);
+    }
+    
+    @Test
+    public void obtainRenderer__invalid_json_options() {
+        // given
+        DatasetFieldType fieldType = new DatasetFieldType();
+        fieldType.setInputRendererType(InputRendererType.VOCABULARY_SELECT);
+        fieldType.setInputRendererOptions("not a json");
+        
+        // when
+        Executable obtainRendererOperation = () -> inputFieldRendererManager.obtainRenderer(fieldType);
+        
+        // then
+        assertThrows(InputRendererInvalidConfigException.class, obtainRendererOperation);
     }
     
     @Test
@@ -96,8 +110,8 @@ public class InputFieldRendererManagerTest {
         TextInputFieldRenderer textRenderer = Mockito.mock(TextInputFieldRenderer.class);
         VocabSelectInputFieldRenderer vocabRenderer = Mockito.mock(VocabSelectInputFieldRenderer.class);
 
-        when(rendererFactory1.createRenderer(Mockito.any())).thenReturn(textRenderer);
-        when(rendererFactory2.createRenderer(Mockito.any())).thenReturn(vocabRenderer);
+        when(textRendererFactory.createRenderer(Mockito.any())).thenReturn(textRenderer);
+        when(vocabSelectRendererFactory.createRenderer(Mockito.any())).thenReturn(vocabRenderer);
         
         // when
         Map<DatasetFieldType, InputFieldRenderer> retRenderers = inputFieldRendererManager.obtainRenderersByType(
