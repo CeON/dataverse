@@ -39,9 +39,12 @@ function bind_bsui_components(){
     // Dialog Listener For Calling handleResizeDialog
     PrimeFaces.widget.Dialog.prototype.postShow = function() {
         var dialog_id = this.jq.attr('id').split(/[:]+/).pop();
+        var dialog_titlebar_el = document.getElementById(this.id).querySelector(".ui-dialog-title");
         handleResizeDialog(dialog_id);
 
         $(window).on("resize", null, {dialog_id: dialog_id}, fixBodyWidth);
+        dialog_titlebar_el.setAttribute("tabIndex", "0");
+        dialog_titlebar_el.focus();
     }
     PrimeFaces.widget.Dialog.prototype.onHide = function() {
         fixBodyWidth(false);
@@ -275,3 +278,48 @@ function handle_dropdown_popup_scroll(){
         }
     });
 }
+
+/*
+ * Fixed nested submenus not-navigable by keyboard
+ */
+function handle_keydown_submenus(element, key){
+    var $parent  = $(element.parentNode.parentNode.parentNode);
+
+    var desc = ' li:not(.disabled):visible a';
+    var $items = $parent.find('.dropdown-menu' + desc);
+
+    if (!$items.length) {
+        return
+    }
+
+    var index = $items.index(element);
+
+    if (key === 38 && index === 0) {
+        $(element.parentNode.parentNode.parentNode.previousElementSibling).find('a').focus();
+    }
+    if (key === 38 && index > 0) {
+        index--;
+        $items.eq(index);
+        $items.eq(index).trigger('focus');
+    }
+    else if (key === 40 && index < $items.length - 1) {
+        index++;
+        $items.eq(index);
+        $items.eq(index).trigger('focus');
+    }
+    else if (key === 40 && index === $items.length - 1) {
+        $(element.parentNode.parentNode.parentNode.nextElementSibling).find('a').focus();
+    }
+}
+$(document).ready(function() {
+    $(".dropdown-menu .dropdown-menu").keydown(function(event) {
+        handle_keydown_submenus(event.target, event.keyCode)
+    });
+    /* Fix focus being set on tabindex="-1" element when using arrows */
+    $(".no-focus").focus(function(event) {
+        /* Timeout is necessary, submenu must appear first to set focus on it */
+        setTimeout(function(){ 
+            $(event.target).next().find("li a").first().focus(); 
+        }, 1);
+    });
+});

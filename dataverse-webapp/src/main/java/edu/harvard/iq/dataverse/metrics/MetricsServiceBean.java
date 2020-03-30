@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -36,7 +37,7 @@ public class MetricsServiceBean implements Serializable {
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
-    @EJB
+    @Inject
     private SettingsServiceBean settingsService;
 
 
@@ -176,6 +177,34 @@ public class MetricsServiceBean implements Serializable {
                     "       order by fm.datafile_id ) sub\n" +
                     "group by year, month\n" +
                     "order by year, month")
+                .getResultList());
+    }
+
+    /**
+     * Downloaded Files
+     */
+    public List<ChartMetrics> countDownloadedFiles() {
+        return mapToChartMetrics(em.createNativeQuery(
+                "SELECT" +
+                        "    EXTRACT(YEAR FROM gr.responsetime) as year," +
+                        "    EXTRACT(MONTH FROM gr.responsetime) as month," +
+                        "    count (gr.id)" +
+                        "    FROM guestbookresponse gr" +
+                        "    GROUP BY year, month")
+                .getResultList());
+    }
+
+    /**
+     * Downloaded Datasets
+     */
+    public List<ChartMetrics> countDownloadedDatasets() {
+        return mapToChartMetrics(em.createNativeQuery(
+                "SELECT" +
+                        "    EXTRACT(YEAR FROM ddl.downloaddate) as year," +
+                        "    EXTRACT(MONTH FROM ddl.downloaddate) as month," +
+                        "    count (ddl.id)" +
+                        "    FROM downloaddatasetlog ddl" +
+                        "    GROUP BY year, month")
                 .getResultList());
     }
 

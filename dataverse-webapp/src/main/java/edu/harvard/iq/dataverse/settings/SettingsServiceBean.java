@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,7 @@ import java.util.logging.Logger;
  * @author michael
  * @see FileBasedSettingsFetcher
  */
-@Stateless
+@ApplicationScoped
 public class SettingsServiceBean {
 
     private static final String KEY_AND_POSTFIX_SEPARATOR = ".";
@@ -295,7 +297,7 @@ public class SettingsServiceBean {
          */
         FooterCustomizationFile,
         /**
-         * Location and name of CSS customization file
+         * Location and name of CSS customization file (it will be used as an inline style)
          */
         StyleCustomizationFile,
         /**
@@ -307,6 +309,18 @@ public class SettingsServiceBean {
          */
         LogoCustomizationFile,
 
+        /**
+         * Filename of the css used as a theme instead
+         * of the default one.
+         * File with this name must be placed inside of
+         * <GLASSFISH_DOMAIN>/docroot/assets/theme/ directory.
+         * <p>
+         * Note that if inside css there are links to some other
+         * resources like graphics or fonts they must be placed
+         * inside this directory also.
+         */
+        CustomThemeCssFilename,
+        
         // Option to override the navbar url underlying the "About" link
         NavbarAboutUrl,
 
@@ -517,7 +531,22 @@ public class SettingsServiceBean {
          * Show link to Terms of Use page in the footer (if set to 'true').
          * By default is set to 'false', so link won't be shown.
          */
-        ShowTermsOfUseFooterLink
+        ShowTermsOfUseFooterLink,
+        
+        /**
+         * Name of the site that will be presented in the header.
+         * Setting can be postfixed with language code to
+         * obtain translated versions.
+         */
+        SiteName,
+        
+        /**
+         * Full name of the site that will be presented in the header
+         * below {@link Key#SiteName}.
+         * Setting can be postfixed with language code to
+         * obtain translated versions.
+         */
+        SiteFullName
         ;
 
 

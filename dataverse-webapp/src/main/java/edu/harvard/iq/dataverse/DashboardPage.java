@@ -35,8 +35,15 @@ public class DashboardPage implements java.io.Serializable {
     OAISetServiceBean oaiSetService;
     @EJB
     SystemConfig systemConfig;
-    @EJB
+    @Inject
     SettingsServiceBean settingsService;
+
+    @Inject
+    DatasetDao datasetDao;
+
+    @Inject
+    DataverseDao dataverseDao;
+
 
     @Inject
     DataverseSession session;
@@ -192,5 +199,12 @@ public class DashboardPage implements java.io.Serializable {
         return Tuple.of(licenseDAO.countActiveLicenses(), licenseDAO.countInactiveLicenses());
     }
 
+    public Long getTotalNumberOfDatasets() {
+        return datasetDao.countDatasets();
+    }
+
+    public Long getTotalNumberOfDataverses() {
+        return dataverseDao.countDataverses();
+    }
 }
     

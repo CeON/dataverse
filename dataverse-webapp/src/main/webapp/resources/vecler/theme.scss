@@ -21,18 +21,18 @@ $gray-border-color: #e8e8e8;
 
 /* RepOD color scheme */
 
-$main-color: #0086bc;
-$icon-color: #2ba7df;
-$link-color: #043e58;
-$border-color: #39b0e2;
-$search-result-desc-color: #f2f8fa;
-$table-row-hover: #e6eff2;
-$table-row-highlight: #fff5e0;
-$focus-color: #de8800;
-$main-logo: "img/logo-repod.svg";
-$primefaces-main: "img/primefaces-main-repod.png";
-$dataverse-icon: "img/dataverse-icon-repod.svg";
-$ajax_spinner_filter: saturate(2);
+$main-color: #0086bc !default;
+$icon-color: #2ba7df !default;
+$link-color: #043e58 !default;
+$border-color: #39b0e2 !default;
+$search-result-desc-color: #f2f8fa !default;
+$table-row-hover: #e6eff2 !default;
+$table-row-highlight: #fff5e0 !default;
+$focus-color: #de8800 !default;
+$main-logo: "img/logo-repod.svg" !default;
+$primefaces-main: "img/primefaces-main-repod.png" !default;
+$dataverse-icon: "img/dataverse-icon-repod.svg" !default;
+$ajax_spinner_filter: saturate(2) !default;
 
 /* MX-RDR color scheme */
 
@@ -51,6 +51,7 @@ $dataverse-icon: "img/dataverse-icon-mxrdr.svg";
 $ajax_spinner_filter: hue-rotate(140deg) saturate(2);
 */
 
+
 /* RDS color scheme */
 
 /*
@@ -61,7 +62,7 @@ $border-color: #f6921e;
 $search-result-desc-color: #fff5ea;
 $table-row-hover: #f7e8d8;
 $table-row-highlight: #ffd7af;
-$focus-color: #de8800;
+$focus-color: #0086bc;
 $main-logo: "img/logo-rds.svg";
 $primefaces-main: "img/primefaces-main-rds.png";
 $dataverse-icon: "img/dataverse-icon-rds.svg";
@@ -109,6 +110,7 @@ $ajax_spinner_filter: hue-rotate(170deg) saturate(2);
 
 
 body {
+	margin-bottom: 0;
 	font-family: $font-main;
 	font-size: 15px;
 	color: $main-text-color;
@@ -281,7 +283,7 @@ body {
 @mixin link-color {
 	color: $link-color;
 	
-	&:hover {
+	&:hover, &:focus {
 		color: $main-color;
 	}
 }
@@ -349,11 +351,6 @@ span.glyphicon-question-sign.tooltip-icon {
 	font-family: $font-main;
 	font-size: 15px;
 	color: #de8800;
-}
-
-/* Missing checkbox tick fix */
-tr.ui-state-highlight .ui-icon {
-	background-image: url("img/primefaces-main-default.png");
 }
 
 *, ui-widget-content  {
@@ -982,6 +979,12 @@ input.fancy-checkbox[type=checkbox] {
 /* Tabs */
 
 .ui-tabs {
+	/* Fix modal issues on the new PrimeFaces version 8.0 */
+	-moz-transform: none;
+	-o-transform: none;
+	-webkit-transform: none;
+	transform: none;
+
 	&.ui-tabs-top > .ui-tabs-nav {
 		padding: 0.2em 0 0 0;
 	}
@@ -1017,6 +1020,14 @@ div[id$="notifications"].ui-tabs-panel {
 }
 
 /* Tables */
+
+.visuallyhidden {
+	position: absolute;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	height: 1px; width: 1px;
+	margin: -1px; padding: 0; border: 0;
+}
 
 .ui-datatable.ui-widget, .ui-autocomplete-panel {
 	.ui-widget-header {
@@ -1404,24 +1415,6 @@ $navbar-height: 6.8em;
 	}
 }
 
-@media screen and (max-width: $screen-xs-max) {
-	#navbarFixed .navbar-brand {
-		margin-left: 0.666em;
-	}
-	.navbar-default #topNavBar .pull-right {
-		width: 100%;
-	}
-}
-@media screen and (min-width: $screen-sm-min) {
-	.navbar-default #topNavBar .navbar-nav {
-		display: table-cell;
-		vertical-align: middle;
-		float: none;
-		height: $navbar-height;
-
-	}
-}
-
 .navbar-default .navbar-toggle {
 	margin: 1.8em;
 
@@ -1440,6 +1433,108 @@ $navbar-height: 6.8em;
 .top-messages {
 	margin: 8px;
 }
+
+@media screen and (max-width: $screen-xs-max) {
+	$navbar-height-mobile: 4.65em;
+
+	#navbarFixed .navbar-brand {
+		height: $navbar-height-mobile;
+		margin-left: 0.666em;
+
+		#site-logo {
+			top: 0.288em;
+			left: 0.55em;
+			font-size: 3.333em;
+	
+			& + div {
+				padding-left: 4em;
+			}
+		}
+	}
+	.navbar-default {
+		.navbar-toggle {
+			margin: 0.8em;
+		}
+
+		#topNavBar .pull-right {
+			width: 100%;
+		}
+	}
+}
+@media screen and (min-width: $screen-sm-min) {
+	.navbar-default #topNavBar .navbar-nav {
+			display: table-cell;
+			vertical-align: middle;
+			float: none;
+			height: $navbar-height;
+	}
+}
+
+/* Footer */
+
+#footer {
+	position: static;
+	height: auto;
+	padding-bottom: 0;
+
+	.footer-links .row {
+		border-top: 1px solid $gray-border-color;
+		margin: 0;
+		padding-top: 1em;
+		font-size: 0.867em;
+
+		div[class^="col-"] {
+			padding: 0;
+
+			p span {
+				border-left: 1px solid $gray-border-color;
+				margin-left: 1em;
+				padding-left: 1em;
+			}
+		}
+	}
+}
+.widget-view {
+	&#footer {
+		position: static;
+	}
+	#footer-logos {
+		display: none;
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	#footer {
+		&.widget-view .poweredbylogo {
+			text-align: inherit;
+		}
+		
+		div[class^="col-"] {
+			text-align: center;
+		}
+	}
+}
+
+/* Sticky footer fix */
+html, body {
+	height: 100%;
+
+	&, #body-wrapper {
+		min-height: 100%;
+	}
+}
+#body-wrapper {
+	display: flex;
+	flex-direction: column;
+}
+#content {
+	flex: 1 0 auto;
+	max-width: 100%;
+}
+#navbarFixed, #footer {
+	flex-shrink: 0;
+}
+
 
 /* Main page */
 
@@ -1485,6 +1580,7 @@ $navbar-height: 6.8em;
 }
 
 div.panelSearchForm input.search-input {
+	max-width: calc(100% + 1em);
 	line-height: 23px;
 }
 
@@ -1498,7 +1594,12 @@ div.panelSearchForm input.search-input {
 .ui-paginator-last {
 	.ui-icon {
 		text-indent: 0;
-		visibility: hidden;
+		color: transparent;
+		text-shadow: none;
+	}
+
+	&.ui-state-disabled {
+		filter: saturate(0);
 	}
 }
 
@@ -2048,6 +2149,18 @@ div.filesTable {
 	padding: 0 4px;
 }
 
+/* Fix submenu entries not accessible by keyboard */
+.dropdown-submenu {
+	.dropdown-menu {
+		display: block;
+	}
+
+	&:not(:hover):not(:focus-within) .dropdown-menu {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
 /* Modal */
 
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
@@ -2106,6 +2219,12 @@ div.filesTable {
 			display: block;
 			clear: both;
 		}
+
+		/* Fix improperly placed buttons on the new PrimeFaces version 8.0 */
+		-moz-transform: none;
+		-o-transform: none;
+		-webkit-transform: none;
+		transform: none;
 	}
 
 	.ui-state-default, a.btn {

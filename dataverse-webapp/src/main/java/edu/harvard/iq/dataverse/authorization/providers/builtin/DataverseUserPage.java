@@ -20,6 +20,7 @@ import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailUtil;
 import edu.harvard.iq.dataverse.mydata.MyDataPage;
+import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
@@ -115,7 +116,7 @@ public class DataverseUserPage implements java.io.Serializable {
     PasswordValidatorServiceBean passwordValidatorService;
     @Inject
     SettingsWrapper settingsWrapper;
-    @EJB
+    @Inject
     SettingsServiceBean settingsService;
     @Inject
     MyDataPage mydatapage;
@@ -149,7 +150,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private String username;
     boolean nonLocalLoginEnabled;
     private List<String> passwordErrors;
-    private List<ConsentDto> consents;
+    private List<ConsentDto> consents = new ArrayList<>();
 
     public String init() {
 
@@ -379,9 +380,8 @@ public class DataverseUserPage implements java.io.Serializable {
              * @todo Move this to
              * AuthenticationServiceBean.createAuthenticatedUser
              */
-            userNotificationService.sendNotification(au,
-                                                     new Timestamp(new Date().getTime()),
-                                                     NotificationType.CREATEACC);
+            userNotificationService.sendNotificationWithEmail(au, new Timestamp(new Date().getTime()),
+                    NotificationType.CREATEACC, null, NotificationObjectType.AUTHENTICATED_USER);
 
             consentService.executeActionsAndSaveAcceptedConsents(consents, au);
             // go back to where user came from
@@ -785,7 +785,9 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getPreferredNotificationsLanguage() {
-        return Option.of(preferredNotificationsLanguage).getOrElse(Locale.ROOT).getLanguage();
+        return Option.of(preferredNotificationsLanguage)
+                    .map(locale -> locale.getLanguage())
+                    .getOrNull();
     }
 
     public String getLocalizedPreferredNotificationsLanguage() {

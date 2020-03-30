@@ -92,12 +92,10 @@
                             </label>
                             <div class="col-sm-9 form-col-container">
                                 <p:selectOneMenu id="dataverseCategory" styleClass="form-control"
-                                                    value="#{CreateEditDataversePage.dataverse.dataverseType}"
-                                                    hideNoSelectionOption="true">
+                                                    value="#{CreateEditDataversePage.dataverse.dataverseType}">
                                     <f:selectItem id="dvSelect"
                                                     itemLabel="#{bundle['dataverse.type.selectTab.top']}"
                                                     itemValue="#{null}"
-                                                    aria-hidden="true"
                                                     noSelectionOption="true"
                                                     itemDisabled="true"/>
                                     <f:selectItem id="dvDepartment"
@@ -378,6 +376,7 @@
                                             var="facet"
                                             converter="facetConverter"
                                             itemLabel="#{facet.displayName}" itemValue="#{facet}"
+                                            responsive="true"
                                             disabled="#{!CreateEditDataversePage.dataverse.facetRoot and CreateEditDataversePage.dataverse.owner != null}"
                                             style="margin-top:1em;">
                                     <f:facet name="sourceCaption">

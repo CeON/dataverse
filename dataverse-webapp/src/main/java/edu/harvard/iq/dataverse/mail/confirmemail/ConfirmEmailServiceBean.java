@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -26,6 +27,8 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +46,7 @@ public class ConfirmEmailServiceBean {
     @EJB
     MailService mailService;
 
-    @EJB
+    @Inject
     SettingsServiceBean settingsService;
 
     @EJB
@@ -125,7 +128,7 @@ public class ConfirmEmailServiceBean {
                     String subject = BundleUtil.getStringFromBundle("notification.email.verifyEmail.subject", Lists.newArrayList(rootDataverseName));
                     logger.fine("sending email to " + toAddress + " with this subject: " + subject);
 
-                    String footerMailMessage = mailService.getFooterMailMessage(userNotification.getUser().getNotificationsLanguage());
+                    String footerMailMessage = mailService.getFooterMailMessage(aUser.getNotificationsLanguage());
                     boolean emailSent = mailService.sendMail(toAddress, new EmailContent(subject, messageBody, footerMailMessage));
 
                     if (!emailSent) {
