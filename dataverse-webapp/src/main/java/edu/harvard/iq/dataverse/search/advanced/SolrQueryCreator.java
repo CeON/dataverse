@@ -39,7 +39,7 @@ public class SolrQueryCreator {
 
     // -------------------- PRIVATE --------------------
 
-	private String constructQueryForField(SearchField searchField) {
+    private String constructQueryForField(SearchField searchField) {
 
         if (searchField.getSearchFieldType().equals(SearchFieldType.TEXT)) {
             return constructQueryForTextField((TextSearchField) searchField);
