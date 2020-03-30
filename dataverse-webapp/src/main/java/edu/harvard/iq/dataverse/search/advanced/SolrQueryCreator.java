@@ -31,7 +31,6 @@ public class SolrQueryCreator {
                     queryBuilder
                             .append(constructedQuery.isEmpty() ? StringUtils.EMPTY : " AND " + constructedQuery);
                 });
-        
 
         return queryBuilder.toString()
                 .replaceFirst("AND", StringUtils.EMPTY)
@@ -39,8 +38,6 @@ public class SolrQueryCreator {
     }
 
     // -------------------- PRIVATE --------------------
-
-
 
 	private String constructQueryForField(SearchField searchField) {
 
@@ -109,10 +106,10 @@ public class SolrQueryCreator {
     }
 
     private String constructQueryForDateField(DateSearchField dateSearchField) {
-        StringBuilder intQueryBuilder = new StringBuilder();
+        StringBuilder dateQueryBuilder = new StringBuilder();
 
         if (StringUtils.isNotEmpty(dateSearchField.getLowerLimit()) || StringUtils.isNotEmpty(dateSearchField.getUpperLimit())) {
-        	intQueryBuilder
+        	dateQueryBuilder
                     .append(dateSearchField.getName())
                     .append(":[")
                     .append(StringUtils.isEmpty(dateSearchField.getLowerLimit()) ? "*" : dateSearchField.getLowerLimit())
@@ -121,7 +118,7 @@ public class SolrQueryCreator {
                     .append("]");
         }
 
-        return intQueryBuilder.toString();
+        return dateQueryBuilder.toString();
     }
 
     private boolean isOneNumberPresent(NumberSearchField numberField) {
