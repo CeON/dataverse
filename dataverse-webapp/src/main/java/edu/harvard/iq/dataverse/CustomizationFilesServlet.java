@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class CustomizationFilesServlet extends HttpServlet {
 
     private static final Set<Key> LOCALIZED_FILES_KEYS = Initializer.createSetOfLocalizedFilesKeys();
 
-    private static final String EN = "en";
+    private static final String EN_LOCALE_CODE = Locale.ENGLISH.getLanguage();
 
     // -------------------- LOGIC --------------------
 
@@ -124,8 +125,8 @@ public class CustomizationFilesServlet extends HttpServlet {
         String basePath = getFilePath(key);
         List<Path> paths = new ArrayList<>();
         if (LOCALIZED_FILES_KEYS.contains(key)) {
-            Optional<Path> localizedPath = createLocalizedPath(basePath);
-            localizedPath.ifPresent(paths::add);
+            createLocalizedPathToFile(basePath)
+                    .ifPresent(paths::add);
         }
         paths.add(Paths.get(basePath));
         return paths;
@@ -135,23 +136,22 @@ public class CustomizationFilesServlet extends HttpServlet {
         return key != null ? settingsService.getValueForKey(key) : StringUtils.EMPTY;
     }
 
-    private Optional<Path> createLocalizedPath(String basePath) {
-        if (StringUtils.isBlank(basePath) || !basePath.contains(".")) {
-            return Optional.empty();
-        }
-        return Optional.of(Paths.get(interpolateLocaleCodeIntoPath(basePath, obtainLocaleCode())));
+    private Optional<Path> createLocalizedPathToFile(String basePath) {
+        return Optional.ofNullable(basePath)
+                .filter(p -> p.contains("."))
+                .map(p -> Paths.get(interpolateLocaleCodeIntoPathToFile(p, obtainLocaleCode())));
     }
 
-    private String interpolateLocaleCodeIntoPath(String basePath, String localeCode) {
+    private String interpolateLocaleCodeIntoPathToFile(String basePath, String localeCode) {
         int extensionDotIndex = basePath.lastIndexOf(".");
-        String localeInfix = EN.equals(localeCode) ? StringUtils.EMPTY : "_" + localeCode;
+        String localeInfix = EN_LOCALE_CODE.equals(localeCode) ? StringUtils.EMPTY : "_" + localeCode;
         return basePath.substring(0, extensionDotIndex) + localeInfix + basePath.substring(extensionDotIndex);
     }
 
     private String obtainLocaleCode() {
         return Optional.ofNullable(dataverseSession)
                 .map(DataverseSession::getLocaleCode)
-                .orElse(EN);
+                .orElse(EN_LOCALE_CODE);
     }
 
     // -------------------- INNER CLASSES  --------------------
