@@ -1,21 +1,19 @@
 package edu.harvard.iq.dataverse.search;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-
 import com.google.common.collect.Lists;
-
 import edu.harvard.iq.dataverse.search.advanced.CheckboxSearchField;
-import edu.harvard.iq.dataverse.search.advanced.DateSearchField;
 import edu.harvard.iq.dataverse.search.advanced.NumberSearchField;
 import edu.harvard.iq.dataverse.search.advanced.SearchBlock;
 import edu.harvard.iq.dataverse.search.advanced.SearchField;
 import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.TextSearchField;
+import edu.harvard.iq.dataverse.search.advanced.DateSearchField;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 class SolrQueryCreatorTest {
 
