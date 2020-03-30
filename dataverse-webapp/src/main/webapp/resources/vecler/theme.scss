@@ -1594,7 +1594,12 @@ div.panelSearchForm input.search-input {
 .ui-paginator-last {
 	.ui-icon {
 		text-indent: 0;
-		visibility: hidden;
+		color: transparent;
+		text-shadow: none;
+	}
+
+	&.ui-state-disabled {
+		filter: saturate(0);
 	}
 }
 
@@ -2142,6 +2147,18 @@ div.filesTable {
 
 #datasetForm\:tabView\:filesTable\:filesHeaderBlock .col-xs-6 {
 	padding: 0 4px;
+}
+
+/* Fix submenu entries not accessible by keyboard */
+.dropdown-submenu {
+	.dropdown-menu {
+		display: block;
+	}
+
+	&:not(:hover):not(:focus-within) .dropdown-menu {
+		opacity: 0;
+		pointer-events: none;
+	}
 }
 
 /* Modal */

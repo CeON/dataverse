@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
 @WebServlet(name = "CustomizationFilesServlet", urlPatterns = {"/CustomizationFilesServlet"})
 public class CustomizationFilesServlet extends HttpServlet {
 
-    @EJB
+    @Inject
     SettingsServiceBean settingsService;
 
     @Inject
