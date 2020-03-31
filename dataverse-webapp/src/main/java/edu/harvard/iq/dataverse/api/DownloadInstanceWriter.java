@@ -364,7 +364,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                     boolean meaningfulDownload = !(isThumbnailDownload(di) || isPreprocessedMetadataDownload(di));
 
                     // If file is a thumbnail or preprocessed metadata we won't count it as whole dataset download
-                    checkForWholeDatasetDownload = meaningfulDownload;
+                    checkForWholeDatasetDownload = checkForWholeDatasetDownload && meaningfulDownload;
 
                     if (di.getGbr() != null && meaningfulDownload) {
                         try {
