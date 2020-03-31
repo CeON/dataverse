@@ -362,6 +362,10 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                     // so these should not produce guestbook entries: 
 
                     boolean meaningfulDownload = !(isThumbnailDownload(di) || isPreprocessedMetadataDownload(di));
+
+                    // If file is a thumbnail or preprocessed metadata we won't count it as whole dataset download
+                    checkForWholeDatasetDownload = meaningfulDownload;
+
                     if (di.getGbr() != null && meaningfulDownload) {
                         try {
                             logger.fine("writing guestbook response.");
@@ -372,11 +376,6 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         }
                     } else {
                         logger.fine("not writing guestbook response");
-
-                        // Although the guestbook is not present we may still want to log downloading of the whole
-                        // dataset and that depends on the type of file being downloaded (ie. thumbnails and
-                        // preprocessed metadata are excluded)
-                        checkForWholeDatasetDownload = meaningfulDownload;
                     }
 
                     if (checkForWholeDatasetDownload) {
