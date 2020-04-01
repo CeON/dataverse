@@ -301,6 +301,7 @@
                                                                         rendered="#{!dsft.hasParent}"
                                                                         value="#{CreateEditDataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).included}"
                                                                         itemLabel="#{dsft.displayName}"
+                                                                        escape="false"
                                                                         onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;"
                                                                         disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or !CreateEditDataversePage.mdbOptions.mdbViewOptions.get(mdb.id).editableDatasetFieldTypes}">
                                                                     <p:ajax update="@widgetVar(OptButton#{dsft.id}), @widgetVar(optionBlock)"
@@ -377,7 +378,9 @@
                                 <p:pickList id="facetPickListCreate" value="#{CreateEditDataversePage.facets}"
                                             var="facet"
                                             converter="facetConverter"
-                                            itemLabel="#{facet.displayName}" itemValue="#{facet}"
+                                            itemLabel="#{facet.displayName}"
+                                            escape="false"
+                                            itemValue="#{facet}"
                                             responsive="true"
                                             disabled="#{!CreateEditDataversePage.dataverse.facetRoot and CreateEditDataversePage.dataverse.owner != null}"
                                             style="margin-top:1em;">
