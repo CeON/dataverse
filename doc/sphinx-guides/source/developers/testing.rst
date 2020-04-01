@@ -25,6 +25,13 @@ Testing in Depth
 
 When writing tests, you may find it helpful to first map out which functions of your code you want to test, and then write a functional unit test for each which can later comprise a larger integration test. 
 
+Locale
+------
+Do you use a locale different than ``en_US.UTF-8`` on your development machine? Are you in a different timezone
+than Harvard (Eastern Time)? You might experience issues while running tests that were written with these settings
+in mind. The Maven  ``pom.xml`` tries to handle this for you by setting the locale to ``en_US.UTF-8`` and timezone
+``UTC``, but more, not yet discovered building or testing problems might lurk in the shadows.
+
 Unit Tests
 ----------
 
@@ -88,8 +95,6 @@ Running Non-Essential (Excluded) Unit Tests
 You should be aware that some unit tests have been deemed "non-essential" and have been annotated with ``@Category(NonEssentialTests.class)`` and are excluded from the "dev" Maven profile, which is the default profile. All unit tests (that have not been annotated with ``@Ignore``), including these non-essential tests, are run from continuous integration systems such as Jenkins and Travis CI with the following ``mvn`` command that invokes a non-default profile:
 
 ``mvn test -P all-unit-tests``
-
-Typically https://travis-ci.org/IQSS/dataverse will show a higher number of unit tests executed because it uses the profile above.
 
 Generally speaking, unit tests have been flagged as non-essential because they are slow or because they require an Internet connection. You should not feel obligated to run these tests continuously but you can use the ``mvn`` command above to run them. To iterate on the unit test in Netbeans and execute it with "Run -> Test File", you must temporarily comment out the annotation flagging the test as non-essential.
 
