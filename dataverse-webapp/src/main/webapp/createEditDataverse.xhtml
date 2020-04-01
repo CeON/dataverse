@@ -49,12 +49,11 @@
                             </div>
                         </div>
                         <div class="col-md-6 form-group form-col-container">
-                            <label class="col-sm-3 control-label" for="affiliation">
-                                #{bundle.affiliation}
+                            <p:outputLabel class="col-sm-3 control-label" for="affiliation" value="#{bundle.affiliation}" escape="false">
                                 <span class="glyphicon glyphicon-question-sign tooltip-icon" tabindex="0"
                                       data-toggle="tooltip" data-placement="auto right"
                                       data-original-title="#{bundle['dataverse.affiliation.title']}"></span>
-                            </label>
+                            </p:outputLabel>
                             <div class="col-sm-9 form-col-container">
                                 <p:inputText id="affiliation" styleClass="form-control"
                                              value="#{CreateEditDataversePage.dataverse.affiliation}"/>
@@ -221,7 +220,8 @@
                                     <h:selectBooleanCheckbox id="metadataRoot" 
                                                                 styleClass="metadata-blocks-default fancy-checkbox"
                                                                 value="#{CreateEditDataversePage.mdbOptions.inheritMetaBlocksFromParent}"
-                                                                onclick="updateMetadata(this);">
+                                                                onclick="updateMetadata(this);"
+                                    >
                                     </h:selectBooleanCheckbox>
                                     <span>
                                         <h:outputFormat value="#{bundle['dataverse.metadataElements.from.tip']}">
@@ -265,7 +265,8 @@
 
                                             <h:outputText
                                                     value="#{mdb.localeDisplayName} #{mdb.isCitationMetaBlock() ? bundle['dataverse.field.required']: ''}"
-                                                    styleClass="#{CreateEditDataversePage.mdbOptions.inheritMetaBlocksFromParent ? 'text-muted' : ''}"/>
+                                                    styleClass="#{CreateEditDataversePage.mdbOptions.inheritMetaBlocksFromParent ? 'text-muted' : ''}"
+                                            />
                                             <p:commandLink id="showEditableDSFT" style="margin-left:1em;"
                                                             update="@widgetVar(optionBlock)"
                                                             process="@this"
@@ -308,7 +309,7 @@
                                                                 <div class="checkbox child-field"
                                                                         jsf:rendered="#{dsft.hasParent}">
                                                                     <label>
-                                                                        <h:outputText value="#{dsft.displayName}"/>
+                                                                        <h:outputText value="#{dsft.displayName}" escape="false"/>
                                                                     </label>
                                                                 </div>
                                                             </td>
@@ -319,7 +320,8 @@
                                                                                     disabled="#{!CreateEditDataversePage.mdbOptions.isEditableDatasetFieldTypes(mdb.id)}"
                                                                                     rendered="#{!dsft.hasChildren and !((!dsft.hasChildren  and dsft.required) or (dsft.hasChildren and dsft.hasRequiredChildren))}">
                                                                     <f:selectItems
-                                                                            value="#{CreateEditDataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).selectedDatasetFields}"/>
+                                                                            value="#{CreateEditDataversePage.mdbOptions.datasetFieldViewOptions.get(dsft.id).selectedDatasetFields}"
+                                                                    />
                                                                     <p:ajax/>
                                                                 </p:selectOneRadio>
 
