@@ -111,7 +111,7 @@ public class IndexServiceBean {
     DatasetLinkingServiceBean dsLinkingService;
     @EJB
     DataverseLinkingDao dvLinkingService;
-    @EJB
+    @Inject
     SettingsServiceBean settingsService;
     @EJB
     private SolrFieldFactory solrFieldFactory;
@@ -763,7 +763,7 @@ public class IndexServiceBean {
                                 logger.fine("YYYY only: " + datasetFieldFlaggedAsDate);
                                 // solrInputDocument.addField(solrFieldSearchable,
                                 // Integer.parseInt(datasetFieldFlaggedAsDate));
-                                solrInputDocument.addField(solrFieldSearchable, datasetFieldFlaggedAsDate);
+                                solrInputDocument.addField(solrFieldSearchable, dateAsString);
                                 if (dsfSolrField.isFacetable()) {
                                     // solrInputDocument.addField(solrFieldFacetable,
                                     // Integer.parseInt(datasetFieldFlaggedAsDate));

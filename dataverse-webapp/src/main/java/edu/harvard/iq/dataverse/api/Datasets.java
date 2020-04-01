@@ -193,14 +193,8 @@ public class Datasets extends AbstractApiBean {
     @EJB
     S3PackageImporter s3PackageImporter;
 
-    @EJB
+    @Inject
     SettingsServiceBean settingsService;
-
-    @Inject
-    private TermsOfUseFactory termsOfUseFactory;
-
-    @Inject
-    private TermsOfUseFormMapper termsOfUseFormMapper;
 
     @Inject
     private ExportService exportService;
@@ -627,6 +621,12 @@ public class Datasets extends AbstractApiBean {
         try {
             Dataset dataset = findDatasetOrDie(id);
             SimpleDateFormat dateFormat = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
+
+            if(date == null) {
+                throw new WrappedResponse(badRequest(BundleUtil.getStringFromBundle("datasets.api.setEmbargo.failure.badDate.missing",
+                        settingsSvc.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat))));
+            }
+
             Date embargoDate = dateFormat.parse(date);
             validateEmbargoDate(embargoDate);
 

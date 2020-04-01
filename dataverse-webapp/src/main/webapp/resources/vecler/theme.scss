@@ -979,6 +979,12 @@ input.fancy-checkbox[type=checkbox] {
 /* Tabs */
 
 .ui-tabs {
+	/* Fix modal issues on the new PrimeFaces version 8.0 */
+	-moz-transform: none;
+	-o-transform: none;
+	-webkit-transform: none;
+	transform: none;
+
 	&.ui-tabs-top > .ui-tabs-nav {
 		padding: 0.2em 0 0 0;
 	}
@@ -1488,11 +1494,45 @@ $navbar-height: 6.8em;
 		}
 	}
 }
+.widget-view {
+	&#footer {
+		position: static;
+	}
+	#footer-logos {
+		display: none;
+	}
+}
 
 @media screen and (max-width: $screen-xs-max) {
-	#footer div[class^="col-"] {
-		text-align: center;
+	#footer {
+		&.widget-view .poweredbylogo {
+			text-align: inherit;
+		}
+		
+		div[class^="col-"] {
+			text-align: center;
+		}
 	}
+}
+
+/* Sticky footer fix */
+html, body {
+	height: 100%;
+
+	&, #body-wrapper {
+		min-height: 100%;
+	}
+}
+#body-wrapper {
+	display: flex;
+	flex-direction: column;
+}
+#content {
+	flex: 1 0 auto;
+	max-width: 100%;
+}
+#navbarFixed, #footer {
+	flex-shrink: 0;
 }
 
 
@@ -1554,7 +1594,12 @@ div.panelSearchForm input.search-input {
 .ui-paginator-last {
 	.ui-icon {
 		text-indent: 0;
-		visibility: hidden;
+		color: transparent;
+		text-shadow: none;
+	}
+
+	&.ui-state-disabled {
+		filter: saturate(0);
 	}
 }
 
@@ -2104,6 +2149,18 @@ div.filesTable {
 	padding: 0 4px;
 }
 
+/* Fix submenu entries not accessible by keyboard */
+.dropdown-submenu {
+	.dropdown-menu {
+		display: block;
+	}
+
+	&:not(:hover):not(:focus-within) .dropdown-menu {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
 /* Modal */
 
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
@@ -2162,6 +2219,12 @@ div.filesTable {
 			display: block;
 			clear: both;
 		}
+
+		/* Fix improperly placed buttons on the new PrimeFaces version 8.0 */
+		-moz-transform: none;
+		-o-transform: none;
+		-webkit-transform: none;
+		transform: none;
 	}
 
 	.ui-state-default, a.btn {
