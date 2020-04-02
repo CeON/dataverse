@@ -335,7 +335,9 @@
                 <ui:repeat value="#{SearchIncludeFragment.filterQueries}" var="filterQuery" rendered="#{!SearchIncludeFragment.wasSolrErrorEncountered()}">
                     <ui:param name="friendlyNames" value="#{SearchIncludeFragment.getFriendlyNamesFromFilterQuery(filterQuery)}"/>
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" styleClass="facetLink facetSelected" rendered="#{not empty friendlyNames}">
-                        <h:outputText value="#{friendlyNames.get(0)}: #{friendlyNames.get(1)}" escape="false"/> <span class="glyphicon glyphicon-remove"></span>
+                        <h:outputText value="#{friendlyNames.get(0)}: " escape="false"/>
+                        <h:outputText value="#{friendlyNames.get(1)}" />
+                        <span class="glyphicon glyphicon-remove"></span>
                         <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                         <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}' disable="#{clickedFilterQuery == filterQuery}"/>
