@@ -569,12 +569,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
      * @see InputRendererType
      */
     public InputRendererType getInputRendererType() {
-        if (name.equals("subject")) {
-            return InputRendererType.HIDDEN_VOCABULARY;
-        }
-        if (name.equals("authorIdentifierScheme")) {
-            return InputRendererType.HIDDEN_VOCABULARY;
-        }
         return inputRendererType;
     }
 
@@ -587,12 +581,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
      * defines options specific for each {@link InputRendererType}.
      */
     public String getInputRendererOptions() {
-        if (name.equals("subject")) {
-            return "{\"defaultValues\":[\"Chemisry\",\"Astronomy and Astrophysics\"]}";
-        }
-        if (name.equals("authorIdentifierScheme")) {
-            return "{\"defaultValues\":[\"ORCID\"]}";
-        }
         return inputRendererOptions;
     }
 
