@@ -11,7 +11,6 @@ Developer Guide
 .. toctree::
 
    intro
-   dev-environment
    windows
    tips
    troubleshooting
@@ -24,7 +23,6 @@ Developer Guide
    coding-style
    deployment
    containers
-   making-releases
    tools
    unf/index
    remote-users
