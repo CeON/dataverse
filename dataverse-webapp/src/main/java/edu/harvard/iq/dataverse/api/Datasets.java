@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.MetadataBlockDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.S3PackageImporter;
+import edu.harvard.iq.dataverse.api.dto.FileTermsOfUseDTO;
 import edu.harvard.iq.dataverse.api.dto.SubmitForReviewDataDTO;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
@@ -66,8 +67,6 @@ import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
-import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -1627,6 +1626,12 @@ public class Datasets extends AbstractApiBean {
             return error(Response.Status.BAD_REQUEST, ex.getMessage());
         }
 
+        try {
+            validateFileTermsOfUseDTO(optionalFileParams.getFileTermsOfUseDTO());
+        } catch (WrappedResponse wr) {
+            return wr.getResponse();
+        }
+
 
         //-------------------
         // (3) Create the AddReplaceFileHelper object
@@ -1856,6 +1861,9 @@ public class Datasets extends AbstractApiBean {
     }
 
     // -------------------- PRIVATE ---------------------
+    private void validateFileTermsOfUseDTO(FileTermsOfUseDTO fileTermsOfUseDTO) throws WrappedResponse {
+    }
+
     private void validateEmbargoDate(Date embargoDate) throws WrappedResponse {
         if (embargoDate.toInstant().isBefore(getTomorrowsDateInstant())) {
             throw new WrappedResponse(badRequest(BundleUtil.getStringFromBundle("datasets.api.setEmbargo.failure.badDate.notFuture")));
