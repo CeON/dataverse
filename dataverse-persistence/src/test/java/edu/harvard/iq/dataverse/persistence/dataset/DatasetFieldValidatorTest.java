@@ -142,7 +142,20 @@ public class DatasetFieldValidatorTest {
                 Arguments.of("-44", Option.of(FieldType.INT), Option.none(), true),
                 Arguments.of("12.14", Option.of(FieldType.INT), Option.none(), false),
                 Arguments.of("http://cnn.com", Option.of(FieldType.URL), Option.none(), true),
-                Arguments.of("espn.com", Option.none(), Option.none(), false)
+                Arguments.of("espn.com", Option.none(), Option.none(), false),
+                
+                //more date cases
+                
+                Arguments.of("966", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("1999-1", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("1999-1-1", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("1999-01-1", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("-1999", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("-1991-01", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("10000", Option.of(FieldType.DATE), Option.none(), false),
+                Arguments.of("1999-13", Option.of(FieldType.DATE), Option.none(), false),
+                Arguments.of("2020-02-29", Option.of(FieldType.DATE), Option.none(), true),
+                Arguments.of("2019-02-29", Option.of(FieldType.DATE), Option.none(), false)
         );
     }
 
