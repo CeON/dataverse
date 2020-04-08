@@ -129,7 +129,7 @@
                                        update="datamove-form"
                                        validateClient="true"
                                        oncomplete="if (args &amp;&amp; !args.validationFailed) PF('datamoveConfirmation').show();"/>
-                        <p:button styleClass="btn btn-link" outcome="dashboard" value="#{bundle['cancel']}"/>
+                        <p:button styleClass="btn btn-default button-cancel" outcome="dashboard" value="#{bundle['cancel']}"/>
                     </div>
                     
                     <p:dialog id="datamoveConfirmation" header="#{bundle['dashboard.card.datamove.manage']}" widgetVar="datamoveConfirmation" modal="true">
@@ -143,7 +143,7 @@
                                              onclick="PF('datamoveConfirmation').hide();" 
                                              action="#{DashboardDatamovePage.move()}"
                                              update="@form,:messagePanel" partialSubmit="true"/>
-                            <button class="btn btn-link" onclick="PF('datamoveConfirmation').hide();" type="button">
+                            <button class="btn btn-default button-cancel" onclick="PF('datamoveConfirmation').hide();" type="button">
                                 #{bundle['dashboard.datamove.confirm.no']}
                             </button>
                         </div>
