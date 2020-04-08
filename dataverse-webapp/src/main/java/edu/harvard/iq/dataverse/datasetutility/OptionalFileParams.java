@@ -7,6 +7,7 @@ package edu.harvard.iq.dataverse.datasetutility;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import edu.harvard.iq.dataverse.api.dto.FileTermsOfUseDTO;
 import edu.harvard.iq.dataverse.common.BundleUtil;
@@ -19,8 +20,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 
-import javax.ejb.Stateful;
-import javax.inject.Inject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,15 +40,9 @@ import java.util.stream.Collectors;
  *
  * @author rmp553
  */
-@Stateful
 public class OptionalFileParams {
 
     private static final Logger logger = Logger.getLogger(OptionalFileParams.class.getName());
-
-    @Inject
-    private LicenseDAO licenseDAO;
-    @Inject
-    private TermsOfUseFactory termsOfUseFactory;
 
     private String description;
     public static final String DESCRIPTION_ATTR_NAME = "description";
@@ -60,12 +53,8 @@ public class OptionalFileParams {
     private List<String> dataFileTags;
     public static final String FILE_DATA_TAGS_ATTR_NAME = "dataFileTags";
 
-    private FileTermsOfUseDTO fileTermsOfUseDTO;
-    public static  final String FILE_TERMS_OF_USE = "termsOfUseAndAccess";
-
-    @Deprecated
-    public OptionalFileParams() {
-    }
+    @SerializedName("fileTermsOfUseDTO") private FileTermsOfUseDTO fileTermsOfUseDTO;
+    public static final String FILE_TERMS_OF_USE = "termsOfUseAndAccess";
 
     public OptionalFileParams(String jsonData) throws DataFileTagException {
 
@@ -78,17 +67,6 @@ public class OptionalFileParams {
     public OptionalFileParams(String description,
                               List<String> newCategories,
                               List<String> potentialFileDataTags) throws DataFileTagException {
-
-        this.description = description;
-        setCategories(newCategories);
-        this.addFileDataTags(potentialFileDataTags);
-    }
-
-
-    public OptionalFileParams(String description,
-                              List<String> newCategories,
-                              List<String> potentialFileDataTags,
-                              boolean restrict) throws DataFileTagException {
 
         this.description = description;
         setCategories(newCategories);
@@ -236,9 +214,9 @@ public class OptionalFileParams {
         //----------------------
         // Load File Terms of Use and Access
         //----------------------
+        Type objType = new TypeToken<FileTermsOfUseDTO>(){}.getType();
         if ((jsonObj.has(FILE_TERMS_OF_USE)) && (!jsonObj.get(FILE_TERMS_OF_USE).isJsonNull())) {
-            FileTermsOfUseDTO termsOfUseDTO = gson.fromJson(jsonObj.get(FILE_TERMS_OF_USE), listType);
-
+            fileTermsOfUseDTO = gson.fromJson(jsonObj.get(FILE_TERMS_OF_USE), objType);
         }
     }
 
@@ -286,7 +264,7 @@ public class OptionalFileParams {
     /**
      * Add parameters to a DataFile object
      */
-    public void addOptionalParams(DataFile df) throws DataFileTagException {
+    public void addOptionalParams(DataFile df, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) throws DataFileTagException {
         if (df == null) {
             throw new NullPointerException("The datafile cannot be null!");
         }
@@ -315,19 +293,19 @@ public class OptionalFileParams {
         // ---------------------------
         // Add File TermsOfUseAndAccess
         // ---------------------------
-        addFileTermsOfUseAndAccess(fm);
+        addFileTermsOfUseAndAccess(fm, licenseDAO, termsOfUseFactory);
 
     }
 
     /**
      * Add File terms of use and access
      */
-    private void addFileTermsOfUseAndAccess(FileMetadata fileMetadata) {
+    private void addFileTermsOfUseAndAccess(FileMetadata fileMetadata, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
         if (fileMetadata == null) {
             throw new NullPointerException("The fileMetadata cannot be null!");
         }
 
-        if(this.getFileTermsOfUseDTO().getTermsOfUseType().equals(FileTermsOfUse.TermsOfUseType.LICENSE_BASED.toString())) {
+        if(this.getFileTermsOfUseDTO().getTermsType().equals(FileTermsOfUse.TermsOfUseType.LICENSE_BASED.toString())) {
             License license = licenseDAO.findActive()
                     .stream()
                     .filter(l -> l.getName().equals(this.getFileTermsOfUseDTO().getLicense()))
@@ -335,6 +313,19 @@ public class OptionalFileParams {
                     .orElseThrow(() -> new IllegalArgumentException("There is no active license with name: " + this.getFileTermsOfUseDTO().getLicense()));
 
             fileMetadata.setTermsOfUse(termsOfUseFactory.createTermsOfUseFromLicense(license));
+        }
+
+        if(this.getFileTermsOfUseDTO().getTermsType().equals(FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED.toString())) {
+            fileMetadata.setTermsOfUse(termsOfUseFactory.createAllRightsReservedTermsOfUse());
+        }
+
+        if(this.getFileTermsOfUseDTO().getTermsType().equals(FileTermsOfUse.TermsOfUseType.RESTRICTED.toString())) {
+            if(!this.getFileTermsOfUseDTO().getAccessConditions().equals(FileTermsOfUse.RestrictType.CUSTOM.toString())) {
+                fileMetadata.setTermsOfUse(termsOfUseFactory.createRestrictedTermsOfUse(FileTermsOfUse.RestrictType.valueOf(this.getFileTermsOfUseDTO().getAccessConditions())));
+            }
+            if(this.getFileTermsOfUseDTO().getAccessConditions().equals(FileTermsOfUse.RestrictType.CUSTOM.toString())) {
+                fileMetadata.setTermsOfUse(termsOfUseFactory.createRestrictedCustomTermsOfUse(this.getFileTermsOfUseDTO().getAccessConditionsCustomText()));
+            }
         }
     }
 

@@ -13,8 +13,10 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteMapLayerMetadataCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UningestFileCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
+import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestRequest;
+import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -51,6 +53,11 @@ public class Files extends AbstractApiBean {
     EjbDataverseEngine commandEngine;
     @EJB
     SystemConfig systemConfig;
+
+    @EJB
+    private LicenseDAO licenseDAO;
+    @EJB
+    private TermsOfUseFactory termsOfUseFactory;
 
     private static final Logger logger = Logger.getLogger(Files.class.getName());
 
@@ -175,13 +182,13 @@ public class Files extends AbstractApiBean {
                                               newFilename,
                                               newFileContentType,
                                               testFileInputStream,
-                                              optionalFileParams);
+                                              optionalFileParams, licenseDAO, termsOfUseFactory);
         } else {
             addFileHelper.runReplaceFile(fileToReplaceId,
                                          newFilename,
                                          newFileContentType,
                                          testFileInputStream,
-                                         optionalFileParams);
+                                         optionalFileParams, licenseDAO, termsOfUseFactory);
         }
 
         msg("we're back.....");

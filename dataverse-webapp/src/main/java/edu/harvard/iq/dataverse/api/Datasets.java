@@ -67,9 +67,12 @@ import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
+import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
@@ -93,6 +96,7 @@ import edu.harvard.iq.dataverse.util.EjbUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import io.vavr.control.Either;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -200,6 +204,12 @@ public class Datasets extends AbstractApiBean {
 
     @Inject
     private DatasetService datasetSvc;
+
+    @Inject
+    private LicenseDAO licenseDAO;
+
+    @Inject
+    private TermsOfUseFactory termsOfUseFactory;
 
     /**
      * Used to consolidate the way we parse and handle dataset versions.
@@ -1653,7 +1663,7 @@ public class Datasets extends AbstractApiBean {
                                           newFilename,
                                           newFileContentType,
                                           fileInputStream,
-                                          optionalFileParams);
+                                          optionalFileParams, licenseDAO, termsOfUseFactory);
 
 
         if (addFileHelper.hasError()) {
@@ -1862,6 +1872,75 @@ public class Datasets extends AbstractApiBean {
 
     // -------------------- PRIVATE ---------------------
     private void validateFileTermsOfUseDTO(FileTermsOfUseDTO fileTermsOfUseDTO) throws WrappedResponse {
+        if(StringUtils.isEmpty(fileTermsOfUseDTO.getTermsType())) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST, BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.missingTermsOfUse")));
+        }
+
+        if(fileTermsOfUseDTO.getTermsType().equals(FileTermsOfUse.TermsOfUseType.LICENSE_BASED.toString())) {
+            validateLicenseBasedTerms(fileTermsOfUseDTO);
+        } else if(fileTermsOfUseDTO.getTermsType().equals(FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED.toString())) {
+            validateAllRightsReservedTerms(fileTermsOfUseDTO);
+        } else if(fileTermsOfUseDTO.getTermsType().equals(FileTermsOfUse.TermsOfUseType.RESTRICTED.toString())) {
+            validateRestrictedTerms(fileTermsOfUseDTO);
+        } else {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST, BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.invalidTermsOfUse")));
+        }
+    }
+
+    private void validateRestrictedTerms(FileTermsOfUseDTO fileTermsOfUseDTO) throws WrappedResponse {
+        if(fileTermsOfUseDTO.getAccessConditions() == null) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.restrictedTerms.missingAccessConditions", FileTermsOfUse.TermsOfUseType.RESTRICTED.toString())));
+        }
+        if(fileTermsOfUseDTO.getLicense() != null) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.restrictedTerms.invalidLicenseParameter", FileTermsOfUse.TermsOfUseType.RESTRICTED.toString())));
+        }
+
+        if(!containsRestrictType(fileTermsOfUseDTO.getAccessConditions())) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.restrictedTerms.invalidAccessConditions", fileTermsOfUseDTO.getAccessConditions())));
+        }
+
+        if(fileTermsOfUseDTO.getAccessConditions().equals(FileTermsOfUse.RestrictType.CUSTOM.toString()) && StringUtils.isEmpty(fileTermsOfUseDTO.getAccessConditionsCustomText())) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.restrictedTerms.missingAccessConditionsCustomText", FileTermsOfUse.RestrictType.CUSTOM.toString())));
+        }
+
+        if(!fileTermsOfUseDTO.getAccessConditions().equals(FileTermsOfUse.RestrictType.CUSTOM.toString()) && fileTermsOfUseDTO.getAccessConditionsCustomText() != null) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.restrictedTerms.invalidRemainingParameters", fileTermsOfUseDTO.getAccessConditions())));
+        }
+    }
+
+    private void validateAllRightsReservedTerms(FileTermsOfUseDTO fileTermsOfUseDTO) throws WrappedResponse {
+        if(fileTermsOfUseDTO.getAccessConditionsCustomText() != null || fileTermsOfUseDTO.getAccessConditions() != null || fileTermsOfUseDTO.getLicense() != null) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.allRightsReservedTerms.invalidRemainingParameters", FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED.toString())));
+        }
+    }
+
+    private void validateLicenseBasedTerms(FileTermsOfUseDTO fileTermsOfUseDTO) throws WrappedResponse {
+        if(fileTermsOfUseDTO.getAccessConditionsCustomText() != null || fileTermsOfUseDTO.getAccessConditions() != null || fileTermsOfUseDTO.getLicense() == null) {
+            throw new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                    BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.licenseBasedTerms.invalidRemainingParameters", FileTermsOfUse.TermsOfUseType.LICENSE_BASED.toString())));
+        }
+
+        licenseDAO.findActive()
+                .stream()
+                .filter(license -> license.getName().equals(fileTermsOfUseDTO.getLicense()))
+                .findAny()
+                .orElseThrow(() -> new WrappedResponse(error(Response.Status.BAD_REQUEST,
+                        BundleUtil.getStringFromBundle("datasets.api.add.termsOfUseAndAccess.licenseBasedTerms.invalidParameter", fileTermsOfUseDTO.getLicense()))));
+    }
+
+    private boolean containsRestrictType(String apiValue) {
+        for (FileTermsOfUse.RestrictType restrictType : FileTermsOfUse.RestrictType.values()) {
+            if (restrictType.toString().equals(apiValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void validateEmbargoDate(Date embargoDate) throws WrappedResponse {

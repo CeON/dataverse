@@ -1,46 +1,36 @@
 package edu.harvard.iq.dataverse.api.dto;
 
-import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
-import org.apache.commons.lang3.StringUtils;
+import java.io.Serializable;
 
-public class FileTermsOfUseDTO {
+public class FileTermsOfUseDTO implements Serializable {
 
-    private String termsOfUseType;
-    private String license;
-    private String restrictType;
-    private String restrictCustomText;
+    private final String termsType;
+    private final String license;
+    private final String accessConditions;
+    private final String accessConditionsCustomText;
 
     // -------------------- CONSTRUCTORS --------------------
-    public FileTermsOfUseDTO(String termsOfUseType, String license, String restrictType, String restrictCustomText) {
-        this.termsOfUseType = termsOfUseType;
+    public FileTermsOfUseDTO(String termsType, String license, String accessConditions, String accessConditionsCustomText) {
+        this.termsType = termsType;
         this.license = license;
-        this.restrictType = restrictType;
-        this.restrictCustomText = restrictCustomText;
+        this.accessConditions = accessConditions;
+        this.accessConditionsCustomText = accessConditionsCustomText;
     }
 
     // -------------------- GETTERS --------------------
-    public String getTermsOfUseType() {
-        return termsOfUseType;
+    public String getTermsType() {
+        return termsType;
     }
 
     public String getLicense() {
         return license;
     }
 
-    public String getRestrictType() {
-        return restrictType;
+    public String getAccessConditions() {
+        return accessConditions;
     }
 
-    public String getRestrictCustomText() {
-        return restrictCustomText;
-    }
-
-    // -------------------- LOGIC --------------------
-    public FileTermsOfUseDTO createLicenseBasedTermsDTO(String license) {
-        return new FileTermsOfUseDTO(FileTermsOfUse.TermsOfUseType.LICENSE_BASED.toString(), license, StringUtils.EMPTY, StringUtils.EMPTY);
-    }
-
-    public FileTermsOfUseDTO createAllRightsReservedTermsDTO() {
-        return new FileTermsOfUseDTO(FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED.toString(), StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
+    public String getAccessConditionsCustomText() {
+        return accessConditionsCustomText;
     }
 }
