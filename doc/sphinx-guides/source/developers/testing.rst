@@ -98,7 +98,7 @@ Generally speaking, unit tests have been flagged as non-essential because they a
 Integration Tests
 -----------------
 
-For integration testing we are using Arquillian, the example test you can look around at is called ``ArquillianExampleTest``.
+For integration testing we are using Arquillian, the example test you can look at is called ``ArquillianExampleTest``.
 
 Database
 ~~~~~~~~
@@ -110,13 +110,13 @@ If you want to edit information contained in the file you need to move it to ~/.
 Docker
 ~~~~~~
 
-We are also using "Test containers" so you wouldn`t need to setup solr for testing manually.
+We are also using "Test containers" so there is no need for Solr manual setup in tests.
 
-In order to make it running you need to have docker installed and user added to docker group which you can do with following command::
+In order to make it run you need to have docker installed. Then user must be added to docker group which can be done with following command::
 
     sudo usermod -aG docker {USERNAME}
 
-First test run is downloading docker images so it can take some time for test to be completed.
+First test run downloads docker images so it can take some time for test to be completed.
 
 ----
 
