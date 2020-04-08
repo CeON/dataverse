@@ -398,9 +398,14 @@ span.glyphicon-question-sign.tooltip-icon {
 	outline-offset: 3px;
 }
 .ui-selectonemenu.ui-state-focus {
-	&, & .ui-selectonemenu-trigger {
-		outline: 2px dashed $focus-color !important;
-	}
+    &, & .ui-selectonemenu-trigger {
+        outline: 2px dashed $focus-color !important;
+    }
+}
+.ui-selectcheckboxmenu.ui-state-focus {
+    &, & .ui-selectcheckboxmenu-trigger {
+        outline: 2px dashed $focus-color !important;
+    }
 }
 
 #sharrre-block a {
@@ -412,8 +417,8 @@ span.glyphicon-question-sign.tooltip-icon {
 .button-block a,
 .dropdown-menu a,
 .panel-heading,
-.ui-selectonemenu.ui-state-focus {
-	&:focus {
+.ui-selectonemenu, .ui-selectcheckboxmenu {
+	&.ui-state-focus:focus {
 		outline-offset: 0;
 	}
 }
@@ -519,8 +524,24 @@ input:disabled {
 	}
 }
 
+
 div.ui-selectonemenu.form-control {
 	padding: 1px 0;
+
+.ui-selectcheckboxmenu .ui-selectcheckboxmenu-multiple-container  {
+    padding-right: 30px; /* same as primefaces ui-selectcheckboxmenu-trigger width */
+    
+    .ui-selectcheckboxmenu-token {
+        background: #FFF;
+        border: 1px solid $main-color;
+        box-shadow: none;
+    }
+}
+.ui-selectcheckboxmenu-header .ui-selectcheckboxmenu-filter-container .ui-icon {
+    top: 5px;
+}
+.without-select-all .ui-selectcheckboxmenu-header .ui-chkbox {
+    display: none; 
 }
 
 div.field-add-delete {
@@ -601,9 +622,15 @@ textarea {
 div.edit-compound-field .ui-message, .ui-message-form {
 	margin: 6px 0;
 }
+div.form-col-container.edit-compound-field div.form-col-container.form-hidden-col-container {
+    margin: 0;
+}
 
 .form-group .ui-message.ui-message-error {
 	margin: 5px 0 0 0;
+}
+.form-group.hidden-form-group {
+    margin: 0;
 }
 
 .ui-autocomplete-input-token {
@@ -2485,6 +2512,10 @@ div.ui-dialog.largePopUp {
 /* Registration */
 .consent-label {
 	padding-left: 1% !important;
+}
+  
+.no-bottom-border {
+    border-bottom: none !important;
 }
 
 

@@ -19,6 +19,7 @@ import org.jsoup.select.Elements;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -48,7 +49,7 @@ public class DOIDataCiteRegisterService {
     @EJB
     DOIDataCiteServiceBean doiDataCiteServiceBean;
 
-    @EJB
+    @Inject
     private SettingsServiceBean settingsService;
 
 
@@ -433,8 +434,8 @@ class DataCiteMetadataTemplate {
                     creatorsElement.append("<nameIdentifier schemeURI=\"http://id.loc.gov/authorities/names/\" nameIdentifierScheme=\"LCNA\">" + author.getIdValue() + "</nameIdentifier>");
                 }
             }
-            if (author.getAffiliation() != null && !author.getAffiliation().getDisplayValue().isEmpty()) {
-                creatorsElement.append("<affiliation>" + author.getAffiliation().getDisplayValue() + "</affiliation>");
+            if (author.getAffiliation() != null && !author.getAffiliation().getFieldValue().isEmpty()) {
+                creatorsElement.append("<affiliation>" + author.getAffiliation().getFieldValue().get() + "</affiliation>");
             }
             creatorsElement.append("</creator>");
         }

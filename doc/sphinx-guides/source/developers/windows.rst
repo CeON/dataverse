@@ -2,7 +2,7 @@
 Windows Development
 ===================
 
-Development on Windows is not well supported, unfortunately. You will have a much easier time if you develop on Mac or Linux as described under :doc:`dev-environment` section.
+Development on Windows is not well supported, unfortunately. You will have a much easier time if you develop on Mac or Linux as described under :doc:`../installation/installation-main` section.
 
 If you want to try using Windows for Dataverse development, your best best is to use Vagrant, as described below. Minishift is also an option. These instructions were tested on Windows 10.
 
@@ -141,3 +141,5 @@ Discussion and Feedback
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 For more discussion of Windows support for Dataverse development see our community list thread `"Do you want to develop on Windows?" <https://groups.google.com/d/msg/dataverse-community/Hs9j5rIxqPI/-q54751aAgAJ>`_ We would be happy to inconrporate feedback from Windows developers into this page. The :doc:`documentation` section describes how.
+
+Previous: :doc:`intro` | Next: :doc:`tips`
