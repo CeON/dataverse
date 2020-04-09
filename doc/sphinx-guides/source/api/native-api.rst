@@ -459,13 +459,24 @@ For example::
 Add a File to a Dataset
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Add a file to an existing Dataset. Description and tags are optional::
+When adding a file to a dataset, you can optionally specify the following:
+
+*   A description of the file.
+*   Tags and categories for the file.
+*   Terms of use and access for the file.
+
+
+Add a file to an existing Dataset. Description, terms of use and tags are optional::
 
     POST http://$SERVER/api/datasets/$id/add?key=$apiKey
 
-A more detailed "add" example using curl::
+A more detailed "add" examples using curl::
 
-    curl -H "X-Dataverse-key:$API_TOKEN" -X POST -F 'file=@data.tsv' -F 'jsonData={"description":"My description.","categories":["Data"], "restrict":"true"}' "https://example.dataverse.edu/api/datasets/:persistentId/add?persistentId=$PERSISTENT_ID"
+    curl -H "X-Dataverse-key:$API_TOKEN" -X POST -F 'file=@data.tsv' -F 'jsonData={"description":"My description.","categories":["Data"], "termsOfUseAndAccess":{"termsType":"LICENSE_BASED", "license":"Apache Software License 2.0"}}' "https://example.dataverse.edu/api/datasets/:persistentId/add?persistentId=$PERSISTENT_ID"
+
+    curl -H "X-Dataverse-key:$API_TOKEN" -X POST -F 'file=@data.tsv' -F 'jsonData={"termsOfUseAndAccess":{"termsType":"ACADEMIC_PURPOSE_AND_NOT_FOR_REDISTRIBUTION"}}' "https://example.dataverse.edu/api/datasets/:persistentId/add?persistentId=$PERSISTENT_ID"
+
+    curl -H "X-Dataverse-key:$API_TOKEN" -X POST -F 'file=@data.tsv' -F 'jsonData={"termsOfUseAndAccess":{"termsType":"RESTRICTED", "accessConditions":"CUSTOM", "accessConditionsCustomText":"Exemplary reason"}}' "https://example.dataverse.edu/api/datasets/:persistentId/add?persistentId=$PERSISTENT_ID"
 
 Example python code to add a file. This may be run by changing these parameters in the sample code:
 
