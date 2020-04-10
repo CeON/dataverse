@@ -3191,17 +3191,21 @@ div.ui-dialog.largePopUp {
 		}
 	}
 	
-	#featuredDataversesBlock div.customNavigation span.glyphicon {
-		border-color: $contrast-foreground-color;
-		background-color: $contrast-background-color;
-		color: $contrast-link-color;
+	#featuredDataversesBlock div.customNavigation {
+		span.glyphicon {
+			border-color: $contrast-foreground-color;
+			background-color: $contrast-background-color;
+			color: $contrast-link-color;
+		}
 
-		&:hover, &:active, &:focus {
-			color: $contrast-foreground-color;
-			background: $contrast-alt-background-color;
+		a:hover, a:active, a:focus {
+			span.glyphicon {
+				color: $contrast-foreground-color;
+				background: $contrast-alt-background-color;
+			}
 		}
 	}
-
+	
 	#resultsFacetsTopBlock a.facetLink.facetSelected {
 		background: $contrast-alt-background-color;
 	}
