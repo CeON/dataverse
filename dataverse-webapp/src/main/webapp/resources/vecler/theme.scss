@@ -1049,6 +1049,10 @@ input.fancy-checkbox[type=checkbox] {
 	}
 }
 
+.ui-autocomplete-emptyMessage {
+	border-radius: 9px;
+}
+
 /* Buttons */
 
 .button-block {
@@ -2668,7 +2672,7 @@ div.ui-dialog.largePopUp {
 		color:  $contrast-foreground-color;
 	}
 
-	.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight,
+	.ui-state-highlight:not(tr), .ui-widget-content .ui-state-highlight:not(tr), .ui-widget-header .ui-state-highlight,
 	.ui-picklist .ui-picklist-list-wrapper .ui-widget-content .ui-state-highlight {
 		background-color: $contrast-foreground-color;
 		color:  $contrast-background-color;
@@ -2841,7 +2845,7 @@ div.ui-dialog.largePopUp {
 	}
 
 	.ui-autocomplete-emptyMessage {
-		border-color: $contrast-foreground-color;
+		border: 1px solid $contrast-foreground-color;
 		background: $contrast-background-color;
 		color: $contrast-foreground-color;
 	}
@@ -3357,8 +3361,16 @@ div.ui-dialog.largePopUp {
 				color: $contrast-background-color;
 			}
 
-			a:not(.btn):not(.ui-commandlink) {
+			a:not(.btn) {
 				color: $contrast-background-color;
+			}
+
+			.dropdown-menu a:not(.btn) {
+				color: $contrast-link-color;
+
+				&:hover, &:active, &:hover {
+					color :$contrast-foreground-color
+				}
 			}
 
 			.btn.btn-default {
