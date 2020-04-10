@@ -29,6 +29,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -53,6 +54,8 @@ public class Files extends AbstractApiBean {
     EjbDataverseEngine commandEngine;
     @EJB
     SystemConfig systemConfig;
+    @Inject
+    private OptionalFileParams optionalFileParams;
 
     @EJB
     private LicenseDAO licenseDAO;
@@ -133,7 +136,7 @@ public class Files extends AbstractApiBean {
                     // (2b) Load up optional params via JSON
                     //  - Will skip extra attributes which includes fileToReplaceId and forceReplace
                     //---------------------------------------
-                    optionalFileParams = new OptionalFileParams(jsonData);
+                    optionalFileParams = new OptionalFileParams().create(jsonData);
                 } catch (DataFileTagException ex) {
                     return error(Response.Status.BAD_REQUEST, ex.getMessage());
                 }
@@ -159,7 +162,7 @@ public class Files extends AbstractApiBean {
                                                                       this.ingestService,
                                                                       this.fileService,
                                                                       this.permissionSvc,
-                                                                      this.commandEngine);
+                                                                      this.commandEngine, this.optionalFileParams);
 
         //-------------------
         // (5) Run "runReplaceFileByDatasetId"
@@ -182,13 +185,13 @@ public class Files extends AbstractApiBean {
                                               newFilename,
                                               newFileContentType,
                                               testFileInputStream,
-                                              optionalFileParams, licenseDAO, termsOfUseFactory);
+                                              optionalFileParams);
         } else {
             addFileHelper.runReplaceFile(fileToReplaceId,
                                          newFilename,
                                          newFileContentType,
                                          testFileInputStream,
-                                         optionalFileParams, licenseDAO, termsOfUseFactory);
+                                         optionalFileParams);
         }
 
         msg("we're back.....");

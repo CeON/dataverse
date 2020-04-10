@@ -17,10 +17,8 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
-import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.User;
@@ -106,6 +104,7 @@ public class AddReplaceFileHelper {
     private DataFileServiceBean fileService;
     private PermissionServiceBean permissionService;
     private EjbDataverseEngine commandEngine;
+    private OptionalFileParams optionalFileParams;
 
     // -----------------------------------
     // Instance variables directly added
@@ -158,7 +157,8 @@ public class AddReplaceFileHelper {
                                 IngestServiceBean ingestService,
                                 DataFileServiceBean fileService,
                                 PermissionServiceBean permissionService,
-                                EjbDataverseEngine commandEngine) {
+                                EjbDataverseEngine commandEngine,
+                                OptionalFileParams optionalFileParams) {
 
         // ---------------------------------
         // make sure DataverseRequest isn't null and has a user
@@ -173,6 +173,7 @@ public class AddReplaceFileHelper {
         this.fileService = Objects.requireNonNull(fileService, "fileService cannot be null");
         this.permissionService = Objects.requireNonNull(permissionService, "permissionService cannot be null");
         this.commandEngine = Objects.requireNonNull(commandEngine, "commandEngine cannot be null");
+        this.optionalFileParams = optionalFileParams;
 
         // ---------------------------------
 
@@ -197,7 +198,7 @@ public class AddReplaceFileHelper {
                                        String newFileName,
                                        String newFileContentType,
                                        InputStream newFileInputStream,
-                                       OptionalFileParams optionalFileParams, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+                                       OptionalFileParams optionalFileParams) {
 
         msgt(">> runAddFileByDatasetId");
 
@@ -210,7 +211,7 @@ public class AddReplaceFileHelper {
         }
 
         //return this.runAddFile(this.dataset, newFileName, newFileContentType, newFileInputStream, optionalFileParams);
-        return this.runAddReplaceFile(dataset, newFileName, newFileContentType, newFileInputStream, optionalFileParams, licenseDAO, termsOfUseFactory);
+        return this.runAddReplaceFile(dataset, newFileName, newFileContentType, newFileInputStream, optionalFileParams);
 
     }
 
@@ -228,7 +229,7 @@ public class AddReplaceFileHelper {
                                        String newFileName,
                                        String newFileContentType,
                                        InputStream newFileInputStream,
-                                       OptionalFileParams optionalFileParams, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+                                       OptionalFileParams optionalFileParams) {
 
         msgt(">> runForceReplaceFile");
         initErrorHandling();
@@ -248,7 +249,7 @@ public class AddReplaceFileHelper {
         }
 
 
-        return this.runAddReplaceFile(fileToReplace.getOwner(), newFileName, newFileContentType, newFileInputStream, optionalFileParams, licenseDAO, termsOfUseFactory);
+        return this.runAddReplaceFile(fileToReplace.getOwner(), newFileName, newFileContentType, newFileInputStream, optionalFileParams);
     }
 
 
@@ -256,7 +257,7 @@ public class AddReplaceFileHelper {
                                   String newFileName,
                                   String newFileContentType,
                                   InputStream newFileInputStream,
-                                  OptionalFileParams optionalFileParams, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+                                  OptionalFileParams optionalFileParams) {
 
         msgt(">> runReplaceFile");
 
@@ -275,7 +276,7 @@ public class AddReplaceFileHelper {
             return false;
         }
 
-        return this.runAddReplaceFile(fileToReplace.getOwner(), newFileName, newFileContentType, newFileInputStream, optionalFileParams, licenseDAO, termsOfUseFactory);
+        return this.runAddReplaceFile(fileToReplace.getOwner(), newFileName, newFileContentType, newFileInputStream, optionalFileParams);
     }
 
 
@@ -299,7 +300,7 @@ public class AddReplaceFileHelper {
     private boolean runAddReplaceFile(Dataset dataset,
                                       String newFileName, String newFileContentType,
                                       InputStream newFileInputStream,
-                                      OptionalFileParams optionalFileParams, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+                                      OptionalFileParams optionalFileParams) {
 
         // Run "Phase 1" - Initial ingest of file + error check
         // But don't save the dataset version yet
@@ -308,8 +309,7 @@ public class AddReplaceFileHelper {
                                                     newFileName,
                                                     newFileContentType,
                                                     newFileInputStream,
-                                                    optionalFileParams, licenseDAO, termsOfUseFactory
-        );
+                                                    optionalFileParams);
 
         if (!phase1Success) {
             return false;
@@ -333,7 +333,7 @@ public class AddReplaceFileHelper {
                                         String newFileName,
                                         String newFileContentType,
                                         InputStream newFileInputStream,
-                                        OptionalFileParams optionalFileParams, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+                                        OptionalFileParams optionalFileParams) {
 
         if (this.hasError()) {
             return false;   // possible to have errors already...
@@ -368,7 +368,7 @@ public class AddReplaceFileHelper {
         }
 
         msgt("step_055_loadOptionalFileParams");
-        return this.step_055_loadOptionalFileParams(optionalFileParams, licenseDAO, termsOfUseFactory);
+        return this.step_055_loadOptionalFileParams(optionalFileParams);
 
     }
 
@@ -1085,7 +1085,7 @@ public class AddReplaceFileHelper {
      * @param optionalFileParams
      * @return
      */
-    private boolean step_055_loadOptionalFileParams(OptionalFileParams optionalFileParams, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+    private boolean step_055_loadOptionalFileParams(OptionalFileParams optionalFileParams) {
 
         if (hasError()) {
             return false;
@@ -1105,7 +1105,7 @@ public class AddReplaceFileHelper {
         // --------------------------------------------
         for (DataFile df : finalFileList) {
             try {
-                optionalFileParams.addOptionalParams(df, licenseDAO, termsOfUseFactory);
+                optionalFileParams.addOptionalParams(df);
 
             } catch (DataFileTagException ex) {
                 Logger.getLogger(AddReplaceFileHelper.class.getName()).log(Level.SEVERE, null, ex);

@@ -19,6 +19,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 
+import javax.ejb.Stateful;
+import javax.inject.Inject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +41,13 @@ import java.util.stream.Collectors;
  *
  * @author rmp553
  */
+@Stateful
 public class OptionalFileParams {
 
     private static final Logger logger = Logger.getLogger(OptionalFileParams.class.getName());
+
+    private LicenseDAO licenseDAO;
+    private TermsOfUseFactory termsOfUseFactory;
 
     private String description;
     public static final String DESCRIPTION_ATTR_NAME = "description";
@@ -55,23 +61,24 @@ public class OptionalFileParams {
     private FileTermsOfUseDTO fileTermsOfUseDTO;
     public static final String FILE_TERMS_OF_USE = "termsOfUseAndAccess";
 
-    public OptionalFileParams(String jsonData) throws DataFileTagException {
+    // -------------------- CONSTRUCTORS --------------------
+    @Deprecated
+    public OptionalFileParams() {
+    }
 
+    @Inject
+    public OptionalFileParams(LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+        this.licenseDAO = licenseDAO;
+        this.termsOfUseFactory = termsOfUseFactory;
+    }
+
+
+    public OptionalFileParams create(String jsonData) throws DataFileTagException {
         if (jsonData != null) {
             loadParamsFromJson(jsonData);
         }
+        return this;
     }
-
-
-    public OptionalFileParams(String description,
-                              List<String> newCategories,
-                              List<String> potentialFileDataTags) throws DataFileTagException {
-
-        this.description = description;
-        setCategories(newCategories);
-        this.addFileDataTags(potentialFileDataTags);
-    }
-
 
     /**
      * Set description
@@ -219,7 +226,7 @@ public class OptionalFileParams {
         }
     }
 
-    private void addFileDataTags(List<String> potentialTags) throws DataFileTagException {
+    public void addFileDataTags(List<String> potentialTags) throws DataFileTagException {
 
         if (potentialTags == null) {
             return;
@@ -263,7 +270,7 @@ public class OptionalFileParams {
     /**
      * Add parameters to a DataFile object
      */
-    public void addOptionalParams(DataFile df, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) throws DataFileTagException {
+    public void addOptionalParams(DataFile df) throws DataFileTagException {
         if (df == null) {
             throw new NullPointerException("The datafile cannot be null!");
         }
@@ -292,14 +299,14 @@ public class OptionalFileParams {
         // ---------------------------
         // Add File TermsOfUseAndAccess
         // ---------------------------
-        addFileTermsOfUseAndAccess(fm, licenseDAO, termsOfUseFactory);
+        addFileTermsOfUseAndAccess(fm);
 
     }
 
     /**
      * Add File terms of use and access
      */
-    private void addFileTermsOfUseAndAccess(FileMetadata fileMetadata, LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory) {
+    private void addFileTermsOfUseAndAccess(FileMetadata fileMetadata) {
         if (fileMetadata == null) {
             throw new NullPointerException("The fileMetadata cannot be null!");
         }
@@ -424,5 +431,4 @@ public class OptionalFileParams {
         }
 
     }
-
 }
