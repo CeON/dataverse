@@ -243,7 +243,9 @@ body {
 
 .ui-message, .ui-messages {
 	box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
+}
 
+.ui-message, .ui-messages, * {
 	.ui-message-info, .ui-message-warn, .ui-message-error, .ui-message-fatal,
 	.ui-messages-info, .ui-messages-warn, .ui-messages-error, .ui-messages-fatal {
 		padding: 20px 23px;
@@ -259,7 +261,6 @@ body {
 	.ui-messages-info {
 		background: #f2f8fa;
 		border-color: #c5e0eb;
-		color: $main-text-color;
 	}
 
 	.ui-message-info-icon, .ui-message-warn-icon, .ui-message-error-icon, .ui-message-fatal-icon,
@@ -1917,6 +1918,11 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 
 /* Search results */
 
+#resultsFacetsTopBlock a.facetLink.facetSelected {
+	padding: 0.3em 0.6em;
+	border-radius: $border-radius;
+}
+
 #resultsCountPaginatorBlock {
 	margin-bottom: 8px;
 
@@ -2503,6 +2509,15 @@ div.ui-widget-overlay {
 	width: 100% !important;
 }
 
+.restricted-terms-of-use {
+	margin-bottom: 15px; 
+	margin-top: 5px;
+	padding: 5px; 
+
+	background-color: #eee;
+	border-radius: $border-radius;
+}
+
 /* Fix for the unnecessary scrollbar in some modals */
 div.ui-dialog.largePopUp {
 	overflow: hidden;
@@ -2594,6 +2609,11 @@ div.ui-dialog.largePopUp {
 			outline: 2px dashed $contrast-foreground-color !important;
 		}
 	}
+	.ui-selectcheckboxmenu.ui-state-focus {
+		&, & .ui-selectcheckboxmenu-trigger {
+			outline: 2px dashed $contrast-foreground-color !important;
+		}
+	}
 
 	#navbarFixed #cookie-banner, .sr-only.impaired-navigation:focus {
 		background-color: $contrast-foreground-color;
@@ -2636,12 +2656,12 @@ div.ui-dialog.largePopUp {
 	#breadcrumbNavBlock .breadcrumbActive,
 	.ui-widget-header,
 	.bg-warning,
-	.help-block,
 	.ui-widget-content .ui-state-default:not(.ui-button),
 	.ui-state-default,
 	#dragdropMsg,
 	.highlight,
 	.ui-message-error,
+	.ui-messages-error,
 	pre,
 	.ui-widget-content code {
 		background-color: $contrast-background-color;
@@ -2660,12 +2680,24 @@ div.ui-dialog.largePopUp {
 		color: $contrast-link-color;
 	}
 
+	.help-block {
+		background: transparent;
+		color: $contrast-foreground-color;
+	}
+
+	.bg-info {
+		background: $contrast-alt-background-color;
+		color: $contrast-foreground-color;
+	}
+
 	#carouselBlocksWrapper .owl-carousel .item,
 	.alert.alert-info,
 	#metrics-content, #metrics-label,
 	.bg-warning,
 	.highlight,
 	.ui-message-error,
+	.ui-messages-error,
+	select.ui-paginator-rpp-options,
 	.ui-widget-content code {
 		border: 1px solid $contrast-foreground-color;
 	}
@@ -2678,7 +2710,6 @@ div.ui-dialog.largePopUp {
 		border: 1px solid $contrast-link-color;
 	}
 
-	#featuredDataversesBlock div.customNavigation span.glyphicon,
 	.ui-dialog.ui-widget-content .bg-muted,
 	div.ui-dialog div.highlight,
 	.form-control[readonly],
@@ -2753,9 +2784,11 @@ div.ui-dialog.largePopUp {
 		background: none;
 	}
 
-	.ui-message, .ui-messages {	
+	.ui-message, .ui-messages, * {	
 		.ui-message-info, .ui-message-warn, .ui-message-error, .ui-message-fatal,
 		.ui-messages-info, .ui-messages-warn, .ui-messages-error, .ui-messages-fatal {
+			color: $contrast-foreground-color;
+
 			.ui-icon {
 				background-image: url($contrast-primefaces-main);
 			}
@@ -2767,7 +2800,7 @@ div.ui-dialog.largePopUp {
 		.ui-messages-warn-icon::before,
 		.ui-message-error-icon::before,
 		.ui-messages-error-icon::before,
-		.ui-message-fatal-icon::before
+		.ui-message-fatal-icon::before,
 		.ui-messages-fatal-icon::before {
 			color: $contrast-foreground-color;
 		}
@@ -2807,6 +2840,12 @@ div.ui-dialog.largePopUp {
 		}
 	}
 
+	.ui-autocomplete-emptyMessage {
+		border-color: $contrast-foreground-color;
+		background: $contrast-background-color;
+		color: $contrast-foreground-color;
+	}
+
 	/* Buttons, inputs */
 
 	legend {
@@ -2838,6 +2877,7 @@ div.ui-dialog.largePopUp {
 	.ui-widget-content .ui-button.ui-state-default,
 	.ui-widget-content .ui-selectcheckboxmenu-trigger.ui-state-default,
 	.ui-dialog.ui-widget-content span.ui-button.ui-state-default,
+	.ui-selectcheckboxmenu-trigger.ui-state-default,
 	.ui-dialog.ui-widget-content .ui-selectcheckboxmenu-trigger.ui-state-default,
 	* button.ui-button.ui-state-default, span.ui-button.ui-state-default {
 		@include contrast-button($contrast-background-color, $contrast-foreground-color, $contrast-hover-color, $contrast-link-color);
@@ -2870,7 +2910,7 @@ div.ui-dialog.largePopUp {
 
 			&::placeholder {
 				color: $contrast-foreground-color;
-				opacity: 1;
+				opacity: 0.7;
 			}
 		}
 	}
@@ -2956,6 +2996,12 @@ div.ui-dialog.largePopUp {
 		border-color: $contrast-link-color;
 	}
 
+	.ui-selectcheckboxmenu .ui-selectcheckboxmenu-multiple-container .ui-selectcheckboxmenu-token {
+		border-color: $contrast-foreground-color;
+		color: $contrast-foreground-color;
+		background: $contrast-background-color;
+	}
+
 	.pagination, .ui-widget-content div.filesTable .ui-paginator {
 		> li > a,
 		.ui-paginator-first,
@@ -3011,14 +3057,14 @@ div.ui-dialog.largePopUp {
 		> .ui-state-disabled {
 			border-color: $contrast-foreground-color;
 			background: $contrast-background-color;
-			color: $contrast-alt-background-color;
-			opacity: 1;
+			color: $contrast-link-color;
+			opacity: 0.7;
 			text-decoration: none;
 
 			&:hover, &:active, &:focus {
 				border-color: $contrast-foreground-color;
 				background: $contrast-background-color;
-				color: $contrast-alt-background-color;
+				color: $contrast-link-color;
 				text-decoration: none;
 			}
 
@@ -3028,6 +3074,7 @@ div.ui-dialog.largePopUp {
 		}
 	}
 	
+	.ui-chkbox-box.ui-state-focus .ui-chkbox-icon::before,
 	.ui-chkbox-box.ui-state-focus .ui-chkbox-icon.ui-icon-check::before {
 		color: $contrast-alt-focus-color;
 	}
@@ -3102,6 +3149,29 @@ div.ui-dialog.largePopUp {
 		}
 	}
 
+	#terms-agreement-block.well {
+		border-color: $contrast-link-color;
+		background: $contrast-background-color;
+		color: $contrast-foreground-color;
+	}
+
+	/* Datepicker */
+
+	.ui-datepicker.ui-widget-content {
+		.ui-state-disabled {
+			background: $contrast-background-color;
+		}
+
+		.ui-datepicker-calendar .ui-state-default {
+			background: $contrast-alt-background-color;
+		}
+
+		select {
+			background: $contrast-background-color;
+			border: 1px solid $contrast-foreground-color;
+		}
+	}
+
 	/* Dataverse page */
 
 	/* Override default colors */
@@ -3119,6 +3189,21 @@ div.ui-dialog.largePopUp {
 				color:  $contrast-foreground-color !important;
 			}
 		}
+	}
+	
+	#featuredDataversesBlock div.customNavigation span.glyphicon {
+		border-color: $contrast-foreground-color;
+		background-color: $contrast-background-color;
+		color: $contrast-link-color;
+
+		&:hover, &:active, &:focus {
+			color: $contrast-foreground-color;
+			background: $contrast-alt-background-color;
+		}
+	}
+
+	#resultsFacetsTopBlock a.facetLink.facetSelected {
+		background: $contrast-alt-background-color;
 	}
 
 	table[id$="resultsTable"] td {
@@ -3268,7 +3353,7 @@ div.ui-dialog.largePopUp {
 				color: $contrast-background-color;
 			}
 
-			a:not(.btn) {
+			a:not(.btn):not(.ui-commandlink) {
 				color: $contrast-background-color;
 			}
 
@@ -3289,7 +3374,7 @@ div.ui-dialog.largePopUp {
 		}
 	}
 
-	&, .ui-widget-content {
+	&, .ui-widget-content, .ui-datatable.ui-widget {
 		tr.ui-state-highlight {
 			&, &.ui-datatable-odd {
 				td ul.dropdown-menu a {
@@ -3510,12 +3595,18 @@ div.ui-dialog.largePopUp {
 		}
 	}
 
+	.restricted-terms-of-use {
+		border: 1px solid $contrast-foreground-color;
+		background: $contrast-background-color;
+	}
+
 	/* Bootstrap tooltips, popovers */
 	
 	.tooltip {
 		.tooltip-inner {
 			background-color: $contrast-foreground-color;
 			color: $contrast-background-color;
+			border: 1px solid $contrast-background-color;
 		}
 
 		&.top .tooltip-arrow {
@@ -3535,6 +3626,17 @@ div.ui-dialog.largePopUp {
 	.popover {
 		background: $contrast-background-color;
 		border: 1px solid $contrast-foreground-color;
+
+		.popover-title {
+			background: $contrast-background-color;
+			color: $contrast-foreground-color;
+			border-bottom: 1px solid $contrast-link-color;
+		}
+
+		.popover-content code {
+			background: $contrast-alt-background-color;
+			color: $contrast-foreground-color;
+		}
 
 		&.top > .arrow::after {
 			border-top-color: $contrast-foreground-color;
