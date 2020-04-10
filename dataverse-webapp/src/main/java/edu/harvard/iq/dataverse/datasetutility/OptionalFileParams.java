@@ -7,7 +7,6 @@ package edu.harvard.iq.dataverse.datasetutility;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import edu.harvard.iq.dataverse.api.dto.FileTermsOfUseDTO;
 import edu.harvard.iq.dataverse.common.BundleUtil;
@@ -53,7 +52,7 @@ public class OptionalFileParams {
     private List<String> dataFileTags;
     public static final String FILE_DATA_TAGS_ATTR_NAME = "dataFileTags";
 
-    @SerializedName("fileTermsOfUseDTO") private FileTermsOfUseDTO fileTermsOfUseDTO;
+    private FileTermsOfUseDTO fileTermsOfUseDTO;
     public static final String FILE_TERMS_OF_USE = "termsOfUseAndAccess";
 
     public OptionalFileParams(String jsonData) throws DataFileTagException {
