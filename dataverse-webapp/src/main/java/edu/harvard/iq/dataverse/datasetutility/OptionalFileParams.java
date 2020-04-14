@@ -328,8 +328,7 @@ public class OptionalFileParams {
         if(this.getFileTermsOfUseDTO().getTermsType().equals(FileTermsOfUse.TermsOfUseType.RESTRICTED.toString())) {
             if(!this.getFileTermsOfUseDTO().getAccessConditions().equals(FileTermsOfUse.RestrictType.CUSTOM.toString())) {
                 fileMetadata.setTermsOfUse(termsOfUseFactory.createRestrictedTermsOfUse(FileTermsOfUse.RestrictType.valueOf(this.getFileTermsOfUseDTO().getAccessConditions())));
-            }
-            if(this.getFileTermsOfUseDTO().getAccessConditions().equals(FileTermsOfUse.RestrictType.CUSTOM.toString())) {
+            } else {
                 fileMetadata.setTermsOfUse(termsOfUseFactory.createRestrictedCustomTermsOfUse(this.getFileTermsOfUseDTO().getAccessConditionsCustomText()));
             }
         }

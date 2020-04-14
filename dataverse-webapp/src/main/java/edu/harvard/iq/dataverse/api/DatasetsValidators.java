@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.api;
 import com.amazonaws.services.pi.model.InvalidArgumentException;
 import edu.harvard.iq.dataverse.api.dto.FileTermsOfUseDTO;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -20,7 +19,6 @@ import java.util.Date;
 @Stateless
 public class DatasetsValidators {
     private LicenseDAO licenseDAO;
-    private TermsOfUseFactory termsOfUseFactory;
     private SettingsServiceBean settingsService;
 
     // -------------------- CONSTRUCTORS --------------------
@@ -29,9 +27,8 @@ public class DatasetsValidators {
     }
 
     @Inject
-    public DatasetsValidators(LicenseDAO licenseDAO, TermsOfUseFactory termsOfUseFactory, SettingsServiceBean settingsService) {
+    public DatasetsValidators(LicenseDAO licenseDAO, SettingsServiceBean settingsService) {
         this.licenseDAO = licenseDAO;
-        this.termsOfUseFactory = termsOfUseFactory;
         this.settingsService = settingsService;
     }
 
