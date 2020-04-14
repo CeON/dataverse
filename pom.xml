@@ -84,6 +84,7 @@
     <modules>
         <module>dataverse-test-common</module>
         <module>dataverse-persistence</module>
+	<module>dataverse-ext-common</module>
         <module>dataverse-webapp</module>
     </modules>
 

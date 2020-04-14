@@ -44,6 +44,11 @@
         </dependency>
         <dependency>
             <groupId>edu.harvard.iq</groupId>
+            <artifactId>dataverse-ext-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.iq</groupId>
             <artifactId>dataverse-persistence</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>
