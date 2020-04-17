@@ -134,7 +134,11 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         // Back when we only had TwoRavens, the downloadType was always "Explore". Now we persist the name of the tool (i.e. "TwoRavens", "Data Explorer", etc.)
         String toolUrl = externalToolHandler.buildToolUrlWithQueryParams(externalTool, dataFile, apiToken);
         logger.fine("Exploring with " + toolUrl);
-        PrimeFaces.current().executeScript("window.open('" + toolUrl + "', target='_blank');");
+        try {
+            FacesContext.getCurrentInstance().getExternalContext().redirect(toolUrl);
+        } catch (IOException ex) {
+            logger.info("Failed to issue a redirect to external tool.");
+        }
     }
     
     public String startWorldMapDownloadLink(FileMetadata fileMetadata) {
