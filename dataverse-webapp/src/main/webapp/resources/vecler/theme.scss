@@ -1252,10 +1252,6 @@ div[id$="notifications"].ui-tabs-panel {
 	}
 }
 
-.ui-datatable.ui-widget table thead th.ui-state-default:last-child {
-	text-align: right;
-}
-
 tr.ui-state-highlight, .ui-widget-content tr.ui-state-highlight, .ui-widget-header tr.ui-state-highlight {
 	&, &.ui-datatable-odd {
 		td {
@@ -1445,6 +1441,7 @@ $navbar-height: 6.8em;
 		margin-left: -0.333em;
 		padding: 0.333em 0.333em 0.333em 0;
 		display: table;
+		float: none;
 
 		font-size: 1em;
 		text-shadow: none;
@@ -1468,10 +1465,14 @@ $navbar-height: 6.8em;
 				}
 			}
 
-			+ div {
+			+ span {
 				padding-left: 6.267em;
 				display: table-cell;
 				vertical-align: middle;
+
+				span {
+					display: block;
+				}
 			}
 		}
 
