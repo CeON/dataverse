@@ -22,7 +22,6 @@ import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.FileUtil.ApiBatchDownloadType;
 import edu.harvard.iq.dataverse.util.FileUtil.ApiDownloadType;
-import org.primefaces.PrimeFaces;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -34,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -100,8 +100,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             FacesContext.getCurrentInstance().getExternalContext().redirect(filesDownloadUrl);
         } catch (IOException ex) {
             logger.info("Failed to issue a redirect to file download url.");
-        }
-    }
+        }    }
 
 
     public void redirectToDownloadAPI(ApiDownloadType downloadType, Long fileId, boolean guestBookRecordAlreadyWritten) {
@@ -137,7 +136,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         try {
             FacesContext.getCurrentInstance().getExternalContext().redirect(toolUrl);
         } catch (IOException ex) {
-            logger.info("Failed to issue a redirect to external tool.");
+            logger.log(Level.INFO, "Failed to issue a redirect to external tool.", ex);
         }
     }
     
@@ -150,7 +149,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             FacesContext.getCurrentInstance().getExternalContext().redirect(retVal);
             return retVal;
         } catch (IOException ex) {
-            logger.info("Failed to issue a redirect to file download url.");
+            logger.log(Level.INFO, "Failed to issue a redirect to file download url.", ex);
         }
         return retVal;
     }

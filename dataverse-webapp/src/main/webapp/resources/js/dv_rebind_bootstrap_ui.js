@@ -102,7 +102,7 @@ function reinitializePrimefacesComponentsJS() {
                 var focusableElements = $this.panel.find(focusableElementsString);
                 var key = e.which;
 
-                if (key == keyCode.TAB) {
+                if (key === keyCode.TAB) {
                     if (e.shiftKey && e.target === focusableElements.first().get(0)) {
                         e.preventDefault();
                         focusableElements.last().focus();
