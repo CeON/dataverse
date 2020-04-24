@@ -7,38 +7,37 @@ import javax.persistence.Id;
 import java.util.Locale;
 
 @Entity
-public class GrantSuggestions {
+public class GrantSuggestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String grantAgency;
+    public String grantAgency;
 
     private String grantAgencyAcronym;
 
     private String fundingProgram;
 
-    private String foreignName;
+    private String suggestionName;
 
-    private Locale foreignNameLocale;
+    private Locale suggestionNameLocale;
 
     // -------------------- CONSTRUCTORS --------------------
 
     @Deprecated
-    public GrantSuggestions() {
+    public GrantSuggestion() {
     }
 
-    public GrantSuggestions(String grantAgency, String grantAgencyAcronym, String fundingProgram, String foreignName, Locale foreignNameLocale) {
+    public GrantSuggestion(String grantAgency, String grantAgencyAcronym, String fundingProgram, String suggestionName, Locale suggestionNameLocale) {
         this.grantAgency = grantAgency;
         this.grantAgencyAcronym = grantAgencyAcronym;
         this.fundingProgram = fundingProgram;
-        this.foreignName = foreignName;
-        this.foreignNameLocale = foreignNameLocale;
+        this.suggestionName = suggestionName;
+        this.suggestionNameLocale = suggestionNameLocale;
     }
 
     // -------------------- GETTERS --------------------
-
 
     public Long getId() {
         return id;
@@ -56,11 +55,26 @@ public class GrantSuggestions {
         return fundingProgram;
     }
 
-    public String getForeignName() {
-        return foreignName;
+    public String getSuggestionName() {
+        return suggestionName;
     }
 
-    public Locale getForeignNameLocale() {
-        return foreignNameLocale;
+    public Locale getSuggestionNameLocale() {
+        return suggestionNameLocale;
     }
+
+    // -------------------- LOGIC --------------------
+
+    public static String getFundingProgramFieldName() {
+        return "fundingProgram";
+    }
+
+    public static String getSuggestionNameFieldName() {
+        return "suggestionName";
+    }
+
+    public static String getGrantAgencyAcronymFieldName() {
+        return "grantAgencyAcronym";
+    }
+
 }
