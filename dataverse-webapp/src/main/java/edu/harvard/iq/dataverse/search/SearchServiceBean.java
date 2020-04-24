@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -792,8 +793,12 @@ public class SearchServiceBean {
     }
 
     private String getDatasetFieldFacetCategoryName(DatasetFieldType matchedDatasetField) {
-        if (matchedDatasetField.isFacetable() && !matchedDatasetField.hasParent()) {
-            return getStringFromBundle(format(FACETBUNDLE_MASK_VALUE, matchedDatasetField.getName()));
+        if (matchedDatasetField.isFacetable() && !matchedDatasetField.isHasParent()) {
+            try {
+                return getStringFromBundle(format(FACETBUNDLE_MASK_VALUE, matchedDatasetField.getName()));
+            } catch (MissingResourceException mre) {
+                return matchedDatasetField.getDisplayName();
+            }
         }
         return matchedDatasetField.getDisplayName();
     }

@@ -438,7 +438,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         return false;
     }
 
-    public boolean hasParent() {
+    public boolean isHasParent() {
         return this.parentDatasetFieldType != null;
     }
 
@@ -489,7 +489,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public String getDisplayName() {
-        if (hasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
+        if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
             return Optional.ofNullable(getLocaleTitleWithParent()).filter(title -> !title.isEmpty()).orElse(
                     parentDatasetFieldType.getLocaleTitle() + " " + getLocaleTitle());
         } else {

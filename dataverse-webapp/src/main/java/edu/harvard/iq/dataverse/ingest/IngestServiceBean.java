@@ -1197,7 +1197,7 @@ public class IngestServiceBean {
                 Map<String, Set<String>> fileMetadataMap = fileMetadataIngest.getMetadataMap();
                 for (DatasetFieldType dsft : mdb.getDatasetFieldTypes()) {
                     if (dsft.isPrimitive()) {
-                        if (!dsft.hasParent()) {
+                        if (!dsft.isHasParent()) {
                             String dsfName = dsft.getName();
                             // See if the plugin has found anything for this field: 
                             if (fileMetadataMap.get(dsfName) != null && !fileMetadataMap.get(dsfName).isEmpty()) {
