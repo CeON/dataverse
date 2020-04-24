@@ -73,7 +73,7 @@ public class DatasetFieldServiceApi extends AbstractApiBean {
             List<String> listOfIsAllowsMultiplesTrue = new ArrayList<>();
             List<String> listOfIsAllowsMultiplesFalse = new ArrayList<>();
             for (DatasetFieldType dsf : datasetFieldService.findAllOrderedById()) {
-                if (dsf.isHasParent()) {
+                if (dsf.hasParent()) {
                     listOfIsHasParentsTrue.add(dsf.getName());
                     listOfIsAllowsMultiplesTrue.add(dsf.getName());
                 } else {
@@ -136,7 +136,7 @@ public class DatasetFieldServiceApi extends AbstractApiBean {
             String solrFieldSearchable = dsfSolrField.getNameSearchable();
             String solrFieldFacetable = dsfSolrField.getNameFacetable();
             String metadataBlock = dsf.getMetadataBlock().getName();
-            boolean hasParent = dsf.isHasParent();
+            boolean hasParent = dsf.hasParent();
             boolean allowsMultiples = dsf.isAllowMultiples();
             boolean isRequired = dsf.isRequired();
             String parentAllowsMultiplesDisplay = "N/A (no parent)";

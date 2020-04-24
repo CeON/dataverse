@@ -150,8 +150,8 @@ public class MetadataBlockService {
 
                         dsftViewOptions.setSelectedDatasetFields(setViewOptionForDatasetField(mdbOptions, dsftTest));
 
-                        if ((dsftTest.isHasParent() && !mdbOptions.isDsftIncludedField(dsftTest.getParentDatasetFieldType().getId()))
-                                || (!dsftTest.isHasParent() && !dsftViewOptions.isIncluded())) {
+                        if ((dsftTest.hasParent() && !mdbOptions.isDsftIncludedField(dsftTest.getParentDatasetFieldType().getId()))
+                                || (!dsftTest.hasParent() && !dsftViewOptions.isIncluded())) {
                             dsftViewOptions.setRequiredField(false);
                         }
                         if (dsftTest.isHasChildren()) {
@@ -231,8 +231,8 @@ public class MetadataBlockService {
     private List<SelectItem> setViewOptionForDatasetField(DataverseMetaBlockOptions mdbOptions, DatasetFieldType typeIn) {
         List<SelectItem> selectItems = new ArrayList<>();
 
-        if ((typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getParentDatasetFieldType().getId())) ||
-                (!typeIn.isHasParent() && mdbOptions.isDsftIncludedField(typeIn.getId()))) {
+        if ((typeIn.hasParent() && mdbOptions.isDsftIncludedField(typeIn.getParentDatasetFieldType().getId())) ||
+                (!typeIn.hasParent() && mdbOptions.isDsftIncludedField(typeIn.getId()))) {
             selectItems.add(generateSelectedItem("dataverse.item.required", true, false));
             selectItems.add(generateSelectedItem("dataverse.item.optional", false, false));
         } else {
@@ -285,8 +285,8 @@ public class MetadataBlockService {
     }
 
     private boolean isDatasetFieldChildOrParentNotIncluded(DatasetFieldType dsft, DataverseMetaBlockOptions mdbOptions) {
-        return (!dsft.isHasParent() && !mdbOptions.isDsftIncludedField(dsft.getId()))
-                || (dsft.isHasParent() && !mdbOptions.isDsftIncludedField(dsft.getParentDatasetFieldType().getId()));
+        return (!dsft.hasParent() && !mdbOptions.isDsftIncludedField(dsft.getId()))
+                || (dsft.hasParent() && !mdbOptions.isDsftIncludedField(dsft.getParentDatasetFieldType().getId()));
     }
 
     private boolean isDatasetFieldChildOrParentRequired(DatasetFieldType dsft, DataverseMetaBlockOptions mdbOptions) {
@@ -294,15 +294,15 @@ public class MetadataBlockService {
 
         DatasetFieldViewOptions parentDsftViewOptions = null;
 
-        if (dsft.isHasParent()) {
+        if (dsft.hasParent()) {
             parentDsftViewOptions = mdbOptions.getDatasetFieldViewOptions().get(dsft.getParentDatasetFieldType().getId());
         }
 
         boolean isParentIncluded = parentDsftViewOptions != null && parentDsftViewOptions.isIncluded();
 
         return dsftViewOptions.isRequiredField() && !dsft.isRequired()
-                && ((!dsft.isHasParent() && dsftViewOptions.isIncluded())
-                || (dsft.isHasParent() && isParentIncluded));
+                && ((!dsft.hasParent() && dsftViewOptions.isIncluded())
+                || (dsft.hasParent() && isParentIncluded));
     }
 
     private DataverseFieldTypeInputLevel createDataverseFieldTypeInputLevel(DatasetFieldType dsft,
