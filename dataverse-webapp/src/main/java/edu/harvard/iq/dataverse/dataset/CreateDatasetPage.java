@@ -114,7 +114,7 @@ public class CreateDatasetPage implements Serializable {
         dataset = new Dataset();
         dataset.setOwner(ownerDataverse);
 
-        this.importers = new ImportersForView(dataset, importerRegistry.getImporters(), session.getLocale());
+        this.importers = ImportersForView.createInitialized(dataset, importerRegistry.getImporters(), session.getLocale());
 
         workingVersion = dataset.getLatestVersion();
         resetDatasetFields();

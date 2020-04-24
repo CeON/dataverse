@@ -113,6 +113,11 @@
                 <version>${commons.logging.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.omnifaces</groupId>
+                <artifactId>omnifaces</artifactId>
+                <version>2.7.1</version> <!-- 3.x versions requires jsf 2.3 -->
+            </dependency>
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents.client.version}</version>

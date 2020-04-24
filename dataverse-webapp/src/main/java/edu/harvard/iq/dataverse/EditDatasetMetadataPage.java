@@ -131,7 +131,7 @@ public class EditDatasetMetadataPage implements Serializable {
 
         workingVersion = dataset.getEditVersion();
 
-        importers = new ImportersForView(dataset, importerRegistry.getImporters(), session.getLocale());
+        importers = ImportersForView.createInitialized(dataset, importerRegistry.getImporters(), session.getLocale());
 
         List<DatasetField> datasetFields = datasetFieldsInitializer.prepareDatasetFieldsForEdit(workingVersion.getDatasetFields(),
                 dataset.getOwner().getMetadataBlockRootDataverse());

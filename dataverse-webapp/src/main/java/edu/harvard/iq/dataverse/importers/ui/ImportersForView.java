@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.importers.ui;
 
 import edu.harvard.iq.dataverse.importer.metadata.ImporterConstants;
 import edu.harvard.iq.dataverse.importer.metadata.MetadataImporter;
+import edu.harvard.iq.dataverse.importer.metadata.SafeBundleWrapper;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -11,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,22 +29,34 @@ public class ImportersForView implements MapForView<MetadataImporter, ImportersF
         return items;
     }
 
-    // -------------------- CONSTRUCTORS --------------------
+    // -------------------- LOGIC --------------------
 
-    public ImportersForView(Dataset dataset, Map<String, MetadataImporter> importers, Locale locale) {
+    public static ImportersForView createInitialized(Dataset dataset,
+                                                     Map<String, MetadataImporter> importers, Locale locale) {
+        ImportersForView instance = new ImportersForView();
+        instance.initializeItems(dataset, importers, locale);
+        return instance;
+    }
 
+    public void initializeItems(Dataset dataset, Map<String, MetadataImporter> importers, Locale locale) {
         if (dataset == null || locale == null) {
-            return;
+            throw new IllegalStateException("Null dataset and/or locale received");
         }
 
-        Dataverse owner = dataset.getOwner();
-        Set<String> metadataBlockNames = owner.getMetadataBlocks().stream()
-                .map(MetadataBlock::getName)
-                .collect(Collectors.toSet());
+        Set<String> metadataBlockNames = collectMetadataBlockNamesForCurrentDataset(dataset);
 
         this.items = importers.entrySet().stream()
                 .filter(e -> metadataBlockNames.contains(e.getValue().getMetadataBlockName()))
                 .collect(Collectors.toMap(Map.Entry::getValue, e -> new ImporterItem(e, locale)));
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private Set<String> collectMetadataBlockNamesForCurrentDataset(Dataset dataset) {
+        Dataverse owner = dataset.getOwner();
+        return owner.getRootMetadataBlocks().stream()
+                .map(MetadataBlock::getName)
+                .collect(Collectors.toSet());
     }
 
     // -------------------- INNER CLASSES --------------------
@@ -54,19 +65,12 @@ public class ImportersForView implements MapForView<MetadataImporter, ImportersF
         private String name;
         private String description;
 
-        private static final String UNKNOWN = "?";
-
         // -------------------- CONSTRUCTORS --------------------
 
         public ImporterItem(Map.Entry<String, MetadataImporter> importer, Locale locale) {
-            try {
-                ResourceBundle bundle = importer.getValue().getBundle(locale);
-                this.name = bundle.getString(ImporterConstants.IMPORTER_NAME);
-                this.description = bundle.getString(ImporterConstants.IMPORTER_DESCRIPTION);
-            } catch (MissingResourceException | NullPointerException e) {
-                this.name = ImporterConstants.UNKNOWN_BUNDLE_VALUE;
-                this.description = ImporterConstants.UNKNOWN_BUNDLE_VALUE;
-            }
+            SafeBundleWrapper bundle = new SafeBundleWrapper(importer.getValue(), locale);
+            this.name = bundle.getString(ImporterConstants.IMPORTER_NAME);
+            this.description = bundle.getString(ImporterConstants.IMPORTER_DESCRIPTION);
         }
 
         // -------------------- GETTERS --------------------
