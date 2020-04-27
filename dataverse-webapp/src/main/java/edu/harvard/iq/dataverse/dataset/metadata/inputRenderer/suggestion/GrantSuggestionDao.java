@@ -15,6 +15,14 @@ public class GrantSuggestionDao {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * Function used to find suggestions according to filters.
+     * @param filteredBy filters that are going to be concatenated with AND.
+     * @param suggestionSourceFieldName target field for query
+     * @param suggestionSourceFieldValue value that is going to be filtered with LIKE %value% and UPPER(value)
+     * @param queryLimit limits the amount of values returned
+     * @return list of suggestions.
+     */
     public List<String> fetchSuggestions(Map<String, String> filteredBy,
                                          String suggestionSourceFieldName,
                                          String suggestionSourceFieldValue,
@@ -33,6 +41,13 @@ public class GrantSuggestionDao {
         return query.getResultList();
     }
 
+    /**
+     * Function used to find suggestions according to filters.
+     * @param suggestionSourceFieldName target field for query
+     * @param suggestionSourceFieldValue value that is going to be filtered with LIKE %value% and UPPER(value)
+     * @param queryLimit limits the amount of values returned
+     * @return list of suggestions.
+     */
     public List<String> fetchSuggestions(String suggestionSourceFieldName,
                                          String suggestionSourceFieldValue,
                                          int queryLimit) {

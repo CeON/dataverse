@@ -23,11 +23,21 @@ public class GrantSuggestionHandler implements SuggestionHandler {
 
     // -------------------- LOGIC --------------------
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns class name.
+     */
     @Override
     public String getName() {
         return getClass().getSimpleName();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation generates suggestions with filters if there is something in map, or without filters if map is empty.
+     */
     @Override
     public List<String> generateSuggestions(Map<String, String> filters, String suggestionSourceFieldName, String suggestionSourceFieldValue) {
 

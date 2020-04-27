@@ -88,6 +88,9 @@ public class SuggestionInputFieldRenderer implements InputFieldRenderer {
         return createSuggestions(datasetField, query.orElseThrow(() -> new IllegalStateException("Autocomplete query was not found.")));
     }
 
+    /**
+     * Creates suggestions, if suggestionFilteredBy is not empty it searches through datasetField group to find the inputed values.
+     */
     public List<String> createSuggestions(DatasetField datasetField, String query) {
 
         if (!hasSuggestionsAvailable()){
