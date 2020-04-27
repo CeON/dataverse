@@ -336,8 +336,10 @@ a,
 .dropdown-menu {
 	border-color: $gray-border-color;
 
-	& > li > a:focus, & > li > a:hover {
-		background: $gray-border-color;
+	& > li > a, & > li > form > a {
+		&:focus, &:hover {
+			background: $gray-border-color;
+		}
 	}
 }
 
@@ -392,6 +394,10 @@ span.glyphicon-question-sign.tooltip-icon {
 	}
 }
 
+.jqplot-target {
+	background: #fff;
+}
+
 /* WCAG 2.4.7 focus outline */
 
 *:focus, a:focus {
@@ -399,14 +405,14 @@ span.glyphicon-question-sign.tooltip-icon {
 	outline-offset: 3px;
 }
 .ui-selectonemenu.ui-state-focus {
-    &, & .ui-selectonemenu-trigger {
-        outline: 2px dashed $focus-color !important;
-    }
+	&, & .ui-selectonemenu-trigger {
+		outline: 2px dashed $focus-color !important;
+	}
 }
 .ui-selectcheckboxmenu.ui-state-focus {
-    &, & .ui-selectcheckboxmenu-trigger {
-        outline: 2px dashed $focus-color !important;
-    }
+	&, & .ui-selectcheckboxmenu-trigger {
+		outline: 2px dashed $focus-color !important;
+	}
 }
 
 #sharrre-block a {
@@ -417,15 +423,17 @@ span.glyphicon-question-sign.tooltip-icon {
 
 .button-block a,
 .dropdown-menu a,
-.panel-heading,
 .ui-selectonemenu, .ui-selectcheckboxmenu {
 	&.ui-state-focus:focus {
 		outline-offset: 0;
 	}
 }
 
-#high-contrast-mode-selector a:focus {
-	outline-offset: 0;
+#high-contrast-mode-selector a,
+.panel-heading {
+	&:focus {
+		outline-offset: 0;
+	}
 }
 
 button,
@@ -535,19 +543,22 @@ div.ui-selectonemenu.form-control {
 }
 
 .ui-selectcheckboxmenu .ui-selectcheckboxmenu-multiple-container  {
-    padding-right: 30px; /* same as primefaces ui-selectcheckboxmenu-trigger width */
-    
-    .ui-selectcheckboxmenu-token {
-        background: #FFF;
-        border: 1px solid $main-color;
-        box-shadow: none;
-    }
+	padding-right: 30px; /* same as primefaces ui-selectcheckboxmenu-trigger width */
+	
+	.ui-selectcheckboxmenu-token {
+		background: #FFF;
+		border: 1px solid $main-color;
+		box-shadow: none;
+	}
 }
 .ui-selectcheckboxmenu-header .ui-selectcheckboxmenu-filter-container .ui-icon {
-    top: 5px;
+	top: 5px;
 }
 .without-select-all .ui-selectcheckboxmenu-header .ui-chkbox {
-    display: none; 
+	display: none; 
+}
+.ui-selectcheckboxmenu-label-container {
+	display: inline-block;
 }
 
 div.field-add-delete {
@@ -667,6 +678,13 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 }
 .ui-spinner-down.ui-state-default {
 	border-radius: 0 0 0.267em 0.267em;
+}
+
+.ui-inputnumber.input-number-left input {
+	padding-left: 5px;
+}
+.ui-inputnumber.input-number-right input {
+	padding-right: 5px;
 }
 
 /* File uploader */
@@ -1434,6 +1452,7 @@ $navbar-height: 6.8em;
 		margin-left: -0.333em;
 		padding: 0.333em 0.333em 0.333em 0;
 		display: table;
+		float: none;
 
 		font-size: 1em;
 		text-shadow: none;
@@ -1457,10 +1476,14 @@ $navbar-height: 6.8em;
 				}
 			}
 
-			+ div {
+			+ span {
 				padding-left: 6.267em;
 				display: table-cell;
 				vertical-align: middle;
+
+				span {
+					display: block;
+				}
 			}
 		}
 
@@ -1489,11 +1512,15 @@ $navbar-height: 6.8em;
 }
 
 .navbar-default #topNavBar .navbar-nav {
-	> li,  > form {
-		> a {
+	> li, > form {
+		> a  {
 			color: $main-text-color;
 			border-radius: $border-radius;
 			text-shadow: none;
+
+			&:hover, &:active, &:focus {
+				color: $main-color;
+			}
 
 			.caret {
 				color: $icon-color;
@@ -1513,6 +1540,12 @@ $navbar-height: 6.8em;
 	}
 }
 
+.dropdown-menu > form > li > a {
+	&:hover, &:active, &:focus {
+		background-color: $gray-border-color !important;
+	}
+}
+
 .navbar-default .navbar-toggle {
 	margin: 1.8em;
 
@@ -1525,7 +1558,7 @@ $navbar-height: 6.8em;
 }
 
 #dataverse-header-block {
-	padding-top: 0;
+	padding-top: 0.8em;
 }
 
 .top-messages {
@@ -1544,7 +1577,7 @@ $navbar-height: 6.8em;
 			left: 0.55em;
 			font-size: 3.333em;
 	
-			& + div {
+			& + span {
 				padding-left: 4em;
 			}
 		}
@@ -1556,6 +1589,25 @@ $navbar-height: 6.8em;
 
 		#topNavBar .pull-right {
 			width: 100%;
+		}
+
+		#topNavBar .navbar-nav {
+			li > a, li > form > a {
+				position: relative;
+				z-index: 1; /* fix outline cut off by accessibility switches */
+			}
+		}
+	}
+	.navbar-default .navbar-nav .open .dropdown-menu > li > a,
+	.navbar-default .navbar-nav .open .dropdown-menu > li > form > a,
+	#navbarFixed .dropdown.accountName .logout a {
+		padding: 5px 15px 5px 25px;
+		color: $main-text-color;
+		line-height: 20px;
+
+		&:hover, &:focus {
+			color: $main-color;
+			background-color: transparent;
 		}
 	}
 }
