@@ -14,7 +14,7 @@
             </div>
             <div class="panel-body">
                 <label class="col-sm-3 control-label" for="importersList">
-                    <h:outputText value="#{bundle['metadata.import.panel.importer.label']}" escape="false"/>
+                    <h:outputLabel value="#{bundle['metadata.import.panel.importer.label']}" escape="false"/>
                 </label>
                 <div class="col-sm-9 form-group">
                     <p:selectOneMenu id="importersList" value="#{selectedImporter}"
@@ -36,10 +36,46 @@
                 <p:fragment id="importButton">
                     <div class="col-sm-9" jsf:rendered="#{not empty selectedImporter}">
                         <br/>
-                        <p:commandButton value="#{bundle['metadata.import.panel.import.button']}"/>
+                        <p:commandButton value="#{bundle['metadata.import.panel.import.button']}"
+                                         action="#{pageBean.initMetadataImportDialog}"
+                                         update="importMetadataDialog"
+                                         oncomplete="PF('importMetadataWidget').show()"/>
                     </div>
                 </p:fragment>
             </div>
         </div>
     </p:fragment>
+    <p:dialog id="importMetadataDialog" widgetVar="importMetadataWidget" modal="true">
+        <o:importConstants type="edu.harvard.iq.dataverse.importer.metadata.ImporterFieldType" var="Type"/>
+        <f:facet name="header">#{importers[selectedImporter].name}</f:facet>
+        <p:fragment id="importerInput">
+            <div class="container">
+                <ui:repeat value="#{pageBean.importerForm.items}" var="item" varStatus="ind">
+                    <div class="row">
+                        <div class="form-group" jsf:rendered="#{item.type ne Type.DESCRIPTION}">
+                            <div class="col-sm-3 control-label">
+                                <p:outputLabel value="#{item.label}"/>
+                                <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value=""
+                                              rendered="#{item.required}" />
+
+                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                      jsf:rendered="#{not empty item.description}" tabindex="0"
+                                      data-toggle="tooltip" data-placement="auto right"
+                                      data-original-title="#{item.description}"></span>
+                            </div>
+                            <div class="col-sm-9">
+                                <p:inputText data-id="#{item.viewId}" value="#{item.value}"/>
+                            </div>
+                        </div>
+                        <div class="row form-group" jsf:rendered="#{item.type eq Type.DESCRIPTION}">
+                            <div class="col-sm-9">
+                                <h:outputText value="#{item.description}"/>
+                            </div>
+                        </div>
+                    </div>
+                </ui:repeat>
+            </div>
+        </p:fragment>
+
+    </p:dialog>
 </ui:composition>
