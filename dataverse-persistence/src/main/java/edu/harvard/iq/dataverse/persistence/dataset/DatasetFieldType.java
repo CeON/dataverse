@@ -321,7 +321,11 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         return this.controlledVocabularyValues;
     }
 
+<<<<<<< HEAD
     public boolean hasGroupedValue() {
+=======
+    public boolean isHasGroupedValues() {
+>>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
     	for (ControlledVocabularyValue value:controlledVocabularyValues) {
     		if (StringUtils.isNotEmpty(value.getDisplayGroup())) {
     			return true;

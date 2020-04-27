@@ -189,7 +189,11 @@ INSERT INTO controlledvocabularyvalue (id, displayorder, identifier, strvalue, d
 INSERT INTO controlledvocabularyvalue (id, displayorder, identifier, strvalue, datasetfieldtype_id, displaygroup) VALUES (237, 182, '', 'Yoruba', 35, 'not_popular');
 INSERT INTO controlledvocabularyvalue (id, displayorder, identifier, strvalue, datasetfieldtype_id, displaygroup) VALUES (238, 183, '', 'Zhuang, Chuang', 35, 'not_popular');
 INSERT INTO controlledvocabularyvalue (id, displayorder, identifier, strvalue, datasetfieldtype_id, displaygroup) VALUES (239, 184, '', 'Zulu', 35, 'not_popular');
+<<<<<<< HEAD
 INSERT INTO controlledvocabularyvalue (id, displayorder, identifier, strvalue, datasetfieldtype_id, displaygroup) VALUES (240, 185, '', 'Not applicable', 35, 'not_applicable_group');
+=======
+INSERT INTO controlledvocabularyvalue (id, displayorder, identifier, strvalue, datasetfieldtype_id, displaygroup) VALUES (240, 185, '', 'Not applicable', 35, 'not_applicable');
+>>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
 
 UPDATE datasetfieldtype
 SET inputrendereroptions = '{"sortByLocalisedStringsOrder" : "true"}'

@@ -32,7 +32,11 @@
     </p:selectOneMenu>
 
     <p:selectCheckboxMenu id="multiVocabularySelect" 
+<<<<<<< HEAD
     			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValue() and !inputRenderer.isSortByLocalisedStringsOrder()}"
+=======
+    			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValues and !inputRenderer.isSortByLocalisedStringsOrder()}"
+>>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
                 value="#{datasetField.controlledVocabularyValues}" converter="controlledVocabularyValueConverter"
                 style="width: 100%" panelStyleClass="without-select-all"
                 multiple="true" label="#{bundle.select}"
@@ -41,7 +45,11 @@
     </p:selectCheckboxMenu>
     
     <p:selectCheckboxMenu id="multiVocabularyLocaleStringSelect" 
+<<<<<<< HEAD
     			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValue() and inputRenderer.isSortByLocalisedStringsOrder()}"
+=======
+    			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValues and inputRenderer.isSortByLocalisedStringsOrder()}"
+>>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
                 value="#{datasetField.controlledVocabularyValues}" converter="controlledVocabularyValueConverter"
                 style="width: 100%" panelStyleClass="without-select-all"
                 multiple="true" label="#{bundle.select}"
@@ -49,7 +57,11 @@
         <f:selectItems value="#{datasetField.datasetFieldType.sortedByLocaleValues}" />
     </p:selectCheckboxMenu>
 
+<<<<<<< HEAD
     <p:selectCheckboxMenu id="multiVocabularyGroupedSelect" rendered="#{datasetField.datasetFieldType.allowMultiples and datasetField.datasetFieldType.hasGroupedValue()}"
+=======
+    <p:selectCheckboxMenu id="multiVocabularyGroupedSelect" rendered="#{datasetField.datasetFieldType.allowMultiples and datasetField.datasetFieldType.hasGroupedValues}"
+>>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
                 value="#{datasetField.controlledVocabularyValues}" converter="controlledVocabularyValueConverter"
                 style="width: 100%" panelStyleClass="without-select-all"
                 multiple="true" label="#{bundle.select}"
