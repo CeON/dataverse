@@ -18,8 +18,14 @@
     </p:outputLabel>
     
     <p:selectOneMenu id="singleVocabularySelect"
-                     value="#{datasetField.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;" styleClass="form-control primitive"
-                     rendered="#{!datasetField.datasetFieldType.allowMultiples and !inputRenderer.isSortByLocalisedStringsOrder()}">
+                     value="#{datasetField.singleControlledVocabularyValue}"
+                     converter="controlledVocabularyValueConverter"
+                     style="width: auto !important; max-width:100%; min-width:200px;"
+                     styleClass="form-control primitive"
+                     rendered="#{!datasetField.datasetFieldType.allowMultipless and !inputRenderer.isSortByLocalisedStringsOrder()}"
+                     filter="true"
+                     filterMatchMode="contains"
+    >
         <f:selectItem itemLabel="#{bundle.select}" itemValue="" noSelectionOption="true"/>
         <f:selectItems value="#{datasetField.datasetFieldType.controlledVocabularyValues}" var="cvv" itemLabel="#{cvv.localeStrValue}" itemValue="#{cvv}" />
     </p:selectOneMenu>
@@ -32,24 +38,16 @@
     </p:selectOneMenu>
 
     <p:selectCheckboxMenu id="multiVocabularySelect" 
-<<<<<<< HEAD
     			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValue() and !inputRenderer.isSortByLocalisedStringsOrder()}"
-=======
-    			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValues and !inputRenderer.isSortByLocalisedStringsOrder()}"
->>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
                 value="#{datasetField.controlledVocabularyValues}" converter="controlledVocabularyValueConverter"
                 style="width: 100%" panelStyleClass="without-select-all"
                 multiple="true" label="#{bundle.select}"
-                filter="true" filterMatchMode="startsWith">
+                filter="true" filterMatchMode="contains">
         <f:selectItems value="#{datasetField.datasetFieldType.controlledVocabularyValues}" var="cvv" itemLabel="#{cvv.localeStrValue}" itemValue="#{cvv}" />
     </p:selectCheckboxMenu>
     
     <p:selectCheckboxMenu id="multiVocabularyLocaleStringSelect" 
-<<<<<<< HEAD
     			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValue() and inputRenderer.isSortByLocalisedStringsOrder()}"
-=======
-    			rendered="#{datasetField.datasetFieldType.allowMultiples and !datasetField.datasetFieldType.hasGroupedValues and inputRenderer.isSortByLocalisedStringsOrder()}"
->>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
                 value="#{datasetField.controlledVocabularyValues}" converter="controlledVocabularyValueConverter"
                 style="width: 100%" panelStyleClass="without-select-all"
                 multiple="true" label="#{bundle.select}"
@@ -57,11 +55,7 @@
         <f:selectItems value="#{datasetField.datasetFieldType.sortedByLocaleValues}" />
     </p:selectCheckboxMenu>
 
-<<<<<<< HEAD
     <p:selectCheckboxMenu id="multiVocabularyGroupedSelect" rendered="#{datasetField.datasetFieldType.allowMultiples and datasetField.datasetFieldType.hasGroupedValue()}"
-=======
-    <p:selectCheckboxMenu id="multiVocabularyGroupedSelect" rendered="#{datasetField.datasetFieldType.allowMultiples and datasetField.datasetFieldType.hasGroupedValues}"
->>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
                 value="#{datasetField.controlledVocabularyValues}" converter="controlledVocabularyValueConverter"
                 style="width: 100%" panelStyleClass="without-select-all"
                 multiple="true" label="#{bundle.select}"

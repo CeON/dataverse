@@ -15,6 +15,11 @@ import java.util.TreeMap;
 
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
+import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
+import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -321,11 +326,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         return this.controlledVocabularyValues;
     }
 
-<<<<<<< HEAD
     public boolean hasGroupedValue() {
-=======
-    public boolean isHasGroupedValues() {
->>>>>>> b0ef00cc7e866e71d8987780310cc42d60f9da88
     	for (ControlledVocabularyValue value:controlledVocabularyValues) {
     		if (StringUtils.isNotEmpty(value.getDisplayGroup())) {
     			return true;
@@ -552,7 +553,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
 
     public String getDisplayName() {
         if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
-            return Optional.ofNullable(getLocaleTitleWithParent()).filter(s -> !s.isEmpty()).orElse(
+            return Optional.ofNullable(getLocaleTitleWithParent()).filter(title -> !title.isEmpty()).orElse(
                     parentDatasetFieldType.getLocaleTitle() + " " + getLocaleTitle());
         } else {
             return getLocaleTitle();
@@ -572,21 +573,17 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         }
     }
 
-    public String getLocaleTitleWithParent() {
-        if (getMetadataBlock() == null) {
-            return title;
-        } else {
-            try {
-                return BundleUtil.getStringFromPropertyFile("datasetfieldtype." + getName() + ".withParent.title",
-                                                            getMetadataBlock().getName());
-            } catch (MissingResourceException e) {
-                return title;
-            }
+    private String getLocaleTitleWithParent() {
+        try {
+            return BundleUtil.getStringFromPropertyFile("datasetfieldtype." + getName() + ".withParent.title",
+                                                        getMetadataBlock().getName());
+        } catch (MissingResourceException | NullPointerException e) {
+            return StringUtils.EMPTY;
         }
     }
 
     public String getLocaleDescription() {
-        if (getMetadataBlock() == null) {
+        if (getMetadataBlock() == null || StringUtils.isEmpty(description)) {
             return description;
         } else {
             try {
