@@ -100,7 +100,7 @@ class SolrQueryCreatorTest {
         //when
         String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
         //then
-        Assert.assertEquals("selectOneValue1:\"selectOneValue1\" AND selectOneValue2:\"selectOneValue2\"", result);
+        Assert.assertEquals("selectOneValue1:\"checkedFieldValue1\" AND selectOneValue2:\"checkedFieldValue2\"", result);
     }
 
     @Test
@@ -121,7 +121,7 @@ class SolrQueryCreatorTest {
         Assert.assertEquals("number1:[1 TO 2] AND number2:[3.1 TO 4.1] AND number1:[1 TO *] AND" +
                                     " number2:[* TO 4.1] AND checkboxValues:\"checkboxValue1\" AND checkboxValues:\"checkboxValue2\" AND" +
                                     " text1:testValue1 AND text2:testValue2 AND date1:[testDate1 TO *] AND date2:[* TO testDate2] AND " +
-                                    "date3:[testDate31 TO testDate32] AND selectOneValue1:\"selectOneValue1\" AND selectOneValue2:\"selectOneValue2\"", result);
+                                    "date3:[testDate31 TO testDate32] AND selectOneValue1:\"checkedFieldValue1\" AND selectOneValue2:\"checkedFieldValue2\"", result);
     }
 
     private List<SearchField> createBothNumbersSearchFields() {
@@ -173,10 +173,10 @@ class SolrQueryCreatorTest {
 
     private List<SearchField> createSelectOneSearchFields() {
         SelectOneSearchField testValue1 = new SelectOneSearchField("selectOneValue1", "selectOneDisplayValue1", "desc1");
-        testValue1.setCheckedFieldValue("selectOneValue1");
+        testValue1.setCheckedFieldValue("checkedFieldValue1");
 
         SelectOneSearchField testValue2 = new SelectOneSearchField("selectOneValue2", "selectOneDisplayValue2", "desc2");
-        testValue2.setCheckedFieldValue("selectOneValue2");
+        testValue2.setCheckedFieldValue("checkedFieldValue2");
 
         return Lists.newArrayList(testValue1, testValue2);
     }
