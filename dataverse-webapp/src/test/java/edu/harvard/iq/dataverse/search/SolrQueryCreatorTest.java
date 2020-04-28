@@ -172,10 +172,10 @@ class SolrQueryCreatorTest {
     }
 
     private List<SearchField> createSelectOneSearchFields() {
-        SelectOneSearchField testValue1 = new SelectOneSearchField("selectOneValue1", "selectOneValue1", "desc");
+        SelectOneSearchField testValue1 = new SelectOneSearchField("selectOneValue1", "selectOneDisplayValue1", "desc1");
         testValue1.setCheckedFieldValue("selectOneValue1");
 
-        SelectOneSearchField testValue2 = new SelectOneSearchField("selectOneValue2", "selectOneValue2", "desc");
+        SelectOneSearchField testValue2 = new SelectOneSearchField("selectOneValue2", "selectOneDisplayValue2", "desc2");
         testValue2.setCheckedFieldValue("selectOneValue2");
 
         return Lists.newArrayList(testValue1, testValue2);

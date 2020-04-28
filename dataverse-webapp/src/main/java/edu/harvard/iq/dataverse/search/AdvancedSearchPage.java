@@ -279,29 +279,16 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
         DatasetFieldType subjectType = datasetFieldService.findByName(DatasetFieldConstant.subject);
 
-        if(subjectType.isThisOrParentAllowsMultipleValues()) {
-            CheckboxSearchField checkboxSearchField = new CheckboxSearchField(SearchFields.DATAVERSE_SUBJECT,
-                    BundleUtil.getStringFromBundle("subject"),
-                    BundleUtil.getStringFromBundle("advanced.search.dataverses.subject.tip"));
+        CheckboxSearchField checkboxSearchField = new CheckboxSearchField(SearchFields.DATAVERSE_SUBJECT,
+                BundleUtil.getStringFromBundle("subject"),
+                BundleUtil.getStringFromBundle("advanced.search.dataverses.subject.tip"));
 
-            for (ControlledVocabularyValue vocabValue : subjectType.getControlledVocabularyValues()) {
-                checkboxSearchField.getCheckboxLabelAndValue().add(Tuple.of(vocabValue.getLocaleStrValue(),
-                        vocabValue.getStrValue()));
-
-            }
-            dataversesSearchFields.add(checkboxSearchField);
-        } else {
-            SelectOneSearchField selectOneSearchField = new SelectOneSearchField(SearchFields.DATAVERSE_SUBJECT,
-                    BundleUtil.getStringFromBundle("subject"),
-                    BundleUtil.getStringFromBundle("advanced.search.dataverses.subject.tip"));
-
-            for (ControlledVocabularyValue vocabValue : subjectType.getControlledVocabularyValues()) {
-                selectOneSearchField.getListLabelAndValue().add(Tuple.of(vocabValue.getLocaleStrValue(),
-                        vocabValue.getStrValue()));
-
-            }
-            dataversesSearchFields.add(selectOneSearchField);
+        for (ControlledVocabularyValue vocabValue : subjectType.getControlledVocabularyValues()) {
+            checkboxSearchField.getCheckboxLabelAndValue().add(Tuple.of(vocabValue.getLocaleStrValue(),
+                    vocabValue.getStrValue()));
         }
+
+        dataversesSearchFields.add(checkboxSearchField);
 
         return dataversesSearchFields;
     }
