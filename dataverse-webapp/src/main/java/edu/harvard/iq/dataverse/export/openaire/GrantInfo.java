@@ -1,5 +1,8 @@
 package edu.harvard.iq.dataverse.export.openaire;
 
+/**
+ * Class which holds information's required to generate OpenAire funder contributor.
+ */
 public class GrantInfo {
 
     private String grantFunder;
