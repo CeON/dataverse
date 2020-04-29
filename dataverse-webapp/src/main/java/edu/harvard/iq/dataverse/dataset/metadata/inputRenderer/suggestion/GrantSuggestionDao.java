@@ -38,7 +38,7 @@ public class GrantSuggestionDao {
                                                           + filters + " AND UPPER(grant." + suggestionSourceFieldName + ")" +
                                                           " LIKE UPPER(:" + suggestionSourceFieldName + ")",
                                                   String.class)
-                .setParameter(suggestionSourceFieldName, "%" + suggestionSourceFieldValue.trim() + "%")
+                .setParameter(suggestionSourceFieldName, "%" + suggestionSourceFieldValue + "%")
                 .setMaxResults(queryLimit);
 
         setQueryParams(filteredBy, query);
@@ -62,7 +62,7 @@ public class GrantSuggestionDao {
         List<String> result = em.createQuery("SELECT DISTINCT grant." + suggestionSourceFieldName + " FROM GrantSuggestion grant " +
                                                      " WHERE UPPER(grant." + suggestionSourceFieldName + ") LIKE UPPER(:" + suggestionSourceFieldName + ")",
                                              String.class)
-                .setParameter(suggestionSourceFieldName, "%" + suggestionSourceFieldValue.trim() + "%")
+                .setParameter(suggestionSourceFieldName, "%" + suggestionSourceFieldValue + "%")
                 .setMaxResults(queryLimit)
                 .getResultList();
 

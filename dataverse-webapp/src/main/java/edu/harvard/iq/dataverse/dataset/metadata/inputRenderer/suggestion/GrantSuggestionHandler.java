@@ -41,6 +41,6 @@ public class GrantSuggestionHandler implements SuggestionHandler {
     @Override
     public List<String> generateSuggestions(Map<String, String> filters, String suggestionSourceFieldName, String suggestionSourceFieldValue) {
 
-        return grantSuggestionDao.fetchSuggestions(filters, suggestionSourceFieldName, suggestionSourceFieldValue, 10);
+        return grantSuggestionDao.fetchSuggestions(filters, suggestionSourceFieldName.trim(), suggestionSourceFieldValue.trim(), 10);
     }
 }
