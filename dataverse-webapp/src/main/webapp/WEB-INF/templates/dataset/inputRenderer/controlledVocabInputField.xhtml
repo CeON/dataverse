@@ -12,7 +12,8 @@
         <h:outputText value="#{datasetField.datasetFieldType.localeTitle}" escape="false" />
         <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" rendered="#{datasetField.datasetFieldType.requiredInDataverse}" />
         <span class="glyphicon glyphicon-question-sign tooltip-icon"
-              jsf:rendered="#{not empty datasetField.datasetFieldType.localeDescription}" tabindex="0"
+              jsf:rendered="#{not empty datasetField.datasetFieldType.localeDescription}"
+              tabindex="0" role="button"
               data-toggle="tooltip" data-placement="auto right"
               data-original-title="#{datasetField.datasetFieldType.localeDescription}"></span>
     </p:outputLabel>
@@ -22,7 +23,7 @@
                      converter="controlledVocabularyValueConverter"
                      style="width: auto !important; max-width:100%; min-width:200px;"
                      styleClass="form-control primitive"
-                     rendered="#{!datasetField.datasetFieldType.allowMultipless and !inputRenderer.isSortByLocalisedStringsOrder()}"
+                     rendered="#{!datasetField.datasetFieldType.allowMultiples and !inputRenderer.isSortByLocalisedStringsOrder()}"
                      filter="true"
                      filterMatchMode="contains"
     >
