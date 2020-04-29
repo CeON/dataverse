@@ -730,6 +730,9 @@ public class OpenAireExportUtil {
         writeEndTag(xmlw, contributor_check);
     }
 
+    /**
+     * 7, Writes info about funder in compliance with documentation.
+     */
     private static void writeGrantElement(XMLStreamWriter xmlw, GrantInfo grantInfo, String language) throws XMLStreamException {
 
         xmlw.writeStartElement("contributor");
