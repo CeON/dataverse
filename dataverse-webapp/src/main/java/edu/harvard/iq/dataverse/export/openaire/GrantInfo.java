@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.export.openaire;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Class which holds information's required to generate OpenAire funder contributor.
  */
@@ -28,6 +30,29 @@ public class GrantInfo {
         return grantId;
     }
 
+    // -------------------- LOGIC --------------------
+
+    public boolean areAllFieldsPresent() {
+
+        return StringUtils.isNotEmpty(grantFunder) &&
+                StringUtils.isNotEmpty(grantFunderShort) &&
+                StringUtils.isNotEmpty(grantId) &&
+                StringUtils.isNotEmpty(grantProgram);
+    }
+
+    public String createGrantInfoForOpenAire() {
+        StringBuilder infoBuilder = new StringBuilder();
+
+        infoBuilder
+                .append(Cleanup.normalizeSlash(grantFunderShort))
+                .append("/")
+                .append(Cleanup.normalizeSlash(grantProgram))
+                .append("/")
+                .append(Cleanup.normalizeSlash(grantId));
+
+        return infoBuilder.toString();
+    }
+
     // -------------------- SETTERS --------------------
 
     public void setGrantFunder(String grantFunder) {
@@ -44,24 +69,5 @@ public class GrantInfo {
 
     public void setGrantId(String grantId) {
         this.grantId = grantId;
-    }
-
-    // -------------------- LOGIC --------------------
-
-    public boolean areAllFieldsPresent() {
-        return grantFunder != null && grantFunderShort != null && grantId != null && grantProgram != null;
-    }
-
-    public String createGrantInfoForOpenAire() {
-        StringBuilder infoBuilder = new StringBuilder();
-
-        infoBuilder
-                .append(Cleanup.normalizeSlash(grantFunderShort))
-                .append("/")
-                .append(Cleanup.normalizeSlash(grantProgram))
-                .append("/")
-                .append(Cleanup.normalizeSlash(grantId));
-
-        return infoBuilder.toString();
     }
 }
