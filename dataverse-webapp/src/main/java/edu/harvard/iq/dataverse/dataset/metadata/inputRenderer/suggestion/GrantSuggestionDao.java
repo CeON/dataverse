@@ -27,7 +27,12 @@ public class GrantSuggestionDao {
                                          String suggestionSourceFieldName,
                                          String suggestionSourceFieldValue,
                                          int queryLimit) {
-        String filters = generateAndFilters(filteredBy);
+
+        if (filteredBy.isEmpty()){
+            return fetchSuggestions(suggestionSourceFieldName, suggestionSourceFieldValue, queryLimit);
+        }
+
+        String filters = generateFilters(filteredBy);
 
         TypedQuery<String> query = em.createQuery("SELECT DISTINCT grant." + suggestionSourceFieldName + " FROM GrantSuggestion grant WHERE "
                                                           + filters + " AND UPPER(grant." + suggestionSourceFieldName + ")" +
@@ -36,10 +41,12 @@ public class GrantSuggestionDao {
                 .setParameter(suggestionSourceFieldName, "%" + suggestionSourceFieldValue + "%")
                 .setMaxResults(queryLimit);
 
-        fillQueryWithValues(filteredBy, query);
+        setQueryParams(filteredBy, query);
 
         return query.getResultList();
     }
+
+    // -------------------- PRIVATE --------------------
 
     /**
      * Function used to find suggestions according to filters.
@@ -48,13 +55,13 @@ public class GrantSuggestionDao {
      * @param queryLimit limits the amount of values returned
      * @return list of suggestions.
      */
-    public List<String> fetchSuggestions(String suggestionSourceFieldName,
-                                         String suggestionSourceFieldValue,
-                                         int queryLimit) {
+    private List<String> fetchSuggestions(String suggestionSourceFieldName,
+                                          String suggestionSourceFieldValue,
+                                          int queryLimit) {
 
         List<String> result = em.createQuery("SELECT DISTINCT grant." + suggestionSourceFieldName + " FROM GrantSuggestion grant " +
                                                      " WHERE UPPER(grant." + suggestionSourceFieldName + ") LIKE UPPER(:" + suggestionSourceFieldName + ")",
-                                                 String.class)
+                                             String.class)
                 .setParameter(suggestionSourceFieldName, "%" + suggestionSourceFieldValue + "%")
                 .setMaxResults(queryLimit)
                 .getResultList();
@@ -62,9 +69,7 @@ public class GrantSuggestionDao {
         return result;
     }
 
-    // -------------------- PRIVATE --------------------
-
-    private String generateAndFilters(Map<String, String> filteredBy) {
+    private String generateFilters(Map<String, String> filteredBy) {
         StringBuilder filterBuilder = new StringBuilder();
 
         filteredBy.forEach((key, value) -> {
@@ -80,7 +85,7 @@ public class GrantSuggestionDao {
         return filterBuilder.toString();
     }
 
-    private TypedQuery<String> fillQueryWithValues(Map<String, String> filterValues, TypedQuery<String> queryWithFilters) {
+    private TypedQuery<String> setQueryParams(Map<String, String> filterValues, TypedQuery<String> queryWithFilters) {
         for (Map.Entry<String, String> entry : filterValues.entrySet()) {
             queryWithFilters.setParameter(entry.getKey(), entry.getValue());
         }

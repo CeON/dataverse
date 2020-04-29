@@ -246,17 +246,17 @@ VALUES ('{"firstName": "John", "lastName": "Tester", "email": "test@gmail.com"}'
 
 -------------------- SUGGESTIONS ---------------------
 
-INSERT INTO grantsuggestion (grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
-VALUES ('Test Agency', 'TA', 'FREE', 'Test Agency', 'EN');
+INSERT INTO grantsuggestion (id, grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
+VALUES (1, 'Test Agency', 'TA', 'FREE', 'Test Agency', 'EN');
 
-INSERT INTO grantsuggestion (grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
-VALUES ('Test Agency', 'TA', 'FREE', 'Agencja Testowa', 'PL');
+INSERT INTO grantsuggestion (id, grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
+VALUES (2, 'Test Agency', 'TA', 'FREE', 'Agencja Testowa', 'PL');
 
-INSERT INTO grantsuggestion (grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
-VALUES ('Turkish Agency', 'TUR', 'EURO', 'Turkish Agency', 'EN');
+INSERT INTO grantsuggestion (id, grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
+VALUES (3, 'Turkish Agency', 'TUR', 'EURO', 'Turkish Agency', 'EN');
 
-INSERT INTO grantsuggestion (grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
-VALUES ('Turkish Agency', 'TUR', 'EURO', 'Turecka Agencja', 'PL');
+INSERT INTO grantsuggestion (id, grantagency, grantagencyacronym, fundingprogram, suggestionname, suggestionnamelocale)
+VALUES (4, 'Turkish Agency', 'TUR', 'EURO', 'Turecka Agencja', 'PL');
 
 -------------------- Fix sequences --------------------
 

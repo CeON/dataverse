@@ -103,7 +103,7 @@ public class SuggestionInputFieldRenderer implements InputFieldRenderer {
 
             suggestionFilteredFields = findFilterValues(datasetField, suggestionFilteredBy);
 
-            if (suggestionFilteredFields.containsValue(StringUtils.EMPTY)){
+            if (suggestionFilteredFields.isEmpty()){
                 return new ArrayList<>();
             }
         }
@@ -116,13 +116,15 @@ public class SuggestionInputFieldRenderer implements InputFieldRenderer {
     // -------------------- PRIVATE --------------------
 
     private Map<String, String> findFilterValues(DatasetField datasetField, List<String> filterFields) {
-        return datasetField.getDatasetFieldParent()
+        Map<String, String> filteredValues = datasetField.getDatasetFieldParent()
                 .getOrElseThrow(() -> new NullPointerException("datasetfield with type: " + datasetField.getDatasetFieldType().getName() + " didn't have any parent required to generate suggestions"))
                 .getDatasetFieldsChildren().stream()
                 .filter(dsf -> filterFields.contains(dsf.getDatasetFieldType().getName()))
                 .map(dsf -> Tuple.of(grantSuggestionConnector.dsftToGrantEntityName(dsf.getDatasetFieldType().getName()),
                                      dsf.getFieldValue().getOrElse(StringUtils.EMPTY)))
                 .collect(Collectors.toMap(Tuple2::_1, Tuple2::_2));
+
+        return filteredValues.containsValue(StringUtils.EMPTY) ? new HashMap<>() : filteredValues;
     }
 
     private boolean hasSuggestionsAvailable() {
