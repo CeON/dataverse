@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset.suggestion;
 
+import io.vavr.control.Option;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -51,8 +53,8 @@ public class GrantSuggestion {
         return grantAgencyAcronym;
     }
 
-    public String getFundingProgram() {
-        return fundingProgram;
+    public Option<String> getFundingProgram() {
+        return Option.of(fundingProgram);
     }
 
     public String getSuggestionName() {

@@ -26,11 +26,11 @@ public class GrantSuggestionHandlerTest {
         GrantSuggestionHandler grantSuggestionHandler = new GrantSuggestionHandler(grantSuggestionDao);
 
         //when
-        Mockito.when(grantSuggestionDao.fetchSuggestions(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(Lists.newArrayList());
+        Mockito.when(grantSuggestionDao.fetchSuggestions(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(Lists.newArrayList());
         grantSuggestionHandler.generateSuggestions(new HashMap<>(), "", "");
 
         //then
-        Mockito.verify(grantSuggestionDao, Mockito.times(1)).fetchSuggestions(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
+        Mockito.verify(grantSuggestionDao, Mockito.times(1)).fetchSuggestions(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
     }
 
     @Test
