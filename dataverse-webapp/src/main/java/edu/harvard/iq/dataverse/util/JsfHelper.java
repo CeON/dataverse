@@ -3,7 +3,11 @@ package edu.harvard.iq.dataverse.util;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,5 +80,25 @@ public class JsfHelper {
             logger.log(Level.WARNING, "Illegal value for enum {0}: ''{1}''", new Object[]{enmClass.getName(), param});
             return defaultValue;
         }
+    }
+
+    public static UIComponent findComponent(UIComponent root, String id, BiPredicate<String, String> idChecker) {
+        if (root == null) {
+            return null;
+        }
+        if (idChecker.test(root.getClientId(), id)) {
+            return root;
+        }
+        List<UIComponent> children = root.getChildren();
+        if (children == null || children.isEmpty()) {
+            return null;
+        }
+        for (UIComponent child : children) {
+            UIComponent result = findComponent(child, id, idChecker);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 }

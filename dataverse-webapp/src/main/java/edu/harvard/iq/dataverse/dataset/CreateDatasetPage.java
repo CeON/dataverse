@@ -217,7 +217,7 @@ public class CreateDatasetPage implements Serializable {
     }
 
     public void initMetadataImportDialog() {
-        importerForm = ImporterForm.createInitializedForm(selectedImporter, session.getLocale());
+        importerForm = ImporterForm.createInitializedForm(selectedImporter, session.getLocale(), this::getMetadataBlocksForEdit);
     }
 
     // -------------------- PRIVATE --------------------

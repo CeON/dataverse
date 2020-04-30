@@ -13,68 +13,168 @@
                 #{bundle['metadata.import.panel.title']}
             </div>
             <div class="panel-body">
-                <label class="col-sm-3 control-label" for="importersList">
-                    <h:outputLabel value="#{bundle['metadata.import.panel.importer.label']}" escape="false"/>
-                </label>
-                <div class="col-sm-9 form-group">
-                    <p:selectOneMenu id="importersList" value="#{selectedImporter}"
-                                     converter="importerConverter">
-                        <f:selectItem value="#{null}" itemLabel=""/>
-                        <f:selectItems value="#{importers.getImportersView()}"
-                                       var="importer"
-                                       itemLabel="#{importers[importer].name}"/>
-                        <p:ajax event="change" update="importerDescription, importButton"/>
-                    </p:selectOneMenu>
+                <div class="row form-group">
+                    <label class="col-sm-3 control-label" for="importersList">
+                        <h:outputLabel value="#{bundle['metadata.import.panel.importer.label']}" escape="false"/>
+                    </label>
+                    <div class="col-sm-9 form-group">
+                        <p:selectOneMenu id="importersList" value="#{selectedImporter}"
+                                         converter="importerConverter">
+                            <f:selectItem value="#{null}" itemLabel=""/>
+                            <f:selectItems value="#{importers.getImportersView()}"
+                                           var="importer"
+                                           itemLabel="#{importers[importer].name}"/>
+                            <p:ajax event="change" update="importerDescription, importButton"/>
+                        </p:selectOneMenu>
+                    </div>
                 </div>
-                <div class="col-sm-3 control-label"><!-- Placeholder --></div>
-                <p:fragment id="importerDescription">
-                    <div class="col-sm-9">
-                        #{importers[selectedImporter].description}
-                    </div>
-                </p:fragment>
-                <div class="col-sm-3 control-label"><!-- Placeholder --></div>
-                <p:fragment id="importButton">
-                    <div class="col-sm-9" jsf:rendered="#{not empty selectedImporter}">
-                        <br/>
-                        <p:commandButton value="#{bundle['metadata.import.panel.import.button']}"
-                                         action="#{pageBean.initMetadataImportDialog}"
-                                         update="importMetadataDialog"
-                                         oncomplete="PF('importMetadataWidget').show()"/>
-                    </div>
-                </p:fragment>
+                <div class="row form-group">
+                    <div class="col-sm-3 control-label"><!-- Placeholder --></div>
+                    <p:fragment id="importerDescription">
+                        <div class="col-sm-9" jsf:rendered="#{not empty selectedImporter}">
+                            #{importers[selectedImporter].description}
+                        </div>
+                    </p:fragment>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3 control-label"><!-- Placeholder --></div>
+                    <p:fragment id="importButton">
+                        <div class="col-sm-9">
+                            <p:commandButton value="#{bundle['metadata.import.panel.import.button']}"
+                                             action="#{pageBean.initMetadataImportDialog}"
+                                             disabled="#{empty selectedImporter}"
+                                             process="@form"
+                                             update="importMetadataDialog"
+                                             oncomplete="PF('importMetadataWidget').show()"/>
+                        </div>
+                    </p:fragment>
+                </div>
             </div>
         </div>
     </p:fragment>
-    <p:dialog id="importMetadataDialog" widgetVar="importMetadataWidget" modal="true">
+    <p:dialog id="importMetadataDialog" dynamic="true" widgetVar="importMetadataWidget" modal="true">
         <o:importConstants type="edu.harvard.iq.dataverse.importer.metadata.ImporterFieldType" var="Type"/>
+        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ImporterForm.ImportStep" var="Step"/>
         <f:facet name="header">#{importers[selectedImporter].name}</f:facet>
         <p:fragment id="importerInput">
-            <div class="container">
-                <ui:repeat value="#{pageBean.importerForm.items}" var="item" varStatus="ind">
-                    <div class="row">
-                        <div class="form-group" jsf:rendered="#{item.type ne Type.DESCRIPTION}">
-                            <div class="col-sm-3 control-label">
-                                <p:outputLabel value="#{item.label}"/>
-                                <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value=""
-                                              rendered="#{item.required}" />
-
-                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                      jsf:rendered="#{not empty item.description}" tabindex="0"
-                                      data-toggle="tooltip" data-placement="auto right"
-                                      data-original-title="#{item.description}"></span>
-                            </div>
-                            <div class="col-sm-9">
-                                <p:inputText data-id="#{item.viewId}" value="#{item.value}"/>
-                            </div>
+            <p:fragment id="formFirstStep">
+                <div class="container" jsf:rendered="#{pageBean.importerForm.step eq Step.FIRST}">
+                    <!-- IMPORTANT:
+                        1. C-tags have to be used instead jsf-tags because we have to generate ids in predicatble way,
+                            using some properties from the bean, which is not possible with jsf-tags.
+                        2. Every conditional "rendered" attributes should be in that case also done with c-tags
+                        3. Method used to locate components programmatically matches only last part of generated ids,
+                            which is #{item.viewId} in case of form components, so for the other uses add some string
+                            to the end of id, e.g.: "#{item.viewId}_sth", otherwise it will break validation message
+                            logic.
+                    -->
+                    <c:forEach items="#{pageBean.importerForm.items}" var="item">
+                        <div class="row">
+                            <c:choose>
+                                <c:when test="#{item.type ne Type.DESCRIPTION}">
+                                    <div class="form-group">
+                                        <div class="col-sm-3 control-label">
+                                            <p:outputLabel value="#{item.label}" for="_#{item.viewId}"/>
+                                            <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value=""
+                                                          rendered="#{item.required}" />
+                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                  jsf:rendered="#{not empty item.description}" tabindex="0"
+                                                  data-toggle="tooltip" data-placement="auto right"
+                                                  data-original-title="#{item.description}"></span>
+                                        </div>
+                                        <c:choose>
+                                            <c:when test="#{item.type eq Type.INPUT}">
+                                                <div class="col-sm-9">
+                                                    <p:inputText id="_#{item.viewId}" value="#{item.value}"/>
+                                                    <p:message for="_#{item.viewId}"/>
+                                                </div>
+                                            </c:when>
+                                            <c:when test="#{item.type eq Type.UPLOAD_TEMP_FILE}">
+                                                <div class="col-sm-9">
+                                                    <p:fragment id="_#{item.viewId}_upl">
+                                                        <p:fileUpload id="_#{item.viewId}" mode="advanced" value="#{item.value}" auto="true"
+                                                                      listener="#{pageBean.importerForm.handleFileUpload}"
+                                                                      label="#{bundle['file.upload.temp.file.button']}"
+                                                                      update="@this"/>
+                                                    </p:fragment>
+                                                    <p:message for="_#{item.viewId}"/>
+                                                </div>
+                                            </c:when>
+                                        </c:choose>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="row form-group">
+                                        <div class="col-sm-9">
+                                            <h:outputText value="#{item.description}"/>
+                                        </div>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
-                        <div class="row form-group" jsf:rendered="#{item.type eq Type.DESCRIPTION}">
-                            <div class="col-sm-9">
-                                <h:outputText value="#{item.description}"/>
+                    </c:forEach>
+                    <p:commandButton value="ZENON" process="formFirstStep"
+                                     action="#{pageBean.importerForm.nextStep}"
+                                     update="formFirstStep,formSecondStep"/>
+                </div>
+            </p:fragment>
+            <p:fragment id="formSecondStep">
+                <div class="container" jsf:rendered="#{pageBean.importerForm.step eq Step.SECOND}">
+                    <p:dataTable value="#{pageBean.importerForm.resultItems}" var="resultItem">
+                        <p:column width="15%">
+                            <p:selectBooleanCheckbox value="#{resultItem.shouldProcess}"
+                                                     itemLabel="#{resultItem.localizedName}"
+                                                     rendered="#{resultItem.processable}"/>
+                            <span class="glyphicon glyphicon-warning-sign"
+                                  jsf:rendered="#{not resultItem.processable}" tabindex="0"
+                                  data-toggle="tooltip" data-placement="auto right"
+                                  data-original-title="#{bundle['metadata.import.result.not.matched']}"></span>
+                            <span class="ui-chkbox" jsf:rendered="#{not resultItem.processable}">
+                                <h:outputText value="#{resultItem.name}" styleClass="ui-chkbox-label"/>
+                            </span>
+                        </p:column>
+                        <p:column width="50%">
+                            <div class="container">
+                                <div jsf:rendered="#{not resultItem.compound}" class="col-xs-2">
+                                    <p:inputText value="#{resultItem.value}" rendered="#{resultItem.processable}"/>
+                                    <p:outputLabel value="#{resultItem.value}" rendered="#{not resultItem.processable}"/>
+                                </div>
+                                <ui:repeat value="#{resultItem.children}" var="childItem" rendered="#{resultItem.compound}">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <p:selectBooleanCheckbox value="#{childItem.shouldProcess}"
+                                                                     itemLabel="#{childItem.localizedName}"
+                                                                     rendered="#{childItem.processable}"/>
+                                            <span class="glyphicon glyphicon-warning-sign"
+                                                  jsf:rendered="#{not childItem.processable}" tabindex="0"
+                                                  data-toggle="tooltip" data-placement="auto right"
+                                                  data-original-title="#{bundle['metadata.import.result.not.matched']}"></span>
+                                            <span class="ui-chkbox" jsf:rendered="#{not childItem.processable}">
+                                                <h:outputText value="#{childItem.name}" styleClass="ui-chkbox-label"/>
+                                            </span>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <p:inputText value="#{childItem.value}" rendered="#{childItem.processable}"/>
+                                            <h:outputText value="#{childItem.value}" rendered="#{not childItem.processable}"/>
+                                        </div>
+                                    </div>
+                                </ui:repeat>
                             </div>
-                        </div>
-                    </div>
-                </ui:repeat>
-            </div>
+                        </p:column>
+                        <p:column>
+                            <p:selectOneRadio value="#{resultItem.processingType}" converter="processingTypeConverter"
+                                              rendered="#{resultItem.processable}">
+                                <f:selectItems value="#{resultItem.multipleAllowed ? pageBean.importerForm.multipleOptions
+                                : pageBean.importerForm.singleOptions}"
+                                var="type" itemValue="#{type}" itemLabel="#{bundle[type.key]}"/>
+                            </p:selectOneRadio>
+                        </p:column>
+                    </p:dataTable>
+                    <p:commandButton value="FILL" process=""
+                                     action="#{pageBean.importerForm.onExit(pageBean.metadataBlocksForEdit)}"
+                                     update="@form" oncomplete="PF('importMetadataWidget').hide()"/>
+                </div>
+            </p:fragment>
         </p:fragment>
 
     </p:dialog>

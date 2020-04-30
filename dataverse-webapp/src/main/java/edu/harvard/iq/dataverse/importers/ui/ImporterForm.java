@@ -1,21 +1,56 @@
 package edu.harvard.iq.dataverse.importers.ui;
 
+import edu.harvard.iq.dataverse.importer.metadata.ImporterConstants;
 import edu.harvard.iq.dataverse.importer.metadata.ImporterData;
+import edu.harvard.iq.dataverse.importer.metadata.ImporterFieldKey;
 import edu.harvard.iq.dataverse.importer.metadata.ImporterFieldType;
-import edu.harvard.iq.dataverse.importer.metadata.ImporterInput;
 import edu.harvard.iq.dataverse.importer.metadata.MetadataImporter;
+import edu.harvard.iq.dataverse.importer.metadata.ResultField;
 import edu.harvard.iq.dataverse.importer.metadata.SafeBundleWrapper;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
+import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
+import edu.harvard.iq.dataverse.util.FileUtil;
+import org.primefaces.component.fileupload.FileUpload;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.file.UploadedFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ImporterForm {
-    private SafeBundleWrapper bundle;
+    private static final ProcessingType[] SINGLE_OPTIONS
+            = new ProcessingType[] { ProcessingType.FILL_IF_EMPTY, ProcessingType.OVERWRITE };
+    private static final ProcessingType[] MULTIPLE_OPTIONS
+            = new ProcessingType[] { ProcessingType.MULTIPLE_CREATE_NEW, ProcessingType.MULTIPLE_OVERWRITE};
 
+    public enum ImportStep {
+        FIRST, SECOND;
+    }
     private List<FormItem> items = new ArrayList<>();
+    private List<ResultItem> resultItems = new ArrayList<>();
+    private ImportStep step;
+
+    private MetadataImporter importer;
+    private MetadataFiller metadataFiller;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public ImporterForm() {
+        this.step = ImportStep.FIRST;
+    }
+
 
     // -------------------- GETTERS --------------------
 
@@ -23,28 +58,90 @@ public class ImporterForm {
         return items;
     }
 
+    public List<ResultItem> getResultItems() {
+        return resultItems;
+    }
+
+    public ImportStep getStep() {
+        return step;
+    }
+
+    public ProcessingType[] getSingleOptions() { return SINGLE_OPTIONS; }
+    public ProcessingType[] getMultipleOptions() { return MULTIPLE_OPTIONS; }
+
     // -------------------- LOGIC --------------------
 
-    public static ImporterForm createInitializedForm(MetadataImporter importer, Locale locale) {
+    public static ImporterForm createInitializedForm(MetadataImporter importer, Locale locale,
+                                                     Supplier<Map<MetadataBlock, List<DatasetFieldsByType>>> metadataSupplier) {
         ImporterForm instance = new ImporterForm();
-        instance.initializeForm(importer, locale);
+        MetadataFiller metadataFiller = new MetadataFiller(importer.getMetadataBlockName(), metadataSupplier);
+        instance.initializeForm(importer, locale, metadataFiller);
         return instance;
     }
 
-    public void initializeForm(MetadataImporter importer, Locale locale) {
+    public void initializeForm(MetadataImporter importer, Locale locale, MetadataFiller metadataFiller) {
+        this.metadataFiller = metadataFiller;
+        this.importer = importer;
+
         SafeBundleWrapper bundle = new SafeBundleWrapper(importer, locale);
         int counter = 1;
         for (ImporterData.ImporterField field : getImporterFields(importer)) {
             String viewId = String.join("_", String.valueOf(Math.abs(field.fieldKey.hashCode() % 512)),
                     field.fieldKey.getName(), String.valueOf(counter));
-            this.items.add(new FormItem(viewId, field, bundle));
+            items.add(new FormItem(viewId, field, bundle));
             counter++;
         }
     }
 
-    public ImporterInput toImporterInput() {
-        return null;
+    public void handleFileUpload(FileUploadEvent event) throws IOException {
+        FileUpload component = (FileUpload) event.getComponent();
+        removePreviousTempFile(component);
+
+        UploadedFile file = Optional.ofNullable(event)
+                .map(FileUploadEvent::getFile)
+                .orElseThrow(() -> new IllegalStateException("Null event or file"));
+        Path tempPath = prepareTempPath(file);
+        Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
+        component.setValue(tempPath.toFile());
     }
+
+    public Map<ImporterFieldKey, Object> toImporterInput() {
+        return items.stream()
+                .filter(i -> !ImporterFieldKey.IRRELEVANT.equals(i.importerField.fieldKey))
+                .collect(HashMap::new, (m, i) -> m.put(i.importerField.fieldKey, i.getValue()), HashMap::putAll);
+    }
+
+    public void nextStep() {
+//        if (new Random().nextInt() % 4 == 0) {
+//            step = ImporterStep.SECOND;
+//        } else {
+//            List<FormItem> formItems = items.stream()
+//                    .filter(i -> !ImporterFieldKey.IRRELEVANT.equals(i.importerField.fieldKey))
+//                    .collect(Collectors.toList());
+//            FacesContext fctx = FacesContext.getCurrentInstance();
+//            for (FormItem item : formItems) {
+//                String viewId = item.getViewId();
+//                UIComponent component = JsfHelper.findComponent(fctx.getViewRoot(), viewId, String::endsWith);
+//                String clientId = component.getClientId();
+//                fctx.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, "ZENON", "zenon"));
+//                Map<String, Object> attributes = component.getAttributes();
+//                attributes.isEmpty();
+//            }
+//            fctx.validationFailed();
+//        }
+
+        // VALIDATION ut supra
+
+        List<ResultField> resultFields = importer.fetchMetadata(toImporterInput());
+        resultItems = metadataFiller.createItemsForView(resultFields);
+        step = ImportStep.SECOND;
+    }
+
+    public void onExit(Map<MetadataBlock, List<DatasetFieldsByType>> metadata) {
+        metadataFiller.fillForm(resultItems);
+    }
+
+
 
     // -------------------- PRIVATE --------------------
 
@@ -53,6 +150,21 @@ public class ImporterForm {
                 .map(MetadataImporter::getImporterData)
                 .map(ImporterData::getImporterFormSchema)
                 .orElseGet(Collections::emptyList);
+    }
+
+    private Path prepareTempPath(UploadedFile file) throws IOException {
+        String tempDirectory = Optional.ofNullable(FileUtil.getFilesTempDirectory())
+                .orElseThrow(() -> new IllegalStateException("Cannot obtain temp directory path"));
+        return Files.createTempFile(Paths.get(tempDirectory), "import",
+                ImporterConstants.FILE_NAME_SEPARATOR + file.getFileName());
+    }
+
+    private void removePreviousTempFile(FileUpload component) {
+        if (component.getValue() == null) {
+            return;
+        }
+        File tempFile = (File) component.getValue();
+        tempFile.delete();
     }
 
     // -------------------- INNER CLASSES --------------------
