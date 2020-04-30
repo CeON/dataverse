@@ -533,7 +533,7 @@ public class Dataverse extends DvObjectContainer {
         return retName;
     }
 
-    public String getMetadataRootDataverseName() {
+    public String getMetadataParentRootDataverseName() {
         if (getOwner() == null) {
             return this.getDisplayName();
         } else {
