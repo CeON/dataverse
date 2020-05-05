@@ -1635,9 +1635,7 @@ public class Datasets extends AbstractApiBean {
 
         try {
             datasetsValidators.validateFileTermsOfUseDTO(optionalFileParams.getFileTermsOfUseDTO());
-        } catch (MissingArgumentException ex) {
-            return error(Response.Status.BAD_REQUEST,ex.getMessage());
-        } catch (InvalidParameterException pe) {
+        } catch (MissingArgumentException | InvalidParameterException pe) {
             return error(Response.Status.BAD_REQUEST, pe.getMessage());
         } catch (EJBException ejbe) {
             return error(Response.Status.BAD_REQUEST, ejbe.getCause().getMessage());
