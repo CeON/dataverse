@@ -43,7 +43,7 @@ public class ImporterForm {
     private ImportStep step;
 
     private MetadataImporter importer;
-    private MetadataFiller metadataFiller;
+    private MetadataFormLookup lookup;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -66,21 +66,26 @@ public class ImporterForm {
         return step;
     }
 
-    public ProcessingType[] getSingleOptions() { return SINGLE_OPTIONS; }
-    public ProcessingType[] getMultipleOptions() { return MULTIPLE_OPTIONS; }
+    public ProcessingType[] getItemProcessingOptions(ResultItem item) {
+        if (ItemType.VOCABULARY.equals(item.getItemType())) {
+            return SINGLE_OPTIONS;
+        } else {
+            return item.getMultipleAllowed() ? MULTIPLE_OPTIONS : SINGLE_OPTIONS;
+        }
+     }
 
     // -------------------- LOGIC --------------------
 
     public static ImporterForm createInitializedForm(MetadataImporter importer, Locale locale,
                                                      Supplier<Map<MetadataBlock, List<DatasetFieldsByType>>> metadataSupplier) {
         ImporterForm instance = new ImporterForm();
-        MetadataFiller metadataFiller = new MetadataFiller(importer.getMetadataBlockName(), metadataSupplier);
-        instance.initializeForm(importer, locale, metadataFiller);
+        instance.initializeForm(importer, locale,
+                MetadataFormLookup.create(importer.getMetadataBlockName(), metadataSupplier));
         return instance;
     }
 
-    public void initializeForm(MetadataImporter importer, Locale locale, MetadataFiller metadataFiller) {
-        this.metadataFiller = metadataFiller;
+    public void initializeForm(MetadataImporter importer, Locale locale, MetadataFormLookup lookup) {
+        this.lookup = lookup;
         this.importer = importer;
 
         SafeBundleWrapper bundle = new SafeBundleWrapper(importer, locale);
@@ -133,12 +138,12 @@ public class ImporterForm {
         // VALIDATION ut supra
 
         List<ResultField> resultFields = importer.fetchMetadata(toImporterInput());
-        resultItems = metadataFiller.createItemsForView(resultFields);
+        resultItems = new ResultItemsCreator(lookup).createItemsForView(resultFields);
         step = ImportStep.SECOND;
     }
 
     public void onExit(Map<MetadataBlock, List<DatasetFieldsByType>> metadata) {
-        metadataFiller.fillForm(resultItems);
+        new MetadataFormFiller(lookup).fillForm(resultItems);
     }
 
 

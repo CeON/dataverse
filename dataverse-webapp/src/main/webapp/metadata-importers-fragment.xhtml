@@ -55,6 +55,8 @@
     <p:dialog id="importMetadataDialog" dynamic="true" widgetVar="importMetadataWidget" modal="true">
         <o:importConstants type="edu.harvard.iq.dataverse.importer.metadata.ImporterFieldType" var="Type"/>
         <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ImporterForm.ImportStep" var="Step"/>
+        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ProcessingType" var="Processing"/>
+        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ItemType" var="ItemType"/>
         <f:facet name="header">#{importers[selectedImporter].name}</f:facet>
         <p:fragment id="importerInput">
             <p:fragment id="formFirstStep">
@@ -124,48 +126,69 @@
                         <p:column width="15%">
                             <p:selectBooleanCheckbox value="#{resultItem.shouldProcess}"
                                                      itemLabel="#{resultItem.localizedName}"
-                                                     rendered="#{resultItem.processable}"/>
+                                                     rendered="#{resultItem.processingType ne Processing.UNPROCESSABLE}"/>
                             <span class="glyphicon glyphicon-warning-sign"
-                                  jsf:rendered="#{not resultItem.processable}" tabindex="0"
+                                  jsf:rendered="#{resultItem.processingType eq Processing.UNPROCESSABLE}" tabindex="0"
                                   data-toggle="tooltip" data-placement="auto right"
                                   data-original-title="#{bundle['metadata.import.result.not.matched']}"></span>
-                            <span class="ui-chkbox" jsf:rendered="#{not resultItem.processable}">
+                            <span class="ui-chkbox" jsf:rendered="#{resultItem.processingType eq Processing.UNPROCESSABLE}">
                                 <h:outputText value="#{resultItem.name}" styleClass="ui-chkbox-label"/>
                             </span>
                         </p:column>
                         <p:column width="50%">
                             <div class="container">
-                                <div jsf:rendered="#{not resultItem.compound}" class="col-xs-2">
-                                    <p:inputText value="#{resultItem.value}" rendered="#{resultItem.processable}"/>
-                                    <p:outputLabel value="#{resultItem.value}" rendered="#{not resultItem.processable}"/>
+                                <div jsf:rendered="#{resultItem.itemType eq ItemType.SIMPLE}" class="col-xs-6">
+                                    <h:outputText value="#{resultItem.value}"/>
                                 </div>
-                                <ui:repeat value="#{resultItem.children}" var="childItem" rendered="#{resultItem.compound}">
+                                <ui:repeat value="#{resultItem.children}" var="childItem" rendered="#{resultItem.itemType eq ItemType.COMPOUND}">
                                     <div class="row">
                                         <div class="col-xs-3">
                                             <p:selectBooleanCheckbox value="#{childItem.shouldProcess}"
                                                                      itemLabel="#{childItem.localizedName}"
-                                                                     rendered="#{childItem.processable}"/>
+                                                                     rendered="#{childItem.processingType ne Processing.UNPROCESSABLE}"/>
                                             <span class="glyphicon glyphicon-warning-sign"
-                                                  jsf:rendered="#{not childItem.processable}" tabindex="0"
+                                                  jsf:rendered="#{childItem.processingType eq Processing.UNPROCESSABLE}" tabindex="0"
                                                   data-toggle="tooltip" data-placement="auto right"
                                                   data-original-title="#{bundle['metadata.import.result.not.matched']}"></span>
-                                            <span class="ui-chkbox" jsf:rendered="#{not childItem.processable}">
+                                            <span class="ui-chkbox" jsf:rendered="#{childItem.processingType eq Processing.UNPROCESSABLE}">
                                                 <h:outputText value="#{childItem.name}" styleClass="ui-chkbox-label"/>
                                             </span>
                                         </div>
-                                        <div class="col-xs-6">
-                                            <p:inputText value="#{childItem.value}" rendered="#{childItem.processable}"/>
-                                            <h:outputText value="#{childItem.value}" rendered="#{not childItem.processable}"/>
+                                        <div class="col-xs-3">
+                                            <h:outputText value="#{childItem.value}" rendered="#{not empty childItem.value}"
+                                            styleClass="#{childItem.itemType eq ItemType.VOCABULARY ? 'ui-selectcheckboxmenu-token ui-state-active ui-corner-all' : ''}"/>
+                                            <ui:repeat value="#{childItem.children}" var="vocabularyItem" rendered="#{not empty resultItem.children
+                                            and childItem.itemType eq ItemType.VOCABULARY}">
+                                                <span class="ui-selectcheckboxmenu-token ui-state-active ui-corner-all">
+                                                    <span class="glyphicon glyphicon-warning-sign"
+                                                          jsf:rendered="#{vocabularyItem.processingType eq Processing.UNPROCESSABLE}" tabindex="0"
+                                                          data-toggle="tooltip" data-placement="auto right"
+                                                          data-original-title="#{bundle['metadata.import.result.not.matched']}"></span>
+                                                    <h:outputText value="#{vocabularyItem.value} "/>
+                                                </span>
+                                            </ui:repeat>
                                         </div>
                                     </div>
                                 </ui:repeat>
+                                <div class="col-xs-6" jsf:rendered="#{resultItem.itemType eq ItemType.VOCABULARY}">
+                                    <h:outputText value="#{resultItem.value}" rendered="#{not empty resultItem.value}"
+                                    styleClass="#{resultItem.itemType eq ItemType.VOCABULARY ? 'ui-selectcheckboxmenu-token ui-state-active ui-corner-all' : ''}"/>
+                                    <ui:repeat value="#{resultItem.children}" var="vocabularyItem" rendered="#{not empty resultItem.children}">
+                                        <span class="ui-selectcheckboxmenu-token ui-state-active ui-corner-all">
+                                            <span class="glyphicon glyphicon-warning-sign"
+                                                  jsf:rendered="#{vocabularyItem.processingType eq Processing.UNPROCESSABLE}" tabindex="0"
+                                                  data-toggle="tooltip" data-placement="auto right"
+                                                  data-original-title="#{bundle['metadata.import.result.not.matched']}"></span>
+                                            <h:outputText value="#{vocabularyItem.value} "/>
+                                        </span>
+                                    </ui:repeat>
+                                </div>
                             </div>
                         </p:column>
                         <p:column>
                             <p:selectOneRadio value="#{resultItem.processingType}" converter="processingTypeConverter"
-                                              rendered="#{resultItem.processable}">
-                                <f:selectItems value="#{resultItem.multipleAllowed ? pageBean.importerForm.multipleOptions
-                                : pageBean.importerForm.singleOptions}"
+                                              rendered="#{resultItem.processingType ne Processing.UNPROCESSABLE}">
+                                <f:selectItems value="#{pageBean.importerForm.getItemProcessingOptions(resultItem)}"
                                 var="type" itemValue="#{type}" itemLabel="#{bundle[type.key]}"/>
                             </p:selectOneRadio>
                         </p:column>

@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.importers.ui;
 
 import edu.harvard.iq.dataverse.importer.metadata.ResultField;
+import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,11 +9,11 @@ import java.util.stream.Collectors;
 public class ResultItem implements Comparable<ResultItem> {
     private ResultField resultField;
     private List<ResultItem> children;
+    private ControlledVocabularyValue vocabularyValue;
 
-    private boolean processable = false;
     private boolean shouldProcess = true;
     private boolean multipleAllowed = false;
-    private boolean compound = false;
+    private ItemType itemType = ItemType.SIMPLE;
 
     private int displayOrder = Integer.MAX_VALUE;
     private String localizedName;
@@ -51,10 +52,6 @@ public class ResultItem implements Comparable<ResultItem> {
         return children;
     }
 
-    public boolean getProcessable() {
-        return processable;
-    }
-
     public boolean getShouldProcess() {
         return shouldProcess;
     }
@@ -67,12 +64,16 @@ public class ResultItem implements Comparable<ResultItem> {
         return processingType;
     }
 
-    public boolean getCompound() {
-        return compound;
-    }
-
     public int getDisplayOrder() {
         return displayOrder;
+    }
+
+    public ItemType getItemType() {
+        return itemType;
+    }
+
+    public ControlledVocabularyValue getVocabularyValue() {
+        return vocabularyValue;
     }
 
     // -------------------- LOGIC --------------------
@@ -80,6 +81,10 @@ public class ResultItem implements Comparable<ResultItem> {
     @Override
     public int compareTo(ResultItem that) {
         return Integer.compare(displayOrder, that.displayOrder);
+    }
+
+    public boolean hasChildren() {
+        return children.size() > 0;
     }
 
 
@@ -99,18 +104,19 @@ public class ResultItem implements Comparable<ResultItem> {
 
     // -------------------- NON-JavaBeans SETTERS --------------------
 
+
+    public ResultItem setVocabularyValue(ControlledVocabularyValue vocabularyValue) {
+        this.vocabularyValue = vocabularyValue;
+        return this;
+    }
+
     public ResultItem setMultipleAllowed(boolean multipleAllowed) {
         this.multipleAllowed = multipleAllowed;
         return this;
     }
 
-    public ResultItem setProcessable(boolean processable) {
-        this.processable = processable;
-        return this;
-    }
-
-    public ResultItem setCompound(boolean compound) {
-        this.compound = compound;
+    public ResultItem setItemType(ItemType itemType) {
+        this.itemType = itemType;
         return this;
     }
 
@@ -129,7 +135,7 @@ public class ResultItem implements Comparable<ResultItem> {
     @Override
     public String toString() {
         return getName() + " : " + getValue()
-                + "\tMultiple: " + multipleAllowed
+                + ", Item type: " + itemType
                 + ", ProcessingType: " + processingType;
     }
 }
