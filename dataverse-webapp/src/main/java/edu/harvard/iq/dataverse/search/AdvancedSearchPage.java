@@ -20,14 +20,19 @@ import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.TextSearchField;
 import io.vavr.Tuple;
 import org.apache.commons.lang.StringUtils;
-import javax.faces.view.ViewScoped;
+import org.apache.commons.lang3.time.DateUtils;
 
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -104,6 +109,29 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
         logger.fine(returnString);
         return returnString;
+    }
+
+    public void validateDateField(FacesContext context, UIComponent comp, Object value) {
+        if(value == null) {
+            return;
+        }
+
+//        String datePattern = "^(\\-?)[0-9]{4}((\\-)([0-9]{2})){0,2}$";
+//        if(!value.toString().matches(datePattern)) {
+//            ((UIInput) comp).setValid(false);
+//            FacesMessage message = new FacesMessage(BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
+//            context.addMessage(comp.getClientId(context), message);
+//            return;
+//        }
+
+        String[] dateFormats = {"yyyy", "-yyyy", "yyyy-MM", "-yyyy-MM", "yyyy-MM-dd", "-yyyy-MM-dd"};
+        try {
+            DateUtils.parseDateStrictly(value.toString(), dateFormats);
+        } catch(ParseException pe) {
+            ((UIInput) comp).setValid(false);
+            FacesMessage message = new FacesMessage(BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
+            context.addMessage(comp.getClientId(context), message);
+        }
     }
 
     // -------------------- PRIVATE --------------------
