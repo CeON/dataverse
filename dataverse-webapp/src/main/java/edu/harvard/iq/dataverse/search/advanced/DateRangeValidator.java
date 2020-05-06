@@ -39,7 +39,7 @@ public class DateRangeValidator implements Validator {
         if(isFromAfterTo) {
             dateFromInput.setValid(false);
             dateToInput.setValid(false);
-            FacesMessage message = new FacesMessage(BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.badRange"));
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.badRange"));
             context.addMessage(dateFromInput.getClientId(context), message);
             context.addMessage(dateToInput.getClientId(context), message);
         }
@@ -54,7 +54,7 @@ public class DateRangeValidator implements Validator {
         String datePattern = "^(\\-?)[0-9]{4}((\\-)([0-9]{2})){0,2}$";
         if(!value.toString().matches(datePattern)) {
             ((UIInput) comp).setValid(false);
-            FacesMessage message = new FacesMessage(BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
             context.addMessage(comp.getClientId(context), message);
             return null;
         }
@@ -64,7 +64,7 @@ public class DateRangeValidator implements Validator {
             DateUtils.parseDateStrictly(value.toString(), dateFormats);
         } catch(ParseException pe) {
             ((UIInput) comp).setValid(false);
-            FacesMessage message = new FacesMessage(BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
             context.addMessage(comp.getClientId(context), message);
         }
 

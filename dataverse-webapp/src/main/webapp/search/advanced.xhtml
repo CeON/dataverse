@@ -125,13 +125,13 @@
                                             <p:inputText id="stringSearchValue" styleClass="form-control"
                                                          value="#{item.fieldValue}"
                                                          rendered="#{item.searchFieldType == fieldTypeEnums.TEXT}"/>
-                                            <div>
+                                            <div jsf:rendered="#{item.searchFieldType == fieldTypeEnums.DATE}">
                                                 <h:inputHidden id="dateRangeValidator" value="true" >
                                                     <f:validator validatorId="dateRangeValidator" />
                                                     <f:attribute name="dateFrom" value="#{dateFrom}" />
                                                     <f:attribute name="dateTo" value="#{dateTo}" />
                                                 </h:inputHidden>
-                                                <div style="display: inline-block; " jsf:rendered="#{item.searchFieldType == fieldTypeEnums.DATE}">
+                                                <div style="display: inline-block; ">
                                                     <p:outputLabel for="daterangeSearchMinimum"
                                                                    value="#{bundle['advanced.search.metadata.from']} "
                                                                    style="white-space: pre"
@@ -144,9 +144,8 @@
                                                     >
                                                     </p:inputText>
                                                     <p:message for="daterangeSearchMinimum" display="text" />
-                                                    <p:message for="dateRangeValidator" display="text" />
                                                 </div>
-                                                <div style="display: inline-block;" jsf:rendered="#{item.searchFieldType == fieldTypeEnums.DATE}">
+                                                <div style="display: inline-block;" >
                                                     <p:outputLabel for="daterangeSearchMaximum"
                                                                    value=" #{bundle['advanced.search.metadata.to']} "
                                                                    style="white-space: pre"
@@ -159,7 +158,6 @@
                                                     >
                                                     </p:inputText>
                                                     <p:message for="daterangeSearchMaximum" display="text" />
-                                                    <p:message for="dateRangeValidator" display="text" />
                                                 </div>
                                             </div>
                                             <div>
