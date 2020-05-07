@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.importer.metadata.ImporterRegistry;
 import edu.harvard.iq.dataverse.importer.metadata.MetadataImporter;
 import edu.harvard.iq.dataverse.importers.ui.ImporterForm;
+
 import edu.harvard.iq.dataverse.importers.ui.ImportersForView;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
@@ -70,6 +71,8 @@ public class EditDatasetMetadataPage implements Serializable {
     private DatasetVersion workingVersion;
     private Map<MetadataBlock, List<DatasetFieldsByType>> metadataBlocksForEdit;
     private Map<DatasetFieldType, InputFieldRenderer> inputRenderersByFieldType = new HashMap<>();
+    private ImportersForView importers;
+    private MetadataImporter selectedImporter;
 
     private ImportersForView importers;
     private MetadataImporter selectedImporter;

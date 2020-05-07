@@ -123,6 +123,30 @@ body {
 	color: $main-text-color;
 }
 
+h1 {
+    font-size: 1.6em;
+}
+h2 {
+    font-size: 1.5em;
+}
+h3 {
+    font-size: 1.3em;
+}
+h4 {
+    font-size: 1.2em;
+}
+h5 {
+    font-size: 1.1em;
+}
+h6 {
+    font-size: 1em;
+}
+h1, h2, h3, h4, h5, h6 {
+    &.header-inline {
+        display: inline;
+    }
+}
+
 .text-brand {
 	color: $icon-color;
 }
@@ -299,6 +323,9 @@ body {
 		font-weight: normal;
 	}
 }
+.inline-message {
+    display: inline-block;
+}
 
 @mixin link-color {
 	color: $link-color;
@@ -336,9 +363,14 @@ a,
 .dropdown-menu {
 	border-color: $gray-border-color;
 
-	& > li > a:focus, & > li > a:hover {
-		background: $gray-border-color;
+	& > li > a, & > li > form > a {
+		&:focus, &:hover {
+			background: $gray-border-color;
+		}
 	}
+}
+.open > form > .dropdown-menu {
+    display: block; /* allows for dropdown-menu to be directly in form tag */
 }
 
 #breadcrumbNavBlock .breadcrumbActive {
@@ -373,6 +405,13 @@ span.glyphicon-question-sign.tooltip-icon {
 	color: #de8800;
 }
 
+.section-title {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
 .ui-widget-content .ui-selectonemenu.ui-state-default {
 	background: $gray-border-color;
 }
@@ -392,6 +431,10 @@ span.glyphicon-question-sign.tooltip-icon {
 	}
 }
 
+.jqplot-target {
+	background: #fff;
+}
+
 /* WCAG 2.4.7 focus outline */
 
 *:focus, a:focus {
@@ -399,14 +442,14 @@ span.glyphicon-question-sign.tooltip-icon {
 	outline-offset: 3px;
 }
 .ui-selectonemenu.ui-state-focus {
-    &, & .ui-selectonemenu-trigger {
-        outline: 2px dashed $focus-color !important;
-    }
+	&, & .ui-selectonemenu-trigger {
+		outline: 2px dashed $focus-color !important;
+	}
 }
 .ui-selectcheckboxmenu.ui-state-focus {
-    &, & .ui-selectcheckboxmenu-trigger {
-        outline: 2px dashed $focus-color !important;
-    }
+	&, & .ui-selectcheckboxmenu-trigger {
+		outline: 2px dashed $focus-color !important;
+	}
 }
 
 #sharrre-block a {
@@ -417,15 +460,17 @@ span.glyphicon-question-sign.tooltip-icon {
 
 .button-block a,
 .dropdown-menu a,
-.panel-heading,
 .ui-selectonemenu, .ui-selectcheckboxmenu {
 	&.ui-state-focus:focus {
 		outline-offset: 0;
 	}
 }
 
-#high-contrast-mode-selector a:focus {
-	outline-offset: 0;
+#high-contrast-mode-selector a,
+.panel-heading {
+	&:focus {
+		outline-offset: 0;
+	}
 }
 
 button,
@@ -535,19 +580,22 @@ div.ui-selectonemenu.form-control {
 }
 
 .ui-selectcheckboxmenu .ui-selectcheckboxmenu-multiple-container  {
-    padding-right: 30px; /* same as primefaces ui-selectcheckboxmenu-trigger width */
-    
-    .ui-selectcheckboxmenu-token {
-        background: #FFF;
-        border: 1px solid $main-color;
-        box-shadow: none;
-    }
+	padding-right: 30px; /* same as primefaces ui-selectcheckboxmenu-trigger width */
+	
+	.ui-selectcheckboxmenu-token {
+		background: #FFF;
+		border: 1px solid $main-color;
+		box-shadow: none;
+	}
 }
 .ui-selectcheckboxmenu-header .ui-selectcheckboxmenu-filter-container .ui-icon {
-    top: 5px;
+	top: 5px;
 }
 .without-select-all .ui-selectcheckboxmenu-header .ui-chkbox {
-    display: none; 
+	display: none; 
+}
+.ui-selectcheckboxmenu-label-container {
+	display: inline-block;
 }
 
 div.field-add-delete {
@@ -590,11 +638,26 @@ textarea {
 	font-family: $font-monospace;
 }
 
-.form-horizontal .control-label {
-	padding-top: 4px;
-	padding-bottom: 5px;
-	color: $main-text-color;
+.form-horizontal {
+    .control-label {
+	   padding-top: 4px;
+	   padding-bottom: 5px;
+	   color: $main-text-color;
+    }
+    /* Overriding bootstrap defaults */
+    legend.control-label {
+        border-bottom: none;
+        font-size: inherit;
+        display: inherit;
+        
+        max-width: 100%;
+        font-weight: 700;
+    }
 }
+.ui-outputlabel.ui-state-error {
+    background: inherit;
+}
+
 
 .form-field-group {
 	border: 1px solid $gray-border-color;
@@ -667,6 +730,13 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 }
 .ui-spinner-down.ui-state-default {
 	border-radius: 0 0 0.267em 0.267em;
+}
+
+.ui-inputnumber.input-number-left input {
+	padding-left: 5px;
+}
+.ui-inputnumber.input-number-right input {
+	padding-right: 5px;
 }
 
 /* File uploader */
@@ -1494,15 +1564,22 @@ $navbar-height: 6.8em;
 }
 
 .navbar-default #topNavBar .navbar-nav {
-	> li,  > form {
-		> a {
+	> li {
+		> a, > form > a {
 			color: $main-text-color;
 			border-radius: $border-radius;
 			text-shadow: none;
 
+			&:hover, &:active, &:focus {
+				color: $main-color;
+			}
+
 			.caret {
 				color: $icon-color;
 			}
+            &:focus {
+                text-decoration: none;
+            }
 		}
 	}
 
@@ -1518,6 +1595,12 @@ $navbar-height: 6.8em;
 	}
 }
 
+.dropdown-menu > form > li > a {
+	&:hover, &:active, &:focus {
+		background-color: $gray-border-color !important;
+	}
+}
+
 .navbar-default .navbar-toggle {
 	margin: 1.8em;
 
@@ -1530,7 +1613,7 @@ $navbar-height: 6.8em;
 }
 
 #dataverse-header-block {
-	padding-top: 0;
+	padding-top: 0.8em;
 }
 
 .top-messages {
@@ -1549,7 +1632,7 @@ $navbar-height: 6.8em;
 			left: 0.55em;
 			font-size: 3.333em;
 	
-			& + div {
+			& + span {
 				padding-left: 4em;
 			}
 		}
@@ -1561,6 +1644,25 @@ $navbar-height: 6.8em;
 
 		#topNavBar .pull-right {
 			width: 100%;
+		}
+
+		#topNavBar .navbar-nav {
+			li > a, li > form > a {
+				position: relative;
+				z-index: 1; /* fix outline cut off by accessibility switches */
+			}
+		}
+	}
+	.navbar-default .navbar-nav .open .dropdown-menu > li > a,
+	.navbar-default .navbar-nav .open .dropdown-menu > li > form > a,
+	#navbarFixed .dropdown.accountName .logout a {
+		padding: 5px 15px 5px 25px;
+		color: $main-text-color;
+		line-height: 20px;
+
+		&:hover, &:focus {
+			color: $main-color;
+			background-color: transparent;
 		}
 	}
 }
@@ -1608,7 +1710,7 @@ $navbar-height: 6.8em;
 		text-decoration: none !important;
 		cursor: pointer;
 
-		&::before {
+		span.contrast-icon::before {
 			content: "Aa";
 		}
 	}
@@ -2330,6 +2432,29 @@ div.filesTable {
 	border-color: $gray-border-color;
 }
 
+.autocomplete-form-control.ui-autocomplete {
+	width: 100%;
+}
+
+.autocomplete-form-control.ui-autocomplete input.ui-autocomplete-input {
+	border-color: $gray-border-color;
+	display: block;
+	width: 100%;
+	height: 34px;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	color: #555;
+	background-color: #fff;
+	background-image: none;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
 .ui-dialog.ui-widget-content {
 	min-height: 200px;
 	border: none;
@@ -2381,10 +2506,13 @@ div.filesTable {
 	}
 	
 	.button-block {
-		border-top: 1px solid $gray-border-color;
-		margin: 49px 0 0 0;
-		padding-top: 27px;
-		padding-bottom: 31px;
+		
+		&:not(.not-main-dialog-button-block) {
+		    border-top: 1px solid $gray-border-color;
+		    margin: 49px 0 0 0;
+		    padding-top: 27px;
+		    padding-bottom: 31px;
+		}
 
 		button, a, input[type="button"] {
 			padding: 6px 12px;
@@ -2476,7 +2604,7 @@ div.filesTable {
 	.ui-dialog-content {
 		position: static;
 
-		.button-block {
+		.button-block:not(.not-main-dialog-button-block) {
 			position: absolute;
 			left: 15px;
 			right: 15px;
