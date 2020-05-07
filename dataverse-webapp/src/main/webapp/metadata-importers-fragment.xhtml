@@ -8,7 +8,7 @@
                 xmlns:jsf="http://xmlns.jcp.org/jsf">
 
     <p:fragment id="importersPanel">
-        <div class="panel panel-default" jsf:rendered="#{not empty importers}">
+        <div class="panel panel-default" jsf:rendered="#{not empty pageBean.importers}">
             <div class="panel-heading text-info">
                 #{bundle['metadata.import.panel.title']}
             </div>
@@ -18,12 +18,12 @@
                         <h:outputLabel value="#{bundle['metadata.import.panel.importer.label']}" escape="false"/>
                     </label>
                     <div class="col-sm-9 form-group">
-                        <p:selectOneMenu id="importersList" value="#{selectedImporter}"
+                        <p:selectOneMenu id="importersList" value="#{pageBean.selectedImporter}"
                                          converter="importerConverter">
                             <f:selectItem value="#{null}" itemLabel=""/>
-                            <f:selectItems value="#{importers.getImportersView()}"
+                            <f:selectItems value="#{pageBean.importers.getImportersView()}"
                                            var="importer"
-                                           itemLabel="#{importers[importer].name}"/>
+                                           itemLabel="#{pageBean.importers[importer].name}"/>
                             <p:ajax event="change" update="importerDescription, importButton"/>
                         </p:selectOneMenu>
                     </div>
@@ -31,8 +31,8 @@
                 <div class="row form-group">
                     <div class="col-sm-3 control-label"><!-- Placeholder --></div>
                     <p:fragment id="importerDescription">
-                        <div class="col-sm-9" jsf:rendered="#{not empty selectedImporter}">
-                            #{importers[selectedImporter].description}
+                        <div class="col-sm-9" jsf:rendered="#{not empty pageBean.selectedImporter}">
+                            #{pageBean.importers[pageBean.selectedImporter].description}
                         </div>
                     </p:fragment>
                 </div>
@@ -42,7 +42,7 @@
                         <div class="col-sm-9">
                             <p:commandButton value="#{bundle['metadata.import.panel.import.button']}"
                                              action="#{pageBean.initMetadataImportDialog}"
-                                             disabled="#{empty selectedImporter}"
+                                             disabled="#{empty pageBean.selectedImporter}"
                                              process="@form"
                                              update="importMetadataDialog"
                                              oncomplete="PF('importMetadataWidget').show()"/>
@@ -55,9 +55,9 @@
     <p:dialog id="importMetadataDialog" dynamic="true" widgetVar="importMetadataWidget" modal="true">
         <o:importConstants type="edu.harvard.iq.dataverse.importer.metadata.ImporterFieldType" var="Type"/>
         <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ImporterForm.ImportStep" var="Step"/>
-        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ProcessingType" var="Processing"/>
-        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.ItemType" var="ItemType"/>
-        <f:facet name="header">#{importers[selectedImporter].name}</f:facet>
+        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.form.ProcessingType" var="Processing"/>
+        <o:importConstants type="edu.harvard.iq.dataverse.importers.ui.form.ItemType" var="ItemType"/>
+        <f:facet name="header">#{pageBean.importers[pageBean.selectedImporter].name}</f:facet>
         <p:fragment id="importerInput">
             <p:fragment id="formFirstStep">
                 <div class="container" jsf:rendered="#{pageBean.importerForm.step eq Step.FIRST}">

@@ -5,6 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class should produce programmatic description of importer form that
+ * will be used for obtain some needed initial data from the user.
+ */
 public class ImporterData {
 
     private List<ImporterField> importerFormSchema = new ArrayList<>();
@@ -34,7 +38,15 @@ public class ImporterData {
         public final ImporterFieldKey fieldKey;
         public final ImporterFieldType fieldType;
         public final boolean required;
+
+        /**
+         * Key for the label for the element on input form.
+         */
         public final String labelKey;
+
+        /**
+         * Key for element description for the element on input form.
+         */
         public final String descriptionKey;
 
         private ImporterField(ImporterFieldKey fieldKey, ImporterFieldType fieldType, boolean required,

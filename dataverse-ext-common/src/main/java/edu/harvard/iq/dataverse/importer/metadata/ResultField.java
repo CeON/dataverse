@@ -7,6 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Container for name and value fields, but with the ability to contain also child elements, so
+ * it can be used to build tree-like structures.
+ */
 public class ResultField {
     private String name;
     private String value;

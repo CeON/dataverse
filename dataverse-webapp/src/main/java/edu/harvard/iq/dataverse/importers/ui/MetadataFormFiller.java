@@ -1,5 +1,8 @@
 package edu.harvard.iq.dataverse.importers.ui;
 
+import edu.harvard.iq.dataverse.importers.ui.form.ItemType;
+import edu.harvard.iq.dataverse.importers.ui.form.ProcessingType;
+import edu.harvard.iq.dataverse.importers.ui.form.ResultItem;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;

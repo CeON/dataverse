@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.importers.ui;
+package edu.harvard.iq.dataverse.importers.ui.form;
 
 import org.apache.commons.lang3.StringUtils;
 
