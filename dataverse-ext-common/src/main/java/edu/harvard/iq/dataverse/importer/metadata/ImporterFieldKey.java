@@ -1,7 +1,11 @@
 package edu.harvard.iq.dataverse.importer.metadata;
 
 public interface ImporterFieldKey {
-    static final ImporterFieldKey IRRELEVANT = () -> "IRRELEVANT";
+    ImporterFieldKey IRRELEVANT = () -> "IRRELEVANT";
 
     String getName();
+
+    default boolean isRelevant() {
+        return !IRRELEVANT.equals(this);
+    }
 }

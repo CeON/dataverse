@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.importers.ui;
 
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.importer.metadata.ImporterConstants;
 import edu.harvard.iq.dataverse.importer.metadata.ImporterData;
 import edu.harvard.iq.dataverse.importer.metadata.ImporterFieldKey;
@@ -10,10 +11,17 @@ import edu.harvard.iq.dataverse.importer.metadata.SafeBundleWrapper;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.util.FileUtil;
+import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,13 +29,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class ImporterForm {
     private static final ProcessingType[] SINGLE_OPTIONS
@@ -38,11 +50,14 @@ public class ImporterForm {
     public enum ImportStep {
         FIRST, SECOND;
     }
+
     private List<FormItem> items = new ArrayList<>();
     private List<ResultItem> resultItems = new ArrayList<>();
+    private Map<ImporterFieldKey, FormItem> keyToItem = new HashMap<>();
     private ImportStep step;
 
     private MetadataImporter importer;
+    private SafeBundleWrapper bundleWrapper;
     private MetadataFormLookup lookup;
 
     // -------------------- CONSTRUCTORS --------------------
@@ -87,13 +102,14 @@ public class ImporterForm {
     public void initializeForm(MetadataImporter importer, Locale locale, MetadataFormLookup lookup) {
         this.lookup = lookup;
         this.importer = importer;
-
-        SafeBundleWrapper bundle = new SafeBundleWrapper(importer, locale);
+        this.bundleWrapper = new SafeBundleWrapper(importer, locale);
         int counter = 1;
         for (ImporterData.ImporterField field : getImporterFields(importer)) {
             String viewId = String.join("_", String.valueOf(Math.abs(field.fieldKey.hashCode() % 512)),
                     field.fieldKey.getName(), String.valueOf(counter));
-            items.add(new FormItem(viewId, field, bundle));
+            FormItem formItem = new FormItem(viewId, field, bundleWrapper);
+            items.add(formItem);
+            keyToItem.put(field.fieldKey, formItem);
             counter++;
         }
     }
@@ -110,34 +126,47 @@ public class ImporterForm {
         component.setValue(tempPath.toFile());
     }
 
-    public Map<ImporterFieldKey, Object> toImporterInput() {
-        return items.stream()
-                .filter(i -> !ImporterFieldKey.IRRELEVANT.equals(i.importerField.fieldKey))
-                .collect(HashMap::new, (m, i) -> m.put(i.importerField.fieldKey, i.getValue()), HashMap::putAll);
+    public Map<ImporterFieldKey, Object> toImporterInput(Collection<FormItem> formItems) {
+        return formItems.stream()
+                .filter(FormItem::isRevlevantForProcessing)
+                .collect(HashMap::new,
+                        (m, i) -> m.put(i.importerField.fieldKey, i.getValue()),
+                        HashMap::putAll);
     }
 
     public void nextStep() {
-//        if (new Random().nextInt() % 4 == 0) {
-//            step = ImporterStep.SECOND;
-//        } else {
-//            List<FormItem> formItems = items.stream()
-//                    .filter(i -> !ImporterFieldKey.IRRELEVANT.equals(i.importerField.fieldKey))
-//                    .collect(Collectors.toList());
-//            FacesContext fctx = FacesContext.getCurrentInstance();
-//            for (FormItem item : formItems) {
-//                String viewId = item.getViewId();
-//                UIComponent component = JsfHelper.findComponent(fctx.getViewRoot(), viewId, String::endsWith);
-//                String clientId = component.getClientId();
-//                fctx.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, "ZENON", "zenon"));
-//                Map<String, Object> attributes = component.getAttributes();
-//                attributes.isEmpty();
-//            }
-//            fctx.validationFailed();
-//        }
-
-        // VALIDATION ut supra
-
-        List<ResultField> resultFields = importer.fetchMetadata(toImporterInput());
+        Set<FormItem> itemsForValidation = items.stream()
+                .filter(FormItem::isRevlevantForProcessing)
+                .collect(Collectors.toSet());
+        Set<FormItem> notFilled = itemsForValidation.stream()
+                .filter(i -> i.getRequired() && i.getValue() == null)
+                .collect(Collectors.toSet());
+        itemsForValidation.removeAll(notFilled);
+        Map<ImporterFieldKey, String> validated = importer.validate(toImporterInput(itemsForValidation));
+        Set<Tuple2<String, String>> viewIdsAndMessages = notFilled.stream()
+                .map(i -> Tuple.of(
+                        i.getViewId(),
+                        i.getType().equals(ImporterFieldType.UPLOAD_TEMP_FILE)
+                                ? "metadata.import.form.empty.file" : "metadata.import.form.empty.field"))
+                .map(t -> Tuple.of(t._1, BundleUtil.getStringFromBundle(t._2)))
+                .collect(Collectors.toSet());
+        validated.entrySet().stream()
+                .map(e -> Tuple.of(keyToItem.get(e.getKey()), e.getValue()))
+                .map(t -> Tuple.of(t._1.getViewId(), bundleWrapper.getString(t._2)))
+                .collect(() -> viewIdsAndMessages, Set::add, Set::addAll);
+        for (Tuple2<String, String> viewIdAndMessage : viewIdsAndMessages) {
+            FacesContext fctx = FacesContext.getCurrentInstance();
+            UIComponent component = JsfHelper.findComponent(fctx.getViewRoot(), viewIdAndMessage._1, String::endsWith);
+            if (component instanceof UIInput) {
+                ((UIInput) component).setValid(false);
+            }
+            String clientId = component.getClientId();
+            fctx.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, viewIdAndMessage._2, viewIdAndMessage._2));
+        }
+        if (!notFilled.isEmpty() || !validated.isEmpty()) {
+            return;
+        }
+        List<ResultField> resultFields = importer.fetchMetadata(toImporterInput(items));
         resultItems = new ResultItemsCreator(lookup).createItemsForView(resultFields);
         step = ImportStep.SECOND;
     }
@@ -213,6 +242,10 @@ public class ImporterForm {
 
         public Object getValue() {
             return value;
+        }
+
+        public boolean isRevlevantForProcessing() {
+            return importerField.fieldKey.isRelevant();
         }
 
         // -------------------- SETTERS --------------------

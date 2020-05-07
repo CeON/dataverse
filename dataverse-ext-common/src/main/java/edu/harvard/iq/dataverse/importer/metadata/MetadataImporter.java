@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.importer.metadata;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,4 +39,11 @@ public interface MetadataImporter {
      * TODO: to fill after finishing implementation in the app
      */
     List<ResultField> fetchMetadata(Map<ImporterFieldKey, Object> importerInput);
+
+    /**
+     * TODO: to fill after finishing implementation in the app
+     */
+    default Map<ImporterFieldKey, String> validate(Map<ImporterFieldKey, Object> importerInput) {
+        return Collections.emptyMap();
+    }
 }
