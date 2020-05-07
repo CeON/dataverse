@@ -71,8 +71,6 @@ public class EditDatasetMetadataPage implements Serializable {
     private DatasetVersion workingVersion;
     private Map<MetadataBlock, List<DatasetFieldsByType>> metadataBlocksForEdit;
     private Map<DatasetFieldType, InputFieldRenderer> inputRenderersByFieldType = new HashMap<>();
-    private ImportersForView importers;
-    private MetadataImporter selectedImporter;
 
     private ImportersForView importers;
     private MetadataImporter selectedImporter;
