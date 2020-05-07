@@ -19,6 +19,9 @@ import java.time.temporal.ChronoUnit;
 @FacesValidator(value = "dateRangeValidator")
 public class DateRangeValidator implements Validator {
 
+    private static final String[] DATE_FORMATS = {"yyyy", "-yyyy", "yyyy-MM", "-yyyy-MM", "yyyy-MM-dd", "-yyyy-MM-dd"};
+    private static final String DATE_PATTERN = "^(\\-?)[0-9]{4}((\\-)([0-9]{2})){0,2}$";
+
     // -------------------- LOGIC --------------------
     @Override
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
@@ -51,17 +54,15 @@ public class DateRangeValidator implements Validator {
             return null;
         }
 
-        String datePattern = "^(\\-?)[0-9]{4}((\\-)([0-9]{2})){0,2}$";
-        if(!value.toString().matches(datePattern)) {
+        if(!value.toString().matches(DATE_PATTERN)) {
             ((UIInput) comp).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
             context.addMessage(comp.getClientId(context), message);
             return null;
         }
 
-        String[] dateFormats = {"yyyy", "-yyyy", "yyyy-MM", "-yyyy-MM", "yyyy-MM-dd", "-yyyy-MM-dd"};
         try {
-            DateUtils.parseDateStrictly(value.toString(), dateFormats);
+            DateUtils.parseDateStrictly(value.toString(), DATE_FORMATS);
         } catch(ParseException pe) {
             ((UIInput) comp).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
