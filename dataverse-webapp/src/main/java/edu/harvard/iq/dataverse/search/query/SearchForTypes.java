@@ -62,18 +62,6 @@ public class SearchForTypes {
         return new SearchForTypes(newTypes);
     }
     
-    public SearchForTypes addType(SearchObjectType type) {
-        Set<SearchObjectType> newTypes = new HashSet<>(types);
-        newTypes.add(type);
-        return new SearchForTypes(newTypes);
-    }
-    
-    public SearchForTypes removeType(SearchObjectType type) {
-        Set<SearchObjectType> newTypes = new HashSet<>(types);
-        newTypes.remove(type);
-        return new SearchForTypes(newTypes);
-    }
-    
     /**
      * Returns {@link SearchForTypes} with assigned dvObject types according
      * to the given types
