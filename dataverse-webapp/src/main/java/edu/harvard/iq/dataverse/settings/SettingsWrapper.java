@@ -4,12 +4,14 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import javax.faces.view.ViewScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
+import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,6 +22,8 @@ import java.util.Map;
 @Named
 public class SettingsWrapper implements java.io.Serializable {
 
+    private static final Logger log = LoggerFactory.getLogger(SettingsWrapper.class);
+
     @Inject
     SettingsServiceBean settingService;
 
@@ -28,6 +32,7 @@ public class SettingsWrapper implements java.io.Serializable {
 
     private Map<String, String> settingsMap;
     private Map<String, String> configuredLocales;
+    private Map<String, String> configuredAboutUrls;
 
     // -------------------- GETTERS --------------------
 
@@ -76,7 +81,6 @@ public class SettingsWrapper implements java.io.Serializable {
     }
 
     public String getDropBoxKey() {
-
         String configuredDropBoxKey = getSettingValue(SettingsServiceBean.Key.DropboxKey.toString());
         if (configuredDropBoxKey != null) {
             return configuredDropBoxKey;
@@ -87,7 +91,6 @@ public class SettingsWrapper implements java.io.Serializable {
     // -------------------- LOGIC --------------------
 
     public Boolean isHasDropBoxKey() {
-
         return !getDropBoxKey().isEmpty();
     }
 
@@ -99,7 +102,6 @@ public class SettingsWrapper implements java.io.Serializable {
         if (settingsMap == null) {
             initSettingsMap();
         }
-
         return settingsMap.get(settingKey);
     }
 
@@ -124,24 +126,46 @@ public class SettingsWrapper implements java.io.Serializable {
         return configuredLocales.get(localeCode);
     }
 
+    public Map<String, String> getConfiguredAboutUrls() {
+        if (configuredAboutUrls == null) {
+            initConfiguredAboutUrls();
+        }
+        return configuredAboutUrls;
+    }
+
     // -------------------- PRIVATE --------------------
 
     private void initLocaleSettings() {
+        configuredLocales = initMapFromJson(SettingsServiceBean.Key.Languages, "locale", "title");
+    }
 
-        configuredLocales = new LinkedHashMap<>();
+    private void initConfiguredAboutUrls() {
+        configuredAboutUrls = initMapFromJson(SettingsServiceBean.Key.NavbarAboutUrl, "url", "title");
+    }
 
+    private Map<String, String> initMapFromJson(SettingsServiceBean.Key settingKey, String mapKey, String mapValue) {
+        Map<String, String> map = new LinkedHashMap<>();
         try {
-            JSONArray entries = new JSONArray(getSettingValue(SettingsServiceBean.Key.Languages.toString()));
+            JSONArray entries = new JSONArray(getSettingValue(settingKey.toString()));
             for (Object obj : entries) {
                 JSONObject entry = (JSONObject) obj;
-                String locale = entry.getString("locale");
-                String title = entry.getString("title");
-
-                configuredLocales.put(locale, title);
+                String key = entry.getString(mapKey);
+                String value = getLocaleAwareString(entry, mapValue);
+                map.put(key, value);
             }
         } catch (JSONException e) {
-            //e.printStackTrace();
-            // do we want to know? - probably not
+            log.warn("Error parsing setting " + settingKey + " as JSON", e);
+        }
+        return map;
+    }
+
+    private static String getLocaleAwareString(JSONObject object, String key) {
+        String lang = FacesContext.getCurrentInstance().getViewRoot().getLocale().getLanguage();
+        String langKey = key + "." + lang;
+        if (object.keySet().contains(langKey)) {
+            return object.getString(langKey);
+        } else {
+            return object.getString(key);
         }
     }
 
