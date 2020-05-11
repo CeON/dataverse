@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @FacesValidator(value = "dateRangeValidator")
 public class DateRangeValidator implements Validator {
@@ -31,15 +32,10 @@ public class DateRangeValidator implements Validator {
         Object dateFromValue = dateFromInput.getSubmittedValue();
         Object dateToValue = dateToInput.getSubmittedValue();
 
-        LocalDate dateFrom = validateDateField(context, dateFromInput, dateFromValue);
-        LocalDate dateTo = validateDateField(context, dateToInput, dateToValue);
+        Optional<LocalDate> dateFrom = validateDate(context, dateFromInput, dateFromValue);
+        Optional<LocalDate> dateTo = validateDate(context, dateToInput, dateToValue);
 
-        boolean isFromAfterTo = false;
-        if(dateFrom != null && dateTo != null) {
-            isFromAfterTo = dateFrom.isAfter(movePartialDateToUpperLimit(dateTo, dateToValue.toString()));
-        }
-
-        if(isFromAfterTo) {
+        if(dateFrom.isPresent() && dateTo.isPresent() && !isValidDateRange(dateFrom.get(), dateTo.get(), dateToValue.toString())) {
             dateFromInput.setValid(false);
             dateToInput.setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.badRange"));
@@ -49,28 +45,39 @@ public class DateRangeValidator implements Validator {
     }
 
     // -------------------- PRIVATE ---------------------
-    private LocalDate validateDateField(FacesContext context, UIComponent comp, Object value) {
+    private Optional<LocalDate> validateDate(FacesContext context, UIComponent comp, Object value) {
         if(value == null || value.toString().isEmpty()) {
-            return null;
-        }
-
-        if(!value.toString().matches(DATE_PATTERN)) {
-            ((UIInput) comp).setValid(false);
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
-            context.addMessage(comp.getClientId(context), message);
-            return null;
+            return Optional.empty();
         }
 
         try {
-            DateUtils.parseDateStrictly(value.toString(), DATE_FORMATS);
-        } catch(ParseException pe) {
+            isDatePatternCorrect(value);
+            isDateValueCorrect(value);
+        } catch(ParseException  pe) {
             ((UIInput) comp).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
             context.addMessage(comp.getClientId(context), message);
         }
 
+        return Optional.ofNullable(LocalDate.parse(getFullDateLiteral(value.toString()), DateTimeFormatter.ISO_LOCAL_DATE));
+    }
 
-        return LocalDate.parse(getFullDateLiteral(value.toString()), DateTimeFormatter.ISO_LOCAL_DATE);
+    private boolean isValidDateRange(LocalDate dateFrom, LocalDate dateTo, String dateToValue) {
+        boolean isValid = true;
+        if(dateFrom != null && dateTo != null) {
+            isValid = dateFrom.isBefore(movePartialDateToUpperLimit(dateTo, dateToValue));
+        }
+        return isValid;
+    }
+
+    private void isDateValueCorrect(Object value) throws ParseException {
+        DateUtils.parseDateStrictly(value.toString(), DATE_FORMATS);
+    }
+
+    private void isDatePatternCorrect(Object value) throws ParseException {
+        if(!value.toString().matches(DATE_PATTERN)) {
+            throw new ParseException("Invalid date pattern. Passed value: " + value.toString() + " doesn't match pattern " + DATE_PATTERN, 1);
+        }
     }
 
     private LocalDate movePartialDateToUpperLimit(LocalDate date, String partialDateString) {
