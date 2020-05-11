@@ -229,7 +229,12 @@ public class ImporterForm {
     private void showValidationMessages(Set<ValidationResult> validationResults) {
         FacesContext fctx = FacesContext.getCurrentInstance();
         for (ValidationResult result : validationResults) {
-            UIComponent component = JsfHelper.findComponent(fctx.getViewRoot(), result.viewId, String::endsWith);
+            Optional<UIComponent> soughtComponent =
+                    JsfHelper.findComponent(Optional.ofNullable(fctx.getViewRoot()), result.viewId, String::endsWith);
+            if (!soughtComponent.isPresent()) {
+                continue;
+            }
+            UIComponent component = soughtComponent.get();
             if (component instanceof UIInput) {
                 ((UIInput) component).setValid(false);
             }

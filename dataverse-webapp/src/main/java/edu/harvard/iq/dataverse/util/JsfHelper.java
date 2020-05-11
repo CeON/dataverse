@@ -6,6 +6,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -82,23 +83,25 @@ public class JsfHelper {
         }
     }
 
-    public static UIComponent findComponent(UIComponent root, String id, BiPredicate<String, String> idChecker) {
-        if (root == null) {
-            return null;
+    public static Optional<UIComponent> findComponent(Optional<UIComponent> root, String id, BiPredicate<String, String> idChecker) {
+        if (!root.isPresent()) {
+            return Optional.empty();
         }
-        if (idChecker.test(root.getClientId(), id)) {
+
+        UIComponent rootComponent = root.get();
+        if (idChecker.test(rootComponent.getClientId(), id)) {
             return root;
         }
-        List<UIComponent> children = root.getChildren();
+        List<UIComponent> children = rootComponent.getChildren();
         if (children == null || children.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         for (UIComponent child : children) {
-            UIComponent result = findComponent(child, id, idChecker);
-            if (result != null) {
+            Optional<UIComponent> result = findComponent(Optional.ofNullable(child), id, idChecker);
+            if (result.isPresent()) {
                 return result;
             }
         }
-        return null;
+        return Optional.empty();
     }
 }
