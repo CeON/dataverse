@@ -26,6 +26,12 @@ public class ImporterData {
         return this;
     }
 
+    /**
+     * A convenience method to add description (to the method we pass only bundle key of that
+     * description), i.e. larger block of text that will be shown to the user on first step
+     * of import dialog. It could be used to describe thoroughly how importer works or to give
+     * some instruction for the users.
+     */
     public ImporterData addDescription(String descriptionKey) {
         importerFormSchema.add(ImporterField.of(ImporterFieldKey.IRRELEVANT, ImporterFieldType.DESCRIPTION,
                 false, StringUtils.EMPTY, descriptionKey));

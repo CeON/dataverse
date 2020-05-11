@@ -45,9 +45,9 @@ public interface MetadataImporter {
      * field has to be contained in proper parent ResultField, even if it's the only provided value for that compound field
      * (for example if we want only provide <i>authorAffiliation</i> for the compoud field <i>author</i>, we have to create
      * ResultField with name <i>author</i> containing one child ResultField with name <i>authorAffiliation</i>),
-     * <li>In case of vocabulary field with many values we create ResultField with vocabulary name and child ResultFields with
-     * <u>empty</u> names and values taken from vocabulary values. However if we want to pass only one value for the given
-     * vocabulary we can put it in <b>value</b> field of ResultField directly.
+     * <li>In the case of vocabulary fields we create ResultField with vocabulary name and child ResultField(s) with
+     * <u>empty</u> names and values taken from vocabulary values. Even if we want to pass <u>only one</u> value for the given
+     * vocabulary we have to put it as a child item and not the direct value.
      */
     List<ResultField> fetchMetadata(Map<ImporterFieldKey, Object> importerInput);
 

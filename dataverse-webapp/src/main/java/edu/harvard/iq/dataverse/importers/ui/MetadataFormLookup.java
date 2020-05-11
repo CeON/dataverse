@@ -11,6 +11,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * The class is used to match (by name) metadata that comes as a result of metadata import
+ * with that on dataset metadata form. In the constructor we pass the name of metadata
+ * block, and supplier of metadata from form. Then we could search for top-level metadata
+ * names and for those that are children of that top-level items.
+ */
 public class MetadataFormLookup {
     private String metadataBlockName;
     private Supplier<Map<MetadataBlock, List<DatasetFieldsByType>>> metadataSupplier;

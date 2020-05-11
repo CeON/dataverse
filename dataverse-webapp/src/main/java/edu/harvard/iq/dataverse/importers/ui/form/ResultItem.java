@@ -6,6 +6,9 @@ import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class being the container for UI presentation of metadata import results.
+ */
 public class ResultItem implements Comparable<ResultItem> {
     private ResultField resultField;
     private List<ResultItem> children;

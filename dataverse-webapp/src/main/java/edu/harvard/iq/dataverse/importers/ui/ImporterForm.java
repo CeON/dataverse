@@ -18,6 +18,8 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.event.FileUploadEvent;
@@ -51,9 +53,9 @@ public class ImporterForm {
         FIRST, SECOND;
     }
 
-    private List<FormItem> items = new ArrayList<>();
     private List<ResultItem> resultItems = new ArrayList<>();
-    private Map<ImporterFieldKey, FormItem> keyToItem = new HashMap<>();
+    private List<FormItem> items = Collections.emptyList();
+    private Map<ImporterFieldKey, FormItem> keyToItem = Collections.emptyMap();
     private ImportStep step;
 
     private MetadataImporter importer;
@@ -103,7 +105,9 @@ public class ImporterForm {
         this.lookup = lookup;
         this.importer = importer;
         this.bundleWrapper = new SafeBundleWrapper(importer, locale);
-        initializeFormItems();
+        Tuple2<List<FormItem>, Map<ImporterFieldKey, FormItem>> itemsAndKeyToItem = initializeFormItems();
+        this.items = itemsAndKeyToItem._1;
+        this.keyToItem = itemsAndKeyToItem._2;
     }
 
     public void handleFileUpload(FileUploadEvent event) throws IOException {
@@ -142,14 +146,18 @@ public class ImporterForm {
 
     // -------------------- PRIVATE --------------------
 
-    private void initializeFormItems() {
+    private Tuple2<List<FormItem>, Map<ImporterFieldKey, FormItem>> initializeFormItems() {
+        List<FormItem> items = new ArrayList<>();
+        Map<ImporterFieldKey, FormItem> keyToItem = new HashMap<>();
         int counter = 1;
+
         for (ImporterData.ImporterField field : getImporterFields(importer)) {
             FormItem formItem = new FormItem(generateViewId(field, counter), field, bundleWrapper);
             items.add(formItem);
             keyToItem.put(field.fieldKey, formItem);
             counter++;
         }
+        return Tuple.of(items, keyToItem);
     }
 
     private String generateViewId(ImporterData.ImporterField field, int ordinal) {
