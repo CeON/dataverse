@@ -9,7 +9,17 @@ public interface ImporterFieldKey {
      * This value is (and has to be) used by those elements of form that should
      * not be processed.
      */
-    ImporterFieldKey IRRELEVANT = () -> "IRRELEVANT";
+    ImporterFieldKey IRRELEVANT = new ImporterFieldKey() {
+        @Override
+        public String getName() {
+            return "IRRELEVANT";
+        }
+
+        @Override
+        public boolean isRelevant() {
+            return false;
+        }
+    };
 
     /**
      * The name used for id generation on view.
@@ -17,6 +27,6 @@ public interface ImporterFieldKey {
     String getName();
 
     default boolean isRelevant() {
-        return !IRRELEVANT.equals(this);
+        return true;
     }
 }
