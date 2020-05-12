@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.search.advanced;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import io.vavr.control.Either;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -50,13 +51,11 @@ public class DateRangeValidator implements Validator {
             return Optional.empty();
         }
 
-        try {
-            isDatePatternCorrect(value);
-            isDateValueCorrect(value);
-        } catch(ParseException  pe) {
+        if(isDatePatternCorrect(value).isLeft() || isDateValueCorrect(value).isLeft()) {
             ((UIInput) comp).setValid(false);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", BundleUtil.getStringFromBundle("advanced.search.wrong.daterange.format"));
             context.addMessage(comp.getClientId(context), message);
+            return Optional.empty();
         }
 
         return Optional.ofNullable(LocalDate.parse(getFullDateLiteral(value.toString()), DateTimeFormatter.ISO_LOCAL_DATE));
@@ -70,14 +69,20 @@ public class DateRangeValidator implements Validator {
         return isValid;
     }
 
-    private void isDateValueCorrect(Object value) throws ParseException {
-        DateUtils.parseDateStrictly(value.toString(), DATE_FORMATS);
+    private Either<String, Boolean> isDateValueCorrect(Object value) {
+        try {
+            DateUtils.parseDateStrictly(value.toString(), DATE_FORMATS);
+        } catch(ParseException  pe) {
+            return Either.left("Invalid date inserted. Given value: " + value.toString() + ". Acceptable formats: " + DATE_FORMATS);
+        }
+        return Either.right(true);
     }
 
-    private void isDatePatternCorrect(Object value) throws ParseException {
+    private Either<String, Boolean> isDatePatternCorrect(Object value) {
         if(!value.toString().matches(DATE_PATTERN)) {
-            throw new ParseException("Invalid date pattern. Passed value: " + value.toString() + " doesn't match pattern " + DATE_PATTERN, 1);
+            return Either.left("Invalid date pattern. Passed value: " + value.toString() + " doesn't match pattern " + DATE_PATTERN);
         }
+        return Either.right(true);
     }
 
     private LocalDate movePartialDateToUpperLimit(LocalDate date, String partialDateString) {
