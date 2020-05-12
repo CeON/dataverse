@@ -1,11 +1,6 @@
 package edu.harvard.iq.dataverse.settings;
 
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.faces.context.FacesContext;
@@ -14,6 +9,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @author gdurand
@@ -22,17 +21,14 @@ import java.util.Map;
 @Named
 public class SettingsWrapper implements java.io.Serializable {
 
-    private static final Logger log = LoggerFactory.getLogger(SettingsWrapper.class);
-
     @Inject
     SettingsServiceBean settingService;
 
     @EJB
     SystemConfig systemConfig;
 
-    private Map<String, String> settingsMap;
-    private Map<String, String> configuredLocales;
-    private Map<String, String> configuredAboutUrls;
+    private final LazyLoaded<Map<String, String>> configuredLocales = new LazyLoaded<>(this::languagesLoader);
+    private final LazyLoaded<Map<String, String>> configuredAboutUrls = new LazyLoaded<>(this::aboutUrlsLoader);
 
     // -------------------- GETTERS --------------------
 
@@ -99,79 +95,42 @@ public class SettingsWrapper implements java.io.Serializable {
     }
 
     public String getSettingValue(String settingKey) {
-        if (settingsMap == null) {
-            initSettingsMap();
-        }
-        return settingsMap.get(settingKey);
+        return settingService.get(settingKey);
     }
 
     public boolean isLocalesConfigured() {
-        if (configuredLocales == null) {
-            initLocaleSettings();
-        }
-        return configuredLocales.size() > 1;
+        return configuredLocales.get().size() > 1;
     }
 
     public Map<String, String> getConfiguredLocales() {
-        if (configuredLocales == null) {
-            initLocaleSettings();
-        }
-        return configuredLocales;
+        return configuredLocales.get();
     }
 
     public String getConfiguredLocaleName(String localeCode) {
-        if (configuredLocales == null) {
-            initLocaleSettings();
-        }
-        return configuredLocales.get(localeCode);
+        return configuredLocales.get().get(localeCode);
     }
 
     public Map<String, String> getConfiguredAboutUrls() {
-        if (configuredAboutUrls == null) {
-            initConfiguredAboutUrls();
-        }
-        return configuredAboutUrls;
+        return configuredAboutUrls.get();
     }
 
     // -------------------- PRIVATE --------------------
 
-    private void initLocaleSettings() {
-        configuredLocales = initMapFromJson(SettingsServiceBean.Key.Languages, "locale", "title");
+    private Map<String, String> languagesLoader() {
+        return settingService.getValueForKeyAsListOfMaps(SettingsServiceBean.Key.Languages).stream()
+                .collect(toMap(getKey("locale"), getKey("title"), throwingMerger(), LinkedHashMap::new));
     }
 
-    private void initConfiguredAboutUrls() {
-        configuredAboutUrls = initMapFromJson(SettingsServiceBean.Key.NavbarAboutUrl, "url", "title");
-    }
-
-    private Map<String, String> initMapFromJson(SettingsServiceBean.Key settingKey, String mapKey, String mapValue) {
-        Map<String, String> map = new LinkedHashMap<>();
-        try {
-            JSONArray entries = new JSONArray(getSettingValue(settingKey.toString()));
-            for (Object obj : entries) {
-                JSONObject entry = (JSONObject) obj;
-                String key = entry.getString(mapKey);
-                String value = getLocaleAwareString(entry, mapValue);
-                map.put(key, value);
-            }
-        } catch (JSONException e) {
-            log.warn("Error parsing setting " + settingKey + " as JSON", e);
-        }
-        return map;
-    }
-
-    private static String getLocaleAwareString(JSONObject object, String key) {
+    private Map<String, String> aboutUrlsLoader() {
         String lang = FacesContext.getCurrentInstance().getViewRoot().getLocale().getLanguage();
-        String langKey = key + "." + lang;
-        if (object.keySet().contains(langKey)) {
-            return object.getString(langKey);
-        } else {
-            return object.getString(key);
-        }
+        return settingService.getValueForKeyAsListOfMaps(SettingsServiceBean.Key.NavbarAboutUrl).stream()
+                .collect(toMap(getKey("url"), getKey("title." + lang), throwingMerger(), LinkedHashMap::new));
     }
 
-    private void initSettingsMap() {
-        // initialize settings map
-        settingsMap = settingService.listAll();
+    private static Function<Map<String, String>, String> getKey(String key) {
+        return map -> map.get(key);
+    }
+    private static BinaryOperator<String> throwingMerger() {
+        return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
     }
 }
-
