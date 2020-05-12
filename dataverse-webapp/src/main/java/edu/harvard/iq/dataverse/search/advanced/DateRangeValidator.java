@@ -72,17 +72,14 @@ public class DateRangeValidator implements Validator {
     private Either<String, Boolean> isDateValueCorrect(Object value) {
         try {
             DateUtils.parseDateStrictly(value.toString(), DATE_FORMATS);
+            return Either.right(true);
         } catch(ParseException  pe) {
             return Either.left("Invalid date inserted. Given value: " + value.toString() + ". Acceptable formats: " + DATE_FORMATS);
         }
-        return Either.right(true);
     }
 
     private Either<String, Boolean> isDatePatternCorrect(Object value) {
-        if(!value.toString().matches(DATE_PATTERN)) {
-            return Either.left("Invalid date pattern. Passed value: " + value.toString() + " doesn't match pattern " + DATE_PATTERN);
-        }
-        return Either.right(true);
+        return value.toString().matches(DATE_PATTERN) ?  Either.right(true) : Either.left("Invalid date pattern. Passed value: " + value.toString() + " doesn't match pattern " + DATE_PATTERN);
     }
 
     private LocalDate movePartialDateToUpperLimit(LocalDate date, String partialDateString) {
