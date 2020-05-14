@@ -129,7 +129,9 @@ public class DataversePage implements java.io.Serializable {
         } else if(dataverseId != null) {
             dataverse = dataverseDao.find(dataverseId);
         } else {
-            dataverse = dataverseDao.findRootDataverse();
+            Try.of(() -> dataverseDao.findRootDataverse())
+                    .onSuccess(rootDv -> dataverse = rootDv)
+                    .onFailure(throwable -> dataverse = null);
         }
 
         if (dataverse == null) {
