@@ -501,6 +501,51 @@ function reinitializePrimefacesComponentsJS() {
             }
         };
     }
+    
+    if (PrimeFaces.widget.PickList) {
+        var originalPickListInit = PrimeFaces.widget.PickList.prototype.init;
+        var originalPickListDisableButton = PrimeFaces.widget.PickList.prototype.disableButton;
+        var originalPickListEnableButton = PrimeFaces.widget.PickList.prototype.enableButton;
+        
+        PrimeFaces.widget.PickList.prototype.init = function(cfg) {
+            originalPickListInit.apply(this, [cfg]);
+            
+            this.sourceCaption = this.sourceList.prev('.ui-picklist-caption'),
+            this.targetCaption = this.targetList.prev('.ui-picklist-caption');
+             
+            if (this.sourceCaption.find('.ui-selectonemenu').length > 0) {
+                this.sourceCaption = this.sourceCaption.find('.ui-selectonemenu').find('label');
+                
+                this.sourceList.attr('aria-label', this.sourceCaption.text());
+                this.sourceInput.attr('title', this.sourceCaption.text());
+            }
+            
+            if (this.sourceFilter) {
+                if (this.sourceCaption.length) {
+                    this.sourceFilter.attr('aria-label', PrimeFaces.getLocaleSettings().filterPickList + ' ' + this.sourceCaption.text());
+                } else {
+                    this.sourceFilter.attr('aria-label', PrimeFaces.getLocaleSettings().filterPickList);
+                }
+            }
+            if (this.targetFilter) {
+                if (this.targetCaption.length) {
+                    this.targetFilter.attr('aria-label', PrimeFaces.getLocaleSettings().filterPickList + ' ' + this.targetCaption.text());
+                } else {
+                    this.targetFilter.attr('aria-label', PrimeFaces.getLocaleSettings().filterPickList);
+                }
+            }
+            
+        };
+        
+        PrimeFaces.widget.PickList.prototype.disableButton = function(button) {
+            originalPickListDisableButton.apply(this, [button]);
+            button.attr('aria-disabled', true);
+        };
+        PrimeFaces.widget.PickList.prototype.enableButton = function(button) {
+            originalPickListEnableButton.apply(this, [button]);
+            button.attr('aria-disabled', false);
+        }
+    }
 }
 reinitializePrimefacesComponentsJS();
 
