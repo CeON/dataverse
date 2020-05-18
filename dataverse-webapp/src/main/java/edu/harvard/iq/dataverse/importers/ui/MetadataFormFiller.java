@@ -34,7 +34,7 @@ public class MetadataFormFiller {
             switch (item.getProcessingType()) {
                 case OVERWRITE:
                 case MULTIPLE_OVERWRITE:
-                    processItem(item, this::overwriteLastOrCreate, this::setItemValue, this::overwriteVocabulary);
+                    processItem(item, this::clearAllAndCreateNew, this::setItemValue, this::overwriteVocabulary);
                     break;
                 case MULTIPLE_CREATE_NEW:
                     processItem(item, this::createOrTakeEmptyField, this::setItemValue, this::overwriteVocabulary);
@@ -103,15 +103,10 @@ public class MetadataFormFiller {
                 .orElseThrow(() -> new IllegalStateException("Child field [" + name + "] not found!"));
     }
 
-    private DatasetField overwriteLastOrCreate(DatasetFieldsByType datasetFieldsByType) {
+    private DatasetField clearAllAndCreateNew(DatasetFieldsByType datasetFieldsByType) {
         List<DatasetField> fields = datasetFieldsByType.getDatasetFields();
-        if (fields.isEmpty()) {
-            return datasetFieldsByType.addAndReturnEmptyDatasetField(0);
-        } else {
-            int lastIndex = fields.size() - 1;
-            fields.remove(lastIndex);
-            return datasetFieldsByType.addAndReturnEmptyDatasetField(lastIndex);
-        }
+        fields.clear();
+        return datasetFieldsByType.addAndReturnEmptyDatasetField(0);
     }
 
     private DatasetField takeLastOrCreate(DatasetFieldsByType datasetFieldsByType) {

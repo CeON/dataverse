@@ -26,7 +26,7 @@ public class MetadataFormLookup {
 
     // -------------------- CONSTRUCTORS --------------------
 
-    MetadataFormLookup(String metadataBlockName,
+    public MetadataFormLookup(String metadataBlockName,
                        Supplier<Map<MetadataBlock, List<DatasetFieldsByType>>> metadataSupplier) {
         this.metadataBlockName = metadataBlockName;
         this.metadataSupplier = metadataSupplier;

@@ -32,6 +32,11 @@ public class ResultField {
                 : Arrays.stream(children).collect(Collectors.toList());
     }
 
+    private ResultField(String name, String value, List<ResultField> children) {
+        this(name, value);
+        this.children = children;
+    }
+
     // -------------------- GETTERS --------------------
 
     public String getName() {
@@ -52,13 +57,26 @@ public class ResultField {
         return new ResultField(name, value);
     }
 
+    /**
+     * Convenience factory method for vocabulary values
+     */
+    public static ResultField ofValue(String value) {
+        return new ResultField(StringUtils.EMPTY, value);
+    }
+
     public static ResultField of(String name, ResultField... children) {
         return new ResultField(name, children);
     }
 
-    // -------------------- SETTERS --------------------
-
-    public void setValue(String value) {
-        this.value = value;
+    /**
+     * Merges this ResultField with another and returns new ResultField object. Every value of the {@code other}
+     * parameter that is not null or empty will override value coming from caller's object.
+     */
+    public ResultField merge(ResultField other) {
+        return new ResultField(
+                StringUtils.isBlank(other.name) ? this.name : other.name,
+                StringUtils.isBlank(other.value) ? this.value : other.value,
+                other.children == null || other.children.isEmpty() ? this.children : other.children
+         );
     }
 }

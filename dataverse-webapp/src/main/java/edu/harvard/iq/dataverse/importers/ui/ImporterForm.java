@@ -12,6 +12,8 @@ import edu.harvard.iq.dataverse.importers.ui.form.FormConstants;
 import edu.harvard.iq.dataverse.importers.ui.form.FormItem;
 import edu.harvard.iq.dataverse.importers.ui.form.ItemType;
 import edu.harvard.iq.dataverse.importers.ui.form.ProcessingType;
+import edu.harvard.iq.dataverse.importers.ui.form.ResultGroup;
+import edu.harvard.iq.dataverse.importers.ui.form.ResultGroupsCreator;
 import edu.harvard.iq.dataverse.importers.ui.form.ResultItem;
 import edu.harvard.iq.dataverse.importers.ui.form.ResultItemsCreator;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
@@ -22,6 +24,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.fileupload.FileUpload;
+import org.primefaces.event.CloseEvent;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 
@@ -53,8 +56,8 @@ public class ImporterForm {
         FIRST, SECOND;
     }
 
-    private List<ResultItem> resultItems = new ArrayList<>();
     private List<FormItem> items = Collections.emptyList();
+    private List<ResultGroup> resultGroups = new ArrayList<>();
     private Map<ImporterFieldKey, FormItem> keyToItem = Collections.emptyMap();
     private ImportStep step;
 
@@ -75,8 +78,8 @@ public class ImporterForm {
         return items;
     }
 
-    public List<ResultItem> getResultItems() {
-        return resultItems;
+    public List<ResultGroup> getResultGroups() {
+        return resultGroups;
     }
 
     public ImportStep getStep() {
@@ -104,7 +107,7 @@ public class ImporterForm {
     public void initializeForm(MetadataImporter importer, Locale locale, MetadataFormLookup lookup) {
         this.lookup = lookup;
         this.importer = importer;
-        this.bundleWrapper = new SafeBundleWrapper(importer, locale);
+        this.bundleWrapper = SafeBundleWrapper.createFromImporter(importer, locale);
         Tuple2<List<FormItem>, Map<ImporterFieldKey, FormItem>> itemsAndKeyToItem = initializeFormItems();
         this.items = itemsAndKeyToItem._1;
         this.keyToItem = itemsAndKeyToItem._2;
@@ -129,19 +132,20 @@ public class ImporterForm {
             return;
         }
         List<ResultField> resultFields = importer.fetchMetadata(toImporterInput(items));
-        resultItems = new ResultItemsCreator(lookup).createItemsForView(resultFields);
+        resultGroups = new ResultGroupsCreator()
+                .createResultGroups(new ResultItemsCreator(lookup).createItemsForView(resultFields));
         step = ImportStep.SECOND;
     }
 
-    public void onExit(Map<MetadataBlock, List<DatasetFieldsByType>> metadata) {
+    public void fillFormAndCleanUp(Map<MetadataBlock, List<DatasetFieldsByType>> metadata) {
         cleanUp();
-        new MetadataFormFiller(lookup).fillForm(resultItems);
+        new MetadataFormFiller(lookup).fillForm(
+                new ResultGroupsCreator().prepareForFormFill(resultGroups)
+        );
     }
 
-    public void cleanUp() {
-        items.stream()
-                .filter(i -> i.getType().equals(ImporterFieldType.UPLOAD_TEMP_FILE) && i.getValue() != null)
-                .forEach(i -> ((File) i.getValue()).delete());
+    public void handleClose(CloseEvent event) {
+        cleanUp();
     }
 
     // -------------------- PRIVATE --------------------
@@ -241,6 +245,12 @@ public class ImporterForm {
             String clientId = component.getClientId();
             fctx.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, StringUtils.EMPTY, result.message));
         }
+    }
+
+    private void cleanUp() {
+        items.stream()
+                .filter(i -> i.getType().equals(ImporterFieldType.UPLOAD_TEMP_FILE) && i.getValue() != null)
+                .forEach(i -> ((File) i.getValue()).delete());
     }
 
     // -------------------- INNER CLASSES --------------------

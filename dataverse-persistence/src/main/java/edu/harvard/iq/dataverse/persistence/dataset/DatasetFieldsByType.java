@@ -57,6 +57,7 @@ public class DatasetFieldsByType {
         addEmptyDatasetField(position);
         return datasetFields.get(position);
     }
+
     public void removeDatasetField(int position) {
         datasetFields.remove(position);
     }

@@ -59,23 +59,22 @@ public class ResultItemsCreator {
                     : ProcessingType.FILL_IF_EMPTY;
     }
 
-    public ResultItem handleChildrenInitialization(ResultItem item, DatasetFieldType fieldType) {
+    private ResultItem handleChildrenInitialization(ResultItem item, DatasetFieldType fieldType) {
         return ItemType.VOCABULARY.equals(item.getItemType())
                 ? initializeVocabularyValues(item, fieldType)
                 : initializeChildren(item);
     }
 
     private ResultItem initializeVocabularyValues(ResultItem item, DatasetFieldType fieldType) {
-        boolean parentVocabularyField = item.hasChildren();
-        List<ResultItem> items = parentVocabularyField ? item.getChildren() : Collections.singletonList(item);
+        List<ResultItem> items = item.getChildren();
         for (ResultItem vocabularyItem : items) {
             ControlledVocabularyValue vocabularyValue = fieldType.getControlledVocabularyValue(vocabularyItem.getValue());
             if (vocabularyValue == null) {
                 vocabularyItem.setProcessingType(ProcessingType.UNPROCESSABLE);
             } else {
                 vocabularyItem.setVocabularyValue(vocabularyValue)
-                        .setDisplayOrder(parentVocabularyField ? vocabularyValue.getDisplayOrder() : vocabularyItem.getDisplayOrder())
-                        .setProcessingType(parentVocabularyField ? ProcessingType.VOCABULARY_VALUE : vocabularyItem.getProcessingType());
+                        .setDisplayOrder(vocabularyItem.getDisplayOrder())
+                        .setProcessingType(ProcessingType.VOCABULARY_VALUE);
                 vocabularyItem.setValue(vocabularyValue.getLocaleStrValue());
             }
         }
@@ -92,6 +91,10 @@ public class ResultItemsCreator {
                         .setItemType(determineItemType(fieldData))
                         .setDisplayOrder(fieldData.getDisplayOrder());
                 handleChildrenInitialization(child, fieldData);
+                if (!parentItem.getName().equals(fieldData.getParentDatasetFieldType().getName())) {
+                    child.setDisplayOrder(Integer.MAX_VALUE)
+                            .setProcessingType(ProcessingType.UNPROCESSABLE);
+                }
             } else {
                 child.setShouldProcess(false);
                 child.setProcessingType(ProcessingType.UNPROCESSABLE);

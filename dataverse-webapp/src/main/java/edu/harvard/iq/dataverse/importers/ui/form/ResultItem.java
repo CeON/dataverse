@@ -86,15 +86,10 @@ public class ResultItem implements Comparable<ResultItem> {
         return Integer.compare(displayOrder, that.displayOrder);
     }
 
-    public boolean hasChildren() {
-        return children.size() > 0;
-    }
-
-
     // -------------------- SETTERS --------------------
 
-    public void setValue(String name) {
-        this.resultField.setValue(name);
+    public void setValue(String value) {
+        this.resultField = resultField.merge(ResultField.ofValue(value));
     }
 
     public void setShouldProcess(boolean shouldProcess) {
