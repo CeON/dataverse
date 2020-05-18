@@ -373,6 +373,25 @@ a,
     display: block; /* allows for dropdown-menu to be directly in form tag */
 }
 
+#navbarFixed .dropdown-menu > li > form.navbar-form-link {
+	display: list-item;
+	width: 100%;
+
+	a.ui-commandlink {
+		display: block;
+		padding: 3px 20px;
+		clear: both;
+		font-weight: 400;
+		line-height: 1.42857143;
+		color: #333;
+		white-space: nowrap;
+
+		&:focus, &:hover {
+			background: $gray-border-color;
+		}
+	}
+}
+
 #breadcrumbNavBlock .breadcrumbActive {
 	color: $main-text-color;
 }
@@ -928,7 +947,6 @@ input.fancy-checkbox[type=checkbox] {
 
 	.ui-picklist-list-wrapper {
 		&:nth-of-type(3) {
-			width: 100%;
 
 			ul {
 				width: 100%;
@@ -1007,6 +1025,14 @@ input.fancy-checkbox[type=checkbox] {
 		}
 	}
 }
+.ui-picklist.picklist-target-full-width {
+    .ui-picklist-list-wrapper {
+        &:nth-of-type(3) {
+            width: 100%;
+        }
+    }
+}
+
 
 /* Float elements parent size fix */
 .col-md-6.form-group.form-col-container {
@@ -2014,13 +2040,9 @@ div.panelSearchForm input.search-input {
 	padding-right: 22px;
 	padding-top: 3px;
 
-	a.facetLink  {
-		color: $link-color;
-	}
-
-	a.facetTypeLink  {
-		color: $link-color;
+	label.facetTypeLink  {
 		margin-left: 4px;
+		margin-bottom: 0px;
 	}
 
 	.ui-datalist-item hr {
@@ -2034,7 +2056,7 @@ div.panelSearchForm input.search-input {
 	}
 }
 
-form[id$="facetType"] > div.clearfix a.facetTypeLink span {
+form[id$="facetType"] > div.clearfix label.facetTypeLink span {
 	position: relative;
 	top: -3px;
 }
@@ -2235,6 +2257,32 @@ div.filesTable .ui-paginator {
 }
 
 /* Main page end */
+
+/* Edit dataverse */
+
+#metadataFieldOptionsPanel-Body {
+    ul {
+        list-style: none;
+        padding:0;
+        
+        li {
+            border-top: 1px solid #e8e8e8;
+            padding-top: 22px;
+            padding-bottom: 20px;
+            
+            .child-field {
+                padding-left: 48px;
+                font-weight: normal;
+                line-height: 27px;
+                font-size: inherit;
+                color: inherit;
+                margin: 0;
+                border-bottom: 0;
+            }
+        }
+    }
+}
+
 
 /* Guestbook */
 
@@ -2918,7 +2966,8 @@ div.ui-dialog.largePopUp {
 	#navbarFixed form.navbar-form-link a.ui-commandlink,
 	.dropdown-menu > li > a,
 	#navbarFixed .dropdown.accountName .logout a,
-	.ui-widget-content a:not(.btn) {
+	.ui-widget-content a:not(.btn),
+	#navbarFixed .dropdown-menu > li > form.navbar-form-link a.ui-commandlink {
 		color: $contrast-link-color;
 		text-decoration: underline;
 
@@ -2930,7 +2979,8 @@ div.ui-dialog.largePopUp {
 
 	.dropdown-menu > li > a,
 	.dropdown-menu > form > li > a,
-	#navbarFixed .dropdown.accountName .logout a {
+	#navbarFixed .dropdown.accountName .logout a,
+	#navbarFixed .dropdown-menu > li > form.navbar-form-link a.ui-commandlink {
 		text-decoration: underline;
 
 		&:active, &:hover, &:focus {
@@ -2958,8 +3008,7 @@ div.ui-dialog.largePopUp {
 		filter: $contrast-ajax-spinner-filter;
 	}
 
-	[data-icon]::before, .icon-astro::before, .icon-audio::before, .icon-code::before, .icon-dataset::before, .icon-dataverse::before, .icon-dataverse::after, .icon-document::before, .icon-file::before, .icon-geodata::before, .icon-image::before, .icon-network::before, .icon-other::before, .icon-package::before, .icon-tabular::before, .icon-unlock::before, .icon-video::before,
-	#dv-sidebar a.facetTypeLink {
+	[data-icon]::before, .icon-astro::before, .icon-audio::before, .icon-code::before, .icon-dataset::before, .icon-dataverse::before, .icon-dataverse::after, .icon-document::before, .icon-file::before, .icon-geodata::before, .icon-image::before, .icon-network::before, .icon-other::before, .icon-package::before, .icon-tabular::before, .icon-unlock::before, .icon-video::before {
 		color: $contrast-foreground-color;
 	}
 	.icon-dataverse::before {
@@ -3235,7 +3284,7 @@ div.ui-dialog.largePopUp {
 			}
 		}
 
-		> .disabled > a,
+		> .disabled > a, > .disabled > span,
 		> .ui-state-disabled {
 			border-color: $contrast-foreground-color;
 			background: $contrast-background-color;

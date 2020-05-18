@@ -80,40 +80,66 @@
                             </ul>
                         </li>
     
-                        <li jsf:rendered="#{!empty settingsWrapper.getSettingValue(':NavbarAboutUrl')}">
-                            <h:outputLink value="#{settingsWrapper.getSettingValue(':NavbarAboutUrl')}" target="_blank">
-                                <h:outputText value="#{bundle['header.about']}"/>
-                            </h:outputLink>
-                        </li>
-    
-                        <li>
-                            <h:outputLink value="#{settingsWrapper.guidesBaseUrl}/#{settingsWrapper.guidesVersion}/user"
-                                            target="_blank">
-                                <h:outputText value="#{bundle['header.guides.user']}"/>
-                            </h:outputLink>
-                        </li>
-    
-                        <li jsf:rendered="#{!empty settingsWrapper.getSettingValue(':NavbarSupportUrl')}">
-                            <h:outputLink value="#{settingsWrapper.getSettingValue(':NavbarSupportUrl')}"
-                                            target="_blank">
-                                <h:outputText value="#{bundle['header.support']}"/>
-                            </h:outputLink>
+                        <li jsf:rendered="#{settingsWrapper.getConfiguredAboutUrls().size() == 1}">
+                            <ui:repeat value="#{settingsWrapper.getConfiguredAboutUrls().entrySet().toArray()}" var="about">
+                                <h:outputLink value="#{about.key}" target="_blank">
+                                    <h:outputText value="#{about.value}"/>
+                                </h:outputLink>
+                            </ui:repeat>
                         </li>
 
-                        <ui:fragment rendered="#{empty settingsWrapper.getSettingValue(':NavbarSupportUrl')}">
-                        <li>
-                            <o:form useRequestURI="true" class="navbar-form navbar-left navbar-form-link">
-                                <p:commandLink oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
-                                    <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
-                                    <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{null}"/>
-                                    <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
-                                    <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
-                                    <h:outputText value="#{bundle['header.support']}"/>
-                                </p:commandLink>
-                            </o:form>
+                        <li class="dropdown" jsf:rendered="#{settingsWrapper.getConfiguredAboutUrls().size() > 1}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                               aria-haspopup="true" aria-controls="navbarsearch-modal" aria-expanded="false">
+                                #{bundle['header.about']} <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <ui:repeat value="#{settingsWrapper.getConfiguredAboutUrls().entrySet().toArray()}" var="about">
+                                    <li>
+                                        <h:outputLink value="#{about.key}" target="_blank">
+                                            <h:outputText value="#{about.value}"/>
+                                        </h:outputLink>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
                         </li>
-                        </ui:fragment>
-    
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                               aria-haspopup="true" aria-controls="navbarsearch-modal" aria-expanded="false">
+                                #{bundle['header.help']} <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <h:outputLink value="#{settingsWrapper.guidesBaseUrl}/#{settingsWrapper.guidesVersion}/user"
+                                                  target="_blank">
+                                        <h:outputText value="#{bundle['header.guides.user']}"/>
+                                    </h:outputLink>
+                                </li>
+
+                                <li jsf:rendered="#{!empty settingsWrapper.getSettingValue(':NavbarSupportUrl')}">
+                                    <h:outputLink value="#{settingsWrapper.getSettingValue(':NavbarSupportUrl')}"
+                                                  target="_blank">
+                                        <h:outputText value="#{bundle['header.support']}"/>
+                                    </h:outputLink>
+                                </li>
+
+                                <ui:fragment rendered="#{empty settingsWrapper.getSettingValue(':NavbarSupportUrl')}">
+                                    <li>
+                                        <o:form useRequestURI="true" class="navbar-form navbar-left navbar-form-link">
+                                            <p:commandLink oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
+                                                <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
+                                                <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{null}"/>
+                                                <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
+                                                <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
+                                                <h:outputText value="#{bundle['header.support']}"/>
+                                            </p:commandLink>
+                                        </o:form>
+                                    </li>
+                                </ui:fragment>
+                            </ul>
+                        </li>
+
                         <li class="dropdown" jsf:rendered="#{settingsWrapper.localesConfigured}">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{bundle.language}" aria-expanded="false">
                                 <img alt="" class="header-flag" src="#{resource['images/flags/'
@@ -292,7 +318,7 @@
                 <div class="dataverseHeaderCell dataverseHeaderLogo" jsf:rendered="#{!empty dataverse.dataverseTheme.logo and dataverse.dataverseTheme.logoFormat == 'SQUARE'}">
                     <img src="/logos/#{dataverse.logoOwnerId}/#{dataverse.dataverseTheme.logo}" alt="#{dataverse.name} #{bundle['header.dataverse.logo.alt']}"/>
                 </div>
-                <div class="dataverseHeaderCell dataverseHeaderName" role="heading" aria-level="1" jsf:rendered="#{!empty dataverse.name}">
+                <div class="dataverseHeaderCell dataverseHeaderName" jsf:rendered="#{!empty dataverse.id}">
                     <ui:fragment rendered="#{empty dataverse.dataverseTheme.linkColor}">
                         <h1 class="header-inline">
                             <a href="/dataverse/#{dataverse.alias}" class="dataverseHeaderDataverseName" >#{dataverse.name}</a>
@@ -307,8 +333,8 @@
                     </ui:fragment>
                     <h:outputText value="#{bundle.unpublished}" styleClass="label label-warning label-unpublished" rendered="#{!dataverse.released}"/>
                 </div>
-                <div class="dataverseHeaderCell dataverseHeaderName" jsf:rendered="#{empty dataverse.name}">
-                    <h:outputText styleClass="dataverseHeaderDataverseName" value="#{bundle.newDataverse}"/>
+                <div class="dataverseHeaderCell dataverseHeaderName" jsf:rendered="#{empty dataverse.id}">
+                    <h1><h:outputText styleClass="dataverseHeaderDataverseName" value="#{bundle.newDataverse}"/></h1>
                 </div>
                 <div class="dataverseHeaderCell dataverseHeaderTagline" jsf:rendered="#{!empty dataverse.dataverseTheme.tagline and empty dataverse.dataverseTheme.linkUrl}">
                     <h:outputText escape="false" style="color:##{!empty dataverse.dataverseTheme.textColor ? dataverse.dataverseTheme.textColor : 'inherit'};" value="#{StringEscapeUtils:escapeHtml(dataverse.dataverseTheme.tagline)}" />
