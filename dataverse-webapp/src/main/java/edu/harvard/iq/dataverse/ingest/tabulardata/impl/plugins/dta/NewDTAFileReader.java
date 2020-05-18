@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.dta;
 
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
@@ -343,7 +344,7 @@ public class NewDTAFileReader extends TabularDataFileReader {
 
         // shit ton of diagnostics (still) needed here!!  -- L.A.
         if (dataFile != null) {
-            throw new IOException("this plugin does not support external raw data files");
+            throw new IngestException("this plugin does not support external raw data files", "ingest.pluginRawFiles");
         }
 
         DataReader dataReader;

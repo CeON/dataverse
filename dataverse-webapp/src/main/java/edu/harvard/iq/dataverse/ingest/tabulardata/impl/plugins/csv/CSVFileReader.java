@@ -20,6 +20,7 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.csv;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
@@ -111,7 +112,7 @@ public class CSVFileReader extends TabularDataFileReader {
         init();
 
         if (stream == null) {
-            throw new IOException(BundleUtil.getStringFromBundle("ingest.csv.nullStream"));
+            throw new IngestException(BundleUtil.getStringFromBundle("ingest.csv.nullStream"), "ingest.csv.nullStream");
         }
         TabularDataIngest ingesteddata = new TabularDataIngest();
         DataTable dataTable = new DataTable();

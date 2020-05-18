@@ -21,6 +21,7 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.dta;
 
 
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
@@ -514,7 +515,7 @@ public class DTAFileReader extends TabularDataFileReader {
         dbgLog.info("***** DTAFileReader: read() start *****");
 
         if (dataFile != null) {
-            throw new IOException("this plugin does not support external raw data files");
+            throw new IngestException("this plugin does not support external raw data files", "ingest.pluginRawFiles");
         }
 
         try {
@@ -529,7 +530,7 @@ public class DTAFileReader extends TabularDataFileReader {
 
             ingesteddata.setDataTable(dataTable);
         } catch (IllegalArgumentException iaex) {
-            throw new IOException(iaex.getMessage());
+            throw new IngestException(iaex.getMessage(), "ingest.unknownException");
         }
 
         dbgLog.info("***** DTAFileReader: read() end *****");

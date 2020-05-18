@@ -558,6 +558,14 @@ public class FileUtil implements java.io.Serializable {
         createIngestReport(dataFile, IngestReport.INGEST_STATUS_FAILURE, message);
     }
 
+    public static void createIngestFailureReport(DataFile dataFile, String message, String bundleKey) {
+        createIngestReport(dataFile, IngestReport.INGEST_STATUS_FAILURE, message);
+    }
+
+    public static void createIngestFailureReport(DataFile dataFile, String message, String bundleKey, String... arguments) {
+        createIngestReport(dataFile, IngestReport.INGEST_STATUS_FAILURE, message);
+    }
+
     private static void createIngestReport(DataFile dataFile, int status, String message) {
         IngestReport errorReport = new IngestReport();
         if (status == IngestReport.INGEST_STATUS_FAILURE) {

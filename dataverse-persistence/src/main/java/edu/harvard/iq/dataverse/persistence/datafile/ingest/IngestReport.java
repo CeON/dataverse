@@ -7,7 +7,9 @@
 package edu.harvard.iq.dataverse.persistence.datafile.ingest;
 
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import io.vavr.control.Option;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,11 +18,14 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Leonid Andreev
@@ -54,6 +59,12 @@ public class IngestReport implements Serializable {
 
     @Lob
     private String report;
+
+    private String argumentsBundleKey;
+
+    @ElementCollection
+    @OrderColumn
+    private List<String> reportArguments = new ArrayList<>();
 
     private int type;
 
@@ -119,6 +130,18 @@ public class IngestReport implements Serializable {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public List<String> getReportArguments() {
+        return reportArguments;
+    }
+
+    public Option<String> getArgumentsBundleKey() {
+        return Option.of(argumentsBundleKey);
+    }
+
+    public void setArgumentsBundleKey(String argumentsBundleKey) {
+        this.argumentsBundleKey = argumentsBundleKey;
     }
 
     @Override

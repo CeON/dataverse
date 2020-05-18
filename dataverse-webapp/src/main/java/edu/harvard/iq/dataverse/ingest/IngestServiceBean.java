@@ -772,7 +772,9 @@ public class IngestServiceBean {
 
             dataFile.SetIngestProblem();
             FileUtil.createIngestFailureReport(dataFile,
-                                               "No ingest plugin found for file type " + dataFile.getContentType());
+                                               "No ingest plugin found for file type " + dataFile.getContentType(),
+                                               "ingest.noPlugin",
+                                               dataFile.getContentType());
             dataFile = fileService.save(dataFile);
             logger.warning("Ingest failure.");
             return false;
@@ -804,7 +806,8 @@ public class IngestServiceBean {
             dataFile.SetIngestProblem();
 
             FileUtil.createIngestFailureReport(dataFile,
-                                               "IO Exception occured while trying to open the file for reading.");
+                                               "IO Exception occured while trying to open the file for reading.",
+                                               "ingest.ioException");
             dataFile = fileService.save(dataFile);
 
             logger.warning("Ingest failure (No file produced).");
@@ -834,7 +837,9 @@ public class IngestServiceBean {
 
                 dataFile.SetIngestProblem();
                 FileUtil.createIngestFailureReport(dataFile,
-                                                   "No ingest plugin found for file type " + dataFile.getContentType());
+                                                   "No ingest plugin found for file type " + dataFile.getContentType(),
+                                                   "ingest.noPlugin",
+                                                   dataFile.getContentType());
                 dataFile = fileService.save(dataFile);
                 logger.warning("Ingest failure: failed to detect ingest plugin (file type check forced)");
                 return false;
@@ -910,7 +915,9 @@ public class IngestServiceBean {
 
                     dataFile.SetIngestProblem();
                     FileUtil.createIngestFailureReport(dataFile,
-                                                       "Ingest failed to produce Summary Statistics and/or UNF signatures; " + postIngestEx.getMessage());
+                                                       "Ingest failed to produce Summary Statistics and/or UNF signatures; " + postIngestEx.getMessage(),
+                                                       "ingest.statsOrSignaturesFailure",
+                                                       postIngestEx.getMessage());
 
                     restoreIngestedDataFile(dataFile,
                                             tabDataIngest,
@@ -962,7 +969,9 @@ public class IngestServiceBean {
                     if (dataFile != null) {
                         dataFile.SetIngestProblem();
                         FileUtil.createIngestFailureReport(dataFile,
-                                                           "Ingest produced tabular data, but failed to save it in the database; " + unknownEx.getMessage() + " No further information is available.");
+                                                           "Ingest produced tabular data, but failed to save it in the database; {0} No further information is available.",
+                                                           "ingest.dbFailWithTabProduced",
+                                                           unknownEx.getMessage());
 
                         restoreIngestedDataFile(dataFile,
                                                 tabDataIngest,
@@ -1013,7 +1022,8 @@ public class IngestServiceBean {
                     if (dataFile != null) {
                         dataFile.SetIngestProblem();
                         FileUtil.createIngestFailureReport(dataFile,
-                                                           "Failed to save the tabular file produced by the ingest.");
+                                                           "Failed to save the tabular file produced by the ingest.",
+                                                           "ingest.dbFail");
 
                         restoreIngestedDataFile(dataFile,
                                                 tabDataIngest,

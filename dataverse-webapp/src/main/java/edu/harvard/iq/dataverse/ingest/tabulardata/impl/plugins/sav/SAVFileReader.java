@@ -19,6 +19,7 @@
 */
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.sav;
 
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.InvalidData;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
@@ -58,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -335,7 +337,7 @@ public class SAVFileReader extends TabularDataFileReader {
         dbgLog.info("SAVFileReader: read() start");
 
         if (dataFile != null) {
-            throw new IOException("this plugin does not support external raw data files");
+            throw new IngestException("this plugin does not support external raw data files", "ingest.pluginRawFiles");
         }
 
         /*
@@ -420,13 +422,11 @@ public class SAVFileReader extends TabularDataFileReader {
 
             } catch (IllegalArgumentException e) {
                 //Throwable cause = e.getCause();
-                dbgLog.fine("***** SAVFileReader: ATTENTION: IllegalArgumentException thrown while executing " + methodCurrentlyExecuted);
-                e.printStackTrace();
-                throw new IOException("IllegalArgumentException in method " + methodCurrentlyExecuted + ": " + e.getMessage());
+                dbgLog.log(Level.FINE, "***** SAVFileReader: ATTENTION: IllegalArgumentException thrown while executing " + methodCurrentlyExecuted, e);
+                throw new IngestException("Unknown exception occured during ingest;", "ingest.unknownException");
             } catch (IOException e) {
-                dbgLog.fine("***** SAVFileReader: ATTENTION: IOException thrown while executing " + methodCurrentlyExecuted);
-                e.printStackTrace();
-                throw new IOException("IO Exception in method " + methodCurrentlyExecuted + ": " + e.getMessage());
+                dbgLog.log(Level.FINE, "***** SAVFileReader: ATTENTION: IOException thrown while executing " + methodCurrentlyExecuted, e);
+                throw new IngestException("Unknown exception occured during ingest;", "ingest.unknownException");
             }
 
             /*
@@ -527,8 +527,7 @@ public class SAVFileReader extends TabularDataFileReader {
 
             ingesteddata.setDataTable(dataTable);
         } catch (Exception ex) {
-            dbgLog.fine("***** SAVFileReader: ATTENTION: unknown exception thrown.");
-            ex.printStackTrace();
+            dbgLog.log(Level.FINE, "***** SAVFileReader: ATTENTION: unknown exception thrown.", ex);
             String failureMessage = "Unknown exception in SPSS/SAV reader";
             if (ex.getMessage() != null) {
                 failureMessage = failureMessage.concat(": " + ex.getMessage());

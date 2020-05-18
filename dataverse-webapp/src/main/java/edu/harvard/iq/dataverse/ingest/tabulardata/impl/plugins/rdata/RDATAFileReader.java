@@ -20,6 +20,7 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.rdata;
 
 
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
@@ -505,7 +506,9 @@ public class RDATAFileReader extends TabularDataFileReader {
             // Destroy R workspace
             mRWorkspace.destroy();
         } catch (Exception ex) {
-            throw new IOException("Unknown exception occured during ingest; " + ex.getMessage());
+            throw new IngestException("Unknown exception occured during ingest; " + ex.getMessage(),
+                                      "ingest.unknownException",
+                                      ex);
         }
 
         LOG.fine("RDATAFileReader: Leaving \"read\" function");

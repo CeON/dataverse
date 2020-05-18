@@ -19,6 +19,7 @@
 */
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.por;
 
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.InvalidData;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
@@ -195,10 +196,6 @@ public class PORFileReader extends TabularDataFileReader {
 
         try {
             bfReader = new BufferedReader(new InputStreamReader(new FileInputStream(tempPORfile.getAbsolutePath()), StandardCharsets.US_ASCII));
-            if (bfReader == null) {
-                dbgLog.fine("bfReader is null");
-                throw new IOException("bufferedReader is null");
-            }
 
             decodeSec2(bfReader);
 
@@ -211,7 +208,7 @@ public class PORFileReader extends TabularDataFileReader {
                 dbgLog.fine("////////////////////// headerId=" + headerId + "//////////////////////");
 
                 if (headerId.equals("Z")) {
-                    throw new IOException("reading failure: wrong headerId(Z) here");
+                    throw new IngestException("reading failure: wrong headerId(Z) here","ingest.wrongHeader");
                 }
 
                 if (headerId.equals("F")) {
