@@ -858,14 +858,7 @@ public class IngestServiceBean {
         } catch (IngestException ex) {
             dataFile.SetIngestProblem();
 
-            if (ex.getBundleKey().isDefined() && ex.getBundleArguments().isEmpty()) {
-                FileUtil.createIngestFailureReport(dataFile, ex.getMessage(), ex.getBundleKey().get());
-            } else if (ex.getBundleKey().isDefined() && !ex.getBundleArguments().isEmpty()) {
-                FileUtil.createIngestFailureReport(dataFile, ex.getMessage(), ex.getBundleKey().get(), ex.getBundleArguments().toArray(new String[0]));
-            } else {
-                FileUtil.createIngestFailureReport(dataFile, ex.getMessage());
-            }
-
+            FileUtil.createIngestFailureReport(dataFile, ex);
             logger.log(Level.WARNING, "Ingest failure.", ex);
             fileService.save(dataFile);
             return false;

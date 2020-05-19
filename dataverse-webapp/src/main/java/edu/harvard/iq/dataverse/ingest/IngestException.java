@@ -1,10 +1,10 @@
 package edu.harvard.iq.dataverse.ingest;
 
 import com.google.common.collect.Lists;
-import io.vavr.control.Option;
 
 import javax.ejb.ApplicationException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ApplicationException(rollback = true)
@@ -33,13 +33,13 @@ public class IngestException extends RuntimeException {
     public IngestException(String message, String bundleKey, Throwable cause, String... bundleArguments) {
         super(message,cause);
         this.bundleKey = bundleKey;
-        this.bundleArguments = Lists.newArrayList(bundleArguments);
+        this.bundleArguments = Arrays.asList(bundleArguments);
     }
 
     // -------------------- GETTERS --------------------
 
-    public Option<String> getBundleKey() {
-        return Option.of(bundleKey);
+    public String getBundleKey() {
+        return bundleKey;
     }
 
     public List<String> getBundleArguments() {

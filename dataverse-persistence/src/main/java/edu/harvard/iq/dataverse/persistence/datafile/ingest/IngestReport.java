@@ -6,8 +6,10 @@
 
 package edu.harvard.iq.dataverse.persistence.datafile.ingest;
 
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import io.vavr.control.Option;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -142,6 +144,28 @@ public class IngestReport implements Serializable {
 
     public void setArgumentsBundleKey(String argumentsBundleKey) {
         this.argumentsBundleKey = argumentsBundleKey;
+    }
+
+    // -------------------- LOGIC --------------------
+
+    public String getIngestReportMessage() {
+            String report = getReport();
+            if (!StringUtils.isEmpty(report)) {
+
+                if (getArgumentsBundleKey().isDefined() && getReportArguments().isEmpty()){
+                    String bundleValue = BundleUtil.getStringFromBundle(getArgumentsBundleKey().get());
+
+                    return bundleValue.isEmpty() ? report : bundleValue;
+                } else if (getArgumentsBundleKey().isDefined() && !getReportArguments().isEmpty()) {
+                    String bundleValue = BundleUtil.getStringFromBundle(getArgumentsBundleKey().get(), getReportArguments());
+
+                    return bundleValue.isEmpty() ? report : bundleValue;
+                }
+
+                return report;
+            }
+
+        return BundleUtil.getStringFromBundle("ingest.unknownException");
     }
 
     @Override

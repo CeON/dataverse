@@ -1511,14 +1511,14 @@ public class DataFileServiceBean implements java.io.Serializable {
                 // just clear the datafiles list and let
                 // ingest default to creating a single DataFile out
                 // of the unzipped file.
-                logger.log(Level.WARNING, "Unzipping failed; rolling back to saving the file as is.", ioex);
+                logger.log(Level.WARNING, "Failed to unzip the file. Saving the file as is.", ioex);
                 if (warningMessage == null) {
                     errorMessageAndBundleKey = Tuple.of("Failed to unzip the file. Saving the file as is.", "dataset.file.zip.unzip.failure");
                 }
 
                 datafiles.clear();
             } catch (FileExceedsMaxSizeException femsx) {
-                logger.log(Level.WARNING,"One of the unzipped files exceeds the size limit; resorting to saving the file as is. " + femsx.getMessage(), femsx);
+                logger.log(Level.WARNING,"One of the unzipped files exceeds the size limit resorting to saving the file as is, unzipped.", femsx);
                 errorMessageAndBundleKey = Tuple.of("One of the unzipped files exceeds the size limit resorting to saving the file as is, unzipped.", "dataset.file.zip.uploadFileSizeLimit.exceeded");
                 datafiles.clear();
             } finally {

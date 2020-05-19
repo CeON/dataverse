@@ -27,6 +27,7 @@ import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.ImageMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.PackageMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.IngestableDataChecker;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile.ChecksumType;
@@ -554,6 +555,14 @@ public class FileUtil implements java.io.Serializable {
 
         logger.log(Level.FINE, "timestamp/UUID hybrid: {0}", storageIdentifier);
         return storageIdentifier;
+    }
+
+    public static void createIngestFailureReport(DataFile dataFile, IngestException ingestException) {
+        FileUtil.createIngestFailureReport(dataFile,
+                                           ingestException.getMessage(),
+                                           ingestException.getBundleKey(),
+                                           ingestException.getBundleArguments().toArray(new String[0]));
+
     }
 
     public static void createIngestFailureReport(DataFile dataFile, String message) {
