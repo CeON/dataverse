@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -240,7 +241,7 @@ public class PORFileReader extends TabularDataFileReader {
                     bfReader.close();
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+                dbgLog.log(Level.SEVERE, "", ex);
             }
 
             if (tempPORfile.exists()) {

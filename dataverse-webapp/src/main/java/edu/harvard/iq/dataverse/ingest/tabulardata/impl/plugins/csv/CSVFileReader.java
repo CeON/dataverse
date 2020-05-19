@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -146,7 +147,7 @@ public class CSVFileReader extends TabularDataFileReader {
                 // TODO:
                 // Add a sensible variable name validation algorithm.
                 // -- L.A. 4.0 alpha 1
-                throw new IOException(BundleUtil.getStringFromBundle("ingest.csv.invalidHeader"));
+                throw new IngestException("Invalid header row. One of the cells is empty.","ingest.csv.invalidHeader");
             }
 
             DataVariable dv = new DataVariable(i, dataTable);
@@ -196,7 +197,10 @@ public class CSVFileReader extends TabularDataFileReader {
                     List<String> args = Arrays.asList("" + (parser.getCurrentLineNumber() - 1),
                                                       "" + headers.size(),
                                                       "" + record.size());
-                    throw new IOException(BundleUtil.getStringFromBundle("ingest.csv.recordMismatch", args));
+                    String message = MessageFormat.format(
+                            "Reading mismatch, line {0} of the Data file: {1} delimited values expected, {2} found.",
+                            args);
+                    throw new IngestException(message, "ingest.csv.recordMismatch", args.toArray(new String[0]));
                 }
 
                 for (i = 0; i < headers.size(); i++) {
@@ -345,7 +349,10 @@ public class CSVFileReader extends TabularDataFileReader {
                     List<String> args = Arrays.asList("" + (parser.getCurrentLineNumber() - 1),
                                                       "" + headers.size(),
                                                       "" + record.size());
-                    throw new IOException(BundleUtil.getStringFromBundle("ingest.csv.recordMismatch", args));
+                    String message = MessageFormat.format(
+                            "Reading mismatch, line {0} of the Data file: {1} delimited values expected, {2} found.",
+                            args);
+                    throw new IngestException(message, "ingest.csv.recordMismatch", args.toArray(new String[0]));
                 }
 
                 for (i = 0; i < headers.size(); i++) {
@@ -457,7 +464,10 @@ public class CSVFileReader extends TabularDataFileReader {
         if (dataTable.getCaseQuantity().intValue() != linecount) {
             List<String> args = Arrays.asList("" + dataTable.getCaseQuantity().intValue(),
                                               "" + linecount);
-            throw new IOException(BundleUtil.getStringFromBundle("ingest.csv.line_mismatch", args));
+            String message = MessageFormat.format(
+                    "Mismatch between line counts in first and final passes!, {0} found on first pass, but {1} found on second.",
+                    args);
+            throw new IngestException(message, "ingest.csv.lineMismatch", args.toArray(new String[0]));
         }
         return (int) linecount;
     }

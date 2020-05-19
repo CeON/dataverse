@@ -855,21 +855,29 @@ public class IngestServiceBean {
             } else {
                 tabDataIngest = ingestPlugin.read(inputStream, null);
             }
-        } catch (IOException ingestEx) {
+        } catch (IngestException ex) {
             dataFile.SetIngestProblem();
-            FileUtil.createIngestFailureReport(dataFile, ingestEx.getMessage());
-            dataFile = fileService.save(dataFile);
 
-            logger.warning("Ingest failure (IO Exception): " + ingestEx.getMessage() + ".");
+            if (ex.getBundleKey().isDefined() && ex.getBundleArguments().isEmpty()) {
+                FileUtil.createIngestFailureReport(dataFile, ex.getMessage(), ex.getBundleKey().get());
+            } else if (ex.getBundleKey().isDefined() && !ex.getBundleArguments().isEmpty()) {
+                FileUtil.createIngestFailureReport(dataFile, ex.getMessage(), ex.getBundleKey().get(), ex.getBundleArguments().toArray(new String[0]));
+            } else {
+                FileUtil.createIngestFailureReport(dataFile, ex.getMessage());
+            }
+
+            logger.log(Level.WARNING, "Ingest failure.", ex);
+            fileService.save(dataFile);
             return false;
-        } catch (Exception unknownEx) {
+
+        } catch (Exception ingestEx) {
+
             dataFile.SetIngestProblem();
-            FileUtil.createIngestFailureReport(dataFile, unknownEx.getMessage());
-            dataFile = fileService.save(dataFile);
+            FileUtil.createIngestFailureReport(dataFile, "Unknown exception occurred during ingest.", "ingest.unknownException");
+            fileService.save(dataFile);
 
-            logger.warning("Ingest failure (Exception " + unknownEx.getClass() + "): " + unknownEx.getMessage() + ".");
+            logger.log(Level.WARNING, "Ingest failure.", ingestEx);
             return false;
-
         }
 
         String originalContentType = dataFile.getContentType();

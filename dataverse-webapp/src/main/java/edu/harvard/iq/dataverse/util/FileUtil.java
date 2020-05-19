@@ -59,6 +59,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -169,7 +170,7 @@ public class FileUtil implements java.io.Serializable {
         if (fileType.contains(";")) {
             fileType = fileType.substring(0, fileType.indexOf(";"));
         }
-        if(fileType.split("/")[0].isEmpty()) {
+        if (fileType.split("/")[0].isEmpty()) {
             return BundleUtil.getStringFromPropertyFile("application/octet-stream", "MimeTypeFacets", locale);
         }
 
@@ -236,7 +237,8 @@ public class FileUtil implements java.io.Serializable {
             logger.fine("fileExtension=" + fileExtension);
 
             if (fileType == null || fileType.startsWith("text/plain") || "application/octet-stream".equals(fileType)) {
-                if (fileType != null && fileType.startsWith("text/plain") && STATISTICAL_FILE_EXTENSION.containsKey(fileExtension)) {
+                if (fileType != null && fileType.startsWith("text/plain") && STATISTICAL_FILE_EXTENSION.containsKey(
+                        fileExtension)) {
                     fileType = STATISTICAL_FILE_EXTENSION.get(fileExtension);
                 } else {
                     fileType = determineFileTypeByExtension(fileName);
@@ -363,7 +365,8 @@ public class FileUtil implements java.io.Serializable {
             for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     if (xmlr.getLocalName().equals("graphml")) {
-                        String schema = xmlr.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
+                        String schema = xmlr.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
+                                                               "schemaLocation");
                         logger.fine("schema = " + schema);
                         if (schema != null && schema.contains("http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd")) {
                             logger.fine("graphML is true");
@@ -468,7 +471,6 @@ public class FileUtil implements java.io.Serializable {
     }
 
 
-
     public static boolean canIngestAsTabular(DataFile dataFile) {
         String mimeType = dataFile.getContentType();
 
@@ -559,11 +561,22 @@ public class FileUtil implements java.io.Serializable {
     }
 
     public static void createIngestFailureReport(DataFile dataFile, String message, String bundleKey) {
-        createIngestReport(dataFile, IngestReport.INGEST_STATUS_FAILURE, message);
+        IngestReport errorReport = new IngestReport();
+        errorReport.setFailure();
+        errorReport.setReport(message);
+        errorReport.setArgumentsBundleKey(bundleKey);
+        errorReport.setDataFile(dataFile);
+        dataFile.setIngestReport(errorReport);
     }
 
     public static void createIngestFailureReport(DataFile dataFile, String message, String bundleKey, String... arguments) {
-        createIngestReport(dataFile, IngestReport.INGEST_STATUS_FAILURE, message);
+        IngestReport errorReport = new IngestReport();
+        errorReport.setFailure();
+        errorReport.setReport(message);
+        errorReport.setArgumentsBundleKey(bundleKey);
+        errorReport.setDataFile(dataFile);
+        errorReport.getReportArguments().addAll(Arrays.asList(arguments));
+        dataFile.setIngestReport(errorReport);
     }
 
     private static void createIngestReport(DataFile dataFile, int status, String message) {
@@ -627,7 +640,8 @@ public class FileUtil implements java.io.Serializable {
             }
 
             // 2. Terms of Access:
-            if (!(datasetVersion.getTermsOfUseAndAccess().getTermsOfAccess() == null) && !datasetVersion.getTermsOfUseAndAccess().getTermsOfAccess().equals("")) {
+            if (!(datasetVersion.getTermsOfUseAndAccess().getTermsOfAccess() == null) && !datasetVersion.getTermsOfUseAndAccess().getTermsOfAccess().equals(
+                    "")) {
                 logger.fine("Download popup required because of terms of access.");
                 return true;
             }
@@ -729,14 +743,14 @@ public class FileUtil implements java.io.Serializable {
         VAR,
         TAB
     }
-    
+
     /**
      * The FileDownloadServiceBean operates on file IDs, not DOIs.
      */
     public static String getFileDownloadUrlPath(ApiDownloadType downloadType, Long fileId, boolean gbRecordsWritten) {
         Preconditions.checkNotNull(downloadType);
         Preconditions.checkNotNull(fileId);
-        
+
         String fileDownloadUrl = "/api/access/datafile/" + fileId;
         if (downloadType == ApiDownloadType.BUNDLE) {
             fileDownloadUrl = "/api/access/datafile/bundle/" + fileId;
@@ -763,14 +777,14 @@ public class FileUtil implements java.io.Serializable {
         logger.fine("Returning file download url: " + fileDownloadUrl);
         return fileDownloadUrl;
     }
-    
+
     public enum ApiBatchDownloadType {
         DEFAULT,
         ORIGINAL
     }
-    
+
     public static String getBatchFilesDownloadUrlPath(List<Long> fileIds, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
-        
+
         String fileDownloadUrl = "/api/access/datafiles/" + StringUtils.join(fileIds, ',');
         if (guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.DEFAULT) {
             fileDownloadUrl += "?gbrecs=true";
@@ -779,7 +793,7 @@ public class FileUtil implements java.io.Serializable {
         } else if (!guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.ORIGINAL) {
             fileDownloadUrl += "?format=original";
         }
-        
+
         return fileDownloadUrl;
     }
 

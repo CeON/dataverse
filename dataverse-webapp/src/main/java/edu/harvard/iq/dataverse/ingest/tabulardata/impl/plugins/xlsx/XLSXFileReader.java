@@ -20,7 +20,7 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.xlsx;
 
 
-import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
@@ -47,9 +47,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -96,17 +98,20 @@ public class XLSXFileReader extends TabularDataFileReader {
         try {
             processSheet(stream, dataTable, firstPassWriter);
         } catch (Exception ex) {
-            throw new IOException(BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.parse", Arrays.asList(ex.getMessage())));
+            dbglog.log(Level.FINE, "Could not parse Excel/XLSX spreadsheet.", ex);
+            throw new IngestException("Could not parse Excel/XLSX spreadsheet.", "xlsxfilereader.ioexception.parse");
         }
 
         if (dataTable.getCaseQuantity() == null || dataTable.getCaseQuantity().intValue() < 1) {
-            String errorMessage;
+
             if (dataTable.getVarQuantity() == null || dataTable.getVarQuantity().intValue() < 1) {
-                errorMessage = BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.norows");
+                throw new IngestException("No rows of data found in the Excel (XLSX) file.",
+                                          "xlsxfilereader.ioexception.norows");
             } else {
-                errorMessage = BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.onlyonerow");
+                throw new IngestException(
+                        "Only one row of data (column name header?) detected in the Excel (XLSX) file.",
+                        "xlsxfilereader.ioexception.onlyonerow");
             }
-            throw new IOException(errorMessage);
         }
 
         // 2nd pass:
@@ -129,16 +134,31 @@ public class XLSXFileReader extends TabularDataFileReader {
             valueTokens = line.split("" + delimiterChar, -2);
 
             if (valueTokens == null) {
-                throw new IOException(BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.failed", Arrays.asList(Integer.toString(lineCounter + 1))));
+                String message = MessageFormat.format("Failed to read line {0} during the second pass.",
+                                                      Arrays.asList(Integer.toString(lineCounter + 1)));
+
+                throw new IngestException(message,
+                                          "xlsxfilereader.ioexception.failed",
+                                          Integer.toString(lineCounter + 1));
             }
 
             if (valueTokens.length != varQnty) {
-                throw new IOException(BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.mismatch", Arrays.asList(Integer.toString(lineCounter + 1), Integer.toString(varQnty), Integer.toString(valueTokens.length))));
+                String message = MessageFormat.format(
+                        "Reading mismatch, line {0} during the second pass: {1} delimited values expected, {2} found.",
+                        Arrays.asList(Integer.toString(lineCounter + 1),
+                                      Integer.toString(varQnty),
+                                      Integer.toString(valueTokens.length)));
+
+                throw new IngestException(message, "xlsxfilereader.ioexception.mismatch",
+                                          Arrays.asList(Integer.toString(lineCounter + 1),
+                                                        Integer.toString(varQnty),
+                                                        Integer.toString(valueTokens.length)).toArray(new String[0]));
             }
 
             for (int i = 0; i < varQnty; i++) {
                 if (dataTable.getDataVariables().get(i).isTypeNumeric()) {
-                    if (valueTokens[i] == null || valueTokens[i].equals(".") || valueTokens[i].equals("") || valueTokens[i].equalsIgnoreCase("NA")) {
+                    if (valueTokens[i] == null || valueTokens[i].equals(".") || valueTokens[i].equals("") || valueTokens[i].equalsIgnoreCase(
+                            "NA")) {
                         // Missing value - represented as an empty string in 
                         // the final tab file
                         caseRow[i] = "";
@@ -161,7 +181,12 @@ public class XLSXFileReader extends TabularDataFileReader {
                             Double testDoubleValue = new Double(valueTokens[i]);
                             caseRow[i] = testDoubleValue.toString();
                         } catch (Exception ex) {
-                            throw new IOException("Failed to parse a value recognized as numeric in the first pass! column: " + i + ", value: " + valueTokens[i]);
+                            String message = MessageFormat.format(
+                                    "Failed to parse a value recognized as numeric in the first pass! column: {0}, value: {1}",
+                                    i,
+                                    valueTokens[i]);
+
+                            throw new IngestException(message, "xlsxfilereader.ioexception.numericParse", String.valueOf(i), valueTokens[i]);
                         }
                     }
                 } else {
@@ -199,7 +224,7 @@ public class XLSXFileReader extends TabularDataFileReader {
         finalWriter.close();
 
         if (dataTable.getCaseQuantity().intValue() != lineCounter) {
-            throw new IOException(BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.linecount"));
+            throw new IngestException("Mismatch between line counts in first and final passes!", "xlsxfilereader.ioexception.linecount");
         }
 
         dataTable.setUnf("UNF:6:NOTCALCULATED");

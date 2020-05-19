@@ -30,6 +30,8 @@ import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.ShapefileHandler;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1241,6 +1243,7 @@ public class DataFileServiceBean implements java.io.Serializable {
         List<DataFile> datafiles = new ArrayList<>();
 
         String warningMessage = null;
+        Tuple2<String,String> errorMessageAndBundleKey = new Tuple2<>("", "");
 
         // save the file, in the temporary location for now:
         Path tempFile = null;
@@ -1508,15 +1511,15 @@ public class DataFileServiceBean implements java.io.Serializable {
                 // just clear the datafiles list and let
                 // ingest default to creating a single DataFile out
                 // of the unzipped file.
-                logger.warning("Unzipping failed; rolling back to saving the file as is.");
+                logger.log(Level.WARNING, "Unzipping failed; rolling back to saving the file as is.", ioex);
                 if (warningMessage == null) {
-                    warningMessage = BundleUtil.getStringFromBundle("dataset.file.zip.unzip.failure");
+                    errorMessageAndBundleKey = Tuple.of("Failed to unzip the file. Saving the file as is.", "dataset.file.zip.unzip.failure");
                 }
 
                 datafiles.clear();
             } catch (FileExceedsMaxSizeException femsx) {
-                logger.warning("One of the unzipped files exceeds the size limit; resorting to saving the file as is. " + femsx.getMessage());
-                warningMessage = BundleUtil.getStringFromBundle("dataset.file.zip.uploadFileSizeLimit.exceeded");
+                logger.log(Level.WARNING,"One of the unzipped files exceeds the size limit; resorting to saving the file as is. " + femsx.getMessage(), femsx);
+                errorMessageAndBundleKey = Tuple.of("One of the unzipped files exceeds the size limit resorting to saving the file as is, unzipped.", "dataset.file.zip.uploadFileSizeLimit.exceeded");
                 datafiles.clear();
             } finally {
                 if (unZippedIn != null) {
@@ -1620,10 +1623,10 @@ public class DataFileServiceBean implements java.io.Serializable {
         DataFile.ChecksumType checksumType = DataFile.ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
         DataFile datafile = createSingleDataFile(version, tempFile.toFile(), fileName, finalType, checksumType);
 
-        if (datafile != null && tempFile.toFile() != null) {
+        if (datafile != null) {
 
-            if (warningMessage != null) {
-                createIngestFailureReport(datafile, warningMessage);
+            if (!errorMessageAndBundleKey._1().isEmpty()) {
+                createIngestFailureReport(datafile, errorMessageAndBundleKey._1(), errorMessageAndBundleKey._2());
                 datafile.SetIngestProblem();
             }
             datafiles.add(datafile);

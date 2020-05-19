@@ -18,6 +18,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.json.Json;
@@ -339,11 +340,24 @@ public class DataFile extends DvObject implements Comparable {
 
     public String getIngestReportMessage() {
         if (ingestReports != null && ingestReports.size() > 0) {
-            if (ingestReports.get(0).getReport() != null && !"".equals(ingestReports.get(0).getReport())) {
-                return ingestReports.get(0).getReport();
+            IngestReport ingestReport = ingestReports.get(0);
+            String report = ingestReport.getReport();
+            if (!StringUtils.isEmpty(report)) {
+
+                if (ingestReport.getArgumentsBundleKey().isDefined() && ingestReport.getReportArguments().isEmpty()){
+                    String bundleValue = BundleUtil.getStringFromBundle(ingestReport.getArgumentsBundleKey().get());
+
+                    return bundleValue.isEmpty() ? report : bundleValue;
+                } else if (ingestReport.getArgumentsBundleKey().isDefined() && !ingestReport.getReportArguments().isEmpty()) {
+                    String bundleValue = BundleUtil.getStringFromBundle(ingestReport.getArgumentsBundleKey().get(), ingestReport.getReportArguments());
+
+                    return bundleValue.isEmpty() ? report : bundleValue;
+                }
+
+                return report;
             }
         }
-        return "Ingest failed. No further information is available.";
+        return BundleUtil.getStringFromBundle("ingest.unknownException");
     }
 
     public boolean isTabularData() {

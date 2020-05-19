@@ -506,9 +506,8 @@ public class RDATAFileReader extends TabularDataFileReader {
             // Destroy R workspace
             mRWorkspace.destroy();
         } catch (Exception ex) {
-            throw new IngestException("Unknown exception occured during ingest; " + ex.getMessage(),
-                                      "ingest.unknownException",
-                                      ex);
+            throw new IngestException("Unknown exception occured during ingest.",
+                                      "ingest.unknownException");
         }
 
         LOG.fine("RDATAFileReader: Leaving \"read\" function");
