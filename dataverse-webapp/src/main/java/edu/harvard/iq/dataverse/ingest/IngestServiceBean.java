@@ -55,6 +55,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.SummaryStatistic;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.VariableCategory;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -772,8 +773,7 @@ public class IngestServiceBean {
 
             dataFile.SetIngestProblem();
             FileUtil.createIngestFailureReport(dataFile,
-                                               "No ingest plugin found for file type " + dataFile.getContentType(),
-                                               "ingest.noPlugin",
+                                               IngestError.NOPLUGIN,
                                                dataFile.getContentType());
             dataFile = fileService.save(dataFile);
             logger.warning("Ingest failure.");
@@ -806,8 +806,7 @@ public class IngestServiceBean {
             dataFile.SetIngestProblem();
 
             FileUtil.createIngestFailureReport(dataFile,
-                                               "IO Exception occured while trying to open the file for reading.",
-                                               "ingest.ioException");
+                                               IngestError.UNKNOWN_ERROR);
             dataFile = fileService.save(dataFile);
 
             logger.warning("Ingest failure (No file produced).");
@@ -837,8 +836,7 @@ public class IngestServiceBean {
 
                 dataFile.SetIngestProblem();
                 FileUtil.createIngestFailureReport(dataFile,
-                                                   "No ingest plugin found for file type " + dataFile.getContentType(),
-                                                   "ingest.noPlugin",
+                                                   IngestError.NOPLUGIN,
                                                    dataFile.getContentType());
                 dataFile = fileService.save(dataFile);
                 logger.warning("Ingest failure: failed to detect ingest plugin (file type check forced)");
@@ -866,7 +864,7 @@ public class IngestServiceBean {
         } catch (Exception ingestEx) {
 
             dataFile.SetIngestProblem();
-            FileUtil.createIngestFailureReport(dataFile, "Unknown exception occurred during ingest.", "ingest.unknownException");
+            FileUtil.createIngestFailureReport(dataFile, IngestError.UNKNOWN_ERROR);
             fileService.save(dataFile);
 
             logger.log(Level.WARNING, "Ingest failure.", ingestEx);
@@ -916,8 +914,7 @@ public class IngestServiceBean {
 
                     dataFile.SetIngestProblem();
                     FileUtil.createIngestFailureReport(dataFile,
-                                                       "Ingest failed to produce Summary Statistics and/or UNF signatures; " + postIngestEx.getMessage(),
-                                                       "ingest.statsOrSignaturesFailure",
+                                                       IngestError.STATS_OR_SIGNATURE_FAILURE,
                                                        postIngestEx.getMessage());
 
                     restoreIngestedDataFile(dataFile,
@@ -970,9 +967,7 @@ public class IngestServiceBean {
                     if (dataFile != null) {
                         dataFile.SetIngestProblem();
                         FileUtil.createIngestFailureReport(dataFile,
-                                                           "Ingest produced tabular data, but failed to save it in the database; {0} No further information is available.",
-                                                           "ingest.dbFailWithTabProduced",
-                                                           unknownEx.getMessage());
+                                                           IngestError.DB_FAIL);
 
                         restoreIngestedDataFile(dataFile,
                                                 tabDataIngest,
@@ -1023,8 +1018,7 @@ public class IngestServiceBean {
                     if (dataFile != null) {
                         dataFile.SetIngestProblem();
                         FileUtil.createIngestFailureReport(dataFile,
-                                                           "Failed to save the tabular file produced by the ingest.",
-                                                           "ingest.dbFail");
+                                                           IngestError.DB_FAIL);
 
                         restoreIngestedDataFile(dataFile,
                                                 tabDataIngest,

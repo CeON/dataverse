@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.ingest;
 
-import com.google.common.collect.Lists;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 
 import javax.ejb.ApplicationException;
 import java.util.ArrayList;
@@ -10,36 +10,31 @@ import java.util.List;
 @ApplicationException(rollback = true)
 public class IngestException extends RuntimeException {
 
-    private String bundleKey;
+    private IngestError errorKey;
     private List<String> bundleArguments = new ArrayList<>();
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public IngestException(String message) {
-        super(message);
+    public IngestException(IngestError errorKey) {
+        super("");
+        this.errorKey = errorKey;
     }
 
-    public IngestException(String message, String bundleKey) {
-        super(message);
-        this.bundleKey = bundleKey;
+    public IngestException(IngestError errorKey, Throwable cause) {
+        super("", cause);
+        this.errorKey = errorKey;
     }
 
-    public IngestException(String message, String bundleKey, String... bundleArguments) {
-        super(message);
-        this.bundleKey = bundleKey;
-        this.bundleArguments = Lists.newArrayList(bundleArguments);
-    }
-
-    public IngestException(String message, String bundleKey, Throwable cause, String... bundleArguments) {
-        super(message,cause);
-        this.bundleKey = bundleKey;
+    public IngestException(IngestError errorKey, String... bundleArguments) {
+        super("");
+        this.errorKey = errorKey;
         this.bundleArguments = Arrays.asList(bundleArguments);
     }
 
     // -------------------- GETTERS --------------------
 
-    public String getBundleKey() {
-        return bundleKey;
+    public IngestError getErrorKey() {
+        return errorKey;
     }
 
     public List<String> getBundleArguments() {

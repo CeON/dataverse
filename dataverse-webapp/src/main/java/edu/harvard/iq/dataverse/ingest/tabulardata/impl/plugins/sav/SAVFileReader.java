@@ -27,6 +27,7 @@ import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.VariableCategory;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -337,7 +338,7 @@ public class SAVFileReader extends TabularDataFileReader {
         dbgLog.info("SAVFileReader: read() start");
 
         if (dataFile != null) {
-            throw new IngestException("this plugin does not support external raw data files", "ingest.pluginRawFiles");
+            throw new IngestException(IngestError.PLUGIN_RAW_FILES);
         }
 
         /*
@@ -423,10 +424,10 @@ public class SAVFileReader extends TabularDataFileReader {
             } catch (IllegalArgumentException e) {
                 //Throwable cause = e.getCause();
                 dbgLog.log(Level.FINE, "***** SAVFileReader: ATTENTION: IllegalArgumentException thrown while executing " + methodCurrentlyExecuted, e);
-                throw new IngestException("Unknown exception occured during ingest.", "ingest.unknownException");
+                throw new IngestException(IngestError.UNKNOWN_ERROR, e);
             } catch (IOException e) {
                 dbgLog.log(Level.FINE, "***** SAVFileReader: ATTENTION: IOException thrown while executing " + methodCurrentlyExecuted, e);
-                throw new IngestException("Unknown exception occured during ingest.", "ingest.unknownException");
+                throw new IngestException(IngestError.UNKNOWN_ERROR, e);
             }
 
             /*
@@ -529,7 +530,7 @@ public class SAVFileReader extends TabularDataFileReader {
         } catch (Exception ex) {
             dbgLog.log(Level.FINE, "***** SAVFileReader: ATTENTION: unknown exception thrown.", ex);
 
-            throw new IngestException("Unknown exception occured during ingest.","ingest.unknownException");
+            throw new IngestException(IngestError.UNKNOWN_ERROR, ex);
         }
         dbgLog.info("SAVFileReader: read() end");
         return ingesteddata;

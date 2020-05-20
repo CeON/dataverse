@@ -6,19 +6,17 @@
 
 package edu.harvard.iq.dataverse.persistence.datafile.ingest;
 
-import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import io.vavr.control.Option;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -59,10 +57,8 @@ public class IngestReport implements Serializable {
     @JoinColumn(nullable = false)
     private DataFile dataFile;
 
-    @Lob
-    private String report;
-
-    private String argumentsBundleKey;
+    @Enumerated(EnumType.STRING)
+    private IngestError errorKey;
 
     @ElementCollection
     @OrderColumn
@@ -102,12 +98,12 @@ public class IngestReport implements Serializable {
         this.status = INGEST_STATUS_FAILURE;
     }
 
-    public String getReport() {
-        return report;
+    public IngestError getErrorKey() {
+        return errorKey;
     }
 
-    public void setReport(String report) {
-        this.report = report;
+    public void setErrorKey(IngestError errorKey) {
+        this.errorKey = errorKey;
     }
 
     public DataFile getDataFile() {
@@ -138,34 +134,24 @@ public class IngestReport implements Serializable {
         return reportArguments;
     }
 
-    public Option<String> getArgumentsBundleKey() {
-        return Option.of(argumentsBundleKey);
-    }
-
-    public void setArgumentsBundleKey(String argumentsBundleKey) {
-        this.argumentsBundleKey = argumentsBundleKey;
-    }
-
     // -------------------- LOGIC --------------------
 
     public String getIngestReportMessage() {
-            String report = getReport();
-            if (!StringUtils.isEmpty(report)) {
+        IngestError errorKey = getErrorKey();
+        if (errorKey != null) {
 
-                if (getArgumentsBundleKey().isDefined() && getReportArguments().isEmpty()){
-                    String bundleValue = BundleUtil.getStringFromBundle(getArgumentsBundleKey().get());
+            if (!getReportArguments().isEmpty()) {
+                String errorMessage = IngestError.getErrorMessage(errorKey, getReportArguments());
 
-                    return bundleValue.isEmpty() ? report : bundleValue;
-                } else if (getArgumentsBundleKey().isDefined() && !getReportArguments().isEmpty()) {
-                    String bundleValue = BundleUtil.getStringFromBundle(getArgumentsBundleKey().get(), getReportArguments());
-
-                    return bundleValue.isEmpty() ? report : bundleValue;
-                }
-
-                return report;
+                return errorMessage.isEmpty() ? IngestError.getDefaultErrorMessage() : errorMessage;
             }
 
-        return BundleUtil.getStringFromBundle("ingest.unknownException");
+            String errorMessage = IngestError.getErrorMessage(errorKey);
+
+            return errorMessage.isEmpty() ? IngestError.getDefaultErrorMessage() : errorMessage;
+        }
+
+        return IngestError.getDefaultErrorMessage();
     }
 
     @Override

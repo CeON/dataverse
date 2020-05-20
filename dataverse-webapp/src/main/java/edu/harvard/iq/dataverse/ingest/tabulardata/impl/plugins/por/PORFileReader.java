@@ -28,6 +28,7 @@ import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.VariableCategory;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -209,7 +210,7 @@ public class PORFileReader extends TabularDataFileReader {
                 dbgLog.fine("////////////////////// headerId=" + headerId + "//////////////////////");
 
                 if (headerId.equals("Z")) {
-                    throw new IngestException("reading failure: wrong headerId(Z) here","ingest.wrongHeader");
+                    throw new IngestException(IngestError.WRONG_HEADER);
                 }
 
                 if (headerId.equals("F")) {

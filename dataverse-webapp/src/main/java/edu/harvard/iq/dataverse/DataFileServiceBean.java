@@ -18,6 +18,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -30,8 +31,6 @@ import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.ShapefileHandler;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1243,7 +1242,7 @@ public class DataFileServiceBean implements java.io.Serializable {
         List<DataFile> datafiles = new ArrayList<>();
 
         String warningMessage = null;
-        Tuple2<String,String> errorMessageAndBundleKey = new Tuple2<>("", "");
+        IngestError errorKey = null;
 
         // save the file, in the temporary location for now:
         Path tempFile = null;
@@ -1513,13 +1512,13 @@ public class DataFileServiceBean implements java.io.Serializable {
                 // of the unzipped file.
                 logger.log(Level.WARNING, "Failed to unzip the file. Saving the file as is.", ioex);
                 if (warningMessage == null) {
-                    errorMessageAndBundleKey = Tuple.of("Failed to unzip the file. Saving the file as is.", "dataset.file.zip.unzip.failure");
+                    errorKey = IngestError.UNZIP_FAIL;
                 }
 
                 datafiles.clear();
             } catch (FileExceedsMaxSizeException femsx) {
                 logger.log(Level.WARNING,"One of the unzipped files exceeds the size limit resorting to saving the file as is, unzipped.", femsx);
-                errorMessageAndBundleKey = Tuple.of("One of the unzipped files exceeds the size limit resorting to saving the file as is, unzipped.", "dataset.file.zip.uploadFileSizeLimit.exceeded");
+                errorKey = IngestError.UNZIP_SIZE_FAIL;
                 datafiles.clear();
             } finally {
                 if (unZippedIn != null) {
@@ -1625,8 +1624,8 @@ public class DataFileServiceBean implements java.io.Serializable {
 
         if (datafile != null) {
 
-            if (!errorMessageAndBundleKey._1().isEmpty()) {
-                createIngestFailureReport(datafile, errorMessageAndBundleKey._1(), errorMessageAndBundleKey._2());
+            if (errorKey != null) {
+                createIngestFailureReport(datafile, errorKey);
                 datafile.SetIngestProblem();
             }
             datafiles.add(datafile);

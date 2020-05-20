@@ -7,4 +7,6 @@ CREATE TABLE ingestreport_reportarguments
     reportarguments_order integer
 );
 
-ALTER TABLE ingestreport ADD COLUMN argumentsbundlekey varchar;
+ALTER TABLE ingestreport RENAME COLUMN report TO errorkey;
+
+UPDATE ingestreport SET errorkey = 'UNKNOWN_ERROR';

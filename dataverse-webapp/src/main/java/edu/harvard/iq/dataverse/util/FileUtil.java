@@ -32,6 +32,7 @@ import edu.harvard.iq.dataverse.ingest.IngestableDataChecker;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile.ChecksumType;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestReport;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
@@ -559,43 +560,27 @@ public class FileUtil implements java.io.Serializable {
 
     public static void createIngestFailureReport(DataFile dataFile, IngestException ingestException) {
         FileUtil.createIngestFailureReport(dataFile,
-                                           ingestException.getMessage(),
-                                           ingestException.getBundleKey(),
+                                           ingestException.getErrorKey(),
                                            ingestException.getBundleArguments().toArray(new String[0]));
 
     }
 
-    public static void createIngestFailureReport(DataFile dataFile, String message) {
-        createIngestReport(dataFile, IngestReport.INGEST_STATUS_FAILURE, message);
-    }
 
-    public static void createIngestFailureReport(DataFile dataFile, String message, String bundleKey) {
+    public static void createIngestFailureReport(DataFile dataFile, IngestError errorKey) {
         IngestReport errorReport = new IngestReport();
         errorReport.setFailure();
-        errorReport.setReport(message);
-        errorReport.setArgumentsBundleKey(bundleKey);
+        errorReport.setErrorKey(errorKey);
         errorReport.setDataFile(dataFile);
         dataFile.setIngestReport(errorReport);
     }
 
-    public static void createIngestFailureReport(DataFile dataFile, String message, String bundleKey, String... arguments) {
+    public static void createIngestFailureReport(DataFile dataFile, IngestError errorKey, String... arguments) {
         IngestReport errorReport = new IngestReport();
         errorReport.setFailure();
-        errorReport.setReport(message);
-        errorReport.setArgumentsBundleKey(bundleKey);
+        errorReport.setErrorKey(errorKey);
         errorReport.setDataFile(dataFile);
         errorReport.getReportArguments().addAll(Arrays.asList(arguments));
         dataFile.setIngestReport(errorReport);
-    }
-
-    private static void createIngestReport(DataFile dataFile, int status, String message) {
-        IngestReport errorReport = new IngestReport();
-        if (status == IngestReport.INGEST_STATUS_FAILURE) {
-            errorReport.setFailure();
-            errorReport.setReport(message);
-            errorReport.setDataFile(dataFile);
-            dataFile.setIngestReport(errorReport);
-        }
     }
 
     public enum FileCitationExtension {

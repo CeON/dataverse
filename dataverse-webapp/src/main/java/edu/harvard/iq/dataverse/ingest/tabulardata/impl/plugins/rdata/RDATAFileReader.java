@@ -27,6 +27,7 @@ import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.VariableCategory;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import edu.harvard.iq.dataverse.rserve.RRequest;
 import edu.harvard.iq.dataverse.rserve.RRequestBuilder;
 import org.apache.commons.lang.RandomStringUtils;
@@ -506,8 +507,7 @@ public class RDATAFileReader extends TabularDataFileReader {
             // Destroy R workspace
             mRWorkspace.destroy();
         } catch (Exception ex) {
-            throw new IngestException("Unknown exception occured during ingest.",
-                                      "ingest.unknownException");
+            throw new IngestException(IngestError.UNKNOWN_ERROR, ex);
         }
 
         LOG.fine("RDATAFileReader: Leaving \"read\" function");

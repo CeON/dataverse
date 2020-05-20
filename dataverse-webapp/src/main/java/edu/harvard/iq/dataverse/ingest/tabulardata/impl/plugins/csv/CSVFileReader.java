@@ -19,13 +19,13 @@
  */
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.csv;
 
-import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -42,7 +42,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -113,7 +112,7 @@ public class CSVFileReader extends TabularDataFileReader {
         init();
 
         if (stream == null) {
-            throw new IngestException(BundleUtil.getStringFromBundle("ingest.csv.nullStream"), "ingest.csv.nullStream");
+            throw new IngestException(IngestError.UNKNOWN_ERROR);
         }
         TabularDataIngest ingesteddata = new TabularDataIngest();
         DataTable dataTable = new DataTable();
@@ -147,7 +146,7 @@ public class CSVFileReader extends TabularDataFileReader {
                 // TODO:
                 // Add a sensible variable name validation algorithm.
                 // -- L.A. 4.0 alpha 1
-                throw new IngestException("Invalid header row. One of the cells is empty.","ingest.csv.invalidHeader");
+                throw new IngestException(IngestError.INVALID_HEADER);
             }
 
             DataVariable dv = new DataVariable(i, dataTable);
@@ -197,10 +196,7 @@ public class CSVFileReader extends TabularDataFileReader {
                     List<String> args = Arrays.asList("" + (parser.getCurrentLineNumber() - 1),
                                                       "" + headers.size(),
                                                       "" + record.size());
-                    String message = MessageFormat.format(
-                            "Reading mismatch, line {0} of the Data file: {1} delimited values expected, {2} found.",
-                            args);
-                    throw new IngestException(message, "ingest.csv.recordMismatch", args.toArray(new String[0]));
+                    throw new IngestException(IngestError.RECORD_MISMATCH, args.toArray(new String[0]));
                 }
 
                 for (i = 0; i < headers.size(); i++) {
@@ -349,10 +345,7 @@ public class CSVFileReader extends TabularDataFileReader {
                     List<String> args = Arrays.asList("" + (parser.getCurrentLineNumber() - 1),
                                                       "" + headers.size(),
                                                       "" + record.size());
-                    String message = MessageFormat.format(
-                            "Reading mismatch, line {0} of the Data file: {1} delimited values expected, {2} found.",
-                            args);
-                    throw new IngestException(message, "ingest.csv.recordMismatch", args.toArray(new String[0]));
+                    throw new IngestException(IngestError.RECORD_MISMATCH, args.toArray(new String[0]));
                 }
 
                 for (i = 0; i < headers.size(); i++) {
@@ -464,10 +457,7 @@ public class CSVFileReader extends TabularDataFileReader {
         if (dataTable.getCaseQuantity().intValue() != linecount) {
             List<String> args = Arrays.asList("" + dataTable.getCaseQuantity().intValue(),
                                               "" + linecount);
-            String message = MessageFormat.format(
-                    "Mismatch between line counts in first and final passes!, {0} found on first pass, but {1} found on second.",
-                    args);
-            throw new IngestException(message, "ingest.csv.lineMismatch", args.toArray(new String[0]));
+            throw new IngestException(IngestError.RECORD_MISMATCH, args.toArray(new String[0]));
         }
         return (int) linecount;
     }

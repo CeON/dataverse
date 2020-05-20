@@ -26,6 +26,7 @@ import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
@@ -99,18 +100,15 @@ public class XLSXFileReader extends TabularDataFileReader {
             processSheet(stream, dataTable, firstPassWriter);
         } catch (Exception ex) {
             dbglog.log(Level.FINE, "Could not parse Excel/XLSX spreadsheet.", ex);
-            throw new IngestException("Could not parse Excel/XLSX spreadsheet.", "xlsxfilereader.ioexception.parse");
+            throw new IngestException(IngestError.EXCEL_PARSE);
         }
 
         if (dataTable.getCaseQuantity() == null || dataTable.getCaseQuantity().intValue() < 1) {
 
             if (dataTable.getVarQuantity() == null || dataTable.getVarQuantity().intValue() < 1) {
-                throw new IngestException("No rows of data found in the Excel (XLSX) file.",
-                                          "xlsxfilereader.ioexception.norows");
+                throw new IngestException(IngestError.EXCEL_NO_ROWS);
             } else {
-                throw new IngestException(
-                        "Only one row of data (column name header?) detected in the Excel (XLSX) file.",
-                        "xlsxfilereader.ioexception.onlyonerow");
+                throw new IngestException(IngestError.EXCEL_ONLY_ONE_ROW);
             }
         }
 
@@ -137,8 +135,7 @@ public class XLSXFileReader extends TabularDataFileReader {
                 String message = MessageFormat.format("Failed to read line {0} during the second pass.",
                                                       Arrays.asList(Integer.toString(lineCounter + 1)));
 
-                throw new IngestException(message,
-                                          "xlsxfilereader.ioexception.failed",
+                throw new IngestException(IngestError.EXCEL_READ_FAIL,
                                           Integer.toString(lineCounter + 1));
             }
 
@@ -149,7 +146,7 @@ public class XLSXFileReader extends TabularDataFileReader {
                                       Integer.toString(varQnty),
                                       Integer.toString(valueTokens.length)));
 
-                throw new IngestException(message, "xlsxfilereader.ioexception.mismatch",
+                throw new IngestException(IngestError.EXCEL_MISMATCH,
                                           Arrays.asList(Integer.toString(lineCounter + 1),
                                                         Integer.toString(varQnty),
                                                         Integer.toString(valueTokens.length)).toArray(new String[0]));
@@ -186,7 +183,7 @@ public class XLSXFileReader extends TabularDataFileReader {
                                     i,
                                     valueTokens[i]);
 
-                            throw new IngestException(message, "xlsxfilereader.ioexception.numericParse", String.valueOf(i), valueTokens[i]);
+                            throw new IngestException(IngestError.EXCEL_NUMERIC_PARSE, String.valueOf(i), valueTokens[i]);
                         }
                     }
                 } else {
@@ -224,7 +221,7 @@ public class XLSXFileReader extends TabularDataFileReader {
         finalWriter.close();
 
         if (dataTable.getCaseQuantity().intValue() != lineCounter) {
-            throw new IngestException("Mismatch between line counts in first and final passes!", "xlsxfilereader.ioexception.linecount");
+            throw new IngestException(IngestError.EXCEL_LINE_COUNT);
         }
 
         dataTable.setUnf("UNF:6:NOTCALCULATED");

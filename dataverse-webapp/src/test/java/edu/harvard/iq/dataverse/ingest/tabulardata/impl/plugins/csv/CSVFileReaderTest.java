@@ -7,18 +7,24 @@ package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.csv;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.TabularSubsetGenerator;
+import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable.VariableInterval;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable.VariableType;
-import org.apache.commons.io.IOUtils;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import org.dataverse.unf.UNFUtil;
 import org.dataverse.unf.UnfException;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -26,6 +32,7 @@ import java.util.logging.Logger;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -397,15 +404,15 @@ public class CSVFileReaderTest {
      * CSVFileReader with a null CSV.
      */
     @Test
-    public void testBrokenCSV() {
+    public void testBrokenCSV() throws IOException {
         try {
             new CSVFileReader(new CSVFileReaderSpi(), ',').read(null, null);
             fail("IOException not thrown on null csv");
         } catch (NullPointerException ex) {
-            assertEquals(null, ex.getMessage());
-        } catch (IOException ex) {
-            String expMessage = BundleUtil.getStringFromBundle("ingest.csv.nullStream");
-            assertEquals(expMessage, ex.getMessage());
+            assertNull(ex.getMessage());
+        } catch (IngestException ex) {
+            IngestError expError = IngestError.UNKNOWN_ERROR;
+            assertEquals(expError, ex.getErrorKey());
         }
         try (FileInputStream fileInputStream =
                      new FileInputStream(Paths.get(CSVFileReaderTest.class.getClassLoader()
@@ -414,9 +421,12 @@ public class CSVFileReaderTest {
             new CSVFileReader(new CSVFileReaderSpi(), ',').read(stream, null);
             fail("IOException was not thrown when collumns do not align.");
         } catch (IOException | URISyntaxException ex) {
-            String expMessage = BundleUtil.getStringFromBundle("ingest.csv.recordMismatch",
+            String expMessage = BundleUtil.getStringFromBundle("ingest.error.RECORD_MISMATCH",
                                                                Arrays.asList("3", "6", "4"));
             assertEquals(expMessage, ex.getMessage());
+        } catch (IngestException ex) {
+            IngestError expError = IngestError.RECORD_MISMATCH;
+            assertEquals(expError, ex.getErrorKey());
         }
     }
 }
