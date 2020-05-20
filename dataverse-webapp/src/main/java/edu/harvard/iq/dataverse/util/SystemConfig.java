@@ -156,6 +156,11 @@ public class SystemConfig {
         return guidesBaseUrl + "/" + guidesLang;
     }
 
+    public String getGuidesBaseUrl(Locale locale) {
+        String guidesBaseUrl = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesBaseUrl);
+        return guidesBaseUrl + "/" + locale;
+    }
+
     public String getGuidesVersion() {
         String guidesVersion = settingsService.getValueForKey(SettingsServiceBean.Key.GuidesVersion);
 
@@ -524,10 +529,6 @@ public class SystemConfig {
         return settingsService.isTrueForKey(Key.ShowAccessibilityStatementFooterLink);
     }
 
-    public String getCustomThemeCssFilename() {
-        return settingsService.getValueForKey(Key.CustomThemeCssFilename);
-    }
-    
     private String getFromBundleIfEmptyLocalizedProperty(Key key, Locale locale, String bundleKey) {
         String result = getLocalizedProperty(key, locale);
         
