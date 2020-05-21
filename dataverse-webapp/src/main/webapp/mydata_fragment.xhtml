@@ -696,6 +696,17 @@
                 </ui:fragment>
         </div>
     </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle=offcanvas]').click(function() {
+                var showText = '#{bundle.show}';
+                var hideText = '#{bundle.hide}';
+                $(this).attr('aria-expanded', !($('.row-offcanvas').hasClass('active')));
+                $(this).find('.show-hide-text').text($('.row-offcanvas').hasClass('active') ? showText : hideText);
+                $('.row-offcanvas').toggleClass('active', 200);
+            });
+        });
+    </script>
 
 </div><!-- end panel body -->
 
