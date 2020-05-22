@@ -19,13 +19,13 @@
  */
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.csv;
 
-import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -146,7 +146,7 @@ public class CSVFileReader extends TabularDataFileReader {
                 // TODO:
                 // Add a sensible variable name validation algorithm.
                 // -- L.A. 4.0 alpha 1
-                throw new IngestException(IngestError.INVALID_HEADER);
+                throw new IngestException(IngestError.CSV_INVALID_HEADER);
             }
 
             DataVariable dv = new DataVariable(i, dataTable);
@@ -196,7 +196,7 @@ public class CSVFileReader extends TabularDataFileReader {
                     List<String> args = Arrays.asList("" + (parser.getCurrentLineNumber() - 1),
                                                       "" + headers.size(),
                                                       "" + record.size());
-                    throw new IngestException(IngestError.RECORD_MISMATCH, args.toArray(new String[0]));
+                    throw new IngestException(IngestError.CSV_RECORD_MISMATCH, args);
                 }
 
                 for (i = 0; i < headers.size(); i++) {
@@ -345,7 +345,7 @@ public class CSVFileReader extends TabularDataFileReader {
                     List<String> args = Arrays.asList("" + (parser.getCurrentLineNumber() - 1),
                                                       "" + headers.size(),
                                                       "" + record.size());
-                    throw new IngestException(IngestError.RECORD_MISMATCH, args.toArray(new String[0]));
+                    throw new IngestException(IngestError.CSV_RECORD_MISMATCH, args);
                 }
 
                 for (i = 0; i < headers.size(); i++) {
@@ -457,7 +457,7 @@ public class CSVFileReader extends TabularDataFileReader {
         if (dataTable.getCaseQuantity().intValue() != linecount) {
             List<String> args = Arrays.asList("" + dataTable.getCaseQuantity().intValue(),
                                               "" + linecount);
-            throw new IngestException(IngestError.RECORD_MISMATCH, args.toArray(new String[0]));
+            throw new IngestException(IngestError.CSV_LINE_MISMATCH, args);
         }
         return (int) linecount;
     }

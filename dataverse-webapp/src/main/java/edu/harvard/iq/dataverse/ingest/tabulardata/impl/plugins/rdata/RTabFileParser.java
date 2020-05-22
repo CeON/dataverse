@@ -19,10 +19,10 @@
 */
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.rdata;
 
-import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
@@ -142,14 +142,14 @@ public class RTabFileParser implements java.io.Serializable {
             valueTokens = line.split("" + delimiterChar, -2);
 
             if (valueTokens == null) {
-                throw new IngestException(IngestError.RTAB_FAIL,Integer.toString(lineCounter + 1));
+                throw new IngestException(IngestError.RTAB_FAIL, Integer.toString(lineCounter + 1));
 
             }
 
             if (valueTokens.length != varQnty) {
                 throw new IngestException(IngestError.RTAB_MISMATCH, Arrays.asList(Integer.toString(lineCounter + 1),
                                                                                        Integer.toString(varQnty),
-                                                                                       Integer.toString(valueTokens.length)).toArray(new String[0]));
+                                                                                       Integer.toString(valueTokens.length)));
             }
 
             //dbgLog.fine("case: "+lineCounter);

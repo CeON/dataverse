@@ -24,8 +24,11 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Leonid Andreev
@@ -62,7 +65,7 @@ public class IngestReport implements Serializable {
 
     @ElementCollection
     @OrderColumn
-    private List<String> reportArguments = new ArrayList<>();
+    private List<String> errorArguments = new ArrayList<>();
 
     private int type;
 
@@ -130,28 +133,42 @@ public class IngestReport implements Serializable {
         this.endTime = endTime;
     }
 
-    public List<String> getReportArguments() {
-        return reportArguments;
+    public List<String> getErrorArguments() {
+        return errorArguments;
     }
 
     // -------------------- LOGIC --------------------
 
     public String getIngestReportMessage() {
-        IngestError errorKey = getErrorKey();
-        if (errorKey != null) {
 
-            if (!getReportArguments().isEmpty()) {
-                String errorMessage = IngestError.getErrorMessage(errorKey, getReportArguments());
+        return Optional.ofNullable(errorKey)
+                .orElse(IngestError.UNKNOWN_ERROR)
+                .getErrorMessage(Optional.ofNullable(errorArguments).
+                        orElseGet(Collections::emptyList));
+    }
 
-                return errorMessage.isEmpty() ? IngestError.getDefaultErrorMessage() : errorMessage;
-            }
+    public static IngestReport createIngestFailureReport(DataFile dataFile, IngestException ingestException) {
+        return createIngestFailureReport(dataFile,
+                                         ingestException.getErrorKey(),
+                                         ingestException.getErrorArguments().toArray(new String[0]));
 
-            String errorMessage = IngestError.getErrorMessage(errorKey);
+    }
 
-            return errorMessage.isEmpty() ? IngestError.getDefaultErrorMessage() : errorMessage;
-        }
+    public static IngestReport createIngestFailureReport(DataFile dataFile, IngestError errorKey, String... errorArguments) {
+        List<String> args = Optional.ofNullable(errorArguments).map(Arrays::asList).orElseGet(Collections::emptyList);
 
-        return IngestError.getDefaultErrorMessage();
+        return createIngestFailureReport(dataFile, errorKey, args);
+    }
+
+    public static IngestReport createIngestFailureReport(DataFile dataFile, IngestError errorKey, List<String> errorArguments) {
+
+        IngestReport errorReport = new IngestReport();
+        errorReport.setFailure();
+        errorReport.setErrorKey(errorKey);
+        errorReport.setDataFile(dataFile);
+        errorReport.getErrorArguments().addAll(errorArguments);
+
+        return errorReport;
     }
 
     @Override

@@ -27,13 +27,10 @@ import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.ImageMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.PackageMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
-import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.IngestableDataChecker;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile.ChecksumType;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
-import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
-import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestReport;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
@@ -61,7 +58,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -556,31 +552,6 @@ public class FileUtil implements java.io.Serializable {
 
         logger.log(Level.FINE, "timestamp/UUID hybrid: {0}", storageIdentifier);
         return storageIdentifier;
-    }
-
-    public static void createIngestFailureReport(DataFile dataFile, IngestException ingestException) {
-        FileUtil.createIngestFailureReport(dataFile,
-                                           ingestException.getErrorKey(),
-                                           ingestException.getBundleArguments().toArray(new String[0]));
-
-    }
-
-
-    public static void createIngestFailureReport(DataFile dataFile, IngestError errorKey) {
-        IngestReport errorReport = new IngestReport();
-        errorReport.setFailure();
-        errorReport.setErrorKey(errorKey);
-        errorReport.setDataFile(dataFile);
-        dataFile.setIngestReport(errorReport);
-    }
-
-    public static void createIngestFailureReport(DataFile dataFile, IngestError errorKey, String... arguments) {
-        IngestReport errorReport = new IngestReport();
-        errorReport.setFailure();
-        errorReport.setErrorKey(errorKey);
-        errorReport.setDataFile(dataFile);
-        errorReport.getReportArguments().addAll(Arrays.asList(arguments));
-        dataFile.setIngestReport(errorReport);
     }
 
     public enum FileCitationExtension {

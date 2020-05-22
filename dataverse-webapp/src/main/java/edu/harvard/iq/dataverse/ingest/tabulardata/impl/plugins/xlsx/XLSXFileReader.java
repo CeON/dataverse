@@ -20,13 +20,13 @@
 package edu.harvard.iq.dataverse.ingest.tabulardata.impl.plugins.xlsx;
 
 
-import edu.harvard.iq.dataverse.ingest.IngestException;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
@@ -48,7 +48,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -132,24 +131,17 @@ public class XLSXFileReader extends TabularDataFileReader {
             valueTokens = line.split("" + delimiterChar, -2);
 
             if (valueTokens == null) {
-                String message = MessageFormat.format("Failed to read line {0} during the second pass.",
-                                                      Arrays.asList(Integer.toString(lineCounter + 1)));
 
                 throw new IngestException(IngestError.EXCEL_READ_FAIL,
                                           Integer.toString(lineCounter + 1));
             }
 
             if (valueTokens.length != varQnty) {
-                String message = MessageFormat.format(
-                        "Reading mismatch, line {0} during the second pass: {1} delimited values expected, {2} found.",
-                        Arrays.asList(Integer.toString(lineCounter + 1),
-                                      Integer.toString(varQnty),
-                                      Integer.toString(valueTokens.length)));
 
                 throw new IngestException(IngestError.EXCEL_MISMATCH,
                                           Arrays.asList(Integer.toString(lineCounter + 1),
                                                         Integer.toString(varQnty),
-                                                        Integer.toString(valueTokens.length)).toArray(new String[0]));
+                                                        Integer.toString(valueTokens.length)));
             }
 
             for (int i = 0; i < varQnty; i++) {
@@ -178,11 +170,6 @@ public class XLSXFileReader extends TabularDataFileReader {
                             Double testDoubleValue = new Double(valueTokens[i]);
                             caseRow[i] = testDoubleValue.toString();
                         } catch (Exception ex) {
-                            String message = MessageFormat.format(
-                                    "Failed to parse a value recognized as numeric in the first pass! column: {0}, value: {1}",
-                                    i,
-                                    valueTokens[i]);
-
                             throw new IngestException(IngestError.EXCEL_NUMERIC_PARSE, String.valueOf(i), valueTokens[i]);
                         }
                     }

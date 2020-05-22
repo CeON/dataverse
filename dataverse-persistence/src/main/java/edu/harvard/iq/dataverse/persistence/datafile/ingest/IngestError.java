@@ -15,9 +15,11 @@ public enum IngestError {
     PLUGIN_RAW_FILES,
     UNZIP_FAIL,
     UNZIP_SIZE_FAIL,
+    UNZIP_FILE_LIMIT_FAIL,
     WRONG_HEADER,
-    INVALID_HEADER,
-    RECORD_MISMATCH,
+    CSV_INVALID_HEADER,
+    CSV_LINE_MISMATCH,
+    CSV_RECORD_MISMATCH,
     EXCEL_PARSE,
     EXCEL_NO_ROWS,
     EXCEL_ONLY_ONE_ROW,
@@ -37,15 +39,17 @@ public enum IngestError {
 
     // -------------------- LOGIC --------------------
 
-    public static String getErrorMessage(IngestError error) {
-        return BundleUtil.getStringFromBundle(ERROR_KEY_PREFIX + error.toString());
+    public String getErrorMessage() {
+        return BundleUtil.getStringFromBundle(ERROR_KEY_PREFIX + toString());
     }
 
-    public static String getErrorMessage(IngestError error, List<String> arguments) {
-        return BundleUtil.getStringFromBundle(ERROR_KEY_PREFIX + error.toString(), arguments);
+    public String getErrorMessage(List<String> arguments) {
+        return arguments.isEmpty() ? getDefaultErrorMessage() : BundleUtil.getStringFromBundle(ERROR_KEY_PREFIX + toString(), arguments);
     }
 
-    public static String getDefaultErrorMessage() {
+    // -------------------- PRIVATE --------------------
+
+    private static String getDefaultErrorMessage() {
         return BundleUtil.getStringFromBundle(ERROR_KEY_PREFIX + UNKNOWN_ERROR.toString());
     }
 

@@ -56,6 +56,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.SummaryStatistic;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.VariableCategory;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
+import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestReport;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -772,9 +774,9 @@ public class IngestServiceBean {
             // the next step if no ingest plugin is available. 
 
             dataFile.SetIngestProblem();
-            FileUtil.createIngestFailureReport(dataFile,
-                                               IngestError.NOPLUGIN,
-                                               dataFile.getContentType());
+            dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
+                                                   IngestError.NOPLUGIN,
+                                                   dataFile.getContentType()));
             dataFile = fileService.save(dataFile);
             logger.warning("Ingest failure.");
             return false;
@@ -805,8 +807,8 @@ public class IngestServiceBean {
         } catch (IOException ioEx) {
             dataFile.SetIngestProblem();
 
-            FileUtil.createIngestFailureReport(dataFile,
-                                               IngestError.UNKNOWN_ERROR);
+            dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
+                                                   IngestError.UNKNOWN_ERROR));
             dataFile = fileService.save(dataFile);
 
             logger.warning("Ingest failure (No file produced).");
@@ -835,9 +837,9 @@ public class IngestServiceBean {
                 // If it's still null - give up!
 
                 dataFile.SetIngestProblem();
-                FileUtil.createIngestFailureReport(dataFile,
-                                                   IngestError.NOPLUGIN,
-                                                   dataFile.getContentType());
+                dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
+                                                       IngestError.NOPLUGIN,
+                                                       dataFile.getContentType()));
                 dataFile = fileService.save(dataFile);
                 logger.warning("Ingest failure: failed to detect ingest plugin (file type check forced)");
                 return false;
@@ -856,7 +858,7 @@ public class IngestServiceBean {
         } catch (IngestException ex) {
             dataFile.SetIngestProblem();
 
-            FileUtil.createIngestFailureReport(dataFile, ex);
+            dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile, ex));
             logger.log(Level.WARNING, "Ingest failure.", ex);
             fileService.save(dataFile);
             return false;
@@ -864,7 +866,7 @@ public class IngestServiceBean {
         } catch (Exception ingestEx) {
 
             dataFile.SetIngestProblem();
-            FileUtil.createIngestFailureReport(dataFile, IngestError.UNKNOWN_ERROR);
+            dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile, IngestError.UNKNOWN_ERROR));
             fileService.save(dataFile);
 
             logger.log(Level.WARNING, "Ingest failure.", ingestEx);
@@ -913,9 +915,9 @@ public class IngestServiceBean {
                 } catch (IOException postIngestEx) {
 
                     dataFile.SetIngestProblem();
-                    FileUtil.createIngestFailureReport(dataFile,
-                                                       IngestError.STATS_OR_SIGNATURE_FAILURE,
-                                                       postIngestEx.getMessage());
+                    dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
+                                                           IngestError.STATS_OR_SIGNATURE_FAILURE,
+                                                           postIngestEx.getMessage()));
 
                     restoreIngestedDataFile(dataFile,
                                             tabDataIngest,
@@ -966,8 +968,8 @@ public class IngestServiceBean {
 
                     if (dataFile != null) {
                         dataFile.SetIngestProblem();
-                        FileUtil.createIngestFailureReport(dataFile,
-                                                           IngestError.DB_FAIL);
+                        dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
+                                                               IngestError.DB_FAIL));
 
                         restoreIngestedDataFile(dataFile,
                                                 tabDataIngest,
@@ -1017,8 +1019,8 @@ public class IngestServiceBean {
 
                     if (dataFile != null) {
                         dataFile.SetIngestProblem();
-                        FileUtil.createIngestFailureReport(dataFile,
-                                                           IngestError.DB_FAIL);
+                        dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
+                                                               IngestError.DB_FAIL));
 
                         restoreIngestedDataFile(dataFile,
                                                 tabDataIngest,
