@@ -3127,11 +3127,11 @@ body.font-size-percent-200 {
 body.font-size-percent-150,
 body.font-size-percent-200 {
 	@media (min-width: $screen-sm-min) { 
-		form[id$=Form], form[id$=form], .form-group {
+		form[id$="Form"], form[id$="form"], .form-group {
 			:not(.ui-datatable-tablewrapper .ui-widget-content) {
-				*[class*=col-md],
-				*[class*=col-sm] {
-					&:not([role=gridcell]):not([role=columnheader]):not(.field-add-delete-input):not(.field-add-delete) {
+				*[class*="col-md"],
+				*[class*="col-sm"] {
+					&:not([role="gridcell"]):not([role="columnheader"]):not(.field-add-delete-input):not(.field-add-delete) {
 						width: auto;
 						display: block;
 						float: none;
@@ -3139,9 +3139,9 @@ body.font-size-percent-200 {
 					}
 				}
 	
-				*[class*=col-md-offset],
-				*[class*=col-sm-offset] {
-					&:not([role=gridcell]):not([role=columnheader]):not(.field-add-delete-input):not(.field-add-delete) {
+				*[class*="col-md-offset"],
+				*[class*="col-sm-offset"] {
+					&:not([role="gridcell"]):not([role="columnheader"]):not(.field-add-delete-input):not(.field-add-delete) {
 						margin-left: 0;
 					}
 				}
@@ -3156,7 +3156,7 @@ body.font-size-percent-200 {
 
 /* Misc fixes */
 
-body:not([class*=font-size-percent]) {
+body:not([class*="font-size-percent"]) {
 	#font-size-mode-selector button.default {
 		color: $focus-color;
 		cursor: default;
