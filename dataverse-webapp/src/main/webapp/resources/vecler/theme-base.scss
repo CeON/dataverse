@@ -654,6 +654,9 @@ div.ui-selectonemenu.form-control {
 .ui-selectcheckboxmenu-label-container {
 	display: inline-block;
 }
+.ui-selectoneradio.inline-labels label {
+    display: inline;
+}
 
 div.field-add-delete {
 	margin-left: -1em;
