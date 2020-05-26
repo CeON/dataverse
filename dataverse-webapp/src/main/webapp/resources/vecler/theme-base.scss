@@ -704,12 +704,13 @@ textarea {
 }
 /* Overriding bootstrap defaults */
 legend.control-label {
-	border-bottom: none;
-	font-size: inherit;
-	display: inherit;
-	
-	max-width: 100%;
-	font-weight: 700;
+    border-bottom: none;
+    font-size: inherit;
+    display: inherit;
+    margin-bottom: 5px;
+
+    max-width: 100%;
+    font-weight: 700;
 }
 
 .ui-outputlabel.ui-state-error {
