@@ -150,6 +150,11 @@ h1, h2, h3, h4, h5, h6 {
         display: inline;
     }
 }
+.panel-heading > h3 {
+    font-size: inherit;
+    margin-top: 0;
+	margin-bottom: 0;
+}
 
 pre {
 	font-size: 0.867em;
@@ -407,7 +412,6 @@ body .ui-widget {
 		padding: 3px 20px;
 		clear: both;
 		font-weight: 400;
-		/*line-height: 1.42857143;*/
 		color: #333;
 		white-space: nowrap;
 
@@ -598,7 +602,6 @@ input:disabled {
 		height: calc(1.5em + 11px);
 		top: -1px;
 		right: -1px;
-		/*padding-bottom: 2.133em;*/
 		border: 1px solid $gray-border-color;
 		border-radius: 0.266em;
 		background: #fff;
@@ -698,16 +701,17 @@ textarea {
 	   padding-bottom: 5px;
 	   color: $main-text-color;
     }
-    /* Overriding bootstrap defaults */
-    legend.control-label {
-        border-bottom: none;
-        font-size: inherit;
-        display: inherit;
-        
-        max-width: 100%;
-        font-weight: 700;
-    }
 }
+/* Overriding bootstrap defaults */
+legend.control-label {
+	border-bottom: none;
+	font-size: inherit;
+	display: inherit;
+	
+	max-width: 100%;
+	font-weight: 700;
+}
+
 .ui-outputlabel.ui-state-error {
     background: inherit;
 }
@@ -2447,7 +2451,33 @@ div.filesTable .ui-paginator {
 
 /* Main page end */
 
+/* Edit dataverse */
+
+#metadataFieldOptionsPanel-Body {
+    ul {
+        list-style: none;
+        padding:0;
+
+        li {
+            border-top: 1px solid #e8e8e8;
+            padding-top: 22px;
+            padding-bottom: 20px;
+
+            .child-field {
+                padding-left: 48px;
+                font-weight: normal;
+                line-height: 27px;
+                font-size: inherit;
+                color: inherit;
+                margin: 0;
+                border-bottom: 0;
+            }
+        }
+    }
+}
+
 /* Guestbook */
+
 .form-horizontal #guestbookForm\:customQuestions > .form-group {
 	padding: 10px 15px 15px 15px;
 	border: 1px solid $gray-border-color;
