@@ -380,6 +380,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         newFiles = new ArrayList<>();
         uploadedFiles = new ArrayList<>();
+        cleanupTempFiles();
 
         this.maxFileUploadSizeInBytes = settingsService.getValueForKeyAsLong(Key.MaxFileUploadSizeInBytes);
         this.multipleUploadFilesLimit = settingsService.getValueForKeyAsLong(Key.MultipleUploadFilesLimit);
@@ -593,6 +594,23 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
     }
 
+    private void cleanupTempFiles() {
+		final long purgeTime = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+    	final File tempDirectory = new File(FileUtil.getFilesTempDirectory());
+    	if (tempDirectory.exists() && tempDirectory.isDirectory()) {
+    		final File[] tempFilesList = tempDirectory.listFiles();
+    		for (File tempFile : tempFilesList) {
+    			if (tempFile.isFile() && tempFile.lastModified() < purgeTime) {
+    				if (!tempFile.delete()) {
+    		            logger.warning("Failed to delete temporary file " + tempFile.getName());
+    				}
+    			}
+    		}
+    	} else {
+            logger.warning("Failed to cleanup temporary file " + FileUtil.getFilesTempDirectory());
+    	}
+    }
+    
     private void deleteTempFile(DataFile dataFile) {
         // Before we remove the file from the list and forget about
         // it:
@@ -1262,7 +1280,6 @@ public class EditDatafilesPage implements java.io.Serializable {
         for (DataFile dataFile : uploadedFiles) {
             fileMetadatas.add(dataFile.getFileMetadata());
             newFiles.add(dataFile);
-            deleteTempFile(dataFile);
         }
         if (uploadInProgress) {
             uploadedFiles = new ArrayList<>();
