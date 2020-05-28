@@ -47,6 +47,4 @@ public class Failure implements WorkflowStepResult {
     public String toString() {
         return "WorkflowStepResult.Failure{" + "reason=" + reason + ", message=" + message + '}';
     }
-
-
 }
