@@ -204,6 +204,21 @@ public class Dataset extends DvObjectContainer {
     }
 
     /**
+     * Checks whether {@code this} dataset is locked for a given reason (given as String value).
+     *
+     * @param reason the reason we test for.
+     * @return {@code true} iff the data set is locked for {@code reason}.
+     */
+    public boolean isLockedFor(String reason) {
+        for (DatasetLock l : getLocks()) {
+            if (l.getReason().name().equals(reason)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Retrieves the dataset lock for the passed reason.
      *
      * @param reason
