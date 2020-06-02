@@ -820,6 +820,12 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 	max-height: 13.333em;
 }
 
+/* Graphical text editor */
+
+.ql-container {
+	font-size: 1em;
+}
+
 /* File uploader */
 
 .ui-fileupload {
@@ -1916,14 +1922,19 @@ $navbar-height: 102px;
 
 	&::before {
 		position: absolute;
-		content: "Aa";
+		content: "A";
 	}
 	&::after {
 		opacity: 0;
 		content: "Aa";
 	}
 
+	&.default::before {
+		left: 0.45em;
+		line-height: 0.9em;
+	}
 	&.percent-150::before {
+		left: 0.20em;
 		font-size: 1.5em;
 		line-height: 0.6em;
 	}
@@ -2271,6 +2282,18 @@ div.panelSearchForm input.search-input {
 form[id$="facetType"] > div.clearfix label.facetTypeLink span {
 	position: relative;
 	top: -3px;
+}
+
+#facetType {
+	.text-icon-inline {
+		position: relative;
+		top: calc(0.167em - 2px);
+		margin-left: 0.167em;
+	}
+
+	label {
+		margin-top: 0.333em;
+	}
 }
 
 form[id$="facetCategoryForm"] {
@@ -3142,7 +3165,7 @@ body.font-size-percent-200 {
 body.font-size-percent-150,
 body.font-size-percent-200 {
 	@media (min-width: $screen-sm-min) { 
-		form[id$="Form"], form[id$="form"], .form-group {
+		form[id$="Form"], form[id$="form"], .form-group, .row.panelSearchForm, .resultsCountPaginatorBlock, #footer {
 			:not(.ui-datatable-tablewrapper .ui-widget-content) {
 				*[class*="col-md"],
 				*[class*="col-sm"] {
@@ -3180,7 +3203,7 @@ body:not([class*="font-size-percent"]) {
 
 body.font-size-percent-150 {
 	#metrics-label .glyphicon-stats {
-		font-size: 20px;
+		font-size: 27px;
 	}
 
 	.ui-dialog-titlebar-icon.ui-dialog-titlebar-close span {
@@ -3191,11 +3214,20 @@ body.font-size-percent-150 {
 		color: $focus-color;
 		cursor: default;
 	}
+
+	.ql-formats button {
+		transform: scale(1.5);
+		margin: 0 5px;
+
+		&:focus {
+			outline-width: 1.333px !important;
+		}
+	}
 }
 
 body.font-size-percent-200 {
 	#metrics-label .glyphicon-stats {
-		font-size: 27px;
+		font-size: 37px;
 	}
 
 	.ui-dialog-titlebar-icon.ui-dialog-titlebar-close span { 
@@ -3205,6 +3237,19 @@ body.font-size-percent-200 {
 	#font-size-mode-selector button.percent-200 {
 		color: $focus-color;
 		cursor: default;
+	}
+
+	.ql-formats button { 
+		transform: scale(2);
+		margin: 0 10px;
+
+		&:focus {
+			outline-width: 1px !important;
+		}
+	}
+
+	#metrics-label {
+
 	}
 }
 

@@ -76,6 +76,9 @@
                                 value="#{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.DATAVERSES)}"
                                 disabled="#{MyDataSearchFragment.selectedTypes.containsOnly(searchObjectTypeEnum.DATAVERSES)}"/>
                     </h:outputLink>
+
+                    <i class="icon-dataverse text-icon-inline"></i>
+
                     <!--DATAVERSES ONLY-->
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" styleClass="facetTypeLink chkbox-label-margin #{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.DATAVERSES) ? 'facetSelected': ''}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
@@ -88,8 +91,6 @@
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="page" value="1"/>
-
-                        <i class="icon-dataverse text-icon-inline"></i>
 
                         <h:outputFormat styleClass="facetTypeDataverse"
                                         value="#{bundle['dataverse.results.types.dataverses']} #{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.DATAVERSES) ? '&#40;{0}&#41;': ''}">
@@ -116,6 +117,9 @@
                                 value="#{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.DATASETS)}"
                                 disabled="#{MyDataSearchFragment.selectedTypes.containsOnly(searchObjectTypeEnum.DATASETS)}"/>
                     </h:outputLink>
+
+                    <i class="icon-dataset text-icon-inline"></i>
+
                     <!--DATASETS ONLY-->
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" disabled="#{false}" styleClass="facetTypeLink chkbox-label-margin #{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.DATASETS) ? 'facetSelected': ''}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
@@ -128,8 +132,6 @@
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="page" value="1"/>
-
-                        <i class="icon-dataset text-icon-inline"></i>
 
                         <h:outputFormat styleClass="facetTypeDataset"
                                         value="#{bundle['dataverse.results.types.datasets']} #{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.DATASETS) ? '&#40;{0}&#41;': ''}">
@@ -155,6 +157,9 @@
                         <p:selectBooleanCheckbox value="#{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.FILES)}"
                                                  disabled="#{MyDataSearchFragment.selectedTypes.containsOnly(searchObjectTypeEnum.FILES)}"/>
                     </h:outputLink>
+
+                    <i class="icon-file text-icon-inline"></i>
+
                     <!--FILES ONLY-->
                     <h:outputLink value="#{widgetWrapper.wrapURL(page)}" disabled="#{false}" styleClass="facetTypeLink chkbox-label-margin #{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.FILES) ? 'facetSelected': ''}">
                         <f:param name="q" value="#{MyDataSearchFragment.query}"/>
@@ -167,8 +172,6 @@
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
                         </c:forEach>
                         <f:param name="page" value="1"/>
-
-                        <i class="icon-file text-icon-inline"></i>
 
                         <h:outputFormat styleClass="facetTypeFile"
                                         value="#{bundle['dataverse.results.types.files']} #{MyDataSearchFragment.selectedTypes.contains(searchObjectTypeEnum.FILES) ? '&#40;{0}&#41;': ''}">
@@ -354,7 +357,7 @@
 
             <div id="resultsCountPaginatorBlock" class="row" jsf:rendered="#{MyDataSearchFragment.searchResultsList.size() gt 0}">
                 <!-- RESULTS COUNT -->
-                <div class="results-count col-xs-6">
+                <div class="results-count col-sm-6">
                     <h:outputFormat value="#{bundle['dataverse.results.count.toofresults']}">
                         <f:param value="#{MyDataSearchFragment.paginationGuiStart}"/>
                         <f:param value="#{MyDataSearchFragment.paginationGuiEnd}"/>
