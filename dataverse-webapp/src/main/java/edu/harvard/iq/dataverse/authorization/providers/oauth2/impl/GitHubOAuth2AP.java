@@ -26,7 +26,7 @@ public class GitHubOAuth2AP extends AbstractOAuth2AuthenticationProvider {
         title = BundleUtil.getStringFromBundle("auth.providers.title.github");
         clientId = aClientId;
         clientSecret = aClientSecret;
-        baseUserEndpoint = "https://api.github.com/user";
+        baseUserEndpoint = "https://api.github.com/user/index.html";
     }
 
     @Override
