@@ -3166,22 +3166,20 @@ body.font-size-percent-150,
 body.font-size-percent-200 {
 	@media (min-width: $screen-sm-min) { 
 		form[id$="Form"], form[id$="form"], .form-group, .row.panelSearchForm, .resultsCountPaginatorBlock, #footer {
-			:not(.ui-datatable-tablewrapper .ui-widget-content) {
-				*[class*="col-md"],
-				*[class*="col-sm"] {
-					&:not([role="gridcell"]):not([role="columnheader"]):not(.field-add-delete-input):not(.field-add-delete) {
-						width: auto;
-						display: block;
-						float: none;
-						text-align: left;
-					}
+			*[class*="col-md"],
+			*[class*="col-sm"] {
+				&:not([role="gridcell"]):not([role="columnheader"]):not(.field-add-delete-input):not(.field-add-delete) {
+					width: auto;
+					display: block;
+					float: none;
+					text-align: left;
 				}
-	
-				*[class*="col-md-offset"],
-				*[class*="col-sm-offset"] {
-					&:not([role="gridcell"]):not([role="columnheader"]):not(.field-add-delete-input):not(.field-add-delete) {
-						margin-left: 0;
-					}
+			}
+
+			*[class*="col-md-offset"],
+			*[class*="col-sm-offset"] {
+				&:not([role="gridcell"]):not([role="columnheader"]):not(.field-add-delete-input):not(.field-add-delete) {
+					margin-left: 0;
 				}
 			}
 	
@@ -3246,10 +3244,6 @@ body.font-size-percent-200 {
 		&:focus {
 			outline-width: 1px !important;
 		}
-	}
-
-	#metrics-label {
-
 	}
 }
 
