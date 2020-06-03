@@ -667,7 +667,7 @@ function bindPopovers() {
         .on("mouseout", event => {
             setTimeout(() => {
                 if (!$("[data-toggle='popover']:hover").length && !$(".popover-content:hover").length) $(event.currentTarget).popover("hide");
-            }, 700);
+            }, 200);
         })
         .on("focus", event => {
             $(event.currentTarget).popover("show");
