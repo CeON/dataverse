@@ -3208,8 +3208,14 @@ body.font-size-percent-150 {
 	}
 
 	.ui-dialog-titlebar-icon.ui-dialog-titlebar-close span,
-	.normal-text input {
+	.normal-text input,
+	.ui-picklist-buttons-cell .ui-icon,
+	.ui-picklist-filter-container .ui-icon-search {
 		transform: scale(1.5);
+	}
+
+	.ui-picklist-filter-container .ui-icon-search {
+		margin: 5px 5px 0 0;
 	}
 
 	#font-size-mode-selector button.percent-150 {
@@ -3233,8 +3239,14 @@ body.font-size-percent-200 {
 	}
 
 	.ui-dialog-titlebar-icon.ui-dialog-titlebar-close span,
-	.normal-text input { 
+	.normal-text input,
+	.ui-picklist-buttons-cell .ui-icon,
+	.ui-picklist-filter-container .ui-icon-search { 
 		transform: scale(2);
+	}
+
+	.ui-picklist-filter-container .ui-icon-search {
+		margin: 10px 10px 0 0;
 	}
 
 	#font-size-mode-selector button.percent-200 {
