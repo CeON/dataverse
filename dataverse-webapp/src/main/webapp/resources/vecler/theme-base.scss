@@ -3210,8 +3210,15 @@ body.font-size-percent-150 {
 	.ui-dialog-titlebar-icon.ui-dialog-titlebar-close span,
 	.normal-text input,
 	.ui-picklist-buttons-cell .ui-icon,
-	.ui-picklist-filter-container .ui-icon-search {
+	.ui-picklist-filter-container .ui-icon-search,
+	.ql-formats button,
+	.ui-fileupload-buttonbar .ui-icon-plusthick,
+	.ui-fileupload-cancel .ui-icon-close,
+	#ajaxStatusPanel_start {
 		transform: scale(1.5);
+		image-rendering: pixelated;
+		image-rendering: -moz-crisp-edges;
+		image-rendering: crisp-edges;
 	}
 
 	.ui-picklist-filter-container .ui-icon-search {
@@ -3224,7 +3231,6 @@ body.font-size-percent-150 {
 	}
 
 	.ql-formats button {
-		transform: scale(1.5);
 		margin: 0 5px;
 
 		&:focus {
@@ -3241,8 +3247,15 @@ body.font-size-percent-200 {
 	.ui-dialog-titlebar-icon.ui-dialog-titlebar-close span,
 	.normal-text input,
 	.ui-picklist-buttons-cell .ui-icon,
-	.ui-picklist-filter-container .ui-icon-search { 
+	.ui-picklist-filter-container .ui-icon-search,
+	.ql-formats button,
+	.ui-fileupload-buttonbar .ui-icon-plusthick,
+	.ui-fileupload-cancel .ui-icon-close,
+	#ajaxStatusPanel_start { 
 		transform: scale(2);
+		image-rendering: pixelated;
+		image-rendering: -moz-crisp-edges;
+		image-rendering: crisp-edges;
 	}
 
 	.ui-picklist-filter-container .ui-icon-search {
@@ -3255,7 +3268,6 @@ body.font-size-percent-200 {
 	}
 
 	.ql-formats button { 
-		transform: scale(2);
 		margin: 0 10px;
 
 		&:focus {
