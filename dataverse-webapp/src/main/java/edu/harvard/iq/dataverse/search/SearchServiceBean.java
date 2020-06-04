@@ -836,7 +836,7 @@ public class SearchServiceBean {
         Set<String> dynamicDatasetFieldsPrefixes = new HashSet<>();
 
         for(String field : solrFieldsToHightlightOnMap.keySet()) {
-            if(field.length() >= 8 && SearchDynamicFieldPrefix.contains(field.substring(0, 8))) {
+            if(isFieldDynamic(field)) {
                 dynamicDatasetFieldsPrefixes.add(field.substring(0, 8));
             } else {
                 solrQuery.addHighlightField(field);
@@ -848,6 +848,10 @@ public class SearchServiceBean {
         }
 
         return solrQuery;
+    }
+
+    private boolean isFieldDynamic(String field) {
+        return field.length() > 8 && SearchDynamicFieldPrefix.contains(field.substring(0, 8));
     }
 
     private String removeSolrFieldSuffix(String name) {
