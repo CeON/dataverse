@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.search;
 
+import java.util.stream.Stream;
+
 public enum SearchDynamicFieldPrefix {
     TXT ("dsf_txt_"),
     STR ("dsf_str_"),
@@ -23,12 +25,7 @@ public enum SearchDynamicFieldPrefix {
 
 // -------------------- LOGIC --------------------
     public static boolean contains(String value) {
-        for (SearchDynamicFieldPrefix prefix : SearchDynamicFieldPrefix.values()) {
-            if (prefix.getPrefix().equals(value))
-            {
-                return true;
-            }
-        }
-        return false;
+        return Stream.of(SearchDynamicFieldPrefix.values())
+                .anyMatch(prefix -> prefix.getPrefix().equals(value));
     }
 }
