@@ -1,6 +1,8 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
+import edu.harvard.iq.dataverse.persistence.config.SourceCustomizer;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import org.eclipse.persistence.annotations.Customizer;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.CascadeType;
@@ -29,15 +31,15 @@ import java.util.List;
  */
 @Entity
 @Table(indexes = {@Index(columnList = "dataverse_id")})
+@Customizer(SourceCustomizer.class)
 public class Template implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public Template() {
+    public Template() { }
 
-    }
     public Template(Dataverse dataverseIn) {
         dataverse = dataverseIn;
     }

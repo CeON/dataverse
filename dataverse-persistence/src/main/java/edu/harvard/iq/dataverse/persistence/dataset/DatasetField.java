@@ -42,6 +42,7 @@ public class DatasetField implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String NA_VALUE = "N/A";
+    public static final String DEFAULT_SOURCE = "PRIMARY";
 
     /**
      * Orders dataset fields by their display order.
@@ -209,6 +210,17 @@ public class DatasetField implements Serializable {
 
     public void setDisplayOrder(int displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    @Column(name = "source")
+    private String source = DEFAULT_SOURCE;
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     @ManyToMany(cascade = {CascadeType.MERGE})

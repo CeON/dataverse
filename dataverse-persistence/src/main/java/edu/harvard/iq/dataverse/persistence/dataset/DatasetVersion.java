@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.common.DateUtil;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
 import edu.harvard.iq.dataverse.common.files.mime.PackageMimeType;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
+import edu.harvard.iq.dataverse.persistence.config.SourceCustomizer;
 import edu.harvard.iq.dataverse.persistence.config.ValidateURL;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -12,6 +13,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowComment;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.persistence.annotations.Customizer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -65,6 +67,7 @@ import static java.util.stream.Collectors.toList;
 @Table(indexes = {@Index(columnList = "dataset_id")},
         uniqueConstraints = @UniqueConstraint(columnNames = {"dataset_id","versionnumber","minorversionnumber"}))
 @ValidateVersionNote(versionNote = "versionNote", versionState = "versionState")
+@Customizer(SourceCustomizer.class)
 public class DatasetVersion implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetVersion.class.getCanonicalName());

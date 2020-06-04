@@ -1,25 +1,12 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-
-import javax.faces.model.SelectItem;
-import javax.faces.model.SelectItemGroup;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,12 +23,18 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.apache.commons.lang3.StringUtils;
-
-import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 
 
 /**
@@ -518,21 +511,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         }
         DatasetFieldType other = (DatasetFieldType) object;
         return this.id == other.id || (this.id != null && this.id.equals(other.id));
-    }
-
-    /**
-     * List of fields that use this field type. If this field type is removed,
-     * these fields will be removed too.
-     */
-    @OneToMany(mappedBy = "datasetFieldType", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    private List<DatasetField> datasetFields;
-
-    public List<DatasetField> getDatasetFields() {
-        return datasetFields;
-    }
-
-    public void setDatasetFields(List<DatasetField> datasetFieldValues) {
-        this.datasetFields = datasetFieldValues;
     }
 
     @OneToMany(mappedBy = "datasetField", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
