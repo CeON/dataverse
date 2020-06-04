@@ -7,7 +7,7 @@
  * @type boolean true = enabled, false = disabled
  */
 
-var accessibilityDebugEnabled = true;
+var accessibilityDebugEnabled = false;
 
 /**
  * Prints debug info to console.
