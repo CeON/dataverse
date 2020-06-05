@@ -8,7 +8,7 @@ import org.eclipse.persistence.expressions.ExpressionBuilder;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.mappings.OneToManyMapping;
 
-public class SourceCustomizer implements DescriptorCustomizer {
+public class DatasetFieldsMappingCustomizer implements DescriptorCustomizer {
 
     @Override
     public void customize(ClassDescriptor classDescriptor) throws Exception {

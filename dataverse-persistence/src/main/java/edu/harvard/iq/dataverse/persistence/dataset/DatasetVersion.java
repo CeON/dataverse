@@ -5,7 +5,7 @@ import edu.harvard.iq.dataverse.common.DateUtil;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
 import edu.harvard.iq.dataverse.common.files.mime.PackageMimeType;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
-import edu.harvard.iq.dataverse.persistence.config.SourceCustomizer;
+import edu.harvard.iq.dataverse.persistence.config.DatasetFieldsMappingCustomizer;
 import edu.harvard.iq.dataverse.persistence.config.ValidateURL;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -67,37 +67,20 @@ import static java.util.stream.Collectors.toList;
 @Table(indexes = {@Index(columnList = "dataset_id")},
         uniqueConstraints = @UniqueConstraint(columnNames = {"dataset_id","versionnumber","minorversionnumber"}))
 @ValidateVersionNote(versionNote = "versionNote", versionState = "versionState")
-@Customizer(SourceCustomizer.class)
+@Customizer(DatasetFieldsMappingCustomizer.class)
 public class DatasetVersion implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetVersion.class.getCanonicalName());
 
-    /**
-     * Convenience comparator to compare dataset versions by their version number.
-     * The draft version is considered the latest.
-     */
-    public static final Comparator<DatasetVersion> compareByVersion = new Comparator<DatasetVersion>() {
-        @Override
-        public int compare(DatasetVersion o1, DatasetVersion o2) {
-            if (o1.isDraft()) {
-                return o2.isDraft() ? 0 : 1;
-            } else {
-                return (int) Math.signum((o1.getVersionNumber().equals(o2.getVersionNumber())) ?
-                                                 o1.getMinorVersionNumber() - o2.getMinorVersionNumber()
-                                                 : o1.getVersionNumber() - o2.getVersionNumber());
-            }
-        }
-    };
-
     // TODO: Determine the UI implications of various version states
-    //IMPORTANT: If you add a new value to this enum, you will also have to modify the
+    // IMPORTANT: If you add a new value to this enum, you will also have to modify the
     // StudyVersionsFragment.xhtml in order to display the correct value from a Resource Bundle
     public enum VersionState {
-        DRAFT, RELEASED, ARCHIVED, DEACCESSIONED
+        DRAFT, RELEASED, ARCHIVED, DEACCESSIONED;
     }
 
     public enum License {
-        NONE, CC0
+        NONE, CC0;
     }
 
     public static final int ARCHIVE_NOTE_MAX_LENGTH = 1000;
@@ -113,6 +96,7 @@ public class DatasetVersion implements Serializable {
     private Long version;
 
     private Long versionNumber;
+
     private Long minorVersionNumber;
 
     @Size(min = 0, max = VERSION_NOTE_MAX_LENGTH)
@@ -120,8 +104,7 @@ public class DatasetVersion implements Serializable {
     private String versionNote;
 
     /*
-     * @todo versionState should never be null so when we are ready, uncomment
-     * the `nullable = false` below.
+     * @todo versionState should never be null so when we are ready, uncomment the `nullable = false` below.
      */
 //    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -132,14 +115,16 @@ public class DatasetVersion implements Serializable {
 
     @OneToMany(mappedBy = "datasetVersion", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     @OrderBy("label")
-    // this is not our preferred ordering, which is with the AlphaNumericComparator, but does allow the files to be grouped by category
+    // this is not our preferred ordering, which is with the AlphaNumericComparator,
+    // but does allow the files to be grouped by category
     private List<FileMetadata> fileMetadatas = new ArrayList<>();
 
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "termsOfUseAndAccess_id")
     private TermsOfUseAndAccess termsOfUseAndAccess = new TermsOfUseAndAccess();
 
-    @OneToMany(mappedBy = "datasetVersion", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "datasetVersion", orphanRemoval = true,
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetField> datasetFields = new ArrayList<>();
 
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -164,31 +149,24 @@ public class DatasetVersion implements Serializable {
     @Column(nullable = true, columnDefinition = "TEXT")
     private String archivalCopyLocation;
 
-
     private String deaccessionLink;
 
     @OneToMany(mappedBy = "datasetVersion", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetVersionUser> datasetVersionUsers;
 
-    // Is this the right mapping and cascading for when the workflowcomments table is being used for objects other than DatasetVersion?
+    // Is this the right mapping and cascading for when the workflowcomments table
+    // is being used for objects other than DatasetVersion?
     @OneToMany(mappedBy = "datasetVersion", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<WorkflowComment> workflowComments;
 
+    // -------------------- GETTERS --------------------
 
     public Long getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getUNF() {
         return UNF;
-    }
-
-    public void setUNF(String UNF) {
-        this.UNF = UNF;
     }
 
     /**
@@ -200,12 +178,157 @@ public class DatasetVersion implements Serializable {
         return this.version;
     }
 
-    public void setVersion(Long version) {
-    }
-
     public List<FileMetadata> getFileMetadatas() {
         return fileMetadatas;
     }
+
+    public TermsOfUseAndAccess getTermsOfUseAndAccess() {
+        return termsOfUseAndAccess;
+    }
+
+    public List<DatasetField> getDatasetFields() {
+        return datasetFields;
+    }
+
+    public Date getArchiveTime() {
+        return archiveTime;
+    }
+
+    public String getArchiveNote() {
+        return archiveNote;
+    }
+
+    public String getArchivalCopyLocation() {
+        return archivalCopyLocation;
+    }
+
+    public String getDeaccessionLink() {
+        return deaccessionLink;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public Date getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public Date getReleaseTime() {
+        return releaseTime;
+    }
+
+    public List<DatasetVersionUser> getDatasetVersionUsers() {
+        return datasetVersionUsers;
+    }
+
+    public String getVersionNote() {
+        return versionNote;
+    }
+
+    public Long getVersionNumber() {
+        return versionNumber;
+    }
+
+    public Long getMinorVersionNumber() {
+        return minorVersionNumber;
+    }
+
+    public VersionState getVersionState() {
+        return versionState;
+    }
+
+    public Dataset getDataset() {
+        return dataset;
+    }
+
+    public List<WorkflowComment> getWorkflowComments() {
+        return workflowComments;
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUNF(String UNF) {
+        this.UNF = UNF;
+    }
+
+    public void setVersion(Long version) {
+    }
+
+    public void setFileMetadatas(List<FileMetadata> fileMetadatas) {
+        this.fileMetadatas = fileMetadatas;
+    }
+
+    public void setArchiveTime(Date archiveTime) {
+        this.archiveTime = archiveTime;
+    }
+
+    public void setArchiveNote(String note) {
+        // @todo should this be using bean validation for trsting note length?
+        if (note != null && note.length() > ARCHIVE_NOTE_MAX_LENGTH) {
+            throw new IllegalArgumentException("Error setting archiveNote: String length is greater than maximum (" + ARCHIVE_NOTE_MAX_LENGTH + ")."
+                    + "  StudyVersion id=" + id + ", archiveNote=" + note);
+        }
+        this.archiveNote = note;
+    }
+
+    public void setArchivalCopyLocation(String location) {
+        this.archivalCopyLocation = location;
+    }
+
+    public void setDeaccessionLink(String deaccessionLink) {
+        this.deaccessionLink = deaccessionLink;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public void setLastUpdateTime(Date lastUpdateTime) {
+        if (createTime == null) {
+            createTime = lastUpdateTime;
+        }
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public void setReleaseTime(Date releaseTime) {
+        this.releaseTime = releaseTime;
+    }
+
+    public void setUserDatasets(List<DatasetVersionUser> datasetVersionUsers) {
+        this.datasetVersionUsers = datasetVersionUsers;
+    }
+
+    public void setVersionNote(String note) {
+        if (note != null && note.length() > VERSION_NOTE_MAX_LENGTH) {
+            throw new IllegalArgumentException("Error setting versionNote: String length is greater than maximum ("
+                    + VERSION_NOTE_MAX_LENGTH + ")."
+                    + "  StudyVersion id=" + id + ", versionNote=" + note);
+        }
+        this.versionNote = note;
+    }
+
+    public void setVersionNumber(Long versionNumber) {
+        this.versionNumber = versionNumber;
+    }
+
+    public void setMinorVersionNumber(Long minorVersionNumber) {
+        this.minorVersionNumber = minorVersionNumber;
+    }
+
+    public void setVersionState(VersionState versionState) {
+        this.versionState = versionState;
+    }
+
+    public void setDataset(Dataset dataset) {
+        this.dataset = dataset;
+    }
+
+    // -------------------- LOGIC --------------------
 
     public List<FileMetadata> getAllFilesMetadataSorted() {
         List<FileMetadata> result = newArrayList(fileMetadatas);
@@ -222,20 +345,22 @@ public class DatasetVersion implements Serializable {
         return result;
     }
 
-    public void setFileMetadatas(List<FileMetadata> fileMetadatas) {
-        this.fileMetadatas = fileMetadatas;
-    }
-
-    public TermsOfUseAndAccess getTermsOfUseAndAccess() {
-        return termsOfUseAndAccess;
-    }
+    /**
+     * Convenience comparator to compare dataset versions by their version number.
+     * The draft version is considered the latest.
+     */
+    public static final Comparator<DatasetVersion> compareByVersion = (o1, o2) -> {
+        if (o1.isDraft()) {
+            return o2.isDraft() ? 0 : 1;
+        } else {
+            return (int) Math.signum((o1.getVersionNumber().equals(o2.getVersionNumber())) ?
+                    o1.getMinorVersionNumber() - o2.getMinorVersionNumber()
+                    : o1.getVersionNumber() - o2.getVersionNumber());
+        }
+    };
 
     public void setTermsOfUseAndAccess(TermsOfUseAndAccess termsOfUseAndAccess) {
         this.termsOfUseAndAccess = termsOfUseAndAccess;
-    }
-
-    public List<DatasetField> getDatasetFields() {
-        return datasetFields;
     }
 
     /**
@@ -264,64 +389,8 @@ public class DatasetVersion implements Serializable {
         }
     }
 
-    public Date getArchiveTime() {
-        return archiveTime;
-    }
-
-    public void setArchiveTime(Date archiveTime) {
-        this.archiveTime = archiveTime;
-    }
-
-    public String getArchiveNote() {
-        return archiveNote;
-    }
-
-    public void setArchiveNote(String note) {
-        // @todo should this be using bean validation for trsting note length?
-        if (note != null && note.length() > ARCHIVE_NOTE_MAX_LENGTH) {
-            throw new IllegalArgumentException("Error setting archiveNote: String length is greater than maximum (" + ARCHIVE_NOTE_MAX_LENGTH + ")."
-                                                       + "  StudyVersion id=" + id + ", archiveNote=" + note);
-        }
-        this.archiveNote = note;
-    }
-
-    public String getArchivalCopyLocation() {
-        return archivalCopyLocation;
-    }
-
-    public void setArchivalCopyLocation(String location) {
-        this.archivalCopyLocation = location;
-    }
-
-    public String getDeaccessionLink() {
-        return deaccessionLink;
-    }
-
-    public void setDeaccessionLink(String deaccessionLink) {
-        this.deaccessionLink = deaccessionLink;
-    }
-
     public GlobalId getDeaccessionLinkAsGlobalId() {
         return new GlobalId(deaccessionLink);
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getLastUpdateTime() {
-        return lastUpdateTime;
-    }
-
-    public void setLastUpdateTime(Date lastUpdateTime) {
-        if (createTime == null) {
-            createTime = lastUpdateTime;
-        }
-        this.lastUpdateTime = lastUpdateTime;
     }
 
     public String getVersionDate() {
@@ -335,22 +404,6 @@ public class DatasetVersion implements Serializable {
         return new SimpleDateFormat("yyyy").format(lastUpdateTime);
     }
 
-    public Date getReleaseTime() {
-        return releaseTime;
-    }
-
-    public void setReleaseTime(Date releaseTime) {
-        this.releaseTime = releaseTime;
-    }
-
-    public List<DatasetVersionUser> getDatasetVersionUsers() {
-        return datasetVersionUsers;
-    }
-
-    public void setUserDatasets(List<DatasetVersionUser> datasetVersionUsers) {
-        this.datasetVersionUsers = datasetVersionUsers;
-    }
-
     public List<String> getVersionContributorIdentifiers() {
         if (this.getDatasetVersionUsers() == null) {
             return Collections.emptyList();
@@ -361,12 +414,6 @@ public class DatasetVersion implements Serializable {
         }
         return ret;
     }
-
-
-    public String getVersionNote() {
-        return versionNote;
-    }
-
 
     public VersionState getPriorVersionState() {
         int index = 0;
@@ -387,44 +434,12 @@ public class DatasetVersion implements Serializable {
         return null;
     }
 
-    public void setVersionNote(String note) {
-        if (note != null && note.length() > VERSION_NOTE_MAX_LENGTH) {
-            throw new IllegalArgumentException("Error setting versionNote: String length is greater than maximum (" + VERSION_NOTE_MAX_LENGTH + ")."
-                                                       + "  StudyVersion id=" + id + ", versionNote=" + note);
-        }
-        this.versionNote = note;
-    }
-
-    public Long getVersionNumber() {
-        return versionNumber;
-    }
-
-    public void setVersionNumber(Long versionNumber) {
-        this.versionNumber = versionNumber;
-    }
-
-    public Long getMinorVersionNumber() {
-        return minorVersionNumber;
-    }
-
-    public void setMinorVersionNumber(Long minorVersionNumber) {
-        this.minorVersionNumber = minorVersionNumber;
-    }
-
     public String getFriendlyVersionNumber() {
         if (this.isDraft()) {
             return "DRAFT";
         } else {
             return versionNumber.toString() + "." + minorVersionNumber.toString();
         }
-    }
-
-    public VersionState getVersionState() {
-        return versionState;
-    }
-
-    public void setVersionState(VersionState versionState) {
-        this.versionState = versionState;
     }
 
     public boolean isReleased() {
@@ -555,7 +570,7 @@ public class DatasetVersion implements Serializable {
     }
 
     public void initDefaultValues() {
-        //first clear then initialize - in case values were present 
+        //first clear then initialize - in case values were present
         // from template or user entry
         this.setDatasetFields(new ArrayList<>());
         this.setDatasetFields(this.initDatasetFields());
@@ -584,43 +599,14 @@ public class DatasetVersion implements Serializable {
     public DatasetVersion getLargestMinorRelease() {
         if (this.getDataset().isReleased()) {
             for (DatasetVersion testVersion : this.dataset.getVersions()) {
-                if (testVersion.getVersionNumber() != null && testVersion.getVersionNumber().equals(this.getVersionNumber())) {
+                if (testVersion.getVersionNumber() != null
+                        && testVersion.getVersionNumber().equals(this.getVersionNumber())) {
                     return testVersion;
                 }
             }
         }
 
         return this;
-    }
-
-    public Dataset getDataset() {
-        return dataset;
-    }
-
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof DatasetVersion)) {
-            return false;
-        }
-        DatasetVersion other = (DatasetVersion) object;
-        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
-    }
-
-    @Override
-    public String toString() {
-        return "[DatasetVersion id:" + getId() + "]";
     }
 
     public boolean isLatestVersion() {
@@ -653,7 +639,8 @@ public class DatasetVersion implements Serializable {
                 String descriptionString = "";
                 if (!dsf.getDatasetFieldsChildren().isEmpty()) {
                     for (DatasetField subField : dsf.getDatasetFieldsChildren()) {
-                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.descriptionText) && !subField.isEmptyForDisplay()) {
+                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.descriptionText)
+                                && !subField.isEmptyForDisplay()) {
                             descriptionString = subField.getValue();
                         }
                     }
@@ -672,7 +659,8 @@ public class DatasetVersion implements Serializable {
                 String descriptionString = "";
                 if (!dsf.getDatasetFieldsChildren().isEmpty()) {
                     for (DatasetField subField : dsf.getDatasetFieldsChildren()) {
-                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.descriptionText) && !subField.isEmptyForDisplay()) {
+                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.descriptionText)
+                                && !subField.isEmptyForDisplay()) {
                             descriptionString = subField.getValue();
                         }
                     }
@@ -1036,27 +1024,6 @@ public class DatasetVersion implements Serializable {
         return retList;
     }
 
-    private List<String> sortSpatialCoverage(Map<String, String> hash) {
-        List<String> sorted = new ArrayList<>();
-        String city = hash.get(DatasetFieldConstant.city);
-        if (city != null) {
-            sorted.add(city);
-        }
-        String state = hash.get(DatasetFieldConstant.state);
-        if (state != null) {
-            sorted.add(state);
-        }
-        String country = hash.get(DatasetFieldConstant.country);
-        if (country != null) {
-            sorted.add(country);
-        }
-        String otherGeographicCoverage = hash.get(DatasetFieldConstant.otherGeographicCoverage);
-        if (otherGeographicCoverage != null) {
-            sorted.add(otherGeographicCoverage);
-        }
-        return sorted;
-    }
-
     /**
      * @return List of Strings containing the version's Keywords
      */
@@ -1144,12 +1111,6 @@ public class DatasetVersion implements Serializable {
         return keywords;
     }
 
-    private List<DatasetField> extractFieldsWithType(String fieldTypeName) {
-        return datasetFields.stream()
-            .filter(field -> StringUtils.equals(field.getDatasetFieldType().getName(), fieldTypeName))
-            .collect(toList());
-    }
-
     public List<String> getDatasetProducerNames() {
         List<String> producerNames = new ArrayList<String>();
         for (DatasetField dsf : this.getDatasetFields()) {
@@ -1204,10 +1165,8 @@ public class DatasetVersion implements Serializable {
         //todo get dist date from datasetfieldvalue table
         for (DatasetField dsf : this.getDatasetFields()) {
             if (DatasetFieldConstant.distributionDate.equals(dsf.getDatasetFieldType().getName())) {
-                String date = dsf.getValue();
-                return date;
+                return dsf.getValue();
             }
-
         }
         return null;
     }
@@ -1222,6 +1181,7 @@ public class DatasetVersion implements Serializable {
     }
 
     // TODO: Consider renaming this method since it's also used for getting the "provider" for Schema.org JSON-LD.
+
     public String getRootDataverseNameforCitation() {
         //Get root dataverse name for Citation
         Dataverse root = this.getDataset().getOwner();
@@ -1246,14 +1206,14 @@ public class DatasetVersion implements Serializable {
     }
 
     public String getDistributorNames() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (DatasetDistributor sd : this.getDatasetDistributors()) {
-            if (str.trim().length() > 1) {
-                str += ";";
+            if (str.toString().trim().length() > 1) {
+                str.append(";");
             }
-            str += sd.getName();
+            str.append(sd.getName());
         }
-        return str;
+        return str.toString();
     }
 
     public String getAuthorsStr() {
@@ -1261,48 +1221,30 @@ public class DatasetVersion implements Serializable {
     }
 
     public String getAuthorsStr(boolean affiliation) {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (DatasetAuthor sa : getDatasetAuthors()) {
             if (sa.getName() == null) {
                 break;
             }
-            if (str.trim().length() > 1) {
-                str += "; ";
+            if (str.toString().trim().length() > 1) {
+                str.append("; ");
             }
-            str += sa.getName().getValue();
+            str.append(sa.getName().getValue());
             if (affiliation) {
                 if (sa.getAffiliation() != null) {
                     if (!StringUtils.isBlank(sa.getAffiliation().getValue())) {
-                        str += " (" + sa.getAffiliation().getValue() + ")";
+                        str.append(" (")
+                                .append(sa.getAffiliation().getValue())
+                                .append(")");
                     }
                 }
             }
         }
-        return str;
+        return str.toString();
     }
 
     // TODO: clean up init methods and get them to work, cascading all the way down.
     // right now, only work for one level of compound objects
-    private DatasetField initDatasetField(DatasetField dsf) {
-        if (dsf.getDatasetFieldType().isCompound()) {
-            for (DatasetFieldType dsfType : dsf.getDatasetFieldType().getChildDatasetFieldTypes()) {
-                boolean add = true;
-                for (DatasetField subfield : dsf.getDatasetFieldsChildren()) {
-                    if (dsfType.equals(subfield.getDatasetFieldType())) {
-                        add = false;
-                        break;
-                    }
-                }
-
-                if (add) {
-                    dsf.getDatasetFieldsChildren().add(DatasetField.createNewEmptyChildDatasetField(dsfType, dsf));
-                }
-            }
-        }
-
-        return dsf;
-    }
-
     public List<DatasetField> initDatasetFields() {
         //retList - Return List of values
         List<DatasetField> retList = new ArrayList<>();
@@ -1313,7 +1255,7 @@ public class DatasetVersion implements Serializable {
             }
         }
 
-        //Test to see that there are values for 
+        //Test to see that there are values for
         // all fields in this dataset via metadata blocks
         //only add if not added above
         for (MetadataBlock mdb : this.getDataset().getOwner().getRootMetadataBlocks()) {
@@ -1343,13 +1285,8 @@ public class DatasetVersion implements Serializable {
 
     /**
      * For the current server, create link back to this Dataset
-     * <p>
-     * example:
+     * <p> example:
      * http://dvn-build.hmdc.harvard.edu/dataset.xhtml?id=72&versionId=25
-     *
-     * @param serverName
-     * @param dset
-     * @return
      */
     public String getReturnToDatasetURL(String serverName, Dataset dset) {
         if (serverName == null) {
@@ -1362,13 +1299,13 @@ public class DatasetVersion implements Serializable {
             }
         }
         return serverName + "/dataset.xhtml?id=" + dset.getId() + "&versionId=" + this.getId();
-    } 
-    
+    }
+
     /*
     Per #3511 we  are returning all users to the File Landing page
-    If we in the future we are going to return them to the referring page we will need the 
+    If we in the future we are going to return them to the referring page we will need the
     getReturnToDatasetURL method and add something to the call to the api to
-    pass the referring page and some kind of decision point in  the getWorldMapDatafileInfo method in 
+    pass the referring page and some kind of decision point in  the getWorldMapDatafileInfo method in
     WorldMapRelatedData
     SEK 3/24/2017
     */
@@ -1385,21 +1322,20 @@ public class DatasetVersion implements Serializable {
         }
         return serverName + "/file.xhtml?fileId=" + dataFile.getId() + "&version=" + this.getSemanticVersion();
     }
-
-
     public List<DatasetField> getFlatDatasetFields() {
         return DatasetFieldUtil.getFlatDatasetFields(getDatasetFields());
     }
 
+    /**
+    * Not prepending a "v" like "v1.1" or "v2.0" because while SemVerTag
+    * was in http://semver.org/spec/v1.0.0.html but later removed in
+    * http://semver.org/spec/v2.0.0.html
+    *
+    * See also to v or not to v · Issue #1 · mojombo/semver -
+    * https://github.com/mojombo/semver/issues/1#issuecomment-2605236
+    */
     public String getSemanticVersion() {
-        /**
-         * Not prepending a "v" like "v1.1" or "v2.0" because while SemVerTag
-         * was in http://semver.org/spec/v1.0.0.html but later removed in
-         * http://semver.org/spec/v2.0.0.html
-         *
-         * See also to v or not to v · Issue #1 · mojombo/semver -
-         * https://github.com/mojombo/semver/issues/1#issuecomment-2605236
-         */
+
         if (this.isReleased()) {
             return versionNumber + "." + minorVersionNumber;
         } else if (this.isDraft()) {
@@ -1451,7 +1387,7 @@ public class DatasetVersion implements Serializable {
                 for (ConstraintViolation<DatasetField> constraintViolation : constraintViolations2) {
                     dsfv.setValidationMessage(constraintViolation.getMessage());
                     returnSet.add(constraintViolation);
-                    break; // currently only support one message, so we can break out of the loop after the first constraint violation                    
+                    break; // currently only support one message, so we can break out of the loop after the first constraint violation
                 }
             }
         }
@@ -1462,10 +1398,8 @@ public class DatasetVersion implements Serializable {
                 if (constraintViolations.size() > 0) {
                     // currently only support one message
                     ConstraintViolation<FileMetadata> violation = constraintViolations.iterator().next();
-                    /**
-                     * @todo How can we expose this more detailed message
-                     * containing the invalid value to the user?
-                     */
+
+                    // @todo How can we expose this more detailed message containing the invalid value to the user?
                     String message = "Constraint violation found in FileMetadata. "
                             + violation.getMessage() + " "
                             + "The invalid value is \"" + violation.getInvalidValue().toString() + "\".";
@@ -1475,12 +1409,7 @@ public class DatasetVersion implements Serializable {
                 }
             }
         }
-
         return returnSet;
-    }
-
-    public List<WorkflowComment> getWorkflowComments() {
-        return workflowComments;
     }
 
     /**
@@ -1493,10 +1422,9 @@ public class DatasetVersion implements Serializable {
         if (DatasetVersion.VersionState.DRAFT == this.getVersionState()) {
             return "";
         }
-        Date rel_date = this.getReleaseTime();
+        Date relDate = this.getReleaseTime();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        String r = fmt.format(rel_date.getTime());
-        return r;
+        return fmt.format(relDate.getTime());
     }
 
     public String getLocaleLastUpdateTime() {
@@ -1508,6 +1436,8 @@ public class DatasetVersion implements Serializable {
         getFileMetadatas().add(fileMetadata);
     }
 
+    // -------------------- PRIVATE --------------------
+
     private int fileMetadataNextOrder() {
         int maxDisplayOrder = -1;
         for (FileMetadata metadata : getFileMetadatas()) {
@@ -1516,5 +1446,79 @@ public class DatasetVersion implements Serializable {
             }
         }
         return ++maxDisplayOrder;
+    }
+
+    private List<DatasetField> extractFieldsWithType(String fieldTypeName) {
+        return datasetFields.stream()
+                .filter(field -> StringUtils.equals(field.getDatasetFieldType().getName(), fieldTypeName))
+                .collect(toList());
+    }
+
+    // TODO: clean up init methods and get them to work, cascading all the way down.
+    // right now, only work for one level of compound objects
+    private DatasetField initDatasetField(DatasetField dsf) {
+        if (dsf.getDatasetFieldType().isCompound()) {
+            for (DatasetFieldType dsfType : dsf.getDatasetFieldType().getChildDatasetFieldTypes()) {
+                boolean add = true;
+                for (DatasetField subfield : dsf.getDatasetFieldsChildren()) {
+                    if (dsfType.equals(subfield.getDatasetFieldType())) {
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (add) {
+                    dsf.getDatasetFieldsChildren().add(DatasetField.createNewEmptyChildDatasetField(dsfType, dsf));
+                }
+            }
+        }
+        return dsf;
+    }
+
+    private List<String> sortSpatialCoverage(Map<String, String> hash) {
+        List<String> sorted = new ArrayList<>();
+        String city = hash.get(DatasetFieldConstant.city);
+        if (city != null) {
+            sorted.add(city);
+        }
+        String state = hash.get(DatasetFieldConstant.state);
+        if (state != null) {
+            sorted.add(state);
+        }
+        String country = hash.get(DatasetFieldConstant.country);
+        if (country != null) {
+            sorted.add(country);
+        }
+        String otherGeographicCoverage = hash.get(DatasetFieldConstant.otherGeographicCoverage);
+        if (otherGeographicCoverage != null) {
+            sorted.add(otherGeographicCoverage);
+        }
+        return sorted;
+    }
+
+    // -------------------- hashCode & equals --------------------
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof DatasetVersion)) {
+            return false;
+        }
+        DatasetVersion other = (DatasetVersion) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
+    }
+
+    // -------------------- toString --------------------
+
+    @Override
+    public String toString() {
+        return "[DatasetVersion id:" + getId() + "]";
     }
 }
