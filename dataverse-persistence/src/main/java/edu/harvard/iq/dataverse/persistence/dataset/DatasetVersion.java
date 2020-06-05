@@ -5,8 +5,9 @@ import edu.harvard.iq.dataverse.common.DateUtil;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
 import edu.harvard.iq.dataverse.common.files.mime.PackageMimeType;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
-import edu.harvard.iq.dataverse.persistence.config.DatasetFieldsMappingCustomizer;
+import edu.harvard.iq.dataverse.persistence.config.EntityCustomizer;
 import edu.harvard.iq.dataverse.persistence.config.ValidateURL;
+import edu.harvard.iq.dataverse.persistence.config.annotations.CustomizeSelectionQuery;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
@@ -67,7 +68,7 @@ import static java.util.stream.Collectors.toList;
 @Table(indexes = {@Index(columnList = "dataset_id")},
         uniqueConstraints = @UniqueConstraint(columnNames = {"dataset_id","versionnumber","minorversionnumber"}))
 @ValidateVersionNote(versionNote = "versionNote", versionState = "versionState")
-@Customizer(DatasetFieldsMappingCustomizer.class)
+@Customizer(EntityCustomizer.class)
 public class DatasetVersion implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetVersion.class.getCanonicalName());
@@ -125,6 +126,7 @@ public class DatasetVersion implements Serializable {
 
     @OneToMany(mappedBy = "datasetVersion", orphanRemoval = true,
             cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @CustomizeSelectionQuery(EntityCustomizer.Customizations.DATASET_FIELDS_WITH_PRIMARY_SOURCE)
     private List<DatasetField> datasetFields = new ArrayList<>();
 
     @Temporal(value = TemporalType.TIMESTAMP)

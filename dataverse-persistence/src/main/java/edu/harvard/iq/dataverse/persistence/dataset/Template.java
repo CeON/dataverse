@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import edu.harvard.iq.dataverse.persistence.config.DatasetFieldsMappingCustomizer;
+import edu.harvard.iq.dataverse.persistence.config.EntityCustomizer;
+import edu.harvard.iq.dataverse.persistence.config.annotations.CustomizeSelectionQuery;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import org.eclipse.persistence.annotations.Customizer;
 import org.hibernate.validator.constraints.NotBlank;
@@ -32,7 +33,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(indexes = {@Index(columnList = "dataverse_id")})
-@Customizer(DatasetFieldsMappingCustomizer.class)
+@Customizer(EntityCustomizer.class)
 public class Template implements Serializable {
 
     @Id
@@ -56,6 +57,7 @@ public class Template implements Serializable {
 
     @OneToMany(mappedBy = "template", orphanRemoval = true,
             cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @CustomizeSelectionQuery(EntityCustomizer.Customizations.DATASET_FIELDS_WITH_PRIMARY_SOURCE)
     private List<DatasetField> datasetFields = new ArrayList<>();
 
     @ManyToOne
