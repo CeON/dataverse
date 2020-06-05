@@ -4,17 +4,19 @@ public class SendNewsletterEmailContent {
 
     private String firstName;
     private String lastName;
-    private String email;
+    private String newsletterSenderEmail;
+    private String newsletterReceiverEmail;
 
     // -------------------- CONSTRUCTORS --------------------
     @Deprecated /* Only used for Jackson parser */
     public SendNewsletterEmailContent() {
     }
 
-    public SendNewsletterEmailContent(String firstName, String lastName, String email) {
+    public SendNewsletterEmailContent(String firstName, String lastName, String newsletterSenderEmail, String newsletterReceiverEmail) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.email = email;
+        this.newsletterSenderEmail = newsletterSenderEmail;
+        this.newsletterReceiverEmail = newsletterReceiverEmail;
     }
 
     // -------------------- GETTERS --------------------
@@ -27,7 +29,11 @@ public class SendNewsletterEmailContent {
         return lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getNewsletterSenderEmail() {
+        return newsletterSenderEmail;
+    }
+
+    public String getNewsletterReceiverEmail() {
+        return newsletterReceiverEmail;
     }
 }

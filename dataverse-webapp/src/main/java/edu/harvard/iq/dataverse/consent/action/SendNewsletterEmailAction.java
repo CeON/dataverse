@@ -29,7 +29,7 @@ class SendNewsletterEmailAction implements Action{
 
         EmailContent emailContent = prepareEmail(repositoryName, consentActionDto, sendNewsletterEmailContent);
 
-        mailService.sendMailAsync(sendNewsletterEmailContent.getEmail(), emailContent);
+        mailService.sendMailAsync(sendNewsletterEmailContent.getNewsletterSenderEmail(), emailContent);
     }
 
     // -------------------- PRIVATE --------------------
@@ -43,11 +43,11 @@ class SendNewsletterEmailAction implements Action{
                         throwable));
 
 
-        return new SendNewsletterEmailContent(user.getFirstName(), user.getLastName(), emailField.getEmail());
+        return new SendNewsletterEmailContent(user.getFirstName(), user.getLastName(), emailField.getEmail(), user.getEmail());
     }
 
     private EmailContent prepareEmail(String repositoryName, ConsentActionDto consentActionDto, SendNewsletterEmailContent actionContent){
-        String emailSubject = repositoryName + " New consent for personal data processing";
+        String emailSubject = repositoryName + ": New consent for personal data processing";
 
         StringBuilder emailBodyConstructor = new StringBuilder();
 
@@ -64,7 +64,7 @@ class SendNewsletterEmailAction implements Action{
                 .append(actionContent.getLastName())
                 .append("\n")
                 .append("E-mail: ")
-                .append(actionContent.getEmail())
+                .append(actionContent.getNewsletterReceiverEmail())
                 .toString();
 
         return new EmailContent(emailSubject, emailBody, "");
