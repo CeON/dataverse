@@ -1092,7 +1092,7 @@
                 <!-- Publish/Submit for Review Dialogs -->
                 <p:dialog width="70%" header="#{bundle['dataset.publish.header']}" widgetVar="publishConfirm"
                           modal="true"
-                          rendered="#{DatasetPage.canPublishDataverse()}">
+                          rendered="#{permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
 
                     <p class="text-warning">
                         <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.publish.tip']}
@@ -1114,7 +1114,7 @@
 
                 <p:dialog width="70%" header="#{bundle['dataset.publish.header']}" widgetVar="noFilesInDataset"
                           modal="true"
-                          rendered="#{DatasetPage.canPublishDataverse()}">
+                          rendered="#{permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}">
 
                     <p class="text-danger">
                         <span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.publish.error.noFiles']}
