@@ -219,6 +219,7 @@ public class SearchServiceBean {
 
         solrQuery = addHighlightFields(solrQuery, solrFieldsToHightlightOnMap);
 
+        solrQuery.setHighlightRequireFieldMatch(true);
         solrQuery.setParam("fl", "*,score");
         solrQuery.setParam("qt", "/select");
         solrQuery.setParam("facet", "true");
