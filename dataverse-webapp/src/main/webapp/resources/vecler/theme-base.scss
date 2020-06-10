@@ -701,6 +701,14 @@ input, textarea {
 	}
 }
 
+@media screen and (max-width: $screen-xs-max) {
+	.ui-inputfield {
+		&[style*="width:60%"], &[style*="width: 60%"] {
+			width: 100% !important;
+		}
+	}
+}
+
 textarea {
 	resize: vertical;
 }
@@ -1497,8 +1505,13 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 
 /* Scrollable tables */
 
-.ui-datatable:not(.headerless-table) table {
-	min-width: 65em;
+.ui-datatable:not(.headerless-table):not(.no-min-width) {
+	table {
+		min-width: 65em;
+	}
+	&.medium-min-width table {
+		min-width: 40em;
+	}
 }
 
 div.manageTable,
@@ -1663,7 +1676,6 @@ div.filesTable {
 /* Charts */
 
 .chart-wrapper {
-	height: 300px;
 	overflow-x: auto;
 
 	> div {
@@ -3366,6 +3378,12 @@ body.font-size-percent-200 {
 
 		input {
 			width: 100%;
+		}
+	}
+
+	.ui-inputfield {
+		&[style*="width:60%"], &[style*="width: 60%"] {
+			width: 100% !important;
 		}
 	}
 
