@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.workflow.internalspi;
 
-import edu.harvard.iq.dataverse.workflow.WorkflowContext;
-import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
+import edu.harvard.iq.dataverse.workflow.WorkflowExecutionContext;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.Pending;
+import edu.harvard.iq.dataverse.workflow.step.Success;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStep;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
 import org.apache.commons.httpclient.HttpClient;
@@ -23,7 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import static edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult.OK;
+import static edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType.PostPublishDataset;
 
 /**
  * A workflow step that sends a HTTP request, and then pauses, waiting for a response.
@@ -39,7 +39,7 @@ public class HttpSendReceiveClientStep implements WorkflowStep {
     }
 
     @Override
-    public WorkflowStepResult run(WorkflowContext context) {
+    public WorkflowStepResult run(WorkflowExecutionContext context) {
         HttpClient client = new HttpClient();
 
         try {
@@ -62,11 +62,11 @@ public class HttpSendReceiveClientStep implements WorkflowStep {
     }
 
     @Override
-    public WorkflowStepResult resume(WorkflowContext context, Map<String, String> internalData, String externalData) {
+    public WorkflowStepResult resume(WorkflowExecutionContext context, Map<String, String> internalData, String externalData) {
         Pattern pat = Pattern.compile(params.get("expectedResponse"));
         String response = externalData.trim();
         if (pat.matcher(response).matches()) {
-            return OK;
+            return new Success();
         } else {
             logger.log(Level.WARNING, "Remote system returned a bad reposonse: {0}", externalData);
             return new Failure("Response from remote server did not match expected one (response:" + response + ")");
@@ -74,7 +74,7 @@ public class HttpSendReceiveClientStep implements WorkflowStep {
     }
 
     @Override
-    public void rollback(WorkflowContext context, Failure reason) {
+    public void rollback(WorkflowExecutionContext context, Failure reason) {
         HttpClient client = new HttpClient();
 
         try {
@@ -95,7 +95,7 @@ public class HttpSendReceiveClientStep implements WorkflowStep {
         }
     }
 
-    HttpMethodBase buildMethod(boolean rollback, WorkflowContext ctxt) throws Exception {
+    HttpMethodBase buildMethod(boolean rollback, WorkflowExecutionContext ctxt) throws Exception {
         String methodName = params.getOrDefault("method" + (rollback ? "-rollback" : ""), "GET").trim().toUpperCase();
         HttpMethodBase m = null;
         switch (methodName) {
@@ -127,7 +127,7 @@ public class HttpSendReceiveClientStep implements WorkflowStep {
         templateParams.put("dataset.citation", ctxt.getDataset().getCitation());
         templateParams.put("minorVersion", Long.toString(ctxt.getNextMinorVersionNumber()));
         templateParams.put("majorVersion", Long.toString(ctxt.getNextVersionNumber()));
-        templateParams.put("releaseStatus", (ctxt.getType() == TriggerType.PostPublishDataset) ? "done" : "in-progress");
+        templateParams.put("releaseStatus", (ctxt.getType() == PostPublishDataset) ? "done" : "in-progress");
 
         m.addRequestHeader("Content-Type", params.getOrDefault("contentType", "text/plain"));
 
