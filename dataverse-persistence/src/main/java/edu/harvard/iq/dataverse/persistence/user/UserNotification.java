@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.common.DateUtil;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,9 +42,8 @@ public class UserNotification implements Serializable {
     private Timestamp sendDate;
     private boolean readNotification;
 
-    @Enumerated
     @Column(nullable = false)
-    private NotificationType type;
+    private String type;
     private Long objectId;
 
     @Column(nullable = true)
@@ -99,11 +97,11 @@ public class UserNotification implements Serializable {
         this.readNotification = readNotification;
     }
 
-    public NotificationType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(NotificationType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
