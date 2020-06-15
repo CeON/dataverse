@@ -69,6 +69,22 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.ASSIGNROLE;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.CHECKSUMFAIL;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.CHECKSUMIMPORT;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.CREATEACC;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.CREATEDS;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.CREATEDV;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.FILESYSTEMIMPORT;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.GRANTFILEACCESS;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.MAPLAYERDELETEFAILED;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.MAPLAYERUPDATED;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.PUBLISHEDDS;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.REJECTFILEACCESS;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.REQUESTFILEACCESS;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.RETURNEDDS;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.REVOKEROLE;
+import static edu.harvard.iq.dataverse.persistence.user.NotificationType.SUBMITTEDDS;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
 /**
