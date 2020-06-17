@@ -24,8 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 
-import static edu.harvard.iq.dataverse.common.DateUtil.convertToDate;
-
 @RunWith(MockitoJUnitRunner.class)
 public class BannerErrorHandlerTest {
 
@@ -42,10 +40,10 @@ public class BannerErrorHandlerTest {
                                                               .getResource("images/banner.png").getPath());
     private static final Path TXT_PATH = Paths.get(BannerErrorHandlerTest.class.getClassLoader()
                                                            .getResource("images/sample.txt").getPath());
-    private static final java.util.Date FROM_TIME = convertToDate(
-            LocalDateTime.of(2018, 12, 1, 9, 15, 45));
-    private static final java.util.Date TO_TIME = convertToDate(
-            LocalDateTime.of(2018, 11, 2, 10, 25, 55));
+    private static final LocalDateTime FROM_TIME =
+            LocalDateTime.of(2018, 12, 1, 9, 15, 45);
+    private static final LocalDateTime TO_TIME =
+            LocalDateTime.of(2018, 11, 2, 10, 25, 55);
 
 
     @Test
