@@ -721,7 +721,7 @@ public class DataverseUserPage implements java.io.Serializable {
         this.dataverseId = dataverseId;
     }
 
-    public List getNotificationsList() {
+    public List<UserNotification> getNotificationsList() {
         return notificationsList;
     }
 
