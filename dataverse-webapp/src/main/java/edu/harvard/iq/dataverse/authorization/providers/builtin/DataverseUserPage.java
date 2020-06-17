@@ -65,6 +65,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -574,6 +575,13 @@ public class DataverseUserPage implements java.io.Serializable {
 
                 case CHECKSUMIMPORT:
                     userNotification.setTheObject(datasetVersionService.find(userNotification.getObjectId()));
+                    break;
+
+                default:
+                    if (!NotificationType.getTypes().contains(userNotification.getType())) {
+                        Optional.ofNullable(datasetDao.find(userNotification.getObjectId()))
+                                .ifPresent(userNotification::setTheObject);
+                    }
                     break;
             }
 
