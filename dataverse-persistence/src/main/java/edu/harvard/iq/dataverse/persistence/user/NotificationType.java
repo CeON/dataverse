@@ -1,5 +1,8 @@
 package edu.harvard.iq.dataverse.persistence.user;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class NotificationType {
     public static final String ASSIGNROLE = "ASSIGNROLE";
     public static final String REVOKEROLE = "REVOKEROLE";
@@ -18,4 +21,30 @@ public class NotificationType {
     public static final String CHECKSUMIMPORT = "CHECKSUMIMPORT";
     public static final String CHECKSUMFAIL = "CHECKSUMFAIL";
     public static final String CONFIRMEMAIL = "CONFIRMEMAIL";
+
+    // -------------------- LOGIC --------------------
+
+    public static Set<String> getTypes() {
+        HashSet<String> notifications = new HashSet<>();
+
+        notifications.add(ASSIGNROLE);
+        notifications.add(REVOKEROLE);
+        notifications.add(CREATEDV);
+        notifications.add(CREATEDS);
+        notifications.add(CREATEACC);
+        notifications.add(MAPLAYERUPDATED);
+        notifications.add(MAPLAYERDELETEFAILED);
+        notifications.add(SUBMITTEDDS);
+        notifications.add(RETURNEDDS);
+        notifications.add(PUBLISHEDDS);
+        notifications.add(REQUESTFILEACCESS);
+        notifications.add(GRANTFILEACCESS);
+        notifications.add(REJECTFILEACCESS);
+        notifications.add(FILESYSTEMIMPORT);
+        notifications.add(CHECKSUMIMPORT);
+        notifications.add(CHECKSUMFAIL);
+        notifications.add(CONFIRMEMAIL);
+
+        return notifications;
+    }
 }
