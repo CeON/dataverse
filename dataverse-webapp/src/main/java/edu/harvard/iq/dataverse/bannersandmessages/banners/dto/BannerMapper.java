@@ -123,7 +123,7 @@ public class BannerMapper {
         } else {
 
             try {
-                dataverseLocalizedBanner.setImage(StreamUtils.copyToByteArray(new ByteArrayInputStream(fuDto.getFile().getContent())));
+                dataverseLocalizedBanner.setImage(StreamUtils.copyToByteArray(fuDto.getDisplayedImage().getStream()));
             } catch (IOException e) {
                 throw new IllegalStateException("There was a problem converting display image to byte array", e);
             }

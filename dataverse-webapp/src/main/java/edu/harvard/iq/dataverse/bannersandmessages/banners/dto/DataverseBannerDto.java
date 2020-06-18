@@ -5,7 +5,7 @@ import edu.harvard.iq.dataverse.common.DateUtil;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,10 +14,10 @@ public class DataverseBannerDto {
     private Long id;
 
     @NotNull(message = "{field.required}")
-    private LocalDateTime fromTime;
+    private Date fromTime;
 
     @NotNull(message = "{field.required}")
-    private LocalDateTime toTime;
+    private Date toTime;
 
     private boolean active;
 
@@ -34,30 +34,30 @@ public class DataverseBannerDto {
         this.id = id;
     }
 
-    public LocalDateTime getFromTime() {
+    public Date getFromTime() {
         return fromTime;
     }
 
-    public void setFromTime(LocalDateTime fromTime) {
+    public void setFromTime(Date fromTime) {
         this.fromTime = fromTime;
     }
 
-    public LocalDateTime getToTime() {
+    public Date getToTime() {
         return toTime;
     }
 
     public String getPrettyFromDate() {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        return DateUtil.formatDate(DateUtil.convertToDate(fromTime), format);
+        return DateUtil.formatDate(fromTime, format);
     }
 
     public String getPrettyToTime() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        return DateUtil.formatDate(DateUtil.convertToDate(toTime), format);
+        return DateUtil.formatDate(toTime, format);
     }
 
-    public void setToTime(LocalDateTime toTime) {
+    public void setToTime(Date toTime) {
         this.toTime = toTime;
     }
 

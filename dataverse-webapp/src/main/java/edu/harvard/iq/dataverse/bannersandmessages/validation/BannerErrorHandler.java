@@ -61,7 +61,7 @@ public class BannerErrorHandler {
             addErrorMessageWrongExtension(faceContext, localizedBannerIndex);
         }
 
-        validateEndDate(DateUtil.convertToDate(banner.getFromTime()), DateUtil.convertToDate(banner.getToTime()), faceContext);
+        validateEndDate(banner.getFromTime(), banner.getToTime(), faceContext);
 
         return faceContext.getMessageList();
     }

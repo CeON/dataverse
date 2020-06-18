@@ -22,12 +22,15 @@ import org.springframework.util.StreamUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Date;
+
+import static edu.harvard.iq.dataverse.common.DateUtil.convertToDate;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BannerMapperTest {
 
-    private static final LocalDateTime FROM_TIME = LocalDateTime.of(2018, 10, 1, 9, 15, 45);
-    private static final LocalDateTime TO_TIME = LocalDateTime.of(2018, 11, 2, 10, 25, 55);
+    private static final Date FROM_TIME = convertToDate(LocalDateTime.of(2018, 10, 1, 9, 15, 45));
+    private static final Date TO_TIME = convertToDate(LocalDateTime.of(2018, 11, 2, 10, 25, 55));
 
     @Mock
     private UploadedFile uploadedFile;

@@ -4,7 +4,6 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,8 +11,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.time.LocalDateTime;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,12 +25,12 @@ public class DataverseBanner {
     private Long id;
 
     @Column(nullable = false)
-    @Convert(converter = LocalDateAttributeConverter.class)
-    private LocalDateTime fromTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fromTime;
 
     @Column(nullable = false)
-    @Convert(converter = LocalDateAttributeConverter.class)
-    private LocalDateTime toTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date toTime;
 
     private boolean active;
 
@@ -47,19 +48,19 @@ public class DataverseBanner {
         this.id = id;
     }
 
-    public LocalDateTime getFromTime() {
+    public Date getFromTime() {
         return fromTime;
     }
 
-    public void setFromTime(LocalDateTime fromTime) {
+    public void setFromTime(Date fromTime) {
         this.fromTime = fromTime;
     }
 
-    public LocalDateTime getToTime() {
+    public Date getToTime() {
         return toTime;
     }
 
-    public void setToTime(LocalDateTime toTime) {
+    public void setToTime(Date toTime) {
         this.toTime = toTime;
     }
 
