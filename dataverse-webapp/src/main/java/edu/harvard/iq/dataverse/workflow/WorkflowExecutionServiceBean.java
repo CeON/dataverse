@@ -231,7 +231,6 @@ public class WorkflowExecutionServiceBean {
         workflowSuccessHandlers.forEach(success -> success.handleSuccess(ctx));
     }
 
-    @Asynchronous
     private void rollback(WorkflowExecutionContext ctx, Failure failure) {
         WorkflowExecutionContext refreshedCtx = refresh(ctx);
         refreshedCtx.finish(executions, clock);
