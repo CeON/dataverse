@@ -578,7 +578,7 @@ public class DataverseUserPage implements java.io.Serializable {
                     break;
 
                 default:
-                    if (!NotificationType.getTypes().contains(userNotification.getType())) {
+                    if (!isBaseNotification(userNotification)) {
                         Optional.ofNullable(datasetDao.find(userNotification.getObjectId()))
                                 .ifPresent(userNotification::setTheObject);
                     }
@@ -592,6 +592,8 @@ public class DataverseUserPage implements java.io.Serializable {
             }
         }
     }
+
+
 
     public void sendConfirmEmail() {
         logger.fine("called sendConfirmEmail()");
@@ -835,6 +837,16 @@ public class DataverseUserPage implements java.io.Serializable {
 
     private String getLocalizedDisplayNameForLanguage(Locale language) {
         return language.getDisplayName(session.getLocale());
+    }
+
+    /**
+     * Workaround for notifications that are from external repositories,
+     * it will only works if workflow is basing notifications on dataset.
+     * <p>
+     * Notifications should be redesigned to properly support external notifications.
+     */
+    private boolean isBaseNotification(UserNotification userNotification) {
+        return NotificationType.getTypes().contains(userNotification.getType());
     }
 
     // -------------------- SETTERS --------------------
