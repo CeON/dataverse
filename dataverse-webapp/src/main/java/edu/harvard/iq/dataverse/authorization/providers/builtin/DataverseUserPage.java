@@ -840,10 +840,12 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     /**
-     * Workaround for notifications that are from external repositories,
-     * it will only works if workflow is basing notifications on dataset.
-     * <p>
-     * Notifications should be redesigned to properly support external notifications.
+     Returns true if notification display is handled by main Dataverse repository.
+     <p>
+     Note that external notifications only works if object associated with notification ({@link #getObjectId()})
+     is a {@link Dataset}
+     <p>
+     Notifications should be redesigned to properly support external notifications.
      */
     private boolean isBaseNotification(UserNotification userNotification) {
         return NotificationType.getTypes().contains(userNotification.getType());
