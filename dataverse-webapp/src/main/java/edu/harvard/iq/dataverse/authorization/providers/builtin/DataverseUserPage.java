@@ -593,6 +593,8 @@ public class DataverseUserPage implements java.io.Serializable {
         }
     }
 
+
+
     public void sendConfirmEmail() {
         logger.fine("called sendConfirmEmail()");
         String userEmail = currentUser.getEmail();
