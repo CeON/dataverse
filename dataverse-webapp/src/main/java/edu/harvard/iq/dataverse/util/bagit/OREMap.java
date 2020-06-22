@@ -252,10 +252,6 @@ public class OREMap {
             contextBuilder.add(e.getKey(), e.getValue());
         }
 
-        if(!version.getDataset().hasActiveEmbargo()) {
-            aggBuilder.add(JsonLDTerm.ore("aggregates").getLabel(), aggResArrayBuilder.build())
-                    .add(JsonLDTerm.schemaOrg("hasPart").getLabel(), fileArray.build()).build();
-        }
         // Now create the overall map object with it's metadata
         JsonObject oremap = Json.createObjectBuilder()
                 .add(JsonLDTerm.dcTerms("modified").getLabel(), modifiedDate.toString())
@@ -268,7 +264,9 @@ public class OREMap {
                      dataverseSiteUrl + "/api/datasets/export?exporter="
                              + ExporterType.OAIORE.toString() + "&persistentId=" + id)
                 // Add the aggregation (Dataset) itself to the map.
-                .add(JsonLDTerm.ore("describes").getLabel(), aggBuilder)
+                .add(JsonLDTerm.ore("describes").getLabel(),
+                        aggBuilder.add(JsonLDTerm.ore("aggregates").getLabel(), aggResArrayBuilder.build())
+                                .add(JsonLDTerm.schemaOrg("hasPart").getLabel(), fileArray.build()).build())
                 // and finally add the context
                 .add("@context", contextBuilder.build()).build();
 
