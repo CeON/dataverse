@@ -1191,6 +1191,12 @@ input.fancy-checkbox[type=checkbox] {
 	}
 }
 
+@media screen and (max-width: $screen-xs-max) {
+	.label-container.pull-right {
+		float: none !important;
+	}
+}
+
 /* Autocomplete */
 
 @mixin rounded-table-top {
@@ -1704,6 +1710,11 @@ div.filesTable {
 
 $navbar-height: 102px;
 
+.navbar-fixed-top .navbar-collapse {
+	max-height: 22.667em;
+	margin-bottom: 1px;
+}
+
 #navbarFixed {
 	position: sticky;
 	background: #fff;
@@ -1895,6 +1906,7 @@ $navbar-height: 102px;
 
 		#topNavBar .pull-right {
 			width: 100%;
+			float: none !important;
 		}
 
 		#topNavBar .navbar-nav {
@@ -1906,6 +1918,7 @@ $navbar-height: 102px;
 	}
 	.navbar-default .navbar-nav .open .dropdown-menu > li > a,
 	.navbar-default .navbar-nav .open .dropdown-menu > li > form > a,
+	#navbarFixed .dropdown-menu > li > form.navbar-form-link a.ui-commandlink,
 	#navbarFixed .dropdown.accountName .logout a {
 		padding: 5px 15px 5px 25px;
 		color: $main-text-color;
@@ -1959,6 +1972,25 @@ $navbar-height: 102px;
 			}
 		}
 	}
+}
+
+@mixin accessibility-controls-mobile {
+	#accessibility-controls {
+		position: static;
+		margin-left: -15px;
+		margin-right: -15px;
+		padding: 0;
+
+		span {
+			display: block;
+			width: 100%;
+			padding: 0 1.333em 0.667em;
+		}
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	@include accessibility-controls-mobile;
 }
 
 #eighty-limit-mode-selector button {
@@ -2098,6 +2130,18 @@ html, body {
 
 /* Main page */
 
+#editDataverseMenu {
+	min-width: 300px;
+}
+
+#dataverse-info-dropdown {
+	width: auto;
+	
+	.dataverse-info-general {
+		width: auto;
+	}
+}
+
 #dataverseForm {
 	margin-left: -10px;
 	margin-right: 20px;
@@ -2112,6 +2156,20 @@ html, body {
 #searchResults {
 	margin-left: 15px;
 	margin-right: 15px;
+}
+
+@mixin searchResults-mobile {
+	#searchResults {
+		overflow-x: hidden;
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	@include searchResults-mobile;
 }
 
 #search-row-panel {
@@ -2142,6 +2200,11 @@ html, body {
 div.panelSearchForm input.search-input {
 	max-width: calc(100% + 1em);
 	line-height: 23px;
+}
+@media screen and (max-width: $screen-xs-max) {
+	div.panelSearchForm input.search-input {
+		max-width: 100%;
+	}
 }
 
 .pagination > .active > a {
@@ -2775,6 +2838,13 @@ div.filesTable {
 	}
 }
 
+/* Fix offscreen submenu on mobile */
+@media screen and (max-width: $screen-xs-max) {
+	.dropdown-submenu.pull-left > .dropdown-menu {
+		left: 0;
+	}
+}
+
 /* Modal */
 
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
@@ -3153,6 +3223,7 @@ body.font-size-percent-200 {
 
 			.pull-right {
 				width: 100%;
+				float: none !important;
 			}
 
 			.navbar-nav {
@@ -3188,6 +3259,8 @@ body.font-size-percent-200 {
 				}
 			}
 		}
+
+		@include accessibility-controls-mobile;
 	}
 		
 	.navbar-default #topNavBar .navbar-nav .open .dropdown-menu {
@@ -3259,11 +3332,13 @@ body.font-size-percent-200 {
 body.font-size-percent-150 {
 	@media (max-width: $screen-sm-max) {
 		@include mobile-sidebar;
+		@include searchResults-mobile;
 	}
 }
 body.font-size-percent-200 {
 	@media (max-width: $screen-md-max) {
 		@include mobile-sidebar;
+		@include searchResults-mobile;
 	}
 }
 
@@ -3422,6 +3497,14 @@ body.font-size-percent-200 {
 		&[style*="width:60%"], &[style*="width: 60%"] {
 			width: 100% !important;
 		}
+	}
+
+	div.panelSearchForm input.search-input {
+		max-width: 100%;
+	}
+
+	.label-container.pull-right {
+		float: none !important;
 	}
 
 	@include table-metrics-mobile;
