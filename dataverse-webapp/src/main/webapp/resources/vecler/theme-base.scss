@@ -2031,7 +2031,7 @@ $navbar-height: 102px;
 		}
 	}
 
-	span:not(:last-child) ul[id$="-mode-selector"] {
+	span:not(:last-child) ul[id$="-mode-selector"]:last-child {
 		padding-right: 0.8em;
 	}
 }
