@@ -408,6 +408,17 @@ body .ui-widget {
     display: block; /* allows for dropdown-menu to be directly in form tag */
 }
 
+/*
+This fixes pull-right offscreen menus - might be neeeded in the future
+
+@media screen and (max-width: $screen-xs-max) {
+	.dropdown-menu.pull-right {
+		left: 0;
+		right: auto;
+	}
+}
+*/
+
 #navbarFixed .dropdown-menu > li > form.navbar-form-link {
 	display: list-item;
 	width: 100%;
@@ -470,6 +481,9 @@ div.form-group .glyphicon.glyphicon-asterisk {
 
 .ui-widget-content .ui-selectonemenu.ui-state-default {
 	background: $gray-border-color;
+}
+.facet-category-default {
+	width: 100%;
 }
 
 *, .ui-widget-content  {
@@ -602,6 +616,7 @@ input:disabled {
 .ui-selectonemenu {
 	border: 1px solid #e8e8e8;
 	min-height: calc(1.667em + 10px);
+	min-width: auto !important;
 
 	.ui-selectonemenu-label {
 		margin-right: 1.533em;
@@ -643,6 +658,14 @@ input:disabled {
 			}
 		}
 	}
+}
+
+.ui-selectonemenu-panel .ui-selectonemenu-list-item {
+	white-space: break-spaces;
+}
+
+.ui-selectonemenu-items-wrapper {
+	max-width: 100vw;
 }
 
 
@@ -840,6 +863,29 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 
 #terms-agreement-block {
 	max-height: 13.333em;
+}
+
+.textsBannersContainer {
+	width: 100%;
+	max-width: 40em;
+
+	&:not(:last-child) {
+		margin-bottom: 20px; 
+	}
+}
+
+.ui-datalist .ui-datalist-nobullets {
+	padding: 5px;
+	margin-bottom: 0;
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	.ui-datalist .ui-datalist-nobullets {
+		.pull-right {
+			float: none !important;
+			padding-top: 5px;
+		}
+	}
 }
 
 /* Graphical text editor */
@@ -1221,8 +1267,13 @@ input.fancy-checkbox[type=checkbox] {
 	}
 }
 
-.ui-autocomplete-multiple-container {
-	border-color: $gray-border-color;
+.ui-autocomplete.ui-autocomplete-multiple {
+	width: 100%;
+
+	.ui-autocomplete-multiple-container {
+		width: 100%;
+		border-color: $gray-border-color;
+	}
 }
 
 .ui-autocomplete-panel {
@@ -1677,10 +1728,17 @@ div.filesTable {
 	@include table-metrics-mobile;
 }
 
+.ui-sortable-handle {
+	word-break: break-word;
+}
 
 /* Change cursor from pointer to default to avoid confusion */
 .ui-datatable-selectable td {
 	cursor: default;
+}
+
+.gridcell .form-control-static.pull-left {
+	float: none !important;
 }
 
 /* Charts */
@@ -1855,6 +1913,10 @@ $navbar-height: 102px;
 			margin-right: 3px;
 		}
 	}
+}
+
+.navbar-fixed-top #topNavBar.navbar-collapse {
+	max-height: calc(100vh - 100px);
 }
 
 .dropdown-menu > form > li > a {
@@ -2507,6 +2569,10 @@ div.alert-info.bg-citation {
 	color: $main-text-color;
 }
 
+.alert.alert-info.p-grid .p-col img {
+	max-width: calc(100vw - 40px);
+}
+
 table[id$="resultsTable"] {
 	div[class*="Result"] {
 		font-size: inherit;
@@ -2684,6 +2750,12 @@ div.filesTable .ui-paginator {
 
 /* File preview */
 
+.citation,
+.text-muted,
+.metadata-panel-body {
+	word-break: break-word;
+}
+
 #fileImageTitle .citation-block {
 	padding-right: 15px;
 }
@@ -2693,6 +2765,10 @@ div.filesTable .ui-paginator {
 }
 
 @media screen and (max-width: $screen-xs-max) {
+	#dataverseHeader .dataverseHeaderCell {
+		display: table-row;
+	}
+
 	#file-title-block {
 		margin-top: 2em;
 	}
@@ -2937,6 +3013,18 @@ div.filesTable {
 		-o-transform: none;
 		-webkit-transform: none;
 		transform: none;
+
+		.ui-panel .ui-panel-content {
+			padding: 0;
+
+			label {
+				display: inline;
+			}
+
+			.label.label-default {
+				display: inline-block;
+			}
+		}
 	}
 	
 	.button-block {
@@ -3368,6 +3456,10 @@ body.font-size-percent-200 {
 				text-align: left;
 			}
 		}
+
+		#dataverseHeader .dataverseHeaderCell {
+			display: table-row;
+		}
 	}
 }
 
@@ -3392,7 +3484,8 @@ body.font-size-percent-150 {
 	.ql-formats button,
 	.ui-fileupload-buttonbar .ui-icon-plusthick,
 	.ui-fileupload-cancel .ui-icon-close,
-	#ajaxStatusPanel_start {
+	#ajaxStatusPanel_start,
+	#rolesPermissionsForm\:editRolePermissionPanel_content input {
 		transform: scale(1.5);
 		image-rendering: pixelated;
 		image-rendering: -moz-crisp-edges;
@@ -3429,7 +3522,8 @@ body.font-size-percent-200 {
 	.ql-formats button,
 	.ui-fileupload-buttonbar .ui-icon-plusthick,
 	.ui-fileupload-cancel .ui-icon-close,
-	#ajaxStatusPanel_start { 
+	#ajaxStatusPanel_start,
+	#rolesPermissionsForm\:editRolePermissionPanel_content input { 
 		transform: scale(2);
 		image-rendering: pixelated;
 		image-rendering: -moz-crisp-edges;
@@ -3506,6 +3600,15 @@ body.font-size-percent-200 {
 	.label-container.pull-right {
 		float: none !important;
 	}
+	
+	/*
+	This fixes pull-right offscreen menus - might be neeeded in the future
+
+	.dropdown-menu.pull-right {
+		left: 0;
+		right: auto;
+	}
+	*/
 
 	@include table-metrics-mobile;
 	@include modal-grid-mobile;
