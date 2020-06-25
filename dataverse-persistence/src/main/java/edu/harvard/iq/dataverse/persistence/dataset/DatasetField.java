@@ -370,6 +370,10 @@ public class DatasetField implements Serializable {
         fieldValue = StringUtils.trim(fieldValue);
     }
 
+    public int getDatasetFieldTypeDisplayOrder() {
+        return this.getDatasetFieldType().getDisplayOrder();
+    }
+
     // -------------------- PRIVATE --------------------
 
     private static DatasetField createNewEmptyDatasetField(DatasetFieldType dsfType) {
