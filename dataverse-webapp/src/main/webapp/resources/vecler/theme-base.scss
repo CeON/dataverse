@@ -888,6 +888,17 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 	}
 }
 
+.edit-text-messages-form-image {
+	width: 100%;
+	max-width: calc(100vw - 45px);
+	max-height: 75vh;
+	overflow: auto;
+}
+
+.col-no-padding {
+	padding: 0;
+}
+
 /* Graphical text editor */
 
 .ql-container {
@@ -2577,7 +2588,7 @@ div.alert-info.bg-citation {
 }
 
 .alert.alert-info.p-grid .p-col img {
-	max-width: calc(100vw - 40px);
+	max-width: calc(100vw - 50px);
 }
 
 table[id$="resultsTable"] {
