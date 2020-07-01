@@ -75,6 +75,7 @@
                 <f:viewAction action="#{DatasetMetadataTab.init(DatasetPage.workingVersion, DatasetPage.locked)}"/>
                 <f:viewAction action="#{DatasetGuestbookTab.init(DatasetPage.dataset)}"/>
                 <f:viewAction action="#{datasetVersionsTab.init(DatasetPage.dataset)}"/>
+                <f:viewAction action="#{datasetAnalysisTab.init(DatasetPage.workingVersion)}"/>
                 <f:viewAction action="#{datasetDeaccessionDialog.init(DatasetPage.dataset)}"/>
                 <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(DatasetPage.dataset)}"/>
             </f:metadata>
@@ -718,6 +719,10 @@
                         <!-- 4.2.1: see above -->
                         <p:tab id="versionsTab" title="#{bundle['file.dataFilesTab.versions']}">
                             <ui:include src="dataset-versions.xhtml">
+                            </ui:include>
+                        </p:tab>
+                        <p:tab id="analysisTab" title="#{bundle['file.dataFilesTab.analysisResults']}">
+                            <ui:include src="pluggable/dataset-analisys-results.xhtml">
                             </ui:include>
                         </p:tab>
                     </p:tabView>
