@@ -1,37 +1,28 @@
 package edu.harvard.iq.dataverse.workflow.artifacts;
 
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowArtifact;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowArtifactRepository;
 import edu.harvard.iq.dataverse.workflow.artifacts.WorkflowArtifactServiceBean.ArtifactData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.enterprise.inject.Vetoed;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
-@ExtendWith(MockitoExtension.class)
 public class WorkflowArtifactServiceBeanTest {
 
     private static final String ENCODING = "BINARY";
@@ -44,7 +35,7 @@ public class WorkflowArtifactServiceBeanTest {
 
     private WorkflowArtifactRepository repository;
 
-    private StorageService storageService;
+    private TestStorageService storageService;
 
 
     @BeforeEach
@@ -52,7 +43,7 @@ public class WorkflowArtifactServiceBeanTest {
         repository = new Repository();
         serviceBean = new WorkflowArtifactServiceBean(repository);
 
-        storageService = Mockito.spy(new TestStorageService());
+        storageService = new TestStorageService();
         serviceBean.register(storageService);
     }
 
@@ -60,42 +51,37 @@ public class WorkflowArtifactServiceBeanTest {
     @DisplayName("Should save artifact data and metadata")
     public void shouldSaveDataAndMetadata() {
         // given
-        DatasetVersion version = createDatasetVersion();
         ArtifactData data = new ArtifactData(NAME, ENCODING, TEST_DATA_SUPPLIER);
 
         // when
         WorkflowArtifact artifact =
-                serviceBean.saveArtifact(version, null, data, storageService.getStorageType());
+                serviceBean.saveArtifact(1L,  data, Clock.systemUTC(), storageService.getStorageType());
 
         // then
         assertThat(artifact.getId()).isNotNull();
         assertThat(artifact.getCreatedAt()).isNotNull();
-        assertThat(artifact.getLocation()).isNotNull();
-        assertThat(artifact.getDatasetVersionId()).isEqualTo(version.getId());
+        assertThat(artifact.getStorageLocation()).isNotNull();
         assertThat(artifact.getStorageType()).isEqualTo(storageService.getStorageType().name());
-        assertThat(artifact.getArtifactName()).isEqualTo(NAME);
+        assertThat(artifact.getName()).isEqualTo(NAME);
         assertThat(artifact.getEncoding()).isEqualTo(ENCODING);
-        assertThat(artifact.getWorkflowExecutionStepId()).isNull();
-        verify(storageService).save(any(WorkflowArtifact.class), eq(TEST_DATA_SUPPLIER));
+
+        assertThat(storageService.getNumberOfStoredObjects()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("Should be able to retrieve stored artifact data")
     public void shouldRetrieveStoredData() throws IOException {
         // given
-        DatasetVersion version = createDatasetVersion();
         ArtifactData data = new ArtifactData(NAME, ENCODING, TEST_DATA_SUPPLIER);
 
         // when
-        WorkflowArtifact artifact = serviceBean.saveArtifact(version, null, data);
-        Optional<InputStream> stream = serviceBean.readAsStream(artifact);
+        WorkflowArtifact artifact = serviceBean.saveArtifact(1L, data);
+        Optional<Supplier<InputStream>> streamSupplier = serviceBean.readAsStream(artifact);
 
         // then
-        assertThat(stream.isPresent()).isTrue();
-        verify(storageService).readAsStream(artifact.getLocation());
+        assertThat(streamSupplier.isPresent()).isTrue();
 
-        // cleanup
-        stream.get().close();
+        assertThat(storageService.getReadCounter()).isEqualTo(1);
     }
 
     @Test
@@ -103,27 +89,19 @@ public class WorkflowArtifactServiceBeanTest {
     public void shouldDeleteArtifactsForGivenDatasetVersion() {
         // given
         final int size = 10;
-        DatasetVersion version = createDatasetVersion();
         ArtifactData data = new ArtifactData(NAME, ENCODING, TEST_DATA_SUPPLIER);
 
         // when
-        IntStream.rangeClosed(1, size).forEach(i -> serviceBean.saveArtifact(version, null, data));
-        List<WorkflowArtifact> before = repository.findAllByDatasetVersion(version);
-        serviceBean.deleteArtifacts(version);
-        List<WorkflowArtifact> after = repository.findAllByDatasetVersion(version);
+        IntStream.rangeClosed(1, size).forEach(i -> serviceBean.saveArtifact(1L, data));
+        List<WorkflowArtifact> before = repository.findAllByWorkflowExecutionId(1L);
+        serviceBean.deleteArtifacts(1L);
+        List<WorkflowArtifact> after = repository.findAllByWorkflowExecutionId(1L);
 
         // then
         assertThat(before.size()).isEqualTo(size);
         assertThat(after).isEmpty();
-        verify(storageService, times(size)).delete(anyString());
-    }
 
-    // -------------------- PRIVATE --------------------
-
-    private DatasetVersion createDatasetVersion() {
-        DatasetVersion version = new DatasetVersion();
-        version.setId(new Random().nextLong());
-        return version;
+        assertThat(storageService.getNumberOfStoredObjects()).isEqualTo(0);
     }
 
     // -------------------- INNER CLASSES --------------------
@@ -131,29 +109,40 @@ public class WorkflowArtifactServiceBeanTest {
     private static class TestStorageService implements StorageService {
         private Map<String, Supplier<InputStream>> storage = new HashMap<>();
 
+        private int readCounter = 0;
+
         @Override
         public StorageType getStorageType() {
             return StorageType.DATABASE;
         }
 
         @Override
-        public String save(WorkflowArtifact workflowArtifact, Supplier<InputStream> inputStreamSupplier) {
-            String location = workflowArtifact.getId().toString();
+        public String save(Supplier<InputStream> inputStreamSupplier) {
+            String location = UUID.randomUUID().toString();
             storage.put(location, inputStreamSupplier);
             return location;
         }
 
         @Override
-        public Optional<InputStream> readAsStream(String location) {
+        public Optional<Supplier<InputStream>> readAsStream(String location) {
+            readCounter++;
             Supplier<InputStream> inputStreamSupplier = storage.get(location);
             return inputStreamSupplier != null
-                    ? Optional.ofNullable(inputStreamSupplier.get())
+                    ? Optional.of(inputStreamSupplier)
                     : Optional.empty();
         }
 
         @Override
         public void delete(String location) {
             storage.remove(location);
+        }
+
+        public int getNumberOfStoredObjects() {
+            return storage.size();
+        }
+
+        public int getReadCounter() {
+            return readCounter;
         }
     }
 
@@ -167,15 +156,15 @@ public class WorkflowArtifactServiceBeanTest {
         }
 
         @Override
-        public List<WorkflowArtifact> findAllByDatasetVersion(DatasetVersion datasetVersion) {
+        public List<WorkflowArtifact> findAllByWorkflowExecutionId(Long workflowExecutionId) {
             return storage.values().stream()
-                    .filter(v -> datasetVersion.getId().equals(v.getDatasetVersionId()))
+                    .filter(v -> workflowExecutionId.equals(v.getWorkflowExecutionId()))
                     .collect(Collectors.toList());
         }
 
         @Override
-        public int deleteAllByDatasetVersion(DatasetVersion datasetVersion) {
-            List<WorkflowArtifact> found = findAllByDatasetVersion(datasetVersion);
+        public int deleteAllByWorkflowExecutionId(Long workflowExecutionId) {
+            List<WorkflowArtifact> found = findAllByWorkflowExecutionId(workflowExecutionId);
             storage.values().removeAll(found);
             return found.size();
         }

@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.workflow.artifacts;
 
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
-import edu.harvard.iq.dataverse.persistence.workflow.WorkflowArtifact;
+import org.apache.commons.io.IOUtils;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -11,12 +11,11 @@ import org.junit.runner.RunWith;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,10 +32,12 @@ public class DatabaseStorageServiceIT extends WebappArquillianDeployment {
     private DatabaseStorageService storageService;
 
     @Test
-    public void shouldStoreAndRetrieveArtifactData() {
+    public void shouldStoreAndRetrieveArtifactData() throws IOException {
         // given & when
-        String location = storageService.save(createArtifactWithId(), () -> new ByteArrayInputStream(TEST_DATA));
-        byte[] read = readStream(storageService.readAsStream(location).get());
+        String location = storageService.save(() -> new ByteArrayInputStream(TEST_DATA));
+        byte[] read = IOUtils.toByteArray(storageService.readAsStream(location)
+                .orElseThrow(IllegalStateException::new)
+                .get());
 
         // then
         assertThat(read).isEqualTo(read);
@@ -45,34 +46,11 @@ public class DatabaseStorageServiceIT extends WebappArquillianDeployment {
     @Test
     public void shouldBeAbleToDeleteStoredData() {
         // given & when
-        String location = storageService.save(createArtifactWithId(), () -> new ByteArrayInputStream(TEST_DATA));
+        String location = storageService.save(() -> new ByteArrayInputStream(TEST_DATA));
         storageService.delete(location);
-        Optional<InputStream> read = storageService.readAsStream(location);
+        Optional<Supplier<InputStream>> read = storageService.readAsStream(location);
 
         // then
         assertThat(read.isPresent()).isFalse();
-    }
-
-
-    // -------------------- PRIVATE --------------------
-
-    private WorkflowArtifact createArtifactWithId() {
-        WorkflowArtifact artifact = new WorkflowArtifact();
-        artifact.setId(1L);
-        return artifact;
-    }
-
-    private byte[] readStream(InputStream stream) {
-        try (ByteArrayOutputStream output = new ByteArrayOutputStream();
-             BufferedInputStream input = new BufferedInputStream(stream)) {
-            int count = 0;
-            byte[] buffer = new byte[32];
-            while ((count = input.read(buffer)) != -1) {
-                output.write(buffer, 0, count);
-            }
-            return output.toByteArray();
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
     }
 }

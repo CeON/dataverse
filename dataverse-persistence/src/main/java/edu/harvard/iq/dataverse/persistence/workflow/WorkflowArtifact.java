@@ -17,17 +17,14 @@ public class WorkflowArtifact implements JpaEntity<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "datasetversion_id")
-    private Long datasetVersionId;
-
-    @Column(name = "workflow_execution_step_id")
-    private Long workflowExecutionStepId;
+    @Column(name = "workflow_execution_id")
+    private Long workflowExecutionId;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column(name = "artifact_name")
-    private String artifactName;
+    @Column(name = "name")
+    private String name;
 
     /**
      * Allows to store encoding data in case of text artifacts.
@@ -45,7 +42,22 @@ public class WorkflowArtifact implements JpaEntity<Long> {
     /**
      * Location of artifact within the storage.
      */
-    private String location;
+    @Column(name = "storage_location")
+    private String storageLocation;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public WorkflowArtifact() { }
+
+    public WorkflowArtifact(Long workflowExecutionId, Instant createdAt,
+                            String name, String encoding, String storageType, String storageLocation) {
+        this.workflowExecutionId = workflowExecutionId;
+        this.createdAt = createdAt;
+        this.name = name;
+        this.encoding = encoding;
+        this.storageType = storageType;
+        this.storageLocation = storageLocation;
+    }
 
     // -------------------- GETTERS --------------------
 
@@ -54,20 +66,16 @@ public class WorkflowArtifact implements JpaEntity<Long> {
         return id;
     }
 
-    public Long getDatasetVersionId() {
-        return datasetVersionId;
-    }
-
-    public Long getWorkflowExecutionStepId() {
-        return workflowExecutionStepId;
+    public Long getWorkflowExecutionId() {
+        return workflowExecutionId;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public String getArtifactName() {
-        return artifactName;
+    public String getName() {
+        return name;
     }
 
     public String getEncoding() {
@@ -78,8 +86,8 @@ public class WorkflowArtifact implements JpaEntity<Long> {
         return storageType;
     }
 
-    public String getLocation() {
-        return location;
+    public String getStorageLocation() {
+        return storageLocation;
     }
 
     // -------------------- SETTERS --------------------
@@ -88,20 +96,16 @@ public class WorkflowArtifact implements JpaEntity<Long> {
         this.id = id;
     }
 
-    public void setDatasetVersionId(Long datasetVersionId) {
-        this.datasetVersionId = datasetVersionId;
-    }
-
-    public void setWorkflowExecutionStepId(Long workflowExecutionStepId) {
-        this.workflowExecutionStepId = workflowExecutionStepId;
+    public void setWorkflowExecutionId(Long workflowExecutionId) {
+        this.workflowExecutionId = workflowExecutionId;
     }
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void setArtifactName(String artifactName) {
-        this.artifactName = artifactName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setEncoding(String encoding) {
@@ -112,7 +116,7 @@ public class WorkflowArtifact implements JpaEntity<Long> {
         this.storageType = storageType;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setStorageLocation(String storageLocation) {
+        this.storageLocation = storageLocation;
     }
 }

@@ -22,14 +22,14 @@ public interface StorageService {
      * storage and return location string that allows to access the saved data form this storage
      * unambiguously.
      */
-    String save(WorkflowArtifact workflowArtifact, Supplier<InputStream> inputStreamSupplier);
+    String save(Supplier<InputStream> inputStreamSupplier);
 
     /**
      * Should return {@link Optional } containing {@link InputStream} with the stored data
      * for the given location parameter or empty {@link Optional} if there is no data stored for
      * the location.
      */
-    Optional<InputStream> readAsStream(String location);
+    Optional<Supplier<InputStream>> readAsStream(String location);
 
     /**
      * Should delete stored data for the given location parameter.

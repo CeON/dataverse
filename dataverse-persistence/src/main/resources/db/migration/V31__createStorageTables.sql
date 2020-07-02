@@ -1,15 +1,14 @@
 CREATE TABLE IF NOT EXISTS workflowartifact (
     id BIGSERIAL PRIMARY KEY,
-    datasetversion_id INTEGER REFERENCES datasetversion(id) NOT NULL,
-    workflow_execution_step_id INTEGER,
+    workflow_execution_id INTEGER REFERENCES workflow_execution(id) NOT NULL,
     created_at TIMESTAMP,
-    artifact_name VARCHAR,
+    name VARCHAR,
     encoding VARCHAR(64),
     storage_type VARCHAR(64) NOT NULL,
-    location VARCHAR
+    storage_location VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS db_storage (
-    id BIGINT PRIMARY KEY,
+    id UUID PRIMARY KEY,
     stored_data BYTEA
 );
