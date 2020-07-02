@@ -172,9 +172,10 @@ public class WorkflowArtifactServiceBeanTest {
         @Override
         public WorkflowArtifact save(WorkflowArtifact entity) {
             long id = entity.getId() != null ? entity.getId() : counter++;
-            storage.put(id, entity);
-            entity.setId(id);
-            return entity;
+            WorkflowArtifact saved = new WorkflowArtifact(id, entity.getWorkflowExecutionId(), entity.getCreatedAt(),
+                    entity.getName(), entity.getEncoding(), entity.getStorageType(), entity.getStorageLocation());
+            storage.put(id, saved);
+            return saved;
         }
 
         @Override

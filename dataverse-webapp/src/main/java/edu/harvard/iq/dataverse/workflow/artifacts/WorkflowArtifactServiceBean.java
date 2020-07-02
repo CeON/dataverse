@@ -64,8 +64,8 @@ public class WorkflowArtifactServiceBean {
         StorageService service = services.get(storageType);
         String location = service.save(data.inputStreamSupplier);
 
-        WorkflowArtifact workflowArtifact = new WorkflowArtifact(workflowExecutionId, clock.instant(),
-                data.getName(), data.getEncoding(), storageType.name(), location);
+        WorkflowArtifact workflowArtifact = new WorkflowArtifact(null, workflowExecutionId,
+                clock.instant(), data.getName(), data.getEncoding(), storageType.name(), location);
         return repository.save(workflowArtifact);
     }
 
