@@ -755,6 +755,10 @@ textarea {
 	   color: $main-text-color;
     }
 }
+.metadata-summary-panel-body .control-label {
+   padding-top: 4px;
+   padding-bottom: 5px;
+}
 
 @media screen and (min-width: $screen-sm-min) {
     .form-horizontal {
@@ -765,8 +769,12 @@ textarea {
             padding-top: 7px;
         }
     }
+
+    .metadata-summary-panel-body .control-label.section-title {
+        padding-top: 7px;
+    }
 }
-.form-horizontal .control-label-with-tooltip .control-label {
+.control-label-with-tooltip .control-label {
     display: inline;
 }
 
@@ -2047,7 +2055,10 @@ $navbar-height: 102px;
 		}
 	}
 
-	span:not(:last-child) ul[id$="-mode-selector"]:last-child {
+    div {
+        display: inline;
+    }
+	div:not(:last-child) ul[id$="-mode-selector"]:last-child {
 		padding-right: 0.8em;
 	}
 }
@@ -2059,7 +2070,7 @@ $navbar-height: 102px;
 		margin-right: -15px;
 		padding: 0;
 
-		span {
+		div {
 			display: block;
 			width: 100%;
 			padding: 0 1.333em 0.667em;
@@ -3309,16 +3320,26 @@ div.ui-dialog.largePopUp {
  * 80 CHARACTERS LIMIT SWITCH BELOW
  */
 
-p.text-block {
+p.text-block, p.help-block, #dataverseDesc p {
 	margin-bottom: 0;
 	word-break: break-word;
 }
 
-body.eighty-limit-toggle p.text-block {
-	max-width: 36.4em;
+body.eighty-limit-toggle {
+    p.text-block, p.help-block, .datasetfield-value {
+        max-width: 36.4em;
+    }
+    #dataverseDesc p {
+        max-width: 36.4em;
+    }
 }
-body.eighty-limit-toggle.wcag-text-toggle p.text-block {
-	max-width: 48em;
+body.eighty-limit-toggle.wcag-text-toggle {
+    p.text-block, p.help-block, .datasetfield-value {
+        max-width: 48em;
+    }
+    #dataverseDesc p {
+        max-width: 48em;
+    }
 }
 
 
@@ -3326,10 +3347,17 @@ body.eighty-limit-toggle.wcag-text-toggle p.text-block {
  * WCAG TEXT MODE SWITCH BELOW
  */
 
-body.wcag-text-toggle p.text-block {
-	word-spacing: 0.16em;
-	letter-spacing: 0.12em;
-	line-height: 1.5em;
+body.wcag-text-toggle {
+    p.text-block, p.help-block, .datasetfield-value {
+        word-spacing: 0.16em;
+        letter-spacing: 0.12em;
+        line-height: 1.5em;
+    }
+    #dataverseDesc p {
+        word-spacing: 0.16em;
+        letter-spacing: 0.12em;
+        line-height: 1.5em;
+    }
 }
 
 

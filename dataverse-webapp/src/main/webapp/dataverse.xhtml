@@ -281,11 +281,9 @@
                         <ui:fragment
                                 rendered="#{!empty DataversePage.dataverse.description and !widgetWrapper.widgetView}">
                             <div id="dataverseDesc" style="margin-bottom:1em;">
-                                <p class="text-block">
-                                    <h:outputText
-                                            value="#{MarkupChecker:sanitizeBasicHTML(DataversePage.dataverse.description)}"
-                                            escape="false"/>
-                                </p>
+                                <h:outputText
+                                        value="#{MarkupChecker:sanitizeBasicHTML(DataversePage.dataverse.description)}"
+                                        escape="false"/>
                             </div>
                             <div class="clearfix"/>
                         </ui:fragment>
