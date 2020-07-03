@@ -1,37 +1,47 @@
-package edu.harvard.iq.dataverse.workflow;
+package edu.harvard.iq.dataverse.workflow.execution;
 
 import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecution;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionRepository;
+import edu.harvard.iq.dataverse.workflow.WorkflowStepRegistry;
+import edu.harvard.iq.dataverse.workflow.WorkflowStepSPI;
+import edu.harvard.iq.dataverse.workflow.step.WorkflowStep;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Map;
 
 import static edu.harvard.iq.dataverse.persistence.workflow.WorkflowMother.givenWorkflow;
 import static edu.harvard.iq.dataverse.persistence.workflow.WorkflowMother.givenWorkflowExecution;
 import static edu.harvard.iq.dataverse.persistence.workflow.WorkflowMother.givenWorkflowStep;
-import static edu.harvard.iq.dataverse.workflow.WorkflowContextMother.givenWorkflowExecutionContext;
+import static edu.harvard.iq.dataverse.workflow.execution.WorkflowContextMother.givenWorkflowExecutionContext;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-class WorkflowExecutionContextTest {
+class WorkflowExecutionContextTest implements WorkflowStepSPI {
 
     WorkflowExecutionRepository executions = mock(WorkflowExecutionRepository.class);
-    WorkflowStepRegistry steps = mock(WorkflowStepRegistry.class);
+    WorkflowStepRegistry steps = new WorkflowStepRegistry();
 
     long datasetId = 1L;
     Workflow workflow = givenWorkflow(1L,
-            givenWorkflowStep("step1")
+            givenWorkflowStep("test", "step1")
     );
 
     WorkflowExecution execution = givenWorkflowExecution(datasetId, workflow.getId());
     WorkflowExecutionContext context = givenWorkflowExecutionContext(workflow, execution);
 
     Clock clock = Clock.fixed(Instant.parse("2020-06-01T09:10:20.00Z"), UTC);
+
+    @BeforeEach
+    void setUp() {
+        steps.register("test", this);
+    }
 
     @Test
     void shouldHaveFirstStepToExecute() {
@@ -163,5 +173,10 @@ class WorkflowExecutionContextTest {
         // then
         assertThat(stepContext.getStepExecution()).isSameAs(otherContext.getStepExecution());
         assertThat(otherContext.getStepExecution().isRollBackNeeded()).isTrue();
+    }
+
+    @Override
+    public WorkflowStep getStep(String stepType, Map<String, String> stepParameters) {
+        return new TestWorkflowStep(stepParameters);
     }
 }

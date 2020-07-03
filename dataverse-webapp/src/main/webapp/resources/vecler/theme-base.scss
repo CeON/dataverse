@@ -22,10 +22,11 @@ $screen-xs-max: ($screen-sm-min - 1);
 
 $main-text-color: #4a4a4a;
 $gray-border-color: #e8e8e8;
+$gray-text-color: #595959;
 
 /* RepOD color scheme */
 
-$main-color: #0086bc !default;
+$main-color: #007cad !default;
 $icon-color: #2ba7df !default;
 $link-color: #043e58 !default;
 $border-color: #39b0e2 !default;
@@ -174,6 +175,10 @@ pre {
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
 	text-shadow: none;
+}
+
+.text-muted {
+	color: $gray-text-color;
 }
 
 /* Bootstrap tooltips and popovers */
@@ -408,6 +413,17 @@ body .ui-widget {
     display: block; /* allows for dropdown-menu to be directly in form tag */
 }
 
+/*
+This fixes pull-right offscreen menus - might be neeeded in the future
+
+@media screen and (max-width: $screen-xs-max) {
+	.dropdown-menu.pull-right {
+		left: 0;
+		right: auto;
+	}
+}
+*/
+
 #navbarFixed .dropdown-menu > li > form.navbar-form-link {
 	display: list-item;
 	width: 100%;
@@ -432,8 +448,11 @@ body .ui-widget {
 
 .checkbox, .radio, #resultsCountPaginatorBlock {
 	label {
+		position: relative;
+		top: 0.133em;
 		padding-left: 30px;
 		line-height: 27px;
+		display: inline;
 
 		input {
 			&[type=checkbox], &[type=radio] {
@@ -470,6 +489,9 @@ div.form-group .glyphicon.glyphicon-asterisk {
 
 .ui-widget-content .ui-selectonemenu.ui-state-default {
 	background: $gray-border-color;
+}
+.facet-category-default {
+	width: 100%;
 }
 
 *, .ui-widget-content  {
@@ -602,6 +624,7 @@ input:disabled {
 .ui-selectonemenu {
 	border: 1px solid #e8e8e8;
 	min-height: calc(1.667em + 10px);
+	min-width: auto !important;
 
 	.ui-selectonemenu-label {
 		margin-right: 1.533em;
@@ -643,6 +666,14 @@ input:disabled {
 			}
 		}
 	}
+}
+
+.ui-selectonemenu-panel .ui-selectonemenu-list-item {
+	white-space: break-spaces;
+}
+
+.ui-selectonemenu-items-wrapper {
+	max-width: 100vw;
 }
 
 
@@ -840,6 +871,40 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 
 #terms-agreement-block {
 	max-height: 13.333em;
+}
+
+.textsBannersContainer {
+	width: 100%;
+	max-width: 40em;
+
+	&:not(:last-child) {
+		margin-bottom: 20px; 
+	}
+}
+
+.ui-datalist .ui-datalist-nobullets {
+	padding: 5px;
+	margin-bottom: 0;
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	.ui-datalist .ui-datalist-nobullets {
+		.pull-right {
+			float: none !important;
+			padding-top: 5px;
+		}
+	}
+}
+
+.edit-text-messages-form-image {
+	width: 100%;
+	max-width: calc(100vw - 45px);
+	max-height: 75vh;
+	overflow: auto;
+}
+
+.col-no-padding {
+	padding: 0;
 }
 
 /* Graphical text editor */
@@ -1155,8 +1220,8 @@ input.fancy-checkbox[type=checkbox] {
 	text-transform: uppercase;
 	
 	&.label-primary {
-		background: #0086bc;
-		border: 1px solid #0086bc;
+		background: #007cad;
+		border: 1px solid #007cad;
 	}
 	&.label-warning {
 		background: #fff;
@@ -1171,14 +1236,14 @@ input.fancy-checkbox[type=checkbox] {
 		color: #fff;
 	}
 	&.label-success {
-		background: #00a500;
-		border: 1px solid #00a500;
+		background: #008a00;
+		border: 1px solid #008a00;
 	
 		color: #fff;
 	}
 	&.label-info {
-		background: $icon-color;
-		border: 1px solid $icon-color;
+		background: $main-color;
+		border: 1px solid $main-color;
 	
 		color: #fff;
 	}
@@ -1188,6 +1253,12 @@ input.fancy-checkbox[type=checkbox] {
 	
 		color: #4a4a4a;
 		text-transform: none;
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	.label-container.pull-right {
+		float: none !important;
 	}
 }
 
@@ -1215,8 +1286,13 @@ input.fancy-checkbox[type=checkbox] {
 	}
 }
 
-.ui-autocomplete-multiple-container {
-	border-color: $gray-border-color;
+.ui-autocomplete.ui-autocomplete-multiple {
+	width: 100%;
+
+	.ui-autocomplete-multiple-container {
+		width: 100%;
+		border-color: $gray-border-color;
+	}
 }
 
 .ui-autocomplete-panel {
@@ -1671,10 +1747,17 @@ div.filesTable {
 	@include table-metrics-mobile;
 }
 
+.ui-sortable-handle {
+	word-break: break-word;
+}
 
 /* Change cursor from pointer to default to avoid confusion */
 .ui-datatable-selectable td {
 	cursor: default;
+}
+
+.gridcell .form-control-static.pull-left {
+	float: none !important;
 }
 
 /* Charts */
@@ -1703,6 +1786,11 @@ div.filesTable {
 /* Top navbar */
 
 $navbar-height: 102px;
+
+.navbar-fixed-top .navbar-collapse {
+	max-height: 22.667em;
+	margin-bottom: 1px;
+}
 
 #navbarFixed {
 	position: sticky;
@@ -1783,7 +1871,7 @@ $navbar-height: 102px;
 		#site-title {
 			font-size: 1.2em;
 			font-weight: bold;
-			color: $icon-color;
+			color: $main-color;
 		}
 
 		#site-subtitle {
@@ -1846,6 +1934,24 @@ $navbar-height: 102px;
 	}
 }
 
+.language-select.dropdown-menu a {
+	padding: 3px 20px;
+	clear: both;
+	font-weight: 400;
+	line-height: 1.42857143;
+	white-space: nowrap;
+	text-decoration: none;
+	display: block;
+
+	&:focus, &:hover {
+		background-color: $gray-border-color !important;
+	}
+}
+
+.navbar-fixed-top #topNavBar.navbar-collapse {
+	max-height: calc(100vh - 100px);
+}
+
 .dropdown-menu > form > li > a {
 	&:hover, &:active, &:focus {
 		background-color: $gray-border-color !important;
@@ -1895,6 +2001,7 @@ $navbar-height: 102px;
 
 		#topNavBar .pull-right {
 			width: 100%;
+			float: none !important;
 		}
 
 		#topNavBar .navbar-nav {
@@ -1906,6 +2013,7 @@ $navbar-height: 102px;
 	}
 	.navbar-default .navbar-nav .open .dropdown-menu > li > a,
 	.navbar-default .navbar-nav .open .dropdown-menu > li > form > a,
+	#navbarFixed .dropdown-menu > li > form.navbar-form-link a.ui-commandlink,
 	#navbarFixed .dropdown.accountName .logout a {
 		padding: 5px 15px 5px 25px;
 		color: $main-text-color;
@@ -1956,9 +2064,28 @@ $navbar-height: 102px;
 		}
 	}
 
-	span:not(:last-child) ul[id$="-mode-selector"] {
+	span:not(:last-child) ul[id$="-mode-selector"]:last-child {
 		padding-right: 0.8em;
 	}
+}
+
+@mixin accessibility-controls-mobile {
+	#accessibility-controls {
+		position: static;
+		margin-left: -15px;
+		margin-right: -15px;
+		padding: 0;
+
+		span {
+			display: block;
+			width: 100%;
+			padding: 0 1.333em 0.667em;
+		}
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	@include accessibility-controls-mobile;
 }
 
 #eighty-limit-mode-selector button,
@@ -2043,6 +2170,7 @@ body.wcag-text-toggle #wcag-text-mode-selector button {
 	position: static;
 	height: auto;
 	padding-bottom: 0;
+	color: $gray-text-color;
 
 	.footer-links .row {
 		border-top: 1px solid $gray-border-color;
@@ -2105,6 +2233,18 @@ html, body {
 
 /* Main page */
 
+#editDataverseMenu {
+	min-width: 300px;
+}
+
+#dataverse-info-dropdown {
+	width: auto;
+	
+	.dataverse-info-general {
+		width: auto;
+	}
+}
+
 #dataverseForm {
 	margin-left: -10px;
 	margin-right: 20px;
@@ -2112,6 +2252,7 @@ html, body {
 
 #dataverseDesc {
 	margin-left: 15px;
+	margin-bottom:1em;
 	width: 100%;
 	padding-top: 15px;
 }
@@ -2119,6 +2260,20 @@ html, body {
 #searchResults {
 	margin-left: 15px;
 	margin-right: 15px;
+}
+
+@mixin searchResults-mobile {
+	#searchResults {
+		overflow-x: hidden;
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	@include searchResults-mobile;
 }
 
 #search-row-panel {
@@ -2149,6 +2304,19 @@ html, body {
 div.panelSearchForm input.search-input {
 	max-width: calc(100% + 1em);
 	line-height: 23px;
+}
+@media screen and (max-width: $screen-xs-max) {
+	div.panelSearchForm input.search-input {
+		max-width: 100%;
+	}
+}
+
+.pagination > .disabled {
+	> a, > span {
+		&, *:focus, &:hover {
+			color: $gray-text-color;
+		}
+	}
 }
 
 .pagination > .active > a {
@@ -2199,6 +2367,10 @@ div.panelSearchForm input.search-input {
 
 	a {
 		padding: 0;
+
+		&:hover, &:focus {
+			text-decoration: underline;
+		}
 	}
 }
 
@@ -2412,6 +2584,10 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 
 /* Search results */
 
+.ui-datalist-item a.facetLink {
+	text-decoration: underline;
+}
+
 #resultsFacetsTopBlock a.facetLink.facetSelected {
 	padding: 0.3em 0.6em;
 	border-radius: $border-radius;
@@ -2449,6 +2625,10 @@ div.alert-info.bg-citation {
 	background-color: $search-result-desc-color;
 
 	color: $main-text-color;
+}
+
+.alert.alert-info.p-grid .p-col img {
+	max-width: calc(100vw - 50px);
 }
 
 table[id$="resultsTable"] {
@@ -2628,6 +2808,12 @@ div.filesTable .ui-paginator {
 
 /* File preview */
 
+.citation,
+.text-muted,
+.metadata-panel-body {
+	word-break: break-word;
+}
+
 #fileImageTitle .citation-block {
 	padding-right: 15px;
 }
@@ -2636,7 +2822,15 @@ div.filesTable .ui-paginator {
 	font-size: 15px;
 }
 
+.dataverseHeaderCell span[style="color:#888888;"] {
+	color: $gray-text-color !important;
+}
+
 @media screen and (max-width: $screen-xs-max) {
+	#dataverseHeader .dataverseHeaderCell {
+		display: table-row;
+	}
+
 	#file-title-block {
 		margin-top: 2em;
 	}
@@ -2675,6 +2869,7 @@ div.filesTable .ui-paginator {
 
 	.breadcrumbCarrot {
 		margin: 0 12px;
+		color: $gray-text-color;
 	}
 
 	.breadcrumbActive {
@@ -2690,6 +2885,7 @@ div.filesTable .ui-paginator {
 #title-block {
 	margin-top: 20px;
 	margin-bottom: 32px;
+	max-width: calc(100vw - 50px);
 
 	.title-preview-icon-block {
 		.icon-dataset {
@@ -2779,6 +2975,13 @@ div.filesTable {
 	&:not(:hover):not(:focus-within) .dropdown-menu {
 		opacity: 0;
 		pointer-events: none;
+	}
+}
+
+/* Fix offscreen submenu on mobile */
+@media screen and (max-width: $screen-xs-max) {
+	.dropdown-submenu.pull-left > .dropdown-menu {
+		left: 0;
 	}
 }
 
@@ -2874,6 +3077,18 @@ div.filesTable {
 		-o-transform: none;
 		-webkit-transform: none;
 		transform: none;
+
+		.ui-panel .ui-panel-content {
+			padding: 0;
+
+			label {
+				display: inline;
+			}
+
+			.label.label-default {
+				display: inline-block;
+			}
+		}
 	}
 	
 	.button-block {
@@ -3126,11 +3341,16 @@ p.text-block {
 	word-break: break-word;
 }
 
-body.eighty-limit-toggle p.text-block {
-	max-width: 36.4em;
+body.eighty-limit-toggle {
+	p.text-block, p.help-block, span.ui-chkbox-label, #terms-agreement-block, #dataverseDesc {
+		max-width: 36.4em;
+	}
 }
-body.eighty-limit-toggle.wcag-text-toggle p.text-block {
-	max-width: 48em;
+
+body.eighty-limit-toggle.wcag-text-toggle {
+	p.text-block, p.help-block, span.ui-chkbox-label, #terms-agreement-block, #dataverseDesc {
+		max-width: 48em;
+	}
 }
 
 
@@ -3138,10 +3358,12 @@ body.eighty-limit-toggle.wcag-text-toggle p.text-block {
  * WCAG TEXT MODE SWITCH BELOW
  */
 
-body.wcag-text-toggle p.text-block {
-	word-spacing: 0.16em;
-	letter-spacing: 0.12em;
-	line-height: 1.5em;
+body.wcag-text-toggle {
+	p.text-block, p.help-block, span.ui-chkbox-label, #terms-agreement-block, #dataverseDesc {
+		word-spacing: 0.16em;
+		letter-spacing: 0.12em;
+		line-height: 1.5em;
+	}
 }
 
 
@@ -3174,6 +3396,7 @@ body.font-size-percent-200 {
 
 			.pull-right {
 				width: 100%;
+				float: none !important;
 			}
 
 			.navbar-nav {
@@ -3209,6 +3432,8 @@ body.font-size-percent-200 {
 				}
 			}
 		}
+
+		@include accessibility-controls-mobile;
 	}
 		
 	.navbar-default #topNavBar .navbar-nav .open .dropdown-menu {
@@ -3280,11 +3505,13 @@ body.font-size-percent-200 {
 body.font-size-percent-150 {
 	@media (max-width: $screen-sm-max) {
 		@include mobile-sidebar;
+		@include searchResults-mobile;
 	}
 }
 body.font-size-percent-200 {
 	@media (max-width: $screen-md-max) {
 		@include mobile-sidebar;
+		@include searchResults-mobile;
 	}
 }
 
@@ -3314,6 +3541,10 @@ body.font-size-percent-200 {
 				text-align: left;
 			}
 		}
+
+		#dataverseHeader .dataverseHeaderCell {
+			display: table-row;
+		}
 	}
 }
 
@@ -3338,7 +3569,8 @@ body.font-size-percent-150 {
 	.ql-formats button,
 	.ui-fileupload-buttonbar .ui-icon-plusthick,
 	.ui-fileupload-cancel .ui-icon-close,
-	#ajaxStatusPanel_start {
+	#ajaxStatusPanel_start,
+	#rolesPermissionsForm\:editRolePermissionPanel_content input {
 		transform: scale(1.5);
 		image-rendering: pixelated;
 		image-rendering: -moz-crisp-edges;
@@ -3375,7 +3607,8 @@ body.font-size-percent-200 {
 	.ql-formats button,
 	.ui-fileupload-buttonbar .ui-icon-plusthick,
 	.ui-fileupload-cancel .ui-icon-close,
-	#ajaxStatusPanel_start { 
+	#ajaxStatusPanel_start,
+	#rolesPermissionsForm\:editRolePermissionPanel_content input { 
 		transform: scale(2);
 		image-rendering: pixelated;
 		image-rendering: -moz-crisp-edges;
@@ -3444,6 +3677,23 @@ body.font-size-percent-200 {
 			width: 100% !important;
 		}
 	}
+
+	div.panelSearchForm input.search-input {
+		max-width: 100%;
+	}
+
+	.label-container.pull-right {
+		float: none !important;
+	}
+	
+	/*
+	This fixes pull-right offscreen menus - might be neeeded in the future
+
+	.dropdown-menu.pull-right {
+		left: 0;
+		right: auto;
+	}
+	*/
 
 	@include table-metrics-mobile;
 	@include modal-grid-mobile;
@@ -3579,6 +3829,7 @@ body.font-size-percent-200 {
 	#metrics-content, #metrics-label,
 	.form-horizontal .control-label,
 	#breadcrumbNavBlock .breadcrumbActive,
+	#breadcrumbNavBlock .breadcrumbCarrot,
 	.ui-widget-header,
 	.bg-warning,
 	.ui-widget-content .ui-state-default:not(.ui-button),

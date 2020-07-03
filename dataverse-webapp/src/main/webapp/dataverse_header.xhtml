@@ -147,20 +147,13 @@
                                 #{dataverseSession.localeTitle} <b class="caret"></b>
                             </a>
                             <h:form class="form-inline">
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu language-select">
                                     <ui:repeat value="#{settingsWrapper.configuredLocales.entrySet().toArray()}" var="language">
                                         <li jsf:rendered="#{language.value ne dataverseSession.localeTitle}">
                                             <h:commandLink value="#{language.value}"
                                                             actionListener="#{dataverseSession.updateLocaleInViewRootAndRedirect(language.key)}"
                                                             lang="#{language.key}"
-                                                            style="padding: 3px 20px;
-                                                                    clear: both;
-                                                                    font-weight: 400;
-                                                                    line-height: 1.42857143;
-                                                                    white-space: nowrap;
-                                                                    text-decoration: none;
-                                                                    display: block;
-                                                                    #{'background: url(/resources/images/flags/'.concat(language.key).concat('.svg) no-repeat 90% center; background-size: 35px 35px')}">
+                                                            style="#{'background: url(/resources/images/flags/'.concat(language.key).concat('.svg) no-repeat 90% center; background-size: 35px 35px')}">
                                             </h:commandLink>
                                         </li>
                                     </ui:repeat>
@@ -247,37 +240,46 @@
 
                 </nav>
                     <div id="accessibility-controls">
-                        <h:outputText value="#{bundle['header.accessibility.wcagText']}" />: 
-                        <ul id="eighty-limit-mode-selector">
-                            <li>
-                                <button class="toggle" title="#{bundle['header.accessibility.eightyLimit.toggle']}"></button>
-                            </li>
-                        </ul><ul id="wcag-text-mode-selector">
-                            <li>
-                                <button class="toggle" title="#{bundle['header.accessibility.wcagText.toggle']}"></button>
-                            </li>
-                        </ul>
-                        <h:outputText value="#{bundle['header.accessibility.font']}" />: 
-                        <ul id="font-size-mode-selector">
-                            <li>
-                                <button class="default" title="100%"></button>
-                            </li>
-                            <li>
-                                <button class="percent-150" title="150%"></button>
-                            </li>
-                            <li>
-                                <button class="percent-200" title="200%"></button>
-                            </li>
-                        </ul>
-                        <h:outputText value="#{bundle['header.accessibility.contrast']}" />: 
-                        <ul id="high-contrast-mode-selector">
-                            <li>
-                                <button class="default" title="#{bundle['header.accessibility.contrast.default']}"></button>
-                            </li>
-                            <li>
-                                <button class="yellow-on-black" title="#{bundle['header.accessibility.contrast.yellowOnBlack']}"></button>
-                            </li>
-                        </ul>
+                        <span>
+                            <h:outputText value="#{bundle['header.accessibility.eightyLimit']}" />: 
+                            <ul id="eighty-limit-mode-selector">
+                                <li>
+                                    <button class="toggle" title="#{bundle['header.accessibility.eightyLimit.toggle']}"></button>
+                                </li>
+                            </ul><ul id="wcag-text-mode-selector">
+                                <li>
+                                    <button class="toggle" title="#{bundle['header.accessibility.wcagText.toggle']}"></button>
+                                </li>
+                            </ul>
+                        </span>
+                        
+                        <span>
+                            <h:outputText value="#{bundle['header.accessibility.font']}" />: 
+                            <ul id="font-size-mode-selector">
+                                <li>
+                                    <button class="default" title="100%"></button>
+                                </li>
+                                <li>
+                                    <button class="percent-150" title="150%"></button>
+                                </li>
+                                <li>
+                                    <button class="percent-200" title="200%"></button>
+                                </li>
+                            </ul>
+                        </span>
+                        
+                        <span>
+                            <h:outputText value="#{bundle['header.accessibility.contrast']}" />: 
+                            <ul id="high-contrast-mode-selector">
+                                <li>
+                                    <button class="default" title="#{bundle['header.accessibility.contrast.default']}"></button>
+                                </li>
+                                <li>
+                                    <button class="yellow-on-black" title="#{bundle['header.accessibility.contrast.yellowOnBlack']}"></button>
+                                </li>
+                            </ul>
+                        </span>
+                        
                     </div>
 
                     <script type="text/javascript">
