@@ -331,7 +331,7 @@ public class MailMessageCreator {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting",
                                                             notificationDto.getNotificationReceiver().getNotificationsLanguage());
 
-        if (notificationDto.getNotificationType() == NotificationType.SUBMITTEDDS) {
+        if (notificationDto.getNotificationType().equals(SUBMITTEDDS)) {
 
             String requestorName = requestor.getFirstName() + " " + requestor.getLastName();
 
