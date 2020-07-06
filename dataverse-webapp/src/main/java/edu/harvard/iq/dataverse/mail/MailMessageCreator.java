@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.mail;
 
 import edu.harvard.iq.dataverse.DataverseDao;
-import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.common.BrandingUtil;
@@ -70,8 +69,6 @@ public class MailMessageCreator {
 
     private GenericDao genericDao;
 
-    private DataverseSession session;
-
     private static final Logger logger = Logger.getLogger(MailMessageCreator.class.getCanonicalName());
 
     // -------------------- CONSTRUCTORS --------------------
@@ -82,13 +79,12 @@ public class MailMessageCreator {
     @Inject
     public MailMessageCreator(SystemConfig systemConfig, PermissionServiceBean permissionService,
                               DataverseDao dataverseDao, ConfirmEmailServiceBean confirmEmailService,
-                              GenericDao genericDao, DataverseSession dataverseSession) {
+                              GenericDao genericDao) {
         this.systemConfig = systemConfig;
         this.permissionService = permissionService;
         this.dataverseDao = dataverseDao;
         this.confirmEmailService = confirmEmailService;
         this.genericDao = genericDao;
-        this.session = dataverseSession;
     }
 
     // -------------------- LOGIC --------------------
@@ -462,7 +458,7 @@ public class MailMessageCreator {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting",
                                                             notificationDto.getNotificationReceiver().getNotificationsLanguage());
 
-        if (notificationDto.getNotificationType() == NotificationType.REQUESTFILEACCESS) {
+        if (notificationDto.getNotificationType().equals(REQUESTFILEACCESS)) {
 
             String pattern = BundleUtil.getStringFromBundle("notification.email.requestFileAccess",
                                                             notificationDto.getNotificationReceiver().getNotificationsLanguage());
@@ -483,7 +479,7 @@ public class MailMessageCreator {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting",
                                                             notificationDto.getNotificationReceiver().getNotificationsLanguage());
 
-        if (notificationDto.getNotificationType() == NotificationType.MAPLAYERDELETEFAILED) {
+        if (notificationDto.getNotificationType().equals(MAPLAYERDELETEFAILED)) {
 
             DatasetVersion version = fileMetadata.getDatasetVersion();
             String pattern = BundleUtil.getStringFromBundle("notification.email.maplayer.deletefailed.text",
@@ -500,7 +496,7 @@ public class MailMessageCreator {
         String messageText = BundleUtil.getStringFromBundle("notification.email.greeting",
                                                             notificationDto.getNotificationReceiver().getNotificationsLanguage());
 
-        if (notificationDto.getNotificationType() == NotificationType.CREATEACC) {
+        if (notificationDto.getNotificationType().equals(CREATEACC)) {
 
             String accountCreatedMessage = BundleUtil.getStringFromBundle("notification.email.welcome",
                                                                           notificationDto.getNotificationReceiver().getNotificationsLanguage(),
@@ -599,7 +595,7 @@ public class MailMessageCreator {
 
     private String getSubjectTextForDatasetVersion(EmailNotificationDto notificationDto, String rootDataverseName, DatasetVersion datasetVersion) {
 
-        if (notificationDto.getNotificationType() == FILESYSTEMIMPORT) {
+        if (notificationDto.getNotificationType().equals(FILESYSTEMIMPORT)) {
             try {
                 List<String> dsNameAsList = Collections.singletonList(datasetVersion.getDataset().getDisplayName());
                 return BundleUtil.getStringFromBundle("notification.email.import.filesystem.subject",
