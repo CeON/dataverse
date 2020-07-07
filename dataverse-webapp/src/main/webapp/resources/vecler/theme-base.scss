@@ -448,8 +448,11 @@ This fixes pull-right offscreen menus - might be neeeded in the future
 
 .checkbox, .radio, #resultsCountPaginatorBlock {
 	label {
+		position: relative;
+		top: 0.133em;
 		padding-left: 30px;
 		line-height: 27px;
+		display: inline;
 
 		input {
 			&[type=checkbox], &[type=radio] {
@@ -1582,6 +1585,7 @@ tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:no
 
 /* Scrollable tables */
 
+/* This selector is also present in dv_rebind_bootstrap.js */
 .ui-datatable:not(.headerless-table):not(.no-min-width) {
 	table {
 		min-width: 65em;
@@ -1596,6 +1600,11 @@ div.filesTable {
 	&.ui-datatable.ui-widget div.ui-datatable-tablewrapper {
 		overflow-x: auto;
 	}
+}
+
+/* Fix submenus in scrollable tables not overflowing outside */
+.ui-tabs {
+	position: static;
 }
 
 .panel-default > .panel-heading {
@@ -1931,6 +1940,20 @@ $navbar-height: 102px;
 	}
 }
 
+.language-select.dropdown-menu a {
+	padding: 3px 20px;
+	clear: both;
+	font-weight: 400;
+	line-height: 1.42857143;
+	white-space: nowrap;
+	text-decoration: none;
+	display: block;
+
+	&:focus, &:hover {
+		background-color: $gray-border-color !important;
+	}
+}
+
 .navbar-fixed-top #topNavBar.navbar-collapse {
 	max-height: calc(100vh - 100px);
 }
@@ -2235,6 +2258,7 @@ html, body {
 
 #dataverseDesc {
 	margin-left: 15px;
+	margin-bottom:1em;
 	width: 100%;
 	padding-top: 15px;
 }
@@ -2349,6 +2373,10 @@ div.panelSearchForm input.search-input {
 
 	a {
 		padding: 0;
+
+		&:hover, &:focus {
+			text-decoration: underline;
+		}
 	}
 }
 
@@ -2561,6 +2589,10 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 }
 
 /* Search results */
+
+.ui-datalist-item a.facetLink {
+	text-decoration: underline;
+}
 
 #resultsFacetsTopBlock a.facetLink.facetSelected {
 	padding: 0.3em 0.6em;
@@ -2859,6 +2891,7 @@ div.filesTable .ui-paginator {
 #title-block {
 	margin-top: 20px;
 	margin-bottom: 32px;
+	max-width: calc(100vw - 50px);
 
 	.title-preview-icon-block {
 		.icon-dataset {
@@ -3314,11 +3347,16 @@ p.text-block {
 	word-break: break-word;
 }
 
-body.eighty-limit-toggle p.text-block {
-	max-width: 36.4em;
+body.eighty-limit-toggle {
+	p.text-block, p.help-block, span.ui-chkbox-label, #terms-agreement-block, #dataverseDesc {
+		max-width: 36.4em;
+	}
 }
-body.eighty-limit-toggle.wcag-text-toggle p.text-block {
-	max-width: 48em;
+
+body.eighty-limit-toggle.wcag-text-toggle {
+	p.text-block, p.help-block, span.ui-chkbox-label, #terms-agreement-block, #dataverseDesc {
+		max-width: 48em;
+	}
 }
 
 
@@ -3326,10 +3364,12 @@ body.eighty-limit-toggle.wcag-text-toggle p.text-block {
  * WCAG TEXT MODE SWITCH BELOW
  */
 
-body.wcag-text-toggle p.text-block {
-	word-spacing: 0.16em;
-	letter-spacing: 0.12em;
-	line-height: 1.5em;
+body.wcag-text-toggle {
+	p.text-block, p.help-block, span.ui-chkbox-label, #terms-agreement-block, #dataverseDesc {
+		word-spacing: 0.16em;
+		letter-spacing: 0.12em;
+		line-height: 1.5em;
+	}
 }
 
 
