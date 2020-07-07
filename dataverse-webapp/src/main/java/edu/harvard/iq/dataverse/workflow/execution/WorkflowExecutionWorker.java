@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.workflow.execution;
 
+import com.google.common.base.Stopwatch;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
@@ -18,11 +19,13 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import java.time.Clock;
+import java.time.Duration;
+
+import static edu.harvard.iq.dataverse.workflow.execution.WorkflowExecutionScheduler.JMS_QUEUE_RESOURCE_NAME;
 
 /**
  * A JMS {@link MessageListener} handling {@link WorkflowExecutionMessage}'s. Takes care of actual workflow steps
@@ -33,12 +36,12 @@ import java.time.Clock;
  * for finishing the flow. Each message contains the same workflow data and differs only with last step
  * result. Upon receiving each message we fetch current workflow state from database, and if there is a next
  * step to execute, we execute it, and if all were already done, we finish the workflow execution.
- * 
+ *
  * @author kaczynskid
  */
-@MessageDriven(mappedName = "jms/queue/dataverseWorkflow", activationConfig = {
-        @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue")
+@MessageDriven(name = "WorkflowExecutionWorker", activationConfig = {
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = JMS_QUEUE_RESOURCE_NAME),
+        @ActivationConfigProperty(propertyName = "useJndi", propertyValue = "true")
 })
 public class WorkflowExecutionWorker implements MessageListener {
 
@@ -81,6 +84,7 @@ public class WorkflowExecutionWorker implements MessageListener {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void onMessage(Message message) {
+        Stopwatch watch = new Stopwatch().start();
         try {
             WorkflowExecutionMessage messageBody = (WorkflowExecutionMessage) ((ObjectMessage) message).getObject();
             WorkflowExecutionContext executionContext = contextFactory.workflowExecutionContextOf(messageBody);
@@ -89,18 +93,25 @@ public class WorkflowExecutionWorker implements MessageListener {
             } else {
                 executeStep(executionContext, messageBody.getLastStepSuccess(), messageBody.getExternalData());
             }
-        } catch (JMSException e) {
+            log.trace("Spent {} to handle message {}", Duration.ofMillis(watch.elapsedMillis()), messageBody);
+        } catch (Exception e) {
             throw new RuntimeException("Unexpected error processing message " + message, e);
+        } finally {
+            watch.stop();
         }
     }
 
     // -------------------- PRIVATE --------------------
 
     private void executeStep(WorkflowExecutionContext ctx, Success lastStepResult, String externalData) {
+        log.trace("{} to be executed", ctx);
         if (ctx.hasMoreStepsToExecute()) {
             WorkflowExecutionStepContext step = ctx.nextStepToExecute(executions);
+            log.trace("{} next to execute", step);
+            Stopwatch watch = new Stopwatch().start();
             try {
                 WorkflowStepResult stepResult = runner.executeStep(step, lastStepResult, externalData);
+                log.trace("Spent {} executing {}", Duration.ofMillis(watch.elapsedMillis()), step);
 
                 if (stepResult instanceof Success) {
                     stepCompleted(ctx, step, (Success) stepResult);
@@ -111,6 +122,8 @@ public class WorkflowExecutionWorker implements MessageListener {
                 }
             } catch (Exception e) {
                 stepFailed(ctx, step, e, "exception while executing step: " + e.getMessage());
+            } finally {
+                watch.stop();
             }
         } else {
             workflowCompleted(ctx);
@@ -118,14 +131,14 @@ public class WorkflowExecutionWorker implements MessageListener {
     }
 
     private void stepCompleted(WorkflowExecutionContext ctx, WorkflowExecutionStepContext step, Success stepResult) {
-        log.info("{} finished successfully", step);
+        log.trace("{} finished successfully", step);
         step.success(stepResult.getData(), clock);
         ctx.save(datasets);
         scheduler.executeNextWorkflowStep(ctx, stepResult);
     }
 
     private void stepPaused(WorkflowExecutionContext ctx, WorkflowExecutionStepContext step, Pending stepResult) {
-        log.info("{} paused", step);
+        log.trace("{} paused", step);
         step.pause(stepResult.getData(), clock);
     }
 
@@ -142,7 +155,7 @@ public class WorkflowExecutionWorker implements MessageListener {
     }
 
     private void workflowCompleted(WorkflowExecutionContext ctx) {
-        log.info("Workflow {} completed", ctx.getInvocationId());
+        log.trace("{} completed", ctx);
 
         try {
             ctx.finish(executions, clock);
@@ -156,7 +169,7 @@ public class WorkflowExecutionWorker implements MessageListener {
     }
 
     private void workflowFailed(WorkflowExecutionContext ctx, Exception ex, String msg) {
-        log.error(String.format("Workflow %s failed - %s", ctx.getInvocationId(), msg), ex);
+        log.error(String.format("%s failed - %s", ctx, msg), ex);
         workflowFailed(ctx, new Failure(msg));
     }
 
@@ -166,8 +179,10 @@ public class WorkflowExecutionWorker implements MessageListener {
     }
 
     private void rollbackStep(WorkflowExecutionContext ctx, Failure failure) {
+        log.trace("{} to be rolled back", ctx);
         if (ctx.hasMoreStepsToRollback()) {
             WorkflowExecutionStepContext step = ctx.nextStepToRollback(executions);
+            log.trace("{} next to roll back", step);
             runner.rollbackStep(step, failure);
             scheduler.rollbackNextWorkflowStep(ctx, failure);
         } else {

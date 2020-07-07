@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.workflow.execution;
 
+import com.google.common.base.Stopwatch;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.Success;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
@@ -9,16 +10,16 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
-
-import java.util.Objects;
+import java.time.Duration;
 
 import static java.util.Objects.requireNonNull;
 import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
@@ -79,6 +80,7 @@ public class WorkflowExecutionScheduler {
      * Schedules execution of the first step of the workflow.
      * @param context workflow execution context to compose the message from.
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void executeFirstWorkflowStep(WorkflowExecutionContext context) {
         sendWorkflowExecutionMessage(executeWorkflowMessageOf(context, new Success()), FIRST_STEP_PRIORITY);
     }
@@ -88,6 +90,7 @@ public class WorkflowExecutionScheduler {
      * @param context workflow execution context to compose the message from.
      * @param lastStepResult previous step result to be passed on to the next step.
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void executeNextWorkflowStep(WorkflowExecutionContext context, Success lastStepResult) {
         sendWorkflowExecutionMessage(executeWorkflowMessageOf(context, lastStepResult), NEXT_STEP_PRIORITY);
     }
@@ -97,6 +100,7 @@ public class WorkflowExecutionScheduler {
      * @param context workflow execution context to compose the message from.
      * @param externalData external data to be passed on for resuming.
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void resumePausedWorkflowStep(WorkflowExecutionContext context, String externalData) {
         sendWorkflowExecutionMessage(resumeWorkflowMessageOf(context, externalData), NEXT_STEP_PRIORITY);
     }
@@ -106,6 +110,7 @@ public class WorkflowExecutionScheduler {
      * @param context workflow execution context to compose the message from.
      * @param failure failure that caused the roll back.
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void rollbackNextWorkflowStep(WorkflowExecutionContext context, Failure failure) {
         sendWorkflowExecutionMessage(rollbackWorkflowMessageOf(context, failure), ROLLBACK_STEP_PRIORITY);
     }
@@ -113,6 +118,7 @@ public class WorkflowExecutionScheduler {
     // -------------------- PRIVATE --------------------
 
     private void sendWorkflowExecutionMessage(WorkflowExecutionMessage messageBody, int priority) {
+        Stopwatch watch = new Stopwatch().start();
         try (
                 Connection connection = factory.createConnection();
                 Session session = connection.createSession(false, AUTO_ACKNOWLEDGE);
@@ -120,9 +126,13 @@ public class WorkflowExecutionScheduler {
         ) {
             ObjectMessage message = session.createObjectMessage(messageBody);
             producer.send(message, DeliveryMode.PERSISTENT, priority, DEFAULT_TIME_TO_LIVE);
-        } catch (JMSException e) {
+            log.trace("Spent {} to send priority {} message {}",
+                    Duration.ofMillis(watch.elapsedMillis()), priority, messageBody);
+        } catch (Exception e) {
             log.error("Failed sending message: {}", messageBody);
             throw new RuntimeException("Unexpected error sending a workflow execution message", e);
+        } finally {
+            watch.stop();
         }
     }
 
