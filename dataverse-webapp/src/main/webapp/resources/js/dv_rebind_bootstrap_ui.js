@@ -121,6 +121,88 @@ function reinitializePrimefacesComponentsJS() {
             originalSelectCheckboxMenuHide.apply(this, [animate]);
             this.keyboardTarget.focus();
         };
+        
+        PrimeFaces.widget.SelectCheckboxMenu.prototype.updateLabel = function() {
+            var checkedItems = this.jq.find(':checked'),
+            labelText = '';
+
+            if(checkedItems && checkedItems.length) {
+                for(var i = 0; i < checkedItems.length; i++) {
+                    if(i != 0) {
+                        labelText = labelText + this.cfg.labelSeparator;
+                    }
+                    labelText = labelText + $(checkedItems[i]).next().text();
+                }
+            }
+            else {
+                if (this.cfg.emptyLabel) {
+                    labelText = this.cfg.emptyLabel;
+                } else {
+                    labelText = this.defaultLabel;
+                }
+            }
+    
+            this.label.text(labelText);
+            this.labelContainer.attr('title', labelText);
+            this.keyboardTarget.val(labelText);
+        }
+    }
+    
+    if (PrimeFaces.widget.SelectOneMenu) {
+        var originalSelectOneMenuInitContents = PrimeFaces.widget.SelectOneMenu.prototype.initContents;
+        var originalSelectOneMenuChangeAriaValue = PrimeFaces.widget.SelectOneMenu.prototype.changeAriaValue;
+        var originalSelectOneMenuHighlightItem = PrimeFaces.widget.SelectOneMenu.prototype.highlightItem;
+        var originalSelectOneMenuShow = PrimeFaces.widget.SelectOneMenu.prototype.show;
+        
+        PrimeFaces.widget.SelectOneMenu.prototype.initContents = function() {
+            originalSelectOneMenuInitContents.apply(this);
+            if(this.cfg.filter) {
+                var filterElement = this.panel.find('> div.ui-selectonemenu-filter-container > input.ui-selectonemenu-filter');
+                
+                //this.panel.attr('role', 'combobox');
+                //this.panel.attr('aria-owns', this.itemsContainer.attr('id'))
+                
+                filterElement.attr('role', 'combobox');
+                filterElement.attr('aria-owns', this.itemsContainer.attr('id'));
+                filterElement.attr('aria-controls', this.itemsContainer.attr('id'));
+                filterElement.attr('aria-label', 'Filtruj opcje');
+            }
+        };
+        
+        PrimeFaces.widget.SelectOneMenu.prototype.changeAriaValue = function(item) {
+            var filterElement = this.panel.find('> div.ui-selectonemenu-filter-container > input.ui-selectonemenu-filter');
+            var itemId = item.attr('id');
+
+            this.focusInput.attr('aria-activedescendant', itemId)
+                    .attr('aria-describedby', itemId);
+            this.itemsContainer.attr('aria-activedescendant', itemId);
+            //this.itemsContainer.removeAttr('aria-activedescendant');
+            
+            if(this.cfg.filter) {
+                filterElement.attr('aria-activedescendant', itemId);
+            }
+        };
+        
+        PrimeFaces.widget.SelectOneMenu.prototype.highlightItem = function(item) {
+            this.items.attr('aria-selected', false);
+            this.items.filter('.ui-state-highlight').removeClass('ui-state-highlight');
+
+            if(item.length > 0) {
+                item.addClass('ui-state-highlight');
+                item.attr('aria-selected', true);
+                this.setLabel(item.data('label'));
+                this.changeAriaValue(item);
+            }
+        };
+        
+        PrimeFaces.widget.SelectOneMenu.prototype.show = function() {
+            if (this.cfg.filter) {
+                this.filterInput.val('');
+                this.filter(this.filterInput.val());
+            }
+            //this.highlightItem(this.items.eq(0));
+            originalSelectOneMenuShow.apply(this);
+        }
     }
     
     if (PrimeFaces.widget.FileUpload) {
@@ -461,6 +543,22 @@ function reinitializePrimefacesComponentsJS() {
                     $this.callBehavior('select');
                 }
             });
+            
+            var toolbarObserver = new MutationObserver(function(mutations, observer) {
+                for (var i=0; i<mutations.length; ++i) {
+                    var mutation = mutations[i];
+                    var mutationTarget = $(mutation.target);
+                    
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        mutationTarget.attr('aria-pressed', mutationTarget.hasClass('ql-active'));
+                    }
+                }
+            });
+            toolbarObserver.observe(this.toolbar[0].children[0], { attributes: true, attributeFilter: [ "class" ], childList: true, subtree: true });
+            
+            $(this.jq).find('.ql-tooltip.ql-hidden').remove();
+            
+            $(this.jq).find('.ql-editor').attr('aria-label', this.jq.data('editor-aria-label'))
         }
     }
     
@@ -513,7 +611,7 @@ function reinitializePrimefacesComponentsJS() {
             this.sourceCaption = this.sourceList.prev('.ui-picklist-caption'),
             this.targetCaption = this.targetList.prev('.ui-picklist-caption');
              
-            if (this.sourceCaption.find('.ui-selectonemenu').length > 0) {
+            if (this.sourceCaption.find('.ui- nu').length > 0) {
                 this.sourceCaption = this.sourceCaption.find('.ui-selectonemenu').find('label');
                 
                 this.sourceList.attr('aria-label', this.sourceCaption.text());
@@ -579,6 +677,34 @@ function reinitializePrimefacesComponentsJS() {
             });
         }
     }
+    
+    if (PrimeFaces.widget.DefaultCommand) {
+        var originalDefaultCommandInit = PrimeFaces.widget.DefaultCommand.prototype.init;
+        
+        PrimeFaces.widget.DefaultCommand.prototype.init = function(cfg) {
+            originalDefaultCommandInit.apply(this, [cfg]);
+            
+            var closestForm = this.jqTarget.closest('form');
+            closestForm.off('keydown.' + this.id).on('keydown.' + this.id, {scopeEnter: false}, function (e, data) {
+                var keyCode = $.ui.keyCode;
+
+                data = data || e.data;
+                if (($this.scope && data.scopeEnter && data.scopeDefaultCommandId === $this.id)
+                        || (!$this.scope && !data.scopeEnter && (e.which == keyCode.ENTER))) {
+                    //do not proceed if target is a textarea,button or link - change: added contenteditable
+                    if ($(e.target).is('textarea,button,input[type="submit"],a,[contenteditable="true"]')) {
+                        return true;
+                    }
+
+                    if (!$this.jqTarget.is(':disabled, .ui-state-disabled')) {
+                        $this.jqTarget.click();
+                    }
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+            });
+        }
+    }
 
     /* disable swipe events for tabView and paginator, to allow scrolling contents without unexpected behavior */
     if (PrimeFaces.widget.Paginator) {
@@ -634,8 +760,7 @@ function bind_bsui_components(){
     $('.dropdown-toggle').dropdown();
     
     // Hide open tooltips + popovers
-    $('.bootstrap-button-tooltip, [data-toggle="tooltip"]').tooltip("hide");
-    $("[data-toggle='popover']").popover("hide");
+    hideTooltipsAndPopovers();
 
     // Tooltips + popovers
     bind_tooltip_popover();
@@ -661,10 +786,21 @@ function bind_tooltip_popover(){
     bindEscapeKey();
 }
 
+function hideTooltipsAndPopovers() {
+    $('.bootstrap-button-tooltip, [data-toggle="tooltip"]').tooltip("hide");
+    $("[data-toggle='popover']").popover("hide");
+}
+
 function bindTooltips() {
     $('.bootstrap-button-tooltip, [data-toggle="tooltip"]')
         .tooltip({container: 'body', trigger: 'manual'})
         .on("mouseover", event => {
+            var closestTooltipToggle = $(event.target).closest('.bootstrap-button-tooltip, [data-toggle="tooltip"]');
+            
+            if (closestTooltipToggle.data()['bs.tooltip'].tip().hasClass('in')) { // check if tooltip is visible
+                return;
+            }
+            
             $(event.target).tooltip("show");
             $(".tooltip").on("mouseleave", function () {
                 $(event.target).tooltip("hide");
@@ -672,7 +808,14 @@ function bindTooltips() {
         })
         .on("mouseout", event => {
             setTimeout(() => {
-                if (!$(".tooltip:hover").length) $(event.target).tooltip("hide");
+                var closestTooltipToggle = $(event.target).closest('.bootstrap-button-tooltip, [data-toggle="tooltip"]');
+                
+                if (closestTooltipToggle.is(":hover")) {
+                    return;
+                }
+                if (!$(".tooltip:hover").length) {
+                    closestTooltipToggle.tooltip("hide");
+                }
             }, 200);
         })
         .on("focus", event => {
@@ -956,6 +1099,80 @@ function handle_keydown_submenus(element, key){
         $(element.parentNode.parentNode.parentNode.nextElementSibling).find('a').focus();
     }
 }
+
+/* Fix dropdown submenus not overflowing in scrollable tables */
+/* Source: https://codepen.io/andykono/pen/WvPgvz */
+
+function fix_submenus_overflow($element) {
+    var selector = ".ui-datatable:not(.headerless-table):not(.no-min-width)";
+
+    if (!$element) {
+        $element = $("body");
+    }
+
+    //check if not already bound
+    if ($element.find(selector).length > 0 && $element.find(selector).attr("data-fix-overflow") === "true") {
+        return;
+    }
+    else {
+        $element.find(selector).attr("data-fix-overflow", "true");
+    }
+
+    //add BT DD show event
+    $element.find(selector + " .btn-group").on("show.bs.dropdown", function() {
+        var $btnDropDown = $(this).find(".dropdown-toggle");
+        var $listHolder = $(this).find("> .dropdown-menu");
+        //reset position property for DD container
+        $(this).css("position", "static");
+
+        if ($listHolder.hasClass("pull-right")) {
+            $listHolder.css({
+                "width": $listHolder.outerWidth(true),
+                "top": ($btnDropDown.offset().top + $btnDropDown.outerHeight(true)) + "px",
+                "left": ($btnDropDown.offset().left - $listHolder.outerWidth(true) + $btnDropDown.outerWidth(true)) + "px"
+            });
+        }
+        else {
+            $listHolder.css({
+                "top": ($btnDropDown.offset().top + $btnDropDown.outerHeight(true)) + "px",
+                "left": $btnDropDown.offset().left + "px"
+            });
+        }
+
+        $listHolder.data("open", true);
+    });
+
+    //add BT DD hide event
+    $element.find(selector + " .btn-group").on("hidden.bs.dropdown", function() {
+        var $listHolder = $(this).find("> .dropdown-menu");
+        $listHolder.data("open", false);
+    });
+
+    //add on scroll for table holder
+    $element.find(selector).scroll(function() {
+        var $ddHolder = $(this).find(".btn-group")
+        var $btnDropDown = $(this).find(".dropdown-toggle");
+        var $listHolder = $(this).find("> .dropdown-menu");
+
+        if ($listHolder.data("open")) {
+            if ($listHolder.hasClass("pull-right")) {
+                $listHolder.css({
+                    "width": $listHolder.outerWidth(true),
+                    "top": ($btnDropDown.offset().top + $btnDropDown.outerHeight(true)) + "px",
+                    "left": ($btnDropDown.offset().left - $listHolder.outerWidth(true) + $btnDropDown.outerWidth(true)) + "px"
+                });
+            }
+            else {
+                $listHolder.css({
+                    "top": ($btnDropDown.offset().top + $btnDropDown.outerHeight(true)) + "px",
+                    "left": $btnDropDown.offset().left + "px"
+                });
+            }
+            $ddHolder.toggleClass("open", ($btnDropDown.offset().left > $(this).offset().left))
+        }
+    })
+}
+
 $(document).ready(function() {
     $(".dropdown-menu .dropdown-menu").keydown(function(event) {
         handle_keydown_submenus(event.target, event.keyCode)
@@ -966,5 +1183,12 @@ $(document).ready(function() {
         setTimeout(function(){ 
             $(event.target).next().find("li a").first().focus(); 
         }, 1);
+    });
+
+    fix_submenus_overflow();
+
+    var $tables = $(".ui-datatable:not(.headerless-table):not(.no-min-width)");
+    $tables.parent().on("DOMSubtreeModified", function () {
+        fix_submenus_overflow($(this));
     });
 });

@@ -62,7 +62,7 @@ public class TextMessagePage implements Serializable {
 
     public void deleteTextMessage() {
         textMessageService.delete(textMessageToDelete.getId());
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.textmessages.delete.success"));
+        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.textmessages.delete.success"));
         
         Long allMessagesCount = textMessageService.countMessagesForDataverse(dataverseId);
         
@@ -79,7 +79,7 @@ public class TextMessagePage implements Serializable {
     
     public void deactivateTextMessage(long textMessageId) {
         textMessageService.deactivate(textMessageId);
-        
+        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.textmessages.deactivate.success"));
     }
     
     public long getDataverseId() {

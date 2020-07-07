@@ -50,7 +50,7 @@ public class BannerTab implements Serializable {
     
     public void deleteBanner() {
         bannerDAO.delete(bannerToDelete.getId());
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.banners.delete.success"));
+        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.banners.delete.success"));
         
         Long allBannersCount = bannerDAO.countBannersForDataverse(dataverseId);
         
@@ -67,7 +67,7 @@ public class BannerTab implements Serializable {
     
     public void deactivateTextMessage(long textMessageId) {
         bannerDAO.deactivate(textMessageId);
-        JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.banners.deactivate.success"));
+        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataversemessages.banners.deactivate.success"));
     }
 
     public StreamedContent getDisplayImage(DataverseLocalizedBannerDto localizedBanner) {
