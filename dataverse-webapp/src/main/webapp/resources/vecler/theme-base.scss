@@ -3353,12 +3353,12 @@ div.ui-dialog.largePopUp {
  * 80 CHARACTERS LIMIT SWITCH BELOW
  */
 
-p.text-block, p.help-block, #dataverseDesc p {
+p.text-block {
 	margin-bottom: 0;
 	word-break: break-word;
 }
 
-body.eighty-limit-toggle.wcag-text-toggle {
+body.eighty-limit-toggle {
 	p.text-block, p.help-block, span.ui-chkbox-label, .datasetfield-value, #dataverseDesc p {
 		max-width: 36.4em;
 	}
