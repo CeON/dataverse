@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.api;
+package edu.harvard.iq.dataverse.dataset;
 
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -6,12 +6,9 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.logging.Logger;
 
 @Stateless
-public class EmbargoAccessService extends AbstractApiBean {
-    private static final Logger logger = Logger.getLogger(EmbargoAccessService.class.getCanonicalName());
-
+public class EmbargoAccessService {
     private PermissionServiceBean permissionService;
 
     // -------------------- CONSTRUCTORS --------------------

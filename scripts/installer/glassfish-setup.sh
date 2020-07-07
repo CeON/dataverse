@@ -161,6 +161,7 @@ function preliminary_setup()
     --idletimeout 300 \
     --maxwait 60000 \
     --isconnectvalidatereq true \
+    --transactionsupport "NoTransaction" \
     "jms/activemqConnectionPool"
 
   # create ActiveMQ connection resource
@@ -174,7 +175,7 @@ function preliminary_setup()
     --raname "activemq-rar" \
     --restype "javax.jms.Queue" \
     --enabled true \
-    --property Name="dataverseWorkflow":PhysicalName="dataverseWorkflow" \
+    --property PhysicalName="dataverseWorkflow" \
     "jms/queue/dataverseWorkflow"
 
   # allow ActiveMQ to serialize and deserialize data
