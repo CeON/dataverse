@@ -97,11 +97,11 @@ public class DatasetAnalysisTab implements Serializable {
     }
 
     public boolean isAnalysisPerformed() {
-        return false;
+        return true;
     }
 
     public boolean isAnalysisSucceeded() {
-        return false;
+        return true;
     }
 
     public boolean isAnalysisFailure() {
