@@ -35,6 +35,12 @@ public class WorkflowExecutionServiceBean {
 
     // -------------------- CONSTRUCTORS --------------------
 
+    /**
+     * @deprecated for use by EJB proxy only.
+     */
+    public WorkflowExecutionServiceBean() {
+        this(null, null, null, null, null);
+    }
 
     @Inject
     public WorkflowExecutionServiceBean(DatasetRepository datasets, WorkflowExecutionRepository executions,
