@@ -68,7 +68,7 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
     @Column(name = "finished_at", columnDefinition = "TIMESTAMP")
     private Instant finishedAt;
 
-    @OneToMany(mappedBy = "execution", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "execution", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     @OrderColumn(name = "index")
     private List<WorkflowExecutionStep> steps = new ArrayList<>();
 
@@ -92,6 +92,7 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
 
     // -------------------- GETTERS --------------------
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -104,6 +105,7 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
         return workflowId;
     }
 
+    @Override
     public String getTriggerType() {
         return triggerType;
     }
@@ -112,18 +114,22 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
         return invocationId;
     }
 
-    public long getDatasetId() {
+    @Override
+    public Long getDatasetId() {
         return datasetId;
     }
 
-    public long getMajorVersionNumber() {
+    @Override
+    public Long getVersionNumber() {
         return majorVersionNumber;
     }
 
-    public long getMinorVersionNumber() {
+    @Override
+    public Long getMinorVersionNumber() {
         return minorVersionNumber;
     }
 
+    @Override
     public boolean isDatasetExternallyReleased() {
         return datasetExternallyReleased;
     }
@@ -136,10 +142,12 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
         return startedAt;
     }
 
+    @Override
     public String getUserId() {
         return userId;
     }
 
+    @Override
     public String getIpAddress() {
         return ipAddress;
     }
@@ -175,7 +183,7 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
         if (isEmpty(steps)) {
             return false;
         }
-        WorkflowExecutionStep lastStep = steps.get(steps.size() - 1);
+        WorkflowExecutionStep lastStep = getLastStep();
         return lastStep.isPaused() && !lastStep.isResumed();
     }
 
@@ -183,7 +191,7 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
         if (isEmpty(steps)) {
             return hasElementAt(definedSteps, 0);
         } else {
-            WorkflowExecutionStep lastStep = steps.get(steps.size() - 1);
+            WorkflowExecutionStep lastStep = getLastStep();
             if (lastStep.isFinished()) {
                 return hasElementAt(definedSteps, lastStep.getIndex() + 1);
             } else {
@@ -236,9 +244,6 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
     }
 
     public WorkflowExecutionStep nextStepToRollback() {
-        if (!isFinished()) {
-            throw new IllegalStateException("Cannot rollback workflow - not finished");
-        }
         return reverseStepsStream()
                 .filter(WorkflowExecutionStep::isRollBackNeeded)
                 .findFirst()
@@ -266,5 +271,19 @@ public class WorkflowExecution implements JpaEntity<Long>, WorkflowContextSource
 
     private static boolean hasElementAt(Collection<?> collection, int index) {
         return collection != null && collection.size() > index;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stepsString = new StringBuilder();
+        for (WorkflowExecutionStep step : steps) {
+            stepsString.append(step).append("\n");
+        }
+        return super.toString().replace(getClass().getPackage().getName() + ".", "") + "{" +
+                "id=" + id +
+                ", invocationId='" + invocationId + '\'' +
+                ", startedAt=" + startedAt +
+                ", finishedAt=" + finishedAt +
+                ", steps=[\n" + stepsString + "]}";
     }
 }

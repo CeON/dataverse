@@ -3,8 +3,7 @@ package edu.harvard.iq.dataverse.workflow.execution;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersionRepository;
 import edu.harvard.iq.dataverse.persistence.group.IpAddress;
 import edu.harvard.iq.dataverse.persistence.user.ApiToken;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -12,9 +11,12 @@ import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowContextSource;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecution;
+import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionContextSource;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionRepository;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowRepository;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Singleton;
 import javax.inject.Inject;
@@ -30,9 +32,11 @@ import java.util.Map;
 @Singleton
 public class WorkflowExecutionContextFactory {
 
+    private static final Logger log = LoggerFactory.getLogger(WorkflowExecutionContextFactory.class);
+
     private final SettingsServiceBean settings;
 
-    private final DatasetRepository datasets;
+    private final DatasetVersionRepository datasetVersions;
 
     private final WorkflowRepository workflows;
 
@@ -50,28 +54,29 @@ public class WorkflowExecutionContextFactory {
      * @deprecated for use by EJB proxy only.
      */
     public WorkflowExecutionContextFactory() {
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     @Inject
-    public WorkflowExecutionContextFactory(SettingsServiceBean settings, DatasetRepository datasets,
+    public WorkflowExecutionContextFactory(SettingsServiceBean settings, DatasetVersionRepository datasetVersions,
                                            WorkflowRepository workflows, WorkflowExecutionRepository executions,
                                            RoleAssigneeServiceBean roleAssignees, AuthenticationServiceBean authentication) {
-        this(settings, datasets, workflows, executions, roleAssignees, authentication, Clock.systemUTC());
+        this(settings, datasetVersions, workflows, executions, roleAssignees, authentication, Clock.systemUTC());
     }
 
-    public WorkflowExecutionContextFactory(SettingsServiceBean settings, DatasetRepository datasets,
+    public WorkflowExecutionContextFactory(SettingsServiceBean settings, DatasetVersionRepository datasetVersions,
                                            WorkflowRepository workflows, WorkflowExecutionRepository executions,
                                            RoleAssigneeServiceBean roleAssignees, AuthenticationServiceBean authentication,
                                            Clock clock) {
         this.settings = settings;
-        this.datasets = datasets;
+        this.datasetVersions = datasetVersions;
         this.workflows = workflows;
         this.executions = executions;
         this.roleAssignees = roleAssignees;
         this.authentication = authentication;
         this.clock = clock;
     }
+
     // -------------------- LOGIC --------------------
 
     /**
@@ -85,26 +90,24 @@ public class WorkflowExecutionContextFactory {
     }
 
     /**
+     * Creates resuming {@link WorkflowExecutionContext} using data stored in {@link WorkflowExecutionContextSource}.
+     * @param source provided {@link WorkflowExecutionContextSource} to compose the context for.
+     * @return ready to use {@link WorkflowExecutionContext}.
+     */
+    public WorkflowExecutionContext workflowExecutionContextOf(WorkflowExecutionContextSource source) {
+        WorkflowExecution execution = executions.getById(source.getId());
+        return workflowExecutionContextOf(execution);
+    }
+
+    /**
      * Creates resuming {@link WorkflowExecutionContext} using data stored in {@link WorkflowExecution}.
      * @param execution provided {@link WorkflowExecution} to compose the context for.
      * @return ready to use {@link WorkflowExecutionContext}.
      */
     public WorkflowExecutionContext workflowExecutionContextOf(WorkflowExecution execution) {
-        Workflow workflow = workflows.findById(execution.getWorkflowId()).orElseThrow(() ->
-                new IllegalStateException("Executed workflow no longer exists"));
+        Workflow workflow = workflows.getById(execution.getWorkflowId());
+        log.trace("### Load {}", execution);
         return create(reCreateContext(execution), workflow, execution);
-    }
-
-    /**
-     * Creates resuming {@link WorkflowExecutionContext} using data stored in {@link WorkflowExecutionMessage}.
-     * @param message provided {@link WorkflowExecutionMessage} to compose the context for.
-     * @return ready to use {@link WorkflowExecutionContext}.
-     */
-    public WorkflowExecutionContext workflowExecutionContextOf(WorkflowExecutionMessage message) {
-        Workflow workflow = workflows.findById(message.getWorkflowId()).orElseThrow(() ->
-                new IllegalStateException("Executed workflow no longer exists"));
-        WorkflowExecution workflowExecution = executions.getById(message.getWorkflowExecutionId());
-        return create(reCreateContext(message), workflow, workflowExecution);
     }
 
     // -------------------- PRIVATE --------------------
@@ -112,18 +115,19 @@ public class WorkflowExecutionContextFactory {
     private WorkflowExecutionContext create(WorkflowContext context, Workflow workflow, WorkflowExecution execution) {
         ApiToken apiToken = getCurrentApiToken(context.getRequest().getAuthenticatedUser());
         Map<String, Object> settings = retrieveRequestedSettings(workflow.getRequiredSettings());
-        return new WorkflowExecutionContext(workflow, context, execution, apiToken, settings);
+        return new WorkflowExecutionContext(workflow, context, execution, apiToken, settings, clock);
     }
 
     private WorkflowContext reCreateContext(WorkflowContextSource source) {
-        Dataset dataset = datasets.findById(source.getDatasetId()).orElseThrow(() ->
-                new IllegalStateException("Target dataset no longer exists"));
+        datasetVersions.findByDatasetIdAndVersionNumber(source)
+                .orElseThrow(() -> new IllegalStateException(String.format("Target dataset %s version %s.%s no longer exists",
+                        source.getDatasetId(), source.getVersionNumber(), source.getMinorVersionNumber())));
         DataverseRequest request = new DataverseRequest(
                 (User) roleAssignees.getRoleAssignee(source.getUserId()),
                 IpAddress.valueOf(source.getIpAddress()));
         return new WorkflowContext(
                 WorkflowContext.TriggerType.valueOf(source.getTriggerType()),
-                dataset, source.getMajorVersionNumber(), source.getMinorVersionNumber(),
+                source.getDatasetId(), source.getVersionNumber(), source.getMinorVersionNumber(),
                 request, source.isDatasetExternallyReleased());
     }
 

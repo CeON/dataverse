@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.workflow.execution;
 import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecution;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionRepository;
+import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionStepRepository;
 import edu.harvard.iq.dataverse.workflow.WorkflowStepRegistry;
 import edu.harvard.iq.dataverse.workflow.step.Success;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepParams;
@@ -33,8 +34,9 @@ import static org.mockito.Mockito.mock;
 
 class WorkflowExecutionStepContextTest {
 
-    WorkflowExecutionRepository executions = mock(WorkflowExecutionRepository.class);
     WorkflowStepRegistry steps = mock(WorkflowStepRegistry.class);
+    WorkflowExecutionRepository executions = mock(WorkflowExecutionRepository.class);
+    WorkflowExecutionStepRepository stepExecutions = mock(WorkflowExecutionStepRepository.class);
 
     long datasetId = 1L;
     Workflow workflow = givenWorkflow(1L,
@@ -48,13 +50,13 @@ class WorkflowExecutionStepContextTest {
 
     @BeforeEach
     void setUp() {
-        context.start(executions, clock);
+        context.start(executions);
     }
 
     @Test
     void shouldNotBeStartedUponCreation() {
         // when
-        WorkflowExecutionStepContext stepContext = context.nextStepToExecute(executions);
+        WorkflowExecutionStepContext stepContext = context.nextStepToExecute();
         // then
         assertThat(stepContext.getStepExecution().isStarted()).isFalse();
     }
@@ -63,13 +65,13 @@ class WorkflowExecutionStepContextTest {
     void shouldStartStepExecution() {
         // given
         givenImmediateWorkflowStep();
-        WorkflowExecutionStepContext stepContext = context.nextStepToExecute(executions);
+        WorkflowExecutionStepContext stepContext = context.nextStepToExecute();
         Map<String, String> params = Stream.of(
                 Tuple.of("test", "value"),
                 Tuple.of("param", "value")
         ).collect(toMap(Tuple2::_1, Tuple2::_2));
         // when
-        WorkflowStepResult result = stepContext.start(singletonMap("test", "value"), steps, clock);
+        WorkflowStepResult result = stepContext.start(singletonMap("test", "value"), steps);
         // then
         assertThat(stepContext.getStepExecution().isStarted()).isTrue();
         assertThat(stepContext.getStepExecution().getInputParams()).containsExactlyEntriesOf(params);
@@ -80,10 +82,10 @@ class WorkflowExecutionStepContextTest {
     void shouldPauseStartedExecution() {
         // given
         givenPausingWorkflowStep();
-        WorkflowExecutionStepContext stepContext = context.nextStepToExecute(executions);
-        stepContext.start(emptyMap(), steps, clock);
+        WorkflowExecutionStepContext stepContext = context.nextStepToExecute();
+        stepContext.start(emptyMap(), steps);
         // when
-        stepContext.pause(singletonMap("test", "value"), clock);
+        stepContext.paused(singletonMap("test", "value"), stepExecutions);
         // then
         assertThat(stepContext.getStepExecution().isPaused()).isTrue();
         assertThat(stepContext.getStepExecution().getPausedData())
@@ -94,11 +96,11 @@ class WorkflowExecutionStepContextTest {
     void shouldResumePausedExecution() {
         // given
         givenPausingWorkflowStep();
-        WorkflowExecutionStepContext stepContext = context.nextStepToExecute(executions);
-        stepContext.start(emptyMap(), steps, clock);
-        stepContext.pause(singletonMap("test", "value"), clock);
+        WorkflowExecutionStepContext stepContext = context.nextStepToExecute();
+        stepContext.start(emptyMap(), steps);
+        stepContext.paused(singletonMap("test", "value"), stepExecutions);
         // when
-        WorkflowStepResult result = stepContext.resume("test", steps, clock);
+        WorkflowStepResult result = stepContext.resume("test", steps);
         // then
         assertThat(stepContext.getStepExecution().isResumed()).isTrue();
         assertThat(stepContext.getStepExecution().getResumedData()).isEqualTo("test");
@@ -109,10 +111,10 @@ class WorkflowExecutionStepContextTest {
     void shouldFinishSuccessfully() {
         // given
         givenPausingWorkflowStep();
-        WorkflowExecutionStepContext stepContext = context.nextStepToExecute(executions);
-        stepContext.start(emptyMap(), steps, clock);
+        WorkflowExecutionStepContext stepContext = context.nextStepToExecute();
+        stepContext.start(emptyMap(), steps);
         // when
-        stepContext.success(singletonMap("test", "value"), clock);
+        stepContext.succeeded(singletonMap("test", "value"), stepExecutions);
         // then
         assertThat(stepContext.getStepExecution().isFinished()).isTrue();
         assertThat(stepContext.getStepExecution().getFinishedSuccessfully()).isTrue();
@@ -124,10 +126,10 @@ class WorkflowExecutionStepContextTest {
     void shouldFinishWithError() {
         // given
         givenPausingWorkflowStep();
-        WorkflowExecutionStepContext stepContext = context.nextStepToExecute(executions);
-        stepContext.start(emptyMap(), steps, clock);
+        WorkflowExecutionStepContext stepContext = context.nextStepToExecute();
+        stepContext.start(emptyMap(), steps);
         // when
-        stepContext.failure(singletonMap("test", "value"), clock);
+        stepContext.failed(singletonMap("test", "value"), stepExecutions);
         assertThat(stepContext.getStepExecution().isFinished()).isTrue();
         assertThat(stepContext.getStepExecution().getFinishedSuccessfully()).isFalse();
         assertThat(stepContext.getStepExecution().getOutputParams())

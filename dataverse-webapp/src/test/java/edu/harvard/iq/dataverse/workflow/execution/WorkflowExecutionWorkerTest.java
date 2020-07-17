@@ -1,24 +1,11 @@
 package edu.harvard.iq.dataverse.workflow.execution;
 
-import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.engine.TestSettingsServiceBean;
-import edu.harvard.iq.dataverse.mocks.MockAuthenticatedUser;
-import edu.harvard.iq.dataverse.mocks.MockAuthenticationServiceBean;
-import edu.harvard.iq.dataverse.mocks.MockRoleAssigneeServiceBean;
-import edu.harvard.iq.dataverse.persistence.StubJpaPersistence;
+import edu.harvard.iq.dataverse.dataset.DatasetLockServiceBean;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
-import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowArtifactRepository;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecution;
-import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionRepository;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionStep;
-import edu.harvard.iq.dataverse.persistence.workflow.WorkflowRepository;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.test.WithTestClock;
 import edu.harvard.iq.dataverse.workflow.WorkflowStepRegistry;
 import edu.harvard.iq.dataverse.workflow.WorkflowStepSPI;
 import edu.harvard.iq.dataverse.workflow.artifacts.MemoryWorkflowArtifactStorage;
@@ -42,66 +29,51 @@ import static edu.harvard.iq.dataverse.workflow.execution.WorkflowContextMother.
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
-class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements WorkflowStepSPI, WithTestClock {
+class WorkflowExecutionWorkerTest extends WorkflowExecutionJMSTestBase implements WorkflowStepSPI {
 
     static final String TEST_PROVIDER_ID = "test";
     static final String SUCCESS_STEP_ID = "successful";
     static final String PAUSING_STEP_ID = "pausing";
     static final String FAILING_STEP_ID = "failing";
 
-    SettingsServiceBean settings = new TestSettingsServiceBean();
-    StubJpaPersistence persistence = new StubJpaPersistence();
-    DatasetRepository datasets = persistence.stub(DatasetRepository.class);
-    WorkflowRepository workflows = persistence.stub(WorkflowRepository.class);
-    WorkflowExecutionRepository executions = persistence.stub(WorkflowExecutionRepository.class);
     WorkflowArtifactRepository artifacts = persistence.stub(WorkflowArtifactRepository.class);
-    WorkflowStepRegistry steps = new WorkflowStepRegistry() {{ init(); }};
-    RoleAssigneeServiceBean roleAssignees = new MockRoleAssigneeServiceBean() {{ add(new MockAuthenticatedUser()); }};
-    AuthenticationServiceBean authentication = new MockAuthenticationServiceBean(clock);
+    WorkflowStepRegistry steps = new WorkflowStepRegistry();
     Instance<WorkflowExecutionListener> executionListeners = mock(Instance.class);
 
-    WorkflowExecutionContextFactory contextFactory = new WorkflowExecutionContextFactory(
-        settings, datasets, workflows, executions, roleAssignees, authentication);
     WorkflowExecutionScheduler scheduler = new WorkflowExecutionScheduler() {{
         setQueue(queue); setFactory(factory); }};
-    WorkflowExecutionStepRunner runner = new WorkflowExecutionStepRunner(steps, clock);
 
     WorkflowArtifactServiceBean artifactsService = new WorkflowArtifactServiceBean(
             artifacts, new MemoryWorkflowArtifactStorage(), clock);
-    WorkflowExecutionServiceBean executionService = new WorkflowExecutionServiceBean(
-            datasets, executions, contextFactory, scheduler, clock);
-
-    WorkflowExecutionWorker worker = new WorkflowExecutionWorker(
-        datasets, executions, contextFactory, scheduler, runner, artifactsService, executionListeners, clock);
+    DatasetLockServiceBean locksService = new DatasetLockServiceBean(datasets, locks);
+    WorkflowExecutionService executionService = new WorkflowExecutionService(
+            locksService, executions, stepExecutions, contextFactory, artifactsService, executionListeners);
+    WorkflowExecutionFacade executionFacade = new WorkflowExecutionFacade(executionService, scheduler);
+    WorkflowExecutionWorker worker = new WorkflowExecutionWorker(executionService, scheduler, steps);
 
     WorkflowExecutionWorkerTest() throws NamingException { }
 
     @BeforeEach
-    void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         steps.register(TEST_PROVIDER_ID, this);
-
-        doNothing().when(datasets)
-                .lockDataset(any(Dataset.class), any(AuthenticatedUser.class), any(DatasetLock.Reason.class));
-        doNothing().when(datasets)
-                .unlockDataset(any(Dataset.class), any(DatasetLock.Reason.class));
     }
 
     @Test
     void shouldExecuteSimpleWorkflowSuccessfully() throws Exception {
         // given
         Dataset dataset = datasets.save(givenDataset());
+        datasetVersions.save(dataset.getLatestVersion());
         Workflow workflow = workflows.save(givenWorkflow(1L,
                 givenWorkflowStep(TEST_PROVIDER_ID, SUCCESS_STEP_ID))
         );
         WorkflowContext context = givenWorkflowExecutionContext(dataset.getId(), workflow);
         // when
         givenMessageConsumer(worker)
-                .callProducer(() -> executionService.start(workflow, context))
+                .callProducer(() -> executionFacade.start(workflow, context))
                 .andAwaitMessages(2);
         // then
         List<WorkflowExecution> persistedExecutions = persistence.of(WorkflowExecution.class).findAll();
@@ -110,7 +82,7 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
         WorkflowExecution execution = persistedExecutions.get(0);
         assertThat(execution.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(execution.getDatasetId()).isEqualTo(dataset.getId());
-        assertThat(execution.getMajorVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
+        assertThat(execution.getVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
         assertThat(execution.getMinorVersionNumber()).isEqualTo(Long.valueOf(dataset.getMinorVersionNumber()));
         assertThat(execution.getDescription()).isEqualTo("test workflow");
         assertThat(execution.getStartedAt()).isEqualTo(clock.instant());
@@ -140,13 +112,14 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
     void shouldExecutePausingWorkflow() throws Exception {
         // given
         Dataset dataset = datasets.save(givenDataset());
+        datasetVersions.save(dataset.getLatestVersion());
         Workflow workflow = workflows.save(givenWorkflow(1L,
                 givenWorkflowStep(TEST_PROVIDER_ID, PAUSING_STEP_ID))
         );
         WorkflowContext context = givenWorkflowExecutionContext(dataset.getId(), workflow);
         // when
         givenMessageConsumer(worker)
-                .callProducer(() -> executionService.start(workflow, context))
+                .callProducer(() -> executionFacade.start(workflow, context))
                 .andAwaitMessages(1);
         // then
         List<WorkflowExecution> persistedExecutions = persistence.of(WorkflowExecution.class).findAll();
@@ -155,7 +128,7 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
         WorkflowExecution execution = persistedExecutions.get(0);
         assertThat(execution.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(execution.getDatasetId()).isEqualTo(dataset.getId());
-        assertThat(execution.getMajorVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
+        assertThat(execution.getVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
         assertThat(execution.getMinorVersionNumber()).isEqualTo(Long.valueOf(dataset.getMinorVersionNumber()));
         assertThat(execution.getDescription()).isEqualTo("test workflow");
         assertThat(execution.getStartedAt()).isEqualTo(clock.instant());
@@ -185,6 +158,7 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
     void shouldExecutePausingAndResumingWorkflow() throws Exception {
         // given
         Dataset dataset = datasets.save(givenDataset());
+        datasetVersions.save(dataset.getLatestVersion());
         Workflow workflow = workflows.save(givenWorkflow(1L,
                 givenWorkflowStep(TEST_PROVIDER_ID, PAUSING_STEP_ID))
         );
@@ -193,11 +167,11 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
                 .when(executions).findByInvocationId("invocationId");
         // when
         givenMessageConsumer(worker)
-                .callProducer(() -> executionService.start(workflow, context))
+                .callProducer(() -> executionFacade.start(workflow, context))
                 .andAwaitMessages(1);
         // and
         givenMessageConsumer(worker)
-                .callProducer(() -> executionService.resume("invocationId", "test"))
+                .callProducer(() -> executionFacade.resume("invocationId", "test"))
                 .andAwaitMessages(2);
         // then
         List<WorkflowExecution> executions = persistence.of(WorkflowExecution.class).findAll();
@@ -206,7 +180,7 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
         WorkflowExecution execution = executions.get(0);
         assertThat(execution.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(execution.getDatasetId()).isEqualTo(dataset.getId());
-        assertThat(execution.getMajorVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
+        assertThat(execution.getVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
         assertThat(execution.getMinorVersionNumber()).isEqualTo(Long.valueOf(dataset.getMinorVersionNumber()));
         assertThat(execution.getDescription()).isEqualTo("test workflow");
         assertThat(execution.getStartedAt()).isEqualTo(clock.instant());
@@ -236,13 +210,14 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
     void shouldExecuteAbdRollbackFailingWorkflow() throws Exception {
         // given
         Dataset dataset = datasets.save(givenDataset());
+        datasetVersions.save(dataset.getLatestVersion());
         Workflow workflow = workflows.save(givenWorkflow(1L,
                 givenWorkflowStep(TEST_PROVIDER_ID, FAILING_STEP_ID))
         );
         WorkflowContext context = givenWorkflowExecutionContext(dataset.getId(), workflow);
         // when
         givenMessageConsumer(worker)
-                .callProducer(() -> executionService.start(workflow, context))
+                .callProducer(() -> executionFacade.start(workflow, context))
                 .andAwaitMessages(3);
         // then
         List<WorkflowExecution> executions = persistence.of(WorkflowExecution.class).findAll();
@@ -251,7 +226,7 @@ class WorkflowExecutionWorkerTest extends WorkflowJMSTestBase implements Workflo
         WorkflowExecution execution = executions.get(0);
         assertThat(execution.getWorkflowId()).isEqualTo(workflow.getId());
         assertThat(execution.getDatasetId()).isEqualTo(dataset.getId());
-        assertThat(execution.getMajorVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
+        assertThat(execution.getVersionNumber()).isEqualTo(Long.valueOf(dataset.getVersionNumber()));
         assertThat(execution.getMinorVersionNumber()).isEqualTo(Long.valueOf(dataset.getMinorVersionNumber()));
         assertThat(execution.getDescription()).isEqualTo("test workflow");
         assertThat(execution.getStartedAt()).isEqualTo(clock.instant());

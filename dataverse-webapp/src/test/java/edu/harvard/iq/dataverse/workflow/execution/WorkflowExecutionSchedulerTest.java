@@ -13,7 +13,7 @@ import static edu.harvard.iq.dataverse.workflow.execution.WorkflowContextMother.
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class WorkflowExecutionSchedulerTest extends WorkflowJMSTestBase {
+class WorkflowExecutionSchedulerTest extends WorkflowExecutionJMSTestBase {
 
     long datasetId = 1L;
     Workflow workflow = givenWorkflow(1L,
@@ -25,7 +25,8 @@ class WorkflowExecutionSchedulerTest extends WorkflowJMSTestBase {
     WorkflowExecutionSchedulerTest() throws Exception { }
 
     @BeforeEach
-    void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         scheduler.setFactory(factory);
         scheduler.setQueue(queue);
     }
@@ -40,13 +41,13 @@ class WorkflowExecutionSchedulerTest extends WorkflowJMSTestBase {
         // then
         assertThat(message.getTriggerType()).isEqualTo(context.type.name());
         assertThat(message.getDatasetId()).isEqualTo(datasetId);
-        assertThat(message.getMajorVersionNumber()).isEqualTo(1L);
+        assertThat(message.getVersionNumber()).isEqualTo(1L);
         assertThat(message.getMinorVersionNumber()).isEqualTo(0L);
         assertThat(message.getUserId()).isEqualTo("@null");
         assertThat(message.getIpAddress()).isEqualTo("127.0.0.1");
         assertThat(message.isDatasetExternallyReleased()).isFalse();
         assertThat(message.getWorkflowId()).isEqualTo(1L);
-        assertThat(message.getWorkflowExecutionId()).isEqualTo(1L);
+        assertThat(message.getId()).isEqualTo(1L);
         assertThat(message.isRollback()).isFalse();
         assertThat(message.getLastStepSuccess()).isEqualTo(new Success());
         assertThat(message.getExternalData()).isNull();
@@ -63,13 +64,13 @@ class WorkflowExecutionSchedulerTest extends WorkflowJMSTestBase {
         // then
         assertThat(message.getTriggerType()).isEqualTo(context.type.name());
         assertThat(message.getDatasetId()).isEqualTo(datasetId);
-        assertThat(message.getMajorVersionNumber()).isEqualTo(1L);
+        assertThat(message.getVersionNumber()).isEqualTo(1L);
         assertThat(message.getMinorVersionNumber()).isEqualTo(0L);
         assertThat(message.getUserId()).isEqualTo("@null");
         assertThat(message.getIpAddress()).isEqualTo("127.0.0.1");
         assertThat(message.isDatasetExternallyReleased()).isFalse();
         assertThat(message.getWorkflowId()).isEqualTo(1L);
-        assertThat(message.getWorkflowExecutionId()).isEqualTo(1L);
+        assertThat(message.getId()).isEqualTo(1L);
         assertThat(message.isRollback()).isFalse();
         assertThat(message.getLastStepSuccess()).isEqualTo(lastStepResult);
         assertThat(message.getExternalData()).isNull();
@@ -86,13 +87,13 @@ class WorkflowExecutionSchedulerTest extends WorkflowJMSTestBase {
         // then
         assertThat(message.getTriggerType()).isEqualTo(context.type.name());
         assertThat(message.getDatasetId()).isEqualTo(datasetId);
-        assertThat(message.getMajorVersionNumber()).isEqualTo(1L);
+        assertThat(message.getVersionNumber()).isEqualTo(1L);
         assertThat(message.getMinorVersionNumber()).isEqualTo(0L);
         assertThat(message.getUserId()).isEqualTo("@null");
         assertThat(message.getIpAddress()).isEqualTo("127.0.0.1");
         assertThat(message.isDatasetExternallyReleased()).isFalse();
         assertThat(message.getWorkflowId()).isEqualTo(1L);
-        assertThat(message.getWorkflowExecutionId()).isEqualTo(1L);
+        assertThat(message.getId()).isEqualTo(1L);
         assertThat(message.isRollback()).isFalse();
         assertThat(message.getLastStepSuccess()).isEqualTo(new Success());
         assertThat(message.getExternalData()).isEqualTo(externalData);
@@ -109,13 +110,13 @@ class WorkflowExecutionSchedulerTest extends WorkflowJMSTestBase {
         // then
         assertThat(message.getTriggerType()).isEqualTo(context.type.name());
         assertThat(message.getDatasetId()).isEqualTo(datasetId);
-        assertThat(message.getMajorVersionNumber()).isEqualTo(1L);
+        assertThat(message.getVersionNumber()).isEqualTo(1L);
         assertThat(message.getMinorVersionNumber()).isEqualTo(0L);
         assertThat(message.getUserId()).isEqualTo("@null");
         assertThat(message.getIpAddress()).isEqualTo("127.0.0.1");
         assertThat(message.isDatasetExternallyReleased()).isFalse();
         assertThat(message.getWorkflowId()).isEqualTo(1L);
-        assertThat(message.getWorkflowExecutionId()).isEqualTo(1L);
+        assertThat(message.getId()).isEqualTo(1L);
         assertThat(message.isRollback()).isTrue();
         assertThat(message.getLastStepFailure()).isEqualTo(lastStepResult);
         assertThat(message.getExternalData()).isNull();
