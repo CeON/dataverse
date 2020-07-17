@@ -85,7 +85,7 @@ WHERE name='deviationsFromSampleDesign';
 INSERT INTO datasetfieldtype(name,title,description,watermark,fieldType,displayOrder,displayFormat,
         advancedsearchfieldtype,allowControlledVocabulary,allowmultiples,facetable,displayoncreate,required,
         parentDatasetFieldType_id,inputRendererType,inputRendererOptions,metadatablock_id,uri) 
-VALUES ('substitutionOfRespondents', 'Substitution of Respondents', 'Infromation regarding the substitution of respondents. ', '', 'NONE', 14, '#NEWLINE', 
+VALUES ('substitutionOfRespondents', 'Substitution of Respondents', 'Information regarding the substitution of respondents.', '', 'NONE', 14, '#NEWLINE', 
         FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 
         NULL, 'TEXT', '{}', 3, NULL);
 
@@ -196,7 +196,7 @@ WHERE name='controlOperations';
 INSERT INTO datasetfieldtype(name,title,description,watermark,fieldType,displayOrder,displayFormat,
         advancedsearchfieldtype,allowControlledVocabulary,allowmultiples,facetable,displayoncreate,required,
         parentDatasetFieldType_id,inputRendererType,inputRendererOptions,metadatablock_id,uri) 
-VALUES ('interviewsBackcheck', 'Interviews'' Back-Check', 'Description of back-check control of completed interviews with respect to the fact and correctnes of their fulfillment, eg. by coordinator.', '', 'NONE', 30, '#NEWLINE', 
+VALUES ('interviewsBackcheck', 'Interviews'' Back-Check', 'Description of back-check control of completed interviews with respect to the fact and correctness of their fulfillment, eg. by coordinator.', '', 'NONE', 30, '#NEWLINE', 
         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 
         NULL, 'TEXT', '{}', 3, NULL);
 
