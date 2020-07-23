@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.bannersandmessages.banners;
 
 import javax.ejb.Local;
-import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 
-@Stateful
+@Stateless
 @Local
 public class BannerLimits {
 
