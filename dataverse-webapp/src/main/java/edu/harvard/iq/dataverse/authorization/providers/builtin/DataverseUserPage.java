@@ -56,6 +56,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
@@ -515,73 +516,78 @@ public class DataverseUserPage implements java.io.Serializable {
 
     public void displayNotification() {
         for (UserNotification userNotification : notificationsList) {
-            switch (userNotification.getType()) {
-                case ASSIGNROLE:
-                case REVOKEROLE:
-                    // Can either be a dataverse or dataset, so search both
-                    Dataverse dataverse = dataverseDao.find(userNotification.getObjectId());
-                    if (dataverse != null) {
-                        userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), dataverse));
-                        userNotification.setTheObject(dataverse);
-                    } else {
-                        Dataset dataset = datasetDao.find(userNotification.getObjectId());
-                        if (dataset != null) {
-                            userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), dataset));
-                            userNotification.setTheObject(dataset);
+            try {
+                switch (userNotification.getType()) {
+                    case ASSIGNROLE:
+                    case REVOKEROLE:
+                        // Can either be a dataverse or dataset, so search both
+                        Dataverse dataverse = dataverseDao.find(userNotification.getObjectId());
+                        if (dataverse != null) {
+                            userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), dataverse));
+                            userNotification.setTheObject(dataverse);
                         } else {
-                            DataFile datafile = fileService.find(userNotification.getObjectId());
-                            userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), datafile));
-                            userNotification.setTheObject(datafile);
+                            Dataset dataset = datasetDao.find(userNotification.getObjectId());
+                            if (dataset != null) {
+                                userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), dataset));
+                                userNotification.setTheObject(dataset);
+                            } else {
+                                DataFile datafile = fileService.find(userNotification.getObjectId());
+                                userNotification.setRoleString(this.getRoleStringFromUser(this.getCurrentUser(), datafile));
+                                userNotification.setTheObject(datafile);
+                            }
                         }
-                    }
-                    break;
-                case CREATEDV:
-                    userNotification.setTheObject(dataverseDao.find(userNotification.getObjectId()));
-                    break;
+                        break;
+                    case CREATEDV:
+                        userNotification.setTheObject(dataverseDao.find(userNotification.getObjectId()));
+                        break;
 
-                case REQUESTFILEACCESS:
-                    DataFile file = fileService.find(userNotification.getObjectId());
-                    userNotification.setTheObject(file.getOwner());
-                    break;
-                case GRANTFILEACCESS:
-                case REJECTFILEACCESS:
-                    userNotification.setTheObject(datasetDao.find(userNotification.getObjectId()));
-                    break;
+                    case REQUESTFILEACCESS:
+                        DataFile file = fileService.find(userNotification.getObjectId());
+                        userNotification.setTheObject(file.getOwner());
+                        break;
+                    case GRANTFILEACCESS:
+                    case REJECTFILEACCESS:
+                        userNotification.setTheObject(datasetDao.find(userNotification.getObjectId()));
+                        break;
 
-                case MAPLAYERUPDATED:
-                case CREATEDS:
-                case SUBMITTEDDS:
-                case PUBLISHEDDS:
-                case RETURNEDDS:
-                    userNotification.setTheObject(datasetVersionService.getById(userNotification.getObjectId()));
-                    break;
+                    case MAPLAYERUPDATED:
+                    case CREATEDS:
+                    case SUBMITTEDDS:
+                    case PUBLISHEDDS:
+                    case RETURNEDDS:
+                        userNotification.setTheObject(datasetVersionService.getById(userNotification.getObjectId()));
+                        break;
 
-                case MAPLAYERDELETEFAILED:
-                    userNotification.setTheObject(fileService.findFileMetadata(userNotification.getObjectId()));
-                    break;
+                    case MAPLAYERDELETEFAILED:
+                        userNotification.setTheObject(fileService.findFileMetadata(userNotification.getObjectId()));
+                        break;
 
-                case CREATEACC:
-                    userNotification.setTheObject(userNotification.getUser());
-                    break;
+                    case CREATEACC:
+                        userNotification.setTheObject(userNotification.getUser());
+                        break;
 
-                case CHECKSUMFAIL:
-                    userNotification.setTheObject(datasetDao.find(userNotification.getObjectId()));
-                    break;
+                    case CHECKSUMFAIL:
+                        userNotification.setTheObject(datasetDao.find(userNotification.getObjectId()));
+                        break;
 
-                case FILESYSTEMIMPORT:
-                    userNotification.setTheObject(datasetVersionService.getById(userNotification.getObjectId()));
-                    break;
+                    case FILESYSTEMIMPORT:
+                        userNotification.setTheObject(datasetVersionService.getById(userNotification.getObjectId()));
+                        break;
 
-                case CHECKSUMIMPORT:
-                    userNotification.setTheObject(datasetVersionService.getById(userNotification.getObjectId()));
-                    break;
+                    case CHECKSUMIMPORT:
+                        userNotification.setTheObject(datasetVersionService.getById(userNotification.getObjectId()));
+                        break;
 
-                default:
-                    if (!isBaseNotification(userNotification)) {
-                        Optional.ofNullable(datasetDao.find(userNotification.getObjectId()))
+                    default:
+                        if (!isBaseNotification(userNotification)) {
+                            Optional.ofNullable(datasetDao.find(userNotification.getObjectId()))
                                 .ifPresent(userNotification::setTheObject);
-                    }
-                    break;
+                        }
+                        break;
+                }
+                //TransactionRolledBackException thrown when object not found with getById
+            } catch (Exception e) {
+                logger.log(Level.WARNING, e.getMessage());
             }
 
             userNotification.setDisplayAsRead(userNotification.isReadNotification());
