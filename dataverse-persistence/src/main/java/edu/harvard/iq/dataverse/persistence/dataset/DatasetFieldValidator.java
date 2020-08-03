@@ -1,23 +1,25 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
-import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
-import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Lists;
+
+import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
+import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 
 
 /**
@@ -166,22 +168,19 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
 
     private boolean isValidDate(String dateString, String pattern) {
         boolean valid = true;
-        Date date;
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-        sdf.setLenient(false);
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         try {
             dateString = dateString.trim();
-            date = sdf.parse(dateString);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            int year = calendar.get(Calendar.YEAR);
-            int era = calendar.get(Calendar.ERA);
+            LocalDate localDate = LocalDate.parse(dateString, formatter);
+            int year = localDate.getYear();
+            int era = localDate.getEra().getValue();
             if (era == GregorianCalendar.AD) {
                 if (year > 9999) {
                     valid = false;
                 }
             }
-        } catch (ParseException e) {
+        } catch (DateTimeParseException e) {
             valid = false;
         }
         if (dateString.length() > pattern.length()) {
