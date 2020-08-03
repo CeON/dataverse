@@ -184,7 +184,7 @@ public class DatasetFieldValidator implements ConstraintValidator<ValidateDatase
         } catch (ParseException e) {
             valid = false;
         }
-        if (dateString.length() > pattern.length()) {
+        if (dateString.length() != pattern.length()) {
             valid = false;
         }
         return valid;
