@@ -22,7 +22,7 @@
 
 
 <composite:implementation>
-    <c:set var="downloadsDisabled" value="#{cc.attrs.fileMetadata.dataFile.ingestInProgress or cc.attrs.lockedFromDownload}"/>
+    <c:set var="downloadsDisabled" value="#{cc.attrs.lockedFromDownload}"/>
     <c:set var="canDownloadFile" value="#{fileDownloadHelper.canUserDownloadFile(cc.attrs.fileMetadata)}" />
     
     <ui:fragment rendered="#{worldMapPermissionHelper.canUserSeeExploreWorldMapButtonFromPage(fileMetadata)}">

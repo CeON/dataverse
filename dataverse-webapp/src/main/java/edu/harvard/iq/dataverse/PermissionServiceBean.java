@@ -754,14 +754,7 @@ public class PermissionServiceBean {
                     throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.downloadNotAllowedInReview"), command);
                 }
             }
-            if (dataset.isLockedFor(DatasetLock.Reason.Ingest)) {
-                throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.downloadNotAllowed"), command);
-            }
             if (dataset.isLockedFor(DatasetLock.Reason.pidRegister)) {
-                throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.downloadNotAllowed"), command);
-            }
-            // TODO: Do we need to check for "Workflow"? Should the message be more specific?
-            if (dataset.isLockedFor(DatasetLock.Reason.Workflow)) {
                 throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.downloadNotAllowed"), command);
             }
             // TODO: Do we need to check for "DcmUpload"? Should the message be more specific?
