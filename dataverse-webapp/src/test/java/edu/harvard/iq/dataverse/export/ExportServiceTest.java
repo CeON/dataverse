@@ -348,10 +348,7 @@ public class ExportServiceTest {
                     authorFieldType.setTitle("Author");
                     authorFieldType.setDisplayOrder(2);
                     authorFieldType.setUri("http://purl.org/dc/terms/creator");
-                    authorField.getDatasetFieldsChildren().stream().forEach(childField -> {
-                        setupChildField(childField);
-                    });
-                    //authorField.setDatasetFieldsChildren(Lists.newArrayList(setupNameOfAuthor(), setupAffiliationOfAuthor()));
+                    authorField.getDatasetFieldsChildren().stream().forEach(childField -> setupChildField(childField));
                 });
     }
 
@@ -363,28 +360,6 @@ public class ExportServiceTest {
         }
     }
     
-    private DatasetField setupAffiliationOfAuthor() {
-        DatasetFieldType authorAffiliation = new DatasetFieldType(DatasetFieldConstant.authorAffiliation, FieldType.TEXT, false);
-        authorAffiliation.setTitle("Affiliation");
-
-        DatasetField authorAffiliationDf = new DatasetField();
-        authorAffiliationDf.setDatasetFieldType(authorAffiliation);
-        authorAffiliationDf.setFieldValue("Dataverse.org");
-
-        return authorAffiliationDf;
-    }
-
-    private DatasetField setupNameOfAuthor() {
-        DatasetFieldType authorName = new DatasetFieldType(DatasetFieldConstant.authorName, FieldType.TEXT, false);
-        authorName.setTitle("Name");
-
-        DatasetField authorNameDF = new DatasetField();
-        authorNameDF.setFieldValue("Admin, Dataverse");
-        authorNameDF.setDatasetFieldType(authorName);
-
-        return authorNameDF;
-    }
-
     private void setupDescriptionData(List<DatasetField> datasetFields) {
 
         DatasetField descriptionField = datasetFields.stream()
