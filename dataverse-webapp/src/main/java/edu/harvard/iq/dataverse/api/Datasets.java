@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
+import edu.harvard.iq.dataverse.datafile.FileService;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
@@ -205,6 +206,9 @@ public class Datasets extends AbstractApiBean {
 
     @Inject
     private OptionalFileParams optionalFileParamsSvc;
+
+    @Inject
+    private FileService fileServiceBean;
 
     /**
      * Used to consolidate the way we parse and handle dataset versions.
@@ -1614,6 +1618,16 @@ public class Datasets extends AbstractApiBean {
             }
         }
 
+
+        try {
+            String scannerMessage = fileServiceBean.scan(fileInputStream);
+            if (scannerMessage.contains("FOUND")) {
+                return error(Response.Status.BAD_REQUEST, scannerMessage);
+            }
+        } catch (IOException e) {
+            return error(Response.Status.BAD_REQUEST, e.getMessage());
+        }
+            
 
         // -------------------------------------
         // (3) Get the file name and content type
