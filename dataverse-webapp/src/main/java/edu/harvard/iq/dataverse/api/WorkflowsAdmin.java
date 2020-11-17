@@ -227,9 +227,6 @@ public class WorkflowsAdmin extends AbstractApiBean {
 
             int datasetProcessed = 0;
             for (Dataset dataset:datasetRepository.findAll()) {
-                if (dataset.isLockedFor(DatasetLock.Reason.Workflow)) {
-                    return error(Response.Status.CONFLICT, "Previous workflow hasn't finished yet.");
-                }
                 DatasetVersion released = dataset.getReleasedVersion();
                 if (released != null) {
                     Optional<WorkflowExecution> result = workflowExecutionService.findLatestByTriggerTypeAndDatasetVersion(TriggerType.PostPublishDataset, 
@@ -237,11 +234,17 @@ public class WorkflowsAdmin extends AbstractApiBean {
                     if (result.isPresent() && type.equals("failedOnly")) {
                         WorkflowExecution execution = result.get();
                         if (execution.isFinished() && !execution.getLastStep().getFinishedSuccessfully()) {
-                            rerun(dataset, released);
+                            Response response = rerun(dataset, released);
+                            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                                return response;
+                            }
                             datasetProcessed++;
                         }
                     } else if (!result.isPresent() && type.equals("notPerformedOnly")) {
-                        rerun(dataset, released);
+                        Response response = rerun(dataset, released);
+                        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                            return response;
+                        }
                         datasetProcessed++;
                     }
                 }
@@ -278,27 +281,28 @@ public class WorkflowsAdmin extends AbstractApiBean {
                 } else if (updateVersion.isDraft()) {
                     return error(Response.Status.BAD_REQUEST, "Given version: " + version + " is draft.");
                 } else {
-                    rerun(ds, updateVersion);
+                    return rerun(ds, updateVersion);
                 }
             } else {
                 return error(Response.Status.BAD_REQUEST, "Missing version number");
             }
             
-            return ok("Datasets processed");
         } catch (WrappedResponse ex) {
             return ex.getResponse();
-        } catch (NoDatasetFilesException ex) {
-            return error(Response.Status.INTERNAL_SERVER_ERROR,
-                         "Unable to publish dataset, since there are no files in it.");
         }
 
     }
     
-    private void rerun(Dataset dataset, DatasetVersion datasetVersion) throws WrappedResponse {
+    private Response rerun(Dataset dataset, DatasetVersion datasetVersion) throws WrappedResponse {
         Optional<Workflow> workflow = workflows.getDefaultWorkflow(PostPublishDataset);
         if (workflow.isPresent()) {
+            if (dataset.isLockedFor(DatasetLock.Reason.Workflow)) {
+                return error(Response.Status.CONFLICT, "Previous workflow hasn't finished yet.");
+            }
+
             workflowExecutionFacade.start(
                 workflow.get(), new WorkflowContext(PostPublishDataset, dataset.getId(), datasetVersion.getMinorVersionNumber(), datasetVersion.getVersionNumber(), createDataverseRequest(findUserOrDie()), true));
         }
+        return ok("Datasets processed");
     }
 }
