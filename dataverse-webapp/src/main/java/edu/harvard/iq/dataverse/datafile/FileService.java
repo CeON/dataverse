@@ -37,6 +37,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 
@@ -51,6 +52,7 @@ public class FileService {
     private DataverseRequestServiceBean dvRequestService;
     private EjbDataverseEngine commandEngine;
     private DataFileServiceBean dataFileService;
+    private SettingsServiceBean settingsService;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -59,10 +61,11 @@ public class FileService {
     }
 
     @Inject
-    public FileService(DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine, DataFileServiceBean dataFileServiceBean) {
+    public FileService(DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine, DataFileServiceBean dataFileServiceBean, SettingsServiceBean settingsService) {
         this.dvRequestService = dvRequestService;
         this.commandEngine = commandEngine;
         this.dataFileService = dataFileServiceBean;
+        this.settingsService = settingsService;
     }
 
     // -------------------- LOGIC --------------------
@@ -161,16 +164,13 @@ public class FileService {
         }
     }
     
-    private static final String SCANNER_SOCKET_ADDRESS = "localhost";
-    private static final int SCANNER_SOCKET_PORT = 3310;
-    private static final int SCANNER_SOCKET_TIMEOUT = 60000;
-    
     public String scan(InputStream fileInput) throws IOException {
         Socket socket = new Socket();
 
-        socket.connect(new InetSocketAddress(SCANNER_SOCKET_ADDRESS, SCANNER_SOCKET_PORT));
+        socket.connect(new InetSocketAddress(settingsService.getValueForKey(SettingsServiceBean.Key.AntivirusScannerSocketAddress),
+                                             settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.AntivirusScannerSocketPort)));
 
-        socket.setSoTimeout(SCANNER_SOCKET_TIMEOUT);
+        socket.setSoTimeout(settingsService.getValueForKeyAsInt(SettingsServiceBean.Key.AntivirusScannerSocketTimeout));
 
         DataOutputStream dos = null;
         try {

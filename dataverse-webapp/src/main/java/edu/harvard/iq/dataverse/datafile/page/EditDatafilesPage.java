@@ -1103,7 +1103,10 @@ public class EditDatafilesPage implements java.io.Serializable {
             // -----------------------------------------------------------
 
 
-            String scannerMessage = fileService.scan(dropBoxStream);
+            String scannerMessage = "";
+            if (settingsService.isTrueForKey(SettingsServiceBean.Key.AntivirusScannerEnabled)) {
+                scannerMessage = fileService.scan(dropBoxStream);
+            }
 
             if (isClearScannerStatus(scannerMessage, event.getComponent())) {
 
@@ -1348,7 +1351,10 @@ public class EditDatafilesPage implements java.io.Serializable {
             throw new NullPointerException("uFile cannot be null");
         }
         
-        String scannerMessage = fileService.scan(uFile.getInputStream());
+        String scannerMessage = "";
+        if (settingsService.isTrueForKey(SettingsServiceBean.Key.AntivirusScannerEnabled)) {
+            scannerMessage = fileService.scan(uFile.getInputStream());
+        }
 
         if (isClearScannerStatus(scannerMessage, event.getComponent())) {
             List<DataFile> dFileList = null;
