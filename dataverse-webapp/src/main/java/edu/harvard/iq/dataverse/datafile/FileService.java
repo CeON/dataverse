@@ -25,7 +25,9 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
 import edu.harvard.iq.dataverse.datafile.pojo.RsyncInfo;
@@ -33,6 +35,8 @@ import edu.harvard.iq.dataverse.engine.command.exception.UpdateDatasetException;
 import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RequestRsyncScriptCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.mail.EmailContent;
+import edu.harvard.iq.dataverse.mail.MailService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -53,6 +57,10 @@ public class FileService {
     private EjbDataverseEngine commandEngine;
     private DataFileServiceBean dataFileService;
     private SettingsServiceBean settingsService;
+    private AuthenticationServiceBean authSvc;
+    private MailService mailService;
+
+
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -61,11 +69,15 @@ public class FileService {
     }
 
     @Inject
-    public FileService(DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine, DataFileServiceBean dataFileServiceBean, SettingsServiceBean settingsService) {
+    public FileService(DataverseRequestServiceBean dvRequestService, EjbDataverseEngine commandEngine, 
+                       DataFileServiceBean dataFileServiceBean, SettingsServiceBean settingsService,
+                       AuthenticationServiceBean authSvc, MailService mailService) {
         this.dvRequestService = dvRequestService;
         this.commandEngine = commandEngine;
         this.dataFileService = dataFileServiceBean;
         this.settingsService = settingsService;
+        this.authSvc = authSvc;
+        this.mailService = mailService;
     }
 
     // -------------------- LOGIC --------------------
@@ -204,4 +216,46 @@ public class FileService {
 
     }
 
+    public String checkFilesIntegrity() {
+        List<DataFile> suspicious = new ArrayList<DataFile>();
+        List<DataFile> dataFiles = dataFileService.findAll();
+
+        if (dataFiles.isEmpty()) {
+            return "No datafiles found - check database.";
+        } else {
+
+            int filesCount = dataFiles.size();
+            String message = "Found " + filesCount + " files in repository.";
+            for (DataFile dataFile:dataFiles) {
+                try {
+                    StorageIO<DataFile> storageIO = DataAccess.dataAccess().getStorageIO(dataFile);
+                    if (!storageIO.exists() && storageIO.getSize() == dataFile.getFilesize()) {
+                        suspicious.add(dataFile);
+                    }
+                } catch (IOException e) {
+                    logger.info(e.getMessage());
+                }
+            
+            }
+            
+            StringBuffer messageBodyBuffer = new StringBuffer();
+            messageBodyBuffer.append("Datafiles integrity check summary: \n");
+            messageBodyBuffer.append("Files checked: " + filesCount + "\n");
+            messageBodyBuffer.append("Number of files with failures: " + suspicious.size() + "\n\n");
+            messageBodyBuffer.append("List of files with failures:\n");
+            suspicious.stream().forEach(datafile -> messageBodyBuffer.append("File id: " + datafile.getId() + ", file label: " + datafile.getLatestFileMetadata().getLabel() + "\n"));
+            
+            String messageSubject = "Dataverse files integrity check report";
+            
+            authSvc.findAllAuthenticatedUsers().
+            stream().
+            filter(user -> user.isSuperuser()).
+            forEach(user -> mailService.sendMailAsync(user.getEmail(), new EmailContent(messageSubject, messageBodyBuffer.toString(), "")));
+
+            
+            message += " Found " + suspicious.size() + " suspicious files.";
+            return message;
+        }
+
+    }
 }
