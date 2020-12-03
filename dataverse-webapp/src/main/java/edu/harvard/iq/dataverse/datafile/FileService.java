@@ -27,9 +27,11 @@ import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataaccess.DataAccessOption;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
+import edu.harvard.iq.dataverse.datafile.pojo.FilesIntegrityReport;
 import edu.harvard.iq.dataverse.datafile.pojo.RsyncInfo;
 import edu.harvard.iq.dataverse.engine.command.exception.UpdateDatasetException;
 import edu.harvard.iq.dataverse.engine.command.impl.PersistProvFreeFormCommand;
@@ -216,46 +218,49 @@ public class FileService {
 
     }
 
-    public String checkFilesIntegrity() {
-        List<DataFile> suspicious = new ArrayList<DataFile>();
+    public FilesIntegrityReport checkFilesIntegrity() {
         List<DataFile> dataFiles = dataFileService.findAll();
-
+        
+        FilesIntegrityReport report = new FilesIntegrityReport();
+        
         if (dataFiles.isEmpty()) {
-            return "No datafiles found - check database.";
+            report.setWarning("No datafiles found - check database.");
         } else {
 
-            int filesCount = dataFiles.size();
-            String message = "Found " + filesCount + " files in repository.";
+            report.setCheckedCount(dataFiles.size());
             for (DataFile dataFile:dataFiles) {
                 try {
                     StorageIO<DataFile> storageIO = DataAccess.dataAccess().getStorageIO(dataFile);
-                    if (!storageIO.exists() && storageIO.getSize() == dataFile.getFilesize()) {
-                        suspicious.add(dataFile);
+                    storageIO.open(DataAccessOption.READ_ACCESS);
+                    if (!storageIO.exists() || storageIO.getSize() == 0 || storageIO.getSize() != dataFile.getFilesize()) {
+                        report.addSuspicious(dataFile);
                     }
                 } catch (IOException e) {
                     logger.info(e.getMessage());
+                    report.addSuspicious(dataFile);
                 }
             
             }
             
             StringBuffer messageBodyBuffer = new StringBuffer();
             messageBodyBuffer.append("Datafiles integrity check summary: \n");
-            messageBodyBuffer.append("Files checked: " + filesCount + "\n");
-            messageBodyBuffer.append("Number of files with failures: " + suspicious.size() + "\n\n");
+            messageBodyBuffer.append("Files checked: " + report.getCheckedCount() + "\n");
+            messageBodyBuffer.append("Number of files with failures: " + report.getSuspicious().size() + "\n\n");
             messageBodyBuffer.append("List of files with failures:\n");
-            suspicious.stream().forEach(datafile -> messageBodyBuffer.append("File id: " + datafile.getId() + ", file label: " + datafile.getLatestFileMetadata().getLabel() + "\n"));
+            report.getSuspicious().stream().
+                forEach(datafile -> messageBodyBuffer.append("File id: " + datafile.getId() + ", file label: " + datafile.getLatestFileMetadata().getLabel() + "\n"));
             
             String messageSubject = "Dataverse files integrity check report";
             
             authSvc.findAllAuthenticatedUsers().
-            stream().
-            filter(user -> user.isSuperuser()).
-            forEach(user -> mailService.sendMailAsync(user.getEmail(), new EmailContent(messageSubject, messageBodyBuffer.toString(), "")));
+                stream().
+                filter(user -> user.isSuperuser()).
+                forEach(user -> mailService.sendMailAsync(user.getEmail(), new EmailContent(messageSubject, messageBodyBuffer.toString(), "")));
 
             
-            message += " Found " + suspicious.size() + " suspicious files.";
-            return message;
         }
+        return report;
 
     }
+
 }

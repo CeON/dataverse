@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.datafile.FileService;
+import edu.harvard.iq.dataverse.datafile.pojo.FilesIntegrityReport;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.harvest.client.HarvestTimerInfo;
 import edu.harvard.iq.dataverse.harvest.client.HarvesterServiceBean;
@@ -196,7 +197,9 @@ public class DataverseTimerServiceBean implements Serializable {
                 logException(e, logger);
             }
         } else if (timer.getInfo() instanceof FilesIntegrityCheckTimerInfo) {
-            logger.info(fileService.checkFilesIntegrity());
+            FilesIntegrityReport report = fileService.checkFilesIntegrity();
+
+            logger.info(report.getSummaryInfo());
         }
 
     }
