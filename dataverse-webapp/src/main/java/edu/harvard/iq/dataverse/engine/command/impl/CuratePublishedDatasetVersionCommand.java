@@ -125,8 +125,6 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
                     metadataUpdated = true;
                 }
 
-            } else {
-                throw new IllegalCommandException("Cannot change files in the dataset", this);
             }
             if (metadataUpdated) {
                 dataFile.setModificationTime(getTimestamp());
