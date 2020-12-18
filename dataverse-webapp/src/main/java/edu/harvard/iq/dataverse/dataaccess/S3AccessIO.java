@@ -34,6 +34,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -273,8 +274,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         DataFile dataFile = (DataFile)dvObject;
         File inputFile = fileSystemPath.toFile();
         
-        putFileToS3(fileSystemPath.toFile(), key, dataFile.getChecksumValue());
-
+        if (ChecksumType.MD5.equals(dataFile.getChecksumType())) {
+            putFileToS3(fileSystemPath.toFile(), key, dataFile.getChecksumValue());
+        } else {
+            putFileToS3(fileSystemPath.toFile(), key, null);
+        }
         // if it has uploaded successfully, we can reset the size
         // of the object:
         setSize(inputFile.length());
@@ -323,9 +327,8 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         
         File tempFile = copyInputStreamToTempFile(inputStream);
         long tempFileSize = tempFile.length();
-        String tempFileChecksum = FileUtil.calculateChecksum(tempFile.getAbsolutePath(), ChecksumType.MD5);
         try {
-            putFileToS3(tempFile, key, tempFileChecksum);
+            putFileToS3(tempFile, key, null);
         } finally {
             tempFile.delete();
         }
@@ -478,10 +481,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         String destinationKey = getDestinationKey(auxItemTag);
         File tempFile = copyInputStreamToTempFile(inputStream);
-        String checksum = FileUtil.calculateChecksum(tempFile.getAbsolutePath(), ChecksumType.MD5);
         
         try {
-            putFileToS3(tempFile, destinationKey, checksum);
+            putFileToS3(tempFile, destinationKey, null);
         } finally {
             tempFile.delete();
         }
@@ -773,16 +775,18 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     }
     
     
-    private void putFileToS3(File file, String s3Key, String providedChecksum) throws IOException {
+    private void putFileToS3(File file, String s3Key, String providedMD5Checksum) throws IOException {
         ObjectMetadata metadata = new ObjectMetadata();
-        try {
-            metadata.setContentMD5(Base64.getEncoder().encodeToString(Hex.decodeHex(providedChecksum.toCharArray())));
-        } catch (DecoderException e) {
-            throw new IOException(e);
+        if (StringUtils.isNotBlank(providedMD5Checksum)) {
+            try {
+                metadata.setContentMD5(Base64.getEncoder().encodeToString(Hex.decodeHex(providedMD5Checksum.toCharArray())));
+            } catch (DecoderException e) {
+                throw new IOException(e);
+            }
+            Map<String, String> userMetadata = new HashMap<String, String>();
+            userMetadata.put("MD5", providedMD5Checksum);
+            metadata.setUserMetadata(userMetadata);
         }
-        Map<String, String> userMetadata = new HashMap<String, String>();
-        userMetadata.put("MD5", providedChecksum);
-        metadata.setUserMetadata(userMetadata );
         PutObjectRequest putRequest = new PutObjectRequest(bucketName, s3Key, file);
         putRequest.setMetadata(metadata);
         putObjectToS3(putRequest);
