@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.dataaccess;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -91,6 +93,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             }
             // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
             s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
+            s3CB.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("minioadmin", "minioadmin")));
             // let's build the client :-)
             this.s3 = s3CB.build();
         } catch (Exception e) {
