@@ -1,5 +1,33 @@
 package edu.harvard.iq.dataverse.dataaccess;
 
+import javax.validation.constraints.NotNull;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.channels.Channel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Logger;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
@@ -22,7 +50,6 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
-import com.coremedia.iso.Hex;
 
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -31,30 +58,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import org.apache.commons.io.IOUtils;
-
-import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.channels.Channel;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Logger;
 
 /**
  * @param <T> what it stores
@@ -772,9 +775,12 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     
     
     private void putFileToS3(File file, String s3Key, String providedChecksum) throws IOException {
-        Base64.getEncoder().encodeToString(Hex.decodeHex(providedChecksum));
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentMD5(Base64.getEncoder().encodeToString(Hex.decodeHex(providedChecksum)));
+        try {
+            metadata.setContentMD5(Base64.getEncoder().encodeToString(Hex.decodeHex(providedChecksum.toCharArray())));
+        } catch (DecoderException e) {
+            throw new IOException(e);
+        }
         Map<String, String> userMetadata = new HashMap<String, String>();
         userMetadata.put("MD5", providedChecksum);
         metadata.setUserMetadata(userMetadata );
@@ -821,7 +827,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     private boolean verifyUploadedFile(PutObjectRequest putRequest) {
         String checksumSent = putRequest.getMetadata().getContentMD5();
         String checksumLocal = FileUtil.calculateChecksum(putRequest.getFile().getAbsolutePath(), ChecksumType.MD5);
-        checksumLocal = Base64.getEncoder().encodeToString(Hex.decodeHex(checksumLocal));
+        try {
+            checksumLocal = Base64.getEncoder().encodeToString(Hex.decodeHex(checksumLocal.toCharArray()));
+        } catch (DecoderException e) {
+            return false;
+        }
         return checksumLocal.equals(checksumSent);
     }
 
