@@ -422,16 +422,19 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
     }
 
     private long getContentSize(StorageIO<?> accessObject) {
-        long contentSize = 0;
 
-        if (accessObject.getSize() > -1) {
-            contentSize += accessObject.getSize();
+        try {
+            long contentSize = accessObject.getSize();
+
             if (accessObject.getVarHeader() != null) {
                 if (accessObject.getVarHeader().getBytes().length > 0) {
                     contentSize += accessObject.getVarHeader().getBytes().length;
                 }
             }
             return contentSize;
+
+        } catch(IOException e) {
+            
         }
         return -1;
     }
