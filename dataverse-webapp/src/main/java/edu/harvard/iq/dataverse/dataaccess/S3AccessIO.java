@@ -78,22 +78,10 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public S3AccessIO() {
         this((T) null);
     }
-
-    private static AmazonS3 staticS3 = null;
     
     public S3AccessIO(T dvObject) {
         super(dvObject);
         this.setIsLocalFile(false);
-        
-        if (S3AccessIO.staticS3 != null) {
-            try {
-                staticS3.doesBucketExistV2("some-bucket");
-                this.s3 = staticS3;
-                return;
-            } catch (Exception e) {
-                S3AccessIO.staticS3 = null;
-            }
-        }
 
         try {
             // get a standard client, using the standard way of configuration the credentials, etc.
@@ -105,8 +93,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
             s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
             // let's build the client :-)
-            S3AccessIO.staticS3 = s3CB.build();
-            s3 = S3AccessIO.staticS3;
+            s3 = s3CB.build();
         } catch (Exception e) {
             throw new AmazonClientException(
                     "Cannot instantiate a S3 client; check your AWS credentials and region",
