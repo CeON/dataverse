@@ -15,10 +15,10 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -181,7 +181,7 @@ public class DublinCoreExportUtil {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.author.equals(fieldDTO.getTypeName())) {
                         String authorName = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.authorName.equals(next.getTypeName())) {
@@ -208,7 +208,7 @@ public class DublinCoreExportUtil {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.description.equals(fieldDTO.getTypeName())) {
                         String descriptionText = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.descriptionText.equals(next.getTypeName())) {
@@ -245,7 +245,7 @@ public class DublinCoreExportUtil {
                     }
 
                     if (DatasetFieldConstant.keyword.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String keywordValue = "";
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
@@ -272,7 +272,7 @@ public class DublinCoreExportUtil {
             if ("citation".equals(key)) {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.publication.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String pubString = "";
                             String citation = "";
                             String IDType = "";
@@ -316,7 +316,7 @@ public class DublinCoreExportUtil {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.contributor.equals(fieldDTO.getTypeName())) {
                         String contributorName = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.contributorName.equals(next.getTypeName())) {
@@ -344,7 +344,7 @@ public class DublinCoreExportUtil {
                     if (DatasetFieldConstant.timePeriodCovered.equals(fieldDTO.getTypeName())) {
                         String dateValStart = "";
                         String dateValEnd = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.timePeriodCoveredStart.equals(next.getTypeName())) {
@@ -365,7 +365,7 @@ public class DublinCoreExportUtil {
                     if (DatasetFieldConstant.dateOfCollection.equals(fieldDTO.getTypeName())) {
                         String dateValStart = "";
                         String dateValEnd = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.dateOfCollectionStart.equals(next.getTypeName())) {
@@ -395,7 +395,7 @@ public class DublinCoreExportUtil {
             if ("geospatial".equals(key)) {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.geographicCoverage.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.country.equals(next.getTypeName())) {

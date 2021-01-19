@@ -61,19 +61,19 @@ class FieldDTOTest {
      */
     @Test
     void testSetMultipleCompound() {
-        HashSet<FieldDTO> author1Fields = new HashSet<>();
+        Set<FieldDTO> author1Fields = new HashSet<>();
 
         author1Fields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"));
         author1Fields.add(FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"));
         author1Fields.add(FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"));
 
-        HashSet<FieldDTO> author2Fields = new HashSet<>();
+        Set<FieldDTO> author2Fields = new HashSet<>();
 
         author2Fields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Bottom"));
         author2Fields.add(FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ernieId"));
         author2Fields.add(FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "DAISY"));
 
-        List<HashSet<FieldDTO>> authorList = new ArrayList<>();
+        List<Set<FieldDTO>> authorList = new ArrayList<>();
         authorList.add(author1Fields);
         authorList.add(author2Fields);
         FieldDTO compoundField = new FieldDTO();

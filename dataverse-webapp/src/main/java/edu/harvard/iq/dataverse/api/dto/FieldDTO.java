@@ -78,7 +78,7 @@ public class FieldDTO {
         return field;
     }
 
-    public static FieldDTO createMultipleCompoundFieldDTO(String typeName, List<HashSet<FieldDTO>> compoundList) {
+    public static FieldDTO createMultipleCompoundFieldDTO(String typeName, List<Set<FieldDTO>> compoundList) {
         FieldDTO field = new FieldDTO();
         field.typeName = typeName;
         field.setMultipleCompound(compoundList);
@@ -171,15 +171,15 @@ public class FieldDTO {
         return values;
     }
 
-    public ArrayList<HashSet<FieldDTO>> getMultipleCompound() {
+    public List<Set<FieldDTO>> getMultipleCompound() {
         Gson gson = new Gson();
-        ArrayList<HashSet<FieldDTO>> fields = new ArrayList<HashSet<FieldDTO>>();
+        List<Set<FieldDTO>> fields = new ArrayList<>();
         JsonArray array = value.getAsJsonArray();
 
         Iterator<JsonElement> iter = array.iterator();
         while (iter.hasNext()) {
             JsonObject elem = (JsonObject) iter.next();
-            HashSet<FieldDTO> elemFields = new HashSet<FieldDTO>();
+            Set<FieldDTO> elemFields = new HashSet<FieldDTO>();
             fields.add(elemFields);
             Set<Map.Entry<String, JsonElement>> set = elem.entrySet();
 
@@ -269,7 +269,7 @@ public class FieldDTO {
      *
      * @param compoundFieldList
      */
-    public void setMultipleCompound(List<HashSet<FieldDTO>> compoundFieldList) {
+    public void setMultipleCompound(List<Set<FieldDTO>> compoundFieldList) {
         Gson gson = new Gson();
         this.typeClass = "compound";
         this.multiple = true;

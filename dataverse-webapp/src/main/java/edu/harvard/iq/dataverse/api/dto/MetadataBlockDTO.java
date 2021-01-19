@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.api.dto;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author ellenk
@@ -39,7 +40,7 @@ public class MetadataBlockDTO {
         } else {
             if (current.multiple) {
                 if (newField.typeClass.equals("compound")) {
-                    ArrayList<HashSet<FieldDTO>> currentValue = current.getMultipleCompound();
+                    List<Set<FieldDTO>> currentValue = current.getMultipleCompound();
                     currentValue.addAll(newField.getMultipleCompound());
                     current.setMultipleCompound(currentValue);
                 } else if (newField.typeClass.equals("controlledVocabulary")) {
@@ -52,7 +53,7 @@ public class MetadataBlockDTO {
                     current.setMultiplePrimitive(currentValue);
                 }
             } else {
-                // If this Field doesn't allow multiples, just replace the value 
+                // If this Field doesn't allow multiples, just replace the value
                 // with the new field value.
                 current.value = newField.value;
             }
