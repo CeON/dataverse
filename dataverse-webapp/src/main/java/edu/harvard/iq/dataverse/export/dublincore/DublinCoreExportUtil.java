@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.harvard.iq.dataverse.export.dublincore;
 
 import com.google.gson.Gson;
@@ -84,10 +79,10 @@ public class DublinCoreExportUtil {
     }
 
     //UPDATED by rmo-cdsp:
-    // If the requested flavor is "OAI_DC" (the minimal, original 15 field format), 
+    // If the requested flavor is "OAI_DC" (the minimal, original 15 field format),
     // we shuld NOT be exporting the extended, DCTERMS fields (aka not createDC)
     // - such as, for example, "dateSubmitted" ... (4.5.1?)
-    // -- L.A. 
+    // -- L.A.
     // but use createOAIDC instead (the minimal, original 15 field format)
 
     private static void createDC(XMLStreamWriter xmlw, DatasetDTO datasetDto, String dcFlavor) throws XMLStreamException {
@@ -101,7 +96,7 @@ public class DublinCoreExportUtil {
 
         xmlw.writeStartElement(dcFlavor + ":" + "identifier");
         xmlw.writeCharacters(globalId.toURL().toString());
-        xmlw.writeEndElement(); // decterms:identifier       
+        xmlw.writeEndElement(); // decterms:identifier
 
         writeAuthorsElement(xmlw, version, dcFlavor);
 
@@ -151,7 +146,7 @@ public class DublinCoreExportUtil {
 
         xmlw.writeStartElement(dcFlavor + ":" + "identifier");
         xmlw.writeCharacters(globalId.toURL().toString());
-        xmlw.writeEndElement(); // decterms:identifier       
+        xmlw.writeEndElement(); // decterms:identifier
 
         writeAuthorsElement(xmlw, version, dcFlavor); //creator
 
@@ -452,7 +447,7 @@ public class DublinCoreExportUtil {
             MetadataBlockDTO value = entry.getValue();
             for (FieldDTO fieldDTO : value.getFields()) {
                 if (datasetFieldTypeName.equals(fieldDTO.getTypeName())) {
-                    return fieldDTO.getMultiplePrimitive();
+                    return fieldDTO.getSafelyMultiplePrimitive();
                 }
             }
         }
@@ -460,7 +455,7 @@ public class DublinCoreExportUtil {
     }
 
     private static void writeFullElementList(XMLStreamWriter xmlw, String name, List<String> values) throws XMLStreamException {
-        //For the simplest Elements we can 
+        //For the simplest Elements we can
         if (values != null && !values.isEmpty()) {
             for (String value : values) {
                 xmlw.writeStartElement(name);
@@ -472,7 +467,7 @@ public class DublinCoreExportUtil {
 
 
     private static void writeFullElement(XMLStreamWriter xmlw, String name, String value) throws XMLStreamException {
-        //For the simplest Elements we can 
+        //For the simplest Elements we can
         if (!StringUtilisEmpty(value)) {
             xmlw.writeStartElement(name);
             xmlw.writeCharacters(value);

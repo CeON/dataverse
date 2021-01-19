@@ -1,103 +1,66 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.harvard.iq.dataverse.api.dto;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import junit.framework.Assert;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author ellenk
  */
-public class FieldDTOTest {
-    FieldDTO author;
+class FieldDTOTest {
 
-    public FieldDTOTest() {
-    }
+    private FieldDTO author;
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-
-        Set<FieldDTO> authorFields = new HashSet<>();
-
-
+    @BeforeEach
+    void setUp() {
         author = FieldDTO.createCompoundFieldDTO("author",
-                                                 FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"),
-                                                 FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"),
-                                                 FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"));
-
-
+                FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"),
+                FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"),
+                FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"));
     }
 
-    @After
-    public void tearDown() {
-    }
-
-    /**
-     * Test of setSinglePrimitive method, of class FieldDTO.
-     */
     @Test
-    public void testSinglePrimitive() {
-        FieldDTO affil = FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top");
-        System.out.println(affil.getSinglePrimitive());
-        Assert.assertEquals("Top", affil.getSinglePrimitive());
+    @DisplayName("Should create a field with primitive value")
+    void createPrimitiveFieldDTO() {
+        // given & when
+        FieldDTO affiliation = FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top");
 
+        // then
+        assertThat(affiliation.getSinglePrimitive()).isEqualTo("Top");
     }
 
-    /**
-     * Test of getMultiplePrimitive method, of class FieldDTO.
-     */
     @Test
-    public void testMultipleVocab() {
-        Gson gson = new Gson();
+    @DisplayName("Should write and read multiple vocabulary value")
+    void shouldSetAndGetMultipleVocab() {
+        // given
         FieldDTO astroType = new FieldDTO();
         astroType.setTypeName("astroType");
-        ArrayList<String> value = new ArrayList<>();
-        value.add("Image");
-        value.add("Mosaic");
-        value.add("EventList");
-        astroType.setMultipleVocab(value);
+        List<String> values = Arrays.asList("Image", "Mosaic", "EventList");
 
-        Assert.assertEquals(value, astroType.getMultipleVocab());
-        String jsonStr = gson.toJson(astroType);
-        FieldDTO astroType2 = gson.fromJson(jsonStr, FieldDTO.class);
-        Assert.assertEquals(astroType, astroType2);
+        // when
+        astroType.setMultipleVocab(values);
+        List<String> readValues = astroType.getMultipleVocab();
 
-    }
-
-    /**
-     * Test of setMultiplePrimitive method, of class FieldDTO.
-     */
-    @Test
-    public void testSetMultipleValue() {
+        // then
+        assertThat(readValues).containsExactlyElementsOf(values);
     }
 
     /**
      * Test of getSingleCompound method, of class FieldDTO.
      */
     @Test
-    public void testSetMultipleCompound() {
+    void testSetMultipleCompound() {
         HashSet<FieldDTO> author1Fields = new HashSet<>();
 
         author1Fields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"));
@@ -124,7 +87,7 @@ public class FieldDTOTest {
      * Test of setSingleCompound method, of class FieldDTO.
      */
     @Test
-    public void testSetSingleCompound() {
+    void testSetSingleCompound() {
         Set<FieldDTO> authorFields = new HashSet<>();
 
         authorFields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"));
@@ -142,7 +105,7 @@ public class FieldDTOTest {
      * Test of setMultipleCompound method, of class FieldDTO.
      */
     @Test
-    public void testJsonTree() {
+    void testJsonTree() {
 
         Gson gson = new Gson();
         FieldDTO test1 = new FieldDTO();
@@ -159,7 +122,7 @@ public class FieldDTOTest {
      * Test of getMultipleCompound method, of class FieldDTO.
      */
     @Test
-    public void testGetMultipleCompound() {
+    void testGetMultipleCompound() {
 
     }
 
@@ -167,14 +130,14 @@ public class FieldDTOTest {
      * Test of getConvertedValue method, of class FieldDTO.
      */
     @Test
-    public void testGetConvertedValue() {
+    void testGetConvertedValue() {
     }
 
     /**
      * Test of toString method, of class FieldDTO.
      */
     @Test
-    public void testToString() {
+    void testToString() {
     }
 
 }
