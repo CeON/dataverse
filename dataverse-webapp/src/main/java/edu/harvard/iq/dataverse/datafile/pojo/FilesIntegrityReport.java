@@ -39,9 +39,7 @@ public class FilesIntegrityReport {
     }
 
     public String getSummaryInfo() {
-        String message = "Found " + checkedCount + " files in repository.";
-        message += " Found " + suspicious.size() + " suspicious files.";
-        return message;
+        return String.format("Found %d files in repository. Found %d suspicious files.", checkedCount, suspicious.size());
     }
 
     // -------------------- SETTERS --------------------

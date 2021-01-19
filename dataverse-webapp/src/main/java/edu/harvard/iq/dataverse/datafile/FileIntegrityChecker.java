@@ -24,6 +24,7 @@ import java.util.List;
 public class FileIntegrityChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(FileService.class);
+    private static final String NEW_LINE = "\n";
 
     private DataFileServiceBean dataFileService;
     private AuthenticationServiceBean authSvc;
@@ -113,16 +114,31 @@ public class FileIntegrityChecker {
     private EmailContent buildReportEmailContent(FilesIntegrityReport report) {
         StringBuilder messageBodyBuilder = new StringBuilder();
         
-        messageBodyBuilder.append("Datafiles integrity check summary: \n");
-        messageBodyBuilder.append("Files checked: " + report.getCheckedCount() + "\n");
-        messageBodyBuilder.append("Skipped checksum verification: " + report.getSkippedChecksumVerification() + "\n");
-        messageBodyBuilder.append("Number of files with failures: " + report.getSuspicious().size() + "\n\n");
-        messageBodyBuilder.append("List of files with failures:\n");
+        messageBodyBuilder.append("Datafiles integrity check summary: ")
+                          .append(NEW_LINE)
+                          .append("Files checked: ")
+                          .append(report.getCheckedCount())
+                          .append(NEW_LINE)
+                          .append("Skipped checksum verification: ")
+                          .append(report.getSkippedChecksumVerification())
+                          .append(NEW_LINE)
+                          .append("Number of files with failures: ")
+                          .append(report.getSuspicious().size())
+                          .append(NEW_LINE)
+                          .append(NEW_LINE)
+                          .append("List of files with failures:")
+                          .append(NEW_LINE);
+
         report.getSuspicious().stream()
-            .forEach(integrityFail -> messageBodyBuilder.append(
-                        "File id: " + integrityFail.getIntegrityFailFile().getId() + ", "
-                        + "file label: " + integrityFail.getIntegrityFailFile().getLatestFileMetadata().getLabel() + " "
-                        + "(" + integrityFail.getCheckResult() + ")\n"));
+            .forEach(integrityFail -> messageBodyBuilder
+                                        .append("File id: ")
+                                        .append(integrityFail.getIntegrityFailFile().getId())
+                                        .append(", file label: ")
+                                        .append(integrityFail.getIntegrityFailFile().getLatestFileMetadata().getLabel())
+                                        .append(" (")
+                                        .append(integrityFail.getCheckResult())
+                                        .append(")")
+                                        .append(NEW_LINE));
 
         String messageSubject = "Dataverse files integrity check report";
 
