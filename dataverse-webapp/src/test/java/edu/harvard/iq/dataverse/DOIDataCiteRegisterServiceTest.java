@@ -45,7 +45,8 @@ class DOIDataCiteRegisterServiceTest {
                 "doi:test", Collections.emptyMap(), dataset);
 
         // then
-        assertThat(xml).contains("<description descriptionType=\"Abstract\"> Description 1 </description>");
+        assertThat(xml).contains(
+                "<description descriptionType=\"Abstract\">\u00A0Description\u00A0\u00A0\u00A01\u00A0</description>");
     }
 
     // -------------------- PRIVATE --------------------
