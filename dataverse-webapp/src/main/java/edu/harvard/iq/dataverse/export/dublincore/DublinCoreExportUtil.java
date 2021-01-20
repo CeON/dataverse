@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author skraffmi
@@ -447,7 +449,9 @@ public class DublinCoreExportUtil {
             MetadataBlockDTO value = entry.getValue();
             for (FieldDTO fieldDTO : value.getFields()) {
                 if (datasetFieldTypeName.equals(fieldDTO.getTypeName())) {
-                    return fieldDTO.getSafelyMultiplePrimitive();
+                    return fieldDTO.getMultiple()
+                            ? fieldDTO.getMultiplePrimitive()
+                            : Stream.of(fieldDTO.getSinglePrimitive()).collect(Collectors.toList());
                 }
             }
         }

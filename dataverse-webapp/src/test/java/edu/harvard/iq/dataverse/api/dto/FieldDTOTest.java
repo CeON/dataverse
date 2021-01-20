@@ -1,17 +1,14 @@
 package edu.harvard.iq.dataverse.api.dto;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import junit.framework.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,6 +40,7 @@ class FieldDTOTest {
     @Test
     @DisplayName("Should write and read multiple vocabulary value")
     void shouldSetAndGetMultipleVocab() {
+
         // given
         FieldDTO astroType = new FieldDTO();
         astroType.setTypeName("astroType");
@@ -56,88 +54,55 @@ class FieldDTOTest {
         assertThat(readValues).containsExactlyElementsOf(values);
     }
 
-    /**
-     * Test of getSingleCompound method, of class FieldDTO.
-     */
     @Test
-    void testSetMultipleCompound() {
-        Set<FieldDTO> author1Fields = new HashSet<>();
+    @DisplayName("Should write and read multiple compound value")
+    void shouldSetAndGetMultipleCompound() {
 
-        author1Fields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"));
-        author1Fields.add(FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"));
-        author1Fields.add(FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"));
+        // given
+        Set<FieldDTO> author1Fields = Stream.of(
+                FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"),
+                FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"),
+                FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"))
+                .collect(Collectors.toSet());
 
-        Set<FieldDTO> author2Fields = new HashSet<>();
+        Set<FieldDTO> author2Fields = Stream.of(
+                FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Bottom"),
+                FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ernieId"),
+                FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "DAISY"))
+                .collect(Collectors.toSet());
 
-        author2Fields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Bottom"));
-        author2Fields.add(FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ernieId"));
-        author2Fields.add(FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "DAISY"));
+        List<Set<FieldDTO>> authorList = Stream.of(author1Fields, author2Fields)
+                .collect(Collectors.toList());
 
-        List<Set<FieldDTO>> authorList = new ArrayList<>();
-        authorList.add(author1Fields);
-        authorList.add(author2Fields);
         FieldDTO compoundField = new FieldDTO();
         compoundField.setTypeName("author");
-        compoundField.setMultipleCompound(authorList);
 
-        Assert.assertEquals(compoundField.getMultipleCompound(), authorList);
+        // when
+        compoundField.setMultipleCompound(authorList);
+        List<Set<FieldDTO>> readValues = compoundField.getMultipleCompound();
+
+        // then
+        assertThat(readValues).isEqualTo(authorList);
     }
 
-    /**
-     * Test of setSingleCompound method, of class FieldDTO.
-     */
     @Test
-    void testSetSingleCompound() {
-        Set<FieldDTO> authorFields = new HashSet<>();
+    @DisplayName("Should set and get single compound value")
+    void shouldSetAndGetSingleCompound() {
 
-        authorFields.add(FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"));
-        authorFields.add(FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"));
-        authorFields.add(FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"));
+        // given
+        FieldDTO[] authorFields = Stream.of(
+                FieldDTO.createPrimitiveFieldDTO("authorAffiliation", "Top"),
+                FieldDTO.createPrimitiveFieldDTO("authorIdentifier", "ellenId"),
+                FieldDTO.createVocabFieldDTO("authorIdentifierScheme", "ORCID"))
+                .toArray(FieldDTO[]::new);
 
         FieldDTO compoundField = new FieldDTO();
-        compoundField.setSingleCompound(authorFields.toArray(new FieldDTO[]{}));
-        Set<FieldDTO> returned = compoundField.getSingleCompound();
-        Assert.assertTrue(returned.equals(authorFields));
 
+        // when
+        compoundField.setSingleCompound(authorFields);
+        Set<FieldDTO> readValue = compoundField.getSingleCompound();
+
+        // then
+        assertThat(readValue).containsExactly(authorFields);
     }
-
-    /**
-     * Test of setMultipleCompound method, of class FieldDTO.
-     */
-    @Test
-    void testJsonTree() {
-
-        Gson gson = new Gson();
-        FieldDTO test1 = new FieldDTO();
-
-        test1.value = gson.toJsonTree("ellen", String.class);
-        JsonElement elem = gson.toJsonTree(test1, FieldDTO.class);
-
-        FieldDTO field1 = gson.fromJson(elem.getAsJsonObject(), FieldDTO.class);
-
-    }
-
-
-    /**
-     * Test of getMultipleCompound method, of class FieldDTO.
-     */
-    @Test
-    void testGetMultipleCompound() {
-
-    }
-
-    /**
-     * Test of getConvertedValue method, of class FieldDTO.
-     */
-    @Test
-    void testGetConvertedValue() {
-    }
-
-    /**
-     * Test of toString method, of class FieldDTO.
-     */
-    @Test
-    void testToString() {
-    }
-
 }
