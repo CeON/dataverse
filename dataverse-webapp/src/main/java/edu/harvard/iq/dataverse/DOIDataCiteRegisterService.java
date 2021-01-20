@@ -142,9 +142,7 @@ public class DOIDataCiteRegisterService {
         metadataTemplate.setAuthors(dataset.getLatestVersion().getDatasetAuthors());
         if (dvObject.isInstanceofDataset()) {
             String description = dataset.getLatestVersion().getDescriptionPlainText();
-            metadataTemplate.setDescription(
-                    StringEscapeUtils.unescapeHtml(description)
-            );
+            metadataTemplate.setDescription(StringEscapeUtils.unescapeHtml(description));
         }
         if (dvObject.isInstanceofDataFile()) {
             DataFile df = (DataFile) dvObject;
