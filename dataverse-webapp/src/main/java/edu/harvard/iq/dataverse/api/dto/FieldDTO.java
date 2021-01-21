@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,11 +19,11 @@ import java.util.stream.StreamSupport;
  */
 public class FieldDTO {
 
-    String typeName;
+    private String typeName;
 
-    Boolean multiple;
+    private Boolean multiple;
 
-    String typeClass;
+    private String typeClass;
 
     /**
     * The contents of value depend on the field attributes
@@ -33,7 +32,7 @@ public class FieldDTO {
     *      multiple/primitive: each JSonArray element will contain String
     *      multiple/compound: each JSonArray element will contain Set of FieldDTOs
     */
-    JsonElement value;
+    private JsonElement value;
 
     // -------------------- GETTERS --------------------
 
