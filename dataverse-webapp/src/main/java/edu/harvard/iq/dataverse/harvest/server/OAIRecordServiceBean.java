@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toMap;
@@ -64,9 +65,11 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         for (Long datasetId : datasetIds) {
             setUpdateLogger.fine("processing dataset id=" + datasetId);
 
-            datasetRepository.findById(datasetId)
-                .filter(Dataset::containsReleasedVersion)
-                .ifPresent(dataset -> {
+            Optional<Dataset> datasetWithReleasedVersion = datasetRepository
+                                            .findById(datasetId)
+                                            .filter(Dataset::containsReleasedVersion);
+
+            datasetWithReleasedVersion.ifPresent(dataset -> {
                     setUpdateLogger.fine("found published dataset.");
                     OAIRecord record = recordMap.remove(dataset.getGlobalIdString());
                     
