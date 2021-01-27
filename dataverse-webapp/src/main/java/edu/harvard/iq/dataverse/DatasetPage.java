@@ -5,8 +5,9 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.datafile.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
+import edu.harvard.iq.dataverse.dataset.DatasetSummaryService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
-import edu.harvard.iq.dataverse.dataset.DatasetUtil;
+import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.dataset.difference.DatasetFileTermDifferenceItem;
 import edu.harvard.iq.dataverse.dataset.difference.LicenseDifferenceFinder;
@@ -133,6 +134,10 @@ public class DatasetPage implements java.io.Serializable {
     private DatasetService datasetService;
     @Inject
     private LicenseDifferenceFinder licenseDifferenceFinder;
+    @Inject
+    private DatasetThumbnailService datasetThumbnailService;
+    @Inject
+    private DatasetSummaryService datasetSummaryService;
 
     private Dataset dataset = new Dataset();
 
@@ -173,7 +178,7 @@ public class DatasetPage implements java.io.Serializable {
         }
 
         if (!readOnly) {
-            DatasetThumbnail datasetThumbnail = DatasetUtil.getThumbnail(dataset);
+            DatasetThumbnail datasetThumbnail = datasetThumbnailService.getThumbnail(dataset);
             if (datasetThumbnail == null) {
                 thumbnailString = "";
                 return null;
@@ -189,7 +194,7 @@ public class DatasetPage implements java.io.Serializable {
 
             thumbnailString = datasetThumbnail.getBase64image();
         } else {
-            thumbnailString = thumbnailServiceWrapper.getDatasetCardImageAsBase64Url(dataset, workingVersion.getId(), !workingVersion.isDraft(), new DataAccess());
+            thumbnailString = thumbnailServiceWrapper.getDatasetCardImageAsBase64Url(dataset, workingVersion.getId(), !workingVersion.isDraft());
             if (thumbnailString == null) {
                 thumbnailString = "";
                 return null;
@@ -1115,7 +1120,7 @@ public class DatasetPage implements java.io.Serializable {
     public List<DatasetFieldsByType> getDatasetSummaryFields() {
         List<String> customFields = settingsService.getValueForKeyAsList(SettingsServiceBean.Key.CustomDatasetSummaryFields);
 
-        return DatasetUtil.getDatasetSummaryFields(workingVersion, customFields);
+        return datasetSummaryService.getDatasetSummaryFields(workingVersion, customFields);
     }
 
     public String getKeywordsDisplaySummary() {
