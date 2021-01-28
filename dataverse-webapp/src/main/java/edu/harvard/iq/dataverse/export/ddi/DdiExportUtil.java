@@ -300,7 +300,7 @@ public class DdiExportUtil {
                     if (DatasetFieldConstant.timePeriodCovered.equals(fieldDTO.getTypeName())) {
                         String dateValStart = "";
                         String dateValEnd = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             per++;
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
@@ -322,7 +322,7 @@ public class DdiExportUtil {
                     if (DatasetFieldConstant.dateOfCollection.equals(fieldDTO.getTypeName())) {
                         String dateValStart = "";
                         String dateValEnd = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             coll++;
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
@@ -350,7 +350,7 @@ public class DdiExportUtil {
             if ("geospatial".equals(key)) {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.geographicCoverage.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.country.equals(next.getTypeName())) {
@@ -369,7 +369,7 @@ public class DdiExportUtil {
                         }
                     }
                     if (DatasetFieldConstant.geographicBoundingBox.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.westLongitude.equals(next.getTypeName())) {
@@ -480,7 +480,7 @@ public class DdiExportUtil {
                     }
 
                     if (DatasetFieldConstant.keyword.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String keywordValue = "";
                             String keywordVocab = "";
                             String keywordURI = "";
@@ -511,7 +511,7 @@ public class DdiExportUtil {
                         }
                     }
                     if (DatasetFieldConstant.topicClassification.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String topicClassificationValue = "";
                             String topicClassificationVocab = "";
                             String topicClassificationURI = "";
@@ -557,7 +557,7 @@ public class DdiExportUtil {
                         xmlw.writeStartElement("rspStmt");
                         String authorName = "";
                         String authorAffiliation = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.authorName.equals(next.getTypeName())) {
@@ -594,7 +594,7 @@ public class DdiExportUtil {
                         String datasetContactName = "";
                         String datasetContactAffiliation = "";
                         String datasetContactEmail = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.datasetContactName.equals(next.getTypeName())) {
@@ -636,7 +636,7 @@ public class DdiExportUtil {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.producer.equals(fieldDTO.getTypeName())) {
 
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String producerName = "";
                             String producerAffiliation = "";
                             String producerAbbreviation = "";
@@ -699,7 +699,7 @@ public class DdiExportUtil {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.distributor.equals(fieldDTO.getTypeName())) {
                         xmlw.writeStartElement("distrbtr");
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String distributorName = "";
                             String distributorAffiliation = "";
                             String distributorAbbreviation = "";
@@ -755,7 +755,7 @@ public class DdiExportUtil {
             if ("citation".equals(key)) {
                 for (FieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.publication.equals(fieldDTO.getTypeName())) {
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             String pubString = "";
                             String citation = "";
                             String IDType = "";
@@ -811,7 +811,7 @@ public class DdiExportUtil {
                     if (DatasetFieldConstant.description.equals(fieldDTO.getTypeName())) {
                         String descriptionText = "";
                         String descriptionDate = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.descriptionText.equals(next.getTypeName())) {
@@ -845,7 +845,7 @@ public class DdiExportUtil {
                     if (DatasetFieldConstant.grantNumber.equals(fieldDTO.getTypeName())) {
                         String grantNumber = "";
                         String grantAgency = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.grantNumberValue.equals(next.getTypeName())) {
@@ -879,7 +879,7 @@ public class DdiExportUtil {
                     if (DatasetFieldConstant.otherId.equals(fieldDTO.getTypeName())) {
                         String otherId = "";
                         String otherIdAgency = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.otherIdValue.equals(next.getTypeName())) {
@@ -913,7 +913,7 @@ public class DdiExportUtil {
                     if (DatasetFieldConstant.software.equals(fieldDTO.getTypeName())) {
                         String softwareName = "";
                         String softwareVersion = "";
-                        for (HashSet<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
+                        for (Set<FieldDTO> foo : fieldDTO.getMultipleCompound()) {
                             for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
                                 FieldDTO next = iterator.next();
                                 if (DatasetFieldConstant.softwareName.equals(next.getTypeName())) {
