@@ -25,7 +25,6 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -33,7 +32,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.io.File;
 import java.sql.Timestamp;
@@ -210,7 +208,8 @@ public class DataverseDao implements java.io.Serializable {
 
     public String determineDataversePath(Dataverse dataverse) {
         List<String> dataversePathSegments = new ArrayList<>();
-        indexService.findPathSegments(dataverse, dataversePathSegments);
+        Dataverse rootDataverse = findRootDataverse();
+        indexService.findPathSegments(dataverse, dataversePathSegments, rootDataverse);
         StringBuilder dataversePath = new StringBuilder();
         for (String segment : dataversePathSegments) {
             dataversePath.append("/").append(segment);

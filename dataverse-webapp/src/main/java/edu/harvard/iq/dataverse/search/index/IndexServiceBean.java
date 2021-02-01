@@ -5,14 +5,12 @@ import edu.harvard.iq.dataverse.DatasetLinkingServiceBean;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseLinkingDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
-import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
@@ -24,6 +22,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.dataverse.link.DatasetLinkingDataverse;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
@@ -94,15 +93,7 @@ public class IndexServiceBean {
     @EJB
     DatasetDao datasetDao;
     @EJB
-    BuiltinUserServiceBean dataverseUserServiceBean;
-    @EJB
-    PermissionServiceBean permissionService;
-    @EJB
-    AuthenticationServiceBean userServiceBean;
-    @EJB
     SystemConfig systemConfig;
-    @EJB
-    SearchPermissionsFinder searchPermissionsService;
     @EJB
     SolrIndexServiceBean solrIndexService;
     @EJB
@@ -213,7 +204,7 @@ public class IndexServiceBean {
             }
         }
         List<String> dataversePathSegmentsAccumulator = new ArrayList<>();
-        List<String> dataverseSegments = findPathSegments(dataverse, dataversePathSegmentsAccumulator);
+        List<String> dataverseSegments = findPathSegments(dataverse, dataversePathSegmentsAccumulator, rootDataverse);
         List<String> dataversePaths = getDataversePathsFromSegments(dataverseSegments);
         if (dataversePaths.size() > 0) {
             // don't show yourself while indexing or in search results:
@@ -224,7 +215,7 @@ public class IndexServiceBean {
         // Add paths for linking dataverses
         for (Dataverse linkingDataverse : dvLinkingService.findLinkingDataverses(dataverse.getId())) {
             List<String> linkingDataversePathSegmentsAccumulator = new ArrayList<>();
-            List<String> linkingdataverseSegments = findPathSegments(linkingDataverse, linkingDataversePathSegmentsAccumulator);
+            List<String> linkingdataverseSegments = findPathSegments(linkingDataverse, linkingDataversePathSegmentsAccumulator, rootDataverse);
             List<String> linkingDataversePaths = getDataversePathsFromSegments(linkingdataverseSegments);
             for (String dvPath : linkingDataversePaths) {
                 dataversePaths.add(dvPath);
@@ -300,6 +291,32 @@ public class IndexServiceBean {
         int numPublishedVersions = 0;
         List<DatasetVersion> versions = dataset.getVersions();
         List<String> solrIdsOfFilesToDelete = new ArrayList<>();
+        try {
+            /**
+             * Preemptively delete *all* Solr documents for files associated
+             * with the dataset based on a Solr query.
+             *
+             * We must query Solr for this information because the file has
+             * been deleted from the database ( perhaps when Solr was down,
+             * as reported in https://github.com/IQSS/dataverse/issues/2086
+             * ) so the database doesn't even know about the file. It's an
+             * orphan.
+             *
+             * @todo This Solr query should make the iteration above based
+             * on the database unnecessary because it the Solr query should
+             * find all files for the dataset. We can probably remove the
+             * iteration above after an "index all" has been performed.
+             * Without an "index all" we won't be able to find files based
+             * on parentId because that field wasn't searchable in 4.0.
+             *
+             * @todo We should also delete the corresponding Solr
+             * "permission" documents for the files.
+             */
+            List<String> allFilesForDataset = findFilesOfParentDataset(dataset.getId());
+            solrIdsOfFilesToDelete.addAll(allFilesForDataset);
+        } catch (SearchException | NullPointerException ex) {
+            logger.fine("could not run search of files to delete: " + ex);
+        }
         for (DatasetVersion datasetVersion : versions) {
             Long versionDatabaseId = datasetVersion.getId();
             String versionTitle = datasetVersion.getTitle();
@@ -329,32 +346,7 @@ public class IndexServiceBean {
                 solrIdsOfFilesToDelete.add(solrIdOfPublishedFile);
                 fileInfo.add(fileMetadata.getDataFile().getId() + ":" + fileMetadata.getLabel());
             }
-            try {
-                /**
-                 * Preemptively delete *all* Solr documents for files associated
-                 * with the dataset based on a Solr query.
-                 *
-                 * We must query Solr for this information because the file has
-                 * been deleted from the database ( perhaps when Solr was down,
-                 * as reported in https://github.com/IQSS/dataverse/issues/2086
-                 * ) so the database doesn't even know about the file. It's an
-                 * orphan.
-                 *
-                 * @todo This Solr query should make the iteration above based
-                 * on the database unnecessary because it the Solr query should
-                 * find all files for the dataset. We can probably remove the
-                 * iteration above after an "index all" has been performed.
-                 * Without an "index all" we won't be able to find files based
-                 * on parentId because that field wasn't searchable in 4.0.
-                 *
-                 * @todo We should also delete the corresponding Solr
-                 * "permission" documents for the files.
-                 */
-                List<String> allFilesForDataset = findFilesOfParentDataset(dataset.getId());
-                solrIdsOfFilesToDelete.addAll(allFilesForDataset);
-            } catch (SearchException | NullPointerException ex) {
-                logger.fine("could not run search of files to delete: " + ex);
-            }
+
             int numFiles = 0;
             if (fileMetadatas != null) {
                 numFiles = fileMetadatas.size();
@@ -630,21 +622,22 @@ public class IndexServiceBean {
         Collection<SolrInputDocument> docs = new ArrayList<>();
         List<String> dataversePathSegmentsAccumulator = new ArrayList<>();
         List<String> dataverseSegments = new ArrayList<>();
-        String rootDataverseName = findRootDataverse().getName();
+        Dataverse rootDataverse = findRootDataverse();
+        String rootDataverseName = rootDataverse.getName();
         try {
-            dataverseSegments = findPathSegments(dataset.getOwner(), dataversePathSegmentsAccumulator);
+            dataverseSegments = findPathSegments(dataset.getOwner(), dataversePathSegmentsAccumulator, rootDataverse);
         } catch (Exception ex) {
             logger.info("failed to find dataverseSegments for dataversePaths for " + SearchFields.SUBTREE + ": " + ex);
         }
         List<String> dataversePaths = getDataversePathsFromSegments(dataverseSegments);
         // Add Paths for linking dataverses
-        for (Dataverse linkingDataverse : dsLinkingService.findLinkingDataverses(dataset.getId())) {
+        List<DatasetLinkingDataverse> dsLinkingDv = dsLinkingService.findDatasetLinkingDataverses(dataset.getId());
+        for (DatasetLinkingDataverse datasetLinkingDataverse : dsLinkingDv) {
+            Dataverse linkingDataverse = datasetLinkingDataverse.getLinkingDataverse();
             List<String> linkingDataversePathSegmentsAccumulator = new ArrayList<>();
-            List<String> linkingdataverseSegments = findPathSegments(linkingDataverse, linkingDataversePathSegmentsAccumulator);
+            List<String> linkingdataverseSegments = findPathSegments(linkingDataverse, linkingDataversePathSegmentsAccumulator, rootDataverse);
             List<String> linkingDataversePaths = getDataversePathsFromSegments(linkingdataverseSegments);
-            for (String dvPath : linkingDataversePaths) {
-                dataversePaths.add(dvPath);
-            }
+            dataversePaths.addAll(linkingDataversePaths);
         }
         SolrInputDocument solrInputDocument = new SolrInputDocument();
         String datasetSolrDocId = indexableDataset.getSolrDocId();
@@ -860,6 +853,8 @@ public class IndexServiceBean {
                 logger.fine(
                         "We are indexing a draft version of a dataset that has a released version. We'll be checking file metadatas if they are exact clones of the released versions.");
             }
+
+            List<SolrInputDocument> filesToIndex = new ArrayList<>();
             for (FileMetadata fileMetadata : fileMetadatas) {
                 boolean indexThisMetadata = true;
                 if (checkForDuplicateMetadata) {
@@ -950,7 +945,6 @@ public class IndexServiceBean {
                     }
 
                     String filenameCompleteFinal = "";
-                    if (fileMetadata != null) {
                         String filenameComplete = fileMetadata.getLabel();
                         if (filenameComplete != null) {
                             int i = filenameComplete.lastIndexOf('.');
@@ -974,11 +968,10 @@ public class IndexServiceBean {
                             }
                             filenameCompleteFinal = filenameComplete;
                         }
-                        for (String tag : fileMetadata.getCategoriesByName()) {
-                            datafileSolrInputDocument.addField(SearchFields.FILE_TAG, tag);
-                            datafileSolrInputDocument.addField(SearchFields.FILE_TAG_SEARCHABLE, tag);
+                        for (DataFileCategory tag : fileMetadata.getCategories()) {
+                            datafileSolrInputDocument.addField(SearchFields.FILE_TAG, tag.getName());
+                            datafileSolrInputDocument.addField(SearchFields.FILE_TAG_SEARCHABLE, tag.getName());
                         }
-                    }
                     datafileSolrInputDocument.addField(SearchFields.NAME, filenameCompleteFinal);
                     datafileSolrInputDocument.addField(SearchFields.NAME_SORT, filenameCompleteFinal);
                     datafileSolrInputDocument.addField(SearchFields.FILE_NAME, filenameCompleteFinal);
@@ -1109,10 +1102,12 @@ public class IndexServiceBean {
 
                     if (indexableDataset.isFilesShouldBeIndexed()) {
                         filesIndexed.add(fileSolrDocId);
-                        docs.add(datafileSolrInputDocument);
+                        filesToIndex.add(datafileSolrInputDocument);
                     }
                 }
             }
+
+            docs.addAll(filesToIndex);
         }
 
         try {
@@ -1173,12 +1168,11 @@ public class IndexServiceBean {
         return finalValue;
     }
 
-    public List<String> findPathSegments(Dataverse dataverse, List<String> segments) {
-        Dataverse rootDataverse = findRootDataverse();
+    public List<String> findPathSegments(Dataverse dataverse, List<String> segments, Dataverse rootDataverse) {
         if (!dataverse.equals(rootDataverse)) {
             // important when creating root dataverse
             if (dataverse.getOwner() != null) {
-                findPathSegments(dataverse.getOwner(), segments);
+                findPathSegments(dataverse.getOwner(), segments, rootDataverse);
             }
             segments.add(dataverse.getId().toString());
             return segments;
