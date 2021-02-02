@@ -171,7 +171,7 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
             dvOwnerIds.add(dv.getId());
         }
 
-        return new HashSet<>(roleAssignmentRepository.findByDefinitionPointId(dvOwnerIds));
+        return new HashSet<>(roleAssignmentRepository.findByDefinitionPointIds(dvOwnerIds));
     }
 
     /**

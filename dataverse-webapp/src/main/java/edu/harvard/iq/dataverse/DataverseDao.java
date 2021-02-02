@@ -207,9 +207,7 @@ public class DataverseDao implements java.io.Serializable {
     }
 
     public String determineDataversePath(Dataverse dataverse) {
-        List<String> dataversePathSegments = new ArrayList<>();
-        Dataverse rootDataverse = findRootDataverse();
-        indexService.findPathSegments(dataverse, dataversePathSegments, rootDataverse);
+        List<String> dataversePathSegments = indexService.findPathSegments(dataverse);
         StringBuilder dataversePath = new StringBuilder();
         for (String segment : dataversePathSegments) {
             dataversePath.append("/").append(segment);

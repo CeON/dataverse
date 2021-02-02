@@ -22,7 +22,7 @@ public class RoleAssignmentRepository extends JpaRepository<Long, RoleAssignment
                 .getResultList();
     }
 
-    public List<RoleAssignment> findByDefinitionPointId(List<Long> definitionPointIds) {
+    public List<RoleAssignment> findByDefinitionPointIds(List<Long> definitionPointIds) {
         return em.createQuery("SELECT r FROM RoleAssignment r WHERE r.definitionPoint.id IN :definitionPointIds", RoleAssignment.class)
                 .setParameter("definitionPointIds", definitionPointIds)
                 .getResultList();

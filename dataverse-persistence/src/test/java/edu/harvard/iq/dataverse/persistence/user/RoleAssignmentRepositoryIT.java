@@ -36,7 +36,7 @@ public class RoleAssignmentRepositoryIT extends PersistenceArquillianDeployment 
         ArrayList<Long> definitionPointIds = Lists.newArrayList(1L, 19L, 51L);
 
         // when
-        List<RoleAssignment> roleAssignments = roleAssignmentRepository.findByDefinitionPointId(definitionPointIds);
+        List<RoleAssignment> roleAssignments = roleAssignmentRepository.findByDefinitionPointIds(definitionPointIds);
 
         // then
         assertThat(
