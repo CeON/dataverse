@@ -59,7 +59,7 @@ public class PermissionsWrapper implements java.io.Serializable {
         }
 
         if (commandMap.containsKey(dvo.getId())) {
-            Map<Class<? extends Command<?>>, Boolean> dvoCommandMap = this.commandMap.get(dvo.getId());
+            Map<Class<? extends Command<?>>, Boolean> dvoCommandMap = commandMap.get(dvo.getId());
             if (dvoCommandMap.containsKey(command)) {
                 return dvoCommandMap.get(command);
             } else {
@@ -165,16 +165,16 @@ public class PermissionsWrapper implements java.io.Serializable {
 
         // Has this check already been done? 
         // 
-        if (this.datasetPermissionMap.containsKey(permissionToCheck)) {
+        if (datasetPermissionMap.containsKey(permissionToCheck)) {
             // Yes, return previous answer
-            return this.datasetPermissionMap.get(permissionToCheck);
+            return datasetPermissionMap.get(permissionToCheck);
         }
 
         // Check the permission
-        boolean hasPermission = this.permissionService.requestOn(req, dataset).has(permissionToCheck);
+        boolean hasPermission = permissionService.requestOn(req, dataset).has(permissionToCheck);
 
         // Save the permission
-        this.datasetPermissionMap.put(permissionToCheck, hasPermission);
+        datasetPermissionMap.put(permissionToCheck, hasPermission);
 
         // return true/false
         return hasPermission;
@@ -194,9 +194,9 @@ public class PermissionsWrapper implements java.io.Serializable {
 
         // Has this check already been done? Check the hash
         //
-        if (this.fileDownloadPermissionMap.containsKey(datafile.getId())) {
+        if (fileDownloadPermissionMap.containsKey(datafile.getId())) {
             // Yes, return previous answer
-            return this.fileDownloadPermissionMap.get(datafile.getId());
+            return fileDownloadPermissionMap.get(datafile.getId());
         }
 
         // Check permissions
