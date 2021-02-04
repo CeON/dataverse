@@ -15,6 +15,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowComment;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.persistence.annotations.BatchFetch;
+import org.eclipse.persistence.annotations.BatchFetchType;
 import org.eclipse.persistence.annotations.Customizer;
 
 import javax.persistence.CascadeType;
@@ -119,6 +121,7 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
 
     @OneToMany(mappedBy = "datasetVersion", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     @OrderBy("label")
+    @BatchFetch(BatchFetchType.JOIN)
     // this is not our preferred ordering, which is with the AlphaNumericComparator,
     // but does allow the files to be grouped by category
     private List<FileMetadata> fileMetadatas = new ArrayList<>();

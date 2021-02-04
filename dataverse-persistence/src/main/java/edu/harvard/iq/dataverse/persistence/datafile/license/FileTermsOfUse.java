@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.persistence.datafile.license;
 
-import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 
 import javax.persistence.Column;
