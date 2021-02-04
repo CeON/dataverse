@@ -112,6 +112,10 @@ public class SystemConfig {
         return settingsService.getValueForKey(SettingsServiceBean.Key.SiteUrl);
     }
 
+    public boolean isReadonlyMode() {
+        return true;
+    }
+
     public String getFilesDirectory() {
         String filesDirectory = System.getProperty(SystemConfig.FILES_DIRECTORY);
         if(StringUtils.isEmpty(filesDirectory)) {
