@@ -113,7 +113,7 @@ public class SystemConfig {
     }
 
     public boolean isReadonlyMode() {
-        return true;
+        return settingsService.isTrueForKey(SettingsServiceBean.Key.ReadonlyMode);
     }
 
     public String getFilesDirectory() {
