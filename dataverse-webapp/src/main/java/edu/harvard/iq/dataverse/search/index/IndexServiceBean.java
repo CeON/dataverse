@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -303,23 +304,25 @@ public class IndexServiceBean {
             debug.append("- semanticVersion-VersionState: " + semanticVersion + "-" + versionState + "\n");
             List<FileMetadata> fileMetadatas = datasetVersion.getFileMetadatas();
             List<String> fileInfo = new ArrayList<>();
-            for (FileMetadata fileMetadata : fileMetadatas) {
-                String solrIdOfPublishedFile = solrDocIdentifierFile + fileMetadata.getDataFile().getId();
+            try {
                 /**
-                 * It sounds weird but the first thing we'll do is preemptively
-                 * delete the Solr documents of all published files. Don't
-                 * worry, published files will be re-indexed later along with
-                 * the dataset. We do this so users can delete files from
-                 * published versions of datasets and then re-publish a new
-                 * version without fear that their old published files (now
-                 * deleted from the latest published version) will be
-                 * searchable. See also
-                 * https://github.com/IQSS/dataverse/issues/762
+                 * Preemptively delete *all* Solr documents for files associated
+                 * with the dataset based on a Solr query.
+                 *
+                 * We must query Solr for this information because the file has
+                 * been deleted from the database ( perhaps when Solr was down,
+                 * as reported in https://github.com/IQSS/dataverse/issues/2086
+                 * ) so the database doesn't even know about the file. It's an
+                 * orphan.
+                 *
+                 * @todo We should also delete the corresponding Solr
+                 * "permission" documents for the files.
                  */
-                solrIdsOfFilesToDelete.add(solrIdOfPublishedFile);
-                fileInfo.add(fileMetadata.getDataFile().getId() + ":" + fileMetadata.getLabel());
+                List<String> allFilesForDataset = findFilesOfParentDataset(dataset.getId());
+                solrIdsOfFilesToDelete.addAll(allFilesForDataset);
+            } catch (SearchException | NullPointerException ex) {
+                logger.fine("could not run search of files to delete: " + ex);
             }
-
             int numFiles = 0;
             if (fileMetadatas != null) {
                 numFiles = fileMetadatas.size();
@@ -629,10 +632,8 @@ public class IndexServiceBean {
         Date datasetSortByDate = new Date();
         Date majorVersionReleaseDate = dataset.getMostRecentMajorVersionReleaseDate();
         if (majorVersionReleaseDate != null) {
-            if (true) {
-                String msg = "major release date found: " + majorVersionReleaseDate.toString();
-                logger.fine(msg);
-            }
+            String msg = "major release date found: " + majorVersionReleaseDate.toString();
+            logger.fine(msg);
             datasetSortByDate = majorVersionReleaseDate;
         } else {
             if (indexableDataset.getDatasetState().equals(IndexableDataset.DatasetState.WORKING_COPY)) {
@@ -642,10 +643,8 @@ public class IndexServiceBean {
             }
             Date createDate = dataset.getCreateDate();
             if (createDate != null) {
-                if (true) {
-                    String msg = "can't find major release date, using create date: " + createDate;
-                    logger.fine(msg);
-                }
+                String msg = "can't find major release date, using create date: " + createDate;
+                logger.fine(msg);
                 datasetSortByDate = createDate;
             } else {
                 String msg = "can't find major release date or create date, using \"now\"";
@@ -1421,6 +1420,34 @@ public class IndexServiceBean {
                 } catch (ClassCastException ex) {
                     throw new SearchException("Found " + SearchFields.ENTITY_ID + " but error casting " + idObject + " to long", ex);
                 }
+            }
+        }
+        return dvObjectInSolrOnly;
+    }
+
+    private List<String> findFilesOfParentDataset(long parentDatasetId) throws SearchException {
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery("*");
+        solrQuery.setFields(SearchFields.ID);
+        solrQuery.setRows(Integer.MAX_VALUE);
+        solrQuery.addFilterQuery(SearchFields.PARENT_ID + ":" + parentDatasetId);
+        /**
+         * @todo "files" should be a constant
+         */
+        solrQuery.addFilterQuery(SearchFields.TYPE + ":" + "files");
+        List<String> dvObjectInSolrOnly = new ArrayList<>();
+        QueryResponse queryResponse = null;
+        try {
+            queryResponse = solrServer.query(solrQuery);
+        } catch (SolrServerException | IOException ex) {
+            throw new SearchException("Error searching Solr for dataset parent id " + parentDatasetId, ex);
+        }
+        SolrDocumentList results = queryResponse.getResults();
+        for (SolrDocument solrDocument : results) {
+            Object idObject = solrDocument.getFieldValue(SearchFields.ID);
+            if (idObject != null) {
+                String id = (String) idObject;
+                dvObjectInSolrOnly.add(id);
             }
         }
         return dvObjectInSolrOnly;
