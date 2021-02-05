@@ -112,7 +112,6 @@ public class FileMetadata implements JpaEntity<Long>, Serializable {
         fmd.setDisplayOrder(getDisplayOrder());
 
         FileTermsOfUse termsOfUseCopy = getTermsOfUse().createCopy();
-        termsOfUseCopy.setFileMetadata(fmd);
         fmd.setTermsOfUse(termsOfUseCopy);
 
         return fmd;
