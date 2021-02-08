@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS maildomainitem (
     id BIGSERIAL PRIMARY KEY,
     domain VARCHAR(255),
-    processing_type VARCHAR(31) NOT NULL,
+    processingtype VARCHAR(31) NOT NULL,
     owner_id BIGINT
         CONSTRAINT fk_maildomainitem_owner_id REFERENCES persistedglobalgroup
 );

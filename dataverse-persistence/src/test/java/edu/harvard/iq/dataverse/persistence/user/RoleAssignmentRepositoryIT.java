@@ -10,6 +10,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RoleAssignmentRepositoryIT extends PersistenceArquillianDeployment {
@@ -29,7 +30,7 @@ public class RoleAssignmentRepositoryIT extends PersistenceArquillianDeployment 
                 roleAssignments.stream().map(RoleAssignment::getId).collect(toList()),
                 containsInAnyOrder(5L, 32L, 33L));
     }
-    
+
     @Test
     public void findByAssigneeIdentifier() {
         // when
@@ -40,7 +41,7 @@ public class RoleAssignmentRepositoryIT extends PersistenceArquillianDeployment 
                 roleAssignments.stream().map(RoleAssignment::getId).collect(toList()),
                 containsInAnyOrder(5L, 7L, 29L));
     }
-    
+
     @Test
     public void findByRoleId() {
         // when
@@ -65,4 +66,13 @@ public class RoleAssignmentRepositoryIT extends PersistenceArquillianDeployment 
                 containsInAnyOrder(5L, 29L, 33L));
     }
 
+    @Test
+    public void deleteAllByAssigneeIdentifier() {
+
+        // when
+        int deletedCount = roleAssignmentRepository.deleteAllByAssigneeIdentifier("&mail/toDelete");
+
+        // then
+        assertThat(deletedCount, is(2));
+    }
 }
