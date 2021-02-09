@@ -18,6 +18,8 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import org.eclipse.persistence.annotations.BatchFetch;
+import org.eclipse.persistence.annotations.BatchFetchType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.json.Json;
@@ -177,13 +179,15 @@ public class DataFile extends DvObject implements Comparable {
         associated with them:
     */
 
-    @OneToMany(mappedBy = "dataFile", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    private List<DataTable> dataTables;
+    @OneToOne(mappedBy = "dataFile", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @BatchFetch(BatchFetchType.JOIN)
+    private DataTable dataTable;
 
     @OneToMany(mappedBy = "dataFile", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<IngestReport> ingestReports;
 
     @OneToOne(mappedBy = "dataFile", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @BatchFetch(BatchFetchType.JOIN)
     private IngestRequest ingestRequest;
 
     @OneToMany(mappedBy = "dataFile", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
@@ -206,6 +210,7 @@ public class DataFile extends DvObject implements Comparable {
     private char ingestStatus = INGEST_STATUS_NONE;
 
     @OneToOne(mappedBy = "thumbnailFile")
+    @BatchFetch(BatchFetchType.JOIN)
     private Dataset thumbnailForDataset;
 
     public DataFile() {
@@ -234,30 +239,12 @@ public class DataFile extends DvObject implements Comparable {
         return false;
     }
 
-    public List<DataTable> getDataTables() {
-        return dataTables;
-    }
-
-    public void setDataTables(List<DataTable> dataTables) {
-        this.dataTables = dataTables;
-    }
-
     public DataTable getDataTable() {
-        if (getDataTables() != null && getDataTables().size() > 0) {
-            return getDataTables().get(0);
-        } else {
-            return null;
-        }
+        return dataTable;
     }
 
     public void setDataTable(DataTable dt) {
-        if (this.getDataTables() == null) {
-            this.setDataTables(new ArrayList<>());
-        } else {
-            this.getDataTables().clear();
-        }
-
-        this.getDataTables().add(dt);
+        dataTable = dt;
     }
 
     public List<DataFileTag> getTags() {
@@ -338,7 +325,7 @@ public class DataFile extends DvObject implements Comparable {
     }
 
     public boolean isTabularData() {
-        return getDataTables() != null && getDataTables().size() > 0;
+        return dataTable != null;
     }
 
     public String getOriginalFileFormat() {

@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
+import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean.RetrieveDatasetVersionResponse;
@@ -172,7 +173,7 @@ public class Index extends AbstractApiBean {
              * @todo How can we expose the String returned from "index all" via
              * the API?
              */
-            Future<JsonObjectBuilder> indexAllFuture = indexAllService.indexAllOrSubset(numPartitions, partitionIdToProcess, skipIndexed, previewOnly);
+            Future<JsonObjectBuilder> indexAllFuture = indexAllService.indexAllOrSubsetAsync(numPartitions, partitionIdToProcess, skipIndexed);
             JsonObject workloadPreview = preview.build().getJsonObject("previewOfPartitionWorkload");
             int dataverseCount = workloadPreview.getInt("dataverseCount");
             int datasetCount = workloadPreview.getInt("datasetCount");
@@ -664,6 +665,7 @@ public class Index extends AbstractApiBean {
     }
 
     @DELETE
+    @ApiWriteOperation
     @Path("timestamps")
     public Response deleteAllTimestamps() {
         int numItemsCleared = dvObjectService.clearAllIndexTimes();
@@ -671,6 +673,7 @@ public class Index extends AbstractApiBean {
     }
 
     @DELETE
+    @ApiWriteOperation
     @Path("timestamps/{dvObjectId}")
     public Response deleteTimestamp(@PathParam("dvObjectId") long dvObjectId) {
         int numItemsCleared = dvObjectService.clearIndexTimes(dvObjectId);

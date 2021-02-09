@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.MapLayerMetadataServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
@@ -219,7 +220,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
         }
 
         // Does this user have permission to edit metadata for this file?    
-        if (!permissionService.request(createDataverseRequest(dvUser)).on(dfile.getOwner()).has(Permission.EditDataset)) {
+        if (!permissionService.requestOn(createDataverseRequest(dvUser), dfile.getOwner()).has(Permission.EditDataset)) {
             String errMsg = "The user does not have permission to edit metadata for this file.";
             return error(Response.Status.FORBIDDEN, errMsg);
         }
@@ -246,30 +247,6 @@ public class WorldMapRelatedData extends AbstractApiBean {
         }
 //        Response.
         return Response.seeOther(redirect_uri).build();
-
-    }
-
-    @Deprecated
-    private String getServerNamePort(HttpServletRequest request) {
-        if (request == null) {
-            return "";
-        }
-        String serverName = request.getServerName();
-        if (serverName == null) {
-            return "";
-        }
-        int portNumber = request.getServerPort();
-
-        String http_prefix = "https://";
-        if (serverName.contains("localhost")) {
-            http_prefix = "http://";
-        } else if (serverName.contains("127.0.0.1")) {
-            http_prefix = "http://";
-        }
-        if (portNumber == 80) {
-            return http_prefix + serverName;
-        }
-        return http_prefix + serverName + ":" + portNumber;
 
     }
 
@@ -509,6 +486,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
         }
     */
     @POST
+    @ApiWriteOperation
     @Path(UPDATE_MAP_LAYER_DATA_API_PATH_FRAGMENT)
     public Response updateWorldMapLayerData(String jsonLayerData) {
 
@@ -573,7 +551,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
         }
 
         // check permissions!
-        if (!permissionService.request(createDataverseRequest(dvUser)).on(dfile.getOwner()).has(Permission.EditDataset)) {
+        if (!permissionService.requestOn(createDataverseRequest(dvUser), dfile.getOwner()).has(Permission.EditDataset)) {
             String errMsg = "The user does not have permission to edit metadata for this file. (MapLayerMetadata)";
             return error(Response.Status.FORBIDDEN, errMsg);
         }
@@ -659,6 +637,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
         }
     */
     @POST
+    @ApiWriteOperation
     @Path(DELETE_MAP_LAYER_DATA_API_PATH_FRAGMENT)
     public Response deleteWorldMapLayerData(String jsonData) {
         
@@ -730,6 +709,7 @@ public class WorldMapRelatedData extends AbstractApiBean {
          }
      */
     @POST
+    @ApiWriteOperation
     @Path(DELETE_WORLDMAP_TOKEN_PATH_FRAGMENT)
     public Response deleteWorldMapToken(String jsonData) {
         
