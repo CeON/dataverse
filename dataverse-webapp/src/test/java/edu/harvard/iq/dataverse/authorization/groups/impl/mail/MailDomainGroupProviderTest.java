@@ -1,11 +1,17 @@
 package edu.harvard.iq.dataverse.authorization.groups.impl.mail;
 
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.persistence.group.AllUsers;
+import edu.harvard.iq.dataverse.persistence.group.AuthenticatedUsers;
 import edu.harvard.iq.dataverse.persistence.group.MailDomainGroup;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
+import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,8 +37,8 @@ class MailDomainGroupProviderTest {
     // -------------------- TESTS --------------------
 
     @Test
-    @DisplayName("Should return groups for authenticated user")
-    void groupsFor__authenticatedUser() {
+    @DisplayName("Should return groups for request with authenticated user")
+    void groupsFor__dataverseRequest_authenticatedUser() {
 
         // given
         AuthenticatedUser user = mock(AuthenticatedUser.class);
@@ -54,7 +60,7 @@ class MailDomainGroupProviderTest {
 
     @Test
     @DisplayName("Should return empty set for request without user")
-    void groupsFor__noUser() {
+    void groupsFor__dataverseRequest_noUser() {
 
         // given
         DataverseRequest request = mock(DataverseRequest.class);
@@ -65,6 +71,43 @@ class MailDomainGroupProviderTest {
 
         // then
         assertThat(groupsForRequest).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should return groups for authenticated user as RoleAssignee")
+    void groupsFor__roleAssignee_authenticatedUser() {
+
+        // given
+        AuthenticatedUser user = mock(AuthenticatedUser.class);
+
+        Set<MailDomainGroup> groups = Stream.of(
+                MailDomainGroupTestUtil.createGroup("a1", new String[] {".edu.pl"}, new String[0]),
+                MailDomainGroupTestUtil.createGroup("a2", new String[] {".pl"}, new String[0])
+        ).collect(Collectors.toSet());
+        when(mailDomainGroupService.getGroupsForUser(user)).thenReturn(groups);
+
+        // when
+        Set<MailDomainGroup> groupsForRequest = provider.groupsFor(user);
+
+        // then
+        assertThat(groupsForRequest).containsExactlyInAnyOrderElementsOf(groups);
+    }
+
+    @Test
+    @DisplayName("Should return empty set for RoleAssignee that is not a real, authenticated user")
+    void groupsFor__roleAssignee_noRealAuthenticatedUser() {
+
+        // given
+        Set<RoleAssignee> roleAssignees = Stream.of(
+                AuthenticatedUsers.get(),
+                AllUsers.get(),
+                new PrivateUrlUser(1L),
+                null)
+                .collect(Collectors.toSet());
+
+        // when & then
+        roleAssignees.forEach(
+                ra -> assertThat(provider.groupsFor(ra)).isEmpty());
     }
 
     @Test

@@ -45,6 +45,12 @@ public class MailDomainItem {
         return owner;
     }
 
+    /**
+     * Contains mail domain that will be used for matching.
+     * Could be either full domain or part of it (but only
+     * from place started with a dot up to the end – in that
+     * case property value must start with a dot).
+     */
     public String getDomain() {
         return domain;
     }

@@ -4,7 +4,6 @@ import edu.harvard.iq.dataverse.api.dto.validation.ValidMainDomainList;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +66,4 @@ public class MailDomainGroupDTO {
     public void setExclusions(List<String> exclusions) {
         this.exclusions = exclusions;
     }
-
-//        @NotBlank(message = "Domain must not be blank")
 }

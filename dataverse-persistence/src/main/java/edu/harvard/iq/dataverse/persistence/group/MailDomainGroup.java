@@ -5,16 +5,11 @@ import edu.harvard.iq.dataverse.persistence.JpaEntity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@NamedQueries({
-        @NamedQuery(name = "MailDomainGroup.findAll", query = "SELECT m FROM MailDomainGroup m")
-})
 @Entity
 public class MailDomainGroup extends PersistedGlobalGroup implements JpaEntity<Long> {
 
@@ -57,5 +52,4 @@ public class MailDomainGroup extends PersistedGlobalGroup implements JpaEntity<L
     public void setDomainItems(Set<MailDomainItem> domainItems) {
         this.domainItems = domainItems;
     }
-
 }

@@ -40,12 +40,14 @@ public class MailDomainGroupProvider implements GroupProvider<MailDomainGroup> {
 
     @Override
     public Set<MailDomainGroup> groupsFor(RoleAssignee roleAssignee, DvObject dvo) {
-        return Collections.emptySet();
+        return groupsFor(roleAssignee);
     }
 
     @Override
     public Set<MailDomainGroup> groupsFor(RoleAssignee roleAssignee) {
-        return Collections.emptySet();
+        return roleAssignee instanceof AuthenticatedUser
+                ? mailDomainGroupService.getGroupsForUser((AuthenticatedUser) roleAssignee)
+                : Collections.emptySet();
     }
 
     @Override

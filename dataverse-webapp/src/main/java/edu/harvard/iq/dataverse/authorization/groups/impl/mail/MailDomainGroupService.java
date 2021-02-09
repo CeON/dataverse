@@ -75,7 +75,7 @@ public class MailDomainGroupService {
         return mailGroupRepository.findByAlias(alias)
                 .map(f -> {
                     mailGroupRepository.mergeAndDelete(f);
-                    roleAssignmentRepository.deleteAllByAssigneeIdentifier("&" + MailDomainGroup.GROUP_TYPE + "/" + alias);
+                    roleAssignmentRepository.deleteAllByAssigneeIdentifier(f.getIdentifier());
                     rebuildMatcher();
                     logAction("delete mail domain group", alias);
                     return f;

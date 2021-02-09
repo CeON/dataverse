@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.persistence.group;
 import edu.harvard.iq.dataverse.persistence.JpaRepository;
 
 import javax.ejb.Singleton;
-import java.util.List;
 import java.util.Optional;
 
 @Singleton
@@ -22,10 +21,5 @@ public class MailDomainGroupRepository extends JpaRepository<Long, MailDomainGro
                 .setParameter("alias", alias)
                 .getResultList().stream()
                 .findFirst();
-    }
-
-    public List<MailDomainGroup> findAll() {
-        return em.createQuery("SELECT m FROM MailDomainGroup m", MailDomainGroup.class)
-                .getResultList();
     }
 }

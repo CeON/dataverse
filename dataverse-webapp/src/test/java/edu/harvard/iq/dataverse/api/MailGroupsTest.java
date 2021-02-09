@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.api.converters.MailGroupConverter;
 import edu.harvard.iq.dataverse.api.dto.MailDomainGroupDTO;
+import edu.harvard.iq.dataverse.api.dto.ResponseDTO;
 import edu.harvard.iq.dataverse.authorization.groups.impl.mail.MailDomainGroupService;
 import edu.harvard.iq.dataverse.persistence.group.MailDomainGroup;
 import edu.harvard.iq.dataverse.persistence.group.MailDomainItem;
@@ -51,10 +52,11 @@ class MailGroupsTest {
         when(groupService.getAllGroups()).thenReturn(Collections.singletonList(group));
 
         // when
-        List<MailDomainGroupDTO> allGroups = endpoint.getAllGroups();
+        Response response = endpoint.getAllGroups();
 
         // then
-        assertThat(allGroups).extracting(MailDomainGroupDTO::getAlias)
+        ResponseDTO<List<MailDomainGroupDTO>> entity = (ResponseDTO<List<MailDomainGroupDTO>>) response.getEntity();
+        assertThat(entity.getData()).extracting(MailDomainGroupDTO::getAlias)
                 .containsExactly("abc");
     }
 
@@ -110,9 +112,9 @@ class MailGroupsTest {
         Response response = endpoint.getGroup(groupAlias);
 
         // then
+        ResponseDTO<MailDomainGroupDTO> entity = (ResponseDTO<MailDomainGroupDTO>) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        MailDomainGroupDTO groupDTO = ((MailDomainGroupDTO) response.getEntity());
-        assertThat(groupDTO.getAlias()).isEqualTo(groupAlias);
+        assertThat(entity.getData().getAlias()).isEqualTo(groupAlias);
     }
 
     @Test
