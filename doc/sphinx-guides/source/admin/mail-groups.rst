@@ -54,11 +54,11 @@ Listing Groups
 
 We could view data of selected group by invoking:
 
-``curl -G http://localhost:8080/api/admin/groups/mail/{alias}``
+``curl http://localhost:8080/api/admin/groups/mail/{alias}``
 
 In place of ``{alias}`` we put an alias of the group we want to view.
 
 To list the data of all the mail domain groups, we invoke:
 
-``curl -G http://localhost:8080/api/admin/groups/mail``
+``curl http://localhost:8080/api/admin/groups/mail``
 
