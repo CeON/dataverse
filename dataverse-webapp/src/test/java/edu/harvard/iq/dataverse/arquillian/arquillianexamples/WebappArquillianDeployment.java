@@ -6,6 +6,8 @@ import edu.harvard.iq.dataverse.persistence.DatabaseCleaner;
 import edu.harvard.iq.dataverse.persistence.PersistenceArquillianDeployment;
 import edu.harvard.iq.dataverse.persistence.SqlScriptRunner;
 import edu.harvard.iq.dataverse.test.arquillian.ArquillianIntegrationTests;
+import edu.harvard.iq.dataverse.workflow.execution.WorkflowExecutionScheduler;
+import edu.harvard.iq.dataverse.workflow.execution.WorkflowExecutionWorker;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -64,7 +66,8 @@ public class WebappArquillianDeployment {
         JavaArchive javaArchive = ShrinkWrap.create(JavaArchive.class, "dv-webapp.jar")
                 .merge(PersistenceArquillianDeployment.createDeployment())
                 .addAsManifestResource(new FileAsset(new File("src/main/webapp/WEB-INF/beans.xml")), "beans.xml")
-                .addPackages(true, "edu.harvard.iq.dataverse");
+                .addPackages(true, "edu.harvard.iq.dataverse")
+                .deleteClass(WorkflowExecutionWorker.class);
 
         logger.info(javaArchive.toString(true));
 
