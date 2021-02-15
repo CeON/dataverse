@@ -175,7 +175,7 @@ public class SystemConfig {
     }
 
     public long getUploadLogoSizeLimit() {
-        return 500_000;
+        return 500000;
     }
 
     // TODO: (?)

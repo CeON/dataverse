@@ -184,8 +184,8 @@ public class ShibUtil {
          * Let's simulate the non-sending of displayName here.
          */
 //        request.setAttribute(displayNameAttribute, "John Harvard");
-        request.setAttribute(ShibUtil.firstNameAttribute, "John2");
-        request.setAttribute(ShibUtil.lastNameAttribute, "Harvard2");
+        request.setAttribute(ShibUtil.firstNameAttribute, "John");
+        request.setAttribute(ShibUtil.lastNameAttribute, "Harvard");
         request.setAttribute(ShibUtil.emailAttribute, "jharvard@mailinator.com");
         request.setAttribute(ShibUtil.usernameAttribute, "jharvard");
     }
