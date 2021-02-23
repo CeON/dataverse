@@ -142,23 +142,16 @@
             <div class="row" jsf:rendered="#{datasetFilesTab.fileLabelSearchTerm.equals('') ?
                         datasetFilesTab.workingVersion.fileMetadatas.size() gt datasetFilesTab.rowsPerPage :
                         datasetFilesTab.fileMetadatasSearch.getAllAvailableFilesCount() gt datasetFilesTab.rowsPerPage}">
-                <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;">
+                <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;" >
                     <!-- SELECTION MESSAGE -->
                     <p>
+                        <p:outputPanel rendered="#{datasetFilesTab.selectedFileMetadata.size() lt 1}">
+                            #{bundle['file.noneSelected']}
+                        </p:outputPanel>
                         <h:outputFormat rendered="#{datasetFilesTab.selectedFileMetadata.size() gt 0}"
                                         value="#{bundle['file.numFilesSelected']}">
                             <f:param value="#{datasetFilesTab.selectedFileMetadata.size()}"/>
                         </h:outputFormat>
-                        <ui:fragment rendered="#{!datasetFilesTab.isAllFilesSelected()}">
-                        &#160;
-                        <p:commandLink action="#{datasetFilesTab.selectAllFiles}" update="@form">
-                            <h:outputFormat value="#{bundle['file.selectAllFiles']}">
-                                <f:param value="#{datasetFilesTab.fileMetadatasSearch.getAllAvailableFilesCount()}"/>
-                                <f:param value="#{(empty datasetFilesTab.fileLabelSearchTerm) ? '.' : '&#160;'.concat(bundle['file.selectAllFiles.suffixForSearching'])}" />
-                            </h:outputFormat>
-                        </p:commandLink>
-                        </ui:fragment>
-                        &#160;
                         <p:commandLink rendered="#{datasetFilesTab.selectedFileMetadata.size() gt 0}"
                                        value="#{bundle['file.clearSelection']}"
                                        action="#{datasetFilesTab.clearSelection}"

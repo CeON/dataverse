@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class created in order to use Lazy-Loading in p:datatable.
+ */
 public class LazyFileMetadataModel extends LazyDataModel<FileMetadata> {
 
     private FileMetadataService fileMetadataService;
@@ -66,16 +69,26 @@ public class LazyFileMetadataModel extends LazyDataModel<FileMetadata> {
         return loadedSearchData ? loadedSearchDataSize : allFileIds.size();
     }
 
+    /**
+     * Indicates if data was acquired using search input.
+     */
     public LazyFileMetadataModel setLoadedSearchData(boolean loadedSearchData) {
         this.loadedSearchData = loadedSearchData;
         return this;
     }
 
+    /**
+     * Indicates amounts of data that is found using search term.
+     */
     public LazyFileMetadataModel setLoadedSearchDataSize(int loadedSearchDataSize) {
         this.loadedSearchDataSize = loadedSearchDataSize;
         return this;
     }
 
+    /**
+     * Used to override data so for ex. when using search the data needs to be the same as
+     * {@link LazyDataModel#getWrappedData()} in order make checkboxes work correctly.
+     */
     public LazyFileMetadataModel setLoadedData(List<FileMetadata> loadedData) {
         this.loadedData = loadedData;
         return this;
