@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.datafile.file;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteProvJsonCommand;
@@ -18,8 +19,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static io.vavr.collection.HashMap.of;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 class FileMetadataServiceTest {
@@ -94,7 +97,7 @@ class FileMetadataServiceTest {
         DataFile value = new DataFile();
         value.setProvEntityName("");
         Mockito.when(commandEngine.submit(Mockito.any(DeleteProvJsonCommand.class))).thenReturn(value);
-        Option<DataFile> updatedFile = fileMetadataService.manageProvJson(true,  updatedEntry);
+        Option<DataFile> updatedFile = fileMetadataService.manageProvJson(true, updatedEntry);
 
         //then
         Assert.assertEquals("", updatedFile.get().getProvEntityName());
@@ -133,37 +136,58 @@ class FileMetadataServiceTest {
 
     @Test
     public void findAccessibleFileMetadataSorted() {
+        //given
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(1L);
+
         //when
-        fileMetadataService.findAccessibleFileMetadataSorted(1, 1, 1);
+        Mockito.when(fileMetadataRepository.findFileMetadataByDatasetVersionIdWithPagination(Mockito.any(Long.class),
+                                                                                             Mockito.any(Integer.class),
+                                                                                             Mockito.any(Integer.class)))
+               .thenReturn(Lists.newArrayList(fileMetadata));
+
+        List<FileMetadata> foundData = fileMetadataService.findAccessibleFileMetadataSorted(1, 1, 1);
 
         //then
-        Mockito.verify(fileMetadataRepository, Mockito.times(1))
-               .findFileMetadataByDatasetVersionIdWithPagination(Mockito.any(Long.class),
-                                                                 Mockito.any(Integer.class),
-                                                                 Mockito.any(Integer.class));
+        assertEquals(1, foundData.size());
+        assertEquals(1, foundData.get(0).getId());
     }
 
     @Test
     public void findSearchedAccessibleFileMetadataSorted() {
+        //given
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(1L);
+
         //when
-        fileMetadataService.findSearchedAccessibleFileMetadataSorted(1, 1, 1, "");
+        Mockito.when(fileMetadataRepository.findSearchedFileMetadataByDatasetVersionIdWithPagination(Mockito.any(Long.class),
+                                                                                                      Mockito.any(Integer.class),
+                                                                                                      Mockito.any(Integer.class),
+                                                                                                      Mockito.any(String.class)))
+                .thenReturn(Lists.newArrayList(fileMetadata));
+
+        List<FileMetadata> foundData = fileMetadataService.findSearchedAccessibleFileMetadataSorted(1, 1, 1, "");
 
         //then
-        Mockito.verify(fileMetadataRepository, Mockito.times(1))
-               .findSearchedFileMetadataByDatasetVersionIdWithPagination(Mockito.any(Long.class),
-                                                                         Mockito.any(Integer.class),
-                                                                         Mockito.any(Integer.class),
-                                                                         Mockito.any(String.class));
+        assertEquals(1, foundData.size());
+        assertEquals(1, foundData.get(0).getId());
     }
 
     @Test
     public void findFileMetadataIds() {
+        //given
+        long fileMetadataId = 1;
+        long dsvId = 1;
+
         //when
-        fileMetadataService.findFileMetadataIds(1);
+        Mockito.when(fileMetadataRepository.findFileMetadataIdsByDatasetVersionId(Mockito.any(Long.class)))
+               .thenReturn(Lists.newArrayList(fileMetadataId));
+
+        List<Long> foundData = fileMetadataService.findFileMetadataIds(dsvId);
 
         //then
-        Mockito.verify(fileMetadataRepository, Mockito.times(1))
-               .findFileMetadataIdsByDatasetVersionId(Mockito.any(Long.class));
+        assertEquals(1, foundData.size());
+        assertEquals(1, foundData.get(0));
 
     }
 }

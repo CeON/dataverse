@@ -29,10 +29,6 @@ public class LazyFileMetadataModel extends LazyDataModel<FileMetadata> {
         this.dsvId = dsvId;
     }
 
-    public List<Long> getAllFileIds() {
-        return allFileIds;
-    }
-
     // -------------------- LOGIC --------------------
 
     @Override

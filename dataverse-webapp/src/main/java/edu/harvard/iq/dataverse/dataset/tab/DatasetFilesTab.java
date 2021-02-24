@@ -358,7 +358,6 @@ public class DatasetFilesTab implements Serializable {
     }
 
     public void updateFileSearch() {
-        logger.info("updating file search list");
         Tuple2<List<FileMetadata>, Integer> foundFileMetadata = selectFileMetadatasForDisplayWithPaging(this.fileLabelSearchTerm);
         fileMetadatasSearch.setWrappedData(foundFileMetadata._1);
         fileMetadatasSearch.setLoadedData(foundFileMetadata._1);
@@ -506,10 +505,11 @@ public class DatasetFilesTab implements Serializable {
         fileDownloadRequestHelper.clearRequestAccessFiles();
 
         List<FileMetadata> restrictedSelectedFiles = selectedFileMetadata.stream()
-                                                                         .filter(fileMetadata -> fileMetadata
-                                                                                 .getTermsOfUse()
-                                                                                 .getTermsOfUseType()
-                                                                                 .equals(FileTermsOfUse.TermsOfUseType.RESTRICTED))
+                                                                         .filter(fileMetadata -> FileTermsOfUse
+                                                                                 .TermsOfUseType.RESTRICTED
+                                                                                 .equals(fileMetadata
+                                                                                                 .getTermsOfUse()
+                                                                                                 .getTermsOfUseType()))
                                                                          .collect(Collectors.toList());
 
         if (isRequestAccessPopupRequired(workingVersion, restrictedSelectedFiles)) {
@@ -731,8 +731,8 @@ public class DatasetFilesTab implements Serializable {
     }
 
     public void onRowUnSelectByCheckbox(UnselectEvent event) {
-        FileMetadata UnselectedFile = (FileMetadata) event.getObject();
-        selectedFileMetadata.remove(UnselectedFile);
+        FileMetadata unselectedFile = (FileMetadata) event.getObject();
+        selectedFileMetadata.remove(unselectedFile);
         setSelectAllFiles(false);
     }
 

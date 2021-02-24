@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.persistence.PersistenceArquillianDeployment;
 import org.junit.Test;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -63,10 +64,13 @@ public class FileMetadataRepositoryIT extends PersistenceArquillianDeployment {
         int datasetVersionId = 36;
 
         //when
-        List<Long> foundFileMetadata = fileMetadataRepository.findFileMetadataIdsByDatasetVersionId(datasetVersionId);
+        List<Long> foundFiles = fileMetadataRepository.findFileMetadataIdsByDatasetVersionId(datasetVersionId);
+        Collections.sort(foundFiles);
 
         //then
-        assertEquals(foundFileMetadata.size(), 2);
+        assertEquals(foundFiles.size(), 2);
+        assertEquals(110, foundFiles.get(0).longValue());
+        assertEquals(112, foundFiles.get(1).longValue());
     }
 
 
