@@ -378,10 +378,6 @@
             </p:column>
         </p:dataTable>
 
-        <p:remoteCommand name="refreshTagsCommand" action="#{datasetFilesTab.refreshTagsPopUp()}"
-                         onstart="#{FileTagModal.initForMultipleFiles(datasetFilesTab.selectedFileMetadata, datasetFilesTab.dataset)}"
-                         update="@form"
-                         oncomplete="PF('fileTagsPopup').show();"/>
 
         <iqbs:fileTagsDialog dialogWidgetId="fileTagsPopup"
                              showRemoveUnusedTags="true"
@@ -392,6 +388,11 @@
              FileTagModal.selectedDataFileTags,
              FileTagModal.removeUnusedTags)}" update="@form:tabView:filesTable"/>
         </iqbs:fileTagsDialog>
+
+        <p:remoteCommand name="refreshTagsCommand" action="#{datasetFilesTab.refreshTagsPopUp()}"
+                         onstart="#{FileTagModal.initForMultipleFiles(datasetFilesTab.selectedFileMetadata, datasetFilesTab.dataset)}"
+                         update="@form"
+                         oncomplete="PF('fileTagsPopup').show();"/>
 
 
                     <p:dialog id="selectFilesForDelete" styleClass="smallPopUp"
