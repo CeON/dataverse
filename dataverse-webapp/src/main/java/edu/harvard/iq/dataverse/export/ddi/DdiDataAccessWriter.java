@@ -114,7 +114,7 @@ public class DdiDataAccessWriter {
     }
     
 
-    private boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType allRightsReserved) {
-        return fileDTO.getTermsOfUseType().equals(allRightsReserved.toString());
+    private boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType termsOfUseType) {
+        return fileDTO.getTermsOfUseType().equals(termsOfUseType.toString());
     }
 }

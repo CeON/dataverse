@@ -1760,7 +1760,7 @@ public class OpenAireExportUtil {
     }
     
 
-    public static boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType allRightsReserved) {
-        return fileDTO.getTermsOfUseType().equals(allRightsReserved.toString());
+    public static boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType termsOfUseType) {
+        return fileDTO.getTermsOfUseType().equals(termsOfUseType.toString());
     }
 }

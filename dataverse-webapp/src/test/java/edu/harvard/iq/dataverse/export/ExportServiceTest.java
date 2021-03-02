@@ -232,14 +232,6 @@ public class ExportServiceTest {
 
     // -------------------- PRIVATE --------------------
 
-    private void enableExcludingEmails() {
-        when(settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)).thenReturn(true);
-        when(systemConfig.getDataverseSiteUrl()).thenReturn("https://localhost");
-
-//        exportService = new ExportService(settingsService, systemConfig);
-//        exportService.loadAllExporters();
-    }
-
     private DatasetVersion parseDatasetVersionFromClasspath(String classpath) throws IOException, JsonParseException {
 
         try (ByteArrayInputStream is = new ByteArrayInputStream(IOUtils.resourceToByteArray(classpath, getClass().getClassLoader()))) {

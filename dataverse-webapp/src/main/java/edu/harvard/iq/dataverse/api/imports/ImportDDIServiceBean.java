@@ -463,11 +463,7 @@ public class ImportDDIServiceBean {
                                     }
                                 }
                             } else if (xmlr.getLocalName().equals("biblCit")) {
-                                if (event2 == XMLStreamConstants.START_ELEMENT) {
-                                    if (xmlr.getLocalName().equals("biblCit")) {
-                                        addToSet(set, DatasetFieldConstant.publicationCitation, parseText(xmlr));
-                                    }
-                                }
+                                addToSet(set, DatasetFieldConstant.publicationCitation, parseText(xmlr));
                             }
                         } else if (event2 == XMLStreamConstants.END_ELEMENT) {
                             if (xmlr.getLocalName().equals("citation")) {
@@ -694,7 +690,7 @@ public class ImportDDIServiceBean {
     }
 
     private void processNotesSocialScience(XMLStreamReader xmlr, DatasetVersionDTO dvDTO) throws XMLStreamException {
-        //String formattedNotes = this.formatNotesfromXML(xmlr);
+
         if (xmlr==null) {
             throw new NullPointerException("XMLStreamReader xmlr cannot be null");
         }
@@ -722,8 +718,6 @@ public class ImportDDIServiceBean {
         }
 
         if (notesSubject != null || notesType != null || notesText != null ) {
-
-            //this.addNoteSocialScience(formattedNotes, dvDTO);
 
             getSocialScience(dvDTO).addField(FieldDTO.createCompoundFieldDTO("socialScienceNotes", notesSubject, notesType, notesText ));
         }
@@ -1238,9 +1232,9 @@ public class ImportDDIServiceBean {
                     if (NOTE_TYPE_TERMS_OF_USE.equalsIgnoreCase(noteType)) {
                         if (LEVEL_DV.equalsIgnoreCase(xmlr.getAttributeValue(null, "level"))) {
                             String termOfUse = parseText(xmlr, "notes");
-                            if (termOfUse != null && termOfUse.trim().equals("CC0 Waiver") ) {
+                            if ("CC0 Waiver".equals(termOfUse)) {
                                 dvDTO.setLicense("CC0");
-                            } else if (termOfUse != null && !termOfUse.trim().equals("")){
+                            } else if (StringUtils.isNotBlank(termOfUse)){
                                 dvDTO.setTermsOfUse(termOfUse);
                             }
                         }

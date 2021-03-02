@@ -95,7 +95,6 @@ public class DdiVariableWriter {
     private void writeInvalrng(XMLStreamWriter xmlw, DataVariable dataVariable) throws XMLStreamException {
         boolean invalrngAdded = false;
         for (VariableRange range : dataVariable.getInvalidRanges()) {
-            //if (range.getBeginValueType() != null && range.getBeginValueType().getName().equals(DB_VAR_RANGE_TYPE_POINT)) {
             if (range.getBeginValueType() != null && range.isBeginValueTypePoint()) {
                 if (range.getBeginValue() != null) {
                     invalrngAdded = checkParentElement(xmlw, "invalrng", invalrngAdded);
@@ -198,7 +197,6 @@ public class DdiVariableWriter {
             throw new XMLStreamException("Illegal Variable Format Type!");
         }
         writeAttribute(xmlw, "formatname", dataVariable.getFormat());
-        //experiment writeAttribute(xmlw, "schema", dv.getFormatSchema());
         writeAttribute(xmlw, "category", dataVariable.getFormatCategory());
     }
 

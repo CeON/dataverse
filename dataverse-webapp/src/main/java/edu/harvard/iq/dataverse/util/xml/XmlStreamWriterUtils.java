@@ -49,8 +49,7 @@ public class XmlStreamWriterUtils {
     public static void writeFullElementWithAttributes(XMLStreamWriter xmlw, String name, String value, XmlAttribute ...attributes) throws XMLStreamException {
         if (StringUtils.isNotEmpty(value)) {
             xmlw.writeStartElement(name);
-            for (int i=0; i<attributes.length; ++i) {
-                XmlAttribute attribute = attributes[i];
+            for (XmlAttribute attribute: Arrays.asList(attributes)) {
                 if (StringUtils.isNotEmpty(attribute.getAttributeValue())) {
                     xmlw.writeAttribute(attribute.getAttributeName(), attribute.getAttributeValue());
                 }
