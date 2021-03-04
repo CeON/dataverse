@@ -43,7 +43,7 @@ class OIDCValidatorTest {
         IDTokenValidator internalValidator = setAndGetInternalMockValidator();
 
         // when
-        this.validator.validateIDToken(token);
+        validator.validateIDToken(token);
 
         // then
         Mockito.verify(internalValidator, Mockito.only()).validate(token, null);
