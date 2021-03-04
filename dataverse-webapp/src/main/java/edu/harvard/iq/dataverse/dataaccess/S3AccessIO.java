@@ -698,7 +698,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         try {
             Upload s3Upload = s3Transfer.upload(putRequest);
             s3Upload.waitForCompletion();
-            if (!verifyUploadedFile(putRequest))  {
+            if (!verifyUploadedFileIfPossible(putRequest))  {
                 s3.deleteObject(putRequest.getBucketName(), putRequest.getKey());
                 throw new IOException("File storage error - checsums before and after put are not identical");
             }
@@ -717,8 +717,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     }
     
 
-    private boolean verifyUploadedFile(PutObjectRequest putRequest) {
+    private boolean verifyUploadedFileIfPossible(PutObjectRequest putRequest) {
         String checksumSent = putRequest.getMetadata().getContentMD5();
+        if (checksumSent == null) {
+            return true;
+        }
         String checksumLocal = FileUtil.calculateChecksum(putRequest.getFile().getAbsolutePath(), ChecksumType.MD5);
         try {
             checksumLocal = Base64.getEncoder().encodeToString(Hex.decodeHex(checksumLocal.toCharArray()));
