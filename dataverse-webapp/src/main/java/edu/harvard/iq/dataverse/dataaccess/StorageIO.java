@@ -209,6 +209,9 @@ public abstract class StorageIO<T extends DvObject> {
     public boolean isLocalFile() {
         return isLocalFile;
     }
+    public boolean isRemoteFile() {
+        return !isLocalFile;
+    }
 
     /**
      * "Direct Access" StorageIO is used to access a physical storage 

@@ -252,13 +252,10 @@ public class MapLayerMetadataServiceBean {
         try {
             storageIO = dataAccess.getStorageIO(mapLayerMetadata.getDataFile());
         } catch (IOException ioEx) {
-            dataAccess = null;
-        }
-
-        if (storageIO == null) {
             logger.warning("Failed to open Access IO on DataFile " + mapLayerMetadata.getDataFile().getId());
             return false;
         }
+
 
         URL url = new URL(imageUrl);
         logger.info("retrieve url : " + imageUrl);
@@ -270,12 +267,6 @@ public class MapLayerMetadataServiceBean {
             is = url.openStream();
         } catch (IOException exio) {
             logger.warning("Error when retrieving map icon image. Exception: " + exio.getMessage());
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignore) {
-                }
-            }
             return false;
         }
 
