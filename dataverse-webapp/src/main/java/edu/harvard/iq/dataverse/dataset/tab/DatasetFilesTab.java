@@ -658,12 +658,11 @@ public class DatasetFilesTab implements Serializable {
         }
 
         FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
-        FileTermsOfUse termsOfUseCopy = termsOfUse.createCopy();
         for (FileMetadata fm : selectedFileMetadata) {
             workingVersion.getFileMetadatas().stream()
                           .filter(fileMetadata -> fileMetadata.getId().equals(fm.getId()))
-                          .forEach(fileMetadata -> fileMetadata.setTermsOfUse(termsOfUseCopy));
-            fm.setTermsOfUse(termsOfUseCopy);
+                          .forEach(fileMetadata -> fileMetadata.setTermsOfUse(termsOfUse.createCopy()));
+            fm.setTermsOfUse(termsOfUse.createCopy());
         }
 
         save();
