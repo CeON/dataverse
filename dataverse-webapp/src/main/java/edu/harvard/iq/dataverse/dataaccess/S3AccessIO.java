@@ -214,13 +214,10 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             throw new IOException("DvObject type other than datafile is not yet supported");
         }
 
-        boolean shouldCompareMd5 = true;
 
         DataFile dataFile = (DataFile)dvObject;
-        if (ChecksumType.MD5.equals(dataFile.getChecksumType()) || dataFile.getDataTable() != null) {
-            shouldCompareMd5 = false;
-        }
-        
+        boolean shouldCompareMd5 = ChecksumType.MD5 == dataFile.getChecksumType() && dataFile.getDataTable() == null;
+
         if (shouldCompareMd5) {
             putFileToS3(fileSystemPath.toFile(), key, dataFile.getChecksumValue());
         } else {
@@ -330,20 +327,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         File inputFile = fileSystemPath.toFile();
         String checksum = FileUtil.calculateChecksum(inputFile.getAbsolutePath(), ChecksumType.MD5);
         putFileToS3(inputFile, destinationKey, checksum);
-    }
-
-    @Override
-    public void saveInputStreamAsAux(InputStream inputStream, String auxItemTag, Long filesize) throws IOException {
-        if (filesize == null || filesize < 0) {
-            saveInputStreamAsAux(inputStream, auxItemTag);
-            return;
-        }
-        
-        if (!this.canWrite()) {
-            open(DataAccessOption.WRITE_ACCESS);
-        }
-        String destinationKey = getDestinationKey(auxItemTag);
-        putInputStreamToS3(inputStream, filesize, destinationKey);
     }
 
     /**
@@ -704,14 +687,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
         PutObjectRequest putRequest = new PutObjectRequest(bucketName, s3Key, file);
         putRequest.setMetadata(metadata);
-        putObjectToS3(putRequest);
-    }
-    
-    private void putInputStreamToS3(InputStream inputStream, long filesize, String s3Key) throws IOException {
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(filesize);
-        
-        PutObjectRequest putRequest = new PutObjectRequest(bucketName, s3Key, inputStream, metadata);
         putObjectToS3(putRequest);
     }
 
