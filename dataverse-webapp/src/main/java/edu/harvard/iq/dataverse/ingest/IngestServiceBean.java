@@ -787,10 +787,8 @@ public class IngestServiceBean {
         }
 
         TabularDataIngest tabDataIngest = null;
-        BufferedInputStream inputStream = null;
-        
-        try {
-            inputStream = new BufferedInputStream(new FileInputStream(localFile));
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(localFile))) {
 
             if (additionalData != null) {
                 tabDataIngest = ingestPlugin.read(inputStream, additionalData);
@@ -813,8 +811,6 @@ public class IngestServiceBean {
 
             logger.log(Level.WARNING, "Ingest failure.", ingestEx);
             return false;
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
 
         String originalContentType = dataFile.getContentType();

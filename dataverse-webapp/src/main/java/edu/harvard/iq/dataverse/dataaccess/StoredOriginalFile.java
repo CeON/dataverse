@@ -81,9 +81,9 @@ public class StoredOriginalFile {
     private static String generateFileName(String storageFilename, String originalMimeType) {
         if (originalMimeType != null) {
             String origFileExtension = generateOriginalExtension(originalMimeType);
-            return storageFilename.replaceAll(".tab$", origFileExtension);
+            return storageFilename.replaceAll("\\.tab$", origFileExtension);
         } else {
-            return storageFilename.replaceAll(".tab$", "");
+            return storageFilename.replaceAll("\\.tab$", "");
         }
     }
 

@@ -330,6 +330,7 @@ public class DatasetThumbnailService {
             storageIO = dataAccess.getStorageIO(dataset);
             return storageIO.isAuxObjectCached(datasetLogoThumbnail48);
         } catch (IOException ioex) {
+            logger.warning("Unable to check whether dataset logo thumbnail is cached: " + dataset.toString());
         }
         return false;
     }

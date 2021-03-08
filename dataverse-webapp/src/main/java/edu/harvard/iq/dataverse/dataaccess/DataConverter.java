@@ -188,7 +188,7 @@ public class DataConverter {
                     
                     resultInfo = dfs.directConvert(origFile, origFormat);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    logger.log(Level.SEVERE, "Exception when trying to convert tabular file to rdata", ex);
                     return null;
                 } finally {
                     tmpOrigFile.ifPresent(tmpFile -> tmpFile.delete());

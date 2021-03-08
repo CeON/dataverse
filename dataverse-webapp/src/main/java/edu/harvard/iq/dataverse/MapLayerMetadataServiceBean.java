@@ -260,18 +260,8 @@ public class MapLayerMetadataServiceBean {
         URL url = new URL(imageUrl);
         logger.info("retrieve url : " + imageUrl);
 
-        logger.info("try to open InputStream");
-        InputStream is = null;
-
-        try {
-            is = url.openStream();
-        } catch (IOException exio) {
-            logger.warning("Error when retrieving map icon image. Exception: " + exio.getMessage());
-            return false;
-        }
-
-        try {
-            storageIO.saveInputStreamAsAux(is, "img");
+        try (InputStream worldMapImageInputStream = url.openStream()) {
+            storageIO.saveInputStreamAsAux(worldMapImageInputStream, "img");
         } catch (IOException ioex) {
             logger.warning("Failed to save WorldMap-generated image; " + ioex.getMessage());
             return false;

@@ -346,8 +346,9 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                 outstream.write(bffr, 0, bufsize);
             }
 
+        } finally {
+            outstream.close();
         }
-        outstream.close();
     }
 
     private long getContentSize(StorageIO<?> accessObject) {
