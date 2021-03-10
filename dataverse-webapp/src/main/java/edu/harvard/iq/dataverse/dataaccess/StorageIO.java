@@ -132,8 +132,6 @@ public abstract class StorageIO<T extends DvObject> {
      */
     public abstract void saveInputStreamAsAux(InputStream inputStream, String auxItemTag) throws IOException;
 
-    public abstract void saveInputStreamAsAux(InputStream inputStream, String auxItemTag, Long filesize) throws IOException;
-
     public abstract List<String> listAuxObjects() throws IOException;
 
     public abstract void deleteAuxObject(String auxItemTag) throws IOException;
@@ -208,6 +206,9 @@ public abstract class StorageIO<T extends DvObject> {
 
     public boolean isLocalFile() {
         return isLocalFile;
+    }
+    public boolean isRemoteFile() {
+        return !isLocalFile;
     }
 
     /**
