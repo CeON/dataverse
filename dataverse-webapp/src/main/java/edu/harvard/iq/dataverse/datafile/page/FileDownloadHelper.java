@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.PrimefacesUtil;
@@ -107,6 +108,32 @@ public class FileDownloadHelper implements java.io.Serializable {
         }
         
         requestDownload();
+    }
+
+    public String requestDownloadOfWholeDataset(DatasetVersion dsv, boolean requestedOriginalDownload) {
+
+        if (requestedOriginalDownload) {
+            requestedDownloadType.initMultiOriginalDownloadType(dsv.getFileMetadatas());
+        } else {
+            requestedDownloadType.initMultiDownloadType(dsv.getFileMetadatas());
+        }
+
+        List<FileMetadata> fileMetadatas = requestedDownloadType.getFileMetadatas();
+        DownloadType fileFormat = requestedDownloadType.getFileFormat();
+
+        if (FileUtil.isDownloadPopupRequired(fileMetadatas.get(0).getDatasetVersion())) {
+            PrimefacesUtil.showDialog("downloadPopup");
+            return StringUtils.EMPTY;
+        }
+
+        if (dsv.isDraft()) {
+            GuestbookResponse downloadOnlyGuestbook = guestbookResponseService.initGuestbookResponseForFragment(fileMetadatas.get(0), session);
+            writeGuestbookResponsesForFiles(fileMetadatas, fileFormat, downloadOnlyGuestbook);
+        }
+
+        fileDownloadService.redirectToDownloadWholeDataset(dsv, true, fileFormat.getApiBatchDownloadEquivalent());
+
+        return StringUtils.EMPTY;
     }
     
     /**

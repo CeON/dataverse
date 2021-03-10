@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.DataCitation;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.persistence.user.ApiToken;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -30,7 +31,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -100,8 +100,18 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             FacesContext.getCurrentInstance().getExternalContext().redirect(filesDownloadUrl);
         } catch (IOException ex) {
             logger.info("Failed to issue a redirect to file download url.");
-        }    }
+        }
+    }
 
+    public void redirectToDownloadWholeDataset(DatasetVersion dsv, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
+        String filesDownloadUrl = FileUtil.getDownloadWholeDatasetUrlPath(dsv, guestbookRecordsAlreadyWritten, downloadType);
+
+        try {
+            FacesContext.getCurrentInstance().getExternalContext().redirect(filesDownloadUrl);
+        } catch (IOException ex) {
+            logger.info("Failed to issue a redirect to dataset download url.");
+        }
+    }
 
     public void redirectToDownloadAPI(ApiDownloadType downloadType, Long fileId, boolean guestBookRecordAlreadyWritten) {
         String fileDownloadUrl = FileUtil.getFileDownloadUrlPath(downloadType, fileId, guestBookRecordAlreadyWritten);
