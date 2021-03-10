@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.export;
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.UnitTestUtils;
+import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
@@ -69,10 +70,10 @@ public class ExportServiceTest {
 
     @Mock
     private SystemConfig systemConfig;
-    
+
     @Mock
     private Instance<Exporter> exporters;
-    
+
     @BeforeEach
     void prepareData() {
         when(settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)).thenReturn(false);
@@ -80,7 +81,7 @@ public class ExportServiceTest {
         mockDatasetFields();
 
         when(exporters.iterator()).thenReturn(IteratorUtils.arrayIterator(
-                new DataCiteExporter(),
+                new DataCiteExporter(new CitationFactory()),
                 new DCTermsExporter(settingsService),
                 new DublinCoreExporter(settingsService),
                 new OAI_OREExporter(settingsService, systemConfig, clock),
@@ -329,7 +330,7 @@ public class ExportServiceTest {
             datasetField.getDatasetFieldType().setTitle("Name");
         }
     }
-    
+
     private void setupDescriptionData(List<DatasetField> datasetFields) {
 
         DatasetField descriptionField = datasetFields.stream()

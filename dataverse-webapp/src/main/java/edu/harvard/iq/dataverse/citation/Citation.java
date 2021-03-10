@@ -1,15 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package edu.harvard.iq.dataverse.persistence.dataset;
+package edu.harvard.iq.dataverse.citation;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +24,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,12 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * @author gdurand, qqmyers
- */
-public class DataCitation {
+public class Citation {
 
-    private static final Logger logger = Logger.getLogger(DataCitation.class.getCanonicalName());
 
     private List<String> authors = new ArrayList<>();
     private List<String> producers = new ArrayList<>();
@@ -66,13 +62,14 @@ public class DataCitation {
 
     private List<DatasetField> optionalValues = new ArrayList<>();
     private int optionalURLcount = 0;
-
-    public DataCitation(DatasetVersion dsv) {
+    public Citation(DatasetVersion dsv) {
         this(dsv, false);
     }
 
+    private static final Logger logger = Logger.getLogger(Citation.class.getCanonicalName());
 
-    public DataCitation(DatasetVersion dsv, boolean direct) {
+
+    public Citation(DatasetVersion dsv, boolean direct) {
         this.direct = direct;
         getCommonValuesFrom(dsv);
 
@@ -97,11 +94,11 @@ public class DataCitation {
         }
     }
 
-    public DataCitation(FileMetadata fm) {
+    public Citation(FileMetadata fm) {
         this(fm, false);
     }
 
-    public DataCitation(FileMetadata fm, boolean direct) {
+    public Citation(FileMetadata fm, boolean direct) {
         this.direct = direct;
         DatasetVersion dsv = fm.getDatasetVersion();
 
@@ -205,7 +202,7 @@ public class DataCitation {
         citationList.add(version);
 
         StringBuilder citation = new StringBuilder(citationList.stream().filter(value -> !StringUtils.isEmpty(value))
-                                                           .collect(Collectors.joining(separator)));
+                .collect(Collectors.joining(separator)));
 
         if ((fileTitle != null) && !isDirect()) {
             citation.append("; " + formatString(fileTitle, html, "") + " [fileName]");
@@ -718,9 +715,10 @@ public class DataCitation {
         } else {
             try {
                 citationDate = sdf.parse(dsv.getDistributionDate());
+            } catch (ParseException ex) {
+                // ignore
             } catch (Exception ex) {
                 // ignore
-                logger.log(Level.FINEST, ex, () -> "Date parsing error");
             }
         }
         if (citationDate == null) {
@@ -788,6 +786,5 @@ public class DataCitation {
         }
         return null;
     }
-
 
 }

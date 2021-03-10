@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.workflow.internalspi;
 
+import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.workflow.WorkflowStepRegistry;
 import edu.harvard.iq.dataverse.workflow.WorkflowStepSPI;
@@ -25,13 +26,16 @@ public class InternalWorkflowStepSPI implements WorkflowStepSPI {
 
     private final WorkflowStepRegistry stepRegistry;
     private final DatasetVersionServiceBean datasetVersions;
+    private final CitationFactory citationFactory;
 
     // -------------------- CONSTRUCTORS --------------------
 
     @Inject
-    public InternalWorkflowStepSPI(WorkflowStepRegistry stepRegistry, DatasetVersionServiceBean datasetVersions) {
+    public InternalWorkflowStepSPI(WorkflowStepRegistry stepRegistry, DatasetVersionServiceBean datasetVersions,
+                                   CitationFactory citationFactory) {
         this.stepRegistry = stepRegistry;
         this.datasetVersions = datasetVersions;
+        this.citationFactory = citationFactory;
     }
 
     @PostConstruct
@@ -51,7 +55,7 @@ public class InternalWorkflowStepSPI implements WorkflowStepSPI {
             case "http/sr":
                 return new HttpSendReceiveClientStep(stepParameters, datasetVersions);
             case "archiver":
-                return new ArchivalSubmissionWorkflowStep(datasetVersions);
+                return new ArchivalSubmissionWorkflowStep(datasetVersions, citationFactory);
             case SystemProcessStep.STEP_ID:
                 return new SystemProcessStep(stepParameters);
             case ClearWorkingDirWorkflowStep.STEP_ID:
