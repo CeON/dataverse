@@ -10,9 +10,9 @@ import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.api.ZipperWrapper;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
-import edu.harvard.iq.dataverse.common.files.extension.FileExtension;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.dataaccess.StorageIOConstants;
 import edu.harvard.iq.dataverse.datafile.page.WholeDatasetDownloadLogger;
 import edu.harvard.iq.dataverse.dataset.EmbargoAccessService;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -46,10 +46,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -120,19 +120,16 @@ public class FileDownloadAPIHandler {
                 for (DataFile file : files) {
 
                     if (embargoAccessService.isRestrictedByEmbargo(file.getOwner())) {
-                        Supplier<MissingParameterValueException> exception = () ->
-                                new MissingParameterValueException("[Couldn't retrive embargo date for file id=]" + file
-                                        .getId());
-                        zipperWrapper.addToManifest("File with id=" + file.getId() + " IS EMBARGOED UNTIL "
-                                                            + file
+                        Instant embargoDate = file
                                 .getOwner()
                                 .getEmbargoDate()
-                                .getOrElseThrow(exception)
-                                .toInstant() + "\r\n");
-                    } else if (file
-                            .getFileMetadata()
-                            .getTermsOfUse()
-                            .getTermsOfUseType() == FileTermsOfUse.TermsOfUseType.RESTRICTED) {
+                                .getOrElseThrow(() -> new MissingParameterValueException("[Couldn't retrive embargo date for file id=]" + file
+                                        .getId()))
+                                .toInstant();
+
+                        zipperWrapper.addToManifest("File with id=" + file.getId() + " IS EMBARGOED UNTIL "
+                                                            + embargoDate + "\r\n");
+                    } else if (isFileRestricted(file)) {
                         zipperWrapper.addToManifest(file
                                                             .getFileMetadata()
                                                             .getLabel() + " IS RESTRICTED AND CANNOT BE DOWNLOADED\r\n");
@@ -174,11 +171,17 @@ public class FileDownloadAPIHandler {
 
             // Check whether some subset of downloaded files is equal to some whole
             // set of files of some version and log if so
-            wholeDatasetDownloadLogger.incrementLogIfDownloadingWholeDataset(filesToDownload);
+            wholeDatasetDownloadLogger.incrementLogForDownloadingWholeDataset(dsv);
 
             // This will add the generated File Manifest to the zipped output, then flush and close the stream:
             zipperWrapper.getZipper().finalizeZipStream();
         };
+    }
+
+    private boolean isFileRestricted(DataFile file) {
+        return file.getFileMetadata()
+                   .getTermsOfUse()
+                   .getTermsOfUseType() == FileTermsOfUse.TermsOfUseType.RESTRICTED;
     }
 
     private long determineDownloadSizeLimit() {
@@ -204,7 +207,7 @@ public class FileDownloadAPIHandler {
             } else {
                 StorageIO<DataFile> storageIO = DataAccess.dataAccess().getStorageIO(file);
                 storageIO.open();
-                size = storageIO.getAuxObjectSize(FileExtension.SAVED_ORIGINAL_FILENAME_EXTENSION.getExtension());
+                size = storageIO.getAuxObjectSize(StorageIOConstants.SAVED_ORIGINAL_FILENAME_EXTENSION);
 
                 // save it permanently:
                 file.getDataTable().setOriginalFileSize(size);

@@ -1693,7 +1693,7 @@ public class Datasets extends AbstractApiBean {
         // (2a) Load up optional params via JSON
         //---------------------------------------
         OptionalFileParams optionalFileParams = null;
-        msgt("(api) jsonData: " + jsonData);
+        logger.fine("Loading (api) jsonData: " + jsonData);
 
         try {
             optionalFileParams = optionalFileParamsSvc.create(jsonData);
@@ -1713,7 +1713,6 @@ public class Datasets extends AbstractApiBean {
         //-------------------
         // (3) Create the AddReplaceFileHelper object
         //-------------------
-        msg("ADD!");
 
         DataverseRequest dvRequest2 = createDataverseRequest(authUser);
         AddReplaceFileHelper addFileHelper = new AddReplaceFileHelper(dvRequest2,
@@ -1864,21 +1863,6 @@ public class Datasets extends AbstractApiBean {
             }
 
         });
-    }
-
-    private void msg(String m) {
-        //System.out.println(m);
-        logger.fine(m);
-    }
-
-    private void dashes() {
-        msg("----------------");
-    }
-
-    private void msgt(String m) {
-        dashes();
-        msg(m);
-        dashes();
     }
 
 
