@@ -489,12 +489,15 @@ public class Datasets extends AbstractApiBean {
                                .onFailure(throwable -> logger.log(Level.FINE, "Failed finding user for apiToken: ", throwable))
                                .get();
 
+        String requestApiKey = getRequestApiKey();
+
         boolean originalFormatRequested = isOriginalFormatRequested(uriInfo.getQueryParameters());
 
         response.setHeader("Content-disposition", "attachment; filename=\"dataverse_files.zip\"");
         response.setHeader("Content-Type", "application/zip; name=\"dataverse_files.zip\"");
 
-        StreamingOutput fileStream = fileDownloadAPIHandler.downloadFiles(apiTokenUser, versionId, originalFormatRequested, gbrecs);
+        StreamingOutput fileStream = fileDownloadAPIHandler.downloadFiles(apiTokenUser, requestApiKey, versionId,
+                                                                          originalFormatRequested, gbrecs);
 
         return Response.ok(fileStream).build();
     }

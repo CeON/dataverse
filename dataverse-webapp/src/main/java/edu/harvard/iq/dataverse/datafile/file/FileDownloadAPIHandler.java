@@ -33,6 +33,7 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
 import io.vavr.control.Try;
 
 import javax.ejb.Stateless;
@@ -72,6 +73,7 @@ public class FileDownloadAPIHandler {
     private final AuthenticationServiceBean authenticationService;
     private final SystemConfig systemConfig;
     private final UserServiceBean userService;
+    private final WorldMapTokenServiceBean worldMapTokenService;
 
     @Inject
     public FileDownloadAPIHandler(DatasetVersionRepository datasetVersionRepository, SettingsServiceBean settingsService,
@@ -79,7 +81,7 @@ public class FileDownloadAPIHandler {
                                   DataverseRequestServiceBean dataverseRequestService, EmbargoAccessService embargoAccessService,
                                   WholeDatasetDownloadLogger wholeDatasetDownloadLogger, DataverseSession session, DataFileServiceBean fileService,
                                   PrivateUrlServiceBean privateUrlSvc, HttpServletRequest httpRequest, AuthenticationServiceBean authenticationService,
-                                  SystemConfig systemConfig, UserServiceBean userService) {
+                                  SystemConfig systemConfig, UserServiceBean userService, WorldMapTokenServiceBean worldMapTokenService) {
         this.datasetVersionRepository = datasetVersionRepository;
         this.settingsService = settingsService;
         this.guestbookResponseService = guestbookResponseService;
@@ -94,9 +96,11 @@ public class FileDownloadAPIHandler {
         this.authenticationService = authenticationService;
         this.systemConfig = systemConfig;
         this.userService = userService;
+        this.worldMapTokenService = worldMapTokenService;
     }
 
     public StreamingOutput downloadFiles(User apiTokenUser,
+                                         String apiToken,
                                          String versionId,
                                          boolean originalFileFormat,
                                          boolean gbrecs) {
@@ -115,7 +119,7 @@ public class FileDownloadAPIHandler {
             long sizeTotal = 0L;
             List<DataFile> filesToDownload = new ArrayList<>();
 
-            if (isAccessAuthorized(dsv)) {
+            if (isAccessAuthorized(dsv, apiToken)) {
 
                 for (DataFile file : files) {
 
@@ -222,7 +226,7 @@ public class FileDownloadAPIHandler {
         return size;
     }
 
-    private boolean isAccessAuthorized(DatasetVersion dsv) {
+    private boolean isAccessAuthorized(DatasetVersion dsv, String apiToken) {
         Dataset ds = dsv.getDataset();
 
         Optional<User> apiTokenUser = Try.of(this::findUserOrDie)
@@ -391,6 +395,19 @@ public class FileDownloadAPIHandler {
             } else {
                 logger.log(Level.FINE, "API token-based auth: User {0} is not authorized to access the datafile.", user.getIdentifier());
             }
+
+            boolean isWorldMapTokenPresentAndAuthorized = dsv.getFileMetadatas()
+                                                             .stream()
+                                                             .map(FileMetadata::getDataFile)
+                                                             .anyMatch(df -> worldMapTokenService.isWorldMapTokenAuthorizedForDataFileDownload(apiToken, df));
+
+            if (!isWorldMapTokenPresentAndAuthorized) {
+                return false;
+            }
+
+            logger.fine("WorldMap token-based auth: Token is valid for the requested datafile");
+            return true;
+
         }
 
         return false;
