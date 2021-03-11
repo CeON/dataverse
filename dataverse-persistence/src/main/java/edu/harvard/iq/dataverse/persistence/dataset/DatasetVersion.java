@@ -1150,11 +1150,7 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
     }
 
     public String getCitation() {
-        return getCitation(false);
-    }
-
-    public String getCitation(boolean html) {
-        return new DataCitation(this).toString(html);
+        return new DataCitation(this).toString(false);
     }
 
     public Date getCitationDate() {

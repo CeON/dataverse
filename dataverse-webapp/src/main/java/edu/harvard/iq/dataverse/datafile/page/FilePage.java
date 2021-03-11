@@ -302,6 +302,12 @@ public class FilePage implements java.io.Serializable {
                 .toString(true);
     }
 
+    public String createCitationFromFileDatasetVersion() {
+        return citationFactory
+                .create(fileMetadata.getDatasetVersion())
+                .toString(true);
+    }
+
     public String deleteFile() {
         Try<Dataset> deleteFileOperation = Try.of(() -> fileService.deleteFile(this.fileMetadata))
                 .onFailure(this::handleDeleteFileExceptions);

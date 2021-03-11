@@ -53,7 +53,7 @@ public class InternalWorkflowStepSPI implements WorkflowStepSPI {
             case "pause":
                 return new PauseStep(stepParameters);
             case "http/sr":
-                return new HttpSendReceiveClientStep(stepParameters, datasetVersions);
+                return new HttpSendReceiveClientStep(stepParameters, datasetVersions, citationFactory);
             case "archiver":
                 return new ArchivalSubmissionWorkflowStep(datasetVersions, citationFactory);
             case SystemProcessStep.STEP_ID:

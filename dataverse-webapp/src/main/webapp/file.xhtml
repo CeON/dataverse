@@ -239,7 +239,7 @@
                                         <div class="row">
                                             <div class="#{FilePage.fileMetadata.datasetVersion.deaccessioned ? 'col-xs-12' : 'col-xs-12 col-md-7'} citation">
                                                 <span class="citation-select" onclick="if (event.target) { selectText(event.target); } else{ selectText(this); }">
-                                                    <h:outputText value="#{FilePage.fileMetadata.datasetVersion.getCitation(true)}" escape="false"/>
+                                                    <h:outputText value="#{FilePage.createCitationFromFileDatasetVersion()}" escape="false"/>
                                                 </span>
                                                 <span class="glyphicon glyphicon-question-sign text-primary" tabindex="0" role="button" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.released']}"/>
