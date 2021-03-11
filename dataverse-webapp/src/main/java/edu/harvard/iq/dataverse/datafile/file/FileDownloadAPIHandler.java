@@ -59,21 +59,24 @@ import static edu.harvard.iq.dataverse.GlobalIdServiceBean.logger;
 @Stateless
 public class FileDownloadAPIHandler {
 
-    private final DatasetVersionRepository datasetVersionRepository;
-    private final SettingsServiceBean settingsService;
-    private final GuestbookResponseServiceBean guestbookResponseService;
-    private final PermissionServiceBean permissionService;
-    private final DataverseRequestServiceBean dataverseRequestService;
-    private final EmbargoAccessService embargoAccessService;
-    private final WholeDatasetDownloadLogger wholeDatasetDownloadLogger;
-    private final DataverseSession session;
-    private final DataFileServiceBean fileService;
-    private final PrivateUrlServiceBean privateUrlSvc;
-    private final HttpServletRequest httpRequest;
-    private final AuthenticationServiceBean authenticationService;
-    private final SystemConfig systemConfig;
-    private final UserServiceBean userService;
-    private final WorldMapTokenServiceBean worldMapTokenService;
+    private DatasetVersionRepository datasetVersionRepository;
+    private SettingsServiceBean settingsService;
+    private GuestbookResponseServiceBean guestbookResponseService;
+    private PermissionServiceBean permissionService;
+    private DataverseRequestServiceBean dataverseRequestService;
+    private EmbargoAccessService embargoAccessService;
+    private WholeDatasetDownloadLogger wholeDatasetDownloadLogger;
+    private DataverseSession session;
+    private DataFileServiceBean fileService;
+    private PrivateUrlServiceBean privateUrlSvc;
+    private HttpServletRequest httpRequest;
+    private AuthenticationServiceBean authenticationService;
+    private SystemConfig systemConfig;
+    private UserServiceBean userService;
+    private WorldMapTokenServiceBean worldMapTokenService;
+
+    public FileDownloadAPIHandler() {
+    }
 
     @Inject
     public FileDownloadAPIHandler(DatasetVersionRepository datasetVersionRepository, SettingsServiceBean settingsService,

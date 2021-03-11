@@ -480,9 +480,10 @@ public class Datasets extends AbstractApiBean {
     }
 
     @GET
-    @Path("{id}/versions/{versionId}/files")
+    @Path("{id}/versions/{versionId}/files/download")
+    @Produces({"application/zip"})
     @ApiWriteOperation
-    public Response getVersionFiles(@PathParam("id") String datasetId, @PathParam("versionId") String versionId, @QueryParam("gbrecs") Boolean gbrecs,
+    public Response getVersionFiles(@PathParam("id") String datasetId, @PathParam("versionId") String versionId, @QueryParam("gbrecs") boolean gbrecs,
                                     @Context HttpHeaders headers, @Context HttpServletResponse response, @Context UriInfo uriInfo) {
 
         User apiTokenUser = Try.of(this::findUserOrDie)
