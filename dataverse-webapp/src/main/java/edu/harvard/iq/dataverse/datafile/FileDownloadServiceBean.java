@@ -103,7 +103,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         }
     }
 
-    public void redirectToDownloadWholeDataset(DatasetVersion dsv, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
+    public String redirectToDownloadWholeDataset(DatasetVersion dsv, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
         String filesDownloadUrl = FileUtil.getDownloadWholeDatasetUrlPath(dsv, guestbookRecordsAlreadyWritten, downloadType);
 
         try {
@@ -111,6 +111,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         } catch (IOException ex) {
             logger.info("Failed to issue a redirect to dataset download url.");
         }
+
+        return filesDownloadUrl;
     }
 
     public void redirectToDownloadAPI(ApiDownloadType downloadType, Long fileId, boolean guestBookRecordAlreadyWritten) {
