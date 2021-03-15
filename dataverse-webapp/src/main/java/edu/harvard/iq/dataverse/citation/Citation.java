@@ -37,8 +37,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * @author gdurand, qqmyers
+ */
 public class Citation {
-
 
     private List<String> authors = new ArrayList<>();
     private List<String> producers = new ArrayList<>();

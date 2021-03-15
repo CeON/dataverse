@@ -410,7 +410,7 @@ public class JsonPrinter {
      */
     public JsonObjectBuilder jsonWithCitation(DatasetVersion dsv, boolean excludeEmailFromExport) {
         JsonObjectBuilder dsvWithCitation = json(dsv, excludeEmailFromExport);
-        dsvWithCitation.add("citation", dsv.getCitation());
+        dsvWithCitation.add("citation", citationFactory.create(dsv).toString(false));
         return dsvWithCitation;
     }
 
