@@ -54,6 +54,7 @@ import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
+import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
@@ -100,7 +101,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 
@@ -157,6 +157,8 @@ public class Access extends AbstractApiBean {
     private ImageThumbConverter imageThumbConverter;
     @Inject
     private CitationFactory citationFactory;
+    @Inject
+    private JsonPrinter jsonPrinter;
 
     private static final String API_KEY_HEADER = "X-Dataverse-key";
 
@@ -1030,7 +1032,7 @@ public class Access extends AbstractApiBean {
         JsonArrayBuilder userArray = Json.createArrayBuilder();
 
         for (AuthenticatedUser au : requesters) {
-            userArray.add(json(au));
+            userArray.add(jsonPrinter.json(au));
         }
 
         return ok(userArray);
