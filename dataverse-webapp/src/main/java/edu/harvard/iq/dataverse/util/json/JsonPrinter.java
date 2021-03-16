@@ -79,14 +79,20 @@ import static java.util.stream.Collectors.toList;
 @Stateless
 public class JsonPrinter {
 
+    public static final BriefJsonPrinter brief = new BriefJsonPrinter();
+
     private CitationFactory citationFactory;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public JsonPrinter() { }
 
     @Inject
     public JsonPrinter(CitationFactory citationFactory) {
         this.citationFactory = citationFactory;
     }
 
-    public static final BriefJsonPrinter brief = new BriefJsonPrinter();
+    // -------------------- LOGIC --------------------
 
     public JsonArrayBuilder asJsonArray(Collection<String> strings) {
         JsonArrayBuilder arr = Json.createArrayBuilder();
@@ -379,26 +385,7 @@ public class JsonPrinter {
         return bld;
     }
 
-    private String getRootDataverseNameforCitation(Dataset dataset) {
-        Dataverse root = dataset.getOwner();
-        while (root.getOwner() != null) {
-            root = root.getOwner();
-        }
-        String rootDataverseName = root.getName();
-        if (!StringUtil.isEmpty(rootDataverseName)) {
-            return rootDataverseName;
-        } else {
-            return "";
-        }
-    }
 
-    private String getLicenseInfo(DatasetVersion dsv) {
-        if (dsv.getTermsOfUseAndAccess().getLicense() != null && dsv.getTermsOfUseAndAccess().getLicense().equals(
-                TermsOfUseAndAccess.License.CC0)) {
-            return "CC0 Waiver";
-        }
-        return dsv.getTermsOfUseAndAccess().getTermsOfUse();
-    }
 
     /**
      * Export formats such as DDI require the citation to be included. See
@@ -617,21 +604,6 @@ public class JsonPrinter {
         return date != null ? formatter.get().format(date) : null;
     }
 
-    private JsonArrayBuilder getFileCategories(FileMetadata fmd) {
-        if (fmd == null) {
-            return null;
-        }
-        List<String> categories = fmd.getCategoriesByName();
-        if (categories == null || categories.isEmpty()) {
-            return null;
-        }
-        JsonArrayBuilder fileCategories = Json.createArrayBuilder();
-        for (String category : categories) {
-            fileCategories.add(category);
-        }
-        return fileCategories;
-    }
-
     public JsonArrayBuilder getTabularFileTags(DataFile df) {
         if (df == null) {
             return null;
@@ -795,6 +767,43 @@ public class JsonPrinter {
         return b;
     }
 
+    // -------------------- PRIVATE --------------------
+
+    private String getRootDataverseNameforCitation(Dataset dataset) {
+        Dataverse root = dataset.getOwner();
+        while (root.getOwner() != null) {
+            root = root.getOwner();
+        }
+        String rootDataverseName = root.getName();
+        if (!StringUtil.isEmpty(rootDataverseName)) {
+            return rootDataverseName;
+        } else {
+            return "";
+        }
+    }
+
+    private String getLicenseInfo(DatasetVersion dsv) {
+        if (dsv.getTermsOfUseAndAccess().getLicense() != null && dsv.getTermsOfUseAndAccess().getLicense().equals(
+                TermsOfUseAndAccess.License.CC0)) {
+            return "CC0 Waiver";
+        }
+        return dsv.getTermsOfUseAndAccess().getTermsOfUse();
+    }
+
+    private JsonArrayBuilder getFileCategories(FileMetadata fmd) {
+        if (fmd == null) {
+            return null;
+        }
+        List<String> categories = fmd.getCategoriesByName();
+        if (categories == null || categories.isEmpty()) {
+            return null;
+        }
+        JsonArrayBuilder fileCategories = Json.createArrayBuilder();
+        for (String category : categories) {
+            fileCategories.add(category);
+        }
+        return fileCategories;
+    }
 
     private String getLicenseName(FileMetadata fmd) {
         return Optional.ofNullable(fmd.getTermsOfUse().getLicense()).map(License::getName).orElse(StringUtils.EMPTY);

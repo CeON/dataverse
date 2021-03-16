@@ -504,8 +504,6 @@ public class DatasetPage implements java.io.Serializable {
             }
 
             // init the citation
-//            return new DataCitation(version).toString(isOnlineVersion);
-
             displayCitation = citationFactory.create(workingVersion).toString(true);
             initCurrentEmbargo();
 
