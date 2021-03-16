@@ -7,7 +7,11 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -73,8 +77,10 @@ public class ParametrizedGlassfishConfCreator {
 
     private Document replaceGlassfishXmlValues(Properties properties) {
         SAXReader reader = new SAXReader();
+        reader.setValidation(false);
+        reader.setEntityResolver(new IgnoreDTDEntityResolver());
 
-        Document document = Try.of(() -> Resources.getResource("glassfish-resources.xml"))
+        Document document = Try.of(() -> ParametrizedGlassfishConfCreator.class.getResource("/glassfish-resources.xml"))
                 .mapTry(resourcesXmlUrl -> reader.read(resourcesXmlUrl))
                 .getOrElseThrow(throwable -> new RuntimeException("Unable to read glassfish-resources.xml", throwable));
 
@@ -109,4 +115,17 @@ public class ParametrizedGlassfishConfCreator {
     private boolean isPropertiesFileExists(Path propertiesPath) {
         return propertiesPath.toFile().exists();
     }
+    
+    public class IgnoreDTDEntityResolver implements EntityResolver {
+
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId)
+          throws SAXException, IOException {
+               return new InputSource(
+                    new ByteArrayInputStream(
+                          "<?xml version='1.0' encoding='UTF-8'?>".getBytes()
+           ));
+        }
+
+       }
 }
