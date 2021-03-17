@@ -778,7 +778,7 @@ public class FileUtil implements java.io.Serializable {
 
     public static String getDownloadWholeDatasetUrlPath(DatasetVersion dsv, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
 
-        String fileDownloadUrl = String.format("/api/%s/versions/%s/files", dsv.getDataset().getId(), dsv.getId());
+        String fileDownloadUrl = String.format("/api/datasets/%s/versions/%s/files/download", dsv.getDataset().getId(), dsv.getId());
 
         if (guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.DEFAULT) {
             fileDownloadUrl += "?gbrecs=true";

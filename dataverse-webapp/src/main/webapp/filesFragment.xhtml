@@ -120,7 +120,8 @@
                         <!-- DOWNLOAD ALL FILES BUTTON -->
                         <p:outputPanel style="display: inline-block"
                              rendered="#{!(empty datasetFilesTab.workingVersion.fileMetadatas)
-                                        and datasetFilesTab.downloadButtonAvailable}">
+                                        and datasetFilesTab.downloadButtonAvailable
+                                        and datasetFilesTab.isHasTabular()}">
                             <button type="button" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown">
                                 <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.download.dataset']} <span class="caret"/>
                             </button>
@@ -138,6 +139,17 @@
                                     </p:commandLink>
                                 </li>
                             </ul>
+                        </p:outputPanel>
+
+                        <p:outputPanel style="display: inline-block; margin-right: 1em"
+                                       rendered="#{!(empty datasetFilesTab.workingVersion.fileMetadatas)
+                                        and datasetFilesTab.downloadButtonAvailable
+                                        and !datasetFilesTab.isHasTabular()}">
+                            <p:commandLink type="button" styleClass="btn btn-default btn-download"
+                                           action="#{datasetFilesTab.startDatasetFilesDownload(true)}"
+                                           update="@form">
+                                <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.download.dataset']}
+                            </p:commandLink>
                         </p:outputPanel>
 
                         <!-- REORDER FILES BUTTON -->

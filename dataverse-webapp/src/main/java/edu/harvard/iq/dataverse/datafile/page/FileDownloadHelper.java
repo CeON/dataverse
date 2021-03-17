@@ -112,26 +112,15 @@ public class FileDownloadHelper implements java.io.Serializable {
 
     public String requestDownloadOfWholeDataset(DatasetVersion dsv, boolean requestedOriginalDownload) {
 
-        if (requestedOriginalDownload) {
-            requestedDownloadType.initMultiOriginalDownloadType(dsv.getFileMetadatas());
-        } else {
-            requestedDownloadType.initMultiDownloadType(dsv.getFileMetadatas());
-        }
-
-        List<FileMetadata> fileMetadatas = requestedDownloadType.getFileMetadatas();
-        DownloadType fileFormat = requestedDownloadType.getFileFormat();
-
-        if (FileUtil.isDownloadPopupRequired(fileMetadatas.get(0).getDatasetVersion())) {
-            PrimefacesUtil.showDialog("downloadPopup");
-            return StringUtils.EMPTY;
-        }
+        DownloadType downloadType = requestedOriginalDownload ? DownloadType.ORIGINAL : DownloadType.DOWNLOAD;
+        List<FileMetadata> fileMetadatas = dsv.getFileMetadatas();
 
         if (dsv.isDraft()) {
             GuestbookResponse downloadOnlyGuestbook = guestbookResponseService.initGuestbookResponseForFragment(fileMetadatas.get(0), session);
-            writeGuestbookResponsesForFiles(fileMetadatas, fileFormat, downloadOnlyGuestbook);
+            writeGuestbookResponsesForFiles(fileMetadatas, downloadType, downloadOnlyGuestbook);
         }
 
-        fileDownloadService.redirectToDownloadWholeDataset(dsv, true, fileFormat.getApiBatchDownloadEquivalent());
+        fileDownloadService.redirectToDownloadWholeDataset(dsv, true, downloadType.getApiBatchDownloadEquivalent());
 
         return StringUtils.EMPTY;
     }
