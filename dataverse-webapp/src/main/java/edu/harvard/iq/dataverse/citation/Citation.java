@@ -1,17 +1,12 @@
 package edu.harvard.iq.dataverse.citation;
 
-import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
-import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
-import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJBException;
 import javax.xml.stream.XMLOutputFactory;
@@ -24,159 +19,32 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * Based on DataCitation class created by
  * @author gdurand, qqmyers
  */
 public class Citation {
+    private static final Logger logger = LoggerFactory.getLogger(Citation.class);
 
-    private List<String> authors = new ArrayList<>();
-    private List<String> producers = new ArrayList<>();
-    private String title;
-    private String fileTitle = null;
-    private String year;
-    private Date date;
-    private GlobalId persistentId;
-    private String version;
-    private String UNF = null;
-    private String publisher;
-    private boolean direct;
-    private List<String> funders;
-    private String seriesTitle;
-    private String description;
-    private List<String> datesOfCollection;
-    private List<String> keywords;
-    private List<String> kindsOfData;
-    private List<String> languages;
-    private List<String> spatialCoverages;
+    private CitationData data;
 
-    private List<DatasetField> optionalValues = new ArrayList<>();
-    private int optionalURLcount = 0;
-    public Citation(DatasetVersion dsv) {
-        this(dsv, false);
+    // -------------------- CONSTRUCTORS --------------------
+
+    public Citation(CitationData citationData) {
+        this.data = citationData;
     }
 
-    private static final Logger logger = Logger.getLogger(Citation.class.getCanonicalName());
-
-
-    public Citation(DatasetVersion dsv, boolean direct) {
-        this.direct = direct;
-        getCommonValuesFrom(dsv);
-
-        // The Global Identifier:
-        // It is always part of the citation for the local datasets;
-        // And for *some* harvested datasets.
-        persistentId = getPIDFrom(dsv, dsv.getDataset());
-
-        // UNF
-        UNF = dsv.getUNF();
-
-        // optional values
-        for (DatasetFieldType dsfType : dsv.getDataset().getOwner().getCitationDatasetFieldTypes()) {
-            DatasetField dsf = dsv.getDatasetField(dsfType);
-            if (dsf != null) {
-                optionalValues.add(dsf);
-
-                if (dsf.getDatasetFieldType().getFieldType().equals(FieldType.URL)) {
-                    optionalURLcount++;
-                }
-            }
-        }
-    }
-
-    public Citation(FileMetadata fm) {
-        this(fm, false);
-    }
-
-    public Citation(FileMetadata fm, boolean direct) {
-        this.direct = direct;
-        DatasetVersion dsv = fm.getDatasetVersion();
-
-        getCommonValuesFrom(dsv);
-
-        // file Title for direct File citation
-        fileTitle = fm.getLabel();
-        DataFile df = fm.getDataFile();
-
-        // File description
-        description = fm.getDescription();
-
-        // The Global Identifier of the Datafile (if published and isDirect==true) or Dataset as appropriate
-        persistentId = getPIDFrom(dsv, df);
-
-        // UNF
-        if (df.isTabularData() && df.getUnf() != null && !df.getUnf().isEmpty()) {
-            UNF = df.getUnf();
-        }
-    }
-
-    private void getCommonValuesFrom(DatasetVersion dsv) {
-
-        getAuthorsAndProducersFrom(dsv);
-        funders = dsv.getUniqueGrantAgencyValues();
-        kindsOfData = dsv.getKindOfData();
-        // publication year
-        date = getDateFrom(dsv);
-        year = new SimpleDateFormat("yyyy").format(date);
-
-        datesOfCollection = dsv.getDatesOfCollection();
-        title = dsv.getTitle();
-        seriesTitle = dsv.getSeriesTitle();
-        keywords = dsv.getKeywords();
-        languages = dsv.getLanguages();
-        spatialCoverages = dsv.getSpatialCoverages();
-        publisher = getPublisherFrom(dsv);
-        version = getVersionFrom(dsv);
-    }
-
-    public String getAuthorsString() {
-        return String.join("; ", authors);
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getFileTitle() {
-        return fileTitle;
-    }
-
-    public boolean isDirect() {
-        return direct;
-    }
-
-
-    public String getYear() {
-        return year;
-    }
-
-    public GlobalId getPersistentId() {
-        return persistentId;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getUNF() {
-        return UNF;
-    }
-
-    public String getPublisher() {
-        return publisher;
-    }
+    // -------------------- LOGIC --------------------
 
     @Override
     public String toString() {
@@ -184,115 +52,118 @@ public class Citation {
     }
 
     public String toString(boolean html) {
-        // first add comma separated parts
         String separator = ", ";
         List<String> citationList = new ArrayList<>();
-        citationList.add(formatString(getAuthorsString(), html));
-        citationList.add(year);
-        if ((fileTitle != null) && isDirect()) {
-            citationList.add(formatString(fileTitle, html, "\""));
-            citationList.add(formatString(title, html, "<i>", "</i>"));
+
+        citationList.add(formatString(data.getAuthorsString(), html));
+        citationList.add(data.getYear());
+        if ((data.getFileTitle() != null) && data.isDirect()) {
+            citationList.add(formatString(data.getFileTitle(), html, "\""));
+            citationList.add(formatString(data.getTitle(), html, "<i>", "</i>"));
         } else {
-            citationList.add(formatString(title, html, "\""));
+            citationList.add(formatString(data.getTitle(), html, "\""));
         }
 
-        if (persistentId != null) {
+        if (data.getPersistentId() != null) {
             // always show url format
-            citationList.add(formatURL(persistentId.toURL().toString(), persistentId.toURL().toString(), html));
+            citationList.add(formatURL(
+                    data.getPersistentId().toURL().toString(), data.getPersistentId().toURL().toString(), html));
         }
-        citationList.add(formatString(publisher, html));
-        citationList.add(version);
+        citationList.add(formatString(data.getPublisher(), html));
+        citationList.add(data.getVersion());
 
-        StringBuilder citation = new StringBuilder(citationList.stream().filter(value -> !StringUtils.isEmpty(value))
+        StringBuilder citation = new StringBuilder(citationList.stream()
+                .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.joining(separator)));
 
-        if ((fileTitle != null) && !isDirect()) {
-            citation.append("; " + formatString(fileTitle, html, "") + " [fileName]");
+        if ((data.getFileTitle() != null) && !data.isDirect()) {
+            citation.append("; ")
+                    .append(formatString(data.getFileTitle(), html, ""))
+                    .append(" [fileName]");
         }
-        // append UNF
-        if (!StringUtils.isEmpty(UNF)) {
-            citation.append(separator).append(UNF).append(" [fileUNF]");
+        if (!StringUtils.isEmpty(data.getUNF())) {
+            citation.append(separator)
+                    .append(data.getUNF())
+                    .append(" [fileUNF]");
         }
 
-        for (DatasetField dsf : optionalValues) {
+        for (DatasetField dsf : data.getOptionalValues()) {
             String displayName = dsf.getDatasetFieldType().getDisplayName();
             String displayValue;
 
             if (dsf.getDatasetFieldType().getFieldType().equals(FieldType.URL)) {
                 displayValue = formatURL(dsf.getDisplayValue(), dsf.getDisplayValue(), html);
-                if (optionalURLcount == 1) {
+                if (data.getOptionalURLcount() == 1) {
                     displayName = "URL";
                 }
             } else {
                 displayValue = formatString(dsf.getDisplayValue(), html);
             }
-            citation.append(" [").append(displayName).append(": ").append(displayValue).append("]");
+            citation.append(" [")
+                    .append(displayName)
+                    .append(": ")
+                    .append(displayValue)
+                    .append("]");
         }
         return citation.toString();
     }
 
     public String toBibtexString() {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             writeAsBibtexCitation(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
+            return buffer.toString();
+        } catch (IOException ioe) {
+            logger.warn("Exception when creating BibTeX citation", ioe);
+            return StringUtils.EMPTY;
         }
-        //Use UTF-8?
-        return buffer.toString();
     }
 
     public void writeAsBibtexCitation(OutputStream os) throws IOException {
-        // Use UTF-8
+        StringBuilder sb = new StringBuilder();
+        sb.append(data.getFileTitle() != null && data.isDirect() ? "@incollection{" : "@data{")
+                .append(data.getPersistentId().getIdentifier())
+                .append("_")
+                .append(data.getYear())
+                .append(",\r\n")
+                .append(bibtexLine("author", String.join(" and ", data.getAuthors())))
+                .append(bibtexLine("publisher", data.getPublisher()));
+        if (data.getFileTitle() != null && data.isDirect()) {
+            sb.append(bibtexLine("title", data.getFileTitle()))
+                .append(bibtexLine("booktitle", data.getTitle()));
+        } else {
+            sb.append(bibtexLine("title",
+                    data.getTitle()
+                            .replaceFirst("\"", "``")
+                            .replaceFirst("\"", "''"),
+                    s -> bibtexValue(s, "\"{", "}\",")));
+        }
+        if (data.getUNF() != null) {
+            sb.append(bibtexLine("UNF", data.getUNF()));
+        }
+        sb.append(bibtexLine("year", data.getYear()))
+            .append(bibtexLine("version", data.getVersion()))
+            .append(bibtexLine("doi",
+                    data.getPersistentId().getAuthority() + "/" + data.getPersistentId().getIdentifier()))
+            .append(bibtexLine("url", data.getPersistentId().toURL().toString(), s -> bibtexValue(s, "{", "}")))
+            .append("}\r\n");
+
         Writer out = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        if (getFileTitle() != null && isDirect()) {
-            out.write("@incollection{");
-        } else {
-            out.write("@data{");
-        }
-        out.write(persistentId.getIdentifier() + "_" + year + "," + "\r\n");
-        out.write("author = {");
-        out.write(String.join(" and ", authors));
-        out.write("},\r\n");
-        out.write("publisher = {");
-        out.write(publisher);
-        out.write("},\r\n");
-        if (getFileTitle() != null && isDirect()) {
-            out.write("title = {");
-            out.write(fileTitle);
-            out.write("},\r\n");
-            out.write("booktitle = {");
-            out.write(title);
-            out.write("},\r\n");
-        } else {
-            out.write("title = \"{");
-            String doubleQ = "\"";
-            String doubleTick = "``";
-            String doubleAp = "''";
-            out.write(title.replaceFirst(doubleQ, doubleTick).replaceFirst(doubleQ, doubleAp));
-            out.write("}\",\r\n");
-        }
-        if (UNF != null) {
-            out.write("UNF = {");
-            out.write(UNF);
-            out.write("},\r\n");
-        }
-        out.write("year = {");
-        out.write(year);
-        out.write("},\r\n");
-        out.write("version = {");
-        out.write(version);
-        out.write("},\r\n");
-        out.write("doi = {");
-        out.write(persistentId.getAuthority());
-        out.write("/");
-        out.write(persistentId.getIdentifier());
-        out.write("},\r\n");
-        out.write("url = {");
-        out.write(persistentId.toURL().toString());
-        out.write("}\r\n");
-        out.write("}\r\n");
+        out.write(sb.toString());
         out.flush();
+    }
+    private static class BibtexCitation {
+
+    }
+    private String bibtexLine(String label, String value) {
+        return bibtexLine(label, value, s -> bibtexValue(s, "{", "},"));
+    }
+
+    private String bibtexLine(String label, String value, Function<String, String> valueMapper) {
+        return label + " = " + valueMapper.apply(value) + "\r\n";
+    }
+
+    private String bibtexValue(String value, String startDelimiter, String endDelimiter) {
+        return startDelimiter + value + endDelimiter;
     }
 
     public String toRISString() {
@@ -309,85 +180,85 @@ public class Citation {
     public void writeAsRISCitation(OutputStream os) throws IOException {
         // Use UTF-8
         Writer out = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        out.write("Provider: " + publisher + "\r\n");
+        out.write("Provider: " + data.getPublisher() + "\r\n");
         out.write("Content: text/plain; charset=\"utf-8\"" + "\r\n");
         // Using type "DATA" - see https://github.com/IQSS/dataverse/issues/4816
 
-        if ((getFileTitle() != null) && isDirect()) {
+        if ((data.getFileTitle() != null) && data.isDirect()) {
             out.write("TY  - DATA" + "\r\n");
-            out.write("T1  - " + getFileTitle() + "\r\n");
-            out.write("T2  - " + getTitle() + "\r\n");
+            out.write("T1  - " + data.getFileTitle() + "\r\n");
+            out.write("T2  - " + data.getTitle() + "\r\n");
         } else {
             out.write("TY  - DATA" + "\r\n");
-            out.write("T1  - " + getTitle() + "\r\n");
+            out.write("T1  - " + data.getTitle() + "\r\n");
         }
-        if (seriesTitle != null) {
-            out.write("T3  - " + seriesTitle + "\r\n");
+        if (data.getSeriesTitle() != null) {
+            out.write("T3  - " + data.getSeriesTitle() + "\r\n");
         }
         /* Removing abstract/description per Request from G. King in #3759
         if(description!=null) {
             out.write("AB  - " + flattenHtml(description) + "\r\n");
         } */
-        for (String author : authors) {
+        for (String author : data.getAuthors()) {
             out.write("AU  - " + author + "\r\n");
         }
 
-        if (!producers.isEmpty()) {
-            for (String author : producers) {
+        if (!data.getProducers().isEmpty()) {
+            for (String author : data.getProducers()) {
                 out.write("A2  - " + author + "\r\n");
             }
         }
-        if (!funders.isEmpty()) {
-            for (String author : funders) {
+        if (!data.getFunders().isEmpty()) {
+            for (String author : data.getFunders()) {
                 out.write("A4  - " + author + "\r\n");
             }
         }
-        if (!kindsOfData.isEmpty()) {
-            for (String kod : kindsOfData) {
+        if (!data.getKindsOfData().isEmpty()) {
+            for (String kod : data.getKindsOfData()) {
                 out.write("C3  - " + kod + "\r\n");
             }
         }
-        if (!datesOfCollection.isEmpty()) {
-            for (String dateRange : datesOfCollection) {
+        if (!data.getDatesOfCollection().isEmpty()) {
+            for (String dateRange : data.getDatesOfCollection()) {
                 out.write("DA  - " + dateRange + "\r\n");
             }
         }
 
-        if (persistentId != null) {
-            out.write("DO  - " + persistentId.toString() + "\r\n");
+        if (data.getPersistentId() != null) {
+            out.write("DO  - " + data.getPersistentId().toString() + "\r\n");
         }
-        out.write("ET  - " + version + "\r\n");
-        if (!keywords.isEmpty()) {
-            for (String keyword : keywords) {
+        out.write("ET  - " + data.getVersion() + "\r\n");
+        if (!data.getKeywords().isEmpty()) {
+            for (String keyword : data.getKeywords()) {
                 out.write("KW  - " + keyword + "\r\n");
             }
         }
-        if (!languages.isEmpty()) {
-            for (String lang : languages) {
+        if (!data.getLanguages().isEmpty()) {
+            for (String lang : data.getLanguages()) {
                 out.write("LA  - " + lang + "\r\n");
             }
         }
 
-        out.write("PY  - " + year + "\r\n");
+        out.write("PY  - " + data.getYear() + "\r\n");
 
-        if (!spatialCoverages.isEmpty()) {
-            for (String coverage : spatialCoverages) {
+        if (!data.getSpatialCoverages().isEmpty()) {
+            for (String coverage : data.getSpatialCoverages()) {
                 out.write("RI  - " + coverage + "\r\n");
             }
         }
 
-        out.write("SE  - " + date + "\r\n");
+        out.write("SE  - " + data.getDate() + "\r\n");
 
-        out.write("UR  - " + persistentId.toURL().toString() + "\r\n");
-        out.write("PB  - " + publisher + "\r\n");
+        out.write("UR  - " + data.getPersistentId().toURL().toString() + "\r\n");
+        out.write("PB  - " + data.getPublisher() + "\r\n");
 
         // a DataFile citation also includes filename und UNF, if applicable:
-        if (getFileTitle() != null) {
-            if (!isDirect()) {
-                out.write("C1  - " + getFileTitle() + "\r\n");
+        if (data.getFileTitle() != null) {
+            if (!data.isDirect()) {
+                out.write("C1  - " + data.getFileTitle() + "\r\n");
             }
-            if (getUNF() != null) {
-                out.write("C2  - " + getUNF() + "\r\n");
+            if (data.getUNF() != null) {
+                out.write("C2  - " + data.getUNF() + "\r\n");
             }
         }
         // closing element:
@@ -402,6 +273,10 @@ public class Citation {
         return xml;
     }
 
+    public CitationData getCitationData() {
+        return data;
+    }
+
     public void writeAsEndNoteCitation(OutputStream os) {
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -412,7 +287,7 @@ public class Citation {
             createEndNoteXML(xmlw);
             xmlw.writeEndDocument();
         } catch (XMLStreamException ex) {
-            Logger.getLogger("global").log(Level.SEVERE, null, ex);
+            logger.error("", ex);
             throw new EJBException("ERROR occurred during creating endnote xml.", ex);
         } finally {
             try {
@@ -452,27 +327,27 @@ public class Citation {
         xmlw.writeEndElement(); // ref-type
 
         xmlw.writeStartElement("contributors");
-        if (!authors.isEmpty()) {
+        if (!data.getAuthors().isEmpty()) {
             xmlw.writeStartElement("authors");
-            for (String author : authors) {
+            for (String author : data.getAuthors()) {
                 xmlw.writeStartElement("author");
                 xmlw.writeCharacters(author);
                 xmlw.writeEndElement(); // author
             }
             xmlw.writeEndElement(); // authors
         }
-        if (!producers.isEmpty()) {
+        if (!data.getProducers().isEmpty()) {
             xmlw.writeStartElement("secondary-authors");
-            for (String producer : producers) {
+            for (String producer : data.getProducers()) {
                 xmlw.writeStartElement("author");
                 xmlw.writeCharacters(producer);
                 xmlw.writeEndElement(); // author
             }
             xmlw.writeEndElement(); // secondary-authors
         }
-        if (!funders.isEmpty()) {
+        if (!data.getFunders().isEmpty()) {
             xmlw.writeStartElement("subsidiary-authors");
-            for (String funder : funders) {
+            for (String funder : data.getFunders()) {
                 xmlw.writeStartElement("author");
                 xmlw.writeCharacters(funder);
                 xmlw.writeEndElement(); // author
@@ -482,29 +357,29 @@ public class Citation {
         xmlw.writeEndElement(); // contributors
 
         xmlw.writeStartElement("titles");
-        if ((fileTitle != null) && isDirect()) {
+        if ((data.getFileTitle() != null) && data.isDirect()) {
             xmlw.writeStartElement("title");
-            xmlw.writeCharacters(fileTitle);
+            xmlw.writeCharacters(data.getFileTitle());
             xmlw.writeEndElement(); // title
             xmlw.writeStartElement("secondary-title");
-            xmlw.writeCharacters(title);
+            xmlw.writeCharacters(data.getTitle());
             xmlw.writeEndElement(); // secondary-title
         } else {
             xmlw.writeStartElement("title");
-            xmlw.writeCharacters(title);
+            xmlw.writeCharacters(data.getTitle());
             xmlw.writeEndElement(); // title
         }
 
-        if (seriesTitle != null) {
+        if (data.getSeriesTitle() != null) {
             xmlw.writeStartElement("tertiary-title");
-            xmlw.writeCharacters(seriesTitle);
+            xmlw.writeCharacters(data.getSeriesTitle());
             xmlw.writeEndElement(); // tertiary-title
         }
         xmlw.writeEndElement(); // titles
 
         xmlw.writeStartElement("section");
         String sectionString;
-        sectionString = new SimpleDateFormat("yyyy-MM-dd").format(date);
+        sectionString = new SimpleDateFormat("yyyy-MM-dd").format(data.getDate());
 
         xmlw.writeCharacters(sectionString);
         xmlw.writeEndElement(); // section
@@ -518,11 +393,11 @@ public class Citation {
 
         xmlw.writeStartElement("dates");
         xmlw.writeStartElement("year");
-        xmlw.writeCharacters(year);
+        xmlw.writeCharacters(data.getYear());
         xmlw.writeEndElement(); // year
-        if (!datesOfCollection.isEmpty()) {
+        if (!data.getDatesOfCollection().isEmpty()) {
             xmlw.writeStartElement("pub-dates");
-            for (String dateRange : datesOfCollection) {
+            for (String dateRange : data.getDatesOfCollection()) {
                 xmlw.writeStartElement("date");
                 xmlw.writeCharacters(dateRange);
                 xmlw.writeEndElement(); // date
@@ -532,38 +407,38 @@ public class Citation {
         xmlw.writeEndElement(); // dates
 
         xmlw.writeStartElement("edition");
-        xmlw.writeCharacters(version);
+        xmlw.writeCharacters(data.getVersion());
         xmlw.writeEndElement(); // edition
 
-        if (!keywords.isEmpty()) {
+        if (!data.getKeywords().isEmpty()) {
             xmlw.writeStartElement("keywords");
-            for (String keyword : keywords) {
+            for (String keyword : data.getKeywords()) {
                 xmlw.writeStartElement("keyword");
                 xmlw.writeCharacters(keyword);
                 xmlw.writeEndElement(); // keyword
             }
             xmlw.writeEndElement(); // keywords
         }
-        if (!kindsOfData.isEmpty()) {
-            for (String kod : kindsOfData) {
+        if (!data.getKindsOfData().isEmpty()) {
+            for (String kod : data.getKindsOfData()) {
                 xmlw.writeStartElement("custom3");
                 xmlw.writeCharacters(kod);
                 xmlw.writeEndElement(); // custom3
             }
         }
-        if (!languages.isEmpty()) {
-            for (String lang : languages) {
+        if (!data.getLanguages().isEmpty()) {
+            for (String lang : data.getLanguages()) {
                 xmlw.writeStartElement("language");
                 xmlw.writeCharacters(lang);
                 xmlw.writeEndElement(); // language
             }
         }
         xmlw.writeStartElement("publisher");
-        xmlw.writeCharacters(publisher);
+        xmlw.writeCharacters(data.getPublisher());
         xmlw.writeEndElement(); // publisher
 
-        if (!spatialCoverages.isEmpty()) {
-            for (String coverage : spatialCoverages) {
+        if (!data.getSpatialCoverages().isEmpty()) {
+            for (String coverage : data.getSpatialCoverages()) {
                 xmlw.writeStartElement("reviewed-item");
                 xmlw.writeCharacters(coverage);
                 xmlw.writeEndElement(); // reviewed-item
@@ -573,7 +448,7 @@ public class Citation {
         xmlw.writeStartElement("urls");
         xmlw.writeStartElement("related-urls");
         xmlw.writeStartElement("url");
-        xmlw.writeCharacters(getPersistentId().toURL().toString());
+        xmlw.writeCharacters(data.getPersistentId().toURL().toString());
         xmlw.writeEndElement(); // url
         xmlw.writeEndElement(); // related-urls
         xmlw.writeEndElement(); // urls
@@ -582,18 +457,19 @@ public class Citation {
         // files) the UNF signature, that we put into the custom1 and custom2
         // fields respectively:
 
-        if (getFileTitle() != null) {
+        if (data.getFileTitle() != null) {
             xmlw.writeStartElement("custom1");
-            xmlw.writeCharacters(fileTitle);
+            xmlw.writeCharacters(data.getFileTitle());
             xmlw.writeEndElement(); // custom1
 
-            if (getUNF() != null) {
+            if (data.getUNF() != null) {
                 xmlw.writeStartElement("custom2");
-                xmlw.writeCharacters(getUNF());
+                xmlw.writeCharacters(data.getUNF());
                 xmlw.writeEndElement(); // custom2
             }
         }
-        if (persistentId != null) {
+        if (data.getPersistentId() != null) {
+            GlobalId persistentId = data.getPersistentId();
             xmlw.writeStartElement("electronic-resource-num");
             String electResourceNum = persistentId.getProtocol() + "/" + persistentId.getAuthority() + "/"
                     + persistentId.getIdentifier();
@@ -610,21 +486,21 @@ public class Citation {
 
     public Map<String, String> getDataCiteMetadata() {
         Map<String, String> metadata = new HashMap<>();
-        String authorString = getAuthorsString();
+        String authorString = data.getAuthorsString();
 
         if (authorString.isEmpty()) {
             authorString = ":unav";
         }
-        String producerString = getPublisher();
+        String producerString = data.getPublisher();
 
         if (producerString.isEmpty()) {
             producerString = ":unav";
         }
 
         metadata.put("datacite.creator", authorString);
-        metadata.put("datacite.title", getTitle());
+        metadata.put("datacite.title", data.getTitle());
         metadata.put("datacite.publisher", producerString);
-        metadata.put("datacite.publicationyear", getYear());
+        metadata.put("datacite.publicationyear", data.getYear());
         return metadata;
     }
 
@@ -700,93 +576,6 @@ public class Citation {
         html = html.replaceAll("(\\r\\n?)+", "\r\n");
 
         return html;
-    }
-
-    private Date getDateFrom(DatasetVersion dsv) {
-        Date citationDate = null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-        if (!dsv.getDataset().isHarvested()) {
-            citationDate = dsv.getCitationDate();
-            if (citationDate == null) {
-                if (dsv.getDataset().getPublicationDate() != null) {
-                    citationDate = dsv.getDataset().getPublicationDate();
-                } else { // for drafts
-                    citationDate = dsv.getLastUpdateTime();
-                }
-            }
-        } else {
-            try {
-                citationDate = sdf.parse(dsv.getDistributionDate());
-            } catch (ParseException ex) {
-                // ignore
-            } catch (Exception ex) {
-                // ignore
-            }
-        }
-        if (citationDate == null) {
-            //As a last resort, pick the current date
-            logger.warning("Unable to find citation date for datasetversion: " + dsv.getId());
-            citationDate = new Date();
-        }
-        return citationDate;
-    }
-
-    private void getAuthorsAndProducersFrom(DatasetVersion dsv) {
-
-        dsv.getDatasetAuthors().stream().forEach((author) -> {
-            if (!author.isEmpty()) {
-                String an = author.getName().getDisplayValue().trim();
-                authors.add(an);
-            }
-        });
-        producers = dsv.getDatasetProducerNames();
-    }
-
-    private String getPublisherFrom(DatasetVersion dsv) {
-        if (!dsv.getDataset().isHarvested()) {
-            return dsv.getRootDataverseNameforCitation();
-        } else {
-            return dsv.getDistributorName();
-            // remove += [distributor] SEK 8-18-2016
-        }
-    }
-
-    private String getVersionFrom(DatasetVersion dsv) {
-        String version = "";
-        if (!dsv.getDataset().isHarvested()) {
-            if (dsv.isDraft()) {
-                version = BundleUtil.getStringFromBundle("draftversion");
-            } else if (dsv.getVersionNumber() != null) {
-                version = "V" + dsv.getVersionNumber();
-                if (dsv.isDeaccessioned()) {
-                    version += ", " + BundleUtil.getStringFromBundle("deaccessionedversion");
-                }
-            }
-        }
-        return version;
-    }
-
-    private GlobalId getPIDFrom(DatasetVersion dsv, DvObject dv) {
-        if (!dsv.getDataset().isHarvested()
-                || HarvestingClient.HARVEST_STYLE_VDC.equals(dsv.getDataset().getHarvestedFrom().getHarvestStyle())
-                || HarvestingClient.HARVEST_STYLE_ICPSR.equals(dsv.getDataset().getHarvestedFrom().getHarvestStyle())
-                || HarvestingClient.HARVEST_STYLE_DATAVERSE.equals(dsv.getDataset().getHarvestedFrom().getHarvestStyle())) {
-            // creating a global id like this:
-            // persistentId = new GlobalId(dv.getGlobalId());
-            // you end up doing new GlobalId((New GlobalId(dv)).toString())
-            // - doing an extra formatting-and-parsing-again
-            // This achieves the same thing:
-            if (!isDirect()) {
-                if (!StringUtils.isEmpty(dsv.getDataset().getIdentifier())) {
-                    return new GlobalId(dsv.getDataset());
-                }
-            } else {
-                if (!StringUtils.isEmpty(dv.getIdentifier())) {
-                    return new GlobalId(dv);
-                }
-            }
-        }
-        return null;
     }
 
 }

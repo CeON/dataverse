@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.citation.Citation;
+import edu.harvard.iq.dataverse.citation.CitationData;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -241,10 +242,11 @@ public class FileDownloadServiceBean implements java.io.Serializable {
 
     private String createFileNameString(FileMetadata fileMetadata, Citation citation, String type,
                                         FileCitationExtension extension) {
+        CitationData citationData = citation.getCitationData();
         String nameEnd = (fileMetadata == null || fileMetadata.getLabel() == null)
                 ? extension.getExtension() // Dataset-level citation
-                : FileUtil.getCiteDataFileFilename(citation.getFileTitle(), extension); // Datafile-level citation
-        return type + ";" + "filename=" + citation.getPersistentId().asString() + nameEnd;
+                : FileUtil.getCiteDataFileFilename(citationData.getFileTitle(), extension); // Datafile-level citation
+        return type + ";" + "filename=" + citationData.getPersistentId().asString() + nameEnd;
     }
 
     // -------------------- INNER CLASSES --------------------
