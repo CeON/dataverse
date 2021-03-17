@@ -80,7 +80,7 @@ class FileDownloadServiceBeanTest {
     }
 
     @AfterEach
-    public void cleanAfterAllTests() {
+    public void cleanAfterTests() {
         facesContext.release();
     }
 }
