@@ -115,7 +115,7 @@ public class FileDownloadHelper implements java.io.Serializable {
         DownloadType downloadType = requestedOriginalDownload ? DownloadType.ORIGINAL : DownloadType.DOWNLOAD;
         List<FileMetadata> fileMetadatas = dsv.getFileMetadatas();
 
-        if (dsv.isDraft()) {
+        if (!dsv.isDraft()) {
             GuestbookResponse downloadOnlyGuestbook = guestbookResponseService.initGuestbookResponseForFragment(fileMetadatas.get(0), session);
             writeGuestbookResponsesForFiles(fileMetadatas, downloadType, downloadOnlyGuestbook);
         }

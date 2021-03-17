@@ -22,6 +22,11 @@ class FileDownloadServiceBeanTest {
     private final FileDownloadServiceBean fileDownloadService = new FileDownloadServiceBean();
     private FacesContext facesContext = FacesContextMocker.mockContext();
 
+    @AfterEach
+    public void cleanAfterTests() {
+        facesContext.release();
+    }
+
     @Test
     void redirectToDownloadWholeDataset() throws IOException {
         //given
@@ -77,10 +82,5 @@ class FileDownloadServiceBeanTest {
 
         //assert
         Mockito.verify(facesContext.getExternalContext(), Mockito.times(1)).redirect("/api/datasets/1/versions/1/files/download?format=original");
-    }
-
-    @AfterEach
-    public void cleanAfterTests() {
-        facesContext.release();
     }
 }
