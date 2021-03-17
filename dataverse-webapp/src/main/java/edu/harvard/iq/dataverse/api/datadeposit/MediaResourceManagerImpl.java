@@ -5,7 +5,9 @@ import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.datasetutility.VirusFoundException;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
@@ -64,6 +66,8 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
     SwordAuth swordAuth;
     @Inject
     private UrlManagerServiceBean urlManagerServiceBean;
+    @Inject
+    private CitationFactory citationFactory;
 
     private HttpServletRequest httpRequest;
 
@@ -188,9 +192,9 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
 
                             if (deleteCommandSuccess) {
                                 if (deleteStorageLocation != null) {
-                                    // Finalize the delete of the physical file 
-                                    // (File service will double-check that the datafile no 
-                                    // longer exists in the database, before proceeding to 
+                                    // Finalize the delete of the physical file
+                                    // (File service will double-check that the datafile no
+                                    // longer exists in the database, before proceeding to
                                     // delete the physical file)
                                     try {
                                         dataFileService.finalizeFileDelete(fileIdLong, deleteStorageLocation);
@@ -247,7 +251,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
 
             //---------------------------------------
             // Make sure that the upload type is not rsync - handled above for dual mode
-            // ------------------------------------- 
+            // -------------------------------------
 
             if (dataset.getEditVersion().isHasPackageFile()) {
                 throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, BundleUtil.getStringFromBundle("file.api.alreadyHasPackageFile"));
@@ -329,6 +333,8 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
                 }*/
             } catch (IOException ex) {
                 throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "Unable to add file(s) to dataset: " + ex.getMessage());
+            } catch (VirusFoundException ex) {
+                throw new SwordError(UriRegistry.ERROR_BAD_REQUEST, "Unable to add file(s) to dataset: Virus detected");
             }
             if (!dataFiles.isEmpty()) {
                 Set<ConstraintViolation> constraintViolations = editVersion.validate();
@@ -378,7 +384,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
 
             ingestService.startIngestJobsForDataset(dataset, user);
 
-            ReceiptGenerator receiptGenerator = new ReceiptGenerator();
+            ReceiptGenerator receiptGenerator = new ReceiptGenerator(citationFactory);
             String baseUrl = urlManagerServiceBean.getHostnamePlusBaseUrlPath();
             DepositReceipt depositReceipt = receiptGenerator.createDatasetReceipt(baseUrl, dataset);
             return depositReceipt;
