@@ -5,7 +5,11 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class CitationData {
 
@@ -123,6 +127,21 @@ public class CitationData {
 
     public String getAuthorsString() {
         return String.join("; ", authors);
+    }
+
+    public Map<String, String> getDataCiteMetadata() {
+        String authorString = isNotEmpty(getAuthorsString())
+                ? getAuthorsString() : ":unav";
+
+        String producerString = isNotEmpty(getPublisher())
+                ? getPublisher() : ":unav";
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("datacite.creator", authorString);
+        metadata.put("datacite.title", getTitle());
+        metadata.put("datacite.publisher", producerString);
+        metadata.put("datacite.publicationyear", getYear());
+        return metadata;
     }
 
     // -------------------- SETTERS --------------------

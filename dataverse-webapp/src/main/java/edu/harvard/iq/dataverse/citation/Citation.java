@@ -21,12 +21,14 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Based on DataCitation class created by
@@ -56,71 +58,50 @@ public class Citation {
         return toString(false);
     }
 
-    public String toString(boolean html) {
+    public String toString(boolean escapeHtml) {
         String separator = ", ";
-        List<String> citationList = new ArrayList<>();
+        CitationBuilder citation = new CitationBuilder(escapeHtml);
 
-        citationList.add(formatString(data.getAuthorsString(), html));
-        citationList.add(data.getYear());
-        if ((data.getFileTitle() != null) && data.isDirect()) {
-            citationList.add(formatString(data.getFileTitle(), html, "\""));
-            citationList.add(formatString(data.getTitle(), html, "<i>", "</i>"));
+        citation.addFormatted(data.getAuthorsString())
+                .add(data.getYear());
+        if (data.getFileTitle() != null && data.isDirect()) {
+            citation.addFormatted(data.getFileTitle(), "\"")
+                    .addFormatted(data.getTitle(), "<i>", "</i>");
         } else {
-            citationList.add(formatString(data.getTitle(), html, "\""));
+            citation.addFormatted(data.getTitle(), "\"");
         }
-
         if (data.getPersistentId() != null) {
-            // always show url format
-            citationList.add(formatURL(
-                    data.getPersistentId().toURL().toString(), data.getPersistentId().toURL().toString(), html));
+            String url = data.getPersistentId().toURL().toString();
+            citation.add(citation.formatURL(url, url));
         }
-        citationList.add(formatString(data.getPublisher(), html));
-        citationList.add(data.getVersion());
-
-        StringBuilder citation = new StringBuilder(citationList.stream()
-                .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.joining(separator)));
-
-        if ((data.getFileTitle() != null) && !data.isDirect()) {
-            citation.append("; ")
-                    .append(formatString(data.getFileTitle(), html, ""))
-                    .append(" [fileName]");
+        citation.addFormatted(data.getPublisher())
+                .add(data.getVersion())
+                .join(separator, StringUtils::isNotEmpty);
+        if (data.getFileTitle() != null && !data.isDirect()) {
+            citation.add("; ", citation.escapeHtmlIfNeeded(data.getFileTitle()), " [fileName]");
         }
-        if (!StringUtils.isEmpty(data.getUNF())) {
-            citation.append(separator)
-                    .append(data.getUNF())
-                    .append(" [fileUNF]");
+        if (isNotEmpty(data.getUNF())) {
+            citation.add(separator, data.getUNF(), " [fileUNF]");
         }
-
-        for (DatasetField dsf : data.getOptionalValues()) {
-            String displayName = dsf.getDatasetFieldType().getDisplayName();
+        for (DatasetField field : data.getOptionalValues()) {
+            String displayName = field.getDatasetFieldType().getDisplayName();
             String displayValue;
 
-            if (dsf.getDatasetFieldType().getFieldType().equals(FieldType.URL)) {
-                displayValue = formatURL(dsf.getDisplayValue(), dsf.getDisplayValue(), html);
+            if (FieldType.URL.equals(field.getDatasetFieldType().getFieldType())) {
+                displayValue = citation.formatURL(field.getDisplayValue(), field.getDisplayValue());
                 if (data.getOptionalURLcount() == 1) {
                     displayName = "URL";
                 }
             } else {
-                displayValue = formatString(dsf.getDisplayValue(), html);
+                displayValue = citation.escapeHtmlIfNeeded(field.getDisplayValue());
             }
-            citation.append(" [")
-                    .append(displayName)
-                    .append(": ")
-                    .append(displayValue)
-                    .append("]");
+            citation.add(" [", displayName, ": ", displayValue, "]");
         }
-        return citation.toString();
+        return citation.join("", s -> true);
     }
 
     public String toBibtexString() {
-        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-            writeAsBibtexCitation(buffer);
-            return buffer.toString(StandardCharsets.UTF_8.name());
-        } catch (IOException ioe) {
-            logger.warn("Exception when creating BibTeX citation", ioe);
-            return StringUtils.EMPTY;
-        }
+        return writeAndGet(this::writeAsBibtexCitation);
     }
 
     public void writeAsBibtexCitation(OutputStream os) throws IOException {
@@ -155,40 +136,34 @@ public class Citation {
     }
 
     public String toRISString() {
-        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-            writeAsRISCitation(buffer);
-            return buffer.toString(StandardCharsets.UTF_8.name());
-        } catch (IOException ioe) {
-            logger.warn("Exception when creating RISS citation", ioe);
-            return StringUtils.EMPTY;
-        }
+        return writeAndGet(this::writeAsRISCitation);
     }
 
     public void writeAsRISCitation(OutputStream os) throws IOException {
-        RISSCitationBuilder riss = new RISSCitationBuilder();
-        riss.line("Provider: " + data.getPublisher())
+        RISCitationBuilder ris = new RISCitationBuilder();
+        ris.line("Provider: " + data.getPublisher())
                 .line("Content: text/plain; charset=\"utf-8\"");
         // Using type DATA: see https://github.com/IQSS/dataverse/issues/4816
         if ((data.getFileTitle() != null) && data.isDirect()) {
-            riss.line("TY  - DATA")
+            ris.line("TY  - DATA")
                     .line("T1", data.getFileTitle())
                     .line("T2", data.getTitle());
         } else {
-            riss.line("TY  - DATA")
+            ris.line("TY  - DATA")
                     .line("T1", data.getTitle());
         }
         if (data.getSeriesTitle() != null) {
-            riss.line("T3", data.getSeriesTitle());
+            ris.line("T3", data.getSeriesTitle());
         }
-        riss.lines("AU", data.getAuthors())
+        ris.lines("AU", data.getAuthors())
                 .lines("A2", data.getProducers())
                 .lines("A4", data.getFunders())
                 .lines("C3", data.getKindsOfData())
                 .lines("DA", data.getDatesOfCollection());
         if (data.getPersistentId() != null) {
-            riss.line("DO", data.getPersistentId().toString());
+            ris.line("DO", data.getPersistentId().toString());
         }
-        riss.line("ET", data.getVersion())
+        ris.line("ET", data.getVersion())
                 .lines("KW", data.getKeywords())
                 .lines("LA", data.getLanguages())
                 .line("PY", data.getYear())
@@ -198,27 +173,21 @@ public class Citation {
                 .line("PB", data.getPublisher());
         if (data.getFileTitle() != null) {
             if (!data.isDirect()) {
-                riss.line("C1", data.getFileTitle());
+                ris.line("C1", data.getFileTitle());
             }
             if (data.getUNF() != null) {
-                riss.line("C2", data.getUNF());
+                ris.line("C2", data.getUNF());
             }
         }
-        riss.line("ER", ""); // closing element
+        ris.line("ER", ""); // closing element
 
         Writer out = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        out.write(riss.toString());
+        out.write(ris.toString());
         out.flush();
     }
 
     public String toEndNoteString() {
-        try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
-            writeAsEndNoteCitation(outStream);
-            return outStream.toString(StandardCharsets.UTF_8.name());
-        } catch (IOException ioe) {
-            logger.warn("Exception when creating EndNote citation", ioe);
-            return StringUtils.EMPTY;
-        }
+        return writeAndGet(this::writeAsEndNoteCitation);
     }
 
     public void writeAsEndNoteCitation(OutputStream os) {
@@ -239,6 +208,18 @@ public class Citation {
             } catch (XMLStreamException xse) {
                 logger.warn("Exception while closing XMLStreamWriter", xse);
             }
+        }
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private String writeAndGet(ThrowingConsumer<OutputStream, IOException> streamWriter) {
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            streamWriter.accept(buffer);
+            return buffer.toString(StandardCharsets.UTF_8.name());
+        } catch (IOException ioe) {
+            logger.warn("Exception when writing citation", ioe);
+            return StringUtils.EMPTY;
         }
     }
 
@@ -321,60 +302,71 @@ public class Citation {
                 .end();
     }
 
+    // -------------------- INNER CLASSES --------------------
 
+    private interface ThrowingConsumer<C, T extends Throwable> {
+        public void accept(C c) throws T;
+    }
 
-    public Map<String, String> getDataCiteMetadata() {
-        Map<String, String> metadata = new HashMap<>();
-        String authorString = data.getAuthorsString();
+    private static class CitationBuilder {
+        private boolean escapeHtml;
+        private List<String> elements = new ArrayList<>();
 
-        if (authorString.isEmpty()) {
-            authorString = ":unav";
+        // -------------------- CONSTRUCTORS --------------------
+
+        public CitationBuilder(boolean escapeHtml) {
+            this.escapeHtml = escapeHtml;
         }
-        String producerString = data.getPublisher();
 
-        if (producerString.isEmpty()) {
-            producerString = ":unav";
+        // -------------------- LOGIC --------------------
+
+        public CitationBuilder add(String... values) {
+            elements.addAll(Arrays.asList(values));
+            return this;
         }
 
-        metadata.put("datacite.creator", authorString);
-        metadata.put("datacite.title", data.getTitle());
-        metadata.put("datacite.publisher", producerString);
-        metadata.put("datacite.publicationyear", data.getYear());
-        return metadata;
-    }
-
-
-    // helper methods
-    private String formatString(String value, boolean escapeHtml) {
-        return formatString(value, escapeHtml, "");
-    }
-
-    private String formatString(String value, boolean escapeHtml, String wrapperFront) {
-        return formatString(value, escapeHtml, wrapperFront, wrapperFront);
-    }
-
-    private String formatString(String value, boolean escapeHtml, String wrapperStart, String wrapperEnd) {
-        if (!StringUtils.isEmpty(value)) {
-            return wrapperStart
-                    + (escapeHtml ? StringEscapeUtils.escapeHtml4(value) : value)
-                    + wrapperEnd;
+        public CitationBuilder addFormatted(String value) {
+            return addFormatted(value, "");
         }
-        return null;
-    }
 
-    private String formatURL(String text, String url, boolean html) {
-        if (text == null) {
+        public CitationBuilder addFormatted(String value, String delimiter) {
+            return addFormatted(value, delimiter, delimiter);
+        }
+
+        public CitationBuilder addFormatted(String value, String startDelimiter, String endDelimiter) {
+            if (isNotEmpty(value)) {
+                elements.add(startDelimiter
+                        + (escapeHtml ? StringEscapeUtils.escapeHtml4(value) : value)
+                        + endDelimiter);
+            }
+            return this;
+        }
+
+        public String escapeHtmlIfNeeded(String value) {
+            if (isNotEmpty(value)) {
+                return escapeHtml ? StringEscapeUtils.escapeHtml4(value) : value;
+            }
             return null;
         }
 
-        if (html && url != null) {
-            return "<a href=\"" + url + "\" target=\"_blank\">" + StringEscapeUtils.escapeHtml4(text) + "</a>";
-        } else {
-            return text;
+        public String formatURL(String text, String url) {
+            if (text == null) {
+                return null;
+            }
+            return escapeHtml && url != null
+                    ? "<a href=\"" + url + "\" target=\"_blank\">" + StringEscapeUtils.escapeHtml4(text) + "</a>"
+                    : text;
+        }
+
+        public String join(String separator, Predicate<String> filter) {
+            String joined = elements.stream()
+                    .filter(filter)
+                    .collect(Collectors.joining(separator));
+            elements.clear();
+            elements.add(joined);
+            return joined;
         }
     }
-
-    // -------------------- INNER CLASSES --------------------
 
     private static class BibTeXCitationBuilder {
         private StringBuilder sb = new StringBuilder();
@@ -408,29 +400,29 @@ public class Citation {
         }
     }
 
-    private static class RISSCitationBuilder {
+    private static class RISCitationBuilder {
         private StringBuilder sb = new StringBuilder();
 
         // -------------------- LOGIC --------------------
 
-        public RISSCitationBuilder line(String value) {
+        public RISCitationBuilder line(String value) {
             sb.append(value)
                     .append("\r\n");
             return this;
         }
 
-        public RISSCitationBuilder line(String label, String value) {
+        public RISCitationBuilder line(String label, String value) {
             sb.append(label)
                     .append("  - ");
             return line(value);
         }
 
-        public RISSCitationBuilder lines(String label, Collection<String> values) {
+        public RISCitationBuilder lines(String label, Collection<String> values) {
             values.forEach(v -> line(label, v));
             return this;
         }
 
-        public RISSCitationBuilder add(String text) {
+        public RISCitationBuilder add(String text) {
             sb.append(text);
             return this;
         }
@@ -474,13 +466,13 @@ public class Citation {
             if (values.isEmpty()) {
                 return this;
             }
-            if (StringUtils.isNotEmpty(collectionTag)) {
+            if (isNotEmpty(collectionTag)) {
                 startTag(collectionTag);
             }
             for (String value : values) {
                 addTagWithValue(itemTag, value);
             }
-            if (StringUtils.isNotEmpty(collectionTag)) {
+            if (isNotEmpty(collectionTag)) {
                 endTag();
             }
             return this;

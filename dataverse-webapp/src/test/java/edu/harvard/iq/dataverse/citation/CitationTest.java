@@ -66,7 +66,8 @@ class CitationTest {
         Citation citation = citationFactory.create(createATestDatasetVersion("Dataset Title", true));
 
         //when
-        Map<String, String> properties = citation.getDataCiteMetadata();
+        Map<String, String> properties = citation.getCitationData()
+                .getDataCiteMetadata();
 
         //then
         assertEquals(4, properties.size());
