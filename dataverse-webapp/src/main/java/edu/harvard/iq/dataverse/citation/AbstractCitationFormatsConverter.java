@@ -1,16 +1,11 @@
 package edu.harvard.iq.dataverse.citation;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,23 +19,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 abstract class AbstractCitationFormatsConverter implements CitationFormatsConverter {
     private static final Logger logger = LoggerFactory.getLogger(AbstractCitationFormatsConverter.class);
 
-    // -------------------- LOGIC --------------------
-
-    String writeAndGet(CitationData data, ThrowingConsumer<OutputStream, IOException> streamWriter) {
-        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-            streamWriter.accept(data, buffer);
-            return buffer.toString(StandardCharsets.UTF_8.name());
-        } catch (IOException ioe) {
-            logger.warn("Exception when writing citation", ioe);
-            return StringUtils.EMPTY;
-        }
-    }
-
     // -------------------- INNER CLASSES --------------------
-
-    interface ThrowingConsumer<C, T extends Throwable> {
-        public void accept(CitationData data, C c) throws T;
-    }
 
     static class CitationBuilder {
         private boolean escapeHtml;

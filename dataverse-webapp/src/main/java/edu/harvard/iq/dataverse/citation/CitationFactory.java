@@ -25,12 +25,8 @@ public class CitationFactory {
 
     // -------------------- LOGIC --------------------
 
-    public Citation create(DatasetVersion datasetVersion, boolean direct) {
-        return new Citation(dataExtractor.create(datasetVersion, direct), converter);
-    }
-
     public Citation create(DatasetVersion datasetVersion) {
-        return create(datasetVersion, false);
+        return new Citation(dataExtractor.create(datasetVersion), converter);
     }
 
     public Citation create(FileMetadata fileMetadata, boolean direct) {

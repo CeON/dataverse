@@ -22,7 +22,7 @@ class CitationDataExtractorTest {
 
         // given & when
         CitationData citationData = dataExtractor.create(
-                utils.createATestDatasetVersion("Dataset Title", true), false);
+                utils.createATestDatasetVersion("Dataset Title", true));
 
         // then
         assertThat(citationData.getAuthorsString()).isEqualTo("First Last");
@@ -41,7 +41,7 @@ class CitationDataExtractorTest {
 
         //given
         CitationData citationData = dataExtractor.create(
-                utils.createATestDatasetVersion("Dataset Title", true), false);
+                utils.createATestDatasetVersion("Dataset Title", true));
 
         //when
         Map<String, String> properties = citationData.getDataCiteMetadata();

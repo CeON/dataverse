@@ -9,18 +9,20 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Priority;
 import javax.ejb.EJBException;
-import javax.ejb.Stateless;
 import javax.enterprise.inject.Alternative;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -80,11 +82,6 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
 
     @Override
     public String toBibtexString(CitationData data) {
-        return writeAndGet(data, this::writeAsBibtexCitation);
-    }
-
-    @Override
-    public void writeAsBibtexCitation(CitationData data, OutputStream os) throws IOException {
         GlobalId pid = data.getPersistentId();
         BibTeXCitationBuilder bibtex = new BibTeXCitationBuilder()
                 .add(data.getFileTitle() != null && data.isDirect() ? "@incollection{" : "@data{")
@@ -105,25 +102,17 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
             bibtex.line("UNF", data.getUNF());
         }
         bibtex.line("year", data.getYear())
-            .line("version", data.getVersion())
-            .line("doi", pid.getAuthority() + "/" + pid.getIdentifier())
-            .line("url", pid.toURL().toString(), s -> bibtex.mapValue(s, "{", "}"))
-            .add("}\r\n");
-
-        Writer out = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        out.write(bibtex.toString());
-        out.flush();
+                .line("version", data.getVersion())
+                .line("doi", pid.getAuthority() + "/" + pid.getIdentifier())
+                .line("url", pid.toURL().toString(), s -> bibtex.mapValue(s, "{", "}"))
+                .add("}\r\n");
+        return bibtex.toString();
     }
 
     @Override
     public String toRISString(CitationData data) {
-        return writeAndGet(data, this::writeAsRISCitation);
-    }
-
-    @Override
-    public void writeAsRISCitation(CitationData data, OutputStream os) throws IOException {
-        RISCitationBuilder ris = new RISCitationBuilder();
-        ris.line("Provider: " + data.getPublisher())
+        RISCitationBuilder ris = new RISCitationBuilder()
+                .line("Provider: " + data.getPublisher())
                 .line("Content: text/plain; charset=\"utf-8\"");
         // Using type DATA: see https://github.com/IQSS/dataverse/issues/4816
         if ((data.getFileTitle() != null) && data.isDirect()) {
@@ -162,27 +151,20 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
             }
         }
         ris.line("ER", ""); // closing element
-
-        Writer out = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-        out.write(ris.toString());
-        out.flush();
+        return ris.toString();
     }
 
     @Override
     public String toEndNoteString(CitationData data) {
-        return writeAndGet(data, this::writeAsEndNoteCitation);
-    }
-
-    @Override
-    public void writeAsEndNoteCitation(CitationData data, OutputStream os) {
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter xmlw = null;
-        try {
-            xmlw = xmlOutputFactory.createXMLStreamWriter(os);
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            xmlw = xmlOutputFactory.createXMLStreamWriter(buffer);
             createEndNoteXML(data, xmlw);
-        } catch (XMLStreamException xse) {
-            logger.error("", xse);
-            throw new EJBException("Error occurred during creating endnote xml.", xse);
+            return buffer.toString();
+        } catch (XMLStreamException | IOException e) {
+            logger.error("", e);
+            throw new EJBException("Error occurred during creating endnote xml.", e);
         } finally {
             try {
                 if (xmlw != null) {

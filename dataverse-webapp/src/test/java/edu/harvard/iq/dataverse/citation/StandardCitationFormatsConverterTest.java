@@ -26,38 +26,12 @@ class StandardCitationFormatsConverterTest {
     // -------------------- TESTS --------------------
 
     @Test
-    @DisplayName("Should write BibTeX citation to output stream")
-    void writeAsBibtexCitation() throws ParseException, IOException {
-
-        // given
-        DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
-
-        // when
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        converter.writeAsBibtexCitation(citationData, os);
-        os.close();
-        String bibtex = new String(os.toByteArray(), StandardCharsets.UTF_8);
-
-        // then
-        assertThat(bibtex).isEqualTo("@data{LK0D1H_1955,\r\n"
-                        + "author = {First Last},\r\n"
-                        + "publisher = {LibraScholar},\r\n"
-                        + "title = \"{Dataset Title}\",\r\n"
-                        + "year = {1955},\r\n"
-                        + "version = {V1},\r\n"
-                        + "doi = {10.5072/FK2/LK0D1H},\r\n"
-                        + "url = {https://doi.org/10.5072/FK2/LK0D1H}\r\n"
-                        + "}\r\n");
-    }
-
-    @Test
     @DisplayName("Should create BibTeX citation")
     void toBibtexString() throws ParseException {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
 
@@ -81,7 +55,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", false);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String bibtex = converter.toBibtexString(citationData);
@@ -104,7 +78,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion(null, true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String bibtex = converter.toBibtexString(citationData);
@@ -127,7 +101,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion(null, false);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String bibtex = converter.toBibtexString(citationData);
@@ -150,7 +124,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("This Title \"Has Quotes\" In It", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String bibtex = converter.toBibtexString(citationData);
@@ -173,7 +147,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String ris = converter.toRISString(citationData);
@@ -199,7 +173,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion(null, false);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String ris = converter.toRISString(citationData);
@@ -224,7 +198,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String endNote = converter.toEndNoteString(citationData);
@@ -256,7 +230,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion(null, false);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String endNote = converter.toEndNoteString(citationData);
@@ -286,7 +260,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String citation = converter.toString(citationData, false);
@@ -302,7 +276,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion(null, false);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String citation = converter.toString(citationData, false);
@@ -318,7 +292,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion("Dataset Title", true);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String citation = converter.toString(citationData, true);
@@ -335,7 +309,7 @@ class StandardCitationFormatsConverterTest {
 
         // given
         DatasetVersion datasetVersion = utils.createATestDatasetVersion(null, false);
-        CitationData citationData = dataExtractor.create(datasetVersion, false);
+        CitationData citationData = dataExtractor.create(datasetVersion);
 
         // when
         String citation = converter.toString(citationData, true);

@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
-import io.vavr.Lazy;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -29,12 +29,12 @@ public class CitationDataExtractor {
 
     // -------------------- LOGIC --------------------
 
-    public CitationData create(DatasetVersion datasetVersion, boolean direct) {
+    public CitationData create(DatasetVersion datasetVersion) {
         CitationData data = new CitationData();
         extractAndWriteCommonValues(datasetVersion, data);
 
-        data.setDirect(direct)
-                .setPersistentId(extractPID(datasetVersion, datasetVersion.getDataset(), direct)) // Global Id: always part of citation for local datasets & some harvested
+        data.setDirect(false)
+                .setPersistentId(extractPID(datasetVersion, datasetVersion.getDataset(), false)) // Global Id: always part of citation for local datasets & some harvested
                 .setUNF(datasetVersion.getUNF());
 
         for (DatasetFieldType dsfType : datasetVersion.getDataset().getOwner().getCitationDatasetFieldTypes()) {
@@ -107,11 +107,14 @@ public class CitationDataExtractor {
     }
 
     private boolean shouldCreateGlobalId(DatasetVersion dsv) {
-        Lazy<String> harvestStyle = Lazy.of(() -> dsv.getDataset().getHarvestedFrom().getHarvestStyle());
+        String harvestStyle = Optional.ofNullable(dsv.getDataset().getHarvestedFrom())
+                .map(HarvestingClient::getHarvestStyle)
+                .orElse(StringUtils.EMPTY);
+
         return !dsv.getDataset().isHarvested()
-                || HarvestingClient.HARVEST_STYLE_VDC.equals(harvestStyle.get())
-                || HarvestingClient.HARVEST_STYLE_ICPSR.equals(harvestStyle.get())
-                || HarvestingClient.HARVEST_STYLE_DATAVERSE.equals(harvestStyle.get());
+                || HarvestingClient.HARVEST_STYLE_VDC.equals(harvestStyle)
+                || HarvestingClient.HARVEST_STYLE_ICPSR.equals(harvestStyle)
+                || HarvestingClient.HARVEST_STYLE_DATAVERSE.equals(harvestStyle);
     }
 
     private Date extractCitationDate(DatasetVersion dsv) {
