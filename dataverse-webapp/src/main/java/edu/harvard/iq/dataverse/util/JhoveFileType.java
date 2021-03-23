@@ -24,10 +24,11 @@ import edu.harvard.hul.ois.jhove.JhoveBase;
 import edu.harvard.hul.ois.jhove.JhoveException;
 import edu.harvard.hul.ois.jhove.Module;
 import edu.harvard.hul.ois.jhove.RepInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 /**
  * This is based on Akio Sone's implementation from DVN v2-3:
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  * @author landreev
  */
 public class JhoveFileType implements java.io.Serializable {
-    private static final Logger logger = Logger.getLogger(JhoveFileType.class.getCanonicalName());
+    private static final Logger logger = LoggerFactory.getLogger(JhoveFileType.class);
 
     private static final int[] ORIGINAL_RELEASE_DATE = {2013, 8, 30};
     private static final String ORIGINAL_COPR_RIGHTS = "Copyright"
@@ -118,7 +119,7 @@ public class JhoveFileType implements java.io.Serializable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to detect file type using jhove", e);
         }
         return info;
     }
