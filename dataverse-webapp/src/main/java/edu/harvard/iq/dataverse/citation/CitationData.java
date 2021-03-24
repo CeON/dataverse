@@ -16,11 +16,16 @@ public class CitationData {
     private boolean direct;
 
     private List<String> authors = new ArrayList<>();
-    private List<String> producers = new ArrayList<>();
+    private List<Producer> producers = new ArrayList<>();
+    private List<String> distributors = new ArrayList<>();
+    private String productionPlace;
+    private String productionDate;
+    private String rootDataverseName;
     private String title;
     private String fileTitle = null;
     private String year;
     private Date date;
+    private String releaseYear;
     private GlobalId persistentId;
     private String version;
     private String UNF = null;
@@ -33,7 +38,7 @@ public class CitationData {
     private List<String> kindsOfData = new ArrayList<>();
     private List<String> languages = new ArrayList<>();
     private List<String> spatialCoverages = new ArrayList<>();
-
+    private List<String> otherIds = new ArrayList<>();
     private List<DatasetField> optionalValues = new ArrayList<>();
     private int optionalURLcount = 0;
 
@@ -47,8 +52,28 @@ public class CitationData {
         return authors;
     }
 
-    public List<String> getProducers() {
+    public List<Producer> getProducers() {
         return producers;
+    }
+
+    public List<String> getDistributors() {
+        return distributors;
+    }
+
+    public String getProductionPlace() {
+        return productionPlace;
+    }
+
+    public String getProductionDate() {
+        return productionDate;
+    }
+
+    public String getRootDataverseName() {
+        return rootDataverseName;
+    }
+
+    public String getReleaseYear() {
+        return releaseYear;
     }
 
     public String getTitle() {
@@ -115,6 +140,10 @@ public class CitationData {
         return spatialCoverages;
     }
 
+    public List<String> getOtherIds() {
+        return otherIds;
+    }
+
     public List<DatasetField> getOptionalValues() {
         return optionalValues;
     }
@@ -148,6 +177,26 @@ public class CitationData {
 
     CitationData setDirect(boolean direct) {
         this.direct = direct;
+        return this;
+    }
+
+    CitationData setProductionPlace(String productionPlace) {
+        this.productionPlace = productionPlace;
+        return this;
+    }
+
+    CitationData setProductionDate(String productionDate) {
+        this.productionDate = productionDate;
+        return this;
+    }
+
+    CitationData setRootDataverseName(String rootDataverseName) {
+        this.rootDataverseName = rootDataverseName;
+        return this;
+    }
+
+    CitationData setReleaseYear(String releaseYear) {
+        this.releaseYear = releaseYear;
         return this;
     }
 
@@ -209,5 +258,29 @@ public class CitationData {
     CitationData setOptionalURLcount(int optionalURLcount) {
         this.optionalURLcount = optionalURLcount;
         return this;
+    }
+
+    // -------------------- INNER CLASSES --------------------
+
+    public static class Producer {
+        private final String name;
+        private final String affiliation;
+
+        // -------------------- CONSTRUCTORS --------------------
+
+        public Producer(String name, String affiliation) {
+            this.name = name;
+            this.affiliation = affiliation;
+        }
+
+        // -------------------- GETTERS --------------------
+
+        public String getName() {
+            return name;
+        }
+
+        public String getAffiliation() {
+            return affiliation;
+        }
     }
 }
