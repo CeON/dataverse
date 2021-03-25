@@ -7,9 +7,7 @@ import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,16 +38,6 @@ public class CitationDataExtractor {
                 .setPersistentId(extractPID(datasetVersion, datasetVersion.getDataset(), false)) // Global Id: always part of citation for local datasets & some harvested
                 .setUNF(datasetVersion.getUNF());
 
-        for (DatasetFieldType dsfType : datasetVersion.getDataset().getOwner().getCitationDatasetFieldTypes()) {
-            DatasetField dsf = datasetVersion.getDatasetField(dsfType);
-            if (dsf != null) {
-                data.getOptionalValues().add(dsf);
-
-                if (FieldType.URL.equals(dsf.getDatasetFieldType().getFieldType())) {
-                    data.setOptionalURLcount(data.getOptionalURLcount() + 1);
-                }
-            }
-        }
         return data;
     }
 

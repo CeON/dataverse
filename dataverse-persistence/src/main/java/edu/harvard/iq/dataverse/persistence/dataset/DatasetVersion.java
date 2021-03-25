@@ -744,7 +744,7 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
         return getDatasetProducers(DatasetField::getDisplayValue);
     }
 
-    public List<String[]> getDatasetProducers(Function<DatasetField, String> affiliationValueMapper) {
+    public List<String[]> getDatasetProducers(Function<DatasetField, String> valueMapper) {
         List<String[]> retList = new ArrayList<>();
         for (DatasetField dsf : this.getDatasetFields()) {
             Boolean addContributor = true;
@@ -756,10 +756,10 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
                         if (subField.isEmptyForDisplay()) {
                             addContributor = false;
                         }
-                        contributorName = subField.getDisplayValue();
+                        contributorName = valueMapper.apply(subField);
                     }
                     if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.producerAffiliation)) {
-                        contributorAffiliation = affiliationValueMapper.apply(subField);
+                        contributorAffiliation = valueMapper.apply(subField);
                     }
 
                 }

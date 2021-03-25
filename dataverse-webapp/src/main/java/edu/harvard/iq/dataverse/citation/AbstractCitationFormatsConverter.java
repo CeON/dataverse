@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-abstract class AbstractCitationFormatsConverter implements CitationFormatsConverter {
+public abstract class AbstractCitationFormatsConverter implements CitationFormatsConverter {
 
     // -------------------- INNER CLASSES --------------------
 
-    static class CitationBuilder {
+    protected static class CitationBuilder {
         private final boolean escapeHtml;
         private final StringBuilder citation = new StringBuilder();
         private final List<Token> partElements = new ArrayList<>();
@@ -100,8 +100,12 @@ abstract class AbstractCitationFormatsConverter implements CitationFormatsConver
     }
 
 
-    static class BibTeXCitationBuilder {
+    protected static class BibTeXCitationBuilder {
         private StringBuilder sb = new StringBuilder();
+
+        // -------------------- CONSTRUCTORS --------------------
+
+        public BibTeXCitationBuilder() { }
 
         // -------------------- LOGIC --------------------
 
@@ -132,8 +136,12 @@ abstract class AbstractCitationFormatsConverter implements CitationFormatsConver
         }
     }
 
-    static class RISCitationBuilder {
+    protected static class RISCitationBuilder {
         private StringBuilder sb = new StringBuilder();
+
+        // -------------------- CONSTRUCTORS --------------------
+
+        public RISCitationBuilder() { }
 
         // -------------------- LOGIC --------------------
 
@@ -165,7 +173,7 @@ abstract class AbstractCitationFormatsConverter implements CitationFormatsConver
         }
     }
 
-    static class EndNoteCitationBuilder {
+    protected static class EndNoteCitationBuilder {
         private XMLStreamWriter writer;
 
         // -------------------- CONSTRUCTORS --------------------

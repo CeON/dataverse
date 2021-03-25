@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.citation;
 
 import edu.harvard.iq.dataverse.persistence.GlobalId;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,8 +38,6 @@ public class CitationData {
     private List<String> languages = new ArrayList<>();
     private List<String> spatialCoverages = new ArrayList<>();
     private List<String> otherIds = new ArrayList<>();
-    private List<DatasetField> optionalValues = new ArrayList<>();
-    private int optionalURLcount = 0;
 
     // -------------------- GETTERS --------------------
 
@@ -144,14 +141,6 @@ public class CitationData {
         return otherIds;
     }
 
-    public List<DatasetField> getOptionalValues() {
-        return optionalValues;
-    }
-
-    public int getOptionalURLcount() {
-        return optionalURLcount;
-    }
-
     // -------------------- LOGIC --------------------
 
     public String getAuthorsString() {
@@ -175,88 +164,83 @@ public class CitationData {
 
     // -------------------- SETTERS --------------------
 
-    CitationData setDirect(boolean direct) {
+    public CitationData setDirect(boolean direct) {
         this.direct = direct;
         return this;
     }
 
-    CitationData setProductionPlace(String productionPlace) {
+    public CitationData setProductionPlace(String productionPlace) {
         this.productionPlace = productionPlace;
         return this;
     }
 
-    CitationData setProductionDate(String productionDate) {
+    public CitationData setProductionDate(String productionDate) {
         this.productionDate = productionDate;
         return this;
     }
 
-    CitationData setRootDataverseName(String rootDataverseName) {
+    public CitationData setRootDataverseName(String rootDataverseName) {
         this.rootDataverseName = rootDataverseName;
         return this;
     }
 
-    CitationData setReleaseYear(String releaseYear) {
+    public CitationData setReleaseYear(String releaseYear) {
         this.releaseYear = releaseYear;
         return this;
     }
 
-    CitationData setTitle(String title) {
+    public CitationData setTitle(String title) {
         this.title = title;
         return this;
     }
 
-    CitationData setFileTitle(String fileTitle) {
+    public CitationData setFileTitle(String fileTitle) {
         this.fileTitle = fileTitle;
         return this;
     }
 
-    CitationData setYear(String year) {
+    public CitationData setYear(String year) {
         this.year = year;
         return this;
     }
 
-    CitationData setDate(Date date) {
+    public CitationData setDate(Date date) {
         this.date = date;
         return this;
     }
 
-    CitationData setPersistentId(GlobalId persistentId) {
+    public CitationData setPersistentId(GlobalId persistentId) {
         this.persistentId = persistentId;
         return this;
     }
 
-    CitationData setVersion(String version) {
+    public CitationData setVersion(String version) {
         this.version = version;
         return this;
     }
 
-    CitationData setUNF(String UNF) {
+    public CitationData setUNF(String UNF) {
         this.UNF = UNF;
         return this;
     }
 
-    CitationData setPublisher(String publisher) {
+    public CitationData setPublisher(String publisher) {
         this.publisher = publisher;
         return this;
     }
 
-    CitationData setFunders(List<String> funders) {
+    public CitationData setFunders(List<String> funders) {
         this.funders = funders;
         return this;
     }
 
-    CitationData setSeriesTitle(String seriesTitle) {
+    public CitationData setSeriesTitle(String seriesTitle) {
         this.seriesTitle = seriesTitle;
         return this;
     }
 
-    CitationData setDescription(String description) {
+    public CitationData setDescription(String description) {
         this.description = description;
-        return this;
-    }
-
-    CitationData setOptionalURLcount(int optionalURLcount) {
-        this.optionalURLcount = optionalURLcount;
         return this;
     }
 
