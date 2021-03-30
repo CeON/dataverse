@@ -189,9 +189,20 @@
     <field name="parentId" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="parentIdentifier" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="parentName" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="parentCitation" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="citation" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="citationHtml" type="string" stored="true" indexed="false" multiValued="false"/>
+
+    <!-- Citations -->
+    <!-- For every new configured language one has to add additional version of each of the following fields   -->
+    <!-- with suffix that is a result of calling Locale#getLanguage() for the locale of a language being added -->
+    <field name="parentCitation_en" type="string" stored="true" indexed="false" multiValued="false"/>
+    <field name="parentCitation_pl" type="string" stored="true" indexed="false" multiValued="false"/>
+
+    <field name="citation_en" type="string" stored="true" indexed="false" multiValued="false"/>
+    <field name="citation_pl" type="string" stored="true" indexed="false" multiValued="false"/>
+
+    <field name="citationHtml_en" type="string" stored="true" indexed="false" multiValued="false"/>
+    <field name="citationHtml_pl" type="string" stored="true" indexed="false" multiValued="false"/>
+    <!-- Citations END -->
+
     <field name="identifier" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="persistentUrl" type="string" stored="true" indexed="false" multiValued="false"/>
     <field name="unf" type="string" stored="true" indexed="true" multiValued="false"/>
@@ -410,7 +421,7 @@
 
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
-    
+
     <fieldType name="daterange" class="solr.DateRangeField" />
 
     <!-- This is an example of using the KeywordTokenizer along
