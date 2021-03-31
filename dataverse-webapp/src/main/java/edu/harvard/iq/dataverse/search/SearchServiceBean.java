@@ -59,7 +59,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -323,8 +322,8 @@ public class SearchServiceBean {
             float score = (Float) solrDocument.getFieldValue(SearchFields.RELEVANCE);
             logger.fine("score for " + id + ": " + score);
             String identifier = (String) solrDocument.getFieldValue(SearchFields.IDENTIFIER);
-            String citation = (String) solrDocument.getFieldValue(SearchFields.DATASET_CITATION + getCurrentLocaleSuffix());
-            String citationPlainHtml = (String) solrDocument.getFieldValue(SearchFields.DATASET_CITATION_HTML + getCurrentLocaleSuffix());
+            String citation = getLocalizedValueWithFallback(solrDocument, SearchFields.DATASET_CITATION);
+            String citationPlainHtml = getLocalizedValueWithFallback(solrDocument, SearchFields.DATASET_CITATION_HTML);
             String persistentUrl = (String) solrDocument.getFieldValue(SearchFields.PERSISTENT_URL);
             String name = (String) solrDocument.getFieldValue(SearchFields.NAME);
             String nameSort = (String) solrDocument.getFieldValue(SearchFields.NAME_SORT);
@@ -515,7 +514,7 @@ public class SearchServiceBean {
             // @todo store PARENT_ID as a long instead and cast as such
             parent.put("id", (String) solrDocument.getFieldValue(SearchFields.PARENT_ID));
             parent.put("name", (String) solrDocument.getFieldValue(SearchFields.PARENT_NAME));
-            parent.put("citation", (String) solrDocument.getFieldValue(SearchFields.PARENT_CITATION + getCurrentLocaleSuffix()));
+            parent.put("citation", getLocalizedValueWithFallback(solrDocument, SearchFields.PARENT_CITATION));
             solrSearchResult.setParent(parent);
             solrSearchResults.add(solrSearchResult);
         }
@@ -848,8 +847,10 @@ public class SearchServiceBean {
         query.addFilterQuery(SearchFields.TYPE + ":(" + filterValue + ")");
     }
 
-    private String getCurrentLocaleSuffix() {
-        Locale currentLocale = BundleUtil.getCurrentLocale();
-        return "_" + currentLocale.getLanguage();
+    private String getLocalizedValueWithFallback(SolrDocument document, String fieldName) {
+        String suffix = "_" + BundleUtil.getCurrentLocale().getLanguage();
+        return (String) (document.containsKey(fieldName + suffix)
+                ? document.getFieldValue(fieldName + suffix)
+                : document.getFieldValue(fieldName + "_en"));
     }
 }

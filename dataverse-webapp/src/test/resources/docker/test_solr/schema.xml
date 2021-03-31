@@ -189,12 +189,9 @@
     <field name="parentId" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="parentIdentifier" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="parentName" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="parentCitation_en" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="parentCitation_pl" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="citation_en" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="citation_pl" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="citationHtml_en" type="string" stored="true" indexed="false" multiValued="false"/>
-    <field name="citationHtml_pl" type="string" stored="true" indexed="false" multiValued="false"/>
+    <dynamicField name="parentCitation_*" type="string" stored="true" indexed="false" multiValued="false"/>
+    <dynamicField name="citation_*" type="string" stored="true" indexed="false" multiValued="false"/>
+    <dynamicField name="citationHtml_*" type="string" stored="true" indexed="false" multiValued="false"/>
     <field name="identifier" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="persistentUrl" type="string" stored="true" indexed="false" multiValued="false"/>
     <field name="unf" type="string" stored="true" indexed="true" multiValued="false"/>

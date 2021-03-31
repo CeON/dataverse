@@ -1038,7 +1038,7 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.PARENT_IDENTIFIER, fileMetadata.getDataFile().getOwner().getGlobalId().toString());
                     for (Locale locale : configuredLocales) {
                         datafileSolrInputDocument.addField(SearchFields.PARENT_CITATION + "_" + locale.getLanguage(),
-                                citationFactory.create(fileMetadata.getDataFile().getOwner().getLatestVersion(), locale)
+                                citationFactory.create(fileMetadata.getDatasetVersion(), locale)
                                         .toString(false));
                     }
                     datafileSolrInputDocument.addField(SearchFields.PARENT_NAME, parentDatasetTitle);
