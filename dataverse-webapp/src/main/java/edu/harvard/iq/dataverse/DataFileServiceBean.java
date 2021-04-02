@@ -151,14 +151,15 @@ public class DataFileServiceBean implements java.io.Serializable {
         */
         String qr = "select o from DataFile o where o.rootDataFileId = :datafileId order by o.id";
         return em.createQuery(qr, DataFile.class)
-                .setParameter("datafileId", datafileId).getResultList();
+                 .setParameter("datafileId", datafileId).getResultList();
     }
 
     public List<DataFile> findDataFilesByFileMetadataIds(Collection<Long> fileMetadataIds) {
-        return em.createQuery("SELECT d FROM FileMetadata f JOIN f.dataFile d WHERE f.id IN :fileMetadataIds", DataFile.class)
-                 .setParameter("fileMetadataIds", fileMetadataIds)
-                 .setHint("eclipselink.QUERY_RESULTS_CACHE", "TRUE")
-                 .getResultList();
+        return em
+                .createQuery("SELECT d FROM FileMetadata f JOIN f.dataFile d WHERE f.id IN :fileMetadataIds", DataFile.class)
+                .setParameter("fileMetadataIds", fileMetadataIds)
+                .setHint("eclipselink.QUERY_RESULTS_CACHE", "TRUE")
+                .getResultList();
     }
 
     public DataFile findByStorageIdandDatasetVersion(String storageId, DatasetVersion dv) {
@@ -191,9 +192,9 @@ public class DataFileServiceBean implements java.io.Serializable {
         String sortOrderString = sortFieldAndOrder.getSortOrder() == SortOrder.desc ? "desc" : "asc";
         String qr = "select o from FileMetadata o where o.datasetVersion.id = :datasetVersionId order by o." + sortFieldString + " " + sortOrderString;
         return em.createQuery(qr, FileMetadata.class)
-                .setParameter("datasetVersionId", datasetVersionId)
-                .setMaxResults(maxResults)
-                .getResultList();
+                 .setParameter("datasetVersionId", datasetVersionId)
+                 .setMaxResults(maxResults)
+                 .getResultList();
     }
 
     public List<Integer> findFileMetadataIdsByDatasetVersionIdLabelSearchTerm(Long datasetVersionId,
@@ -202,7 +203,8 @@ public class DataFileServiceBean implements java.io.Serializable {
 
         String searchClause = "";
         if (searchTerm != null && !searchTerm.isEmpty()) {
-            searchClause = " and  (lower(o.label) like '%" + searchTerm.toLowerCase() + "%' or lower(o.description) like '%" + searchTerm.toLowerCase() + "%')";
+            searchClause = " and  (lower(o.label) like '%" + searchTerm.toLowerCase() + "%' or lower(o.description) like '%" + searchTerm
+                    .toLowerCase() + "%')";
         }
 
         //the createNativeQuary takes persistant entities, which Integer.class is not,
@@ -210,8 +212,11 @@ public class DataFileServiceBean implements java.io.Serializable {
         //as the second parameter. 
         return em.createNativeQuery("select o.id from FileMetadata o where o.datasetVersion_id = " + datasetVersionId
                                             + searchClause
-                                            + " order by o." + sortFieldAndOrder.getSortField() + " " + (sortFieldAndOrder.getSortOrder() == SortOrder.desc ? "desc" : "asc"))
-                .getResultList();
+                                            + " order by o." + sortFieldAndOrder.getSortField() + " " + (
+                sortFieldAndOrder.getSortOrder() == SortOrder.desc ?
+                        "desc" :
+                        "asc"))
+                 .getResultList();
     }
 
     public FileMetadata findFileMetadata(Long fileMetadataId) {
@@ -249,7 +254,9 @@ public class DataFileServiceBean implements java.io.Serializable {
         Object[] result;
 
         try {
-            result = (Object[]) em.createNativeQuery("SELECT t0.ID, t0.CREATEDATE, t0.INDEXTIME, t0.MODIFICATIONTIME, t0.PERMISSIONINDEXTIME, t0.PERMISSIONMODIFICATIONTIME, t0.PUBLICATIONDATE, t0.CREATOR_ID, t0.RELEASEUSER_ID, t0.PREVIEWIMAGEAVAILABLE, t1.CONTENTTYPE, t0.STORAGEIDENTIFIER, t1.FILESIZE, t1.INGESTSTATUS, t1.CHECKSUMVALUE, t3.ID, t2.AUTHORITY, t2.IDENTIFIER, t1.CHECKSUMTYPE, t1.PREVIOUSDATAFILEID, t1.ROOTDATAFILEID, t0.AUTHORITY, T0.PROTOCOL, T0.IDENTIFIER FROM DVOBJECT t0, DATAFILE t1, DVOBJECT t2, DATASET t3 WHERE ((t0.ID = " + id + ") AND (t0.OWNER_ID = t2.ID) AND (t2.ID = t3.ID) AND (t1.ID = t0.ID))").getSingleResult();
+            result = (Object[]) em
+                    .createNativeQuery("SELECT t0.ID, t0.CREATEDATE, t0.INDEXTIME, t0.MODIFICATIONTIME, t0.PERMISSIONINDEXTIME, t0.PERMISSIONMODIFICATIONTIME, t0.PUBLICATIONDATE, t0.CREATOR_ID, t0.RELEASEUSER_ID, t0.PREVIEWIMAGEAVAILABLE, t1.CONTENTTYPE, t0.STORAGEIDENTIFIER, t1.FILESIZE, t1.INGESTSTATUS, t1.CHECKSUMVALUE, t3.ID, t2.AUTHORITY, t2.IDENTIFIER, t1.CHECKSUMTYPE, t1.PREVIOUSDATAFILEID, t1.ROOTDATAFILEID, t0.AUTHORITY, T0.PROTOCOL, T0.IDENTIFIER FROM DVOBJECT t0, DATAFILE t1, DVOBJECT t2, DATASET t3 WHERE ((t0.ID = " + id + ") AND (t0.OWNER_ID = t2.ID) AND (t2.ID = t3.ID) AND (t1.ID = t0.ID))")
+                    .getSingleResult();
         } catch (Exception ex) {
             return null;
         }
@@ -397,7 +404,9 @@ public class DataFileServiceBean implements java.io.Serializable {
         if (TextMimeType.TSV.getMimeValue().equalsIgnoreCase(contentType)) {
             Object[] dtResult;
             try {
-                dtResult = (Object[]) em.createNativeQuery("SELECT ID, UNF, CASEQUANTITY, VARQUANTITY, ORIGINALFILEFORMAT, ORIGINALFILESIZE FROM dataTable WHERE DATAFILE_ID = " + id).getSingleResult();
+                dtResult = (Object[]) em
+                        .createNativeQuery("SELECT ID, UNF, CASEQUANTITY, VARQUANTITY, ORIGINALFILEFORMAT, ORIGINALFILESIZE FROM dataTable WHERE DATAFILE_ID = " + id)
+                        .getSingleResult();
             } catch (Exception ex) {
                 dtResult = null;
             }
@@ -424,7 +433,9 @@ public class DataFileServiceBean implements java.io.Serializable {
 
                 List<Object[]> tagResults;
                 try {
-                    tagResults = em.createNativeQuery("SELECT t.TYPE, t.DATAFILE_ID FROM DATAFILETAG t WHERE t.DATAFILE_ID = " + id).getResultList();
+                    tagResults = em
+                            .createNativeQuery("SELECT t.TYPE, t.DATAFILE_ID FROM DATAFILETAG t WHERE t.DATAFILE_ID = " + id)
+                            .getResultList();
                 } catch (Exception ex) {
                     logger.info("EXCEPTION looking up tags.");
                     tagResults = null;
@@ -451,9 +462,9 @@ public class DataFileServiceBean implements java.io.Serializable {
         if (em.isOpen()) {
             String qr = "select object(o) from DataFile as o where o.ingestStatus =:scheduledStatusCode or o.ingestStatus =:progressStatusCode order by o.id";
             return em.createQuery(qr, DataFile.class)
-                    .setParameter("scheduledStatusCode", DataFile.INGEST_STATUS_SCHEDULED)
-                    .setParameter("progressStatusCode", DataFile.INGEST_STATUS_INPROGRESS)
-                    .getResultList();
+                     .setParameter("scheduledStatusCode", DataFile.INGEST_STATUS_SCHEDULED)
+                     .setParameter("progressStatusCode", DataFile.INGEST_STATUS_INPROGRESS)
+                     .getResultList();
         } else {
             return Collections.emptyList();
         }
@@ -503,8 +514,8 @@ public class DataFileServiceBean implements java.io.Serializable {
 
     public void deleteFromVersion(DatasetVersion d, DataFile f) {
         em.createNamedQuery("DataFile.removeFromDatasetVersion")
-                .setParameter("versionId", d.getId()).setParameter("fileId", f.getId())
-                .executeUpdate();
+          .setParameter("versionId", d.getId()).setParameter("fileId", f.getId())
+          .executeUpdate();
     }
 
     /* 
@@ -531,8 +542,8 @@ public class DataFileServiceBean implements java.io.Serializable {
     public List<DataFile> findHarvestedFilesByClient(HarvestingClient harvestingClient) {
         String qr = "SELECT d FROM DataFile d, DvObject o, Dataset s WHERE o.id = d.id AND o.owner.id = s.id AND s.harvestedFrom.id = :harvestingClientId";
         return em.createQuery(qr, DataFile.class)
-                .setParameter("harvestingClientId", harvestingClient.getId())
-                .getResultList();
+                 .setParameter("harvestingClientId", harvestingClient.getId())
+                 .getResultList();
     }
 
     /*moving to the fileutil*/
@@ -748,7 +759,9 @@ public class DataFileServiceBean implements java.io.Serializable {
         // The only known/supported "Astro" file type is FITS,
         // so far:
 
-        return (ApplicationMimeType.FITS.getMimeValue().equalsIgnoreCase(contentType) || ImageMimeType.FITSIMAGE.getMimeValue().equalsIgnoreCase(contentType));
+        return (ApplicationMimeType.FITS.getMimeValue().equalsIgnoreCase(contentType) || ImageMimeType.FITSIMAGE
+                .getMimeValue()
+                .equalsIgnoreCase(contentType));
 
     }
 
@@ -871,8 +884,8 @@ public class DataFileServiceBean implements java.io.Serializable {
 
         List<DataFile> dataFiles = em.createQuery("select o from DataFile o" +
                                                           " WHERE o.previousDataFileId = :dataFileId", DataFile.class)
-                .setParameter("dataFileId", df.getId())
-                .getResultList();
+                                     .setParameter("dataFileId", df.getId())
+                                     .getResultList();
 
         if (dataFiles.isEmpty()) {
             return false;
@@ -928,7 +941,8 @@ public class DataFileServiceBean implements java.io.Serializable {
     }  // end: isReplacementFile
 
     public List<Long> selectFilesWithMissingOriginalTypes() {
-        Query query = em.createNativeQuery("SELECT f.id FROM datafile f, datatable t where t.datafile_id = f.id AND (t.originalfileformat='" + TextMimeType.TSV.getMimeValue() + "' OR t.originalfileformat IS NULL) ORDER BY f.id");
+        Query query = em.createNativeQuery("SELECT f.id FROM datafile f, datatable t where t.datafile_id = f.id AND (t.originalfileformat='" + TextMimeType.TSV
+                .getMimeValue() + "' OR t.originalfileformat IS NULL) ORDER BY f.id");
 
         try {
             return query.getResultList();
@@ -1042,10 +1056,10 @@ public class DataFileServiceBean implements java.io.Serializable {
         }
 
         boolean u = em.createNamedQuery("DvObject.findByProtocolIdentifierAuthority")
-                .setParameter("protocol", testProtocol)
-                .setParameter("authority", testAuthority)
-                .setParameter("identifier", userIdentifier)
-                .getResultList().isEmpty();
+                      .setParameter("protocol", testProtocol)
+                      .setParameter("authority", testAuthority)
+                      .setParameter("identifier", userIdentifier)
+                      .getResultList().isEmpty();
 
         try {
             if (idServiceBean.alreadyExists(new GlobalId(testProtocol, testAuthority, userIdentifier))) {
@@ -1060,9 +1074,9 @@ public class DataFileServiceBean implements java.io.Serializable {
     }
 
     /**
-     *  (File service will double-check that the datafile no
-     *  longer exists in the database, before proceeding to
-     *  delete the physical file)
+     * (File service will double-check that the datafile no
+     * longer exists in the database, before proceeding to
+     * delete the physical file)
      */
     public void finalizeFileDelete(Long dataFileId, String storageLocation) throws IOException {
         // Verify that the DataFile no longer exists: 
@@ -1082,7 +1096,7 @@ public class DataFileServiceBean implements java.io.Serializable {
                 finalizeFileDelete(dataFileId, storageLocation);
             } catch (IOException ioex) {
                 logger.warn("Failed to delete the physical file associated with the deleted datafile id="
-                                       + dataFileId + ", storage location: " + storageLocation, ioex);
+                                    + dataFileId + ", storage location: " + storageLocation, ioex);
             }
         });
     }
@@ -1099,8 +1113,8 @@ public class DataFileServiceBean implements java.io.Serializable {
 
         return getPhysicalFilesToDelete(
                 datasetVersion.getFileMetadatas().stream()
-                    .map(fm -> fm.getDataFile())
-                    .collect(toList()), 
+                              .map(fm -> fm.getDataFile())
+                              .collect(toList()),
                 destroy);
     }
 
@@ -1112,8 +1126,8 @@ public class DataFileServiceBean implements java.io.Serializable {
         Map<Long, String> deleteStorageLocations = new HashMap<>();
 
         filesToDelete.stream()
-            .filter(file -> !file.isReleased() || destroy)
-            .forEach(file -> deleteStorageLocations.put(file.getId(), getPhysicalFileToDelete(file)));
+                     .filter(file -> !file.isReleased() || destroy)
+                     .forEach(file -> deleteStorageLocations.put(file.getId(), getPhysicalFileToDelete(file)));
 
         return deleteStorageLocations;
     }
@@ -1153,7 +1167,7 @@ public class DataFileServiceBean implements java.io.Serializable {
         }
         return null;
     }
-    
+
     public boolean isSameTermsOfUse(FileTermsOfUse termsOfUse1, FileTermsOfUse termsOfUse2) {
         if (termsOfUse1.getTermsOfUseType() != termsOfUse2.getTermsOfUseType()) {
             return false;
@@ -1184,9 +1198,11 @@ public class DataFileServiceBean implements java.io.Serializable {
         } else {
             throw new IOException("Temp directory is not configured.");
         }
-        
+
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.AntivirusScannerEnabled) &&
-                tempFile.toFile().length() <= settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.AntivirusScannerMaxFileSize)) {
+                tempFile
+                        .toFile()
+                        .length() <= settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.AntivirusScannerMaxFileSize)) {
 
             String scannerMessage = fileService.scan(tempFile.toFile());
 
@@ -1198,7 +1214,7 @@ public class DataFileServiceBean implements java.io.Serializable {
                 throw new VirusFoundException(scannerMessage);
             }
         }
-        
+
         logger.info("mime type supplied: " + suppliedContentType);
         // Let's try our own utilities (Jhove, etc.) to determine the file type
         // of the uploaded file. (We may already have a mime type supplied for this
@@ -1279,7 +1295,8 @@ public class DataFileServiceBean implements java.io.Serializable {
                 uncompressedIn = new GZIPInputStream(new FileInputStream(tempFile.toFile()));
                 File unZippedTempFile = saveInputStreamInTempFile(uncompressedIn, fileSizeLimit);
                 DataFile.ChecksumType checksumType = DataFile.ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
-                datafile = createSingleDataFile(version, unZippedTempFile, finalFileName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue(), checksumType);
+                datafile = createSingleDataFile(version, unZippedTempFile, finalFileName, ApplicationMimeType.UNDETERMINED_DEFAULT
+                        .getMimeValue(), checksumType);
             } catch (IOException | FileExceedsMaxSizeException ioex) {
                 datafile = null;
             } finally {
@@ -1309,7 +1326,7 @@ public class DataFileServiceBean implements java.io.Serializable {
 
             // If it's a ZIP file, we are going to unpack it and create multiple
             // DataFile objects from its contents:
-        } else if (finalType.equals("application/zip" ) && settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.ZipUploadFilesLimit) > 0) {
+        } else if (finalType.equals("application/zip") && settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.ZipUploadFilesLimit) > 0) {
 
             ZipInputStream unZippedIn = null;
             ZipEntry zipEntry = null;
@@ -1386,14 +1403,18 @@ public class DataFileServiceBean implements java.io.Serializable {
 
                                 File unZippedTempFile = saveInputStreamInTempFile(unZippedIn, fileSizeLimit);
                                 DataFile.ChecksumType checksumType = DataFile.ChecksumType.fromString(settingsService.getValueForKey(SettingsServiceBean.Key.FileFixityChecksumAlgorithm));
-                                DataFile datafile = createSingleDataFile(version, unZippedTempFile, shortName, ApplicationMimeType.UNDETERMINED_DEFAULT.getMimeValue(), checksumType, false);
+                                DataFile datafile = createSingleDataFile(version, unZippedTempFile, shortName, ApplicationMimeType.UNDETERMINED_DEFAULT
+                                        .getMimeValue(), checksumType, false);
 
                                 if (!fileEntryName.equals(shortName)) {
                                     // If the filename looks like a hierarchical folder name (i.e., contains slashes and backslashes),
                                     // we'll extract the directory name, then a) strip the leading and trailing slashes;
                                     // and b) replace all the back slashes with regular ones and b) replace any multiple
                                     // slashes with a single slash:
-                                    String directoryName = fileEntryName.replaceFirst("[\\/][\\/]*[^\\/]*$", "").replaceFirst("^[\\/]*", "").replaceAll("[\\/][\\/]*", "/");
+                                    String directoryName = fileEntryName
+                                            .replaceFirst("[\\/][\\/]*[^\\/]*$", "")
+                                            .replaceFirst("^[\\/]*", "")
+                                            .replaceAll("[\\/][\\/]*", "/");
                                     if (!"".equals(directoryName)) {
                                         logger.info("setting the directory label to " + directoryName);
                                         datafile.getFileMetadata().setDirectoryLabel(directoryName);
@@ -1527,7 +1548,7 @@ public class DataFileServiceBean implements java.io.Serializable {
                     logger.warn("Could not remove temp file " + tempFile.getFileName().toString(), ioex);
                 } catch (SecurityException se) {
                     logger.warn("Unable to delete: " + tempFile.toString() + "due to Security Exception: "
-                                           + se.getMessage(), se);
+                                        + se.getMessage(), se);
                 }
                 return datafiles;
             } else {
@@ -1563,34 +1584,33 @@ public class DataFileServiceBean implements java.io.Serializable {
     } // end createDataFiles
 
 
-
     private File saveInputStreamInTempFile(InputStream inputStream, Long fileSizeLimit)
             throws IOException, FileExceedsMaxSizeException {
         Path tempFile = Files.createTempFile(Paths.get(getFilesTempDirectory()), "tmp", "upload");
 
-        FileOutputStream outStream = new FileOutputStream(tempFile.toFile());
-        logger.info("Will attempt to save the file as: " + tempFile.toString());
+        try (FileOutputStream outStream = new FileOutputStream(tempFile.toFile())) {
+            logger.info("Will attempt to save the file as: " + tempFile.toString());
 
-        byte[] buffer = new byte[8 * 1024];
-        int bytesRead;
-        long totalBytesRead = 0;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            totalBytesRead += bytesRead;
-            if (fileSizeLimit != null && totalBytesRead > fileSizeLimit) {
-                try {
-                    tempFile.toFile().delete();
-                } catch (Exception ex) {
+            byte[] buffer = new byte[8 * 1024];
+            int bytesRead;
+            long totalBytesRead = 0;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                totalBytesRead += bytesRead;
+                if (fileSizeLimit != null && totalBytesRead > fileSizeLimit) {
+                    try {
+                        tempFile.toFile().delete();
+                    } catch (Exception ex) {
+                        logger.error("There was a problem with deleting temporary file");
+                    }
+
+                    throw new FileExceedsMaxSizeException(MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"),
+                                                                               bytesToHumanReadable(fileSizeLimit)));
                 }
-                inputStream.close();
-                outStream.close();
-
-                throw new FileExceedsMaxSizeException(MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"),
-                                                                           bytesToHumanReadable(fileSizeLimit)));
+                outStream.write(buffer, 0, bytesRead);
             }
-            outStream.write(buffer, 0, bytesRead);
+        } finally {
+            inputStream.close();
         }
-        inputStream.close();
-        outStream.close();
 
         return tempFile.toFile();
     }
@@ -1657,7 +1677,8 @@ public class DataFileServiceBean implements java.io.Serializable {
         try {
             // We persist "SHA1" rather than "SHA-1".
             datafile.setChecksumType(checksumType);
-            datafile.setChecksumValue(calculateChecksum(getFilesTempDirectory() + "/" + datafile.getStorageIdentifier(), datafile.getChecksumType()));
+            datafile.setChecksumValue(calculateChecksum(getFilesTempDirectory() + "/" + datafile.getStorageIdentifier(), datafile
+                    .getChecksumType()));
         } catch (Exception cksumEx) {
             logger.warn("Could not calculate " + checksumType + " signature for the new file " + fileName, cksumEx);
         }
