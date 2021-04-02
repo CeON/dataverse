@@ -48,17 +48,15 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.core.Response;
-
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -1182,27 +1180,7 @@ public class DataFileServiceBean implements java.io.Serializable {
         Long fileSizeLimit = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.MaxFileUploadSizeInBytes);
 
         if (getFilesTempDirectory() != null) {
-            tempFile = Files.createTempFile(Paths.get(getFilesTempDirectory()), "tmp", "upload");
-            // "temporary" location is the key here; this is why we are not using
-            // the DataStore framework for this - the assumption is that
-            // temp files will always be stored on the local filesystem.
-            //          -- L.A. Jul. 2014
-            logger.info("Will attempt to save the file as: " + tempFile.toString());
-            Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
-
-            // A file size check, before we do anything else:
-            // (note that "no size limit set" = "unlimited")
-            // (also note, that if this is a zip file, we'll be checking
-            // the size limit for each of the individual unpacked files)
-            Long fileSize = tempFile.toFile().length();
-            if (fileSizeLimit != null && fileSize > fileSizeLimit) {
-                try {
-                    tempFile.toFile().delete();
-                } catch (Exception ex) {
-                }
-                throw new IOException(MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"), bytesToHumanReadable(fileSize), bytesToHumanReadable(fileSizeLimit)));
-            }
-
+            tempFile = saveInputStreamInTempFile(inputStream, fileSizeLimit).toPath();
         } else {
             throw new IOException("Temp directory is not configured.");
         }
@@ -1590,23 +1568,31 @@ public class DataFileServiceBean implements java.io.Serializable {
             throws IOException, FileExceedsMaxSizeException {
         Path tempFile = Files.createTempFile(Paths.get(getFilesTempDirectory()), "tmp", "upload");
 
-        if (inputStream != null && tempFile != null) {
-            Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+        FileOutputStream outStream = new FileOutputStream(tempFile.toFile());
+        logger.info("Will attempt to save the file as: " + tempFile.toString());
 
-            // size check:
-            // (note that "no size limit set" = "unlimited")
-            Long fileSize = tempFile.toFile().length();
-            if (fileSizeLimit != null && fileSize > fileSizeLimit) {
+        byte[] buffer = new byte[8 * 1024];
+        int bytesRead;
+        long totalBytesRead = 0;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            totalBytesRead += bytesRead;
+            if (fileSizeLimit != null && totalBytesRead > fileSizeLimit) {
                 try {
                     tempFile.toFile().delete();
                 } catch (Exception ex) {
                 }
-                throw new FileExceedsMaxSizeException(MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"), bytesToHumanReadable(fileSize), bytesToHumanReadable(fileSizeLimit)));
-            }
+                inputStream.close();
+                outStream.close();
 
-            return tempFile.toFile();
+                throw new FileExceedsMaxSizeException(MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"),
+                                                                           bytesToHumanReadable(fileSizeLimit)));
+            }
+            outStream.write(buffer, 0, bytesRead);
         }
-        throw new IOException("Failed to save uploaded file.");
+        inputStream.close();
+        outStream.close();
+
+        return tempFile.toFile();
     }
 
     /*
