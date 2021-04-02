@@ -126,9 +126,9 @@ public class CitationDataExtractor {
 
     private GlobalId extractPID(DatasetVersion dsv, DvObject dv, boolean direct) {
         if (shouldCreateGlobalId(dsv)) {
-            if (direct && isNotEmpty(dsv.getDataset().getIdentifier())) {
+            if (!direct && isNotEmpty(dsv.getDataset().getIdentifier())) {
                 return new GlobalId(dsv.getDataset());
-            } else if (!direct && isNotEmpty(dv.getIdentifier())) {
+            } else if (direct && isNotEmpty(dv.getIdentifier())) {
                 return new GlobalId(dv);
             }
         }
