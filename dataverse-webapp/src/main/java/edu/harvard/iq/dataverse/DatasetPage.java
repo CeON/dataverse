@@ -34,7 +34,6 @@ import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
-import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -92,15 +91,11 @@ public class DatasetPage implements java.io.Serializable {
 
 
     @EJB
-    DatasetDao datasetDao;
-    @EJB
     DatasetVersionServiceBean datasetVersionService;
     @EJB
     DataFileServiceBean datafileService;
     @EJB
     PermissionServiceBean permissionService;
-    @EJB
-    DataverseDao dataverseDao;
     @EJB
     EjbDataverseEngine commandEngine;
     @Inject
@@ -133,6 +128,8 @@ public class DatasetPage implements java.io.Serializable {
     private SystemConfig systemConfig;
     @Inject
     private CitationFactory citationFactory;
+    @Inject
+    private DatasetPageFacade datasetPageFacade;
 
     private Dataset dataset = new Dataset();
 
@@ -151,6 +148,7 @@ public class DatasetPage implements java.io.Serializable {
     private Boolean sameTermsOfUseForAllFiles;
     private String thumbnailString = null;
     private boolean thumbnailStringIsCached = false;
+    private Optional<Boolean> isLatestDatasetWithAnyFilesIncluded = Optional.empty();
     private String returnToAuthorReason;
     private String contributorMessageToCurator;
 
@@ -185,9 +183,9 @@ public class DatasetPage implements java.io.Serializable {
 
             if (datasetThumbnail.isFromDataFile()) {
                 if (!datasetThumbnail.getDataFile().equals(dataset.getThumbnailFile())) {
-                    datasetDao.assignDatasetThumbnailByNativeQuery(dataset, datasetThumbnail.getDataFile());
+                    datasetPageFacade.assignDatasetThumbnailByNativeQuery(dataset, datasetThumbnail.getDataFile());
                     // refresh the dataset:
-                    dataset = datasetDao.find(dataset.getId());
+                    dataset = datasetPageFacade.retrieveDataset(dataset.getId());
                 }
             }
 
@@ -277,7 +275,9 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public boolean isLatestDatasetWithAnyFilesIncluded(){
-        return !dataset.getLatestVersion().getFileMetadatas().isEmpty();
+       isLatestDatasetWithAnyFilesIncluded = Optional.of(isLatestDatasetWithAnyFilesIncluded.orElseGet(() -> datasetPageFacade.isLatestDatasetWithAnyFilesIncluded(dataset.getLatestVersion().getId())));
+
+       return isLatestDatasetWithAnyFilesIncluded.get();
     }
 
     public boolean canViewUnpublishedDataset() {
@@ -425,7 +425,7 @@ public class DatasetPage implements java.io.Serializable {
             if (persistentId != null) {
                 logger.fine("initializing DatasetPage with persistent ID " + persistentId);
                 // Set Working Version and Dataset by PersistentID
-                dataset = datasetDao.findByGlobalId(persistentId);
+                dataset = datasetPageFacade.findByGlobalId(persistentId);
                 if (dataset == null) {
                     logger.warning("No such dataset: " + persistentId);
                     return permissionsWrapper.notFound();
@@ -439,7 +439,7 @@ public class DatasetPage implements java.io.Serializable {
 
             } else if (dataset.getId() != null) {
                 // Set Working Version and Dataset by Datasaet Id and Version
-                dataset = datasetDao.find(dataset.getId());
+                dataset = datasetPageFacade.retrieveDataset(dataset.getId());
                 if (dataset == null) {
                     logger.warning("No such dataset: " + dataset);
                     return permissionsWrapper.notFound();
@@ -758,7 +758,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public void loadFilesTermDiffs(ActionEvent ae) {
         if(workingVersion.isDraft() && dataset.hasEverBeenPublished()) {
-            fileTermDiffsWithLatestReleased = licenseDifferenceFinder.getLicenseDifference(workingVersion.getFileMetadatas(), dataset.getReleasedVersion().getFileMetadatas());
+            fileTermDiffsWithLatestReleased = datasetPageFacade.loadFilesTermDiffs(workingVersion.getId(), dataset.getReleasedVersion().getId());
         }
     }
 
@@ -813,7 +813,7 @@ public class DatasetPage implements java.io.Serializable {
         boolean retVal = true;
         if (readOnly) {
             // Pass a "real", non-readonly dataset the the LinkDatasetCommand:
-            dataset = datasetDao.find(dataset.getId());
+            dataset = datasetPageFacade.retrieveDataset(dataset.getId());
         }
         LinkDatasetCommand cmd = new LinkDatasetCommand(dvRequestService.getDataverseRequest(), dataverse, dataset);
         try {
@@ -833,16 +833,16 @@ public class DatasetPage implements java.io.Serializable {
 
 
     public List<Dataverse> completeLinkingDataverse(String query) {
-        dataset = datasetDao.find(dataset.getId());
+        dataset = datasetPageFacade.retrieveDataset(dataset.getId());
         if (session.getUser().isAuthenticated()) {
-            return dataverseDao.filterDataversesForLinking(query, dvRequestService.getDataverseRequest(), dataset);
+            return datasetPageFacade.filterDataversesForLinking(query, dvRequestService.getDataverseRequest(), dataset);
         } else {
             return null;
         }
     }
 
     private String returnToLatestVersion() {
-        dataset = datasetDao.find(dataset.getId());
+        dataset = datasetPageFacade.retrieveDataset(dataset.getId());
         workingVersion = dataset.getLatestVersion();
         if (workingVersion.isDeaccessioned() && dataset.getReleasedVersion() != null) {
             workingVersion = dataset.getReleasedVersion();
@@ -851,7 +851,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String returnToDatasetOnly() {
-        dataset = datasetDao.find(dataset.getId());
+        dataset = datasetPageFacade.retrieveDataset(dataset.getId());
         return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&faces-redirect=true";
     }
 
@@ -875,7 +875,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean isStillLockedForAnyReason() {
         if (dataset.getId() != null) {
-            Dataset testDataset = datasetDao.find(dataset.getId());
+            Dataset testDataset = datasetPageFacade.retrieveDataset(dataset.getId());
             if (testDataset != null && testDataset.getId() != null) {
                 logger.log(Level.FINE, "checking lock status of dataset {0}", dataset.getId());
                 return testDataset.getLocks().size() > 0;
@@ -897,7 +897,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean isLockedForAnyReason() {
         if (dataset.getId() != null) {
-            Dataset testDataset = datasetDao.find(dataset.getId());
+            Dataset testDataset = datasetPageFacade.retrieveDataset(dataset.getId());
             if (stateChanged) {
                 return false;
             }
@@ -1147,28 +1147,13 @@ public class DatasetPage implements java.io.Serializable {
         if (sameTermsOfUseForAllFiles != null) {
             return sameTermsOfUseForAllFiles;
         }
-        if (workingVersion.getFileMetadatas().isEmpty()) {
-            sameTermsOfUseForAllFiles = true;
-            return sameTermsOfUseForAllFiles;
-        }
-        FileTermsOfUse firstTermsOfUse = workingVersion.getFileMetadatas().get(0).getTermsOfUse();
 
-        for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
-            if (!datafileService.isSameTermsOfUse(firstTermsOfUse, fileMetadata.getTermsOfUse())) {
-                sameTermsOfUseForAllFiles = false;
-                return sameTermsOfUseForAllFiles;
-            }
-        }
-
-        sameTermsOfUseForAllFiles = true;
+        sameTermsOfUseForAllFiles = datasetPageFacade.isSameTermsOfUseForAllFiles(workingVersion.getId());
         return sameTermsOfUseForAllFiles;
     }
 
     public Optional<FileTermsOfUse> getTermsOfUseOfFirstFile() {
-        if (workingVersion.getFileMetadatas().isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(workingVersion.getFileMetadatas().get(0).getTermsOfUse());
+        return datasetPageFacade.getTermsOfUseOfFirstFile(workingVersion.getId());
     }
 
     public void setReturnToAuthorReason(String returnToAuthorReason) {
