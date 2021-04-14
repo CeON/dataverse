@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateGuestbookResponseCommand;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolHandler;
-import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -25,6 +24,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.FileUtil.ApiBatchDownloadType;
 import edu.harvard.iq.dataverse.util.FileUtil.ApiDownloadType;
 import edu.harvard.iq.dataverse.util.FileUtil.FileCitationExtension;
+import org.apache.commons.io.IOUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -34,9 +34,10 @@ import javax.inject.Named;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -117,6 +118,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         return filesDownloadUrl;
     }
 
+
     public void redirectToDownloadAPI(ApiDownloadType downloadType, Long fileId, boolean guestBookRecordAlreadyWritten) {
         String fileDownloadUrl = FileUtil.getFileDownloadUrlPath(downloadType, fileId, guestBookRecordAlreadyWritten);
         logger.fine("Redirecting to file download url: " + fileDownloadUrl);
@@ -144,7 +146,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         if (dataFile.getFileMetadata() == null) {
             dataFile = datafileService.find(dataFile.getId());
         }
-        // Back when we only had TwoRavens, the downloadType was always "Explore". Now we persist the name of the tool (i.e. "TwoRavens", "Data Explorer", etc.)
+        // Back when we only had TwoRavens, the downloadType was always "Explore".
+        // Now we persist the name of the tool (i.e. "TwoRavens", "Data Explorer", etc.)
         String toolUrl = externalToolHandler.buildToolUrlWithQueryParams(externalTool, dataFile, apiToken);
         logger.fine("Exploring with " + toolUrl);
         try {
@@ -168,8 +171,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         return retVal;
     }
 
-    public void downloadDatasetCitationXML(Dataset dataset) {
-        downloadCitationXML(null, dataset, false);
+    public void downloadDatasetCitationXML(DatasetVersion datasetVersion) {
+        downloadCitationXML(null, datasetVersion, false);
     }
 
     public void downloadDatafileCitationXML(FileMetadata fileMetadata) {
@@ -180,14 +183,14 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         downloadCitationXML(fileMetadata, null, true);
     }
 
-    public void downloadCitationXML(FileMetadata fileMetadata, Dataset dataset, boolean direct) {
-        downloadCitation(fileMetadata, dataset, direct, "attachment",
-                Citation::writeAsEndNoteCitation,
+    public void downloadCitationXML(FileMetadata fileMetadata, DatasetVersion datasetVersion, boolean direct) {
+        downloadCitation(fileMetadata, datasetVersion, direct, "attachment",
+                Citation::toEndNoteString,
                 (f, c) -> createFileNameString(f, c, "attachment", FileCitationExtension.ENDNOTE));
     }
 
-    public void downloadDatasetCitationRIS(Dataset dataset) {
-        downloadCitationRIS(null, dataset, false);
+    public void downloadDatasetCitationRIS(DatasetVersion datasetVersion) {
+        downloadCitationRIS(null, datasetVersion, false);
     }
 
     public void downloadDatafileCitationRIS(FileMetadata fileMetadata) {
@@ -198,14 +201,14 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         downloadCitationRIS(fileMetadata, null, true);
     }
 
-    public void downloadCitationRIS(FileMetadata fileMetadata, Dataset dataset, boolean direct) {
-        downloadCitation(fileMetadata, dataset, direct, "application/download",
-                Citation::writeAsRISCitation,
+    public void downloadCitationRIS(FileMetadata fileMetadata, DatasetVersion datasetVersion, boolean direct) {
+        downloadCitation(fileMetadata, datasetVersion, direct, "application/download",
+                Citation::toRISString,
                 (f, c) -> createFileNameString(f, c, "attachment", FileCitationExtension.RIS));
     }
 
-    public void downloadDatasetCitationBibtex(Dataset dataset) {
-        downloadCitationBibtex(null, dataset, false);
+    public void downloadDatasetCitationBibtex(DatasetVersion datasetVersion) {
+        downloadCitationBibtex(null, datasetVersion, false);
     }
 
     public void downloadDatafileCitationBibtex(FileMetadata fileMetadata) {
@@ -216,20 +219,20 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         downloadCitationBibtex(fileMetadata, null, true);
     }
 
-    public void downloadCitationBibtex(FileMetadata fileMetadata, Dataset dataset, boolean direct) {
-        downloadCitation(fileMetadata, dataset, direct,
+    public void downloadCitationBibtex(FileMetadata fileMetadata, DatasetVersion datasetVersion, boolean direct) {
+        downloadCitation(fileMetadata, datasetVersion, direct,
                 "application/json", // FIXME: BibTeX isn't JSON. Firefox will try to parse it and report "SyntaxError".
-                Citation::writeAsBibtexCitation,
+                Citation::toBibtexString,
                 (f, c) -> createFileNameString(f, c, "inline", FileCitationExtension.BIBTEX));
     }
 
     // -------------------- PRIVATE --------------------
 
-    private void downloadCitation(FileMetadata fileMetadata, Dataset dataset, boolean direct,
+    private void downloadCitation(FileMetadata fileMetadata, DatasetVersion datasetVersion, boolean direct,
                                   String contentType,
-                                  ThrowingBiConsumer<Citation, OutputStream, IOException> citationWriter,
+                                  Function<Citation, String> citationCreator,
                                   BiFunction<FileMetadata, Citation, String> fileNameCreator) {
-        Citation citation = createCitation(fileMetadata, dataset, direct);
+        Citation citation = createCitation(fileMetadata, datasetVersion, direct);
         FacesContext facesContext = FacesContext.getCurrentInstance();
         HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
         response.setContentType(contentType);
@@ -237,7 +240,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
 
         try {
             ServletOutputStream outputStream = response.getOutputStream();
-            citationWriter.accept(citation, outputStream);
+            String citationText = citationCreator.apply(citation);
+            IOUtils.write(citationText, outputStream, StandardCharsets.UTF_8);
             outputStream.flush();
             facesContext.responseComplete();
         } catch (IOException ioe) {
@@ -245,23 +249,18 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         }
     }
 
-    private Citation createCitation(FileMetadata fileMetadata, Dataset dataset, boolean direct) {
-        return dataset != null
-                ? citationFactory.create(dataset.getLatestVersion())
+    private Citation createCitation(FileMetadata fileMetadata, DatasetVersion datasetVersion, boolean direct) {
+        return datasetVersion != null
+                ? citationFactory.create(datasetVersion)
                 : citationFactory.create(fileMetadata, direct);
     }
 
     private String createFileNameString(FileMetadata fileMetadata, Citation citation, String type,
                                         FileCitationExtension extension) {
+        CitationData citationData = citation.getCitationData();
         String nameEnd = (fileMetadata == null || fileMetadata.getLabel() == null)
                 ? extension.getExtension() // Dataset-level citation
-                : FileUtil.getCiteDataFileFilename(citation.getFileTitle(), extension); // Datafile-level citation
-        return type + ";" + "filename=" + citation.getPersistentId().asString() + nameEnd;
-    }
-
-    // -------------------- INNER CLASSES --------------------
-
-    private interface ThrowingBiConsumer<T, U, X extends Throwable> {
-        void accept(T t, U u) throws X;
+                : FileUtil.getCiteDataFileFilename(citationData.getFileTitle(), extension); // Datafile-level citation
+        return type + ";" + "filename=" + citationData.getPersistentId().asString() + nameEnd;
     }
 }
