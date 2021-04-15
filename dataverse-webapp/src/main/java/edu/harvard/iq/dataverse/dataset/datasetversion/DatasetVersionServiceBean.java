@@ -456,7 +456,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         }
 
         DatasetVersion chosenVersion;
-        
+
         /* --------------------------------------------
             (1) Scenario: User asking for a DRAFT?
                 - (1a) Look for draft
@@ -484,7 +484,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
             return chosenVersion;  // This may be null -- let DatasetPage check
         }
         // END: User asking for a Draft
-        
+
         /* --------------------------------------------
             (2) Scenario: Version specified
                 - (2a) Look for major and minor version - RELEASE OR DEACCESSIONED
@@ -492,11 +492,11 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
                 - (2c) Not found: look for latest released version
                 - (2c) Not found: look for DEACCESSIONED
                 - (2d) Not found: look for draft
-                - Permissions: check on DatasetPage        
-        
+                - Permissions: check on DatasetPage
+
             (3) Scenario: No version specified
                 - Same as (2c)(2d) above
-                - Permissions: check on DatasetPage        
+                - Permissions: check on DatasetPage
         -------------------------------------------- */
         Long[] versionNumbers = parseVersionNumber(version);
         if (versionNumbers != null && versionNumbers.length == 2) {        // At least a major version found
@@ -554,8 +554,8 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         if (persistentId == null) {
             return null;
         }
-        
-        /*        
+
+        /*
             Parse the persistent id
         */
         GlobalId parsedId;
@@ -690,16 +690,16 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         return null;
     } // end: retrieveDatasetVersionByVersionId
 
-    // This is an optimized, native query-based method for picking an image 
-    // that can be used as the thumbnail for a given dataset/version. 
+    // This is an optimized, native query-based method for picking an image
+    // that can be used as the thumbnail for a given dataset/version.
     // It is primarily designed to be used when thumbnails are requested
-    // from the Dataverse page, which is Solr search object based; meaning we 
+    // from the Dataverse page, which is Solr search object based; meaning we
     // may not have the Dataset, DatasetVersion, etc. entities initialized.
-    // And since we may need to look up/generate these thumbnails for a large 
+    // And since we may need to look up/generate these thumbnails for a large
     // number of search results, actually instantiating full entities for each
-    // one may be prohibitively expensive. It is also used by the DatasetPage, 
-    // when in read-only, optimized mode, when we similarly try to serve the 
-    // page while minimizing full lookup of entities via EJB. 
+    // one may be prohibitively expensive. It is also used by the DatasetPage,
+    // when in read-only, optimized mode, when we similarly try to serve the
+    // page while minimizing full lookup of entities via EJB.
     // (in both cases above the method is called via ThumbnailServiceWrapper)
 
     public Long getThumbnailByVersionId(Long versionId) {
@@ -709,7 +709,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
 
         Long thumbnailFileId;
 
-        // First, let's see if there are thumbnails that have already been 
+        // First, let's see if there are thumbnails that have already been
         // generated:
         try {
             thumbnailFileId = (Long) em.createNativeQuery("SELECT df.id "
@@ -802,7 +802,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         try {
             em.createNativeQuery("UPDATE dataset SET thumbnailfile_id=" + dataFileId + " WHERE id in (SELECT dataset_id FROM datasetversion WHERE id=" + versionId + ")").executeUpdate();
         } catch (Exception ex) {
-            // it's ok to just ignore... 
+            // it's ok to just ignore...
         }
     }
 
@@ -1018,12 +1018,12 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         List<Object[]> infoList = nativeQuery.getResultList();
 
         List<HashMap> hashList = new ArrayList<>();
-        
+
         /*
         HashMap mMap;
         List<String> hashKeys = colsToRetrieve.stream()
-                                  .map(String :: trim)  
-          */                              
+                                  .map(String :: trim)
+          */
 
         /*
                                                         .map(x -> x.getTypeLabel())
@@ -1037,7 +1037,7 @@ w
                 */
         return null;/*
         for (Object[] dvInf: infoList) {
-                        
+
             mMap = new HashMap();
             for(int idx=0; idx < colsToRetrieve.size(); idx++){
                 String keyName = colsToRetrieve.get(idx);
@@ -1086,7 +1086,7 @@ w
             }
         }
 
-        // is the UNF still unset? 
+        // is the UNF still unset?
         if (StringUtils.isBlank(datasetVersion.getUNF())) {
             IngestUtil.recalculateDatasetVersionUNF(datasetVersion);
             DatasetVersion saved = em.merge(datasetVersion);

@@ -255,7 +255,7 @@ public class DataverseDao implements java.io.Serializable {
                 return logoThumbNailPath;
             } else {
                 imageThumbConverter.generateImageThumbnailFromFile(dataverseLogoFile.getAbsolutePath(), 48, logoThumbNailPath);
-                
+
                 if (new File(logoThumbNailPath).exists()) {
                     return logoThumbNailPath;
                 }
@@ -474,8 +474,10 @@ public class DataverseDao implements java.io.Serializable {
         }
     }
 
-    // function to recursively find ids of all children of a dataverse that 
-    // are also of type dataverse
+    /**
+     * Method to recursively find ids of all children of a dataverse that
+     * are also of type dataverse
+     */
     public List<Long> findAllDataverseDataverseChildren(Long dvId) {
         // get list of Dataverse children
         List<Long> dataverseChildren = findIdsByOwnerId(dvId);
@@ -492,7 +494,7 @@ public class DataverseDao implements java.io.Serializable {
         }
     }
 
-    // function to recursively find ids of all children of a dataverse that are 
+    // function to recursively find ids of all children of a dataverse that are
     // of type dataset
     public List<Long> findAllDataverseDatasetChildren(Long dvId) {
         // get list of Dataverse children
