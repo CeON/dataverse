@@ -25,7 +25,7 @@ public class CitationData {
     private String year;
     private Date date;
     private String releaseYear;
-    private GlobalId persistentId; // this field can contain dataset or file pid depending on context
+    private GlobalId persistentId;
     private GlobalId pidOfDataset;
     private GlobalId pidOfFile;
     private String version;
