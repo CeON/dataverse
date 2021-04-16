@@ -424,56 +424,6 @@ public class DataverseDao implements java.io.Serializable {
         return retVal;
     }
 
-
-    public void populateDvSearchCard(SolrSearchResult solrSearchResult) {
-
-        Long dvId = solrSearchResult.getEntityId();
-
-        if (dvId == null) {
-            return;
-        }
-
-        Long parentDvId = null;
-        String parentId = solrSearchResult.getParent().get("id");
-        if (parentId != null) {
-            try {
-                parentDvId = Long.parseLong(parentId);
-            } catch (NumberFormatException ex) {
-                parentDvId = null;
-            }
-        }
-
-        Object[] searchResult;
-
-        try {
-            if (parentDvId == null) {
-                searchResult = (Object[]) em.createNativeQuery("SELECT t0.AFFILIATION, t0.ALIAS FROM DATAVERSE t0 WHERE t0.ID = " + dvId).getSingleResult();
-            } else {
-                searchResult = (Object[]) em.createNativeQuery("SELECT t0.AFFILIATION, t0.ALIAS, t2.ALIAS FROM DATAVERSE t0, DVOBJECT t1, DATAVERSE t2, DVOBJECT t3 WHERE (t0.ID = t1.ID) AND (t1.OWNER_ID = t3.ID) AND (t2.ID = t3.ID) AND (t0.ID = " + dvId + ")").getSingleResult();
-            }
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (searchResult == null) {
-            return;
-        }
-
-        if (searchResult[0] != null) {
-            solrSearchResult.setDataverseAffiliation((String) searchResult[0]);
-        }
-
-        if (searchResult[1] != null) {
-            solrSearchResult.setDataverseAlias((String) searchResult[1]);
-        }
-
-        if (parentDvId != null) {
-            if (searchResult[2] != null) {
-                solrSearchResult.setDataverseParentAlias((String) searchResult[2]);
-            }
-        }
-    }
-
     /**
      * Method to recursively find ids of all children of a dataverse that
      * are also of type dataverse

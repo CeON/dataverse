@@ -20,7 +20,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersionIdentifier;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersionRepository;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
-import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -817,92 +816,6 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         String fileName = "/edit-draft-" + datasetId + "-" + identifier + "-" + logTimestamp + ".txt";
         LoggingUtil.saveLogFile(summary, logDir, fileName);
 
-    }
-
-    public void populateDatasetSearchCard(SolrSearchResult solrSearchResult) {
-        Long dataverseId = Long.parseLong(solrSearchResult.getParent().get("id"));
-        Long datasetVersionId = solrSearchResult.getDatasetVersionId();
-        Long datasetId = solrSearchResult.getEntityId();
-
-        if (dataverseId == 0) {
-            return;
-        }
-
-        Object[] searchResult;
-
-        try {
-            if (datasetId != null) {
-                searchResult = (Object[]) em.createNativeQuery("SELECT t0.VERSIONSTATE, t1.ALIAS, t2.THUMBNAILFILE_ID, t2.USEGENERICTHUMBNAIL, t3.STORAGEIDENTIFIER FROM DATASETVERSION t0, DATAVERSE t1, DATASET t2, DVOBJECT t3 WHERE t0.ID = "
-                                                                       + datasetVersionId
-                                                                       + " AND t1.ID = "
-                                                                       + dataverseId
-                                                                       + " AND t2.ID = "
-                                                                       + datasetId
-                                                                       + " AND t2.ID = t3.ID").getSingleResult()
-
-                ;
-            } else {
-                // Why is this method ever called with dataset_id = null? -- L.A.
-                searchResult = (Object[]) em.createNativeQuery("SELECT t0.VERSIONSTATE, t1.ALIAS FROM DATASETVERSION t0, DATAVERSE t1 WHERE t0.ID = " + datasetVersionId + " AND t1.ID = " + dataverseId).getSingleResult();
-            }
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (searchResult == null) {
-            return;
-        }
-
-        if (searchResult[0] != null) {
-            String versionState = (String) searchResult[0];
-            if ("DEACCESSIONED".equals(versionState)) {
-                solrSearchResult.setDeaccessionedState(true);
-            }
-        }
-
-        /**
-         * @todo (from pdurbin) can a dataverse alias ever be null?
-         */
-
-        if (searchResult[1] != null) {
-            solrSearchResult.setDataverseAlias((String) searchResult[1]);
-        }
-
-        if (searchResult.length == 5) {
-            Dataset datasetEntity = new Dataset();
-            String globalIdentifier = solrSearchResult.getIdentifier();
-            GlobalId globalId = new GlobalId(globalIdentifier);
-
-            datasetEntity.setProtocol(globalId.getProtocol());
-            datasetEntity.setAuthority(globalId.getAuthority());
-            datasetEntity.setIdentifier(globalId.getIdentifier());
-            if (searchResult[4] != null) {
-                datasetEntity.setStorageIdentifier(searchResult[4].toString());
-            }
-            solrSearchResult.setEntity(datasetEntity);
-            if (searchResult[2] != null) {
-                // This is the image file specifically assigned as the "icon" for
-                // the dataset:
-                Long thumbnailFile_id = (Long) searchResult[2];
-                if (thumbnailFile_id != null) {
-                    DataFile thumbnailFile;
-                    try {
-                        thumbnailFile = datafileService.findCheapAndEasy(thumbnailFile_id);
-                    } catch (Exception ex) {
-                        thumbnailFile = null;
-                    }
-
-                    if (thumbnailFile != null) {
-                        ((Dataset) solrSearchResult.getEntity()).setThumbnailFile(thumbnailFile);
-                    }
-                }
-            }
-            if (searchResult[3] != null) {
-                ((Dataset) solrSearchResult.getEntity()).setUseGenericThumbnail((Boolean) searchResult[3]);
-            } else {
-                ((Dataset) solrSearchResult.getEntity()).setUseGenericThumbnail(false);
-            }
-        }
     }
 
     /**

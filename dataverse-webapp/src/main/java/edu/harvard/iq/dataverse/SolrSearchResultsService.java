@@ -52,32 +52,24 @@ public class SolrSearchResultsService {
 
     private static final int DATAFILES_QUERY_FILE_ID = 0;
     private static final int DATAFILES_QUERY_FILE_CREATEDATE = 1;
-    private static final int DATAFILES_QUERY_FILE_INDEXTIME = 2;
-    private static final int DATAFILES_QUERY_FILE_MODIFICATIONTIME = 3;
-    private static final int DATAFILES_QUERY_FILE_PERMISSIONINDEXTIME = 4;
-    private static final int DATAFILES_QUERY_FILE_PERMISSIONMODIFICATIONTIME = 5;
-    private static final int DATAFILES_QUERY_FILE_PUBLICATIONDATE = 6;
-    private static final int DATAFILES_QUERY_FILE_PREVIEWIMAGEAVAILABLE = 7;
-    private static final int DATAFILES_QUERY_FILE_STORAGEIDENTIFIER = 8;
-    private static final int DATAFILES_QUERY_FILE_AUTHORITY = 9;
-    private static final int DATAFILES_QUERY_FILE_PROTOCOL = 10;
-    private static final int DATAFILES_QUERY_FILE_IDENTIFIER = 11;
-    private static final int DATAFILES_QUERY_FILE_CONTENTTYPE = 12;
-    private static final int DATAFILES_QUERY_FILE_FILESIZE = 13;
-    private static final int DATAFILES_QUERY_FILE_INGESTSTATUS = 14;
-    private static final int DATAFILES_QUERY_FILE_CHECKSUMVALUE = 15;
-    private static final int DATAFILES_QUERY_FILE_CHECKSUMTYPE = 16;
-    private static final int DATAFILES_QUERY_FILE_PREVIOUSDATAFILEID = 17;
-    private static final int DATAFILES_QUERY_FILE_ROOTDATAFILEID = 18;
-    private static final int DATAFILES_QUERY_DATASET_ID = 19;
-    private static final int DATAFILES_QUERY_DATASET_IDENTIFIER = 20;
-    private static final int DATAFILES_QUERY_DATASET_AUTHORITY = 21;
-    private static final int DATAFILES_QUERY_DATATABLE_ID = 22;
-    private static final int DATAFILES_QUERY_DATATABLE_UNF = 23;
-    private static final int DATAFILES_QUERY_DATATABLE_CASEQUANTITY = 24;
-    private static final int DATAFILES_QUERY_DATATABLE_VARQUANTITY = 25;
-    private static final int DATAFILES_QUERY_DATATABLE_ORIGINALFILEFORMAT = 26;
-    private static final int DATAFILES_QUERY_DATATABLE_ORIGINALFILESIZE = 27;
+    private static final int DATAFILES_QUERY_FILE_PUBLICATIONDATE = 2;
+    private static final int DATAFILES_QUERY_FILE_PREVIEWIMAGEAVAILABLE = 3;
+    private static final int DATAFILES_QUERY_FILE_STORAGEIDENTIFIER = 4;
+    private static final int DATAFILES_QUERY_FILE_AUTHORITY = 5;
+    private static final int DATAFILES_QUERY_FILE_PROTOCOL = 6;
+    private static final int DATAFILES_QUERY_FILE_IDENTIFIER = 7;
+    private static final int DATAFILES_QUERY_FILE_CONTENTTYPE = 8;
+    private static final int DATAFILES_QUERY_FILE_FILESIZE = 9;
+    private static final int DATAFILES_QUERY_FILE_INGESTSTATUS = 10;
+    private static final int DATAFILES_QUERY_FILE_CHECKSUMVALUE = 11;
+    private static final int DATAFILES_QUERY_FILE_CHECKSUMTYPE = 12;
+    private static final int DATAFILES_QUERY_DATASET_ID = 13;
+    private static final int DATAFILES_QUERY_DATASET_IDENTIFIER = 14;
+    private static final int DATAFILES_QUERY_DATASET_AUTHORITY = 15;
+    private static final int DATAFILES_QUERY_DATATABLE_ID = 16;
+    private static final int DATAFILES_QUERY_DATATABLE_UNF = 17;
+    private static final int DATAFILES_QUERY_DATATABLE_CASEQUANTITY = 18;
+    private static final int DATAFILES_QUERY_DATATABLE_VARQUANTITY = 19;
 
     private static final String DATAFILETAGS_QUERY_BASE_NAME = "DataFileTag.findData";
 
@@ -191,6 +183,22 @@ public class SolrSearchResultsService {
                 : Collections.emptySet();
     }
 
+    /**
+     * This and {@link SolrSearchResultsService#callSingleBatchForIds(String, Collection)}
+     * are used to circumvent the deficiency of native queries that don't allow
+     * to pass a collection for sql operator IN. Moreover according to
+     * https://www.jooq.org/doc/3.15/manual/sql-building/dsl-context/custom-settings/settings-in-list-padding/
+     * some DBs can optimize execution of queries by caching their execution
+     * plans – for that case we should reduce the amount of different queries
+     * that are sent to DB (queries with different number of parameters in IN
+     * clause are treated as different). So here we're using 3 different sizes
+     * of IN params list (they're chosen to reflect currently used search page
+     * size): 2, 6 and 10, and we do some calculations and some value padding to
+     * properly choose and fill such query. From postgres docs it's hard to tell
+     * whether these optimizations are in fact done, but nevertheless it's worth
+     * a try as enabling the use of collections for IN in native queries would
+     * be only a bit simpler.
+     */
     private Collection<Object[]> callNamedNativeQueryWithIds(String queryBaseName, Collection<? extends Number> ids) {
         if (ids == null || ids.isEmpty()) {
             return Collections.emptyList();
@@ -258,10 +266,6 @@ public class SolrSearchResultsService {
         dataFile.setMergeable(false);
         dataFile.setId(((Integer) fileData[DATAFILES_QUERY_FILE_ID]).longValue());
         dataFile.setCreateDate((Timestamp) fileData[DATAFILES_QUERY_FILE_CREATEDATE]);
-        dataFile.setIndexTime((Timestamp) fileData[DATAFILES_QUERY_FILE_INDEXTIME]);
-        dataFile.setModificationTime((Timestamp) fileData[DATAFILES_QUERY_FILE_MODIFICATIONTIME]);
-        dataFile.setPermissionIndexTime((Timestamp) fileData[DATAFILES_QUERY_FILE_PERMISSIONINDEXTIME]);
-        dataFile.setPermissionModificationTime((Timestamp) fileData[DATAFILES_QUERY_FILE_PERMISSIONMODIFICATIONTIME]);
         dataFile.setPublicationDate((Timestamp) fileData[DATAFILES_QUERY_FILE_PUBLICATIONDATE]);
         setIfNotNull((Boolean) fileData[DATAFILES_QUERY_FILE_PREVIEWIMAGEAVAILABLE], dataFile::setPreviewImageAvailable);
         setIfNotNull((String) fileData[DATAFILES_QUERY_FILE_CONTENTTYPE], dataFile::setContentType);
@@ -281,8 +285,6 @@ public class SolrSearchResultsService {
                 logger.info(String.format("Cannot convert [%s] to ChecksumType", checksumType), iae);
             }
         }
-        setIfNotNull((Long) fileData[DATAFILES_QUERY_FILE_PREVIOUSDATAFILEID], dataFile::setPreviousDataFileId);
-        setIfNotNull((Long) fileData[DATAFILES_QUERY_FILE_ROOTDATAFILEID], dataFile::setRootDataFileId);
         setIfNotNull((String) fileData[DATAFILES_QUERY_FILE_AUTHORITY], dataFile::setAuthority);
         setIfNotNull((String) fileData[DATAFILES_QUERY_FILE_PROTOCOL], dataFile::setProtocol);
         setIfNotNull((String) fileData[DATAFILES_QUERY_FILE_IDENTIFIER], dataFile::setIdentifier);
@@ -310,8 +312,6 @@ public class SolrSearchResultsService {
         setIfNotNull((String) fileData[DATAFILES_QUERY_DATATABLE_UNF], dataTable::setUnf);
         setIfNotNull((Long) fileData[DATAFILES_QUERY_DATATABLE_CASEQUANTITY], dataTable::setCaseQuantity);
         setIfNotNull((Long) fileData[DATAFILES_QUERY_DATATABLE_VARQUANTITY], dataTable::setVarQuantity);
-        setIfNotNull((String) fileData[DATAFILES_QUERY_DATATABLE_ORIGINALFILEFORMAT], dataTable::setOriginalFileFormat);
-        setIfNotNull((Long) fileData[DATAFILES_QUERY_DATATABLE_ORIGINALFILESIZE], dataTable::setOriginalFileSize);
         dataTable.setDataFile(dataFile);
         dataFile.setDataTable(dataTable);
         List<Integer> tagIds;
