@@ -12,7 +12,6 @@
     <o:importConstants type="edu.harvard.iq.dataverse.search.query.SearchObjectType" var="searchObjectTypeEnum"/>
     <o:importConstants type="edu.harvard.iq.dataverse.search.SearchIncludeFragment" var="searchConstants"/>
 
-    <c:set var="dataverseAlias" value="#{SearchIncludeFragment.dataverse.alias}"/>
     <c:set var="page" value="/dataverse/#{SearchIncludeFragment.dataverse.alias}"/>
 
     <!--@elvariable id="friendlyNames" type="java.util.List<java.lang.String>"-->
@@ -677,14 +676,6 @@
         </div>
     </div>
 
-    <!-- this remote command is called once the page finishes its initial load,
-            in order to display the images for the card -->
-<!--     <h:form> -->
-<!--         <p:remoteCommand name="postLoad" -->
-<!--                          process="@this" -->
-<!--                          update=":#{p:resolveClientId('resultsTable', view)}" -->
-<!--                          actionListener="#{SearchIncludeFragment.setDisplayCardValues()}" /> -->
-<!--     </h:form> -->
 
     <p:dialog header="#{bundle['dataverse.results.dialog.addDataGuest.header']}" widgetVar="addData_popup" modal="true">
         <p class="help-block">
@@ -704,12 +695,6 @@
     //<![CDATA[
         
         $(document).ready(function () {
-            // Calls the p:remoteCommand postLoad.
-            // Posted at end of fragment to work correctly with Account information
-//             <ui:remove>
-            // See: https://github.com/IQSS/dataverse/issues/2004
-//             </ui:remove>
-//             postLoad();
 
             $('[data-toggle=offcanvas]').click(function() {
                 var showText = '#{bundle.show}';
