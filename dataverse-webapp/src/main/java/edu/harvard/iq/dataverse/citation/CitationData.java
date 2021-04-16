@@ -91,6 +91,12 @@ public class CitationData {
         return date;
     }
 
+    /**
+     * CAUTION: this field can contain dataset or file pid depending
+     * on context. Use getters {@link CitationData#getPidOfDataset()}
+     * or {@link CitationData#getPidOfFile()} to obtain pid of wanted
+     * object (if available).
+     */
     public GlobalId getPersistentId() {
         return persistentId;
     }

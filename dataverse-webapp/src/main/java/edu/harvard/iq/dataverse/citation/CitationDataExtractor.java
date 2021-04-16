@@ -167,8 +167,9 @@ public class CitationDataExtractor {
             }
         } else {
             try {
-                citationDate = new SimpleDateFormat("yyyy")
-                        .parse(dsv.getDistributionDate());
+                citationDate = dsv.getDistributionDate() != null
+                        ? new SimpleDateFormat("yyyy").parse(dsv.getDistributionDate())
+                        : null;
             } catch (ParseException pe) {
                 logger.warn(String.format("Error parsing date [%s]", dsv.getDistributionDate()), pe);
             }
