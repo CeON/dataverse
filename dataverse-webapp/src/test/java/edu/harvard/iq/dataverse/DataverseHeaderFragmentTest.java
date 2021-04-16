@@ -52,6 +52,25 @@ public class DataverseHeaderFragmentTest {
                 tuple("/file.xhtml?fileId=101&version=DRAFT", "filename.txt"));
     }
 
+    @Test
+    void initBreadcrumbs() {
+        // given
+        Dataverse rootDataverse = buildDataverse("root", "root name", null);
+        Dataset dataset = buildDataset("ds title", rootDataverse);
+        DataFile datafile = buildDataFile(101L, "filename.txt", dataset);
+        // when
+        dataverseHeaderFragment.initBreadcrumbs(datafile);
+        // then
+        List<Breadcrumb> breadcumbs = dataverseHeaderFragment.getBreadcrumbs();
+
+        assertThat(breadcumbs)
+            .extracting(Breadcrumb::getUrl, Breadcrumb::getBreadcrumbText)
+            .containsExactly(
+                tuple("/dataverse/root", "root name"),
+                tuple("/dataset.xhtml?persistentId=doi:10.1000/ABC", "ds title"),
+                tuple("/file.xhtml?fileId=101", "filename.txt"));
+    }
+
     // -------------------- PRIVATE --------------------
 
     private Dataverse buildDataverse(String alias, String name, Dataverse owner) {

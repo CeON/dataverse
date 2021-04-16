@@ -85,7 +85,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         initBreadcrumbsForFileMetadata(fmd, null);
     }
 
-    public void initBreadcrumbsForFileMetadata(DataFile datafile, String subPage) {
+    public void initBreadcrumbsForDataFile(DataFile datafile, String subPage) {
         Dataset dataset = datafile.getOwner();
         Long getDatasetVersionID = dataset.getLatestVersion().getId();
         FileMetadata fmd = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(getDatasetVersionID, datafile.getId());
@@ -160,7 +160,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
             return buildBreadcrumbForDataverse((Dataverse) dvObject);
         } else if (dvObject.isInstanceofDataset()) {
             return buildBreadcrumbForDataset((Dataset) dvObject, null);
-        } else if (dvObject.isInstanceofDataset()) {
+        } else if (dvObject.isInstanceofDataFile()) {
             return buildBreadcrumbForDatafile((DataFile) dvObject, null);
         }
         throw new IllegalArgumentException("Unknown dvObject type: " + dvObject.getClass().getName());
@@ -176,7 +176,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         return new Breadcrumb(dataverseUrl, dataverse.getDisplayName(), openInNewTab);
     }
     private Breadcrumb buildBreadcrumbForDataset(Dataset dataset, String optionalUrlExtension) {
-        String dataverseUrl = "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + optionalUrlExtension;
+        String dataverseUrl = "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + (optionalUrlExtension == null ? "" : optionalUrlExtension);
         if (widgetWrapper.isWidgetTarget(dataset)) {
             dataverseUrl = widgetWrapper.wrapURL(dataverseUrl); 
         }
@@ -185,7 +185,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         return new Breadcrumb(dataverseUrl, dataset.getDisplayName(), openInNewTab);
     }
     private Breadcrumb buildBreadcrumbForDatafile(DataFile datafile, String optionalUrlExtension) {
-        String dataverseUrl = "/file.xhtml?fileId=" + datafile.getId() + optionalUrlExtension;
+        String dataverseUrl = "/file.xhtml?fileId=" + datafile.getId() + (optionalUrlExtension == null ? "" : optionalUrlExtension);
         if (widgetWrapper.isWidgetTarget(datafile)) {
             dataverseUrl = widgetWrapper.wrapURL(dataverseUrl); 
         }
