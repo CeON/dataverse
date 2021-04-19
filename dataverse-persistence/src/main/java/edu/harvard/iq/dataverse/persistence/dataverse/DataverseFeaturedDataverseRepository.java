@@ -15,6 +15,8 @@ public class DataverseFeaturedDataverseRepository extends JpaRepository<Long, Da
         super(DataverseFeaturedDataverse.class);
     }
 
+    // -------------------- LOGIC --------------------
+
     public List<DataverseFeaturedDataverse> findByDataverseId(Long dataverseId) {
         String query = "select object(o) from DataverseFeaturedDataverse as o where o.dataverse.id = :dataverseId order by o.displayOrder";
         return em.createQuery(query, DataverseFeaturedDataverse.class)

@@ -54,7 +54,9 @@ public class FeaturedDataverseServiceBean {
         List<Object[]> searchResults = em.createNativeQuery("SELECT d.id, d.alias, d.name, dt.logo FROM DataverseFeaturedDataverse f "
                 + " JOIN dataverse d ON d.id = f.featureddataverse_id"
                 + " LEFT JOIN dataversetheme dt ON dt.dataverse_id = d.id"
-                + " WHERE f.dataverse_id = " + dataverseId + " order by f.displayOrder").getResultList();
+                + " WHERE f.dataverse_id = ?1 order by f.displayOrder")
+                .setParameter(1, dataverseId)
+                .getResultList();
 
         List<Dataverse> ret = new ArrayList<>();
 

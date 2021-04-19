@@ -385,7 +385,7 @@ public class SearchIncludeFragment {
                                     .collect(Collectors.joining(":")));
         
         for (int i=0; i< filterQueries.size(); i++) {
-            searchUrlBuilder.append("&fq" + i + "=" + filterQueries.get(i));
+            searchUrlBuilder.append("&fq").append(i).append("=").append(filterQueries.get(i));
         }
         searchUrlBuilder.append("&sort=").append(sortField)
                         .append("&order=").append(sortOrder)

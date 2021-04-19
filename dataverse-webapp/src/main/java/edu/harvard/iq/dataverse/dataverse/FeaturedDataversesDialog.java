@@ -35,15 +35,6 @@ public class FeaturedDataversesDialog implements java.io.Serializable {
     private DualListModel<Dataverse> featuredDataverses = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
     private Dataverse dataverse;
 
-    
-    public void init(Dataverse dataverse) {
-        canEditFeaturedDataverses = permissionWrapper.canIssueUpdateDataverseCommand(dataverse);
-        
-        if (canEditFeaturedDataverses) {
-            this.dataverse = dataverse;
-        }
-    }
-
     // -------------------- GETTERS --------------------
 
     public boolean isCanEditFeaturedDataverses() {
@@ -55,6 +46,14 @@ public class FeaturedDataversesDialog implements java.io.Serializable {
     }
 
     // -------------------- LOGIC --------------------
+
+    public void init(Dataverse dataverse) {
+        canEditFeaturedDataverses = permissionWrapper.canIssueUpdateDataverseCommand(dataverse);
+        
+        if (canEditFeaturedDataverses) {
+            this.dataverse = dataverse;
+        }
+    }
 
     public void setupDialog() {
         List<Dataverse> featuredSource = featuredDataverseService.findFeaturableDataverses(dataverse.getId());

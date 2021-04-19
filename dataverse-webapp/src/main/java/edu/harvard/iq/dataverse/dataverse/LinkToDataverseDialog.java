@@ -57,17 +57,6 @@ public class LinkToDataverseDialog implements java.io.Serializable {
     private Dataverse targetDataverseLink;
 
 
-    public void init(Dataverse dataverse, String searchQuery, List<String> searchFilterQueriesDebug) {
-        canLinkDataverse = session.getUser().isSuperuser() && !dataverse.isRoot();
-        canLinkSavedSearch = session.getUser().isSuperuser() && StringUtils.isNotEmpty(searchQuery);
-
-        if (canLinkDataverse || canLinkSavedSearch) {
-            this.dataverse = dataverse;
-            this.searchQuery = searchQuery;
-            this.searchFilterQueriesDebug = searchFilterQueriesDebug;
-        }
-    }
-    
     // -------------------- GETTERS --------------------
 
     public boolean isCanLinkDataverse() {
@@ -93,7 +82,18 @@ public class LinkToDataverseDialog implements java.io.Serializable {
     }
     
     // -------------------- LOGIC --------------------
-    
+
+    public void init(Dataverse dataverse, String searchQuery, List<String> searchFilterQueriesDebug) {
+        canLinkDataverse = session.getUser().isSuperuser() && !dataverse.isRoot();
+        canLinkSavedSearch = session.getUser().isSuperuser() && StringUtils.isNotEmpty(searchQuery);
+
+        if (canLinkDataverse || canLinkSavedSearch) {
+            this.dataverse = dataverse;
+            this.searchQuery = searchQuery;
+            this.searchFilterQueriesDebug = searchFilterQueriesDebug;
+        }
+    }
+
     public void setupDialogForDataverseLinking() {
         linkMode = LinkMode.LINKDATAVERSE;
         updateLinkableDataverses();
