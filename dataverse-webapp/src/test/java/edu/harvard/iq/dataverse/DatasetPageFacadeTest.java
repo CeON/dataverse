@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -108,7 +110,6 @@ class DatasetPageFacadeTest {
         //given
         Long dsvId = 1L;
 
-
         //when
         Mockito.when(dsvRepository.findById(dsvId)).thenReturn(Optional.of(new DatasetVersion()));
 
@@ -156,16 +157,16 @@ class DatasetPageFacadeTest {
     @Test
     void retrieveDataset() {
         //given
-        Long dsvId = 1L;
+        Long dsId = 1L;
         Dataset dataset = new Dataset();
         dataset.setId(1L);
 
         //when
-        Mockito.when(datasetDao.find(dsvId)).thenReturn(dataset);
-        Dataset foundDataset = datasetPageFacade.retrieveDataset(dsvId);
+        Mockito.when(datasetDao.find(dsId)).thenReturn(dataset);
+        Dataset foundDataset = datasetPageFacade.retrieveDataset(dsId);
 
         //then
-        assertThat(foundDataset.getId()).isEqualTo(dsvId);
+        assertThat(foundDataset.getId()).isEqualTo(dsId);
     }
 
     @Test
@@ -209,5 +210,40 @@ class DatasetPageFacadeTest {
 
         //then
         Mockito.verify(datasetDao, Mockito.times(1)).assignDatasetThumbnailByNativeQuery(dataset, file);
+    }
+
+    @Test
+    void isMinorUpdate() {
+        //given
+        DatasetVersion datasetVersion = new DatasetVersion();
+        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED);
+
+        Dataset dataset = new Dataset();
+        dataset.getVersions().add(datasetVersion);
+        datasetVersion.setDataset(dataset);
+
+        //when
+        Mockito.when(dsvRepository.findById(Mockito.any())).thenReturn(Optional.of(datasetVersion));
+
+        boolean isMinorUpdate = datasetPageFacade.isMinorUpdate(1L);
+
+        //then
+        assertThat(isMinorUpdate).isTrue();
+
+    }
+
+    @Test
+    void getFileSize() {
+        //given
+        DatasetVersion datasetVersion = new DatasetVersion();
+        datasetVersion.addFileMetadata(new FileMetadata());
+
+        //when
+        when(dsvRepository.findById(any())).thenReturn(Optional.of(datasetVersion));
+
+        int fileSize = datasetPageFacade.getFileSize(1L);
+
+        //then
+        assertThat(fileSize).isEqualTo(1);
     }
 }

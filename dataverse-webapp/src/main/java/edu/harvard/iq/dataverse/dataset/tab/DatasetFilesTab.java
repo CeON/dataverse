@@ -135,6 +135,8 @@ public class DatasetFilesTab implements Serializable {
 
     private String fileLabelSearchTerm;
 
+    private Integer fileSize;
+
     /**
      * The contents of the script.
      */
@@ -730,6 +732,12 @@ public class DatasetFilesTab implements Serializable {
                 fileMetadataService.findFileMetadata(selectedFileIds.toArray(new Long[0]));
     }
 
+    public int getFileSize() {
+        fileSize = fileSize == null ? datasetFilesTabFacade.fileSize(workingVersion.getId()) : fileSize;
+
+        return fileSize;
+    }
+
     // -------------------- PRIVATE --------------------
 
     private void updateTermsOfUseForDraftFiles(FileTermsOfUse termsOfUse, List<FileMetadata> fetchedFileMetadata) {
@@ -856,8 +864,8 @@ public class DatasetFilesTab implements Serializable {
         categoriesByName = new ArrayList<>(datasetFilesTabFacade.fetchCategoriesByName(workingVersion.getId()));
 
         List<DataFileCategory> datasetFileCategoriesToRemove = new ArrayList<>();
-
-        for (DataFileCategory test : dataset.getCategories()) {
+        List<DataFileCategory> categories = datasetFilesTabFacade.retrieveDatasetFileCategories(dataset.getId());
+        for (DataFileCategory test : categories) {
             boolean remove = true;
             for (String catByName : categoriesByName) {
                 if (catByName.equals(test.getName())) {
@@ -871,10 +879,7 @@ public class DatasetFilesTab implements Serializable {
         }
 
         if (!datasetFileCategoriesToRemove.isEmpty()) {
-            for (DataFileCategory remove : datasetFileCategoriesToRemove) {
-                dataset.getCategories().remove(remove);
-            }
-
+            datasetFilesTabFacade.removeDatasetFileCategories(dataset.getId(), datasetFileCategoriesToRemove);
         }
 
     }

@@ -29,6 +29,7 @@ public class DatasetPageFacade {
     private TermsOfUseRepository termsOfUseRepository;
     private DatasetDao datasetDao;
     private DataverseDao dataverseDao;
+    private DatasetVersionRepository datasetVersionRepository;
 
     public DatasetPageFacade() {
     }
@@ -36,13 +37,14 @@ public class DatasetPageFacade {
     @Inject
     public DatasetPageFacade(DatasetVersionRepository dsvRepository, LicenseDifferenceFinder licenseDifferenceFinder,
                              DataFileServiceBean dataFileService, TermsOfUseRepository termsOfUseRepository,
-                             DatasetDao datasetDao, DataverseDao dataverseDao) {
+                             DatasetDao datasetDao, DataverseDao dataverseDao, DatasetVersionRepository datasetVersionRepository) {
         this.dsvRepository = dsvRepository;
         this.licenseDifferenceFinder = licenseDifferenceFinder;
         this.dataFileService = dataFileService;
         this.termsOfUseRepository = termsOfUseRepository;
         this.datasetDao = datasetDao;
         this.dataverseDao = dataverseDao;
+        this.datasetVersionRepository = datasetVersionRepository;
     }
 
     public boolean isLatestDatasetWithAnyFilesIncluded(Long datasetVersionId) {
@@ -81,6 +83,13 @@ public class DatasetPageFacade {
         return true;
     }
 
+    public boolean isMinorUpdate(Long datasetVersionId) {
+        DatasetVersion dsv = dsvRepository.findById(datasetVersionId)
+                                          .orElseThrow(() -> new IllegalStateException("Provided dataset version id couldn't be found id: " + datasetVersionId));
+
+        return dsv.isMinorUpdate();
+    }
+
     public Optional<FileTermsOfUse> getTermsOfUseOfFirstFile(Long datasetVersionId) {
         return termsOfUseRepository.retrieveFirstFileTermsOfUse(datasetVersionId);
     }
@@ -99,6 +108,12 @@ public class DatasetPageFacade {
 
     public void assignDatasetThumbnailByNativeQuery(Dataset dataset, DataFile datafile) {
         datasetDao.assignDatasetThumbnailByNativeQuery(dataset, datafile);
+    }
+
+    public int getFileSize(Long dsvId) {
+        return datasetVersionRepository.findById(dsvId)
+                                .orElseThrow(() -> new IllegalStateException("Provided dataset version id couldn't be found id: " + dsvId))
+                                .getFileMetadatas().size();
     }
 
 }

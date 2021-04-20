@@ -149,8 +149,10 @@ public class DatasetPage implements java.io.Serializable {
     private String thumbnailString = null;
     private boolean thumbnailStringIsCached = false;
     private Optional<Boolean> isLatestDatasetWithAnyFilesIncluded = Optional.empty();
+    private Optional<Boolean> isDsvMinorUpdate = Optional.empty();
     private String returnToAuthorReason;
     private String contributorMessageToCurator;
+    private Integer fileSize;
 
     private List<DatasetFileTermDifferenceItem> fileTermDiffsWithLatestReleased;
 
@@ -660,7 +662,7 @@ public class DatasetPage implements java.io.Serializable {
         String errorMsg = null;
         String successMsg = BundleUtil.getStringFromBundle("datasetversion.update.success");
         try {
-            CuratePublishedDatasetVersionCommand cmd = new CuratePublishedDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest());
+            CuratePublishedDatasetVersionCommand cmd = new CuratePublishedDatasetVersionCommand(datasetPageFacade.retrieveDataset(dataset.getId()), dvRequestService.getDataverseRequest());
             dataset = commandEngine.submit(cmd);
             // If configured, and currently published version is archived, try to update archive copy as well
             DatasetVersion updateVersion = dataset.getLatestVersion();
@@ -918,7 +920,7 @@ public class DatasetPage implements java.io.Serializable {
     public boolean isLockedFromEdits() {
         if (null == lockedFromEditsVar || stateChanged) {
             try {
-                permissionService.checkEditDatasetLock(dataset, dvRequestService.getDataverseRequest(), new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest()));
+                permissionService.checkEditDatasetLock(dataset, dvRequestService.getDataverseRequest(), new UpdateDatasetVersionCommand(datasetPageFacade.retrieveDataset(dataset.getId()), dvRequestService.getDataverseRequest()));
                 lockedFromEditsVar = false;
             } catch (IllegalCommandException ex) {
                 lockedFromEditsVar = true;
@@ -1232,6 +1234,18 @@ public class DatasetPage implements java.io.Serializable {
                     .toInstant()));
         }
         return Option.none();
+    }
+
+    public int getFileSize() {
+        fileSize = fileSize == null ? datasetPageFacade.getFileSize(workingVersion.getId()) : fileSize;
+
+        return fileSize;
+    }
+
+    public boolean isMinorUpdate() {
+        isDsvMinorUpdate = Optional.of(isDsvMinorUpdate.orElseGet(() -> datasetPageFacade.isMinorUpdate(dataset.getLatestVersion().getId())));
+
+        return isDsvMinorUpdate.get();
     }
 
     // -------------------- PRIVATE ---------------------

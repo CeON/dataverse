@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -29,6 +28,8 @@ import java.util.Random;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DatasetFilesTabFacadeTest {
@@ -53,8 +54,8 @@ class DatasetFilesTabFacadeTest {
         datasetVersion.addFileMetadata(generateFileMetadata());
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
-        Mockito.when(fileDownloadHelper.canUserDownloadFile(Mockito.any())).thenReturn(true);
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(fileDownloadHelper.canUserDownloadFile(any())).thenReturn(true);
 
         boolean versionContainsDownloadableFiles = datasetFilesTabFacade.isVersionContainsDownloadableFiles(id);
 
@@ -70,8 +71,8 @@ class DatasetFilesTabFacadeTest {
         datasetVersion.addFileMetadata(generateFileMetadata());
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
-        Mockito.when(fileDownloadHelper.canUserDownloadFile(Mockito.any())).thenReturn(false);
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(fileDownloadHelper.canUserDownloadFile(any())).thenReturn(false);
 
         boolean versionContainsDownloadableFiles = datasetFilesTabFacade.isVersionContainsDownloadableFiles(id);
 
@@ -98,7 +99,7 @@ class DatasetFilesTabFacadeTest {
 
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
         DatasetVersion updatedDsv = datasetFilesTabFacade.updateFileTagsAndCategories(id, selectedFiles, selectedFileMetadataTags, selectedDataFileTags);
 
         //then
@@ -129,7 +130,7 @@ class DatasetFilesTabFacadeTest {
 
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
         DatasetVersion updatedDsv = datasetFilesTabFacade.updateFileTagsAndCategories(id, selectedFiles, selectedFileMetadataTags, selectedDataFileTags);
 
         //then
@@ -155,7 +156,7 @@ class DatasetFilesTabFacadeTest {
         datasetVersion.addFileMetadata(fileMetadata);
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
 
         DatasetVersion updatedDsv = datasetFilesTabFacade.updateTermsOfUse(id, providedTerms, Lists.newArrayList(fileMetadata));
 
@@ -182,7 +183,7 @@ class DatasetFilesTabFacadeTest {
         datasetVersion.addFileMetadata(generateFileMetadata());
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
 
         DatasetVersion updatedDsv = datasetFilesTabFacade.updateTermsOfUse(id, providedTerms, Lists.newArrayList(fileMetadata));
 
@@ -203,7 +204,7 @@ class DatasetFilesTabFacadeTest {
         datasetVersion.addFileMetadata(fileMetadata);
 
         //when
-        Mockito.when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
+        when(datasetVersionRepository.findById(id)).thenReturn(Optional.of(datasetVersion));
 
         Set<String> categoriesByName = datasetFilesTabFacade.fetchCategoriesByName(id);
 
@@ -220,7 +221,7 @@ class DatasetFilesTabFacadeTest {
         dataset.setId(id);
 
         //when
-        Mockito.when(datasetDao.find(id)).thenReturn(dataset);
+        when(datasetDao.find(id)).thenReturn(dataset);
 
         Dataset foundDataset = datasetFilesTabFacade.retrieveDataset(id);
 
@@ -236,12 +237,61 @@ class DatasetFilesTabFacadeTest {
         datasetLock.setId(1L);
 
         //when
-        Mockito.when(datasetDao.addDatasetLock(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(datasetLock);
+        when(datasetDao.addDatasetLock(any(), any(), any(), any())).thenReturn(datasetLock);
 
         DatasetLock addedLock = datasetFilesTabFacade.addDatasetLock(1L, DatasetLock.Reason.InReview, 1L, "");
 
         //then
         assertThat(addedLock.getId()).isEqualTo(datasetLock.getId());
+
+    }
+
+    @Test
+    void fileSize() {
+        //given
+        DatasetVersion datasetVersion = new DatasetVersion();
+        datasetVersion.addFileMetadata(new FileMetadata());
+
+        //when
+        when(datasetVersionRepository.findById(any())).thenReturn(Optional.of(datasetVersion));
+
+        int fileSize = datasetFilesTabFacade.fileSize(1L);
+
+        //then
+        assertThat(fileSize).isEqualTo(1);
+
+    }
+
+    @Test
+    void retrieveDatasetFileCategories() {
+        //given
+        Dataset dataset = new Dataset();
+        dataset.addFileCategory(new DataFileCategory());
+
+        //when
+        when(datasetDao.find(any())).thenReturn(dataset);
+
+        List<DataFileCategory> dataFileCategories = datasetFilesTabFacade.retrieveDatasetFileCategories(1L);
+
+        //then
+        assertThat(dataFileCategories).size().isEqualTo(1);
+
+    }
+
+    @Test
+    void removeDatasetFileCategories() {
+        //given
+        Dataset dataset = new Dataset();
+        DataFileCategory category = new DataFileCategory();
+        dataset.addFileCategory(category);
+
+        //when
+        when(datasetDao.find(any())).thenReturn(dataset);
+
+        datasetFilesTabFacade.removeDatasetFileCategories(1L, Lists.newArrayList(category));
+
+        //then
+        assertThat(dataset.getCategories()).size().isEqualTo(0);
 
     }
 

@@ -116,6 +116,20 @@ public class DatasetFilesTabFacade {
         return datasetDao.addDatasetLock(datasetId, reason, userId, info);
     }
 
+    public int fileSize(Long dsvId) {
+        return datasetVersionRepository.findById(dsvId)
+                                       .orElseThrow(() -> new IllegalStateException("Provided dataset version id couldn't be found id: " + dsvId))
+                                       .getFileMetadatas().size();
+    }
+
+    public List<DataFileCategory> retrieveDatasetFileCategories(Long datasetId) {
+        return datasetDao.find(datasetId).getCategories();
+    }
+
+    public void removeDatasetFileCategories(Long datasetId, List<DataFileCategory> categoriesToRemove) {
+        datasetDao.find(datasetId).getCategories().removeAll(categoriesToRemove);
+    }
+
     private void setTagsForTabularData(Collection<String> selectedDataFileTags, FileMetadata fmd) {
         fmd.getDataFile().getTags().clear();
 
