@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
+import edu.harvard.iq.dataverse.dataverse.DataverseLinkingService;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
@@ -63,7 +64,7 @@ public class DataverseDao implements java.io.Serializable {
     private DatasetRepository datasetRepository;
 
     @EJB
-    private DataverseLinkingDao dataverseLinkingService;
+    private DataverseLinkingService dataverseLinkingService;
 
     @EJB
     private DatasetLinkingServiceBean datasetLinkingService;
@@ -149,11 +150,6 @@ public class DataverseDao implements java.io.Serializable {
         return em.createQuery(qr, Long.class).setParameter("ownerId", ownerId).getResultList();
     }
 
-    public List<Dataverse> findPublishedByOwnerId(Long ownerId) {
-        String qr = "select object(o) from Dataverse as o where o.owner.id =:ownerId and o.publicationDate is not null order by o.name";
-        return em.createQuery(qr, Dataverse.class).setParameter("ownerId", ownerId).getResultList();
-    }
-
     /**
      * @return the root dataverse
      * @todo Do we really want this method to sometimes throw a
@@ -161,20 +157,6 @@ public class DataverseDao implements java.io.Serializable {
      */
     public Dataverse findRootDataverse() {
         return em.createNamedQuery("Dataverse.findRoot", Dataverse.class).getSingleResult();
-    }
-
-    public List<Dataverse> findAllPublishedByOwnerId(Long ownerId) {
-        List<Dataverse> retVal = new ArrayList<>();
-        List<Dataverse> previousLevel = findPublishedByOwnerId(ownerId);
-
-        retVal.addAll(previousLevel);
-        /*
-        if (!previousLevel.isEmpty()) {
-            for (Dataverse dv : previousLevel) {
-                retVal.addAll(findPublishedByOwnerId(dv.getId()));
-            }
-        }*/
-        return retVal;
     }
 
     /**
@@ -255,7 +237,7 @@ public class DataverseDao implements java.io.Serializable {
                 return logoThumbNailPath;
             } else {
                 imageThumbConverter.generateImageThumbnailFromFile(dataverseLogoFile.getAbsolutePath(), 48, logoThumbNailPath);
-                
+
                 if (new File(logoThumbNailPath).exists()) {
                     return logoThumbNailPath;
                 }
@@ -292,45 +274,6 @@ public class DataverseDao implements java.io.Serializable {
         }
 
         return null;
-    }
-
-    public DataverseTheme findDataverseThemeByIdQuick(Long id) {
-        if (id == null) {
-            return null;
-        }
-
-        Object[] result;
-
-        try {
-            result = (Object[]) em.createNativeQuery("SELECT logo, logoFormat FROM dataversetheme WHERE dataverse_id = " + id).getSingleResult();
-
-        } catch (Exception ex) {
-            return null;
-        }
-
-        if (result == null) {
-            return null;
-        }
-
-        DataverseTheme theme = new DataverseTheme();
-
-        if (result[0] != null) {
-            theme.setLogo((String) result[0]);
-        }
-
-        if (result[1] != null) {
-            String format = (String) result[1];
-            switch (format) {
-                case "RECTANGLE":
-                    theme.setLogoFormat(DataverseTheme.ImageFormat.RECTANGLE);
-                    break;
-                case "SQUARE":
-                    theme.setLogoFormat(DataverseTheme.ImageFormat.SQUARE);
-                    break;
-            }
-        }
-
-        return theme;
     }
 
     public List<Dataverse> findDataversesThisIdHasLinkedTo(long dataverseId) {
@@ -424,58 +367,10 @@ public class DataverseDao implements java.io.Serializable {
         return retVal;
     }
 
-
-    public void populateDvSearchCard(SolrSearchResult solrSearchResult) {
-
-        Long dvId = solrSearchResult.getEntityId();
-
-        if (dvId == null) {
-            return;
-        }
-
-        Long parentDvId = null;
-        String parentId = solrSearchResult.getParent().get("id");
-        if (parentId != null) {
-            try {
-                parentDvId = Long.parseLong(parentId);
-            } catch (NumberFormatException ex) {
-                parentDvId = null;
-            }
-        }
-
-        Object[] searchResult;
-
-        try {
-            if (parentDvId == null) {
-                searchResult = (Object[]) em.createNativeQuery("SELECT t0.AFFILIATION, t0.ALIAS FROM DATAVERSE t0 WHERE t0.ID = " + dvId).getSingleResult();
-            } else {
-                searchResult = (Object[]) em.createNativeQuery("SELECT t0.AFFILIATION, t0.ALIAS, t2.ALIAS FROM DATAVERSE t0, DVOBJECT t1, DATAVERSE t2, DVOBJECT t3 WHERE (t0.ID = t1.ID) AND (t1.OWNER_ID = t3.ID) AND (t2.ID = t3.ID) AND (t0.ID = " + dvId + ")").getSingleResult();
-            }
-        } catch (Exception ex) {
-            return;
-        }
-
-        if (searchResult == null) {
-            return;
-        }
-
-        if (searchResult[0] != null) {
-            solrSearchResult.setDataverseAffiliation((String) searchResult[0]);
-        }
-
-        if (searchResult[1] != null) {
-            solrSearchResult.setDataverseAlias((String) searchResult[1]);
-        }
-
-        if (parentDvId != null) {
-            if (searchResult[2] != null) {
-                solrSearchResult.setDataverseParentAlias((String) searchResult[2]);
-            }
-        }
-    }
-
-    // function to recursively find ids of all children of a dataverse that 
-    // are also of type dataverse
+    /**
+     * Method to recursively find ids of all children of a dataverse that
+     * are also of type dataverse
+     */
     public List<Long> findAllDataverseDataverseChildren(Long dvId) {
         // get list of Dataverse children
         List<Long> dataverseChildren = findIdsByOwnerId(dvId);
@@ -492,7 +387,7 @@ public class DataverseDao implements java.io.Serializable {
         }
     }
 
-    // function to recursively find ids of all children of a dataverse that are 
+    // function to recursively find ids of all children of a dataverse that are
     // of type dataset
     public List<Long> findAllDataverseDatasetChildren(Long dvId) {
         // get list of Dataverse children
