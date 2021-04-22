@@ -4,51 +4,71 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.faces.context.FacesContext;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
-public class BundleUtil {
+/**
+ * This class is the version of {@link BundleUtil} adapted to the use
+ * of ConcurrentMap cache for internal bundles.
+ */
+public class CachedBundleUtil {
 
     private static final Logger logger = Logger.getLogger(BundleUtil.class.getCanonicalName());
 
     private static final String DEFAULT_BUNDLE_FILE = "Bundle";
 
+    private static final ResourceBundle EMPTY_BUNDLE = new ResourceBundle() {
+        @Override protected Object handleGetObject(String key) { return null; }
+        @Override public Enumeration<String> getKeys() { return null; }
+    };
+
     private static final Set<String> INTERNAL_BUNDLE_NAMES = Sets.newHashSet(
             DEFAULT_BUNDLE_FILE, "BuiltInRoles", "MimeTypeDisplay", "MimeTypeFacets", "ValidationMessages");
 
+    private ConcurrentMap<String, ResourceBundle> bundleCache;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public CachedBundleUtil(ConcurrentMap<String, ResourceBundle> bundleCache) {
+        this.bundleCache = bundleCache;
+    }
+
     // -------------------- LOGIC --------------------
 
-    public static String getStringFromBundle(String key, Object ... arguments) {
+    public String getStringFromBundle(String key, Object ... arguments) {
         return getStringFromBundleWithLocale(key, getCurrentLocale(), arguments);
     }
 
-    public static String getStringFromBundleWithLocale(String key, Locale locale, Object... arguments) {
+    public String getStringFromBundleWithLocale(String key, Locale locale, Object... arguments) {
         String message = getStringFromPropertyFile(key, DEFAULT_BUNDLE_FILE, locale);
 
         return MessageFormat.format(message, arguments);
     }
 
-    public static String getStringFromNonDefaultBundle(String key, String bundleName, Object... arguments) {
+    public String getStringFromNonDefaultBundle(String key, String bundleName, Object... arguments) {
         return getStringFromNonDefaultBundleWithLocale(key, bundleName, getCurrentLocale(), arguments);
     }
 
-    public static String getStringFromNonDefaultBundleWithLocale(String key, String bundleName, Locale locale, Object... arguments) {
+
+    public String getStringFromNonDefaultBundleWithLocale(String key, String bundleName, Locale locale, Object... arguments) {
         String stringFromPropertyFile = getStringFromPropertyFile(key, bundleName, locale);
 
         return MessageFormat.format(stringFromPropertyFile, arguments);
     }
 
-    public static String getStringFromClasspathBundle(String key, String bundleName, Object... arguments) {
+
+    public String getStringFromClasspathBundle(String key, String bundleName, Object... arguments) {
         String stringFromPropertyFile = getStringFromInternalBundle(key, bundleName, getCurrentLocale());
 
         return MessageFormat.format(stringFromPropertyFile, arguments);
@@ -68,7 +88,7 @@ public class BundleUtil {
 
     // -------------------- PRIVATE --------------------
 
-    private static String getStringFromPropertyFile(String bundleKey, String bundleName) throws MissingResourceException {
+    private String getStringFromPropertyFile(String bundleKey, String bundleName) throws MissingResourceException {
         return getStringFromPropertyFile(bundleKey, bundleName, getCurrentLocale());
     }
 
@@ -80,7 +100,7 @@ public class BundleUtil {
      * If it is default bundle or default metadata block #{@link DefaultMetadataBlocks#METADATA_BLOCK_NAMES}
      * method tries to get the name from default bundles otherwise it returns empty string.
      */
-    private static String getStringFromPropertyFile(String bundleKey, String bundleName, Locale locale) throws MissingResourceException {
+    private String getStringFromPropertyFile(String bundleKey, String bundleName, Locale locale) {
         Optional<String> displayNameFromExternalBundle = Optional.empty();
 
         if ((!DefaultMetadataBlocks.METADATA_BLOCK_NAMES.contains(bundleName) && !INTERNAL_BUNDLE_NAMES.contains(bundleName))
@@ -91,17 +111,28 @@ public class BundleUtil {
         return displayNameFromExternalBundle.orElseGet(() -> getStringFromInternalBundle(bundleKey, bundleName, locale));
     }
 
-    private static String getStringFromInternalBundle(String bundleKey, String bundleName, Locale locale) {
-        ResourceBundle bundle = ResourceBundle.getBundle(bundleName, locale);
+    private String getStringFromInternalBundle(String bundleKey, String bundleName, Locale locale) {
+        String key = bundleName + "_" + locale.getLanguage();
+        ResourceBundle resourceBundle = bundleCache.get(key);
+        if (resourceBundle == null) {
+            try {
+                resourceBundle = ResourceBundle.getBundle(bundleName, locale);
+            } catch (MissingResourceException mre) {
+                resourceBundle = EMPTY_BUNDLE;
+            }
+            bundleCache.putIfAbsent(key, resourceBundle);
+        }
         try {
-            return bundle.getString(bundleKey);
+            return !EMPTY_BUNDLE.equals(resourceBundle)
+                    ? resourceBundle.getString(bundleKey)
+                    : StringUtils.EMPTY;
         } catch (Exception ex) {
             logger.warning("Could not find key \"" + bundleKey + "\" in bundle file: " + bundleName);
             return StringUtils.EMPTY;
         }
     }
 
-    private static Optional<String> getStringFromExternalBundle(String bundleKey, String bundleName, Locale locale) {
+    private Optional<String> getStringFromExternalBundle(String bundleKey, String bundleName, Locale locale) {
         try {
             URL customBundlesDir = Paths.get(System.getProperty("dataverse.lang.directory")).toUri().toURL();
             URLClassLoader externalBundleDirURL = new URLClassLoader(new URL[]{customBundlesDir});

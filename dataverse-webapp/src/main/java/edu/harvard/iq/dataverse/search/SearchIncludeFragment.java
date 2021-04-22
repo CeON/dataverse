@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
 import edu.harvard.iq.dataverse.search.query.SearchForTypes;
 import edu.harvard.iq.dataverse.search.query.SearchObjectType;
+import edu.harvard.iq.dataverse.search.response.DvObjectCounts;
 import edu.harvard.iq.dataverse.search.response.FacetCategory;
 import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
@@ -283,18 +284,26 @@ public class SearchIncludeFragment {
 
             solrQueryResponse = searchService.search(dataverseRequestService.getDataverseRequest(), Collections.singletonList(dataverse),
                     queryToPassToSolr, searchForTypes, filterQueriesFinal, sortField, sortOrder,
-                    paginationStart, RESULTS_PER_PAGE, false);
+                    paginationStart, numRows, false, false);
 
             // This 2nd search() is for populating the facets: -- L.A.
-            // TODO: ...
-            SolrQueryResponse solrQueryResponseAllTypes = searchService.search(dataverseRequestService.getDataverseRequest(), Collections.singletonList(dataverse),
-                    queryToPassToSolr, SearchForTypes.all(), filterQueriesFinal, sortField, sortOrder,
-                    paginationStart, RESULTS_PER_PAGE, false);
+            // We only query for types that were not already queried in previous solr request
+            SearchForTypes typesNotSearchedFor = searchForTypes.takeInverse();
+            SolrQueryResponse notSearchedForTypesResponse = !typesNotSearchedFor.equals(SearchForTypes.EMPTY)
+                    ? searchService.search(dataverseRequestService.getDataverseRequest(), Collections.singletonList(dataverse),
+                    queryToPassToSolr, typesNotSearchedFor, filterQueriesFinal, sortField, sortOrder,
+                    paginationStart, numRows, false, true)
+                    : solrQueryResponse;
+            DvObjectCounts countsFromSearch = solrQueryResponse.getDvObjectCounts();
+            DvObjectCounts countOfNotSearchedForTypes = notSearchedForTypesResponse.getDvObjectCounts();
 
             // populate preview counts: https://redmine.hmdc.harvard.edu/issues/3560
-            previewCountbyType.put(SearchObjectType.DATAVERSES, solrQueryResponseAllTypes.getDvObjectCounts().getDataversesCount());
-            previewCountbyType.put(SearchObjectType.DATASETS, solrQueryResponseAllTypes.getDvObjectCounts().getDatasetsCount());
-            previewCountbyType.put(SearchObjectType.FILES, solrQueryResponseAllTypes.getDvObjectCounts().getDatafilesCount());
+            previewCountbyType.put("dataverses", searchForTypes.isContainsDataverse()
+                    ? countsFromSearch.getDataversesCount() : countOfNotSearchedForTypes.getDataversesCount());
+            previewCountbyType.put("datasets", searchForTypes.isContainsDataset()
+                    ? countsFromSearch.getDatasetsCount() : countOfNotSearchedForTypes.getDatasetsCount());
+            previewCountbyType.put("files", searchForTypes.isContainsFiles()
+                    ? countsFromSearch.getDatafilesCount() : countOfNotSearchedForTypes.getDatafilesCount());
 
         } catch (SearchException ex) {
             String message = "Exception running search for [" + queryToPassToSolr + "] with filterQueries " + filterQueries + " and paginationStart [" + paginationStart + "]";

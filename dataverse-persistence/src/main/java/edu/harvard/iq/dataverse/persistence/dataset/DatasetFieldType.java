@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.common.CachedBundleUtil;
 import edu.harvard.iq.dataverse.persistence.JpaEntity;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
@@ -297,7 +298,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     public boolean isControlledVocabulary() {
         return controlledVocabularyValues != null && !controlledVocabularyValues.isEmpty();
     }
-    
+
     public Collection<SelectItem> getControlledVocabSelectItems(boolean withLocaleSorting) {
 
         ArrayList<SelectItem> groupedList = new ArrayList<>();
@@ -322,11 +323,11 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
 
             SelectItemGroup selectItemGroup = new SelectItemGroup(groupLabel);
             List<SelectItem> selectItems = groupsMap.get(groupName);
-            
+
             if (withLocaleSorting) {
                 selectItems.sort((i1, i2) -> i1.getLabel().compareToIgnoreCase(i2.getLabel()));
             }
-            
+
             selectItemGroup.setSelectItems(groupsMap.get(groupName).toArray(new SelectItem[0]));
             groupedList.add(selectItemGroup);
         }
@@ -334,7 +335,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
             itemsWithoutGroup.sort((i1, i2) -> i1.getLabel().compareToIgnoreCase(i2.getLabel()));
         }
         groupedList.addAll(itemsWithoutGroup);
-        
+
         return groupedList;
     }
 
@@ -398,21 +399,34 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public String getDisplayName() {
+        return getDisplayName(null);
+    }
+
+    public String getDisplayName(CachedBundleUtil cachedBundleUtil) {
         if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
-            return Optional.ofNullable(getLocaleTitleWithParent()).filter(title -> !title.isEmpty()).orElse(
-                    parentDatasetFieldType.getLocaleTitle() + " " + getLocaleTitle());
+            return Optional.ofNullable(getLocaleTitleWithParent(cachedBundleUtil))
+                    .filter(title -> !title.isEmpty())
+                    .orElse(parentDatasetFieldType.getLocaleTitle(cachedBundleUtil)
+                            + " " + getLocaleTitle(cachedBundleUtil));
         } else {
-            return getLocaleTitle();
+            return getLocaleTitle(cachedBundleUtil);
         }
     }
 
     public String getLocaleTitle() {
+        return getLocaleTitle(null);
+    }
+
+    public String getLocaleTitle(CachedBundleUtil cachedBundleUtil) {
         if (getMetadataBlock() == null) {
             return title;
         } else {
             try {
-                return BundleUtil.getStringFromNonDefaultBundle("datasetfieldtype." + getName() + ".title",
-                                                            getMetadataBlock().getName());
+                String key = "datasetfieldtype." + getName() + ".title";
+                String bundleName = getMetadataBlock().getName();
+                return cachedBundleUtil != null
+                        ? cachedBundleUtil.getStringFromNonDefaultBundle(key, bundleName)
+                        : BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
             } catch (MissingResourceException e) {
                 return title;
             }
@@ -455,9 +469,16 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     // -------------------- PRIVATE --------------------
 
     private String getLocaleTitleWithParent() {
+        return getLocaleTitleWithParent(null);
+    }
+
+    private String getLocaleTitleWithParent(CachedBundleUtil cachedBundleUtil) {
         try {
-            return BundleUtil.getStringFromNonDefaultBundle("datasetfieldtype." + getName() + ".withParent.title",
-                    getMetadataBlock().getName());
+            String key = "datasetfieldtype." + getName() + ".withParent.title";
+            String bundleName = getMetadataBlock().getName();
+            return cachedBundleUtil != null
+                    ? cachedBundleUtil.getStringFromNonDefaultBundle(key, bundleName)
+                    : BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
         } catch (MissingResourceException | NullPointerException e) {
             return StringUtils.EMPTY;
         }
