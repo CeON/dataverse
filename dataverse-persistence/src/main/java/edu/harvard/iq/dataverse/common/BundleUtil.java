@@ -29,6 +29,12 @@ public class BundleUtil {
     private static final Set<String> INTERNAL_BUNDLE_NAMES = Sets.newHashSet(
             DEFAULT_BUNDLE_FILE, "BuiltInRoles", "MimeTypeDisplay", "MimeTypeFacets", "ValidationMessages");
 
+    /**
+     * This map is CRUCIAL for the performance of all methods from
+     * the class, especially in parts for search, as the original
+     * {@link ResourceBundle#getBundle(String)} could be very
+     * inefficient.
+     */
     private static ConcurrentMap<String, ResourceBundle> bundleCache = new ConcurrentHashMap<>();
 
     private static final ResourceBundle EMPTY_BUNDLE = new ResourceBundle() {
