@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.persistence.dataset;
 
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.common.CachedBundleUtil;
 import edu.harvard.iq.dataverse.persistence.JpaEntity;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLevel;
@@ -399,34 +398,24 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public String getDisplayName() {
-        return getDisplayName(null);
-    }
-
-    public String getDisplayName(CachedBundleUtil cachedBundleUtil) {
         if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
-            return Optional.ofNullable(getLocaleTitleWithParent(cachedBundleUtil))
+            return Optional.ofNullable(getLocaleTitleWithParent())
                     .filter(title -> !title.isEmpty())
-                    .orElse(parentDatasetFieldType.getLocaleTitle(cachedBundleUtil)
-                            + " " + getLocaleTitle(cachedBundleUtil));
+                    .orElse(parentDatasetFieldType.getLocaleTitle()
+                            + " " + getLocaleTitle());
         } else {
-            return getLocaleTitle(cachedBundleUtil);
+            return getLocaleTitle();
         }
     }
 
     public String getLocaleTitle() {
-        return getLocaleTitle(null);
-    }
-
-    public String getLocaleTitle(CachedBundleUtil cachedBundleUtil) {
         if (getMetadataBlock() == null) {
             return title;
         } else {
             try {
                 String key = "datasetfieldtype." + getName() + ".title";
                 String bundleName = getMetadataBlock().getName();
-                return cachedBundleUtil != null
-                        ? cachedBundleUtil.getStringFromNonDefaultBundle(key, bundleName)
-                        : BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
+                return BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
             } catch (MissingResourceException e) {
                 return title;
             }
@@ -469,16 +458,10 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     // -------------------- PRIVATE --------------------
 
     private String getLocaleTitleWithParent() {
-        return getLocaleTitleWithParent(null);
-    }
-
-    private String getLocaleTitleWithParent(CachedBundleUtil cachedBundleUtil) {
         try {
             String key = "datasetfieldtype." + getName() + ".withParent.title";
             String bundleName = getMetadataBlock().getName();
-            return cachedBundleUtil != null
-                    ? cachedBundleUtil.getStringFromNonDefaultBundle(key, bundleName)
-                    : BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
+            return BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
         } catch (MissingResourceException | NullPointerException e) {
             return StringUtils.EMPTY;
         }

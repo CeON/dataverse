@@ -1,11 +1,9 @@
 package edu.harvard.iq.dataverse.search;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.BundleCacheBean;
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.common.CachedBundleUtil;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.common.FriendlyFileTypeUtil;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -118,8 +116,6 @@ public class SearchServiceBean {
     private SolrClient solrServer;
     @Inject
     private SolrQuerySanitizer querySanitizer;
-    @Inject
-    private BundleCacheBean bundleCacheBean;
 
     // -------------------- LOGIC --------------------
 
@@ -138,7 +134,6 @@ public class SearchServiceBean {
                                     List<String> filterQueries, String sortField, SortOrder sortOrder, int paginationStart,
                                     int numResultsPerPage, boolean retrieveEntities, boolean countsOnly)
             throws SearchException {
-        CachedBundleUtil cachedBundleUtil = new CachedBundleUtil(bundleCacheBean.acquireCache());
         if (paginationStart < 0) {
             throw new IllegalArgumentException("paginationStart must be 0 or greater");
         }
@@ -164,16 +159,16 @@ public class SearchServiceBean {
         solrQuery.setHighlightSimplePre("<span class=\"search-term-match\">");
         solrQuery.setHighlightSimplePost("</span>");
         Map<String, String> solrFieldsToHightlightOnMap = new HashMap<>();
-        solrFieldsToHightlightOnMap.put(SearchFields.NAME, cachedBundleUtil.getStringFromBundle("name"));
-        solrFieldsToHightlightOnMap.put(SearchFields.AFFILIATION, cachedBundleUtil.getStringFromBundle("affiliation"));
-        solrFieldsToHightlightOnMap.put(SearchFields.FILE_TYPE_FRIENDLY, cachedBundleUtil.getStringFromBundle("advanced.search.files.fileType"));
-        solrFieldsToHightlightOnMap.put(SearchFields.DESCRIPTION, cachedBundleUtil.getStringFromBundle("description"));
-        solrFieldsToHightlightOnMap.put(SearchFields.VARIABLE_NAME, cachedBundleUtil.getStringFromBundle("advanced.search.files.variableName"));
-        solrFieldsToHightlightOnMap.put(SearchFields.VARIABLE_LABEL, cachedBundleUtil.getStringFromBundle("advanced.search.files.variableLabel"));
-        solrFieldsToHightlightOnMap.put(SearchFields.FILE_TYPE_SEARCHABLE, cachedBundleUtil.getStringFromBundle("advanced.search.files.fileType"));
-        solrFieldsToHightlightOnMap.put(SearchFields.DATASET_PUBLICATION_DATE, cachedBundleUtil.getStringFromBundle("dataset.metadata.publicationYear"));
-        solrFieldsToHightlightOnMap.put(SearchFields.DATASET_PERSISTENT_ID, cachedBundleUtil.getStringFromBundle("advanced.search.datasets.persistentId"));
-        solrFieldsToHightlightOnMap.put(SearchFields.FILE_PERSISTENT_ID, cachedBundleUtil.getStringFromBundle("advanced.search.files.persistentId"));
+        solrFieldsToHightlightOnMap.put(SearchFields.NAME, BundleUtil.getStringFromBundle("name"));
+        solrFieldsToHightlightOnMap.put(SearchFields.AFFILIATION, BundleUtil.getStringFromBundle("affiliation"));
+        solrFieldsToHightlightOnMap.put(SearchFields.FILE_TYPE_FRIENDLY, BundleUtil.getStringFromBundle("advanced.search.files.fileType"));
+        solrFieldsToHightlightOnMap.put(SearchFields.DESCRIPTION, BundleUtil.getStringFromBundle("description"));
+        solrFieldsToHightlightOnMap.put(SearchFields.VARIABLE_NAME, BundleUtil.getStringFromBundle("advanced.search.files.variableName"));
+        solrFieldsToHightlightOnMap.put(SearchFields.VARIABLE_LABEL, BundleUtil.getStringFromBundle("advanced.search.files.variableLabel"));
+        solrFieldsToHightlightOnMap.put(SearchFields.FILE_TYPE_SEARCHABLE, BundleUtil.getStringFromBundle("advanced.search.files.fileType"));
+        solrFieldsToHightlightOnMap.put(SearchFields.DATASET_PUBLICATION_DATE, BundleUtil.getStringFromBundle("dataset.metadata.publicationYear"));
+        solrFieldsToHightlightOnMap.put(SearchFields.DATASET_PERSISTENT_ID, BundleUtil.getStringFromBundle("advanced.search.datasets.persistentId"));
+        solrFieldsToHightlightOnMap.put(SearchFields.FILE_PERSISTENT_ID, BundleUtil.getStringFromBundle("advanced.search.files.persistentId"));
         /*
           @todo Dataverse subject and affiliation should be highlighted but
          * this is commented out right now because the "friendly" names are not
@@ -186,9 +181,9 @@ public class SearchServiceBean {
           @todo: show highlight on file card?
          * https://redmine.hmdc.harvard.edu/issues/3848
          */
-        solrFieldsToHightlightOnMap.put(SearchFields.FILENAME_WITHOUT_EXTENSION, cachedBundleUtil.getStringFromBundle("facets.search.fieldtype.fileNameWithoutExtension.label"));
-        solrFieldsToHightlightOnMap.put(SearchFields.FILE_EXTENSION, cachedBundleUtil.getStringFromBundle("advanced.search.files.fileExtension"));
-        solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, cachedBundleUtil.getStringFromBundle("facets.search.fieldtype.fileTag.label"));
+        solrFieldsToHightlightOnMap.put(SearchFields.FILENAME_WITHOUT_EXTENSION, BundleUtil.getStringFromBundle("facets.search.fieldtype.fileNameWithoutExtension.label"));
+        solrFieldsToHightlightOnMap.put(SearchFields.FILE_EXTENSION, BundleUtil.getStringFromBundle("advanced.search.files.fileExtension"));
+        solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, BundleUtil.getStringFromBundle("facets.search.fieldtype.fileTag.label"));
         for (DatasetFieldType datasetFieldType : datasetFields) {
 
             SolrField dsfSolrField = SolrField.of(datasetFieldType.getName(),
@@ -197,7 +192,7 @@ public class SearchServiceBean {
                                                                    datasetFieldType.isFacetable());
 
             String solrField = dsfSolrField.getNameSearchable();
-            String displayName = datasetFieldType.getDisplayName(cachedBundleUtil);
+            String displayName = datasetFieldType.getDisplayName();
             solrFieldsToHightlightOnMap.put(solrField, displayName);
         }
 
@@ -557,7 +552,7 @@ public class SearchServiceBean {
                 // @todo we do want to show the count for each facet
                 if (facetFieldCount.getCount() > 0) {
                     FacetLabel facetLabel = new FacetLabel(facetFieldCount.getName(),
-                            getLocaleFacetLabelName(facetFieldCount.getName(), facetField.getName(), fieldIndex, cachedBundleUtil),
+                            getLocaleFacetLabelName(facetFieldCount.getName(), facetField.getName(), fieldIndex),
                             facetFieldCount.getCount());
                     // quote field facets
                     facetLabel.setFilterQuery(facetField.getName() + ":\"" + facetFieldCount.getName() + "\"");
@@ -596,7 +591,7 @@ public class SearchServiceBean {
                                                                        datasetField.isFacetable());
 
                 String solrFieldNameForDataset = dsfSolrField.getNameFacetable();
-                String friendlyName = datasetField.getDisplayName(cachedBundleUtil);
+                String friendlyName = datasetField.getDisplayName();
                 if (solrFieldNameForDataset != null && facetField.getName().equals(solrFieldNameForDataset)) {
                     if (friendlyName != null && !friendlyName.isEmpty()) {
                         facetCategory.setFriendlyName(friendlyName);
@@ -619,7 +614,7 @@ public class SearchServiceBean {
                     Logger.getLogger(SearchServiceBean.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 if (staticSearchField != null && facetField.getName().equals(staticSearchField)) {
-                    String friendlyName = getLocaleFacetCategoryName(facetField.getName(), fieldIndex, cachedBundleUtil);
+                    String friendlyName = getLocaleFacetCategoryName(facetField.getName(), fieldIndex);
                     facetCategory.setFriendlyName(friendlyName);
                     staticSolrFieldFriendlyNamesBySolrField.put(staticSearchField, friendlyName);
                     break;
@@ -699,10 +694,10 @@ public class SearchServiceBean {
     }
 
     public String getLocaleFacetCategoryName(String facetCategoryName) {
-        return getLocaleFacetCategoryName(facetCategoryName, null, null);
+        return getLocaleFacetCategoryName(facetCategoryName, null);
     }
 
-    public String getLocaleFacetCategoryName(String facetCategoryName, Map<String, List<DatasetFieldType>> index, CachedBundleUtil cachedBundleUtil) {
+    public String getLocaleFacetCategoryName(String facetCategoryName, Map<String, List<DatasetFieldType>> index) {
         final String formattedFacetFieldName = removeSolrFieldSuffix(facetCategoryName);
         List<DatasetFieldType> matchingFields = index != null
                 ? index.getOrDefault(formattedFacetFieldName, Collections.emptyList())
@@ -713,19 +708,19 @@ public class SearchServiceBean {
         if (matchingFields.size() > 1) {
             throw new IllegalStateException("DatasetFieldType.name should be unique");
         } else if (matchingFields.size() == 0) {
-            return getNonDatasetFieldFacetCategoryName(facetCategoryName, cachedBundleUtil);
+            return getNonDatasetFieldFacetCategoryName(facetCategoryName);
         } else {
             DatasetFieldType matchedDatasetField = matchingFields.get(0);
-            return getDatasetFieldFacetCategoryName(matchedDatasetField, cachedBundleUtil);
+            return getDatasetFieldFacetCategoryName(matchedDatasetField);
         }
     }
 
     public String getLocaleFacetLabelName(String facetLabelName, String facetCategoryName) {
-        return getLocaleFacetLabelName(facetLabelName, facetCategoryName, null, null);
+        return getLocaleFacetLabelName(facetLabelName, facetCategoryName, null);
     }
 
     public String getLocaleFacetLabelName(String facetLabelName, String facetCategoryName,
-                                          Map<String, List<DatasetFieldType>> index, CachedBundleUtil cachedBundleUtil) {
+                                          Map<String, List<DatasetFieldType>> index) {
         String formattedFacetCategoryName = removeSolrFieldSuffix(facetCategoryName);
         String formattedFacetLabelName = toBundleNameFormat(facetLabelName);
         List<DatasetFieldType> matchingFields = index != null
@@ -736,52 +731,45 @@ public class SearchServiceBean {
         if (matchingFields.size() > 1) {
             throw new IllegalStateException("DatasetFieldType.name should be unique");
         } else if (matchingFields.size() == 0) {
-            return getNonDatasetFieldFacetLabelName(facetLabelName, formattedFacetCategoryName, cachedBundleUtil);
+            return getNonDatasetFieldFacetLabelName(facetLabelName, formattedFacetCategoryName);
         } else {
             DatasetFieldType matchedDatasetField = matchingFields.get(0);
 
-            return getDatasetFieldFacetLabelName(facetLabelName, formattedFacetLabelName, matchedDatasetField, cachedBundleUtil);
+            return getDatasetFieldFacetLabelName(facetLabelName, formattedFacetLabelName, matchedDatasetField);
         }
     }
 
     // -------------------- PRIVATE --------------------
 
-    private String getDatasetFieldFacetCategoryName(DatasetFieldType matchedDatasetField, CachedBundleUtil cachedBundleUtil) {
+    private String getDatasetFieldFacetCategoryName(DatasetFieldType matchedDatasetField) {
         if (matchedDatasetField.isFacetable() && !matchedDatasetField.isHasParent()) {
             String key = format(FACETBUNDLE_MASK_VALUE, matchedDatasetField.getName());
-            return Optional.ofNullable(
-                    cachedBundleUtil != null
-                            ? cachedBundleUtil.getStringFromBundle(key)
-                            : BundleUtil.getStringFromBundle(key))
+            return Optional.ofNullable(BundleUtil.getStringFromBundle(key))
                     .filter(name -> !name.isEmpty())
-                    .orElse(matchedDatasetField.getDisplayName(cachedBundleUtil));
+                    .orElse(matchedDatasetField.getDisplayName());
         }
-        return matchedDatasetField.getDisplayName(cachedBundleUtil);
+        return matchedDatasetField.getDisplayName();
     }
 
-    private String getNonDatasetFieldFacetCategoryName(String facetCategoryName, CachedBundleUtil cachedBundleUtil) {
+    private String getNonDatasetFieldFacetCategoryName(String facetCategoryName) {
         if(facetCategoryName.equals(SearchFields.TYPE)) {
             return facetCategoryName;
         }
         String key = format(FACETBUNDLE_MASK_VALUE, facetCategoryName);
-        return cachedBundleUtil != null
-                ? cachedBundleUtil.getStringFromBundle(key)
-                : BundleUtil.getStringFromBundle(key);
+        return BundleUtil.getStringFromBundle(key);
     }
 
     private String getDatasetFieldFacetLabelName(String facetLabelName, String formattedFacetLabelName,
-                                                 DatasetFieldType matchedDatasetField, CachedBundleUtil cachedBundleUtil) {
+                                                 DatasetFieldType matchedDatasetField) {
         if (matchedDatasetField.isControlledVocabulary()) {
             String key = "controlledvocabulary." + matchedDatasetField.getName() + "." + formattedFacetLabelName;
             String bundleName = matchedDatasetField.getMetadataBlock().getName().toLowerCase();
-            return cachedBundleUtil != null
-                    ? cachedBundleUtil.getStringFromNonDefaultBundle(key, bundleName)
-                    : BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
+            return BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
         }
         return facetLabelName;
     }
 
-    private String getNonDatasetFieldFacetLabelName(String facetLabelName, String formattedFacetCategoryName, CachedBundleUtil cachedBundleUtil) {
+    private String getNonDatasetFieldFacetLabelName(String facetLabelName, String formattedFacetCategoryName) {
         String formattedFacetLabelName = toBundleNameFormat(facetLabelName);
         List<String> translatableNonDictionaryFacets = Lists.newArrayList(SearchFields.PUBLICATION_STATUS,
                 SearchFields.DATAVERSE_CATEGORY, SearchFields.FILE_TYPE, SearchFields.ACCESS);
@@ -789,14 +777,10 @@ public class SearchServiceBean {
         if(translatableNonDictionaryFacets.contains(formattedFacetCategoryName)) {
             if(formattedFacetCategoryName.equals(SearchFields.DATAVERSE_CATEGORY)) {
                 String key = format(FACETBUNDLE_MASK_DVCATEGORY_VALUE, formattedFacetLabelName);
-                return cachedBundleUtil != null
-                        ? cachedBundleUtil.getStringFromBundle(key)
-                        : BundleUtil.getStringFromBundle(key);
+                return BundleUtil.getStringFromBundle(key);
             }
             String key = format(FACETBUNDLE_MASK_GROUP_AND_VALUE, formattedFacetCategoryName, formattedFacetLabelName);
-            return cachedBundleUtil != null
-                    ? cachedBundleUtil.getStringFromBundle(key)
-                    : BundleUtil.getStringFromBundle(key);
+            return BundleUtil.getStringFromBundle(key);
         }
 
         return facetLabelName;

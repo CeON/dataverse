@@ -10,11 +10,14 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 public class BundleUtil {
@@ -25,6 +28,13 @@ public class BundleUtil {
 
     private static final Set<String> INTERNAL_BUNDLE_NAMES = Sets.newHashSet(
             DEFAULT_BUNDLE_FILE, "BuiltInRoles", "MimeTypeDisplay", "MimeTypeFacets", "ValidationMessages");
+
+    private static ConcurrentMap<String, ResourceBundle> bundleCache = new ConcurrentHashMap<>();
+
+    private static final ResourceBundle EMPTY_BUNDLE = new ResourceBundle() {
+        @Override protected Object handleGetObject(String key) { return null; }
+        @Override public Enumeration<String> getKeys() { return null; }
+    };
 
     // -------------------- LOGIC --------------------
 
@@ -92,9 +102,20 @@ public class BundleUtil {
     }
 
     private static String getStringFromInternalBundle(String bundleKey, String bundleName, Locale locale) {
-        ResourceBundle bundle = ResourceBundle.getBundle(bundleName, locale);
+        String key = bundleName + "_" + locale.getLanguage();
+        ResourceBundle resourceBundle = bundleCache.get(key);
+        if (resourceBundle == null) {
+            try {
+                resourceBundle = ResourceBundle.getBundle(bundleName, locale);
+            } catch (MissingResourceException mre) {
+                resourceBundle = EMPTY_BUNDLE;
+            }
+            bundleCache.putIfAbsent(key, resourceBundle);
+        }
         try {
-            return bundle.getString(bundleKey);
+            return !EMPTY_BUNDLE.equals(resourceBundle)
+                    ? resourceBundle.getString(bundleKey)
+                    : StringUtils.EMPTY;
         } catch (Exception ex) {
             logger.warning("Could not find key \"" + bundleKey + "\" in bundle file: " + bundleName);
             return StringUtils.EMPTY;
