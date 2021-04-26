@@ -3,12 +3,12 @@ package edu.harvard.iq.dataverse.search.index;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DatasetLinkingServiceBean;
 import edu.harvard.iq.dataverse.DataverseDao;
-import edu.harvard.iq.dataverse.DataverseLinkingDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.dataverse.DataverseLinkingService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
@@ -29,7 +29,6 @@ import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrField;
-import edu.harvard.iq.dataverse.search.SolrFieldFactory;
 import edu.harvard.iq.dataverse.search.query.SearchPublicationStatus;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -103,11 +102,9 @@ public class IndexServiceBean {
     @EJB
     DatasetLinkingServiceBean dsLinkingService;
     @EJB
-    DataverseLinkingDao dvLinkingService;
+    DataverseLinkingService dvLinkingService;
     @Inject
     SettingsServiceBean settingsService;
-    @EJB
-    private SolrFieldFactory solrFieldFactory;
     @Inject
     private SolrClient solrServer;
     @Inject
@@ -688,10 +685,8 @@ public class IndexServiceBean {
             for (DatasetField dsf : datasetVersion.getFlatDatasetFields()) {
 
                 DatasetFieldType dsfType = dsf.getDatasetFieldType();
-                SolrField dsfSolrField = solrFieldFactory.getSolrField(dsfType.getName(),
-                                                                       dsfType.getFieldType(),
-                                                                       dsfType.isThisOrParentAllowsMultipleValues(),
-                                                                       dsfType.isFacetable());
+                SolrField dsfSolrField = SolrField.of(dsfType.getName(), dsfType.getFieldType(),
+                        dsfType.isThisOrParentAllowsMultipleValues(), dsfType.isFacetable());
                 String solrFieldSearchable = dsfSolrField.getNameSearchable();
                 String solrFieldFacetable = dsfSolrField.getNameFacetable();
 
