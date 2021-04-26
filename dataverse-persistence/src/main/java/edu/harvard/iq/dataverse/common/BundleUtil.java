@@ -137,7 +137,7 @@ public class BundleUtil {
                     ResourceBundle.getBundle(bundleName, locale, externalBundleDirURL);
 
             return Optional.of(resourceBundle.getString(bundleKey));
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException | MissingResourceException ex) {
             logger.warning(ex.getMessage());
             return Optional.empty();
         }

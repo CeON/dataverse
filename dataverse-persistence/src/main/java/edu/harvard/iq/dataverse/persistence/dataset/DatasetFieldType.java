@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -412,13 +411,10 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         if (getMetadataBlock() == null) {
             return title;
         } else {
-            try {
-                String key = "datasetfieldtype." + getName() + ".title";
-                String bundleName = getMetadataBlock().getName();
-                return BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
-            } catch (MissingResourceException e) {
-                return title;
-            }
+            String key = "datasetfieldtype." + getName() + ".title";
+            String bundleName = getMetadataBlock().getName();
+            String localeTitle = BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
+            return localeTitle.isEmpty() ? title : localeTitle;
         }
     }
 
@@ -426,12 +422,9 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         if (getMetadataBlock() == null || StringUtils.isEmpty(description)) {
             return description;
         } else {
-            try {
-                return BundleUtil.getStringFromNonDefaultBundle("datasetfieldtype." + getName() + ".description",
-                                                            getMetadataBlock().getName());
-            } catch (MissingResourceException e) {
-                return description;
-            }
+            String localeDescription = BundleUtil.getStringFromNonDefaultBundle(
+                    "datasetfieldtype." + getName() + ".description", getMetadataBlock().getName());
+            return localeDescription.isEmpty() ? description : localeDescription;
         }
     }
 
@@ -439,12 +432,9 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         if (getMetadataBlock() == null) {
             return watermark;
         } else {
-            try {
-                return BundleUtil.getStringFromNonDefaultBundle("datasetfieldtype." + getName() + ".watermark",
-                                                            getMetadataBlock().getName());
-            } catch (MissingResourceException e) {
-                return watermark;
-            }
+            String localeWatermark = BundleUtil.getStringFromNonDefaultBundle(
+                    "datasetfieldtype." + getName() + ".watermark", getMetadataBlock().getName());
+            return localeWatermark.isEmpty() ? watermark : localeWatermark;
         }
     }
 
@@ -462,7 +452,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
             String key = "datasetfieldtype." + getName() + ".withParent.title";
             String bundleName = getMetadataBlock().getName();
             return BundleUtil.getStringFromNonDefaultBundle(key, bundleName);
-        } catch (MissingResourceException | NullPointerException e) {
+        } catch (NullPointerException e) {
             return StringUtils.EMPTY;
         }
     }
