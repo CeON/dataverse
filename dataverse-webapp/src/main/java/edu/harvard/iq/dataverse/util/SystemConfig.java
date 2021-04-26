@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
@@ -89,8 +90,11 @@ public class SystemConfig {
                 // contains a real build number if this war file was built by
                 // Jenkins)
 
-                buildNumberString = ResourceBundle.getBundle("BuildNumber").getString("build.number");
-                buildNumberString = buildNumberString.isEmpty() ? null : buildNumberString;
+                try {
+                    buildNumberString = ResourceBundle.getBundle("BuildNumber").getString("build.number");
+                } catch (MissingResourceException ex) {
+                    buildNumberString = null;
+                }
             }
 
             if (buildNumberString != null && !buildNumberString.equals("")) {
