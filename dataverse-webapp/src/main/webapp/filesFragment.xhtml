@@ -17,8 +17,7 @@
         <div class="panel panel-default" jsf:rendered="#{!settingsWrapper.rsyncOnly}">
             <div class="panel-body">
                 <div class="col-sm-9">
-                    <ui:fragment rendered="#{!datasetFilesTab.dataset.hasActiveEmbargo()}">
-                        <p>#{bundle['file.notFound.tip']}</p>
+                    <ui:fragment rendered="#{!datasetFilesTab.dataset.hasActiveEmbargo()}">                        <p>#{bundle['file.notFound.tip']}</p>
                     </ui:fragment>
                     <ui:fragment rendered="#{datasetFilesTab.dataset.hasActiveEmbargo()}">
                         <p>
