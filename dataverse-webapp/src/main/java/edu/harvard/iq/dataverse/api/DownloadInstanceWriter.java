@@ -97,7 +97,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
         if (StringUtils.equals("imageThumb", di.getConversionParam())) {
             int thumbnailSize = NumberUtils.toInt(di.getConversionParamValue(), ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
             InputStreamIO thumbnailStorageIO = Optional
-                    .ofNullable(imageThumbConverter.getImageThumbnailAsInputStream(storageIO, thumbnailSize))
+                    .ofNullable(imageThumbConverter.getImageThumbnailAsInputStream(dataFile, thumbnailSize))
                     .orElseThrow(() -> new WebApplicationException(ApiErrorResponse.errorResponse(404, "Image thumbnail not found").asJaxRsResponse()));
 
             // and, since we now have tabular data files that can 
@@ -124,7 +124,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
 
             if ("original".equals(di.getConversionParamValue())) {
                 logger.debug("stored original of an ingested file requested");
-                storageIO = StoredOriginalFile.retreive(storageIO);
+                storageIO = StoredOriginalFile.retreive(storageIO, dataFile.getDataTable());
                 if (storageIO == null) {
                     throw new WebApplicationException(Response.Status.SERVICE_UNAVAILABLE);
                 }
@@ -176,13 +176,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                 TabularSubsetGenerator tabularSubsetGenerator = new TabularSubsetGenerator();
                 tabularSubsetGenerator.subsetFile(storageIO.getInputStream(), tempSubsetFile.getAbsolutePath(), variablePositionIndex, dataFile.getDataTable().getCaseQuantity(), "\t");
 
-                FileInputStream subsetStream = new FileInputStream(tempSubsetFile);
                 long subsetSize = tempSubsetFile.length();
-
-                InputStreamIO subsetStreamIO = new InputStreamIO(subsetStream, subsetSize);
-                logger.debug("successfully created subset output stream.");
-
-                subsetStreamIO.setVarHeader(subsetVariableHeader);
 
                 String tabularFileName = storageIO.getFileName();
 
@@ -194,8 +188,11 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                     tabularFileName = "subset.tab";
                 }
 
-                subsetStreamIO.setFileName(tabularFileName);
-                subsetStreamIO.setMimeType(storageIO.getMimeType());
+                InputStreamIO subsetStreamIO = new InputStreamIO(new FileInputStream(tempSubsetFile), subsetSize, tabularFileName, storageIO.getMimeType());
+                logger.debug("successfully created subset output stream.");
+
+                subsetStreamIO.setVarHeader(subsetVariableHeader);
+
                 storageIO = subsetStreamIO;
                 writeStorageIOToOutputStream(storageIO, outstream, httpHeaders);
                 writeGuestbookResponse(di);

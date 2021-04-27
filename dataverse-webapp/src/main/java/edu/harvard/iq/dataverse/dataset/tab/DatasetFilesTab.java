@@ -332,7 +332,7 @@ public class DatasetFilesTab implements Serializable {
 
     public void fileListingPaginatorListener(PageEvent event) {
         filePaginatorPage = event.getPage();
-        if (!this.fileLabelSearchTerm.isEmpty()) {
+        if (StringUtils.isNotEmpty(fileLabelSearchTerm)) {
             updateFileSearch();
         }
     }
