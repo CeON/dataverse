@@ -86,7 +86,6 @@ public class FeaturedDataverseServiceBean {
     public List<Dataverse> findFeaturableDataverses(Long dataverseId) {
         List<Dataverse> featurableDataverses = new ArrayList<>();
         featurableDataverses.addAll(dataverseRepository.findPublishedByOwnerId(dataverseId));
-        featurableDataverses.addAll(linkingService.findLinkingDataverses(dataverseId));
         return featurableDataverses;
     }
 
@@ -100,10 +99,10 @@ public class FeaturedDataverseServiceBean {
                 .executeUpdate();
     }
 
-    public void create(int diplayOrder, Long featuredDataverseId, Long dataverseId) {
+    public void create(int displayOrder, Long featuredDataverseId, Long dataverseId) {
         DataverseFeaturedDataverse dataverseFeaturedDataverse = new DataverseFeaturedDataverse();
 
-        dataverseFeaturedDataverse.setDisplayOrder(diplayOrder);
+        dataverseFeaturedDataverse.setDisplayOrder(displayOrder);
 
         Dataverse dataverse = dataverseRepository.getById(dataverseId);
         dataverseFeaturedDataverse.setDataverse(dataverse);
