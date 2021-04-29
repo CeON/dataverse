@@ -12,7 +12,7 @@
     <!--@elvariable id="fileMetadata" type="edu.harvard.iq.dataverse.persistence.datafile.FileMetadata"-->
 
     <!-- No files accessible in Dataset -->
-    <ui:fragment rendered="#{empty datasetFilesTab.fileMetadatasSearch.getAllAvailableFilesCount() and datasetFilesTab.dataset.hasEverBeenPublished()
+    <ui:fragment rendered="#{datasetFilesTab.fileMetadatasSearch.getAllAvailableFilesCount() eq 0 and datasetFilesTab.dataset.hasEverBeenPublished()
                             and !datasetFilesTab.isFilesTabDisplayable()}">
         <div class="panel panel-default" jsf:rendered="#{!settingsWrapper.rsyncOnly}">
             <div class="panel-body">
@@ -41,7 +41,7 @@
         <p:dataTable id="filesTable"
                      rows="10" paginator="#{datasetFilesTab.getFileSize() gt 10}" paginatorPosition="bottom"
                      paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} #{bundle['file.dynamicCounter.filesPerPage']} {RowsPerPageDropdown}"
-                     rowsPerPageTemplate="10,25,50,1000"
+                     rowsPerPageTemplate="10,25,50,100"
                      style="margin-right:1px;"
                      lazy="true"
                      value="#{datasetFilesTab.fileMetadatasSearch}"
