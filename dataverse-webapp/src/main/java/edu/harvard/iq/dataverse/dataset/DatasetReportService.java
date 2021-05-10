@@ -1,0 +1,319 @@
+package edu.harvard.iq.dataverse.dataset;
+
+import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
+import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
+import edu.harvard.iq.dataverse.persistence.GlobalId;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
+import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
+import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.persistence.datafile.license.License;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Stateless
+public class DatasetReportService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatasetReportService.class);
+
+    private DatasetDao datasetDao;
+
+    private GuestbookResponseServiceBean guestbookResponseService;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public DatasetReportService() { }
+
+    @Inject
+    public DatasetReportService(DatasetDao datasetDao, GuestbookResponseServiceBean guestbookResponseService) {
+        this.datasetDao = datasetDao;
+        this.guestbookResponseService = guestbookResponseService;
+    }
+
+    // -------------------- LOGIC --------------------
+
+    public void createReport(OutputStream outputStream) {
+        try (Writer writer = new OutputStreamWriter(outputStream);
+             BufferedWriter streamWriter = new BufferedWriter(writer);
+             CSVPrinter csvPrinter = new CSVPrinter(streamWriter, CSVFormat.DEFAULT)) {
+            csvPrinter.printRecord(new Record().getHeaders());
+            processDatasets(csvPrinter);
+        } catch (IOException ioe) {
+            logger.warn("Exception during report creation: ", ioe);
+        }
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private void processDatasets(CSVPrinter csvPrinter) throws IOException {
+        List<Long> datasetIds = datasetDao.findAllLocalDatasetIds();
+        for (Long id : datasetIds) {
+            Dataset dataset = datasetDao.find(id);
+            if (dataset != null) {
+                processDataset(dataset, csvPrinter);
+            }
+        }
+    }
+
+    private void processDataset(Dataset dataset, CSVPrinter csvPrinter) throws IOException {
+        Record datasetRecord = createDatasetRecord(dataset);
+        for (DatasetVersion version : dataset.getVersions()) {
+            processDatasetVersion(version, csvPrinter, datasetRecord);
+        }
+    }
+
+    private Record createDatasetRecord(Dataset dataset) {
+        Record datasetRecord = new Record();
+        datasetRecord.setDatasetTitle(dataset.getDisplayName());
+        datasetRecord.setDatasetId(dataset.getId());
+        GlobalId pid = dataset.getGlobalId();
+        datasetRecord.setDatasetPID(pid != null ? pid.asString() : StringUtils.EMPTY);
+        datasetRecord.setUnderEmbargo(dataset.hasActiveEmbargo());
+        datasetRecord.setEmbargoDate(dataset.getEmbargoDate().getOrNull());
+        return datasetRecord;
+    }
+
+    private void processDatasetVersion(DatasetVersion datasetVersion, CSVPrinter csvPrinter, Record datasetRecord) throws IOException {
+        List<FileMetadata> allFilesMetadataSorted = datasetVersion.getAllFilesMetadataSorted();
+        Record datasetVersionRecord = createDatasetVersionRecord(datasetVersion, datasetRecord);
+        for (FileMetadata fileMetadata : allFilesMetadataSorted) {
+            processFile(fileMetadata, csvPrinter, datasetVersionRecord);
+        }
+    }
+
+    private Record createDatasetVersionRecord(DatasetVersion datasetVersion, Record datasetRecord) {
+        Record datasetVersionRecord = new Record(datasetRecord);
+        datasetVersionRecord.setDeaccessionData(datasetVersion.isDeaccessioned() ? datasetVersion.getVersionNote() : StringUtils.EMPTY);
+        DatasetField depositDate = datasetVersion.getDatasetFieldByTypeName(DatasetFieldConstant.dateOfDeposit).orElse(null);
+        datasetVersionRecord.setDepositDate(depositDate != null ? depositDate.getValue() : StringUtils.EMPTY);
+        datasetVersionRecord.setVersionNumber(datasetVersion.getFriendlyVersionNumber());
+        datasetVersionRecord.setDatasetVersionPublicationDate(datasetVersion.getPublicationDateAsString());
+        datasetVersionRecord.setDatasetVersionState(Objects.toString(datasetVersion.getVersionState(), StringUtils.EMPTY));
+        return datasetVersionRecord;
+    }
+
+    private void processFile(FileMetadata fileMetadata, CSVPrinter csvPrinter, Record datasetVersionRecord) throws IOException {
+        DataFile dataFile = fileMetadata.getDataFile();
+        Record fileRecord = createFileRecord(datasetVersionRecord, dataFile);
+        csvPrinter.printRecord(fileRecord.getValues());
+    }
+
+    private Record createFileRecord(Record datasetVersionRecord, DataFile dataFile) {
+        Record fileRecord = new Record(datasetVersionRecord);
+        fileRecord.setFileName(dataFile.getDisplayName());
+        fileRecord.setFileId(dataFile.getId());
+        fileRecord.setChecksum(dataFile.getChecksumValue());
+        fileRecord.setChecksumType(Objects.toString(dataFile.getChecksumType(), StringUtils.EMPTY));
+        fileRecord.setSize(dataFile.getFilesize());
+        Long uncompressedSize = dataFile.getUncompressedSize();
+        fileRecord.setSizeDecompressed(uncompressedSize != 0L ? uncompressedSize : null);
+        String tags = dataFile.getTags().stream()
+                .map(DataFileTag::getTypeLabel)
+                .collect(Collectors.joining(" "));
+        fileRecord.setTags(tags);
+        fileRecord.setDatafilePublicationDate(dataFile.getPublicationDateFormattedYYYYMMDD());
+        String license = Optional.ofNullable(dataFile.getFileMetadata())
+                .map(FileMetadata::getTermsOfUse)
+                .map(FileTermsOfUse::getLicense)
+                .map(License::getName).orElse(StringUtils.EMPTY);
+        fileRecord.setLicense(license);
+        fileRecord.setContentType(dataFile.getContentType());
+        fileRecord.setNumberOfDownloads(guestbookResponseService.getCountGuestbookResponsesByDataFileId(dataFile.getId()));
+        return fileRecord;
+    }
+
+    /**
+     * This enum establishes the columns of CSV report and their order
+     */
+    private enum FileDataField {
+        FILE_NAME("File name"),
+        FILE_ID("File ID"),
+        CHECKSUM("Checksum"),
+        CHECKSUM_TYPE("Checksum type"),
+        DEPOSIT_DATE("Deposit date"),
+        DATASET_VERSION_PUBLICATION_DATE("Dataset version publication date"),
+        DATAFILE_PUBLICATION_DATE("Datafile publication date"),
+        DATASET_TITLE("Dataset title"),
+        DATASET_PID("Dataset PID"),
+        DATASET_ID("Dataset ID"),
+        VERSION_NUMBER("Version No."),
+        LICENSE("License"),
+        TAGS("Tags"),
+        DATASET_VERSION_STATE("Dataset version state"),
+        DEACCESSION_DATA("Deaccession data"),
+        UNDER_EMBARGO("Under embargo"),
+        EMBARGO_DATE("Embargo date"),
+        CONTENT_TYPE("Content type"),
+        NUMBER_OF_DOWNLOADS("Number of downloads"),
+        SIZE("Size"),
+        SIZE_DECOMPRESSED("Size decompressed");
+
+        private String displayName;
+
+        // -------------------- CONSTRUCTORS --------------------
+
+        FileDataField(String displayName) {
+            this.displayName = displayName;
+        }
+
+        // -------------------- GETTERS --------------------
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
+    // Unfortunately this class cannot be private or package-private
+    // as it causes IllegalAccessException during tests (probably
+    // because of some classloader issues or maybe a bug in Weld)
+    protected static class Record {
+        private Map<DatasetReportService.FileDataField, Object> data;
+
+        private static DatasetReportService.FileDataField[] KEYS = DatasetReportService.FileDataField.values();
+        private static int FULL_RECORD_SIZE = KEYS.length;
+
+        // -------------------- CONSTRUCTORS --------------------
+
+        public Record() {
+            this.data = new EnumMap<>(DatasetReportService.FileDataField.class);
+        }
+
+        public Record(Record other) {
+            this.data = new EnumMap<>(other.data);
+        }
+
+        // -------------------- LOGIC --------------------
+
+        /**
+         * @return list of report headers in the same order as they are
+         * declared in {@link DatasetReportService.FileDataField} enum (such order is guaranteed
+         * by underlying {@link EnumMap}).
+         */
+        public Collection<Object> getHeaders() {
+            return Arrays.stream(KEYS)
+                    .map(DatasetReportService.FileDataField::getDisplayName)
+                    .collect(Collectors.toList());
+        }
+
+        /**
+         * @return record values in the same order as they are declared
+         * in {@link DatasetReportService.FileDataField} enum (such order is guaranteed by
+         * underlying {@link EnumMap}).
+         */
+        public Collection<Object> getValues() {
+            return data.size() == FULL_RECORD_SIZE
+                    ? data.values()
+                    : Arrays.stream(KEYS)
+                    .map(data::get)
+                    .collect(Collectors.toList());
+        }
+
+        public void setFileName(String fileName) {
+            data.put(DatasetReportService.FileDataField.FILE_NAME, fileName);
+        }
+
+        public void setFileId(Long fileId) {
+            data.put(DatasetReportService.FileDataField.FILE_ID, fileId);
+        }
+
+        public void setChecksum(String checksum) {
+            data.put(DatasetReportService.FileDataField.CHECKSUM, checksum);
+        }
+
+        public void setChecksumType(String checksumType) {
+            data.put(DatasetReportService.FileDataField.CHECKSUM_TYPE, checksumType);
+        }
+
+        public void setDatasetTitle(String datasetTitle) {
+            data.put(DatasetReportService.FileDataField.DATASET_TITLE, datasetTitle);
+        }
+
+        public void setDatasetId(Long datasetId) {
+            data.put(DatasetReportService.FileDataField.DATASET_ID, datasetId);
+        }
+
+        public void setDatasetPID(String datasetPID) {
+            data.put(DatasetReportService.FileDataField.DATASET_PID, datasetPID);
+        }
+
+        public void setUnderEmbargo(Boolean underEmbargo) {
+            data.put(DatasetReportService.FileDataField.UNDER_EMBARGO, underEmbargo);
+        }
+
+        public void setEmbargoDate(Date embargoDate) {
+            data.put(DatasetReportService.FileDataField.EMBARGO_DATE, embargoDate);
+        }
+
+        public void setDeaccessionData(String deaccessionData) {
+            data.put(DatasetReportService.FileDataField.DEACCESSION_DATA, deaccessionData);
+        }
+
+        public void setDepositDate(String depositDate) {
+            data.put(DatasetReportService.FileDataField.DEPOSIT_DATE, depositDate);
+        }
+
+        public void setSize(Long fileSize) {
+            data.put(DatasetReportService.FileDataField.SIZE, fileSize);
+        }
+
+        public void setVersionNumber(String versionNumber) {
+            data.put(DatasetReportService.FileDataField.VERSION_NUMBER, versionNumber);
+        }
+
+        public void setTags(String tags) {
+            data.put(DatasetReportService.FileDataField.TAGS, tags);
+        }
+
+        public void setDatafilePublicationDate(String dataFilePublicationDate) {
+            data.put(DatasetReportService.FileDataField.DATAFILE_PUBLICATION_DATE, dataFilePublicationDate);
+        }
+
+        public void setDatasetVersionPublicationDate(String publicationDate) {
+            data.put(DatasetReportService.FileDataField.DATASET_VERSION_PUBLICATION_DATE, publicationDate);
+        }
+
+        public void setLicense(String license) {
+            data.put(DatasetReportService.FileDataField.LICENSE, license);
+        }
+
+        public void setContentType(String contentType) {
+            data.put(DatasetReportService.FileDataField.CONTENT_TYPE, contentType);
+        }
+
+        public void setSizeDecompressed(Long sizeDecompressed) {
+            data.put(DatasetReportService.FileDataField.SIZE_DECOMPRESSED, sizeDecompressed);
+        }
+
+        public void setNumberOfDownloads(Long numberOfDownloads) {
+            data.put(DatasetReportService.FileDataField.NUMBER_OF_DOWNLOADS, numberOfDownloads);
+        }
+
+        public void setDatasetVersionState(String versionState) {
+            data.put(DatasetReportService.FileDataField.DATASET_VERSION_STATE, versionState);
+        }
+    }
+}
