@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.api;
 
+import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.users.ChangeUserIdentifierService;
 
@@ -21,6 +22,7 @@ public class Users extends AbstractApiBean {
     private ChangeUserIdentifierService changeUserIdentifierService;
 
     @POST
+    @ApiWriteOperation
     @Path("{identifier}/changeIdentifier/{newIdentifier}")
     public Response changeAuthenticatedUserIdentifier(@PathParam("identifier") String oldIdentifier, @PathParam("newIdentifier")  String newIdentifier) {
         try {
@@ -31,12 +33,6 @@ public class Users extends AbstractApiBean {
             return ok("UserIdentifier changed from " + oldIdentifier + " to " + newIdentifier);
         } catch (WrappedResponse ex) {
             return ex.getResponse();
-        } catch (SecurityException se) {
-            return error(Response.Status.UNAUTHORIZED, se.getLocalizedMessage());
-        } catch (IllegalArgumentException iae) {
-            return error(Response.Status.EXPECTATION_FAILED, iae.getLocalizedMessage());
-        } catch (IllegalStateException ise) {
-            return error(Response.Status.EXPECTATION_FAILED, ise.getLocalizedMessage());
         } catch (EJBException ise) {
             return badRequest(ise.getCause().getMessage());
         } catch (Exception e){
