@@ -132,7 +132,6 @@
                         </div>
                     </fieldset>
                 </div>
-                <h:messages />
             </p:fragment>
         </div>
         <div class="button-block">
@@ -140,7 +139,7 @@
                            actionListener="#{GuestbookResponseDialog.saveAndStartDownload()}"
                            process="@widgetVar(downloadPopup)"
                            update="guestbookUIFragment @widgetVar(downloadPackagePopup) @widgetVar(downloadDataSubsetPopup)"
-                           oncomplete="console.log(args); if (args &amp;&amp; !args.validationFailed) { PF('downloadPopup').hide(); }
+                           oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('downloadPopup').hide(); }
                                        if (args &amp;&amp; args.apiDownloadLink) { $('#currentDownloadRequestLink').attr('href', args.apiDownloadLink); $('#currentDownloadRequestLink')[0].click(); }"
                            >
             </p:commandButton>

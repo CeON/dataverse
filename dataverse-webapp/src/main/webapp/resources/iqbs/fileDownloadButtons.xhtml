@@ -112,26 +112,6 @@
 
     <ui:fragment rendered="#{!(cc.attrs.fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !(cc.attrs.fileMetadata.dataFile.tabularData)}">
     
-    guestbook: #{RequestedDownloadType.guestbookFillUpRequired}
-<!--     <div jsf:rendered="#{!RequestedDownloadType.guestbookFillUpRequired}"> -->
-<!--         <a id="standardFileDownloadButton" href="/api/access/datafile/#{cc.attrs.fileMetadata.dataFile.id}" -->
-<!--                 class="btn btn-default btn-download" -->
-<!--                 target="_blank" rel="noopener noreferrer" download=""> -->
-<!--             <span class="glyphicon glyphicon-download-alt" aria-hidden="true"/> #{bundle.download} -->
-<!--         </a> -->
-<!--     </div> -->
-<!--                    actionListener="#{RequestedDownloadType.initDownloadType(cc.attrs.fileMetadata)}" -->
-<!--                    onsuccess="console.log($('#currentDownloadRequestLink')); $('#currentDownloadRequestLink')[0].click();"> -->
-<!--     <p:commandLink id="standardFileDownloadWithGuestbookButton" -->
-<!--                    rendered="#{RequestedDownloadType.guestbookFillUpRequired}" -->
-<!--                    styleClass="btn btn-default btn-download" -->
-<!--                    process="@this" -->
-<!--                    actionListener="#{fileDownloadHelper.requestDownloadFM(cc.attrs.fileMetadata)}" -->
-<!--                    update="#{cc.attrs.updateOnDownloadRequest}" -->
-<!--                    > -->
-        <!-- non-tabular data file: -->
-<!--         <span class="glyphicon glyphicon-download-alt" aria-hidden="true"/> #{bundle.download} -->
-<!--     </p:commandLink> -->
     <p:commandLink id="standardFileDownloadButton"
                    styleClass="btn btn-default btn-download"
                    process="@this"
