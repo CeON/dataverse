@@ -112,13 +112,33 @@
 
     <ui:fragment rendered="#{!(cc.attrs.fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !(cc.attrs.fileMetadata.dataFile.tabularData)}">
     
-    
+    guestbook: #{RequestedDownloadType.guestbookFillUpRequired}
+<!--     <div jsf:rendered="#{!RequestedDownloadType.guestbookFillUpRequired}"> -->
+<!--         <a id="standardFileDownloadButton" href="/api/access/datafile/#{cc.attrs.fileMetadata.dataFile.id}" -->
+<!--                 class="btn btn-default btn-download" -->
+<!--                 target="_blank" rel="noopener noreferrer" download=""> -->
+<!--             <span class="glyphicon glyphicon-download-alt" aria-hidden="true"/> #{bundle.download} -->
+<!--         </a> -->
+<!--     </div> -->
+<!--                    actionListener="#{RequestedDownloadType.initDownloadType(cc.attrs.fileMetadata)}" -->
+<!--                    onsuccess="console.log($('#currentDownloadRequestLink')); $('#currentDownloadRequestLink')[0].click();"> -->
+<!--     <p:commandLink id="standardFileDownloadWithGuestbookButton" -->
+<!--                    rendered="#{RequestedDownloadType.guestbookFillUpRequired}" -->
+<!--                    styleClass="btn btn-default btn-download" -->
+<!--                    process="@this" -->
+<!--                    actionListener="#{fileDownloadHelper.requestDownloadFM(cc.attrs.fileMetadata)}" -->
+<!--                    update="#{cc.attrs.updateOnDownloadRequest}" -->
+<!--                    > -->
+        <!-- non-tabular data file: -->
+<!--         <span class="glyphicon glyphicon-download-alt" aria-hidden="true"/> #{bundle.download} -->
+<!--     </p:commandLink> -->
     <p:commandLink id="standardFileDownloadButton"
                    styleClass="btn btn-default btn-download"
                    process="@this"
                    actionListener="#{RequestedDownloadType.initDownloadType(cc.attrs.fileMetadata)}"
                    action="#{cc.attrs.downloadRequestFunction}"
-                   update="#{cc.attrs.updateOnDownloadRequest}">
+                   update="#{cc.attrs.updateOnDownloadRequest}"
+                   oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }">
         <!-- non-tabular data file: -->
         <span class="glyphicon glyphicon-download-alt" aria-hidden="true"/> #{bundle.download}
     </p:commandLink>
@@ -134,10 +154,12 @@
         <ul class="dropdown-menu multi-level pull-right text-left" role="menu">
             <li jsf:rendered="#{!(cc.attrs.fileMetadata.dataFile.originalFormatLabel == 'UNKNOWN')}">
                 <p:commandLink id="tabularOriginalDownloadPopupButton"
+                               process="@this"
                                pt:role="menuitem"
                                actionListener="#{RequestedDownloadType.initDownloadTypeForOriginal(cc.attrs.fileMetadata)}"
                                action="#{cc.attrs.downloadRequestFunction}"
-                               update="#{cc.attrs.updateOnDownloadRequest}">
+                               update="#{cc.attrs.updateOnDownloadRequest}"
+                               oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }">
                     <h:outputFormat value="#{bundle['file.downloadBtn.format.original']}">
                         <f:param value="#{cc.attrs.fileMetadata.dataFile.originalFormatLabel}"/>
                     </h:outputFormat>
@@ -145,10 +167,12 @@
             </li>
             <li>
                 <p:commandLink id="tabularTabDownloadPopupButton"
+                               process="@this"
                                pt:role="menuitem"
                                actionListener="#{RequestedDownloadType.initDownloadTypeForTab(cc.attrs.fileMetadata)}"
                                action="#{cc.attrs.downloadRequestFunction}"
-                               update="#{cc.attrs.updateOnDownloadRequest}">
+                               update="#{cc.attrs.updateOnDownloadRequest}"
+                               oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }">
                     #{bundle['file.downloadBtn.format.tab']}
                 </p:commandLink>
             </li>
@@ -159,7 +183,8 @@
                                    process="@this"
                                    actionListener="#{RequestedDownloadType.initDownloadTypeForRdata(cc.attrs.fileMetadata)}"
                                    action="#{cc.attrs.downloadRequestFunction}"
-                                   update="#{cc.attrs.updateOnDownloadRequest}">
+                                   update="#{cc.attrs.updateOnDownloadRequest}"
+                                   oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }">
                         #{bundle['file.downloadBtn.format.rdata']}
                     </p:commandLink>
                 </li>
@@ -169,7 +194,8 @@
                                process="@this"
                                actionListener="#{RequestedDownloadType.initDownloadTypeForVar(cc.attrs.fileMetadata)}"
                                action="#{cc.attrs.downloadRequestFunction}"
-                               update="#{cc.attrs.updateOnDownloadRequest}">
+                               update="#{cc.attrs.updateOnDownloadRequest}"
+                               oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }">
                     #{bundle['file.downloadBtn.format.var']}
                 </p:commandLink>
             </li>
