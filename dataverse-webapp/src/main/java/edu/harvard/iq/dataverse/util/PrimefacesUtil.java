@@ -14,7 +14,6 @@ public class PrimefacesUtil {
     }
     
     public static void showDialogAndResize(String dialogWidgetVar) {
-//        PrimeFaces.current().ajax().update(dialogWidgetVar);
         PrimeFaces.current().executeScript("PF('" + dialogWidgetVar + "').show();handleResizeDialog('" + dialogWidgetVar + "');");
     }
 }
