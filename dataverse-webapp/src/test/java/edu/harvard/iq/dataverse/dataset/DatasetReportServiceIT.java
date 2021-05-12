@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.dataset;
 
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
+import edu.harvard.iq.dataverse.dataset.DatasetReportService.FileDataField;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,16 +47,20 @@ public class DatasetReportServiceIT extends WebappArquillianDeployment {
         // then
         StringReader stringReader = new StringReader(output);
         List<CSVRecord> records = CSVFormat.DEFAULT
-                .withHeader()
+                .withHeader(Arrays.stream(FileDataField.values()).map(Enum::name).toArray(String[]::new))
                 .withSkipHeaderRecord()
                 .parse(stringReader)
                 .getRecords();
+        int expectedRecordSize = FileDataField.values().length;
 
         assertThat(records)
-                .extracting(r -> r.get(0), r -> r.get(1), CSVRecord::size)
+                .extracting(
+                        r -> r.get(FileDataField.FILE_NAME.name()),
+                        r -> r.get(FileDataField.FILE_ID.name()),
+                        CSVRecord::size)
                 .containsExactly(
-                        tuple("testfile6.zip", "53", 21),
-                        tuple("testfile1.zip", "55", 21),
-                        tuple("restricted.zip", "58", 21));
+                        tuple("testfile6.zip", "53", expectedRecordSize),
+                        tuple("testfile1.zip", "55", expectedRecordSize),
+                        tuple("restricted.zip", "58", expectedRecordSize));
     }
 }

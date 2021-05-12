@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -43,6 +44,8 @@ public class DatasetReportService {
     private DatasetDao datasetDao;
 
     private GuestbookResponseServiceBean guestbookResponseService;
+
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -113,6 +116,8 @@ public class DatasetReportService {
         datasetVersionRecord.setVersionNumber(datasetVersion.getFriendlyVersionNumber());
         datasetVersionRecord.setDatasetVersionPublicationDate(datasetVersion.getPublicationDateAsString());
         datasetVersionRecord.setDatasetVersionState(Objects.toString(datasetVersion.getVersionState(), StringUtils.EMPTY));
+        Date lastUpdateTime = datasetVersion.getLastUpdateTime();
+        datasetVersionRecord.setLastModificationDate(lastUpdateTime != null ? dateFormatter.format(lastUpdateTime) : StringUtils.EMPTY);
         return datasetVersionRecord;
     }
 
@@ -149,28 +154,29 @@ public class DatasetReportService {
     /**
      * This enum establishes the columns of CSV report and their order
      */
-    private enum FileDataField {
-        FILE_NAME("File name"),
+    enum FileDataField {
         FILE_ID("File ID"),
+        FILE_NAME("File name"),
+        CONTENT_TYPE("Content type"),
         CHECKSUM("Checksum"),
         CHECKSUM_TYPE("Checksum type"),
         DEPOSIT_DATE("Deposit date"),
-        DATASET_VERSION_PUBLICATION_DATE("Dataset version publication date"),
         DATAFILE_PUBLICATION_DATE("Datafile publication date"),
-        DATASET_TITLE("Dataset title"),
-        DATASET_PID("Dataset PID"),
-        DATASET_ID("Dataset ID"),
-        VERSION_NUMBER("Version No."),
         LICENSE("License"),
         TAGS("Tags"),
+        NUMBER_OF_DOWNLOADS("Number of downloads"),
+        SIZE("Size (bytes)"),
+        SIZE_DECOMPRESSED("Size decompressed (bytes)"),
+        DATASET_ID("Dataset ID"),
+        DATASET_PID("Dataset PID"),
+        DATASET_TITLE("Dataset title"),
+        VERSION_NUMBER("Version No."),
+        DATASET_VERSION_PUBLICATION_DATE("Dataset version publication date"),
         DATASET_VERSION_STATE("Dataset version state"),
+        LAST_MODIFICATION_DATE("Last modification date"),
         DEACCESSION_DATA("Deaccession data"),
         UNDER_EMBARGO("Under embargo"),
-        EMBARGO_DATE("Embargo date"),
-        CONTENT_TYPE("Content type"),
-        NUMBER_OF_DOWNLOADS("Number of downloads"),
-        SIZE("Size"),
-        SIZE_DECOMPRESSED("Size decompressed");
+        EMBARGO_DATE("Embargo date");
 
         private String displayName;
 
@@ -191,15 +197,15 @@ public class DatasetReportService {
     // as it causes IllegalAccessException during tests (probably
     // because of some classloader issues or maybe a bug in Weld)
     protected static class Record {
-        private Map<DatasetReportService.FileDataField, Object> data;
+        private Map<FileDataField, Object> data;
 
-        private static DatasetReportService.FileDataField[] KEYS = DatasetReportService.FileDataField.values();
+        private static FileDataField[] KEYS = FileDataField.values();
         private static int FULL_RECORD_SIZE = KEYS.length;
 
         // -------------------- CONSTRUCTORS --------------------
 
         public Record() {
-            this.data = new EnumMap<>(DatasetReportService.FileDataField.class);
+            this.data = new EnumMap<>(FileDataField.class);
         }
 
         public Record(Record other) {
@@ -210,18 +216,18 @@ public class DatasetReportService {
 
         /**
          * @return list of report headers in the same order as they are
-         * declared in {@link DatasetReportService.FileDataField} enum (such order is guaranteed
+         * declared in {@link FileDataField} enum (such order is guaranteed
          * by underlying {@link EnumMap}).
          */
         public Collection<Object> getHeaders() {
             return Arrays.stream(KEYS)
-                    .map(DatasetReportService.FileDataField::getDisplayName)
+                    .map(FileDataField::getDisplayName)
                     .collect(Collectors.toList());
         }
 
         /**
          * @return record values in the same order as they are declared
-         * in {@link DatasetReportService.FileDataField} enum (such order is guaranteed by
+         * in {@link FileDataField} enum (such order is guaranteed by
          * underlying {@link EnumMap}).
          */
         public Collection<Object> getValues() {
@@ -233,87 +239,90 @@ public class DatasetReportService {
         }
 
         public void setFileName(String fileName) {
-            data.put(DatasetReportService.FileDataField.FILE_NAME, fileName);
+            data.put(FileDataField.FILE_NAME, fileName);
         }
 
         public void setFileId(Long fileId) {
-            data.put(DatasetReportService.FileDataField.FILE_ID, fileId);
+            data.put(FileDataField.FILE_ID, fileId);
         }
 
         public void setChecksum(String checksum) {
-            data.put(DatasetReportService.FileDataField.CHECKSUM, checksum);
+            data.put(FileDataField.CHECKSUM, checksum);
         }
 
         public void setChecksumType(String checksumType) {
-            data.put(DatasetReportService.FileDataField.CHECKSUM_TYPE, checksumType);
+            data.put(FileDataField.CHECKSUM_TYPE, checksumType);
         }
 
         public void setDatasetTitle(String datasetTitle) {
-            data.put(DatasetReportService.FileDataField.DATASET_TITLE, datasetTitle);
+            data.put(FileDataField.DATASET_TITLE, datasetTitle);
         }
 
         public void setDatasetId(Long datasetId) {
-            data.put(DatasetReportService.FileDataField.DATASET_ID, datasetId);
+            data.put(FileDataField.DATASET_ID, datasetId);
         }
 
         public void setDatasetPID(String datasetPID) {
-            data.put(DatasetReportService.FileDataField.DATASET_PID, datasetPID);
+            data.put(FileDataField.DATASET_PID, datasetPID);
         }
 
         public void setUnderEmbargo(Boolean underEmbargo) {
-            data.put(DatasetReportService.FileDataField.UNDER_EMBARGO, underEmbargo);
+            data.put(FileDataField.UNDER_EMBARGO, underEmbargo);
         }
 
         public void setEmbargoDate(Date embargoDate) {
-            data.put(DatasetReportService.FileDataField.EMBARGO_DATE, embargoDate);
+            data.put(FileDataField.EMBARGO_DATE, embargoDate);
         }
 
+        public void setLastModificationDate(String lastModificationDate) {
+            data.put(FileDataField.LAST_MODIFICATION_DATE, lastModificationDate);
+        }
         public void setDeaccessionData(String deaccessionData) {
-            data.put(DatasetReportService.FileDataField.DEACCESSION_DATA, deaccessionData);
+            data.put(FileDataField.DEACCESSION_DATA, deaccessionData);
         }
 
         public void setDepositDate(String depositDate) {
-            data.put(DatasetReportService.FileDataField.DEPOSIT_DATE, depositDate);
+            data.put(FileDataField.DEPOSIT_DATE, depositDate);
         }
 
         public void setSize(Long fileSize) {
-            data.put(DatasetReportService.FileDataField.SIZE, fileSize);
+            data.put(FileDataField.SIZE, fileSize);
         }
 
         public void setVersionNumber(String versionNumber) {
-            data.put(DatasetReportService.FileDataField.VERSION_NUMBER, versionNumber);
+            data.put(FileDataField.VERSION_NUMBER, versionNumber);
         }
 
         public void setTags(String tags) {
-            data.put(DatasetReportService.FileDataField.TAGS, tags);
+            data.put(FileDataField.TAGS, tags);
         }
 
         public void setDatafilePublicationDate(String dataFilePublicationDate) {
-            data.put(DatasetReportService.FileDataField.DATAFILE_PUBLICATION_DATE, dataFilePublicationDate);
+            data.put(FileDataField.DATAFILE_PUBLICATION_DATE, dataFilePublicationDate);
         }
 
         public void setDatasetVersionPublicationDate(String publicationDate) {
-            data.put(DatasetReportService.FileDataField.DATASET_VERSION_PUBLICATION_DATE, publicationDate);
+            data.put(FileDataField.DATASET_VERSION_PUBLICATION_DATE, publicationDate);
         }
 
         public void setLicense(String license) {
-            data.put(DatasetReportService.FileDataField.LICENSE, license);
+            data.put(FileDataField.LICENSE, license);
         }
 
         public void setContentType(String contentType) {
-            data.put(DatasetReportService.FileDataField.CONTENT_TYPE, contentType);
+            data.put(FileDataField.CONTENT_TYPE, contentType);
         }
 
         public void setSizeDecompressed(Long sizeDecompressed) {
-            data.put(DatasetReportService.FileDataField.SIZE_DECOMPRESSED, sizeDecompressed);
+            data.put(FileDataField.SIZE_DECOMPRESSED, sizeDecompressed);
         }
 
         public void setNumberOfDownloads(Long numberOfDownloads) {
-            data.put(DatasetReportService.FileDataField.NUMBER_OF_DOWNLOADS, numberOfDownloads);
+            data.put(FileDataField.NUMBER_OF_DOWNLOADS, numberOfDownloads);
         }
 
         public void setDatasetVersionState(String versionState) {
-            data.put(DatasetReportService.FileDataField.DATASET_VERSION_STATE, versionState);
+            data.put(FileDataField.DATASET_VERSION_STATE, versionState);
         }
     }
 }

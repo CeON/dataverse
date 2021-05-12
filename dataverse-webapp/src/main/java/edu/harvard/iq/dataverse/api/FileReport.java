@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.time.LocalDateTime;
 
-@Path("reports/file")
+@Path("reports/files")
 public class FileReport extends AbstractApiBean {
 
     @Inject
