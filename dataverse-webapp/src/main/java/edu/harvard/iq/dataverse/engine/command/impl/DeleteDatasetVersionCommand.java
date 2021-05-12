@@ -94,7 +94,7 @@ public class DeleteDatasetVersionCommand extends AbstractVoidCommand {
                     }
                 }
                 boolean doNormalSolrDocCleanUp = true;
-                RemoveLockAndUpdateDataset(ctxt);
+                removeLockAndUpdateDataset(ctxt);
                 ctxt.index().indexDataset(doomed, doNormalSolrDocCleanUp);
                 return;
             }
@@ -106,12 +106,12 @@ public class DeleteDatasetVersionCommand extends AbstractVoidCommand {
     /**
      * Removes potential lock, otherwise the dataset would be permanently locked for user without ability to edit it.
      */
-    private void RemoveLockAndUpdateDataset(CommandContext ctxt) {
+    private void removeLockAndUpdateDataset(CommandContext ctxt) {
         doomed.getLocks().stream()
               .filter(datasetLock -> datasetLock.getReason().equals(DatasetLock.Reason.InReview))
               .findAny()
               .ifPresent(datasetLock -> {
-                  ctxt.engine().submit(new RemoveLockCommand(getRequest(), doomed, DatasetLock.Reason.InReview));
+                  ctxt.datasets().removeDatasetLocks(doomed, DatasetLock.Reason.InReview);
                   doomed.setModificationTime(new Timestamp(new Date().getTime()));
                   ctxt.em().merge(doomed);
               });
