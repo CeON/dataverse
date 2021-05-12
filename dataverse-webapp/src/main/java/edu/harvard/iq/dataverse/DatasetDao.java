@@ -248,12 +248,33 @@ public class DatasetDao implements java.io.Serializable {
         }
     }
 
+    public List<DatasetVersionUser> getDatasetVersionUsersByAuthenticatedUser(AuthenticatedUser user){
+
+        TypedQuery<DatasetVersionUser> typedQuery =
+                em.createQuery("SELECT u from DatasetVersionUser u where u.authenticatedUser.id = :authenticatedUserId",
+                        DatasetVersionUser.class);
+        typedQuery.setParameter("authenticatedUserId", user.getId());
+        return typedQuery.getResultList();
+    }
+
     public boolean checkDatasetLock(Long datasetId) {
         TypedQuery<DatasetLock> lockCounter = em.createNamedQuery("DatasetLock.getLocksByDatasetId", DatasetLock.class);
         lockCounter.setParameter("datasetId", datasetId);
         lockCounter.setMaxResults(1);
         List<DatasetLock> lock = lockCounter.getResultList();
         return lock.size() > 0;
+    }
+
+    public List<DatasetLock> getDatasetLocksByUser( AuthenticatedUser user) {
+
+        TypedQuery<DatasetLock> query =
+                em.createNamedQuery("DatasetLock.getLocksByAuthenticatedUserId", DatasetLock.class);
+        query.setParameter("authenticatedUserId", user.getId());
+        try {
+            return query.getResultList();
+        } catch (javax.persistence.NoResultException e) {
+            return null;
+        }
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

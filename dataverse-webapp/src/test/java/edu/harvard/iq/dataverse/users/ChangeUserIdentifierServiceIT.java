@@ -40,9 +40,6 @@ public class ChangeUserIdentifierServiceIT extends WebappArquillianDeployment {
     @EJB
     private BuiltinUserServiceBean builtinUserService;
 
-    @Inject
-    private DataverseRoleServiceBean roleService;
-
     @EJB
     private RoleAssigneeServiceBean roleAssigneeService;
 
@@ -65,7 +62,7 @@ public class ChangeUserIdentifierServiceIT extends WebappArquillianDeployment {
         RoleAssignment roleAssignment = new RoleAssignment(dataverseRoleService.find(2L),
                 authenticationService.getAuthenticatedUser(userIdBefore),
                 dataverseDao.find(67L), "privateUrl");
-        roleService.save(roleAssignment);
+        dataverseRoleService.save(roleAssignment);
 
         // when
         changeUserIdentifierService.changeUserIdentifier(authenticationService.getAdminUser(), userIdBefore, userIdAfter);

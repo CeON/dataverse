@@ -13,6 +13,7 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.link.DatasetLinkingDataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.link.DataverseLinkingDataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.link.SavedSearch;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
@@ -71,6 +72,17 @@ public class SavedSearchServiceBean {
     public List<SavedSearch> findAll() {
         TypedQuery<SavedSearch> typedQuery = em.createQuery("SELECT OBJECT(o) FROM SavedSearch AS o ORDER BY o.id", SavedSearch.class);
         return typedQuery.getResultList();
+    }
+
+    public  List<SavedSearch> findByAuthenticatedUser(AuthenticatedUser user) {
+        TypedQuery<SavedSearch> typedQuery =
+                em.createQuery("SELECT OBJECT(o) FROM SavedSearch AS o WHERE o.creator.id = :id", SavedSearch.class);
+        typedQuery.setParameter("id", user.getId());
+        try {
+            return typedQuery.getResultList();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            return null;
+        }
     }
 
     public SavedSearch add(SavedSearch toPersist) {

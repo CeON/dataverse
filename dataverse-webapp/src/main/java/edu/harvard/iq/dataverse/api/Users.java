@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.api;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.users.ChangeUserIdentifierService;
+import edu.harvard.iq.dataverse.users.MergeInAccountService;
 
 import javax.ejb.EJBException;
 import javax.inject.Inject;
@@ -21,6 +22,29 @@ public class Users extends AbstractApiBean {
     @Inject
     private ChangeUserIdentifierService changeUserIdentifierService;
 
+    @Inject
+    private MergeInAccountService mergeInAccountService;
+
+    @POST
+    @ApiWriteOperation
+    @Path("{consumedIdentifier}/mergeIntoUser/{baseIdentifier}")
+    public Response mergeInAuthenticatedUser(@PathParam("consumedIdentifier") String consumedIdentifier, @PathParam("baseIdentifier") String baseIdentifier) {
+
+        try {
+            User user;
+            user = findUserOrDie();
+            mergeInAccountService.mergeAccounts(user, consumedIdentifier, baseIdentifier);
+
+            return ok("All account data for " + consumedIdentifier + " has been merged into " + baseIdentifier + ".");
+        } catch (WrappedResponse ex) {
+            return ex.getResponse();
+        } catch (EJBException ise) {
+            return badRequest(ise.getCause().getMessage());
+        } catch (Exception e){
+            return error(Response.Status.BAD_REQUEST, "Error calling MergeInAccountService: " + e.getLocalizedMessage());
+        }
+    }
+
     @POST
     @ApiWriteOperation
     @Path("{identifier}/changeIdentifier/{newIdentifier}")
@@ -36,7 +60,7 @@ public class Users extends AbstractApiBean {
         } catch (EJBException ise) {
             return badRequest(ise.getCause().getMessage());
         } catch (Exception e){
-            return error(Response.Status.BAD_REQUEST, "Error calling ChangeUserIdentifierCommand: " + e.getLocalizedMessage());
+            return error(Response.Status.BAD_REQUEST, "Error calling ChangeUserIdentifierService: " + e.getLocalizedMessage());
         }
     }
 
