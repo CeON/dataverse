@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.dataset;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
+import edu.harvard.iq.dataverse.interceptors.SuperuserRequired;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
@@ -59,6 +60,7 @@ public class DatasetReportService {
 
     // -------------------- LOGIC --------------------
 
+    @SuperuserRequired
     public void createReport(OutputStream outputStream) {
         try (Writer writer = new OutputStreamWriter(outputStream);
              BufferedWriter streamWriter = new BufferedWriter(writer);
