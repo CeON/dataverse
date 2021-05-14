@@ -147,21 +147,12 @@ public class SolrSearchResult {
     }
 
     public String getHarvestingDescription() {
-        //if (this.isHarvested()) {
         return harvestingDescription;
-        //}
-        //return null;
     }
 
     public void setHarvestingDescription(String harvestingDescription) {
         this.harvestingDescription = harvestingDescription;
     }
-//    public boolean isStatePublished() {
-//        return statePublished;
-//    }
-//    public void setStatePublished(boolean statePublished) {
-//        this.statePublished = statePublished;
-//    }
 
     public boolean isPublishedState() {
         return publishedState;
