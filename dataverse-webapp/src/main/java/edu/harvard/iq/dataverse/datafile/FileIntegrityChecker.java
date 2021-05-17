@@ -1,7 +1,9 @@
 package edu.harvard.iq.dataverse.datafile;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.common.BrandingUtil;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.StorageIOConstants;
@@ -19,10 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 @Stateless
 public class FileIntegrityChecker {
@@ -33,6 +33,7 @@ public class FileIntegrityChecker {
     private DataFileServiceBean dataFileService;
     private AuthenticationServiceBean authSvc;
     private MailService mailService;
+    private DataverseDao dataverseDao;
     private SystemConfig systemConfig;
     private DataAccess dataAccess;
 
@@ -45,21 +46,24 @@ public class FileIntegrityChecker {
 
     @Inject
     public FileIntegrityChecker(DataFileServiceBean dataFileServiceBean,
-            AuthenticationServiceBean authSvc,
-            SystemConfig systemConfig,
-            MailService mailService) {
-        this(dataFileServiceBean, authSvc, mailService, systemConfig, DataAccess.dataAccess());
+                                AuthenticationServiceBean authSvc,
+                                MailService mailService,
+                                SystemConfig systemConfig,
+                                DataverseDao dataverseDao) {
+        this(dataFileServiceBean, authSvc, mailService, systemConfig, dataverseDao, DataAccess.dataAccess());
     }
 
     FileIntegrityChecker(DataFileServiceBean dataFileServiceBean,
             AuthenticationServiceBean authSvc,
             MailService mailService,
             SystemConfig systemConfig,
+            DataverseDao dataverseDao,
             DataAccess dataAccess) {
         this.dataFileService = dataFileServiceBean;
         this.authSvc = authSvc;
         this.mailService = mailService;
         this.systemConfig = systemConfig;
+        this.dataverseDao = dataverseDao;
         this.dataAccess = dataAccess;
     }
     
@@ -192,8 +196,7 @@ public class FileIntegrityChecker {
                                         .append(getFailedFileUrl(integrityFail))
                                         .append(NEW_LINE));
 
-        String messageSubject = "[" + systemConfig.getSiteName(Locale.ENGLISH) + "] " +
-                systemConfig.getSiteFullName(Locale.ENGLISH) + " files integrity check report";
+        String messageSubject = BrandingUtil.getInstallationBrandName(dataverseDao.findRootDataverse().getName()) + " files integrity check report";
 
         return new EmailContent(messageSubject, messageBodyBuilder.toString(), "");
     }

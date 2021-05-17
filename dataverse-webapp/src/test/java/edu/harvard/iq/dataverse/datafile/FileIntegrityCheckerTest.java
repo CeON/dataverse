@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.datafile;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
+import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
@@ -15,6 +16,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile.ChecksumType;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -62,6 +64,9 @@ public class FileIntegrityCheckerTest {
     @Mock
     private SystemConfig systemConfig;
 
+    @Mock
+    private DataverseDao dataverseDao;
+
     @Captor
     private ArgumentCaptor<EmailContent> emailContentCaptor;
 
@@ -69,7 +74,10 @@ public class FileIntegrityCheckerTest {
 
     @BeforeEach
     public void beforeEach() {
-        when(systemConfig.getSiteName(Locale.ENGLISH)).thenReturn("RepOD");
+        Dataverse dv = new Dataverse();
+        dv.setName("RepOD");
+
+        when(dataverseDao.findRootDataverse()).thenReturn(dv);
         when(systemConfig.getSiteFullName(Locale.ENGLISH)).thenReturn("Repository for Open Data");
         when(systemConfig.getDataverseSiteUrl()).thenReturn("http://localhost:8080");
     }
@@ -324,7 +332,7 @@ public class FileIntegrityCheckerTest {
         String emailText1 = emailContentCaptor.getValue().getMessageText();
         String emailFooter1 = emailContentCaptor.getValue().getFooter();
 
-        assertEquals("[RepOD] Repository for Open Data files integrity check report", emailSubject1);
+        assertEquals("RepOD files integrity check report", emailSubject1);
         assertThat(emailText1, containsString("Files checked: 1"));
         assertThat(emailText1, containsString("Number of files with failures: 1"));
         assertThat(emailText1, containsString("** Number of files with \"STORAGE_ERROR\" discrepancy: 1"));
@@ -343,7 +351,7 @@ public class FileIntegrityCheckerTest {
         String emailText2 = emailContentCaptor.getValue().getMessageText();
         String emailFooter2 = emailContentCaptor.getValue().getFooter();
 
-        assertEquals("[RepOD] Repository for Open Data files integrity check report", emailSubject2);
+        assertEquals("RepOD files integrity check report", emailSubject2);
         assertEquals(emailText1, emailText2);
         assertEquals("", emailFooter2);
 
