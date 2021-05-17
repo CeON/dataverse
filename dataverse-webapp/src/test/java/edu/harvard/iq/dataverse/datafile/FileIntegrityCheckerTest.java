@@ -17,6 +17,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.util.SystemConfig;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,14 +30,15 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.io.IOException;
+import java.util.Locale;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -56,10 +59,20 @@ public class FileIntegrityCheckerTest {
     @Mock
     private DataAccess dataAccess;
 
+    @Mock
+    private SystemConfig systemConfig;
+
     @Captor
     private ArgumentCaptor<EmailContent> emailContentCaptor;
 
     // -------------------- TESTS --------------------
+
+    @BeforeEach
+    public void beforeEach() {
+        when(systemConfig.getSiteName(Locale.ENGLISH)).thenReturn("RepOD");
+        when(systemConfig.getSiteFullName(Locale.ENGLISH)).thenReturn("Repository for Open Data");
+        when(systemConfig.getDataverseSiteUrl()).thenReturn("http://localhost:8080");
+    }
 
     @Test
     public void checkFilesIntegrity() throws IOException {
@@ -311,10 +324,16 @@ public class FileIntegrityCheckerTest {
         String emailText1 = emailContentCaptor.getValue().getMessageText();
         String emailFooter1 = emailContentCaptor.getValue().getFooter();
 
-        assertEquals("Dataverse files integrity check report", emailSubject1);
+        assertEquals("[RepOD] Repository for Open Data files integrity check report", emailSubject1);
         assertThat(emailText1, containsString("Files checked: 1"));
         assertThat(emailText1, containsString("Number of files with failures: 1"));
-        assertThat(emailText1, containsString("File id: " + datafile1.getId() + ", file label: Metadata for DataFile " + datafile1.getId() + " (STORAGE_ERROR)"));
+        assertThat(emailText1, containsString("** Number of files with \"STORAGE_ERROR\" discrepancy: 1"));
+        assertThat(emailText1, containsString("** Number of files with \"DIFFERENT_SIZE\" discrepancy: 0"));
+        assertThat(emailText1, containsString("** Number of files with \"NOT_EXIST\" discrepancy: 0"));
+        assertThat(emailText1, containsString("** Number of files with \"DIFFERENT_CHECKSUM\" discrepancy: 0"));
+        assertThat(emailText1, containsString("File id: " + datafile1.getId() +
+                ", file label: Metadata for DataFile " + datafile1.getId() + " (STORAGE_ERROR)" +
+                ", file link: http://localhost:8080/file.xhtml?fileId=" + datafile1.getId()));
         assertEquals("", emailFooter1);
 
 
@@ -324,7 +343,7 @@ public class FileIntegrityCheckerTest {
         String emailText2 = emailContentCaptor.getValue().getMessageText();
         String emailFooter2 = emailContentCaptor.getValue().getFooter();
 
-        assertEquals("Dataverse files integrity check report", emailSubject2);
+        assertEquals("[RepOD] Repository for Open Data files integrity check report", emailSubject2);
         assertEquals(emailText1, emailText2);
         assertEquals("", emailFooter2);
 
