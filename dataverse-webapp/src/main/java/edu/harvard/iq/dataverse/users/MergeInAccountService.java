@@ -1,10 +1,15 @@
 package edu.harvard.iq.dataverse.users;
 
+import edu.harvard.iq.dataverse.AcceptedConsentDao;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
+import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.authorization.OAuthTokenDataDao;
+import edu.harvard.iq.dataverse.authorization.groups.ExplicitGroupDao;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
+import edu.harvard.iq.dataverse.datafile.FileAccessRequestDao;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.interceptors.LoggedCall;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
@@ -29,15 +34,11 @@ import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 public class MergeInAccountService {
-
-    @PersistenceContext(unitName = "VDCNet-ejbPU")
-    private EntityManager entityManager;
 
     @EJB private AuthenticationServiceBean authenticationService;
     @EJB private RoleAssigneeServiceBean roleAssigneeService;
@@ -50,6 +51,11 @@ public class MergeInAccountService {
     @EJB private SavedSearchServiceBean savedSearchService;
     @EJB private ConfirmEmailServiceBean confirmEmailService;
     @EJB private BuiltinUserServiceBean builtinUserService;
+    @EJB private GenericDao genericDao;
+    @EJB private FileAccessRequestDao fileAccessRequestDao;
+    @EJB private ExplicitGroupDao explicitGroupDao;
+    @EJB private AcceptedConsentDao acceptedConsentDao;
+    @EJB private OAuthTokenDataDao oAuthTokenDataDao;
 
     // -------------------- LOGIC --------------------
 
@@ -104,46 +110,63 @@ public class MergeInAccountService {
         List<RoleAssignment> baseRAList = roleAssigneeService.getAssignmentsFor(baseAU.getIdentifier());
         List<RoleAssignment> consumedRAList = roleAssigneeService.getAssignmentsFor(consumedAU.getIdentifier());
 
+        addNewRolesToBaseUser(baseAU, baseRAList, consumedRAList);
+        removeRemainingRolesFor(consumedAU);
+    }
+
+    private void removeRemainingRolesFor(AuthenticatedUser consumedAU) {
+        roleAssigneeService.removeAllRolesForUserByIdentifier(consumedAU.getIdentifier());
+    }
+
+    /***
+     * Only authenticated users accounts can be merge.
+     * These accounts are prefixed with '@' in {@link RoleAssignment}.
+     * Throw {@link IllegalArgumentException} when a given role doesn't belong to authenticated user.
+     *
+     * Algorithm:
+     * 1. For each consumed user role check if base user already has it
+     * 2. If NO: merge the role to base user and update solr
+     * 3. If YES: skip it, they will be removed in one call after checking all roles.
+     *
+     * @param baseAU - user to which we merge account
+     * @param baseRAList - baseAU roles list
+     * @param consumedRAList - user whose account is to be merged roles list
+     */
+    private void addNewRolesToBaseUser(AuthenticatedUser baseAU, List<RoleAssignment> baseRAList, List<RoleAssignment> consumedRAList) {
         for(RoleAssignment consumedRA : consumedRAList) {
             if(consumedRA.getAssigneeIdentifier().charAt(0) == '@') {
 
-                boolean willDelete = false;
-                for(RoleAssignment baseRA : baseRAList) {
-                    //Matching on the id not the whole DVObject as I'm suspicious of dvobject equality
-                    if (baseRA.getDefinitionPoint().getId().equals(consumedRA.getDefinitionPoint().getId())
-                            && baseRA.getRole().equals(consumedRA.getRole())) {
-                        willDelete = true; //more or less a skip, as we run a delete query afterwards
-                        break;
-                    }
-                }
-                if(!willDelete) {
+                Optional<RoleAssignment> sameRoleForBothUsers = baseRAList.stream()
+                        .filter(baseRa -> baseRa
+                                .getDefinitionPoint()
+                                .getId()
+                                .equals(consumedRA.getDefinitionPoint().getId())
+                                && baseRa.getRole().equals(consumedRA.getRole()))
+                        .findAny();
+
+                if (!sameRoleForBothUsers.isPresent()) {
                     consumedRA.setAssigneeIdentifier(baseAU.getIdentifier());
-                    entityManager.merge(consumedRA);
+                    genericDao.merge(consumedRA);
                     solrIndexService.indexPermissionsForOneDvObject(consumedRA.getDefinitionPoint());
                     indexService.indexDvObject(consumedRA.getDefinitionPoint());
-                } // no else here because the any willDelete == true will happen in the named query below.
+                }
             } else {
                 throw new IllegalArgumentException("Original userIdentifier provided does not seem to be an AuthenticatedUser");
             }
         }
-
-        //Delete not merged role assignments for consumedIdentifier, e.g. duplicates
-        entityManager.createNamedQuery("RoleAssignment.deleteAllByAssigneeIdentifier", RoleAssignment.class)
-                .setParameter("assigneeIdentifier", consumedAU.getIdentifier())
-                .executeUpdate();
     }
 
     private void updateDatasetVersionUser(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (DatasetVersionUser user : datasetDao.getDatasetVersionUsersByAuthenticatedUser(consumedAU)) {
             user.setAuthenticatedUser(baseAU);
-            entityManager.merge(user);
+            genericDao.merge(user);
         }
     }
 
     private void updateDatasetLocks(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (DatasetLock lock : datasetDao.getDatasetLocksByUser(consumedAU)) {
             lock.setUser(baseAU);
-            entityManager.merge(lock);
+            genericDao.merge(lock);
         }
     }
 
@@ -155,86 +178,82 @@ public class MergeInAccountService {
             if (dvo.getReleaseUser() != null &&  dvo.getReleaseUser().equals(consumedAU)){
                 dvo.setReleaseUser(baseAU);
             }
-            entityManager.merge(dvo);
+            genericDao.merge(dvo);
         }
     }
 
     private void updateGuestbookResponse(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (GuestbookResponse gbr : guestbookResponseService.findByAuthenticatedUserId(consumedAU)) {
             gbr.setAuthenticatedUser(baseAU);
-            entityManager.merge(gbr);
+            genericDao.merge(gbr);
         }
     }
 
     private void updateUserNotification(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (UserNotification note : userNotificationDao.findByUser(consumedAU.getId())) {
             note.setUser(baseAU);
-            entityManager.merge(note);
+            genericDao.merge(note);
         }
     }
 
     private void updateUserNotificationRequestor(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (UserNotification note : userNotificationDao.findByRequestor(consumedAU.getId())) {
             note.setRequestor(baseAU);
-            entityManager.merge(note);
+            genericDao.merge(note);
         }
     }
 
     private void updateSavedSearch(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (SavedSearch search : savedSearchService.findByAuthenticatedUser(consumedAU)) {
             search.setCreator(baseAU);
-            entityManager.merge(search);
+            genericDao.merge(search);
         }
     }
 
     private void updateWorkflowComment(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
         for (WorkflowComment wc : authenticationService.getWorkflowCommentsByAuthenticatedUser(consumedAU)) {
             wc.setAuthenticatedUser(baseAU);
-            entityManager.merge(wc);
+            genericDao.merge(wc);
         }
     }
 
     private void updateFileAccessRequest(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
-        entityManager.createNativeQuery("UPDATE fileaccessrequests SET authenticated_user_id=" + baseAU.getId() +
-                " WHERE authenticated_user_id=" + consumedAU.getId()).executeUpdate();
+        fileAccessRequestDao.updateAuthenticatedUser(consumedAU.getId(), baseAU.getId());
     }
 
     private void updateExplicitGroup_AuthenticatedUser(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
-        entityManager.createNativeQuery("UPDATE explicitgroup_authenticateduser SET containedauthenticatedusers_id=" +
-                baseAU.getId() + " WHERE containedauthenticatedusers_id=" + consumedAU.getId()).executeUpdate();
+        explicitGroupDao.updateAuthenticatedUser(consumedAU.getId(), baseAU.getId());
     }
 
     private void updateAcceptedConsents(AuthenticatedUser consumedAU, AuthenticatedUser baseAU) {
-        entityManager.createNativeQuery("UPDATE acceptedconsent SET user_id=" +
-                baseAU.getId() + " WHERE user_id=" + consumedAU.getId()).executeUpdate();
+        acceptedConsentDao.updateAuthenticatedUser(consumedAU.getId(), baseAU.getId());
     }
 
     private void removeConfirmEmailData(AuthenticatedUser consumedAU) {
         ConfirmEmailData confirmEmailData = confirmEmailService.findSingleConfirmEmailDataByUser(consumedAU);
         if (confirmEmailData != null){
-            entityManager.remove(confirmEmailData);
+            genericDao.remove(confirmEmailData);
         }
     }
 
     private void removeOAuth2TokenData(AuthenticatedUser consumedAU) {
-        entityManager.createNativeQuery("Delete from OAuth2TokenData where user_id =" +
-                consumedAU.getId()).executeUpdate();
+        oAuthTokenDataDao.removeAuthenticatedUserTokenData(consumedAU.getId());
     }
 
     private void removeApiToken(AuthenticatedUser consumedAU) {
         ApiToken toRemove = authenticationService.findApiTokenByUser(consumedAU);
         if(null != toRemove) { //not all users have apiTokens
-            entityManager.remove(toRemove);
+            genericDao.remove(toRemove);
         }
     }
 
     private void removeUser(AuthenticatedUser consumedAU) {
         AuthenticatedUserLookup consumedAUL = consumedAU.getAuthenticatedUserLookup();
-        entityManager.remove(consumedAUL);
-        entityManager.remove(consumedAU);
+        genericDao.remove(consumedAUL);
+        genericDao.remove(consumedAU);
         BuiltinUser consumedBuiltinUser = builtinUserService.findByUserName(consumedAU.getUserIdentifier());
         if (consumedBuiltinUser != null){
-            entityManager.remove(consumedBuiltinUser);
+            genericDao.remove(consumedBuiltinUser);
         }
     }
 }

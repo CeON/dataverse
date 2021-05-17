@@ -35,6 +35,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -81,7 +82,7 @@ public class SavedSearchServiceBean {
         try {
             return typedQuery.getResultList();
         } catch (NoResultException | NonUniqueResultException ex) {
-            return null;
+            return Collections.emptyList();
         }
     }
 

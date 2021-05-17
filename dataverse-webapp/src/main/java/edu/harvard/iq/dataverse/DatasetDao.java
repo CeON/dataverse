@@ -35,6 +35,7 @@ import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -273,7 +274,7 @@ public class DatasetDao implements java.io.Serializable {
         try {
             return query.getResultList();
         } catch (javax.persistence.NoResultException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 

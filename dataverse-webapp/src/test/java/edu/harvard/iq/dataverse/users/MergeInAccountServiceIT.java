@@ -1,16 +1,21 @@
 package edu.harvard.iq.dataverse.users;
+import edu.harvard.iq.dataverse.AcceptedConsentDao;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
+import edu.harvard.iq.dataverse.GenericDao;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.authorization.OAuthTokenDataDao;
+import edu.harvard.iq.dataverse.authorization.groups.ExplicitGroupDao;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2TokenDataServiceBean;
+import edu.harvard.iq.dataverse.datafile.FileAccessRequestDao;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
@@ -75,6 +80,11 @@ public class MergeInAccountServiceIT extends WebappArquillianDeployment {
     @EJB private DatasetVersionServiceBean datasetVersionService;
     @EJB private DataverseRoleServiceBean dataverseRoleService;
     @EJB private ConfirmEmailServiceBean confirmEmailService;
+    @EJB private GenericDao genericDao;
+    @EJB private FileAccessRequestDao fileAccessRequestDao;
+    @EJB private ExplicitGroupDao explicitGroupDao;
+    @EJB private AcceptedConsentDao acceptedConsentDao;
+    @EJB private OAuthTokenDataDao oAuthTokenDataDao;
     @PersistenceContext(unitName = "VDCNet-ejbPU") private EntityManager entityManager;
 
     @Before
