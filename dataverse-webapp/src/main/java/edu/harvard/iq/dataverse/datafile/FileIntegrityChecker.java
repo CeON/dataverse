@@ -6,11 +6,13 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.StorageIOConstants;
 import edu.harvard.iq.dataverse.datafile.pojo.FileIntegrityCheckResult;
+import edu.harvard.iq.dataverse.datafile.pojo.FileIntegrityFail;
 import edu.harvard.iq.dataverse.datafile.pojo.FilesIntegrityReport;
 import edu.harvard.iq.dataverse.mail.EmailContent;
 import edu.harvard.iq.dataverse.mail.MailService;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile.ChecksumType;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import javax.inject.Inject;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @Stateless
 public class FileIntegrityChecker {
@@ -30,6 +33,7 @@ public class FileIntegrityChecker {
     private DataFileServiceBean dataFileService;
     private AuthenticationServiceBean authSvc;
     private MailService mailService;
+    private SystemConfig systemConfig;
     private DataAccess dataAccess;
 
     // -------------------- CONSTRUCTORS --------------------
@@ -42,17 +46,20 @@ public class FileIntegrityChecker {
     @Inject
     public FileIntegrityChecker(DataFileServiceBean dataFileServiceBean,
             AuthenticationServiceBean authSvc,
+            SystemConfig systemConfig,
             MailService mailService) {
-        this(dataFileServiceBean, authSvc, mailService, DataAccess.dataAccess());
+        this(dataFileServiceBean, authSvc, mailService, systemConfig, DataAccess.dataAccess());
     }
 
     FileIntegrityChecker(DataFileServiceBean dataFileServiceBean,
             AuthenticationServiceBean authSvc,
             MailService mailService,
+            SystemConfig systemConfig,
             DataAccess dataAccess) {
         this.dataFileService = dataFileServiceBean;
         this.authSvc = authSvc;
         this.mailService = mailService;
+        this.systemConfig = systemConfig;
         this.dataAccess = dataAccess;
     }
     
@@ -72,6 +79,7 @@ public class FileIntegrityChecker {
 
             if (!checkResult.isOK()) {
                 report.addSuspicious(dataFile, checkResult);
+                report.incrementFailCount(checkResult);
             } else if (checkResult == FileIntegrityCheckResult.OK_SKIPPED_CHECKSUM_VERIFICATION) {
                 report.incrementSkippedChecksumVerification();
             }
@@ -155,6 +163,19 @@ public class FileIntegrityChecker {
                           .append(report.getSuspicious().size())
                           .append(NEW_LINE)
                           .append(NEW_LINE)
+                          .append("** Number of files with \"").append(FileIntegrityCheckResult.DIFFERENT_CHECKSUM).append("\" discrepancy: ")
+                          .append(report.getFailCountFor(FileIntegrityCheckResult.DIFFERENT_CHECKSUM))
+                          .append(NEW_LINE)
+                          .append("** Number of files with \"").append(FileIntegrityCheckResult.NOT_EXIST).append("\" discrepancy: ")
+                          .append(report.getFailCountFor(FileIntegrityCheckResult.NOT_EXIST))
+                          .append(NEW_LINE)
+                          .append("** Number of files with \"").append(FileIntegrityCheckResult.STORAGE_ERROR).append("\" discrepancy: ")
+                          .append(report.getFailCountFor(FileIntegrityCheckResult.STORAGE_ERROR))
+                          .append(NEW_LINE)
+                          .append("** Number of files with \"").append(FileIntegrityCheckResult.DIFFERENT_SIZE).append("\" discrepancy: ")
+                          .append(report.getFailCountFor(FileIntegrityCheckResult.DIFFERENT_SIZE))
+                          .append(NEW_LINE)
+                          .append(NEW_LINE)
                           .append("List of files with failures:")
                           .append(NEW_LINE);
 
@@ -167,11 +188,18 @@ public class FileIntegrityChecker {
                                         .append(" (")
                                         .append(integrityFail.getCheckResult())
                                         .append(")")
+                                        .append(", file link: ")
+                                        .append(getFailedFileUrl(integrityFail))
                                         .append(NEW_LINE));
 
-        String messageSubject = "Dataverse files integrity check report";
+        String messageSubject = "[" + systemConfig.getSiteName(Locale.ENGLISH) + "] " +
+                systemConfig.getSiteFullName(Locale.ENGLISH) + " files integrity check report";
 
         return new EmailContent(messageSubject, messageBodyBuilder.toString(), "");
+    }
+
+    private String getFailedFileUrl(FileIntegrityFail fail) {
+        return systemConfig.getDataverseSiteUrl() + fail.getFailedFileUrl();
     }
 
 }
