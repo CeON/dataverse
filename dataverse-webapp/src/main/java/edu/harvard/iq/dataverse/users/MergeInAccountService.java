@@ -242,7 +242,7 @@ public class MergeInAccountService {
 
     private void removeApiToken(AuthenticatedUser consumedAU) {
         ApiToken toRemove = authenticationService.findApiTokenByUser(consumedAU);
-        if(null != toRemove) { //not all users have apiTokens
+        if(null != toRemove) {
             genericDao.remove(toRemove);
         }
     }
