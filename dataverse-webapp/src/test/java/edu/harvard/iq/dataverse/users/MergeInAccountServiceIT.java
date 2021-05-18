@@ -41,12 +41,13 @@ import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.testcontainers.shaded.com.google.common.collect.Lists;
 
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -87,14 +88,23 @@ public class MergeInAccountServiceIT extends WebappArquillianDeployment {
     @EJB private OAuthTokenDataDao oAuthTokenDataDao;
     @PersistenceContext(unitName = "VDCNet-ejbPU") private EntityManager entityManager;
 
-    @Before
-    public void setUp() {
-        dataverseSession.setUser(authenticationService.getAdminUser());
+    @Test
+    public void changeUserIdentifier_notSuperuser() {
+        // given
+        dataverseSession.setUser(authenticationService.getAuthenticatedUser("filedownloader"));
+
+        // when
+        Exception exception = Assertions.assertThrows(EJBException.class, () -> {
+            mergeInAccountService.mergeAccounts("toBeConsumedUser", "toBeMergedTo");
+        });
+        assertEquals("User is not authorized to call this method. Only superuser is allowed to do it.", exception.getCause().getMessage());
     }
 
     @Test
     public void mergeAccounts() {
         // given
+        dataverseSession.setUser(authenticationService.getAdminUser());
+
         createUserWithObjects("toBeConsumedUser", "test1@mail.com", "test1-api-token");
         createUserWithoutObjects("toBeMergedTo", "test2@mail.com", "test2-api-token");
         entityManager.flush();
@@ -104,7 +114,7 @@ public class MergeInAccountServiceIT extends WebappArquillianDeployment {
         assertNotNull(base.getId());
 
         // when
-        mergeInAccountService.mergeAccounts(authenticationService.getAdminUser(), "toBeConsumedUser", "toBeMergedTo");
+        mergeInAccountService.mergeAccounts("toBeConsumedUser", "toBeMergedTo");
         entityManager.flush();
 
         // then

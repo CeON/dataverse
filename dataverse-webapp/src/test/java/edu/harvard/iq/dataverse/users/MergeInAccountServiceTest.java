@@ -23,19 +23,6 @@ public class MergeInAccountServiceTest {
     private AuthenticationServiceBean authenticationService;
 
     @Test
-    public void mergeAccounts_notSuperuser() {
-        // given
-        AuthenticatedUser user = MocksFactory.makeAuthenticatedUser("Jurek","Kiler");
-        user.setSuperuser(false);
-
-        // when
-        Exception exception = Assertions.assertThrows(SecurityException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "consumedId", "baseId");
-        });
-        Assertions.assertEquals("Only superusers can merge accounts.", exception.getMessage());
-    }
-
-    @Test
     public void mergeAccounts_NoBaseIdProvided() {
         // given
         AuthenticatedUser user = MocksFactory.makeAuthenticatedUser("Jurek","Kiler");
@@ -43,13 +30,13 @@ public class MergeInAccountServiceTest {
 
         // when
         Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "consumedId", null);
+            mergeInAccountService.mergeAccounts("consumedId", null);
         });
         Assertions.assertEquals("Base identifier provided to change is empty.",
                 exception.getMessage());
 
         exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "consumedId", "");
+            mergeInAccountService.mergeAccounts("consumedId", "");
         });
         Assertions.assertEquals("Base identifier provided to change is empty.",
                 exception.getMessage());
@@ -63,13 +50,13 @@ public class MergeInAccountServiceTest {
 
         // when
         Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, null, "baseId");
+            mergeInAccountService.mergeAccounts(null, "baseId");
         });
         Assertions.assertEquals("Identifier to merge in is empty.",
                 exception.getMessage());
 
         exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "", "baseId");
+            mergeInAccountService.mergeAccounts("", "baseId");
         });
         Assertions.assertEquals("Identifier to merge in is empty.",
                 exception.getMessage());
@@ -83,7 +70,7 @@ public class MergeInAccountServiceTest {
 
         // when
         Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "testId", "testId");
+            mergeInAccountService.mergeAccounts("testId", "testId");
         });
         Assertions.assertEquals("You cannot merge account to itself.",
                 exception.getMessage());
@@ -98,7 +85,7 @@ public class MergeInAccountServiceTest {
 
         // when
         Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "consumedId", "baseId");
+            mergeInAccountService.mergeAccounts("consumedId", "baseId");
         });
         Assertions.assertEquals("User baseId not found in AuthenticatedUser",
                 exception.getMessage());
@@ -113,7 +100,7 @@ public class MergeInAccountServiceTest {
 
         // when
         Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            mergeInAccountService.mergeAccounts(user, "consumedId", "baseId");
+            mergeInAccountService.mergeAccounts("consumedId", "baseId");
         });
         Assertions.assertEquals("User consumedId not found in AuthenticatedUser",
                 exception.getMessage());

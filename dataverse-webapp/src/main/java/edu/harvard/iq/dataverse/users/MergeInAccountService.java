@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServi
 import edu.harvard.iq.dataverse.datafile.FileAccessRequestDao;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.interceptors.LoggedCall;
+import edu.harvard.iq.dataverse.interceptors.SuperuserRequired;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
@@ -24,7 +25,6 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserLookup;
 import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
 import edu.harvard.iq.dataverse.persistence.user.ConfirmEmailData;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
-import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationDao;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowComment;
@@ -60,12 +60,9 @@ public class MergeInAccountService {
     // -------------------- LOGIC --------------------
 
     @LoggedCall
-    public void mergeAccounts(User user, String consumedIdentifier, String baseIdentifier)
-        throws IllegalArgumentException, SecurityException {
-
-        if(!user.isSuperuser()) {
-            throw new SecurityException("Only superusers can merge accounts.");
-        }
+    @SuperuserRequired
+    public void mergeAccounts(String consumedIdentifier, String baseIdentifier)
+        throws IllegalArgumentException {
 
         if(null == baseIdentifier || baseIdentifier.isEmpty()) {
             throw new IllegalArgumentException("Base identifier provided to change is empty.");
