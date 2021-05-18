@@ -29,7 +29,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,6 +38,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -97,7 +98,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
         if (StringUtils.equals("imageThumb", di.getConversionParam())) {
             int thumbnailSize = NumberUtils.toInt(di.getConversionParamValue(), ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
             InputStreamIO thumbnailStorageIO = Optional
-                    .ofNullable(imageThumbConverter.getImageThumbnailAsInputStream(storageIO, thumbnailSize))
+                    .ofNullable(imageThumbConverter.getImageThumbnailAsInputStream(dataFile, thumbnailSize))
                     .orElseThrow(() -> new WebApplicationException(ApiErrorResponse.errorResponse(404, "Image thumbnail not found").asJaxRsResponse()));
 
             // and, since we now have tabular data files that can 
@@ -124,7 +125,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
 
             if ("original".equals(di.getConversionParamValue())) {
                 logger.debug("stored original of an ingested file requested");
-                storageIO = StoredOriginalFile.retreive(storageIO);
+                storageIO = StoredOriginalFile.retreive(storageIO, dataFile.getDataTable());
                 if (storageIO == null) {
                     throw new WebApplicationException(Response.Status.SERVICE_UNAVAILABLE);
                 }
@@ -176,13 +177,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                 TabularSubsetGenerator tabularSubsetGenerator = new TabularSubsetGenerator();
                 tabularSubsetGenerator.subsetFile(storageIO.getInputStream(), tempSubsetFile.getAbsolutePath(), variablePositionIndex, dataFile.getDataTable().getCaseQuantity(), "\t");
 
-                FileInputStream subsetStream = new FileInputStream(tempSubsetFile);
                 long subsetSize = tempSubsetFile.length();
-
-                InputStreamIO subsetStreamIO = new InputStreamIO(subsetStream, subsetSize);
-                logger.debug("successfully created subset output stream.");
-
-                subsetStreamIO.setVarHeader(subsetVariableHeader);
 
                 String tabularFileName = storageIO.getFileName();
 
@@ -194,8 +189,11 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                     tabularFileName = "subset.tab";
                 }
 
-                subsetStreamIO.setFileName(tabularFileName);
-                subsetStreamIO.setMimeType(storageIO.getMimeType());
+                InputStreamIO subsetStreamIO = new InputStreamIO(new FileInputStream(tempSubsetFile), subsetSize, tabularFileName, storageIO.getMimeType());
+                logger.debug("successfully created subset output stream.");
+
+                subsetStreamIO.setVarHeader(subsetVariableHeader);
+
                 storageIO = subsetStreamIO;
                 writeStorageIOToOutputStream(storageIO, outstream, httpHeaders);
                 writeGuestbookResponse(di);
@@ -314,9 +312,10 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
             String mimeType = storageIO.getMimeType();
 
             // Provide both the "Content-disposition" and "Content-Type" headers,
-            // to satisfy the widest selection of browsers out there. 
+            // to satisfy the widest selection of browsers out there.
 
-            httpHeaders.add("Content-disposition", "attachment; filename=\"" + fileName + "\"");
+            fileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
+            httpHeaders.add("Content-Disposition", "attachment; filename*=utf-8''"+ fileName + "; filename="+fileName);
             httpHeaders.add("Content-Type", mimeType + "; name=\"" + fileName + "\"");
 
             long contentSize = getContentSize(storageIO);
