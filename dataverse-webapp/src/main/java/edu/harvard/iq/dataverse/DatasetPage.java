@@ -3,14 +3,12 @@ package edu.harvard.iq.dataverse;
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.datafile.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetSummaryService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnailService;
 import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.dataset.difference.DatasetFileTermDifferenceItem;
-import edu.harvard.iq.dataverse.dataset.difference.LicenseDifferenceFinder;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
@@ -33,10 +31,11 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
-import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetCitationsCount;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetCitationsCountRepository;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetRelPublication;
@@ -104,10 +103,6 @@ public class DatasetPage implements java.io.Serializable {
     MapLayerMetadataServiceBean mapLayerMetadataService;
     @Inject
     SettingsServiceBean settingsService;
-    @EJB
-    GuestbookResponseServiceBean guestbookResponseService;
-    @EJB
-    FileDownloadServiceBean fileDownloadService;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
@@ -119,8 +114,6 @@ public class DatasetPage implements java.io.Serializable {
     @Inject
     private DatasetService datasetService;
     @Inject
-    private LicenseDifferenceFinder licenseDifferenceFinder;
-    @Inject
     private DatasetThumbnailService datasetThumbnailService;
     @Inject
     private DatasetSummaryService datasetSummaryService;
@@ -130,6 +123,8 @@ public class DatasetPage implements java.io.Serializable {
     private CitationFactory citationFactory;
     @Inject
     private DatasetPageFacade datasetPageFacade;
+    @Inject
+    private DatasetCitationsCountRepository datasetCitationsCountRepository;
 
     private Dataset dataset = new Dataset();
 
@@ -153,6 +148,7 @@ public class DatasetPage implements java.io.Serializable {
     private String returnToAuthorReason;
     private String contributorMessageToCurator;
     private Integer fileSize;
+    private int datasetCitationsCount;
 
     private List<DatasetFileTermDifferenceItem> fileTermDiffsWithLatestReleased;
 
@@ -383,6 +379,10 @@ public class DatasetPage implements java.io.Serializable {
         this.datasetNextMinorVersion = datasetNextMinorVersion;
     }
 
+    public int getDatasetCitationsCount() {
+        return datasetCitationsCount;
+    }
+
     /**
      * Create a hashmap consisting of { DataFile.id : MapLayerMetadata object}
      * <p>
@@ -508,6 +508,8 @@ public class DatasetPage implements java.io.Serializable {
             // init the citation
             displayCitation = citationFactory.create(workingVersion).toString(true);
             initCurrentEmbargo();
+            datasetCitationsCount = datasetCitationsCountRepository.findByDatasetId(dataset.getId())
+                    .map(DatasetCitationsCount::getCitationsCount).orElse(0);
 
 
             if (initFull) {
@@ -1017,24 +1019,6 @@ public class DatasetPage implements java.io.Serializable {
 
     public String getPrivateUrlLink(PrivateUrl privateUrl) {
         return privateUrl.getLink();
-    }
-
-
-    public FileDownloadServiceBean getFileDownloadService() {
-        return fileDownloadService;
-    }
-
-    public void setFileDownloadService(FileDownloadServiceBean fileDownloadService) {
-        this.fileDownloadService = fileDownloadService;
-    }
-
-
-    public GuestbookResponseServiceBean getGuestbookResponseService() {
-        return guestbookResponseService;
-    }
-
-    public void setGuestbookResponseService(GuestbookResponseServiceBean guestbookResponseService) {
-        this.guestbookResponseService = guestbookResponseService;
     }
 
 

@@ -38,7 +38,7 @@
                                     <span class="glyphicon glyphicon-stats"/> #{bundle['metrics.title']}
                                 </div>
                                 <div id="metrics-content" class="col-xs-8 small text-center">
-                                    <h:outputFormat styleClass="metrics-downloads" value="{0} #{bundle['metrics.downloads']}">
+                                    <h:outputFormat styleClass="metric metrics-downloads" value="{0} #{bundle['metrics.downloads']}">
                                         <f:param value="#{guestbookResponseService.getCountGuestbookResponsesByDataFileId(FilePage.fileId)}"/>
                                     </h:outputFormat>
                                 </div>
@@ -366,7 +366,7 @@
                                             </span>
                                             <p:link href="#{FilePage.fileMetadata.termsOfUse.license.url}" target="_blank"
                                                     rendered="#{FilePage.getLicenseIconContent(FilePage.fileMetadata).present}"
-                                                    title="#{bundle['file.license.link.title']} #{bundle.opensInNewWindow}"
+                                                    title="#{bundle['file.license.link.title']} #{bundle.opensInNewTab}"
                                                     >
                                                 <p:graphicImage value="#{FilePage.getLicenseIconContent(FilePage.fileMetadata).get()}" stream="false" width="81" height="31"
                                                         alt="#{FilePage.fileMetadata.termsOfUse.license.getLocalizedName(dataverseSession.locale)}"/>
