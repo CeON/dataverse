@@ -556,7 +556,7 @@
                                                 <h:outputText value="#{bundle['file.delete']}"/>
                                             </p:commandLink>
                                         </li>
-                                        <li jsf:rendered="#{isDatasetSection}">
+                                        <li class="#{lockedFromEdits? 'disabled' : ''}">
                                             <p:commandLink onclick="checkFilesForLicenseEdit();">
                                                 <h:outputText value="#{bundle['file.license']}"/>
                                             </p:commandLink>
