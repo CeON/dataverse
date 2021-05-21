@@ -2,24 +2,11 @@ package edu.harvard.iq.dataverse.timer;
 
 import java.io.Serializable;
 
+/**
+ * Timer info class for files integrity checking.
+ * It is used only to distinguish it between timers of
+ * other type.
+ */
 public class FilesIntegrityCheckTimerInfo implements Serializable {
-
-    String serverId;
-
-    public String getServerId() {
-        return serverId;
-    }
-
-    public void setServerId(String serverId) {
-        this.serverId = serverId;
-    }
-
-    public FilesIntegrityCheckTimerInfo() {
-
-    }
-
-    public FilesIntegrityCheckTimerInfo(String serverId) {
-        this.serverId = serverId;
-    }
 
 }

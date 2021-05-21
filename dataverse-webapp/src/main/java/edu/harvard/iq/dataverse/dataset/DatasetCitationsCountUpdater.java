@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -28,15 +27,28 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class DatasetCitationsCountUpdater {
     private static final Logger logger = LoggerFactory.getLogger(DatasetCitationsCountUpdater.class);
-    
-    @EJB
+
     private DatasetRepository datasetRepository;
-    @EJB
+
     private DatasetCitationsCountRepository datasetCitationsCountRepository;
-    @Inject
+
     private DataCiteRestApiClient dataCiteRestApiClient;
-    
-    
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public DatasetCitationsCountUpdater() {
+        // CDI requirement
+    }
+
+    @Inject
+    public DatasetCitationsCountUpdater(DatasetRepository datasetRepository,
+            DatasetCitationsCountRepository datasetCitationsCountRepository,
+            DataCiteRestApiClient dataCiteRestApiClient) {
+        this.datasetRepository = datasetRepository;
+        this.datasetCitationsCountRepository = datasetCitationsCountRepository;
+        this.dataCiteRestApiClient = dataCiteRestApiClient;
+    }
+
     // -------------------- LOGIC --------------------
 
     /**

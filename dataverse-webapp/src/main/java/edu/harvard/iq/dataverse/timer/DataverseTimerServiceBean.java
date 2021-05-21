@@ -283,7 +283,7 @@ public class DataverseTimerServiceBean implements Serializable {
                 initExpirationDate.setTime(initExpiration.getTimeInMillis() + intervalDuration);
             }
             logger.log(Level.INFO, "Setting timer for harvesting client " + harvestingClient.getName() + ", initial expiration: " + initExpirationDate);
-            createTimer(initExpirationDate, intervalDuration, new HarvestTimerInfo(harvestingClient.getId(), harvestingClient.getName(), harvestingClient.getSchedulePeriod(), harvestingClient.getScheduleHourOfDay(), harvestingClient.getScheduleDayOfWeek()));
+            createTimer(initExpirationDate, intervalDuration, new HarvestTimerInfo(harvestingClient.getId()));
         }
     }
 

@@ -15,11 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.ejb.EJB;
-import javax.inject.Inject;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -27,8 +23,6 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -37,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class DatasetCitationsCountUpdaterTest {
 
     @InjectMocks
-    private DatasetCitationsCountUpdater citationsCountUpdater = new DatasetCitationsCountUpdater();
+    private DatasetCitationsCountUpdater citationsCountUpdater;
 
     @Mock
     private DatasetRepository datasetRepository;
