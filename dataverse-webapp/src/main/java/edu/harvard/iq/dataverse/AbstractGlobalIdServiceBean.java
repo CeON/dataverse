@@ -13,7 +13,6 @@ import org.jsoup.select.Elements;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,6 +79,19 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         metadata.put("datacite.title", dvObjectIn.getDisplayName());
         metadata.put("datacite.publisher", producerString);
         metadata.put("datacite.publicationyear", generateYear(dvObjectIn));
+        return metadata;
+    }
+
+    protected Map<String, String> getDOIMetadataForDestroyedDataset() {
+        Map<String, String> metadata = new HashMap<>();
+        String authorString = ":unav";
+        String producerString = ":unav";
+        String titleString = "This item has been removed from publication";
+
+        metadata.put("datacite.creator", authorString);
+        metadata.put("datacite.title", titleString);
+        metadata.put("datacite.publisher", producerString);
+        metadata.put("datacite.publicationyear", "9999");
         return metadata;
     }
 

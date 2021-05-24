@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import edu.harvard.iq.dataverse.GlobalIdServiceBean;
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
@@ -62,6 +64,14 @@ public class PublishDatasetCommand extends AbstractPublishDatasetCommand<Publish
         //              When importing a released dataset, the latest version is marked as RELEASED.
 
         Dataset theDataset = getDataset();
+
+        String protocol = getDataset().getProtocol();
+        GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(protocol, ctxt);
+        boolean reservingPidsSupported = !idServiceBean.registerWhenPublished();
+        if (reservingPidsSupported && theDataset.getGlobalIdCreateTime() == null) {
+                throw new IllegalCommandException(BundleUtil.getStringFromBundle("Cannot publish dataset because its" +
+                                                                                         " persistent identifier has not been reserved."), this);
+        }
 
         // Set the version numbers:
 
