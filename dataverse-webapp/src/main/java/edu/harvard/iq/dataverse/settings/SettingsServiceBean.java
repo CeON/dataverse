@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toMap;
 public class SettingsServiceBean {
 
     private static final String KEY_AND_POSTFIX_SEPARATOR = ".";
-    
+
     /**
      * Some convenient keys for the settings. Note that the setting's
      * name is really a {@code String}, but it's good to have the compiler look
@@ -480,7 +480,7 @@ public class SettingsServiceBean {
          * with the protocol, port number etc.
          */
         SiteUrl,
-        
+
         /**
          * Text with privacy policy content.
          * Setting can be postfixed with language code to
@@ -541,14 +541,14 @@ public class SettingsServiceBean {
          * By default is set to 'false', so link won't be shown.
          */
         ShowAccessibilityStatementFooterLink,
-        
+
         /**
          * Name of the site that will be presented in the header.
          * Setting can be postfixed with language code to
          * obtain translated versions.
          */
         SiteName,
-        
+
         /**
          * Full name of the site that will be presented in the header
          * below {@link Key#SiteName}.
@@ -556,7 +556,7 @@ public class SettingsServiceBean {
          * obtain translated versions.
          */
         SiteFullName,
-        
+
         /**
          * Indicates if antivirus scanner is enabled
          */
@@ -574,7 +574,23 @@ public class SettingsServiceBean {
         AntivirusScannerSocketTimeout,
 
         FilesIntegrityCheckTimerExpression,
-        
+
+        /**
+         * Command or path for external utility for RAR5 size checking
+         */
+        RarDataUtilCommand,
+        /**
+         * Additional options for rar utility
+         */
+        RarDataUtilOpts,
+        /**
+         * Character starting the line before the result (total size). The
+         * line must be the last in the output that starts with the chosen
+         * character. The next line has to start with result (with optional
+         * spaces before).
+         */
+        RarDataLineBeforeResultDelimiter,
+
         /**
          * Cron expression that indicates how often
          * updating of citation counts should take place.
@@ -659,7 +675,7 @@ public class SettingsServiceBean {
      * getValueForKeyWithPostfix(Key.ApplicationTermsOfUse, "de")
      * getValueForKeyWithPostfix(Key.ApplicationTermsOfUse, "fr")
      * </code>
-     * 
+     *
      * @param key
      * @param postfix
      * @return setting value or empty string if setting not present

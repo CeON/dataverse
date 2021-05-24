@@ -33,6 +33,7 @@ import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseIcon;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetCitationsCount;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetCitationsCountRepository;
@@ -54,6 +55,8 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -64,6 +67,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -1214,6 +1218,24 @@ public class DatasetPage implements java.io.Serializable {
         isDsvMinorUpdate = Optional.of(isDsvMinorUpdate.orElseGet(() -> datasetPageFacade.isMinorUpdate(dataset.getLatestVersion().getId())));
 
         return isDsvMinorUpdate.get();
+    }
+
+    public boolean isLicenseIconAvailable(FileTermsOfUse termsOfUse) {
+        if (termsOfUse.getTermsOfUseType() != FileTermsOfUse.TermsOfUseType.LICENSE_BASED) {
+            return false;
+        }
+        return termsOfUse.getLicense().getIcon() != null;
+    }
+
+    public Optional<StreamedContent> getLicenseIconContent(FileTermsOfUse termsOfUse) {
+        if (!isLicenseIconAvailable(termsOfUse)) {
+            return Optional.empty();
+        }
+        LicenseIcon licenseIcon = termsOfUse.getLicense().getIcon();
+        return Optional.of(DefaultStreamedContent.builder()
+                .contentType(licenseIcon.getContentType())
+                .stream(() -> new ByteArrayInputStream(licenseIcon.getContent()))
+                .build());
     }
 
     // -------------------- PRIVATE ---------------------
