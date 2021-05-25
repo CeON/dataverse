@@ -131,8 +131,8 @@ public class BundleUtil {
         }
     }
 
-    // NB this method is nearly exact copy of getStringFromInternalBundle(…), however
-    // any trial to extract common code from these two and pass differing parts as lambdas
+    // IMPORTANT: this method is nearly exact copy of getStringFromInternalBundle(…), however
+    // any attempt in extracting common code from these two and pass differing parts as lambdas
     // would cause great decrease in performance of WHOLE dataverse app.
     private static String getStringFromExternalBundle(String bundleKey, String bundleName, Locale locale) {
         String key = bundleName + "_" + locale.getLanguage();
