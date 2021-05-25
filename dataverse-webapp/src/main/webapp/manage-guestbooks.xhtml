@@ -112,44 +112,46 @@
                                         </h:outputFormat>
                                     </em>
                                 </div>
-                                <div class="btn-group" role="group">
+                                <div class="button-block">
                                     <p:commandLink type="button" styleClass="btn btn-default btn-access"
-                                                   rendered="#{!guestbook.enabled}"
+                                                   rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and !guestbook.enabled}"
                                                    actionListener="#{manageGuestbooksPage.enableGuestbook(guestbook)}"
                                                    update="@widgetVar(allGuestbooks)">
                                         #{bundle['dataset.manageGuestbooks.tab.action.btn.enable']}
                                     </p:commandLink>
                                     <p:commandLink type="button" styleClass="btn btn-default btn-access"
-                                                   rendered="#{guestbook.enabled}"
+                                                   rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and guestbook.enabled}"
                                                    actionListener="#{manageGuestbooksPage.disableGuestbook(guestbook)}"
                                                    update="@widgetVar(allGuestbooks)">
                                         #{bundle['dataset.manageGuestbooks.tab.action.btn.disable']}
                                     </p:commandLink>
-                                    <p:commandLink type="button" styleClass="btn btn-default btn-access bootstrap-button-tooltip"
-                                                   action="#{manageGuestbooksPage.viewSelectedGuestbook(guestbook)}"
-                                                   oncomplete="PF('viewGuestbook').show();"
-                                                   update=":manageGuestbooksForm"
-                                                   title="#{bundle['dataset.manageGuestbooks.tab.action.btn.view']}">
-                                        <span class="glyphicon glyphicon-eye-open no-text"></span>
-                                    </p:commandLink>
-                                    <h:outputLink type="button" styleClass="ui-widget btn btn-default btn-access bootstrap-button-tooltip"
-                                                  value="/guestbook.xhtml?ownerId=#{manageGuestbooksPage.dataverse.id}&#38;sourceId=#{guestbook.id}"
-                                                  title="#{bundle['dataset.manageGuestbooks.tab.action.btn.copy']}">
-                                        <span class="glyphicon glyphicon-duplicate no-text"></span>
-                                    </h:outputLink>
-                                    <h:outputLink type="button" styleClass="ui-widget btn btn-default btn-access bootstrap-button-tooltip"
-                                                  rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id}"
-                                                  value="/guestbook.xhtml?id=#{guestbook.id}&#38;ownerId=#{manageGuestbooksPage.dataverse.id}"
-                                                  title="#{bundle['dataset.manageGuestbooks.tab.action.btn.edit']}">
-                                        <span class="glyphicon glyphicon-pencil no-text"></span>
-                                    </h:outputLink>
-                                    <p:commandLink type="button" styleClass="btn btn-default btn-access bootstrap-button-tooltip"
-                                                   action="#{manageGuestbooksPage.setSelectedGuestbook(guestbook)}"
-                                                   rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and guestbook.deletable}"
-                                                   oncomplete="PF('deleteConfirmation').show();"
-                                                   title="#{bundle['dataset.manageGuestbooks.tab.action.btn.delete']}">
-                                        <span class="glyphicon glyphicon-trash no-text"></span>
-                                    </p:commandLink>
+                                    <div class="btn-group" role="group">
+                                        <p:commandLink type="button" styleClass="btn btn-default btn-access bootstrap-button-tooltip"
+                                                       action="#{manageGuestbooksPage.viewSelectedGuestbook(guestbook)}"
+                                                       oncomplete="PF('viewGuestbook').show();"
+                                                       update=":manageGuestbooksForm"
+                                                       title="#{bundle['dataset.manageGuestbooks.tab.action.btn.view']}">
+                                            <span class="glyphicon glyphicon-eye-open no-text"></span>
+                                        </p:commandLink>
+                                        <h:outputLink type="button" styleClass="ui-widget btn btn-default btn-access bootstrap-button-tooltip"
+                                                      value="/guestbook.xhtml?ownerId=#{manageGuestbooksPage.dataverse.id}&#38;sourceId=#{guestbook.id}"
+                                                      title="#{bundle['dataset.manageGuestbooks.tab.action.btn.copy']}">
+                                            <span class="glyphicon glyphicon-duplicate no-text"></span>
+                                        </h:outputLink>
+                                        <h:outputLink type="button" styleClass="ui-widget btn btn-default btn-access bootstrap-button-tooltip"
+                                                      rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id}"
+                                                      value="/guestbook.xhtml?id=#{guestbook.id}&#38;ownerId=#{manageGuestbooksPage.dataverse.id}"
+                                                      title="#{bundle['dataset.manageGuestbooks.tab.action.btn.edit']}">
+                                            <span class="glyphicon glyphicon-pencil no-text"></span>
+                                        </h:outputLink>
+                                        <p:commandLink type="button" styleClass="btn btn-default btn-access bootstrap-button-tooltip"
+                                                       action="#{manageGuestbooksPage.setSelectedGuestbook(guestbook)}"
+                                                       rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and guestbook.deletable}"
+                                                       oncomplete="PF('deleteConfirmation').show();"
+                                                       title="#{bundle['dataset.manageGuestbooks.tab.action.btn.delete']}">
+                                            <span class="glyphicon glyphicon-trash no-text"></span>
+                                        </p:commandLink>
+                                    </div>
                                     <h:outputLink styleClass="ui-widget btn btn-default btn-access" value="/guestbook-responses.xhtml?dataverseId=#{manageGuestbooksPage.dataverse.id}&#38;guestbookId=#{guestbook.id}">
                                         <span>#{bundle['dataset.manageGuestbooks.tab.action.btn.viewCollectedData']}</span>
                                     </h:outputLink>

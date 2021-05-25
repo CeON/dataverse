@@ -110,7 +110,6 @@ public class ManageGuestbooksPage implements java.io.Serializable {
             displayDownloadAll = true;
         }
 
-        dataverse = dvService.find(dataverseId);
         loadGuestbooks();
 
         return null;
