@@ -46,11 +46,14 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
                 .map(GlobalId::toURL)
                 .map(URL::toString)
                 .orElse(StringUtils.EMPTY);
-        citation.urlValue(pid, pid).endPart()
-                .value(data.getPublisher()).endPart()
-                .rawValue(data.getVersion()).endPartEmpty();
+
         if (!data.isDirect()) {
+            citation.urlValue(pid, pid).endPartEmpty();
             citation.add("; ").value(data.getFileTitle()).endPart(" [fileName]");
+        } else {
+            citation.urlValue(pid, pid).endPart()
+                    .value(data.getPublisher()).endPart()
+                    .rawValue(data.getVersion()).endPartEmpty();
         }
         citation.add(", ").rawValue(data.getUNF()).endPart(" [fileUNF]");
         return citation.toString();
