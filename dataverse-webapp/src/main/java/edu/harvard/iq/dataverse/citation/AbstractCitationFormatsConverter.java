@@ -157,9 +157,12 @@ public abstract class AbstractCitationFormatsConverter implements CitationFormat
         }
 
         public RISCitationBuilder line(String label, String value) {
-            sb.append(label)
-                    .append("  - ");
-            return line(value);
+            if(value != null && !value.equals("null")) {
+                sb.append(label)
+                        .append("  - ");
+                return line(value);
+            }
+            return this;
         }
 
         public RISCitationBuilder lines(String label, Collection<String> values) {
@@ -200,9 +203,11 @@ public abstract class AbstractCitationFormatsConverter implements CitationFormat
         }
 
         public EndNoteCitationBuilder addTagWithValue(String tag, String value) throws XMLStreamException {
-            writer.writeStartElement(tag);
-            writer.writeCharacters(value);
-            writer.writeEndElement();
+            if (value != null && !value.equals("null")) {
+                writer.writeStartElement(tag);
+                writer.writeCharacters(value);
+                writer.writeEndElement();
+            }
             return this;
         }
 

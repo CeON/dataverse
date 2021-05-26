@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -55,6 +56,16 @@ class CitationTestUtils {
         dataset.setPublicationDate(new Timestamp(publicationDate.getTime()));
 
         return datasetVersion;
+    }
+
+    public DatasetVersion createHarvestedTestDatasetVersion(String withTitle, boolean withAuthor) {
+        try {
+            DatasetVersion datasetVersion = createATestDatasetVersion(withTitle, withAuthor);
+            datasetVersion.getDataset().setHarvestedFrom(new HarvestingClient());
+            return datasetVersion;
+        } catch (ParseException pe) {
+            return null;
+        }
     }
 
     // -------------------- PRIVATE --------------------

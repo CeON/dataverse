@@ -46,14 +46,23 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
                 .map(GlobalId::toURL)
                 .map(URL::toString)
                 .orElse(StringUtils.EMPTY);
+        citation.urlValue(pid, pid);
+
+        if(data.getPublisher() == null && data.getVersion() == null) {
+            citation.endPartEmpty();
+        } else {
+            citation.endPart();
+        }
+
+        if(data.getPublisher() != null) {
+            citation.value(data.getPublisher()).endPart();
+        }
+        if(data.getVersion() != null) {
+            citation.rawValue(data.getVersion()).endPartEmpty();
+        }
 
         if (!data.isDirect()) {
-            citation.urlValue(pid, pid).endPartEmpty();
             citation.add("; ").value(data.getFileTitle()).endPart(" [fileName]");
-        } else {
-            citation.urlValue(pid, pid).endPart()
-                    .value(data.getPublisher()).endPart()
-                    .rawValue(data.getVersion()).endPartEmpty();
         }
         citation.add(", ").rawValue(data.getUNF()).endPart(" [fileUNF]");
         return citation.toString();
@@ -65,8 +74,12 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
         BibTeXCitationBuilder bibtex = new BibTeXCitationBuilder()
                 .add(data.getFileTitle() != null && data.isDirect() ? "@incollection{" : "@data{")
                 .add(pid.getIdentifier() + "_" + data.getYear() + ",\r\n")
-                .line("author", String.join(" and ", data.getAuthors()))
-                .line("publisher", data.getPublisher());
+                .line("author", String.join(" and ", data.getAuthors()));
+
+        if(data.getPublisher() != null) {
+            bibtex.line("publisher", data.getPublisher());
+        }
+
         if (data.getFileTitle() != null && data.isDirect()) {
             bibtex.line("title", data.getFileTitle())
                     .line("booktitle", data.getTitle());
@@ -80,9 +93,13 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
         if (data.getUNF() != null) {
             bibtex.line("UNF", data.getUNF());
         }
-        bibtex.line("year", data.getYear())
-                .line("version", data.getVersion())
-                .line("doi", pid.getAuthority() + "/" + pid.getIdentifier())
+        bibtex.line("year", data.getYear());
+
+        if(data.getVersion() != null) {
+            bibtex.line("version", data.getVersion());
+        }
+
+        bibtex.line("doi", pid.getAuthority() + "/" + pid.getIdentifier())
                 .line("url", pid.toURL().toString(), s -> bibtex.mapValue(s, "{", "}"))
                 .add("}\r\n");
         return bibtex.toString();
@@ -90,9 +107,13 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
 
     @Override
     public String toRISString(CitationData data, Locale locale) {
-        RISCitationBuilder ris = new RISCitationBuilder()
-                .line("Provider: " + data.getPublisher())
-                .line("Content: text/plain; charset=\"utf-8\"");
+        RISCitationBuilder ris = new RISCitationBuilder();
+
+        if(data.getPublisher() != null) {
+            ris.line("Provider: " + data.getPublisher());
+        }
+
+        ris.line("Content: text/plain; charset=\"utf-8\"");
         // Using type DATA: see https://github.com/IQSS/dataverse/issues/4816
         if ((data.getFileTitle() != null) && data.isDirect()) {
             ris.line("TY  - DATA")
@@ -199,23 +220,26 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
         if (data.getSeriesTitle() != null) {
             xml.addTagWithValue("tertiary-title", data.getSeriesTitle());
         }
-        xml.endTag() // titles
-                .addTagWithValue("section", new SimpleDateFormat("yyyy-MM-dd").format(data.getDate()))
-                .startTag("dates")
-                .addTagWithValue("year", data.getYear())
-                .addTagCollection("pub-dates", "date", data.getDatesOfCollection())
-                .endTag() // dates
-                .addTagWithValue("edition", data.getVersion())
-                .addTagCollection("keywords", "keyword", data.getKeywords())
-                .addTagCollection(StringUtils.EMPTY, "custom3", data.getKindsOfData())
-                .addTagCollection(StringUtils.EMPTY, "language", data.getLanguages())
-                .addTagWithValue("publisher", data.getPublisher())
-                .addTagCollection(StringUtils.EMPTY, "reviewed-item", data.getSpatialCoverages())
-                .startTag("urls")
-                .startTag("related-urls")
-                .addTagWithValue("url", data.getPersistentId().toURL().toString())
-                .endTag() // related-urls
-                .endTag(); // urls
+        xml.endTag(); // titles
+
+        if(data.getDate() != null) {
+            xml.addTagWithValue("section", new SimpleDateFormat("yyyy-MM-dd").format(data.getDate()));
+        }
+        xml.startTag("dates")
+            .addTagWithValue("year", data.getYear())
+            .addTagCollection("pub-dates", "date", data.getDatesOfCollection())
+            .endTag() // dates
+            .addTagWithValue("edition", data.getVersion())
+            .addTagCollection("keywords", "keyword", data.getKeywords())
+            .addTagCollection(StringUtils.EMPTY, "custom3", data.getKindsOfData())
+            .addTagCollection(StringUtils.EMPTY, "language", data.getLanguages())
+            .addTagWithValue("publisher", data.getPublisher())
+            .addTagCollection(StringUtils.EMPTY, "reviewed-item", data.getSpatialCoverages())
+            .startTag("urls")
+            .startTag("related-urls")
+            .addTagWithValue("url", data.getPersistentId().toURL().toString())
+            .endTag() // related-urls
+            .endTag(); // urls
 
         // a DataFile citation also includes the filename and (for Tabular files)
         // the UNF signature, that we put into the custom1 and custom2 fields respectively:
