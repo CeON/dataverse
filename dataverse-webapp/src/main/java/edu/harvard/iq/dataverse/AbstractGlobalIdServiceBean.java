@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean {
 
     private static final Logger logger = Logger.getLogger(AbstractGlobalIdServiceBean.class.getCanonicalName());
+    private static final String UNAVAILABLE = ":unav";
 
     @EJB
     DataverseDao dataverseDao;
@@ -66,13 +67,13 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         String authorString = dvObjectIn.getAuthorString();
 
         if (authorString.isEmpty()) {
-            authorString = ":unav";
+            authorString = UNAVAILABLE;
         }
 
         String producerString = dataverseDao.findRootDataverse().getName();
 
         if (producerString.isEmpty()) {
-            producerString = ":unav";
+            producerString = UNAVAILABLE;
         }
 
         metadata.put("datacite.creator", authorString);
@@ -84,13 +85,11 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
 
     protected Map<String, String> getDOIMetadataForDestroyedDataset() {
         Map<String, String> metadata = new HashMap<>();
-        String authorString = ":unav";
-        String producerString = ":unav";
         String titleString = "This item has been removed from publication";
 
-        metadata.put("datacite.creator", authorString);
+        metadata.put("datacite.creator", UNAVAILABLE);
         metadata.put("datacite.title", titleString);
-        metadata.put("datacite.publisher", producerString);
+        metadata.put("datacite.publisher", UNAVAILABLE);
         metadata.put("datacite.publicationyear", "9999");
         return metadata;
     }
@@ -441,7 +440,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         metadataTemplate.setTitle(dvObject.getDisplayName());
         String producerString = dataverseDao.findRootDataverse().getName();
         if (producerString.isEmpty()) {
-            producerString = ":unav";
+            producerString = UNAVAILABLE;
         }
         metadataTemplate.setPublisher(producerString);
         metadataTemplate.setPublisherYear(metadata.get("datacite.publicationyear"));

@@ -34,7 +34,7 @@ class DOIDataCiteRegisterServiceTest {
     private TypedQuery typedQuery;
 
     @Mock
-    private DataCiteRESTfullClient dataCiteRESTfullClient;
+    private DataCiteRESTfulClient dataCiteRESTfulClient;
 
     @InjectMocks
     private DOIDataCiteRegisterService doiDataCiteRegisterService;
@@ -89,7 +89,7 @@ class DOIDataCiteRegisterServiceTest {
         Mockito.when(((typedQuery).getResultList()))
                .thenReturn(Lists.newArrayList());
 
-        Mockito.when(dataCiteRESTfullClient.postMetadata(Mockito.any())).thenReturn(
+        Mockito.when(dataCiteRESTfulClient.postMetadata(Mockito.any())).thenReturn(
                 DOIDataCiteRegisterService.getMetadataFromDvObject(identifier, new HashMap<>(), dataset));
 
         String uploadedXml = doiDataCiteRegisterService.reserveIdentifier(identifier, new HashMap<>(), dataset);

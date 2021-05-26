@@ -27,20 +27,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DataCiteRESTfullClient
+ * DataCiteRESTfulClient
  *
  * @author luopc
  */
-public class DataCiteRESTfullClient implements Closeable {
+public class DataCiteRESTfulClient implements Closeable {
 
-    private static final Logger logger = Logger.getLogger(DataCiteRESTfullClient.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(DataCiteRESTfulClient.class.getCanonicalName());
 
     private String url;
     private CloseableHttpClient httpClient;
     private HttpClientContext context;
     private String encoding = "utf-8";
 
-    public DataCiteRESTfullClient(String url, String username, String password) throws IOException {
+    public DataCiteRESTfulClient(String url, String username, String password) throws IOException {
         this.url = url;
         try {
             context = HttpClientContext.create();
@@ -224,14 +224,13 @@ public class DataCiteRESTfullClient implements Closeable {
             }
             return data;
         } catch (IOException ioe) {
-            logger.log(Level.SEVERE, "IOException when inactive dataset");
             throw new RuntimeException("IOException when inactive dataset", ioe);
         }
     }
 
     public static void main(String[] args) throws Exception {
         String doi = "10.5072/DVN/274533";
-        DataCiteRESTfullClient client = new DataCiteRESTfullClient("https://mds.test.datacite.org", "DATACITE.HARVARD", "DVNapitest");
+        DataCiteRESTfulClient client = new DataCiteRESTfulClient("https://mds.test.datacite.org", "DATACITE.HARVARD", "DVNapitest");
 
 //		System.out.println(client.getUrl(doi));
 //		System.out.println(client.getMetadata(doi));

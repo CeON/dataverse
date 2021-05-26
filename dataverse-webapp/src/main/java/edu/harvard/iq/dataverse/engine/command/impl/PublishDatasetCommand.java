@@ -67,8 +67,7 @@ public class PublishDatasetCommand extends AbstractPublishDatasetCommand<Publish
 
         String protocol = getDataset().getProtocol();
         GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(protocol, ctxt);
-        boolean reservingPidsSupported = !idServiceBean.registerWhenPublished();
-        if (reservingPidsSupported && theDataset.getGlobalIdCreateTime() == null) {
+        if (isReservingPidEnabled(idServiceBean) && theDataset.getGlobalIdCreateTime() == null) {
                 throw new IllegalCommandException(BundleUtil.getStringFromBundle("Cannot publish dataset because its" +
                                                                                          " persistent identifier has not been reserved."), this);
         }
@@ -148,6 +147,13 @@ public class PublishDatasetCommand extends AbstractPublishDatasetCommand<Publish
                 return new PublishDatasetResult(theDataset, true);
             }
         }
+    }
+
+    /**
+     * Indicates whether there should be an attempt to reserve pid through DOI api, otherwise it is created locally only.
+     */
+    private boolean isReservingPidEnabled(GlobalIdServiceBean idServiceBean) {
+        return !idServiceBean.registerWhenPublished();
     }
 
     /**

@@ -52,20 +52,20 @@ public class DOIDataCiteRegisterService {
 
 
     //A singleton since it, and the httpClient in it can be reused.
-    private DataCiteRESTfullClient client = null;
+    private DataCiteRESTfulClient client = null;
 
-    private DataCiteRESTfullClient getClient() throws IOException {
+    private DataCiteRESTfulClient getClient() throws IOException {
         if (client == null) {
-            client = new DataCiteRESTfullClient(settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString),
-                                                settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername),
-                                                settingsService.getValueForKey(SettingsServiceBean.Key.DoiPassword));
+            client = new DataCiteRESTfulClient(settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString),
+                                               settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername),
+                                               settingsService.getValueForKey(SettingsServiceBean.Key.DoiPassword));
         }
         return client;
     }
 
     /**
      * This "reserveIdentifier" method is heavily based on the
-     * "registerIdentifier" method below but doesn't, this one doesn't doesn't
+     * "registerIdentifier" method below, but this one doesn't
      * register a URL, which causes the "state" of DOI to transition from
      * "draft" to "findable". Here are some DataCite docs on the matter:
      * <p>
@@ -178,8 +178,6 @@ public class DOIDataCiteRegisterService {
 
         String title = metadata.get("datacite.title");
 
-        System.out.print("Map metadata title: " + metadata.get("datacite.title"));
-
         metadataTemplate.setAuthors(new ArrayList<>());
         metadataTemplate.setContacts(new ArrayList<>());
         metadataTemplate.setProducers(new ArrayList<>());
@@ -232,7 +230,7 @@ public class DOIDataCiteRegisterService {
                     rc.setUrl(target);
                 }
                 try {
-                    DataCiteRESTfullClient client = getClient();
+                    DataCiteRESTfulClient client = getClient();
                     retString = client.postMetadata(xmlMetadata);
                     client.postUrl(identifier.substring(identifier.indexOf(":") + 1), target);
 
@@ -248,7 +246,7 @@ public class DOIDataCiteRegisterService {
         } else if (status.equals("unavailable")) {
             DOIDataCiteRegisterCache rc = findByDOI(identifier);
             try {
-                DataCiteRESTfullClient client = getClient();
+                DataCiteRESTfulClient client = getClient();
                 if (rc != null) {
                     rc.setStatus("unavailable");
                     retString = client.inactiveDataset(identifier.substring(identifier.indexOf(":") + 1));
@@ -263,7 +261,7 @@ public class DOIDataCiteRegisterService {
     public boolean testDOIExists(String identifier) {
         boolean doiExists;
         try {
-            DataCiteRESTfullClient client = getClient();
+            DataCiteRESTfulClient client = getClient();
             doiExists = client.testDOIExists(identifier.substring(identifier.indexOf(":") + 1));
         } catch (Exception e) {
             logger.log(Level.INFO, identifier, e);
@@ -275,7 +273,7 @@ public class DOIDataCiteRegisterService {
     public HashMap<String, String> getMetadata(String identifier) throws IOException {
         HashMap<String, String> metadata = new HashMap<>();
         try {
-            DataCiteRESTfullClient client = getClient();
+            DataCiteRESTfulClient client = getClient();
             String xmlMetadata = client.getMetadata(identifier.substring(identifier.indexOf(":") + 1));
             DOIDataCiteServiceBean.GlobalIdMetadataTemplate template = doiDataCiteServiceBean.new GlobalIdMetadataTemplate(xmlMetadata);
             metadata.put("datacite.creator", Util.getStrFromList(template.getCreators()));
@@ -314,7 +312,7 @@ public class DOIDataCiteRegisterService {
 
     private String reserveDOI(String xmlMetadata) throws IOException {
         try {
-            DataCiteRESTfullClient client = getClient();
+            DataCiteRESTfulClient client = getClient();
             return client.postMetadata(xmlMetadata);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(DOIDataCiteRegisterService.class.getName()).log(Level.SEVERE, null, ex);
@@ -324,7 +322,7 @@ public class DOIDataCiteRegisterService {
 
     private String registerDOI(String identifier, String retString, String target, String metadata) throws IOException {
         try {
-            DataCiteRESTfullClient client = getClient();
+            DataCiteRESTfulClient client = getClient();
             client.postMetadata(metadata);
             client.postUrl(identifier.substring(identifier.indexOf(":") + 1), target);
         } catch (UnsupportedEncodingException ex) {
