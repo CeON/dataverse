@@ -186,15 +186,10 @@ public class CitationDataExtractor {
     }
 
     private String extractPublisher(DatasetVersion dsv) {
-        return !dsv.getDataset().isHarvested()
-                ? dsv.getRootDataverseNameforCitation()
-                : dsv.getDistributorName();
+        return dsv.getRootDataverseNameforCitation();
     }
 
     private String extractVersion(DatasetVersion dsv) {
-        if (dsv.getDataset().isHarvested()) {
-            return StringUtils.EMPTY;
-        }
         String version = StringUtils.EMPTY;
         if (dsv.isDraft()) {
             version = BundleUtil.getStringFromBundle("draftversion");

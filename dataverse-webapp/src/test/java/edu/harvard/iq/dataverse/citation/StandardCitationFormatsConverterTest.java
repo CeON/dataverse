@@ -251,7 +251,7 @@ class StandardCitationFormatsConverterTest {
                         "SE  - 1955-11-05 00:00:00.0\r\n" +
                         "UR  - https://doi.org/10.5072/FK2/LK0D1H\r\n" +
                         "PB  - LibraScholar\r\n" +
-                        "ER  - \r\n");
+                        "ER  - ");
     }
 
     @Test
@@ -273,7 +273,7 @@ class StandardCitationFormatsConverterTest {
                 "DO  - doi:10.5072/FK2/LK0D1H\r\n" +
                 "PY  - " + Year.now()+ "\r\n" +
                 "UR  - https://doi.org/10.5072/FK2/LK0D1H\r\n" +
-                "ER  - \r\n");
+                "ER  - ");
     }
 
     @Test
@@ -291,14 +291,13 @@ class StandardCitationFormatsConverterTest {
         assertThat(ris).isEqualTo("Provider: LibraScholar\r\n" +
                         "Content: text/plain; charset=\"utf-8\"\r\n" +
                         "TY  - DATA\r\n" +
-                        "T1  - \r\n" +
                         "DO  - doi:10.5072/FK2/LK0D1H\r\n" +
                         "ET  - V1\r\n" +
                         "PY  - 1955\r\n" +
                         "SE  - 1955-11-05 00:00:00.0\r\n" +
                         "UR  - https://doi.org/10.5072/FK2/LK0D1H\r\n" +
                         "PB  - LibraScholar\r\n" +
-                        "ER  - \r\n");
+                        "ER  - ");
     }
 
     @Test
@@ -315,11 +314,10 @@ class StandardCitationFormatsConverterTest {
         // then
         assertThat(ris).isEqualTo("Content: text/plain; charset=\"utf-8\"\r\n" +
                 "TY  - DATA\r\n" +
-                "T1  - \r\n" +
                 "DO  - doi:10.5072/FK2/LK0D1H\r\n" +
                 "PY  - " + Year.now() + "\r\n" +
                 "UR  - https://doi.org/10.5072/FK2/LK0D1H\r\n" +
-                "ER  - \r\n");
+                "ER  - ");
     }
 
     @Test
@@ -401,7 +399,7 @@ class StandardCitationFormatsConverterTest {
                         "<record>" +
                         "<ref-type name=\"Dataset\">59</ref-type>" +
                         "<contributors />" +
-                        "<titles><title></title></titles>" +
+                        "<titles />" +
                         "<section>1955-11-05</section>" +
                         "<dates><year>1955</year></dates>" +
                         "<edition>V1</edition>" +
@@ -431,7 +429,7 @@ class StandardCitationFormatsConverterTest {
                 "<record>" +
                 "<ref-type name=\"Dataset\">59</ref-type>" +
                 "<contributors />" +
-                "<titles><title></title></titles>" +
+                "<titles />" +
                 "<dates><year>" + Year.now() +"</year></dates>" +
                 "<urls><related-urls><url>https://doi.org/10.5072/FK2/LK0D1H</url></related-urls></urls>" +
                 "<electronic-resource-num>doi/10.5072/FK2/LK0D1H</electronic-resource-num>" +

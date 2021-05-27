@@ -17,6 +17,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,20 +47,10 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
                 .map(GlobalId::toURL)
                 .map(URL::toString)
                 .orElse(StringUtils.EMPTY);
-        citation.urlValue(pid, pid);
 
-        if(data.getPublisher() == null && data.getVersion() == null) {
-            citation.endPartEmpty();
-        } else {
-            citation.endPart();
-        }
-
-        if(data.getPublisher() != null) {
-            citation.value(data.getPublisher()).endPart();
-        }
-        if(data.getVersion() != null) {
-            citation.rawValue(data.getVersion()).endPartEmpty();
-        }
+        citation.urlValue(pid, pid).endPartEmpty()
+                .add(", ").value(data.getPublisher()).endPartEmpty()
+                .add(", ").rawValue(data.getVersion()).endPartEmpty();
 
         if (!data.isDirect()) {
             citation.add("; ").value(data.getFileTitle()).endPart(" [fileName]");
@@ -139,7 +130,7 @@ public class StandardCitationFormatsConverter extends AbstractCitationFormatsCon
                 .lines("LA", data.getLanguages())
                 .line("PY", data.getYear())
                 .lines("RI", data.getSpatialCoverages())
-                .line("SE", String.valueOf(data.getDate()))
+                .line("SE", Objects.toString(data.getDate(), null))
                 .line("UR", data.getPersistentId().toURL().toString())
                 .line("PB", data.getPublisher());
         if (data.getFileTitle() != null) {

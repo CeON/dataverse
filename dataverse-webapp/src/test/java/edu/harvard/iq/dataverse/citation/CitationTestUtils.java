@@ -68,6 +68,15 @@ class CitationTestUtils {
         }
     }
 
+    public DatasetVersion createHarvestedTestDatasetVersionWithDistributionDate(String withTitle, boolean withAuthor) {
+        DatasetVersion datasetVersion = createHarvestedTestDatasetVersion(withTitle, withAuthor);
+        datasetVersion.getDataset().setHarvestedFrom(new HarvestingClient());
+        List<DatasetField> fields = datasetVersion.getFlatDatasetFields();
+        fields.add(createDistributionDateField("2020-01-12"));
+        datasetVersion.setDatasetFields(fields);
+        return datasetVersion;
+    }
+
     // -------------------- PRIVATE --------------------
 
     private DatasetField createAuthorField(String value) {
@@ -78,6 +87,13 @@ class CitationTestUtils {
         author.getDatasetFieldsChildren().add(authorName);
 
         return author;
+    }
+
+    private DatasetField createDistributionDateField(String value) {
+        DatasetField distributionDate = new DatasetField();
+        distributionDate.setDatasetFieldType(new DatasetFieldType(DatasetFieldConstant.distributionDate, FieldType.DATE, false));
+        distributionDate.setFieldValue(value);
+        return distributionDate;
     }
 
     private DatasetField createTitleField(String value) {

@@ -151,13 +151,15 @@ public abstract class AbstractCitationFormatsConverter implements CitationFormat
         // -------------------- LOGIC --------------------
 
         public RISCitationBuilder line(String value) {
-            sb.append(value)
-                    .append("\r\n");
+            if(StringUtils.isNotBlank(value)) {
+                sb.append(value)
+                        .append("\r\n");
+            }
             return this;
         }
 
         public RISCitationBuilder line(String label, String value) {
-            if(value != null && !value.equals("null")) {
+            if(StringUtils.isNotBlank(value) || label.equals("ER")) {
                 sb.append(label)
                         .append("  - ");
                 return line(value);
@@ -203,7 +205,7 @@ public abstract class AbstractCitationFormatsConverter implements CitationFormat
         }
 
         public EndNoteCitationBuilder addTagWithValue(String tag, String value) throws XMLStreamException {
-            if (value != null && !value.equals("null")) {
+            if (StringUtils.isNotBlank(value)) {
                 writer.writeStartElement(tag);
                 writer.writeCharacters(value);
                 writer.writeEndElement();
