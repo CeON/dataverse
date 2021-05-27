@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.globalid;
 
 
 import org.apache.http.HttpResponse;
@@ -27,20 +27,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DataCiteRESTfulClient
+ * Http client for communicating with datacite via mds api
+ * 
  *
  * @author luopc
+ * @see https://support.datacite.org/docs/mds-api-guide
  */
-public class DataCiteRESTfulClient implements Closeable {
+public class DataCiteMdsApiClient implements Closeable {
 
-    private static final Logger logger = Logger.getLogger(DataCiteRESTfulClient.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(DataCiteMdsApiClient.class.getCanonicalName());
 
     private String url;
     private CloseableHttpClient httpClient;
     private HttpClientContext context;
     private String encoding = "utf-8";
 
-    public DataCiteRESTfulClient(String url, String username, String password) throws IOException {
+    public DataCiteMdsApiClient(String url, String username, String password) throws IOException {
         this.url = url;
         try {
             context = HttpClientContext.create();
@@ -212,26 +214,9 @@ public class DataCiteRESTfulClient implements Closeable {
         }
     }
 
-    public String deleteDoi(String doi) {
-        HttpDelete httpDelete = new HttpDelete(this.url + "/doi/" + doi);
-        try {
-            HttpResponse response = httpClient.execute(httpDelete, context);
-            String data = EntityUtils.toString(response.getEntity(), encoding);
-            if (response.getStatusLine().getStatusCode() != 200) {
-                String errMsg = "Response code: " + response.getStatusLine().getStatusCode() + ", " + data;
-                logger.log(Level.SEVERE, errMsg);
-                throw new RuntimeException(errMsg);
-            }
-            return data;
-        } catch (IOException ioe) {
-            throw new RuntimeException("IOException when inactive dataset", ioe);
-        }
-    }
-
     public static void main(String[] args) throws Exception {
         String doi = "10.5072/DVN/274533";
-        DataCiteRESTfulClient client = new DataCiteRESTfulClient("https://mds.test.datacite.org", "DATACITE.HARVARD", "DVNapitest");
-
+        DataCiteMdsApiClient client = new DataCiteMdsApiClient("https://mds.test.datacite.org", "DATACITE.HARVARD", "DVNapitest");
 //		System.out.println(client.getUrl(doi));
 //		System.out.println(client.getMetadata(doi));
 //        System.out.println(client.postMetadata(readAndClose("C:/Users/luopc/Desktop/datacite.xml", "utf-8")));

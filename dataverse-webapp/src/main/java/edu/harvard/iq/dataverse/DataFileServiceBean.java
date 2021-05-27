@@ -1,5 +1,9 @@
 package edu.harvard.iq.dataverse;
 
+import com.github.junrar.ContentDescription;
+import com.github.junrar.Junrar;
+import com.github.junrar.exception.RarException;
+import com.github.junrar.exception.UnsupportedRarV5Exception;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.ImageMimeType;
@@ -12,6 +16,7 @@ import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datafile.FileService;
 import edu.harvard.iq.dataverse.datasetutility.FileExceedsMaxSizeException;
 import edu.harvard.iq.dataverse.datasetutility.VirusFoundException;
+import edu.harvard.iq.dataverse.globalid.GlobalIdServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestServiceShapefileHelper;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.license.TermsOfUseFormMapper;
@@ -28,10 +33,13 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.util.ExternalRarDataUtil;
 import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.ShapefileHandler;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +75,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -1291,10 +1298,25 @@ public class DataFileServiceBean implements java.io.Serializable {
                 datafiles.add(datafile);
                 return datafiles;
             }
-
-            // If it's a ZIP file, we are going to unpack it and create multiple
-            // DataFile objects from its contents:
-        } else if (finalType.equals("application/zip") && settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.ZipUploadFilesLimit) > 0) {
+        } else if ("application/vnd.rar".equals(finalType)) {
+            try {
+                List<ContentDescription> contentsDescription = Junrar.getContentsDescription(tempFile.toFile());
+                uncompressedSize = contentsDescription.stream()
+                        .mapToLong(d -> d.size)
+                        .sum();
+            } catch (UnsupportedRarV5Exception r5e) {
+                uncompressedSize = new ExternalRarDataUtil(
+                    settingsService.getValueForKey(SettingsServiceBean.Key.RarDataUtilCommand),
+                    settingsService.getValueForKey(SettingsServiceBean.Key.RarDataUtilOpts),
+                    settingsService.getValueForKey(SettingsServiceBean.Key.RarDataLineBeforeResultDelimiter))
+                    .checkRarExternally(tempFile, fileName);
+            } catch (RarException re) {
+                logger.warn("Exception during rar file scan: " + fileName, re);
+            }
+        }
+        // If it's a ZIP file, we are going to unpack it and create multiple
+        // DataFile objects from its contents:
+        else if (finalType.equals("application/zip") && settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.ZipUploadFilesLimit) > 0) {
 
             ZipInputStream unZippedIn = null;
             ZipEntry zipEntry = null;
@@ -1430,6 +1452,45 @@ public class DataFileServiceBean implements java.io.Serializable {
         } else if (finalType.equals("application/zip")
                 && settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.ZipUploadFilesLimit) == 0) {
             uncompressedSize = extractZipContentsSize(tempFile);
+        } else if ("application/x-7z-compressed".equals(finalType)) {
+            long size = 0L;
+            try {
+                SevenZFile archive = new SevenZFile(tempFile.toFile());
+                SevenZArchiveEntry entry;
+                while ((entry = archive.getNextEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        size += entry.getSize();
+                    }
+                }
+            } catch (IOException ioe) {
+                logger.warn("Exception while checking contents of 7z file: " + fileName, ioe);
+            }
+            uncompressedSize = size;
+        } else if ("application/gzip".equals(finalType) || "application/x-compressed-tar".equals(finalType)) {
+            Long maxInputSize = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.GzipMaxInputFileSizeInBytes);
+            Long maxOutputSize = settingsService.getValueForKeyAsLong(SettingsServiceBean.Key.GzipMaxOutputFileSizeInBytes);
+
+            maxInputSize = maxInputSize != null ? maxInputSize : 0L;
+            maxOutputSize = maxOutputSize != null ? maxOutputSize : 0L;
+
+            long inputSize = tempFile.toFile().length();
+            if (inputSize > 0L && inputSize <= maxInputSize) {
+                File outputFile = null;
+                try (GZIPInputStream output = new GZIPInputStream(new FileInputStream(tempFile.toFile()))) {
+                    outputFile = saveInputStreamInTempFile(output, maxOutputSize);
+                    uncompressedSize = outputFile.length();
+                } catch (FileExceedsMaxSizeException femse) {
+                    logger.warn(
+                        String.format("The contents of file [%s] exceed the max allowed size of uncompressed output", fileName),
+                        femse);
+                } catch (IOException ioe) {
+                    logger.warn("Exception while trying to uncompress file: " + fileName, ioe);
+                } finally {
+                    if (outputFile != null) {
+                        outputFile.delete();
+                    }
+                }
+            }
         } else if (finalType.equalsIgnoreCase(ShapefileHandler.SHAPEFILE_FILE_TYPE)) {
             // Shape files may have to be split into multiple files,
             // one zip archive per each complete set of shape files:

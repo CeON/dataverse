@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.globalid;
 
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.cache.DOIDataCiteRegisterCache;
@@ -52,13 +52,13 @@ public class DOIDataCiteRegisterService {
 
 
     //A singleton since it, and the httpClient in it can be reused.
-    private DataCiteRESTfulClient client = null;
+    private DataCiteMdsApiClient client = null;
 
-    private DataCiteRESTfulClient getClient() throws IOException {
+    private DataCiteMdsApiClient getClient() throws IOException {
         if (client == null) {
-            client = new DataCiteRESTfulClient(settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString),
-                                               settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername),
-                                               settingsService.getValueForKey(SettingsServiceBean.Key.DoiPassword));
+            client = new DataCiteMdsApiClient(settingsService.getValueForKey(SettingsServiceBean.Key.DoiBaseUrlString),
+                                                settingsService.getValueForKey(SettingsServiceBean.Key.DoiUsername),
+                                                settingsService.getValueForKey(SettingsServiceBean.Key.DoiPassword));
         }
         return client;
     }
@@ -230,7 +230,7 @@ public class DOIDataCiteRegisterService {
                     rc.setUrl(target);
                 }
                 try {
-                    DataCiteRESTfulClient client = getClient();
+                    DataCiteMdsApiClient client = getClient();
                     retString = client.postMetadata(xmlMetadata);
                     client.postUrl(identifier.substring(identifier.indexOf(":") + 1), target);
 
@@ -246,7 +246,7 @@ public class DOIDataCiteRegisterService {
         } else if (status.equals("unavailable")) {
             DOIDataCiteRegisterCache rc = findByDOI(identifier);
             try {
-                DataCiteRESTfulClient client = getClient();
+                DataCiteMdsApiClient client = getClient();
                 if (rc != null) {
                     rc.setStatus("unavailable");
                     retString = client.inactiveDataset(identifier.substring(identifier.indexOf(":") + 1));
@@ -261,7 +261,7 @@ public class DOIDataCiteRegisterService {
     public boolean testDOIExists(String identifier) {
         boolean doiExists;
         try {
-            DataCiteRESTfulClient client = getClient();
+            DataCiteMdsApiClient client = getClient();
             doiExists = client.testDOIExists(identifier.substring(identifier.indexOf(":") + 1));
         } catch (Exception e) {
             logger.log(Level.INFO, identifier, e);
@@ -273,7 +273,7 @@ public class DOIDataCiteRegisterService {
     public HashMap<String, String> getMetadata(String identifier) throws IOException {
         HashMap<String, String> metadata = new HashMap<>();
         try {
-            DataCiteRESTfulClient client = getClient();
+            DataCiteMdsApiClient client = getClient();
             String xmlMetadata = client.getMetadata(identifier.substring(identifier.indexOf(":") + 1));
             DOIDataCiteServiceBean.GlobalIdMetadataTemplate template = doiDataCiteServiceBean.new GlobalIdMetadataTemplate(xmlMetadata);
             metadata.put("datacite.creator", Util.getStrFromList(template.getCreators()));
