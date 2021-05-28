@@ -135,6 +135,13 @@ public abstract class AbstractCitationFormatsConverter implements CitationFormat
             return this;
         }
 
+        public BibTeXCitationBuilder removeLastDelimiter(String delimiter) {
+            if (sb.length() >= delimiter.length() && sb.toString().endsWith(delimiter)) {
+                sb.setLength(sb.length() - delimiter.length());
+            }
+            return this;
+        }
+
         @Override
         public String toString() {
             return sb.toString();
