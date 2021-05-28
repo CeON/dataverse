@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.globalid;
 
 import com.google.api.client.util.Lists;
 import edu.harvard.iq.dataverse.persistence.cache.DOIDataCiteRegisterCache;
-import edu.harvard.iq.dataverse.globalid.DOIDataCiteRegisterService;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -35,7 +34,7 @@ class DOIDataCiteRegisterServiceTest {
     private TypedQuery typedQuery;
 
     @Mock
-    private DataCiteRESTfulClient dataCiteRESTfulClient;
+    private DataCiteMdsApiClient dataCiteRESTfulClient;
 
     @InjectMocks
     private DOIDataCiteRegisterService doiDataCiteRegisterService;

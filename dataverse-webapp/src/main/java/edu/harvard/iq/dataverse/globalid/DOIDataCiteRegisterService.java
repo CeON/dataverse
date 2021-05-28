@@ -312,7 +312,7 @@ public class DOIDataCiteRegisterService {
 
     private String reserveDOI(String xmlMetadata) throws IOException {
         try {
-            DataCiteRESTfulClient client = getClient();
+            DataCiteMdsApiClient client = getClient();
             return client.postMetadata(xmlMetadata);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(DOIDataCiteRegisterService.class.getName()).log(Level.SEVERE, null, ex);
@@ -322,7 +322,7 @@ public class DOIDataCiteRegisterService {
 
     private String registerDOI(String identifier, String retString, String target, String metadata) throws IOException {
         try {
-            DataCiteRESTfulClient client = getClient();
+            DataCiteMdsApiClient client = getClient();
             client.postMetadata(metadata);
             client.postUrl(identifier.substring(identifier.indexOf(":") + 1), target);
         } catch (UnsupportedEncodingException ex) {
