@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersionUser;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import io.vavr.control.Try;
 
 import javax.validation.ConstraintViolation;
 import java.sql.Timestamp;
@@ -167,7 +168,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                         int attempts = 0;
 
                         while (globalIdServiceBean.alreadyExists(theDataset) && attempts < FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT) {
-                            theDataset.setIdentifier(ctxt.datasets().generateDatasetIdentifier(theDataset, globalIdServiceBean));
+                            theDataset.setIdentifier(ctxt.datasets().generateDatasetIdentifier(theDataset));
                             logger.log(Level.INFO, "Attempting to register external identifier for dataset {0} (trying: {1}).",
                                        new Object[]{theDataset.getId(), theDataset.getIdentifier()});
                             attempts++;
@@ -179,9 +180,13 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                         }
                     }
                     // Invariant: Dataset identifier does not exist in the remote registry
-                    globalIdServiceBean.createIdentifier(theDataset);
-                    theDataset.setGlobalIdCreateTime(getTimestamp());
-                    theDataset.setIdentifierRegistered(true);
+                    Try.of(() -> globalIdServiceBean.createIdentifier(theDataset))
+                       .onFailure(throwable -> logger.log(Level.WARNING, "Identifier has failed to be registered"))
+                       .onSuccess(s -> {
+                                      theDataset.setGlobalIdCreateTime(getTimestamp());
+                                      theDataset.setIdentifierRegistered(true);
+                       });
+
 
                 } catch (Throwable e) {
                     throw new CommandException(BundleUtil.getStringFromBundle("dataset.publish.error", globalIdServiceBean.getProviderInformation().toArray()), this);
