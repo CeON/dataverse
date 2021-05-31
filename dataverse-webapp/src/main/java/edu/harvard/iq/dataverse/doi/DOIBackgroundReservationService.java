@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.apache.commons.lang.math.NumberUtils;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -21,6 +22,9 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Class designed to reserve doi's in the background.
+ */
 @Startup
 @Singleton
 class DOIBackgroundReservationService {
@@ -31,7 +35,8 @@ class DOIBackgroundReservationService {
     private DatasetRepository datasetRepository;
     private DatasetDao datasetDao;
     private DOIDataCiteServiceBean doiDataCiteService;
-    private Timer timer;
+
+    private final Timer timer = new Timer();
 
     public DOIBackgroundReservationService() {
     }
@@ -43,34 +48,38 @@ class DOIBackgroundReservationService {
         this.datasetRepository = datasetRepository;
         this.datasetDao = datasetDao;
         this.doiDataCiteService = doiDataCiteService;
-
-        timer = new Timer("Doi background registration");
     }
 
     @PostConstruct
     void startReservation() {
-        registerDoiPeriodically();
+        reserveDoiPeriodically(timer);
     }
 
-    void registerDoiPeriodically() {
+    /**
+     * Creates a timer which will reserve doi's in interval provided by 'DoiBackgroundReservationInterval'.
+     * Run method has to be wrapped in Try otherwise Transaction rollback could destroy timer setup.
+     */
+    void reserveDoiPeriodically(Timer timer) {
         String provider = settingsServiceBean.getValueForKey(SettingsServiceBean.Key.DoiProvider);
 
         if (provider.equals("DataCite")) {
 
             Option<Long> intervalInMs = Option
                     .of(settingsServiceBean.getValueForKey(SettingsServiceBean.Key.DoiBackgroundReservationInterval))
+                    .filter(NumberUtils::isNumber)
                     .map(Long::parseLong);
 
-            if (intervalInMs.isEmpty()) {
+            if (intervalInMs.isEmpty() || intervalInMs.get() < 0) {
                 return;
             }
 
             timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    registerDataCiteIdentifier();
-                }
-            }, 0, intervalInMs.get());
+                               @Override
+                               public void run() {
+                                   Try.run(() -> registerDataCiteIdentifier());
+                               }
+                           }
+                    , 0, intervalInMs.get());
         }
 
     }
@@ -98,6 +107,5 @@ class DOIBackgroundReservationService {
                    nonReservedDataset.setIdentifierRegistered(true);
                });
         }
-
     }
 }

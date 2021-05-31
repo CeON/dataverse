@@ -34,7 +34,7 @@ public class DatasetRepository extends JpaRepository<Long, Dataset> {
     }
 
     public List<Dataset> findByNonRegisteredIdentifier() {
-        return em.createQuery("SELECT d FROM DvObject o JOIN Dataset d WHERE o.dtype = 'Dataset' AND o.identifierRegistered = false", Dataset.class)
+        return em.createQuery("SELECT o FROM DvObject o WHERE o.dtype = 'Dataset' AND o.identifierRegistered = false", Dataset.class)
           .getResultList();
     }
 }
