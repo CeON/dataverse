@@ -605,7 +605,7 @@ public class DatasetFilesTab implements Serializable {
                                           boolean removeUnusedTags) {
 
         if (bulkUpdateCheckVersion()) {
-            selectedFiles = fetchDraftVersionsOfSelectedFiles();
+            selectedFiles = fetchSelectedFilesForVersion(fetchEditDatasetVersion());
         }
 
         DatasetVersion updatedVersion = datasetFilesTabFacade.updateFileTagsAndCategories(workingVersion.getId(),
@@ -630,7 +630,7 @@ public class DatasetFilesTab implements Serializable {
     public String deleteFilesAndSave() {
         bulkFileDeleteInProgress = true;
         if (bulkUpdateCheckVersion()) {
-            filesToBeDeleted = fetchDraftVersionsOfSelectedFiles().stream()
+            filesToBeDeleted = fetchSelectedFilesForVersion(fetchEditDatasetVersion()).stream()
                                                                   .map(FileMetadata::getDataFile)
                                                                   .collect(toList());
         } else {
@@ -644,9 +644,10 @@ public class DatasetFilesTab implements Serializable {
         FileTermsOfUse termsOfUse = termsOfUseFormMapper.mapToFileTermsOfUse(termsOfUseForm);
 
         if (bulkUpdateCheckVersion()) {
-            List<FileMetadata> fetchedFileMetadata = fetchDraftVersionsOfSelectedFiles();
-            updateTermsOfUseForDraftFiles(termsOfUse, fetchedFileMetadata);
-            save(workingVersion);
+            DatasetVersion newDraft = fetchEditDatasetVersion();
+            List<FileMetadata> fetchedFileMetadata = fetchSelectedFilesForVersion(newDraft);
+            updateTermsOfUseForVersion(newDraft, termsOfUse, fetchedFileMetadata);
+            save(newDraft);
         } else {
             List<FileMetadata> fetchedFileMetadata = fileMetadataService.findFileMetadata(selectedFileIds.toArray(new Long[0]));
             DatasetVersion updatedVersion = datasetFilesTabFacade.updateTermsOfUse(workingVersion.getId(), termsOfUse, fetchedFileMetadata);
@@ -732,7 +733,7 @@ public class DatasetFilesTab implements Serializable {
     public List<FileMetadata> retrieveSelectedFiles() {
 
         if (bulkUpdateCheckVersion()) {
-            return fetchDraftVersionsOfSelectedFiles();
+            return fetchSelectedFilesForVersion(fetchEditDatasetVersion());
         }
 
         return selectedFileIds.isEmpty() ?
@@ -748,8 +749,18 @@ public class DatasetFilesTab implements Serializable {
 
     // -------------------- PRIVATE --------------------
 
-    private void updateTermsOfUseForDraftFiles(FileTermsOfUse termsOfUse, List<FileMetadata> fetchedFileMetadata) {
+    private void updateTermsOfUseForVersion(DatasetVersion dsv, FileTermsOfUse termsOfUse, List<FileMetadata> fetchedFileMetadata) {
         fetchedFileMetadata.forEach(fileMetadata -> fileMetadata.setTermsOfUse(termsOfUse.createCopy()));
+
+        dsv.getFileMetadatas().stream()
+                .filter(fileMetadata -> containsDataFile(fetchedFileMetadata, fileMetadata.getDataFile().getId()))
+                .forEach(fileMetadata -> fileMetadata.setTermsOfUse(termsOfUse));
+    }
+
+    private boolean containsDataFile(List<FileMetadata> fileMetadatas, Long dataFileId) {
+        return fileMetadatas.stream()
+                .map(fileMetadata -> fileMetadata.getDataFile().getId())
+                .anyMatch(fileId -> fileId.equals(dataFileId));
     }
 
     private boolean containsFileId(Long id) {
@@ -845,16 +856,18 @@ public class DatasetFilesTab implements Serializable {
                               .collect(joining(","));
     }
 
-    private List<FileMetadata> fetchDraftVersionsOfSelectedFiles() {
-        Dataset fetchedDataset = datasetFilesTabFacade.retrieveDataset(dataset.getId());
-        DatasetVersion newestVersion = fetchedDataset.getEditVersion();
-
+    private List<FileMetadata> fetchSelectedFilesForVersion(DatasetVersion version) {
         List<DataFile> selectedDataFiles = selectedFileIds.isEmpty() ? new ArrayList<>() :
                 datafileService.findDataFilesByFileMetadataIds(selectedFileIds);
 
-        return newestVersion.getFileMetadatas().stream()
+        return version.getFileMetadatas().stream()
                             .filter(fileMetadata -> selectedDataFiles.contains(fileMetadata.getDataFile()))
                             .collect(Collectors.toList());
+    }
+
+    private DatasetVersion fetchEditDatasetVersion() {
+        Dataset fetchedDataset = datasetFilesTabFacade.retrieveDataset(dataset.getId());
+        return fetchedDataset.getEditVersion();
     }
 
     private boolean bulkUpdateCheckVersion() {
