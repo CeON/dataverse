@@ -612,6 +612,10 @@
                                 <span class="glyphicon glyphicon-exclamation-sign text-danger"/>&#160;
                                 <h:outputText styleClass="text-danger" value="#{bundle['unconfirmed.mail.restricted.access.dialog.text']}">
                                 </h:outputText>
+                                <h:outputLink value="/dataverseuser.xhtml?selectTab=accountInfo">
+                                    <h:outputText value=" "/>
+                                    <h:outputText value="#{bundle['unconfirmed.mail.restricted.access.dialog.link.text']}"/>
+                                </h:outputLink>.
                             </p>
                             <div class="button-block">
                                 <p:commandButton value="#{bundle.close}" onclick="PF('requestAccessPopup').hide();"/>

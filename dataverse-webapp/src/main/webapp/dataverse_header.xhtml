@@ -31,7 +31,10 @@
         </div>
         <div id="unconfirmed-mail-banner" jsf:rendered="#{dataverseHeaderFragment.shouldShowUnconfirmedMailInfoBanner()}">
             <h:form class="container">
-            #{bundle['unconfirmed.mail.banner.text']}
+                #{bundle['unconfirmed.mail.banner.text']}
+                <h:outputLink value="/dataverseuser.xhtml?selectTab=accountInfo">
+                    <h:outputText value="#{bundle['unconfirmed.mail.banner.link.text']}"/>
+                </h:outputLink>.
                 <p:commandButton id="hide-unconfirmed-mail-banner"
                                  value="#{bundle['unconfirmed.mail.banner.button.close.text']}"
                                  oncomplete="document.getElementById('unconfirmed-mail-banner').style.display='none'"/>
