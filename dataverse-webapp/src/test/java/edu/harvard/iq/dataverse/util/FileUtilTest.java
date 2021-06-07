@@ -1,26 +1,21 @@
 package edu.harvard.iq.dataverse.util;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.arquillian.facesmock.FacesContextMocker;
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.guestbook.Guestbook;
 import edu.harvard.iq.dataverse.util.FileUtil.ApiBatchDownloadType;
 import edu.harvard.iq.dataverse.util.FileUtil.ApiDownloadType;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -127,10 +122,10 @@ public class FileUtilTest {
         dsv.setDataset(dataset);
 
         // when & then
-        assertEquals("/api/datasets/1/versions/11/files/download?format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, false, ApiBatchDownloadType.ORIGINAL));
-        assertEquals("/api/datasets/1/versions/11/files/download", FileUtil.getDownloadWholeDatasetUrlPath(dsv, false, ApiBatchDownloadType.DEFAULT));
-        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true&format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, true, ApiBatchDownloadType.ORIGINAL));
-        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true", FileUtil.getDownloadWholeDatasetUrlPath(dsv, true, ApiBatchDownloadType.DEFAULT));
+        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true&format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.ORIGINAL));
+        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.DEFAULT));
+        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true&format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.ORIGINAL));
+        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.DEFAULT));
     }
 
     @Test

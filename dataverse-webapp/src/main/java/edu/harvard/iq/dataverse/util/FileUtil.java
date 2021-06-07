@@ -34,7 +34,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
-import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
@@ -68,8 +67,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
-
-import static edu.harvard.iq.dataverse.dataaccess.S3AccessIO.S3_STORAGE_IDENTIFIER_PREFIX;
 
 
 /**
@@ -749,16 +746,14 @@ public class FileUtil implements java.io.Serializable {
         return fileDownloadUrl;
     }
 
-    public static String getDownloadWholeDatasetUrlPath(DatasetVersion dsv, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
+    public static String getDownloadWholeDatasetUrlPath(DatasetVersion dsv, ApiBatchDownloadType downloadType) {
 
         String fileDownloadUrl = String.format("/api/datasets/%s/versions/%s/files/download", dsv.getDataset().getId(), dsv.getId());
 
-        if (guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.DEFAULT) {
+        if (downloadType == ApiBatchDownloadType.DEFAULT) {
             fileDownloadUrl += "?gbrecs=true";
-        } else if (guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.ORIGINAL) {
+        } else if (downloadType == ApiBatchDownloadType.ORIGINAL) {
             fileDownloadUrl += "?gbrecs=true&format=original";
-        } else if (!guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.ORIGINAL) {
-            fileDownloadUrl += "?format=original";
         }
 
         return fileDownloadUrl;
