@@ -122,10 +122,10 @@ public class FileUtilTest {
         dsv.setDataset(dataset);
 
         // when & then
-        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true&format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.ORIGINAL));
-        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.DEFAULT));
-        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true&format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.ORIGINAL));
-        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true", FileUtil.getDownloadWholeDatasetUrlPath(dsv, ApiBatchDownloadType.DEFAULT));
+        assertEquals("/api/datasets/1/versions/11/files/download?format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, false, ApiBatchDownloadType.ORIGINAL));
+        assertEquals("/api/datasets/1/versions/11/files/download", FileUtil.getDownloadWholeDatasetUrlPath(dsv, false, ApiBatchDownloadType.DEFAULT));
+        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true&format=original", FileUtil.getDownloadWholeDatasetUrlPath(dsv, true, ApiBatchDownloadType.ORIGINAL));
+        assertEquals("/api/datasets/1/versions/11/files/download?gbrecs=true", FileUtil.getDownloadWholeDatasetUrlPath(dsv, true, ApiBatchDownloadType.DEFAULT));
     }
 
     @Test

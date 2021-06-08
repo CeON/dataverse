@@ -746,14 +746,16 @@ public class FileUtil implements java.io.Serializable {
         return fileDownloadUrl;
     }
 
-    public static String getDownloadWholeDatasetUrlPath(DatasetVersion dsv, ApiBatchDownloadType downloadType) {
+    public static String getDownloadWholeDatasetUrlPath(DatasetVersion dsv, boolean guestbookRecordsAlreadyWritten, ApiBatchDownloadType downloadType) {
 
         String fileDownloadUrl = String.format("/api/datasets/%s/versions/%s/files/download", dsv.getDataset().getId(), dsv.getId());
 
-        if (downloadType == ApiBatchDownloadType.DEFAULT) {
+        if (guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.DEFAULT) {
             fileDownloadUrl += "?gbrecs=true";
-        } else if (downloadType == ApiBatchDownloadType.ORIGINAL) {
+        } else if (guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.ORIGINAL) {
             fileDownloadUrl += "?gbrecs=true&format=original";
+        } else if (!guestbookRecordsAlreadyWritten && downloadType == ApiBatchDownloadType.ORIGINAL) {
+            fileDownloadUrl += "?format=original";
         }
 
         return fileDownloadUrl;

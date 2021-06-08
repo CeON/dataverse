@@ -124,7 +124,7 @@ public class FileDownloadHelper implements java.io.Serializable {
 
         DownloadType downloadType = requestedOriginalDownload ? DownloadType.ORIGINAL : DownloadType.DOWNLOAD;
 
-        String filesDownloadUrl = FileUtil.getDownloadWholeDatasetUrlPath(dsv, downloadType.getApiBatchDownloadEquivalent());
+        String filesDownloadUrl = FileUtil.getDownloadWholeDatasetUrlPath(dsv, false, downloadType.getApiBatchDownloadEquivalent());
         PrimeFaces.current().ajax().addCallbackParam("apiDownloadLink", filesDownloadUrl);
 
         return StringUtils.EMPTY;
