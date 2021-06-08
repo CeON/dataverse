@@ -112,6 +112,7 @@ class DOIDataCiteRegisterServiceTest {
                                                   "        <description descriptionType=\"Abstract\"></description>\n" +
                                                   "    </descriptions>\n" +
                                                   "    <contributors></contributors>\n" +
+                                                  "    \n" +
                                                   "</resource>\n");
 
     }
@@ -148,6 +149,7 @@ class DOIDataCiteRegisterServiceTest {
                                                                       "        <description descriptionType=\"Abstract\">:unav</description>\n" +
                                                                       "    </descriptions>\n" +
                                                                       "    <contributors></contributors>\n" +
+                                                                      "    \n" +
                                                                       "</resource>\n");
 
     }

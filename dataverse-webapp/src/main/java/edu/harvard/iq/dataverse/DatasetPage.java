@@ -208,7 +208,7 @@ public class DatasetPage implements java.io.Serializable {
     private Boolean thisLatestReleasedVersion = null;
 
     /**
-     * Used in dataset.xhmtl
+     * Used in dataset.xhtml
      */
     public String getJsonLd() {
         if (isThisLatestReleasedVersion()) {
