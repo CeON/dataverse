@@ -21,7 +21,7 @@ public class RorData implements JpaEntity<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(length = 9, unique = true)
     private String rorId;
 
     @Column
@@ -30,7 +30,7 @@ public class RorData implements JpaEntity<Long>, Serializable {
     @Column
     private String countryName;
 
-    @Column
+    @Column(length = 16)
     private String countryCode;
 
     @ElementCollection
