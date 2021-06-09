@@ -85,6 +85,6 @@ public class DatasetRepositoryIT extends PersistenceArquillianDeployment {
         // then
         org.assertj.core.api.Assertions.assertThat(datasetsFound).size().isEqualTo(4);
         org.assertj.core.api.Assertions.assertThat(datasetsFound).extracting(DvObject::getId)
-                .containsExactly(52L, 56L, 57L, 66L);
+                .containsOnly(52L, 56L, 57L, 66L);
     }
 }

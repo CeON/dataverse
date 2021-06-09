@@ -5,13 +5,13 @@ import edu.harvard.iq.dataverse.globalid.DOIDataCiteServiceBean;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
+import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -32,7 +32,7 @@ class DOIBackgroundReservationServiceTest {
     @Mock
     private SettingsServiceBean settingsServiceBean;
 
-    @Spy
+    @Mock
     private Timer timer;
 
     @Mock
@@ -40,6 +40,9 @@ class DOIBackgroundReservationServiceTest {
 
     @Mock
     private DOIDataCiteServiceBean doiDataCiteServiceBean;
+
+    @Mock
+    private IndexServiceBean indexServiceBean;
 
     @InjectMocks
     private DOIBackgroundReservationService doiBackgroundReservationService;
@@ -83,6 +86,7 @@ class DOIBackgroundReservationServiceTest {
         final Dataset dataset = prepareDataset();
         when(datasetRepository.findByNonRegisteredIdentifier()).thenReturn(Lists.newArrayList(dataset));
         when(doiDataCiteServiceBean.alreadyExists(any(GlobalId.class))).thenReturn(false);
+        when(datasetRepository.save(any(Dataset.class))).thenReturn(dataset);
 
         doiBackgroundReservationService.registerDataCiteIdentifier();
 

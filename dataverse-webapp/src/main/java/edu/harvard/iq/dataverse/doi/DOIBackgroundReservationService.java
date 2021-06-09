@@ -5,12 +5,14 @@ import edu.harvard.iq.dataverse.globalid.DOIDataCiteServiceBean;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetRepository;
+import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
  */
 @Startup
 @Singleton
+@DependsOn("StartupFlywayMigrator")
 class DOIBackgroundReservationService {
 
     private static final Logger logger = Logger.getLogger(DOIBackgroundReservationService.class.getCanonicalName());
@@ -35,6 +38,7 @@ class DOIBackgroundReservationService {
     private DatasetRepository datasetRepository;
     private DatasetDao datasetDao;
     private DOIDataCiteServiceBean doiDataCiteService;
+    private IndexServiceBean indexServiceBean;
 
     private final Timer timer = new Timer();
 
@@ -43,11 +47,13 @@ class DOIBackgroundReservationService {
 
     @Inject
     public DOIBackgroundReservationService(SettingsServiceBean settingsServiceBean, DatasetRepository datasetRepository,
-                                           DatasetDao datasetDao, DOIDataCiteServiceBean doiDataCiteService) {
+                                           DatasetDao datasetDao, DOIDataCiteServiceBean doiDataCiteService,
+                                           IndexServiceBean indexServiceBean) {
         this.settingsServiceBean = settingsServiceBean;
         this.datasetRepository = datasetRepository;
         this.datasetDao = datasetDao;
         this.doiDataCiteService = doiDataCiteService;
+        this.indexServiceBean = indexServiceBean;
     }
 
     @PostConstruct
@@ -73,38 +79,48 @@ class DOIBackgroundReservationService {
                 return;
             }
 
-            timer.schedule(new TimerTask() {
-                               @Override
-                               public void run() {
-                                   Try.run(() -> registerDataCiteIdentifier());
+            try {
+                timer.schedule(new TimerTask() {
+                                   @Override
+                                   public void run() {
+                                       Try.run(() -> registerDataCiteIdentifier());
+                                   }
                                }
-                           }
-                    , 0, intervalInMs.get());
+                        , 0, intervalInMs.get());
+            } catch (Exception exception) {
+                logger.log(Level.INFO, "Something happened to the timer and it has to be shutdown", exception);
+                timer.cancel();
+            }
+
         }
 
     }
 
     void registerDataCiteIdentifier() {
         List<Dataset> nonReservedDatasets = datasetRepository.findByNonRegisteredIdentifier();
-        int attempts = 0;
 
         for (Dataset nonReservedDataset : nonReservedDatasets) {
+            int attempts = 0;
 
             GlobalId globalId = nonReservedDataset.getGlobalId();
 
             while (doiDataCiteService.alreadyExists(globalId) && attempts < 10) {
-                globalId = new GlobalId(datasetDao.generateDatasetIdentifier(nonReservedDataset));
+                globalId = new GlobalId(nonReservedDataset.getProtocol(),
+                                        nonReservedDataset.getAuthority(),
+                                        datasetDao.generateDatasetIdentifier(nonReservedDataset));
                 attempts++;
             }
 
-            datasetRepository.refresh(nonReservedDataset);
-            nonReservedDataset.setIdentifier(globalId.getIdentifier());
+            Dataset refreshedDataset = datasetRepository.save(nonReservedDataset);
+            refreshedDataset.setIdentifier(globalId.getIdentifier());
 
-            Try.of(() -> doiDataCiteService.createIdentifier(nonReservedDataset))
+            Try.of(() -> doiDataCiteService.createIdentifier(refreshedDataset))
                .onFailure(throwable -> logger.log(Level.INFO, "Identifier could not be reserved", throwable))
                .onSuccess(s -> {
-                   nonReservedDataset.setGlobalIdCreateTime(new Timestamp(new Date().getTime()));
-                   nonReservedDataset.setIdentifierRegistered(true);
+                   refreshedDataset.setGlobalIdCreateTime(new Timestamp(new Date().getTime()));
+                   refreshedDataset.setIdentifierRegistered(true);
+                   datasetRepository.save(refreshedDataset);
+                   indexServiceBean.asyncIndexDataset(refreshedDataset, false);
                });
         }
     }
