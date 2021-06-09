@@ -34,7 +34,6 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -69,7 +68,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,7 +76,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -599,22 +596,6 @@ public class IndexServiceBean {
             return new IndexResponse("permissions indexing disabled for debugging");
         }
         return solrIndexService.indexPermissionsOnSelfAndChildren(dataset);
-    }
-
-    public UpdateResponse updateDataverseParentName(long dataverseChildId, String updatedParentName) {
-        SolrInputDocument solrInputFields = new SolrInputDocument();
-        final HashMap<String, String> solrParentNameSetter = new HashMap<>();
-        solrParentNameSetter.put("set", updatedParentName);
-
-        solrInputFields.setField(SearchFields.ID,solrDocIdentifierDataverse + dataverseChildId);
-        solrInputFields.setField(SearchFields.PARENT_NAME, solrParentNameSetter);
-
-        Try.of(() -> solrServer.add(solrInputFields))
-           .onFailure(throwable -> logger.log(Level.INFO, "Failed to update dataverse parent name", throwable));
-
-        return Try.of(() -> solrServer.commit())
-                  .onFailure(throwable -> logger.log(Level.INFO, "Failed to update dataverse parent name during commit", throwable))
-                  .get();
     }
 
     private String addOrUpdateDataset(IndexableDataset indexableDataset) {

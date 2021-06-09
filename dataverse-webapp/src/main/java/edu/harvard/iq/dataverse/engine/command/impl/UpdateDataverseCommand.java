@@ -80,8 +80,8 @@ public class UpdateDataverseCommand extends AbstractCommand<Dataverse> {
 
         ctxt.index().indexDataverse(result);
 
-        List<Long> dataverseNamesToUpdate = ctxt.dataverses().findIdsByOwnerId(result.getId());
-        dataverseNamesToUpdate.forEach(dvForUpdate -> ctxt.index().updateDataverseParentName(dvForUpdate, result.getName()));
+        List<Dataverse> dvChildrenToUpdate = ctxt.dataverses().findByOwnerId(result.getId());
+        dvChildrenToUpdate.forEach(dvForUpdate -> ctxt.index().indexDataverse(dvForUpdate));
 
         //When these values are changed we need to reindex all children datasets
         //This check is not recursive as all the values just report the immediate parent
