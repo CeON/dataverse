@@ -535,7 +535,7 @@ class DataCiteMetadataTemplate {
         xmlMetadata = xmlMetadata.replace("{$contributors}", contributorsElement.toString());
 
         StringBuilder fundingElement = new StringBuilder(0);
-        if (fundingReferences != null && !fundingReferences.isEmpty()) {
+        if (shouldGenerateFundingReferences()) {
             fundingElement.append(generateFundingReferences());
         }
         xmlMetadata = xmlMetadata.replace("${fundingReferences}", fundingElement.toString());
@@ -543,14 +543,26 @@ class DataCiteMetadataTemplate {
         return xmlMetadata;
     }
 
+    private boolean shouldGenerateFundingReferences() {
+        return (fundingReferences != null && !fundingReferences.isEmpty() && hasFundingReferenceWithAgency());
+    }
+
+    private boolean hasFundingReferenceWithAgency() {
+        return fundingReferences.stream().anyMatch(ref -> ref.getAgency() != null && !ref.getAgency().getValue().isEmpty());
+    }
+
     private String generateFundingReferences() {
         StringBuilder fundingsElement = new StringBuilder();
         fundingsElement.append("<fundingReferences>");
         for(DatasetFundingReference funding : fundingReferences) {
+            if(funding.getAgency() == null || funding.getAgency().getValue().isEmpty()) {
+                continue;
+            }
+
             fundingsElement
                     .append("<fundingReference>")
                     .append("<funderName>")
-                    .append(funding.getAgency() != null ? funding.getAgency().getValue() : " ")
+                    .append(funding.getAgency().getValue())
                     .append("</funderName>");
 
             if(funding.getAgencyIdentifier() != null && !funding.getAgencyIdentifier().isEmpty()) {
