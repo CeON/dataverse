@@ -118,7 +118,7 @@ public class DatasetReportService {
 
     private String getDatasetTitleInVersion(DatasetVersion datasetVersion) {
         return datasetVersion.getDatasetFieldByTypeName(DatasetFieldConstant.title).isPresent() ?
-            datasetVersion.getDatasetFieldByTypeName(DatasetFieldConstant.title).get().getValue() : datasetVersion.getDataset().getDisplayName();
+            datasetVersion.getDatasetFieldByTypeName(DatasetFieldConstant.title).get().getValue() : datasetVersion.getTitle();
     }
 
     private Record createDatasetVersionRecord(DatasetVersion datasetVersion, Record datasetRecord) {
