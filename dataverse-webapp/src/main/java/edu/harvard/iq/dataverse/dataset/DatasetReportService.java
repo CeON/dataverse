@@ -175,12 +175,9 @@ public class DatasetReportService {
     }
 
     private String getFormattedEmbargoDate(Dataset dataset) {
-        String embargoDateFormatted = StringUtils.EMPTY;
-        Date embargoDate = dataset.getEmbargoDate().getOrNull();
-        if(embargoDate != null) {
-            embargoDateFormatted = dateFormatter.format(embargoDate);
-        }
-        return embargoDateFormatted;
+        return dataset.getEmbargoDate()
+                .map(embargoDate -> dateFormatter.format(embargoDate))
+                .getOrElse(StringUtils.EMPTY);
     }
 
     /**
