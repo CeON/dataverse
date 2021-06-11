@@ -12,6 +12,7 @@ import io.vavr.control.Try;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -61,6 +62,11 @@ class DOIBackgroundReservationService {
         reserveDoiPeriodically(timer);
     }
 
+    @PreDestroy
+    void preDestroy() {
+        timer.cancel();
+    }
+
     /**
      * Creates a timer which will reserve doi's in interval provided by 'DoiBackgroundReservationInterval'.
      * Run method has to be wrapped in Try otherwise Transaction rollback could destroy timer setup.
@@ -79,7 +85,6 @@ class DOIBackgroundReservationService {
                 return;
             }
 
-            try {
                 timer.schedule(new TimerTask() {
                                    @Override
                                    public void run() {
@@ -87,10 +92,6 @@ class DOIBackgroundReservationService {
                                    }
                                }
                         , 0, intervalInMs.get());
-            } catch (Exception exception) {
-                logger.log(Level.INFO, "Something happened to the timer and it has to be shutdown", exception);
-                timer.cancel();
-            }
 
         }
 
