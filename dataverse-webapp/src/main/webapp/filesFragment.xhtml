@@ -108,27 +108,27 @@
                 <div class="col-sm-9">
                     <p:outputPanel id="filesButtons">
                     <div jsf:id="uploadComputeBlock" class="button-block pull-right no-margin-top"
-                          jsf:rendered="#{datasetFilesTab.canUpdateDataset() and !widgetWrapper.widgetView}">
+                          jsf:rendered="#{!widgetWrapper.widgetView}">
 
                         <!-- DOWNLOAD DCM SCRIPT BUTTON -->
                         <h:commandLink id="rsyncDLFF" actionListener="#{datasetFilesTab.downloadRsyncScript()}" styleClass="btn btn-default"
-                                       rendered="#{datasetFilesTab.getFileSize() eq 0
+                                       rendered="#{datasetFilesTab.canUpdateDataset() and datasetFilesTab.getFileSize() eq 0
                                                          and datasetFilesTab.lockedDueToDcmUpload}">
                             <span class="glyphicon glyphicon-download-alt"/> <h:outputText value=" #{bundle['file.rsyncUpload.step2.downloadScriptButton']}"/>
                         </h:commandLink>
 
                         <!-- DOWNLOAD ALL FILES BUTTON -->
                         <p:outputPanel style="display: inline-block"
-                             rendered="#{!(empty datasetFilesTab.workingVersion.fileMetadatas)
+                             rendered="#{not empty datasetFilesTab.workingVersion.fileMetadatas
                                         and datasetFilesTab.downloadButtonAvailable
-                                        and datasetFilesTab.isHasTabular()}">
+                                        and datasetFilesTab.hasTabular}">
                             <button type="button" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown">
                                 <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.download.dataset']} <span class="caret"/>
                             </button>
                             <ul class="dropdown-menu multi-level text-left" style="left:auto" role="menu">
                                 <li>
                                     <p:commandLink action="#{datasetFilesTab.startDatasetFilesDownload(true)}"
-                                                   process="@this"
+                                                   process="@this" update="@form"
                                                    oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }"
                                                    id="downloadOriginalFiles">
                                         <h:outputText value="#{bundle['file.download.dataset.original']}"/>
@@ -140,7 +140,7 @@
                                                    process="@this"
                                                    oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }"
                                                    id="downloadFormated">
-                                        <h:outputText value="#{bundle['file.download.dataset.tab']}"/>
+                                        <h:outputText value="#{bundle['file.download.dataset.tabular']}"/>
                                         <o:skipValidators />
                                     </p:commandLink>
                                 </li>
@@ -148,9 +148,9 @@
                         </p:outputPanel>
 
                         <p:outputPanel style="display: inline-block; margin-right: 1em"
-                                       rendered="#{!(empty datasetFilesTab.workingVersion.fileMetadatas)
+                                       rendered="#{not empty datasetFilesTab.workingVersion.fileMetadatas
                                         and datasetFilesTab.downloadButtonAvailable
-                                        and !datasetFilesTab.isHasTabular()}">
+                                        and !datasetFilesTab.hasTabular}">
                             <p:commandLink type="button" styleClass="btn btn-default btn-download"
                                            action="#{datasetFilesTab.startDatasetFilesDownload(true)}"
                                            oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }"
@@ -161,7 +161,8 @@
                         </p:outputPanel>
 
                         <!-- REORDER FILES BUTTON -->
-                        <h:outputLink value="/reorderdatafiles.xhtml?datasetVersionId=#{datasetFilesTab.workingVersion.id}"
+                        <h:outputLink rendered="#{datasetFilesTab.canUpdateDataset()}"
+                                      value="/reorderdatafiles.xhtml?datasetVersionId=#{datasetFilesTab.workingVersion.id}"
                                       type="button" styleClass="btn btn-default btn-access #{datasetFilesTab.lockedFromEdits ? 'ui-state-disabled' : ''}"
                                       disabled="#{datasetFilesTab.lockedFromEdits}">
                             <span class="glyphicon #{datasetFilesTab.lockedFromEdits ? 'glyphicon-ban-circle' : 'glyphicon-sort'}"/>
@@ -169,7 +170,8 @@
                         </h:outputLink>
 
                         <!-- UPLOAD FILES BUTTON -->
-                        <h:outputLink value="/editdatafiles.xhtml?datasetId=#{datasetFilesTab.dataset.id}&#38;mode=UPLOAD"
+                        <h:outputLink rendered="#{datasetFilesTab.canUpdateDataset()}"
+                                      value="/editdatafiles.xhtml?datasetId=#{datasetFilesTab.dataset.id}&#38;mode=UPLOAD"
                                       type="button" styleClass="btn btn-default btn-access #{datasetFilesTab.lockedFromEdits ? 'ui-state-disabled' : ''}"
                                       disabled="#{datasetFilesTab.lockedFromEdits}">
                             <span class="glyphicon #{datasetFilesTab.lockedFromEdits ? 'glyphicon-ban-circle' : 'glyphicon-plus'}"/>
@@ -338,17 +340,20 @@
                     <div jsf:id="downloadButtonBlockNormal" class="btn-group"
                          jsf:rendered="#{!(datasetFilesTab.getFileSize() eq 0)
                                         and datasetFilesTab.downloadButtonAvailable
-                                        and !datasetFilesTab.isHasTabular()}">
+                                        and !datasetFilesTab.hasTabular}">
                         <p:commandLink type="button" styleClass="btn btn-default btn-download"
-                                        action="#{datasetFilesTab.validateFilesForDownload(false)}"
-                                        update="@form">
+                                       action="#{datasetFilesTab.validateFilesForDownload(false)}"
+                                       oncomplete="if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink); }"
+                                       update="@form"
+                                       process="@this"
+                        >
                             <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.download.header']}
                         </p:commandLink>
                     </div>
                     <div jsf:id="downloadButtonBlockTabular" class="btn-group"
                          jsf:rendered="#{!(datasetFilesTab.getFileSize() eq 0)
                                         and datasetFilesTab.downloadButtonAvailable
-                                        and datasetFilesTab.isHasTabular()}">
+                                        and datasetFilesTab.hasTabular}">
                         <button type="button" class="btn btn-default btn-download dropdown-toggle" data-toggle="dropdown">
                                 <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.download.header']} <span class="caret"/>
                             </button>
@@ -368,7 +373,7 @@
                                                    update="@form"
                                                    process="@this"
                                     >
-                                        <h:outputText value="#{bundle['file.download.dataset.tab']}"/>
+                                        <h:outputText value="#{bundle['file.download.dataset.tabular']}"/>
                                     </p:commandLink>
                                 </li>
                             </ul>
@@ -432,7 +437,7 @@
                 </div>
             </p:column>
         </p:dataTable>
-        
+
         <a id="currentDownloadRequestLink" href="#" target="_blank" rel="noopener noreferrer" download="" style="display: none;">
           download requested files
         </a>
@@ -593,7 +598,8 @@
 
                     <p:dialog id="requestAccessPopup" styleClass="largePopUp" header="#{bundle['file.requestAccess']}"
                               widgetVar="requestAccessPopup" modal="true">
-                        <div jsf:rendered="#{not systemConfig.isReadonlyMode()}">
+                        <div jsf:rendered="#{not systemConfig.isReadonlyMode()
+                        and not datasetFilesTab.shouldAllowRestrictedFileRequest()}">
                             <ui:include src="file-request-access-popup-fragment.xhtml" />
                         </div>
                         <div jsf:rendered="#{systemConfig.isReadonlyMode()}">
@@ -601,6 +607,20 @@
                                 <span class="glyphicon glyphicon-exclamation-sign text-danger"/>&#160;
                                 <h:outputText styleClass="text-danger" value="#{bundle['file.requestAccess.dialog.readonly.msg']}">
                                 </h:outputText>
+                            </p>
+                            <div class="button-block">
+                                <p:commandButton value="#{bundle.close}" onclick="PF('requestAccessPopup').hide();"/>
+                            </div>
+                        </div>
+                        <div jsf:rendered="#{datasetFilesTab.shouldAllowRestrictedFileRequest()}">
+                            <p class="help-block">
+                                <span class="glyphicon glyphicon-exclamation-sign text-danger"/>&#160;
+                                <h:outputText styleClass="text-danger" value="#{bundle['unconfirmed.mail.restricted.access.dialog.text']}">
+                                </h:outputText>
+                                <h:outputLink value="/dataverseuser.xhtml?selectTab=accountInfo">
+                                    <h:outputText value=" "/>
+                                    <h:outputText value="#{bundle['unconfirmed.mail.restricted.access.dialog.link.text']}"/>
+                                </h:outputLink>.
                             </p>
                             <div class="button-block">
                                 <p:commandButton value="#{bundle.close}" onclick="PF('requestAccessPopup').hide();"/>
@@ -648,15 +668,20 @@
                         <table>
                             <ui:repeat var="resFile" value="#{datasetFilesTab.selectedNonDownloadableFiles}">
                                 <tr>
-                                    <td>#{resFile.label}</td>
+                                    <td>#{resFile}</td>
                                 </tr>
                             </ui:repeat>
                         </table>
                         <div class="button-block">
                             <p class="help-block">#{bundle['dataset.downloadUnrestricted']}</p>
                             <ui:fragment>
-                                <p:commandButton value="#{bundle.continue}" onclick="PF('downloadMixed').hide()"
-                                                 action="#{datasetFilesTab.startMultipleFileDownload()}"/>
+                                <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}"
+                                                 actionListener="#{datasetFilesTab.startMultipleFileDownload()}"
+                                                 process="@this"
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('downloadMixed').hide(); }
+                                       if (args &amp;&amp; args.apiDownloadLink) { refreshAndClickDownloadLink(args.apiDownloadLink);  }"
+                                >
+                                </p:commandButton>
                             </ui:fragment>
                             <p:commandButton value="#{bundle.cancel}" onclick="PF('downloadMixed').hide();" type="button"/>
                         </div>
