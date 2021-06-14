@@ -17,7 +17,6 @@ import javax.ejb.EJB;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.io.Serializable;
 
 @ViewScoped
@@ -68,9 +67,9 @@ public class TextMessagePage implements Serializable {
         
         TabView tabView = Components.findComponentsInChildren(Components.getCurrentForm(), TabView.class).get(0);
         Tab textMessagesTab = Components.findComponentsInChildren(tabView, Tab.class).get(0);
-        
+
         DataList dataListComponent = Components.findComponentsInChildren(textMessagesTab, DataList.class).get(0);
-        if (dataListComponent.getFirst() >= allMessagesCount) {
+        if (dataListComponent.getFirst() >= allMessagesCount && dataListComponent.getFirst() >= dataListComponent.getRows()) {
             dataListComponent.setFirst(dataListComponent.getFirst() - dataListComponent.getRows());
         }
         lazydataverseTextMessages.setRowCount(allMessagesCount.intValue());
