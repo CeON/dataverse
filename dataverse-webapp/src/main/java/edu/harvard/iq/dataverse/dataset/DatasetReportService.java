@@ -96,7 +96,6 @@ public class DatasetReportService {
 
     private Record createDatasetRecord(Dataset dataset) {
         Record datasetRecord = new Record();
-        datasetRecord.setDatasetTitle(dataset.getDisplayName());
         datasetRecord.setDatasetId(dataset.getId());
         GlobalId pid = dataset.getGlobalId();
         datasetRecord.setDatasetPID(pid != null ? pid.asString() : StringUtils.EMPTY);
@@ -108,13 +107,22 @@ public class DatasetReportService {
     private void processDatasetVersion(DatasetVersion datasetVersion, CSVPrinter csvPrinter, Record datasetRecord) throws IOException {
         List<FileMetadata> allFilesMetadataSorted = datasetVersion.getAllFilesMetadataSorted();
         Record datasetVersionRecord = createDatasetVersionRecord(datasetVersion, datasetRecord);
+        datasetVersionRecord.setDatasetTitle(getDatasetTitleInVersion(datasetVersion));
+
         for (FileMetadata fileMetadata : allFilesMetadataSorted) {
             String licenseOrTerms = Optional.ofNullable(fileMetadata)
                     .map(FileMetadata::getTermsOfUse)
                     .map(this::getLicenseOrTermsOfUser).orElse(StringUtils.EMPTY);
             datasetVersionRecord.setLicenseOrTerms(licenseOrTerms);
+            datasetVersionRecord.setFileName(fileMetadata.getLabel());
+          
             processFile(fileMetadata, csvPrinter, datasetVersionRecord);
         }
+    }
+
+    private String getDatasetTitleInVersion(DatasetVersion datasetVersion) {
+        return datasetVersion.getDatasetFieldByTypeName(DatasetFieldConstant.title).isPresent() ?
+            datasetVersion.getDatasetFieldByTypeName(DatasetFieldConstant.title).get().getValue() : datasetVersion.getTitle();
     }
 
     private Record createDatasetVersionRecord(DatasetVersion datasetVersion, Record datasetRecord) {
@@ -138,7 +146,6 @@ public class DatasetReportService {
     private Record createFileRecord(Record datasetVersionRecord, FileMetadata fileMetadata) {
         DataFile dataFile = fileMetadata.getDataFile();
         Record fileRecord = new Record(datasetVersionRecord);
-        fileRecord.setFileName(dataFile.getDisplayName());
         fileRecord.setFileId(dataFile.getId());
         fileRecord.setChecksum(dataFile.getChecksumValue());
         fileRecord.setChecksumType(Objects.toString(dataFile.getChecksumType(), StringUtils.EMPTY));
