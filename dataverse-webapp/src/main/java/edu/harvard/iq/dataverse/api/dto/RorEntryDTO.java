@@ -2,8 +2,6 @@ package edu.harvard.iq.dataverse.api.dto;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Set;
-
 public class RorEntryDTO {
 
     private String id;
@@ -13,7 +11,7 @@ public class RorEntryDTO {
     private Country country;
 
     @SerializedName("addresses")
-    private Set<City> cities;
+    private City[] cities;
 
     private String[] links;
 
@@ -21,7 +19,7 @@ public class RorEntryDTO {
 
     private String[] aliases;
 
-    private Set<Label> labels;
+    private Label[] labels;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -41,7 +39,7 @@ public class RorEntryDTO {
         return country;
     }
 
-    public Set<City> getCities() {
+    public City[] getCities() {
         return cities;
     }
 
@@ -57,7 +55,7 @@ public class RorEntryDTO {
         return aliases;
     }
 
-    public Set<Label> getLabels() {
+    public Label[] getLabels() {
         return labels;
     }
 
@@ -75,7 +73,7 @@ public class RorEntryDTO {
         this.country = country;
     }
 
-    public void setCities(Set<City> cities) {
+    public void setCities(City[] cities) {
         this.cities = cities;
     }
 
@@ -91,13 +89,13 @@ public class RorEntryDTO {
         this.aliases = aliases;
     }
 
-    public void setLabels(Set<Label> labels) {
+    public void setLabels(Label[] labels) {
         this.labels = labels;
     }
 
     // -------------------- INNER CLASSES --------------------
 
-    static class City {
+    public static class City {
         private String city;
 
         public String getCity() {
@@ -109,7 +107,7 @@ public class RorEntryDTO {
         }
     }
 
-    static class Label {
+    public static class Label {
         private String label;
         private String iso639;
 
@@ -130,7 +128,7 @@ public class RorEntryDTO {
         }
     }
 
-    static class Country {
+    public static class Country {
         @SerializedName("country_name")
         private String countryName;
 

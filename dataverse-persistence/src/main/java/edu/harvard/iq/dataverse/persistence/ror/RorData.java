@@ -33,6 +33,12 @@ public class RorData implements JpaEntity<Long>, Serializable {
     @Column(length = 16)
     private String countryCode;
 
+    @Column
+    private String link;
+
+    @Column
+    private String city;
+
     @ElementCollection
     @CollectionTable(name = "rordata_namealias", joinColumns = @JoinColumn(name = "rordata_id"))
     @Column(name = "namealias")
@@ -92,6 +98,18 @@ public class RorData implements JpaEntity<Long>, Serializable {
         return acronyms;
     }
 
+    public Set<RorLabel> getLabels() {
+        return labels;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
     // -------------------- SETTERS --------------------
 
     public void setRorId(String rorId) {
@@ -108,5 +126,13 @@ public class RorData implements JpaEntity<Long>, Serializable {
 
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }
