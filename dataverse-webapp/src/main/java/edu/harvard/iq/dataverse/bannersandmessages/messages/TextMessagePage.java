@@ -24,6 +24,8 @@ import java.io.Serializable;
 public class TextMessagePage implements Serializable {
 
     private long dataverseId;
+    private String activeTab;
+    private int activeIndex;
     private Dataverse dataverse;
     private DataverseTextMessageDto textMessageToDelete;
 
@@ -42,6 +44,12 @@ public class TextMessagePage implements Serializable {
     public String init() {
         lazydataverseTextMessages.setDataverseId(dataverseId);
         dataverse = dataverseDao.find(dataverseId);
+
+        if(StringUtils.isNotBlank(activeTab) && activeTab.equals("banners")) {
+            activeIndex = 1;
+        } else if(StringUtils.isBlank(activeTab) || activeTab.equals("messages")) {
+            activeIndex = 0;
+        }
 
         if (!permissionsWrapper.canEditDataverseTextMessagesAndBanners(dataverseId)) {
             return permissionsWrapper.notAuthorized();
@@ -85,6 +93,14 @@ public class TextMessagePage implements Serializable {
         return dataverseId;
     }
 
+    public String getActiveTab() {
+        return activeTab;
+    }
+
+    public int getActiveIndex() {
+        return activeIndex;
+    }
+
     public Dataverse getDataverse() {
         return dataverse;
     }
@@ -103,6 +119,14 @@ public class TextMessagePage implements Serializable {
 
     public void setDataverseId(long dataverseId) {
         this.dataverseId = dataverseId;
+    }
+
+    public void setActiveIndex(int activeIndex) {
+        this.activeIndex = activeIndex;
+    }
+
+    public void setActiveTab(String activeTab) {
+        this.activeTab = activeTab;
     }
 
     public void setLazydataverseTextMessages(LazyDataverseTextMessage lazydataverseTextMessages) {
