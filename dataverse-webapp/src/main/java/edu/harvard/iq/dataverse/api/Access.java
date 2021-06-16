@@ -1165,7 +1165,7 @@ public class Access extends AbstractApiBean {
             return true;
         } else if (!GuestUser.get().equals(sessionUser) && isAccessAuthorizedForUser(sessionUser, df, fileIsInsideAnyReleasedDsVersion)) {
             logger.log(Level.FINE, "Session-based auth: user {0} has access rights on the datafile with id: {1}.",
-                    new Object[] { apiTokenUser.getIdentifier(), df.getId() });
+                    new Object[] { sessionUser.getIdentifier(), df.getId() });
             return true;
         } else if (isAccessAuthorizedForUser(GuestUser.get(), df, fileIsInsideAnyReleasedDsVersion)) {
             logger.log(Level.FINE, "Guest user has access rights on the datafile with id: {1}.", df.getId());

@@ -206,12 +206,6 @@ public class FileDownloadAPIHandler {
         return size;
     }
 
-    /**
-     * Returns true if user has access to files in given dataset version.
-     * Please do note that method is not taking into account file level
-     * permissions.
-     * 
-     */
     private boolean isAccessAuthorizedOnDatasetLevel(DatasetVersion dsv) {
         Dataset ds = dsv.getDataset();
 
@@ -257,7 +251,7 @@ public class FileDownloadAPIHandler {
                 permissionService.requestOn(createDataverseRequest(sessionUser), ds).has(Permission.ViewUnpublishedDataset)) {
 
             logger.log(Level.FINE, "Session-based auth: user {0} has access rights to files in dataset with id: {1}.",
-                    new Object[] { apiTokenUser.getIdentifier(), ds.getId() });
+                    new Object[] { sessionUser.getIdentifier(), ds.getId() });
             return true;
         } else if (permissionService.requestOn(createDataverseRequest(GuestUser.get()), ds).has(Permission.ViewUnpublishedDataset)) {
 
@@ -286,7 +280,7 @@ public class FileDownloadAPIHandler {
                 permissionService.requestOn(createDataverseRequest(sessionUser), file).has(Permission.DownloadFile)) {
 
             logger.log(Level.FINE, "Session-based auth: user {0} has access rights to file with id: {1}.",
-                    new Object[] { apiTokenUser.getIdentifier(), file.getId() });
+                    new Object[] { sessionUser.getIdentifier(), file.getId() });
             return true;
         } else if (permissionService.requestOn(createDataverseRequest(GuestUser.get()), file).has(Permission.DownloadFile)) {
 
@@ -363,12 +357,5 @@ public class FileDownloadAPIHandler {
                                                   .add("message", msg).build()
                        ).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
-    
-    private boolean isAccessAuthorizedForUser(User user, Dataset dataset, boolean isReleasedVersion) {
-        if (isReleasedVersion) {
-            return permissionService.requestOn(createDataverseRequest(user), dataset).has(Permission.DownloadFile);
-        } else {
-            return permissionService.requestOn(createDataverseRequest(user), dataset).has(Permission.ViewUnpublishedDataset);
-        }
-    }
+
 }
