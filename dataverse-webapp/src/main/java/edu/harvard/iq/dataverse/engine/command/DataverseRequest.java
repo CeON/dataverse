@@ -84,10 +84,7 @@ public class DataverseRequest {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
         DataverseRequest other = (DataverseRequest) obj;

@@ -152,6 +152,19 @@ public class AccessTest {
 
     }
 
+    @Test
+    void isAccessAuthorized_file_in_embargoed_dataset() {
+        // given
+        DataFile dataFile = createDatafile();
+        Dataset dataset = dataFile.getOwner();
+
+        when(embargoAccessService.isRestrictedByEmbargo(dataset)).thenReturn(true);
+
+        // when & then
+        assertThat(access.isAccessAuthorized(dataFile)).isFalse();
+
+    }
+
     // -------------------- PRIVATE --------------------
 
     private void mockPermissionResponse(DataverseRequest request, DvObject dvObject, Permission permission, boolean answer) {

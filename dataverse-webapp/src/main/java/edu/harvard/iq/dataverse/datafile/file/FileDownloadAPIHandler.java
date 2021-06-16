@@ -31,6 +31,7 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 import javax.ejb.Stateless;
@@ -44,7 +45,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -108,7 +108,6 @@ public class FileDownloadAPIHandler {
 
             ZipperWrapper zipperWrapper = new ZipperWrapper();
             long sizeTotal = 0L;
-            List<DataFile> filesToDownload = new ArrayList<>();
 
             if (isAccessAuthorizedOnDatasetLevel(dsv)) {
 
@@ -133,7 +132,6 @@ public class FileDownloadAPIHandler {
                         long size = computeFileSize(file, originalFileFormat);
                         if (size < (zipDownloadSizeLimit - sizeTotal)) {
                             sizeTotal += zipperWrapper.getZipper().addFileToZipStream(file, originalFileFormat);
-                            filesToDownload.add(file);
                         } else {
                             String fileName = file.getFileMetadata().getLabel();
                             String mimeType = file.getContentType();
@@ -298,15 +296,13 @@ public class FileDownloadAPIHandler {
     }
 
     private User getSessionUserWithGuestFallback() {
-        User sessionUser = null;
-        if (session != null) {
-            sessionUser = session.getUser();
-            logger.log(Level.FINE, "User associated with the session is ", sessionUser.getIdentifier());
-        } else {
-            sessionUser = GuestUser.get();
-            logger.fine("Session is null. Assuming guest user");
-        }
-        return sessionUser;
+        return Option.of(session)
+                .map(DataverseSession::getUser)
+                .peek(user -> logger.log(Level.FINE, "User associated with the session is {0}", user.getIdentifier()))
+                .getOrElse(() -> {
+                    logger.fine("Session is null. Assuming guest user");
+                    return GuestUser.get();
+                });
     }
 
     private DataverseRequest createDataverseRequest(User u) {

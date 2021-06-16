@@ -54,6 +54,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.lang.StringUtils;
 
@@ -1215,15 +1216,13 @@ public class Access extends AbstractApiBean {
     }
 
     private User getSessionUserWithGuestFallback() {
-        User sessionUser = null;
-        if (session != null) {
-            sessionUser = session.getUser();
-            logger.log(Level.FINE, "User associated with the session is ", sessionUser.getIdentifier());
-        } else {
-            sessionUser = GuestUser.get();
-            logger.fine("Session is null. Assuming guest user");
-        }
-        return sessionUser;
+        return Option.of(session)
+                .map(DataverseSession::getUser)
+                .peek(user -> logger.log(Level.FINE, "User associated with the session is {0}", user.getIdentifier()))
+                .getOrElse(() -> {
+                    logger.fine("Session is null. Assuming guest user");
+                    return GuestUser.get();
+                });
     }
 
     private Optional<Dataset> getDatasetFromDataVariable(Long dataVariableId) {
