@@ -47,6 +47,7 @@ public class SolrQuerySanitizer {
         StringBuilder transformedQuery = new StringBuilder();
 
         boolean currentCharIsEscaped = false;
+        boolean insideQuotation = false;
 
         for (int i=0; i<query.length(); ++i) {
             char currentChar = query.charAt(i);
@@ -54,6 +55,17 @@ public class SolrQuerySanitizer {
             if (currentChar == '\\') {
                 transformedQuery.append(currentChar);
                 currentCharIsEscaped = !currentCharIsEscaped;
+                continue;
+            }
+
+            if (currentChar == '"' && !currentCharIsEscaped) {
+                insideQuotation = !insideQuotation;
+                transformedQuery.append(currentChar);
+                continue;
+            }
+
+            if (insideQuotation) {
+                transformedQuery.append(currentChar);
                 continue;
             }
 
