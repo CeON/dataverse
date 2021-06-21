@@ -11,8 +11,6 @@ import java.util.List;
 public class RorDto {
 
     @Field
-    private String id;
-    @Field
     private String rorId;
     @Field
     private String name;
@@ -34,9 +32,8 @@ public class RorDto {
     public RorDto() {
     }
 
-    public RorDto(String id, String rorId, String name, String countryName, String countryCode, String city,
+    public RorDto(String rorId, String name, String countryName, String countryCode, String city,
            String website, List<String> nameAliases, List<String> acronyms, List<String> labels) {
-        this.id = id;
         this.rorId = rorId;
         this.name = name;
         this.countryName = countryName;
@@ -46,10 +43,6 @@ public class RorDto {
         this.nameAliases = nameAliases;
         this.acronyms = acronyms;
         this.labels = labels;
-    }
-
-    public long getId() {
-        return Long.parseLong(id);
     }
 
     public String getRorId() {
@@ -86,11 +79,6 @@ public class RorDto {
 
     public List<String> getLabels() {
         return labels;
-    }
-
-    public RorDto setId(String id) {
-        this.id = id;
-        return this;
     }
 
     public RorDto setRorId(String rorId) {

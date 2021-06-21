@@ -1,8 +1,6 @@
 package edu.harvard.iq.dataverse.search.ror;
 
-import com.google.common.collect.ImmutableSet;
-import edu.harvard.iq.dataverse.persistence.ror.RorData;
-import edu.harvard.iq.dataverse.persistence.ror.RorLabel;
+import com.google.common.collect.ImmutableList;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
@@ -32,12 +30,11 @@ class RorIndexingServiceTest {
         String name = "testName";
         String countryName = "Poland";
         String countryCode = "PL";
-        final ImmutableSet<String> aliases = ImmutableSet.of("alias");
-        final ImmutableSet<String> acronyms = ImmutableSet.of("acronym");
-        final ImmutableSet<RorLabel> labels = ImmutableSet.of(new RorLabel("label", "123"));
+        final ImmutableList<String> aliases = ImmutableList.of("alias");
+        final ImmutableList<String> acronyms = ImmutableList.of("acronym");
+        final ImmutableList<String> labels = ImmutableList.of("label");
 
-        final RorData rorData = new RorData(rorId, name, countryName, countryCode, aliases, acronyms, labels);
-        rorData.setId(1L);
+        final RorDto rorData = new RorDto(rorId, name, countryName, countryCode, "","", aliases, acronyms, labels);
 
         //when
         rorIndexingService.indexRorRecord(rorData);
@@ -55,11 +52,11 @@ class RorIndexingServiceTest {
         String name = "testName";
         String countryName = "Poland";
         String countryCode = "PL";
-        final ImmutableSet<String> aliases = ImmutableSet.of("alias");
-        final ImmutableSet<String> acronyms = ImmutableSet.of("acronym");
-        final ImmutableSet<RorLabel> labels = ImmutableSet.of(new RorLabel("label", "123"));
+        final ImmutableList<String> aliases = ImmutableList.of("alias");
+        final ImmutableList<String> acronyms = ImmutableList.of("acronym");
+        final ImmutableList<String> labels = ImmutableList.of("label");
 
-        final RorData rorData = new RorData(rorId, name, countryName, countryCode, aliases, acronyms, labels);
+        final RorDto rorData = new RorDto(rorId, name, countryName, countryCode, "","", aliases, acronyms, labels);
 
         //when & then
         Assertions.assertThatThrownBy(() -> rorIndexingService.indexRorRecord(rorData)).isInstanceOf(AssertionError.class);

@@ -43,6 +43,34 @@ public class SolrQuerySanitizer {
         return query;
     }
 
+    public String sanitizeRorQuery(String query) {
+        StringBuilder transformedQuery = new StringBuilder();
+
+        boolean currentCharIsEscaped = false;
+
+        for (int i=0; i<query.length(); ++i) {
+            char currentChar = query.charAt(i);
+
+            if (currentChar == '\\') {
+                transformedQuery.append(currentChar);
+                currentCharIsEscaped = !currentCharIsEscaped;
+                continue;
+            }
+
+            if (SOLR_SPECIAL_CHARACTERS.contains(currentChar) && !currentCharIsEscaped ) {
+                transformedQuery.append("\\");
+            }
+
+            if (currentCharIsEscaped) {
+                currentCharIsEscaped = false;
+            }
+
+            transformedQuery.append(currentChar);
+
+        }
+        return transformedQuery.toString();
+    }
+
     // -------------------- PRIVATE --------------------
 
     private Map<String, String> buildFieldNamesMapping(Collection<DatasetFieldType> datasetFields) {

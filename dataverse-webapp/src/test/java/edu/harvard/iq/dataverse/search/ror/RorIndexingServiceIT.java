@@ -1,9 +1,7 @@
 package edu.harvard.iq.dataverse.search.ror;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
-import edu.harvard.iq.dataverse.persistence.ror.RorData;
-import edu.harvard.iq.dataverse.persistence.ror.RorLabel;
 import edu.harvard.iq.dataverse.search.RorSolrClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -38,12 +36,11 @@ public class RorIndexingServiceIT extends WebappArquillianDeployment {
         String name = "testName";
         String countryName = "Poland";
         String countryCode = "PL";
-        final ImmutableSet<String> aliases = ImmutableSet.of("alias");
-        final ImmutableSet<String> acronyms = ImmutableSet.of("acronym");
-        final ImmutableSet<RorLabel> labels = ImmutableSet.of(new RorLabel("label", "123"));
+        final ImmutableList<String> aliases = ImmutableList.of("alias");
+        final ImmutableList<String> acronyms = ImmutableList.of("acronym");
+        final ImmutableList<String> labels = ImmutableList.of("label");
 
-        final RorData rorData = new RorData(rorId, name, countryName, countryCode, aliases, acronyms, labels);
-        rorData.setId(1L);
+        final RorDto rorData = new RorDto(rorId, name, countryName, countryCode,"", "", aliases, acronyms, labels);
 
         //when
         final UpdateResponse updateResponse = rorIndexingService.indexRorRecord(rorData);

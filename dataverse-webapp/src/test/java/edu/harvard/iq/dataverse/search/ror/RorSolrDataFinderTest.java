@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.search.ror;
 
 import com.google.common.collect.ImmutableMap;
+import edu.harvard.iq.dataverse.search.query.SolrQuerySanitizer;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -25,6 +26,9 @@ class RorSolrDataFinderTest {
     @Mock
     private SolrClient solrClient;
 
+    @Mock
+    private SolrQuerySanitizer solrQuerySanitizer;
+
     @InjectMocks
     private RorSolrDataFinder solrDataFinder;
 
@@ -40,6 +44,7 @@ class RorSolrDataFinderTest {
 
         //when
         Mockito.when(solrClient.query(Mockito.any())).thenReturn(queryResponse);
+        Mockito.when(solrQuerySanitizer.sanitizeRorQuery(searchPhrase)).thenReturn(searchPhrase);
         solrDataFinder.findRorData(searchPhrase);
 
         //then
@@ -56,6 +61,7 @@ class RorSolrDataFinderTest {
 
         //when
         Mockito.when(solrClient.query(Mockito.any())).thenReturn(queryResponse);
+        Mockito.when(solrQuerySanitizer.sanitizeRorQuery(searchPhrase)).thenReturn(searchPhrase);
         solrDataFinder.findRorData(searchPhrase);
 
         //then

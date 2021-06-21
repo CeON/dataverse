@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.search.ror;
 
 import edu.harvard.iq.dataverse.search.RorSolrClient;
+import edu.harvard.iq.dataverse.search.query.SolrQuerySanitizer;
 import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -20,10 +21,14 @@ public class RorSolrDataFinder {
     @RorSolrClient
     private SolrClient solrClient;
 
+    @Inject
+    private SolrQuerySanitizer solrQuerySanitizer;
+
     public List<RorDto> findRorData(String searchPhrase) {
         StringBuilder queryBuilder = new StringBuilder();
+        String cleanQuery = solrQuerySanitizer.sanitizeRorQuery(searchPhrase);
 
-        String[] slicedPhrases = searchPhrase.split(" ");
+        String[] slicedPhrases = cleanQuery.split(" ");
 
         for (int loopIndex = 0; loopIndex < slicedPhrases.length; loopIndex++) {
             queryBuilder.append(slicedPhrases[loopIndex]);

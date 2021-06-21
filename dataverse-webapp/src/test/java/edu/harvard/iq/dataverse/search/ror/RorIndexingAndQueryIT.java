@@ -1,9 +1,7 @@
 package edu.harvard.iq.dataverse.search.ror;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
-import edu.harvard.iq.dataverse.persistence.ror.RorData;
-import edu.harvard.iq.dataverse.persistence.ror.RorLabel;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -31,12 +29,11 @@ public class RorIndexingAndQueryIT extends WebappArquillianDeployment {
         String name = "testName";
         String countryName = "Poland";
         String countryCode = "PL";
-        final ImmutableSet<String> aliases = ImmutableSet.of("alias");
-        final ImmutableSet<String> acronyms = ImmutableSet.of("acronym");
-        final ImmutableSet<RorLabel> labels = ImmutableSet.of(new RorLabel("label", "123"));
+        final ImmutableList<String> aliases = ImmutableList.of("alias");
+        final ImmutableList<String> acronyms = ImmutableList.of("acronym");
+        final ImmutableList<String> labels = ImmutableList.of("label");
 
-        final RorData rorData = new RorData(rorId, name, countryName, countryCode, aliases, acronyms, labels);
-        rorData.setId(1L);
+        final RorDto rorData = new RorDto(rorId, name, countryName, countryCode, "","", aliases, acronyms, labels);
 
         //when
         rorIndexingService.indexRorRecord(rorData);
@@ -44,7 +41,6 @@ public class RorIndexingAndQueryIT extends WebappArquillianDeployment {
 
         //then
         Assertions.assertThat(queryResponse.size()).isEqualTo(1);
-        Assertions.assertThat(queryResponse.get(0).getId()).isEqualTo(1L);
         Assertions.assertThat(queryResponse.get(0).getName()).isEqualTo(name);
         Assertions.assertThat(queryResponse.get(0).getCountryName()).isEqualTo(countryName);
         Assertions.assertThat(queryResponse.get(0).getCountryCode()).isEqualTo(countryCode);
