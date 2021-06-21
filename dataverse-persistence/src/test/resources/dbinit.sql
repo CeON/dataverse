@@ -100,7 +100,7 @@ INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, auth
             1, '2019-09-26 11:43:58.194', '2019-09-26 11:43:58.194', '2019-09-26 11:43:58.194', NULL, NULL);
 
 INSERT INTO dataset (id, fileaccessrequest, harvestidentifier, usegenericthumbnail, citationdatedatasetfieldtype_id, harvestingclient_id, guestbook_id, thumbnailfile_id)
-    VALUES (66, NULL, NULL, false, NULL, 12, NULL, NULL);
+    VALUES (66, NULL, NULL, false, NULL, NULL, NULL, NULL);
 INSERT INTO datasetversion (id, version, dataset_id, versionstate, versionnumber, minorversionnumber, unf, termsofuseandaccess_id, archivenote, versionnote, deaccessionlink, createtime, lastupdatetime, releasetime, archivetime, archivalcopylocation)
     VALUES (41, 1, 66, 'DRAFT', 1, 0, NULL, NULL, NULL, NULL, NULL, '2019-09-26 11:43:58.204', '2019-09-26 11:43:58.204', NULL, NULL, NULL);
 INSERT INTO datasetversionuser (id, lastupdatedate, authenticateduser_id, datasetversion_id) VALUES (44, '2019-09-26 11:43:58.194', 1, 41);
@@ -128,6 +128,16 @@ INSERT INTO datasetfield_controlledvocabularyvalue (datasetfield_id, controlledv
 
 INSERT INTO datasetfield (id, datasetfieldparent_id, datasetversion_id, datasetfieldtype_id, displayorder, fieldvalue) VALUES (662, NULL, 41, 58, 0, '2019-09-26');
 INSERT INTO datasetfield (id, datasetfieldparent_id, datasetversion_id, datasetfieldtype_id, displayorder, fieldvalue) VALUES (669, NULL, 41, 57, 0, 'Some depositor name');
+
+INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate,
+                      creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
+VALUES (71, 'Dataset', 1, false, 'doi', '10.18150', 'FK2/QTVQKZ', NULL, false, 'file://10.18150/FK2/QTVQKZ', NULL, NULL,
+        1, '2019-09-26 11:43:58.194', '2019-09-26 11:43:58.194', '2019-09-26 11:43:58.194', NULL, NULL);
+
+INSERT INTO dataset (id, fileaccessrequest, harvestidentifier, usegenericthumbnail, citationdatedatasetfieldtype_id, harvestingclient_id, guestbook_id, thumbnailfile_id)
+VALUES (71, NULL, NULL, false, NULL, 12, NULL, NULL);
+INSERT INTO datasetversion (id, version, dataset_id, versionstate, versionnumber, minorversionnumber, unf, termsofuseandaccess_id, archivenote, versionnote, deaccessionlink, createtime, lastupdatetime, releasetime, archivetime, archivalcopylocation)
+VALUES (61, 1, 67, 'DRAFT', 1, 0, NULL, NULL, NULL, NULL, NULL, '2019-09-26 11:43:58.204', '2019-09-26 11:43:58.204', NULL, NULL, NULL);
 
 
 --- DV:unreleased -> Draft with files ---
