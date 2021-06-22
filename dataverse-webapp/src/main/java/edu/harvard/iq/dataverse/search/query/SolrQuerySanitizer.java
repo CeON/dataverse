@@ -46,29 +46,17 @@ public class SolrQuerySanitizer {
     public String sanitizeRorQuery(String query) {
         StringBuilder transformedQuery = new StringBuilder();
 
-        boolean currentCharIsEscaped = false;
-        boolean insideQuotation = false;
-
         for (int i=0; i<query.length(); ++i) {
             char currentChar = query.charAt(i);
 
-            if (currentChar == '\\') {
+            if (SOLR_SPECIAL_CHARACTERS.contains(currentChar)) {
+                transformedQuery.append("\\")
+                                .append(currentChar);
+            } else {
                 transformedQuery.append(currentChar);
-                currentCharIsEscaped = !currentCharIsEscaped;
-                continue;
             }
-
-            if (SOLR_SPECIAL_CHARACTERS.contains(currentChar) && !currentCharIsEscaped ) {
-                transformedQuery.append("\\");
-            }
-
-            if (currentCharIsEscaped) {
-                currentCharIsEscaped = false;
-            }
-
-            transformedQuery.append(currentChar);
-
         }
+
         return transformedQuery.toString();
     }
 

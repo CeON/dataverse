@@ -129,8 +129,8 @@ public class SolrQuerySanitizerTest {
                 Arguments.of("abc&title:value", "abc\\&title\\:value"),
                 Arguments.of("title:value   abc", "title\\:value   abc"),
                 Arguments.of("abc   title:value", "abc   title\\:value"),
-                Arguments.of(" \\\" title:value", " \\\" title\\:value"), // escaped quotation
-                Arguments.of(" \\\\\\\" title:value", " \\\\\\\" title\\:value"), // escaped \ char and quotation
+                Arguments.of(" \\\" title:value", " \\\\\\\" title\\:value"), // escaped quotation
+                Arguments.of(" \\\\\\\" title:value", " \\\\\\\\\\\\\\\" title\\:value"), // escaped \ char and quotation
                 Arguments.of("abc&title:value", "abc\\&title\\:value"),
                 Arguments.of("abc&title:value", "abc\\&title\\:value"),
                 Arguments.of("title:value AND year:value", "title\\:value AND year\\:value"),
