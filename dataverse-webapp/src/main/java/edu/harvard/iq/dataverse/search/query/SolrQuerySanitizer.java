@@ -58,17 +58,6 @@ public class SolrQuerySanitizer {
                 continue;
             }
 
-            if (currentChar == '"' && !currentCharIsEscaped) {
-                insideQuotation = !insideQuotation;
-                transformedQuery.append(currentChar);
-                continue;
-            }
-
-            if (insideQuotation) {
-                transformedQuery.append(currentChar);
-                continue;
-            }
-
             if (SOLR_SPECIAL_CHARACTERS.contains(currentChar) && !currentCharIsEscaped ) {
                 transformedQuery.append("\\");
             }
