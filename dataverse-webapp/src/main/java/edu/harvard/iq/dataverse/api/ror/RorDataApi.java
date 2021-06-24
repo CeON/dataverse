@@ -1,7 +1,10 @@
 package edu.harvard.iq.dataverse.api.ror;
 
+import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.api.errorhandlers.ApiErrorResponse;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.ror.RorDataService;
+import edu.harvard.iq.dataverse.search.ror.RorIndexingService;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -22,19 +25,22 @@ import java.io.InputStream;
 
 @Stateless
 @Path("ror")
-public class RorDataApi {
+public class RorDataApi extends AbstractApiBean{
 
     private static final Logger logger = LoggerFactory.getLogger(RorDataApi.class);
 
     private RorDataService rorDataService;
+
+    private RorIndexingService rorIndexingService;
 
     // -------------------- CONSTRUCTORS --------------------
 
     public RorDataApi() { }
 
     @Inject
-    public RorDataApi(RorDataService rorDataService) {
+    public RorDataApi(RorDataService rorDataService, RorIndexingService rorIndexingService) {
         this.rorDataService = rorDataService;
+        this.rorIndexingService = rorIndexingService;
     }
 
     // -------------------- LOGIC --------------------
@@ -46,6 +52,16 @@ public class RorDataApi {
     public Response uploadRorData(
             @FormDataParam("file") InputStream inputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader) {
+        try {
+            AuthenticatedUser user = findAuthenticatedUserOrDie();
+            if (!user.isSuperuser()) {
+                return error(Response.Status.FORBIDDEN, "This API call can be used by superusers only");
+            }
+        } catch (AbstractApiBean.WrappedResponse wrappedResponse) {
+            return wrappedResponse.getResponse();
+        }
+
+
         File file;
         RorDataService.UpdateResult result;
         try {
@@ -60,6 +76,8 @@ public class RorDataApi {
         } finally {
             close(inputStream);
         }
+
+        result.getSavedRorData().forEach(rorData -> rorIndexingService.indexRorRecordAsync(rorData));
         return Response.ok(result).build();
     }
 

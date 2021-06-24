@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import edu.harvard.iq.dataverse.api.converters.RorConverter;
 import edu.harvard.iq.dataverse.api.dto.RorEntryDTO;
+import edu.harvard.iq.dataverse.interceptors.SuperuserRequired;
 import edu.harvard.iq.dataverse.persistence.ror.RorData;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -36,7 +39,7 @@ public class RorDataService {
 
     private RorTransactionsService rorTransactionsService;
 
-    private static final int BATCH_SIZE_FOR_TX = 100;
+    private static int BATCH_SIZE_FOR_TX = 100;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -48,8 +51,18 @@ public class RorDataService {
         this.rorTransactionsService = rorTransactionsService;
     }
 
+    public RorDataService(RorConverter rorConverter, RorTransactionsService rorTransactionsService, int transactionBatchSize) {
+        this.rorConverter = rorConverter;
+        this.rorTransactionsService = rorTransactionsService;
+        BATCH_SIZE_FOR_TX = transactionBatchSize;
+    }
+
     // -------------------- LOGIC --------------------
 
+    /**
+     * Method dedicated for refreshing ror data, dropping old data and then adding fresh entries.
+     */
+    @SuperuserRequired
     public UpdateResult refreshRorData(File file, FormDataContentDisposition header) {
         File processed = selectFileToProcess(file, header);
         UpdateResult updateResult = new UpdateResult();
@@ -68,11 +81,13 @@ public class RorDataService {
                 if (count % BATCH_SIZE_FOR_TX == 0) {
                     truncateOnce(count);
                     rorTransactionsService.saveMany(toSave);
+                    updateResult.getSavedRorData().addAll(toSave);
                     toSave.clear();
                 }
                 toSave.add(rorConverter.toEntity(rorEntry));
             }
             rorTransactionsService.saveMany(toSave);
+            updateResult.getSavedRorData().addAll(toSave);
 
             jsonReader.endArray();
         } catch (IOException ioe) {
@@ -134,6 +149,7 @@ public class RorDataService {
     public static class UpdateResult {
         private Integer total = 0;
         private SortedMap<String, Integer> stats = new TreeMap<>();
+        private List<RorData> savedRorData = new ArrayList<>();
 
         // -------------------- GETTERS --------------------
 
@@ -143,6 +159,10 @@ public class RorDataService {
 
         public SortedMap<String, Integer> getStats() {
             return stats;
+        }
+
+        public List<RorData> getSavedRorData() {
+            return savedRorData;
         }
 
         // -------------------- LOGIC --------------------

@@ -33,7 +33,7 @@ public class RorData implements JpaEntity<Long>, Serializable {
     private String countryCode;
 
     @Column
-    private String link;
+    private String website;
 
     @Column
     private String city;
@@ -56,12 +56,14 @@ public class RorData implements JpaEntity<Long>, Serializable {
 
     public RorData() { }
 
-    public RorData(String rorId, String name, String countryName, String countryCode,
+    public RorData(String rorId, String name, String countryName, String countryCode, String website, String city,
                    Set<String> nameAliases, Set<String> acronyms, Set<RorLabel> labels) {
         this.rorId = rorId;
         this.name = name;
         this.countryName = countryName;
         this.countryCode = countryCode;
+        this.website = website;
+        this.city = city;
         this.nameAliases.addAll(nameAliases);
         this.acronyms.addAll(acronyms);
         this.labels.addAll(labels);
@@ -101,8 +103,8 @@ public class RorData implements JpaEntity<Long>, Serializable {
         return labels;
     }
 
-    public String getLink() {
-        return link;
+    public String getWebsite() {
+        return website;
     }
 
     public String getCity() {
@@ -132,8 +134,8 @@ public class RorData implements JpaEntity<Long>, Serializable {
         this.countryCode = countryCode;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
     public void setCity(String city) {

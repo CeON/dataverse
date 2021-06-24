@@ -8,6 +8,9 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.Set;
 
+/**
+ * Class dedicated only for ability to control transactions.
+ */
 @Stateless
 public class RorTransactionsService {
 
@@ -31,7 +34,6 @@ public class RorTransactionsService {
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void saveMany(Set<RorData> entities) {
-        entities.stream()
-                .forEach(e -> rorRepository.save(e));
+        entities.forEach(e -> rorRepository.save(e));
     }
 }

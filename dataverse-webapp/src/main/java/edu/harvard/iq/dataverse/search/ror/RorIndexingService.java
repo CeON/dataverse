@@ -1,12 +1,17 @@
 package edu.harvard.iq.dataverse.search.ror;
 
+import edu.harvard.iq.dataverse.api.converters.RorConverter;
+import edu.harvard.iq.dataverse.persistence.ror.RorData;
 import edu.harvard.iq.dataverse.search.RorSolrClient;
 import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 
+import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +26,14 @@ public class RorIndexingService {
     @Inject
     @RorSolrClient
     private SolrClient solrServer;
+
+    @Inject
+    private RorConverter rorConverter;
+
+    @Asynchronous
+    public Future<UpdateResponse> indexRorRecordAsync(RorData rorData) {
+        return CompletableFuture.supplyAsync(() -> indexRorRecord(rorConverter.toSolrDto(rorData)));
+    }
 
     public UpdateResponse indexRorRecord(RorDto rorData) {
 
