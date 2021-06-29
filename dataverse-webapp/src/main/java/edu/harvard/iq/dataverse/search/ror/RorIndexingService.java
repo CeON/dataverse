@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.search.ror;
 
-import edu.harvard.iq.dataverse.api.converters.RorConverter;
 import edu.harvard.iq.dataverse.persistence.ror.RorData;
+import edu.harvard.iq.dataverse.ror.RorConverter;
 import edu.harvard.iq.dataverse.search.RorSolrClient;
 import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
@@ -38,7 +38,7 @@ public class RorIndexingService {
     public UpdateResponse indexRorRecord(RorDto rorData) {
 
         Try.of(() -> solrServer.addBean(rorData))
-           .onFailure(throwable -> logger.log(Level.WARNING, "Unable to add ror record with ror id: " + rorData.getRorId()));
+           .onFailure(throwable -> logger.log(Level.WARNING, "Unable to add ror record with ror id: " + rorData.getRorId(), throwable));
 
         return Try.of(() -> solrServer.commit())
                   .getOrElseThrow(throwable -> new IllegalStateException("Unable to commit ror data to solr.", throwable));

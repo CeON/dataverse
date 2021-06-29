@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.ror;
 
-import edu.harvard.iq.dataverse.api.converters.RorConverter;
 import edu.harvard.iq.dataverse.persistence.ror.RorData;
 import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -51,6 +50,8 @@ class RorDataServiceTest {
 
         //then
         Assertions.assertThat(updateResult.getTotal()).isEqualTo(1);
+        Mockito.verify(rorTransactionsService, Mockito.times(2)).saveMany(Mockito.any());
+        Mockito.verify(rorTransactionsService, Mockito.times(1)).truncateAll();
 
     }
 

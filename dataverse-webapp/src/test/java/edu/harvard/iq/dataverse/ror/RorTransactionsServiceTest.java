@@ -31,9 +31,12 @@ class RorTransactionsServiceTest {
     @Test
     void saveMany() {
         //when
-        rorTransactionsService.saveMany(Sets.newHashSet(new RorData()));
+        final RorData rorData = new RorData();
+        final RorData secondRorData = new RorData();
+        rorTransactionsService.saveMany(Sets.newHashSet(rorData, secondRorData));
 
         //then
-        Mockito.verify(rorDataRepository, Mockito.times(1)).save(Mockito.any(RorData.class));
+        Mockito.verify(rorDataRepository, Mockito.times(1)).save(Mockito.same(rorData));
+        Mockito.verify(rorDataRepository, Mockito.times(1)).save(Mockito.same(secondRorData));
     }
 }

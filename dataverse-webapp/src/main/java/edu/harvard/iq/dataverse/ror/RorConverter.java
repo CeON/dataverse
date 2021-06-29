@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.api.converters;
+package edu.harvard.iq.dataverse.ror;
 
 import edu.harvard.iq.dataverse.api.dto.RorEntryDTO;
 import edu.harvard.iq.dataverse.persistence.ror.RorData;

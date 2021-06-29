@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import edu.harvard.iq.dataverse.api.dto.RorEntryDTO;
 import edu.harvard.iq.dataverse.persistence.ror.RorData;
 import edu.harvard.iq.dataverse.persistence.ror.RorLabel;
+import edu.harvard.iq.dataverse.ror.RorConverter;
 import edu.harvard.iq.dataverse.search.ror.RorDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

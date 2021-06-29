@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.api.ror;
 
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
+import edu.harvard.iq.dataverse.api.dto.RorDataResponse;
 import edu.harvard.iq.dataverse.api.errorhandlers.ApiErrorResponse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.ror.RorDataService;
@@ -78,7 +79,7 @@ public class RorDataApi extends AbstractApiBean{
         }
 
         result.getSavedRorData().forEach(rorData -> rorIndexingService.indexRorRecordAsync(rorData));
-        return Response.ok(result).build();
+        return Response.ok(new RorDataResponse(result.getTotal(), result.getStats())).build();
     }
 
     // -------------------- PRIVATE --------------------

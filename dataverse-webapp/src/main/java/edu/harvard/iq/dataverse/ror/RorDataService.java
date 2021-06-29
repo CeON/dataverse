@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.ror;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import edu.harvard.iq.dataverse.api.converters.RorConverter;
 import edu.harvard.iq.dataverse.api.dto.RorEntryDTO;
 import edu.harvard.iq.dataverse.interceptors.SuperuserRequired;
 import edu.harvard.iq.dataverse.persistence.ror.RorData;
@@ -39,11 +38,13 @@ public class RorDataService {
 
     private RorTransactionsService rorTransactionsService;
 
-    private static int BATCH_SIZE_FOR_TX = 100;
+    private static int DEFAULT_BATCH_SIZE_FOR_TX = 100;
+    private int batchSizeForTx = DEFAULT_BATCH_SIZE_FOR_TX;
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public RorDataService() { }
+    public RorDataService() {
+    }
 
     @Inject
     public RorDataService(RorConverter rorConverter, RorTransactionsService rorTransactionsService) {
@@ -54,7 +55,7 @@ public class RorDataService {
     public RorDataService(RorConverter rorConverter, RorTransactionsService rorTransactionsService, int transactionBatchSize) {
         this.rorConverter = rorConverter;
         this.rorTransactionsService = rorTransactionsService;
-        BATCH_SIZE_FOR_TX = transactionBatchSize;
+        batchSizeForTx = transactionBatchSize;
     }
 
     // -------------------- LOGIC --------------------
@@ -67,7 +68,7 @@ public class RorDataService {
         File processed = selectFileToProcess(file, header);
         UpdateResult updateResult = new UpdateResult();
         try (FileReader fileReader = new FileReader(processed);
-            JsonReader jsonReader = new JsonReader(fileReader)) {
+             JsonReader jsonReader = new JsonReader(fileReader)) {
             jsonReader.beginArray();
 
             Gson gson = new Gson();
@@ -78,8 +79,12 @@ public class RorDataService {
                 count++;
                 rorEntry = gson.fromJson(jsonReader, RorEntryDTO.class);
                 updateResult.update(rorEntry);
-                if (count % BATCH_SIZE_FOR_TX == 0) {
-                    truncateOnce(count);
+
+                if (count == 1) {
+                    rorTransactionsService.truncateAll();
+                }
+
+                if (count % batchSizeForTx == 0) {
                     rorTransactionsService.saveMany(toSave);
                     updateResult.getSavedRorData().addAll(toSave);
                     toSave.clear();
@@ -113,7 +118,7 @@ public class RorDataService {
     private File decompressJson(File zipped) {
         File decompressed = null;
         try (FileInputStream fileInputStream = new FileInputStream(zipped);
-            ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
+             ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
             ZipEntry currentEntry;
             while ((currentEntry = zipInputStream.getNextEntry()) != null) {
                 if (!currentEntry.isDirectory() && hasExtension(currentEntry.getName(), ".json")) {
@@ -136,12 +141,6 @@ public class RorDataService {
 
     private boolean hasExtension(String fileName, String extension) {
         return StringUtils.isNotBlank(fileName) && fileName.toLowerCase().endsWith(extension);
-    }
-
-    private void truncateOnce(int count) {
-        if (count == BATCH_SIZE_FOR_TX) {
-            rorTransactionsService.truncateAll();
-        }
     }
 
     // -------------------- INNER CLASSES --------------------
@@ -169,11 +168,9 @@ public class RorDataService {
 
         public void update(RorEntryDTO entryDTO) {
             String countryName = entryDTO.getCountry().getCountryName();
-            synchronized (this) {
-                Integer countryTotal = stats.get(countryName);
-                stats.put(countryName, countryTotal != null ? countryTotal + 1 : 1);
-                total++;
-            }
+            Integer countryTotal = stats.get(countryName);
+            stats.put(countryName, countryTotal != null ? countryTotal + 1 : 1);
+            total++;
         }
     }
 }
