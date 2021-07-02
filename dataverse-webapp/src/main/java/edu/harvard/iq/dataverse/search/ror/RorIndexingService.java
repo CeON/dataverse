@@ -40,13 +40,15 @@ public class RorIndexingService {
                                             .map(ror -> rorConverter.toSolrDto(ror))
                                             .collect(Collectors.toList());
 
-        String failedRorIds = rorData.stream()
+        String firstTenFailedRorIds = rorData.stream()
                                      .map(RorData::getRorId)
+                                     .limit(10)
                                      .collect(Collectors.joining(","));
 
         CompletableFuture<UpdateResponse> updateResult = CompletableFuture.supplyAsync(() -> {
             Try.of(() -> solrServer.addBeans(convertedData))
-               .onFailure(throwable -> logger.log(Level.WARNING, "Unable to add ror records with ror ids: " + failedRorIds, throwable));
+               .onFailure(throwable -> logger.log(Level.WARNING, "Unable to add ror records with ror ids: " + firstTenFailedRorIds +
+                       "; With record count of " + convertedData.size(), throwable));
 
             return Try.of(() -> solrServer.commit())
                       .getOrElseThrow(throwable -> new IllegalStateException("Unable to commit ror data to solr.", throwable));
