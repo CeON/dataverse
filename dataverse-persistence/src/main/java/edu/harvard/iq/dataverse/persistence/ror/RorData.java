@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -33,6 +32,12 @@ public class RorData implements JpaEntity<Long>, Serializable {
     @Column(length = 16)
     private String countryCode;
 
+    @Column
+    private String website;
+
+    @Column
+    private String city;
+
     @ElementCollection
     @CollectionTable(name = "rordata_namealias", joinColumns = @JoinColumn(name = "rordata_id"))
     @Column(name = "namealias")
@@ -51,12 +56,14 @@ public class RorData implements JpaEntity<Long>, Serializable {
 
     public RorData() { }
 
-    public RorData(String rorId, String name, String countryName, String countryCode,
-                   Set<String> nameAliases, Set<String> acronyms, List<RorLabel> labels) {
+    public RorData(String rorId, String name, String countryName, String countryCode, String website, String city,
+                   Set<String> nameAliases, Set<String> acronyms, Set<RorLabel> labels) {
         this.rorId = rorId;
         this.name = name;
         this.countryName = countryName;
         this.countryCode = countryCode;
+        this.website = website;
+        this.city = city;
         this.nameAliases.addAll(nameAliases);
         this.acronyms.addAll(acronyms);
         this.labels.addAll(labels);
@@ -92,7 +99,24 @@ public class RorData implements JpaEntity<Long>, Serializable {
         return acronyms;
     }
 
+    public Set<RorLabel> getLabels() {
+        return labels;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
     // -------------------- SETTERS --------------------
+
+    public RorData setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
     public void setRorId(String rorId) {
         this.rorId = rorId;
@@ -108,5 +132,13 @@ public class RorData implements JpaEntity<Long>, Serializable {
 
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }

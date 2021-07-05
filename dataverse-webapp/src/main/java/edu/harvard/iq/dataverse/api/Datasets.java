@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
+import edu.harvard.iq.dataverse.datafile.DataFileCreator;
 import edu.harvard.iq.dataverse.datafile.FileService;
 import edu.harvard.iq.dataverse.datafile.file.FileDownloadAPIHandler;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
@@ -203,6 +204,9 @@ public class Datasets extends AbstractApiBean {
     @Inject
     private FileService fileServiceBean;
 
+    @Inject
+    private DataFileCreator dataFileCreator;
+    
     @Inject
     private DatasetThumbnailService datasetThumbnailService;
 
@@ -483,20 +487,18 @@ public class Datasets extends AbstractApiBean {
     @Produces({"application/zip"})
     @ApiWriteOperation
     public Response getVersionFiles(@PathParam("id") String datasetId, @PathParam("versionId") String versionId, @QueryParam("gbrecs") boolean gbrecs,
-                                    @Context HttpHeaders headers, @Context HttpServletResponse response, @Context UriInfo uriInfo) {
+                                    @Context HttpServletResponse response, @Context UriInfo uriInfo) {
 
         User apiTokenUser = Try.of(this::findUserOrDie)
                                .onFailure(throwable -> logger.log(Level.FINE, "Failed finding user for apiToken: ", throwable))
                                .get();
-
-        String requestApiKey = getRequestApiKey();
 
         boolean originalFormatRequested = isOriginalFormatRequested(uriInfo.getQueryParameters());
 
         response.setHeader("Content-disposition", "attachment; filename=\"dataverse_files.zip\"");
         response.setHeader("Content-Type", "application/zip; name=\"dataverse_files.zip\"");
 
-        StreamingOutput fileStream = fileDownloadAPIHandler.downloadFiles(apiTokenUser, requestApiKey, versionId,
+        StreamingOutput fileStream = fileDownloadAPIHandler.downloadFiles(apiTokenUser, versionId,
                                                                           originalFormatRequested, gbrecs);
 
         return Response.ok(fileStream).build();
@@ -1709,6 +1711,7 @@ public class Datasets extends AbstractApiBean {
         AddReplaceFileHelper addFileHelper = new AddReplaceFileHelper(dvRequest2,
                                                                       ingestService,
                                                                       fileService,
+                                                                      dataFileCreator,
                                                                       permissionSvc,
                                                                       jsonPrinter,
                                                                       commandEngine, optionalFileParamsSvc);
