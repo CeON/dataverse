@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean
 import edu.harvard.iq.dataverse.dataset.difference.DatasetVersionDifference;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import org.primefaces.PrimeFaces;
 
 import javax.ejb.EJB;
@@ -14,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,9 @@ public class DatasetVersionsTab implements Serializable {
     
     @Inject
     private PermissionsWrapper permissionsWrapper;
+
+    @Inject
+    private SettingsServiceBean settingsService;
 
     private Dataset dataset;
     private List<DatasetVersion> datasetVersions = new ArrayList<>();
@@ -114,6 +119,15 @@ public class DatasetVersionsTab implements Serializable {
     
     public void updateVersionDiffForDialog(DatasetVersionDifference difference) {
         versionsDifferenceForDialog = difference;
+    }
+
+    public boolean isUserUnderEmbargo() {
+        return dataset.hasActiveEmbargo() && !permissionsWrapper.canViewUnpublishedDataset(dataset);
+    }
+
+    public String getEmbargoDateForDisplay() {
+        SimpleDateFormat format = new SimpleDateFormat(settingsService.getValueForKey(SettingsServiceBean.Key.DefaultDateFormat));
+        return format.format(dataset.getEmbargoDate().getOrNull());
     }
     
     // -------------------- PRIVATE --------------------

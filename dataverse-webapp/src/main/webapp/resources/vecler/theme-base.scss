@@ -4719,6 +4719,10 @@ body.font-size-percent-200 {
 		border-color: $contrast-background-color;
 	}
 
+	 #version-details-block-embargoed > div {
+		 border-color: $contrast-background-color;
+	 }
+
 	/* Dashboard */
 
 	#dashboard-block div.card-box {
