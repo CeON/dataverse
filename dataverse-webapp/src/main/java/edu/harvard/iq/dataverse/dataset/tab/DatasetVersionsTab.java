@@ -113,7 +113,7 @@ public class DatasetVersionsTab implements Serializable {
                 oldVersion = selectedVersions.get(0).getVersion();
                 newVersion = selectedVersions.get(1).getVersion();
             }
-            updateVersionDiffForDialog(new DatasetVersionDifference(newVersion, oldVersion));
+            updateVersionDiffForDialog(new DatasetVersionDifference(newVersion, oldVersion, !isUserUnderEmbargo()));
         }
     }
     
@@ -171,7 +171,7 @@ public class DatasetVersionsTab implements Serializable {
         if (previousVersion == null) {
             return null;
         }
-        return new DatasetVersionDifference(datasetVersions.get(datasetVersionIndex), previousVersion);
+        return new DatasetVersionDifference(datasetVersions.get(datasetVersionIndex), previousVersion, !isUserUnderEmbargo());
     }
     
     private DatasetVersion retrieveNextComparableVersion(int datasetVersionIndex) {

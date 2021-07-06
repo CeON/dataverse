@@ -787,10 +787,6 @@ span.ingest-warning span.glyphicon {top:3px}
 #version-details-block > div:first-of-type {width:30%; border:0;}
 #version-details-block > div:last-of-type {border-left-width:0;}
 
-#version-details-block-embargoed > div {width:35%; padding:4px 10px; border: 1px solid #DDDDDD;}
-#version-details-block-embargoed > div:first-of-type {width:30%; border:0;}
-#version-details-block-embargoed > div:last-of-type {border-left-width:0;}
-
 div.dvnDifferanceTable > div.ui-datatable-tablewrapper > table > thead {display:none;}
 div.dvnDifferanceTable > div.ui-datatable-tablewrapper > table, div.dvnDifferanceTable > div.ui-datatable-tablewrapper > table > tbody {border:0;}
 div.dvnDifferanceTable > div.ui-datatable-tablewrapper > table > tbody > tr:first-child, div.dvnDifferanceTable > div.ui-datatable-tablewrapper > table > tbody > tr:first-child > td {border-top-width:0;}

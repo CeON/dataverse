@@ -192,9 +192,17 @@
 
     <p:dialog id="detailsBlocks" styleClass="largePopUp" header="#{bundle['file.viewDiffDialog.header']}"
               widgetVar="detailsBlocks" modal="true">
-        <ui:fragment rendered="#{datasetVersionsTab.versionsDifferenceForDialog.isNotEmpty() and !datasetVersionsTab.isUserUnderEmbargo()}">
+        <ui:fragment rendered="#{datasetVersionsTab.versionsDifferenceForDialog.isNotEmpty()}">
             <div id="version-title"
                  class="margin-bottom-half">#{datasetVersionsTab.versionsDifferenceForDialog.newVersion.title}</div>
+
+            <div id="files-section-hidden-msg" jsf:rendered="#{datasetVersionsTab.isUserUnderEmbargo()}"
+                 class="margin-bottom margin-top">
+                <h:outputFormat value="#{bundle['file.viewDiffDialog.fileAndTerms.embargoed']}">
+                    <f:param value="#{datasetVersionsTab.getEmbargoDateForDisplay()}"/>
+                </h:outputFormat>
+            </div>
+
             <div id="version-details-block" class=" clearfix margin-bottom-half">
                 <div class="pull-left">
                     &#160;
@@ -417,79 +425,22 @@
             </div>
         </ui:fragment>
 
-        <ui:fragment rendered="#{datasetVersionsTab.versionsDifferenceForDialog.isNotEmpty() and datasetVersionsTab.isUserUnderEmbargo()}">
-            <div id="version-title-embargoed"
-                 class="margin-bottom-half">#{datasetVersionsTab.versionsDifferenceForDialog.newVersion.title}</div>
-
-            <div id="files-section-hidden-msg"
-                 class="margin-bottom margin-top">
-                <h:outputFormat value="#{bundle['file.viewDiffDialog.fileAndTerms.embargoed']}">
-                    <f:param value="#{datasetVersionsTab.getEmbargoDateForDisplay()}"/>
-                </h:outputFormat>
-            </div>
-
-            <div id="version-details-block-embargoed" jsf:rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.detailDataByBlock)}"
-                 class=" clearfix margin-bottom-half">
-                <div class="pull-left">
-                    &#160;
-                </div>
-                <div class="pull-left">
-                    #{bundle['file.viewDiffDialog.version']}: #{datasetVersionsTab.versionsDifferenceForDialog.originalVersion.semanticVersion}
-                    <br/>
-                    #{bundle['file.viewDiffDialog.lastUpdated']}: #{datasetVersionsTab.versionsDifferenceForDialog.originalVersion.localeLastUpdateTime}
-                </div>
-                <div class="pull-left">
-                    #{bundle['file.viewDiffDialog.version']}: #{datasetVersionsTab.versionsDifferenceForDialog.newVersion.semanticVersion}
-                    <br/>
-                    #{bundle['file.viewDiffDialog.lastUpdated']}: #{datasetVersionsTab.versionsDifferenceForDialog.newVersion.localeLastUpdateTime}
-                </div>
-            </div>
-            <ui:fragment rendered="#{!empty(datasetVersionsTab.versionsDifferenceForDialog.detailDataByBlock)}">
-                <ui:repeat value="#{datasetVersionsTab.versionsDifferenceForDialog.detailDataByBlock}" var="blockDiff">
-                    <div class="panel panel-default">
-                        <div class="panel-heading text-info">
-                            <h:outputText
-                                    value="#{blockDiff.get(0).fieldType.metadataBlock.displayName}"/>
-                        </div>
-                        <p:dataTable id="byBlockInner-embargoed" styleClass="dvnDifferanceTable" var="fieldDiff"
-                                     value="#{blockDiff}">
-                            <p:column styleClass="versionValue">
-                                <h:outputText value="#{fieldDiff.fieldType.localeTitle}"/>
-                            </p:column>
-                            <p:column styleClass="versionDetails">
-                                <h:outputText
-                                        rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}"
-                                        value="#{fieldDiff.generatePairOfJoinedValues()._1()}"/>
-                                <h:outputText
-                                        rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.oldValue.isEmpty())}"
-                                        value="#{fieldDiff.generatePairOfJoinedValues()._1()}"/>
-                            </p:column>
-                            <p:column styleClass="versionDetails">
-                                <ui:repeat value="#{fieldDiff.generatePairOfJoinedValues()}" var="valuepair2">
-                                    <h:outputText
-                                            rendered="#{fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}"
-                                            value="#{fieldDiff.generatePairOfJoinedValues()._2()}"/>
-                                    <h:outputText
-                                            rendered="#{!fieldDiff.fieldType.primitive and !(fieldDiff.newValue.isEmpty())}"
-                                            value="#{fieldDiff.generatePairOfJoinedValues()._2()}"/>
-                                </ui:repeat>
-                            </p:column>
-
-                        </p:dataTable>
-                    </div>
-                </ui:repeat>
-            </ui:fragment>
-
-        </ui:fragment>
-
         <ui:fragment rendered="#{datasetVersionsTab.versionsDifferenceForDialog.isEmpty()}">
-            <p class="help-block">
+            <p class="help-block" jsf:rendered="#{!datasetVersionsTab.isUserUnderEmbargo()}">
                 <h:outputFormat value="#{bundle['file.viewDiffDialog.dialog.noDiff']}">
                     <f:param value="#{datasetVersionsTab.versionsDifferenceForDialog.originalVersion.semanticVersion}"/>
                     <f:param value="#{datasetVersionsTab.versionsDifferenceForDialog.newVersion.semanticVersion}"/>
                 </h:outputFormat>
             </p>
+
+            <div id="empty-files-section-hidden-msg" jsf:rendered="#{datasetVersionsTab.isUserUnderEmbargo()}"
+                 class="margin-bottom margin-top">
+                <h:outputFormat value="#{bundle['file.viewDiffDialog.fileAndTerms.embargoed']}">
+                    <f:param value="#{datasetVersionsTab.getEmbargoDateForDisplay()}"/>
+                </h:outputFormat>
+            </div>
         </ui:fragment>
+
         <div class="button-block margin-bottom">
             <p:commandButton value="#{bundle.done}" onclick="PF('detailsBlocks').hide();" type="button"/>
         </div>
