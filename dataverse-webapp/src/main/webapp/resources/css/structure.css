@@ -557,19 +557,20 @@ div.headerless-table .ui-datatable-tablewrapper table > thead {display:none;}
     vertical-align: baseline;
 }
 
-.ql-editor sub, sup {
+.ql-editor sub {
+    bottom: -.25em;
     position: relative;
     font-size: 75%;
     line-height: 0;
     vertical-align: baseline;
 }
 
-.ql-editor sub {
-    bottom: -.25em;
-}
-
 .ql-editor sup {
     top: -.5em;
+    position: relative;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: baseline;
 }
 
 .ql-snow .ql-editor code {
@@ -580,7 +581,7 @@ div.headerless-table .ui-datatable-tablewrapper table > thead {display:none;}
     border-radius: 4px;
 }
 
-.ql-snow .ql-editor h1, h2 {
+.ql-snow .ql-editor h1, .ql-snow .ql-editor h2 {
     margin: 20px 0 10px;
 }
 
