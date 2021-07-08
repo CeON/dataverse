@@ -1,29 +1,29 @@
 UPDATE datasetfieldtype dsf SET displayorder = displayorder + 3 WHERE dsf.displayorder > 2;
 
-INSERT INTO datasetfieldtype (id, advancedsearchfieldtype, allowcontrolledvocabulary, allowmultiples, description,
+INSERT INTO datasetfieldtype (advancedsearchfieldtype, allowcontrolledvocabulary, allowmultiples, description,
                               displayformat, displayoncreate, displayorder, facetable, fieldtype, name, required, title,
                               uri, validationformat, watermark, metadatablock_id, parentdatasetfieldtype_id,
                               inputrenderertype, inputrendereroptions)
-VALUES (266, false, false, true, 'Dataset title translated into another language', '',
+VALUES (false, false, true, 'Dataset title translated into another language', '',
         true, 3, false, 'NONE', 'titleTranslation', false, 'Title Translation', '',
         NULL, '', 1, NULL, 'TEXT', '{}');
 
 
-INSERT INTO datasetfieldtype (id, advancedsearchfieldtype, allowcontrolledvocabulary, allowmultiples, description,
+INSERT INTO datasetfieldtype (advancedsearchfieldtype, allowcontrolledvocabulary, allowmultiples, description,
                               displayformat, displayoncreate, displayorder, facetable, fieldtype, name, required, title,
                               uri, validationformat, watermark, metadatablock_id, parentdatasetfieldtype_id,
                               inputrenderertype, inputrendereroptions)
-VALUES (267, true, false, false, 'Text of the title translation', '',
+(SELECT true, false, false, 'Text of the title translation', '',
         true, 4, false, 'TEXT', 'titleTranslationText', false, 'Text', '',
-        NULL, '', 1, 266, 'TEXT', '{}');
+        NULL, '', 1, id, 'TEXT', '{}' FROM datasetfieldtype where name='titleTranslation');
 
-INSERT INTO datasetfieldtype (id, advancedsearchfieldtype, allowcontrolledvocabulary, allowmultiples, description,
+INSERT INTO datasetfieldtype (advancedsearchfieldtype, allowcontrolledvocabulary, allowmultiples, description,
                               displayformat, displayoncreate, displayorder, facetable, fieldtype, name, required, title,
                               uri, validationformat, watermark, metadatablock_id, parentdatasetfieldtype_id,
                               inputrenderertype, inputrendereroptions)
-VALUES (268, true, true, false, 'Language of the title translation', '(#VALUE)',
+ (SELECT true, true, false, 'Language of the title translation', '(#VALUE)',
         true, 5, false, 'TEXT', 'titleTranslationLanguage', false, 'Language', '',
-        NULL, '', 1, 266, 'VOCABULARY_SELECT', '{"sortByLocalisedStringsOrder" : "true"}');
+        NULL, '', 1, id, 'VOCABULARY_SELECT', '{"sortByLocalisedStringsOrder" : "true"}' FROM datasetfieldtype where name='titleTranslation');
 
 INSERT INTO controlledvocabularyvalue (strvalue, displayorder, datasetfieldtype_id, displaygroup) (SELECT 'Polish', 0, dsft.id, 'popular' FROM datasetfieldtype dsft WHERE dsft.name =  'titleTranslationLanguage');
 INSERT INTO controlledvocabularyvalue (strvalue, displayorder, datasetfieldtype_id, displaygroup) (SELECT 'English', 1, dsft.id, 'popular' FROM datasetfieldtype dsft WHERE dsft.name =  'titleTranslationLanguage');
