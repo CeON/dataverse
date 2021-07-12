@@ -94,7 +94,7 @@
                     </p:tab>
 
                     <p:tab title="#{bundle['dashboard.otherTermsOfUse.header']}">
-                        <p:dataTable var="otherTos" class="table-othertos" value="#{OtherTermsOfUseTab.otherTermsOfUseDto}">
+                        <p:dataTable var="otherTos" class="table-othertos no-min-width" value="#{OtherTermsOfUseTab.otherTermsOfUseDto}">
                             <p:column headerText="#{bundle['dashboard.license.universalLicenseName']}"
                                       style="width: 30%">
                                 <h:outputText value="#{otherTos.universalDisplayName}"/>
