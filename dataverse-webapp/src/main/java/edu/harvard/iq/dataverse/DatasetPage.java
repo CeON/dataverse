@@ -86,6 +86,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * @author gdurand
@@ -297,12 +298,11 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean canLinkDatasetToSomeDataverse() {
         User user = session.getUser();
-        boolean isUserAllowedToLink = false;
 
-        if (user.isAuthenticated()){
-            final AuthenticatedUser authenticatedUser = (AuthenticatedUser) user;
-            isUserAllowedToLink = confirmEmailService.hasVerifiedEmail(authenticatedUser);
-        }
+        boolean isUserAllowedToLink = Stream.of(user)
+              .filter(User::isAuthenticated)
+              .anyMatch(authUser -> !systemConfig.isUnconfirmedMailRestrictionModeEnabled() || (systemConfig.isUnconfirmedMailRestrictionModeEnabled() &&
+                      confirmEmailService.hasVerifiedEmail((AuthenticatedUser) authUser)));
 
         return !systemConfig.isReadonlyMode() && isUserAllowedToLink
                 && !workingVersion.isDeaccessioned() && dataset.isReleased();
