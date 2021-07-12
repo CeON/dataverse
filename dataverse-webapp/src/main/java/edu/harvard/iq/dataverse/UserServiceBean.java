@@ -64,13 +64,13 @@ public class UserServiceBean {
      * @param offset
      * @return
      */
-    public List<AuthenticatedUser> getAuthenticatedUserList(String searchTerm, String sortKey, Integer resultLimit, Integer offset) {
+    public List<AuthenticatedUser> getAuthenticatedUserList(String searchTerm, String sortKey, boolean isSortAscending, Integer resultLimit, Integer offset) {
 
         if ((offset == null) || (offset < 0)) {
             offset = 0;
         }
 
-        List<Object[]> userResults = getUserListCore(searchTerm, sortKey, resultLimit, offset);
+        List<Object[]> userResults = getUserListCore(searchTerm, sortKey, isSortAscending, resultLimit, offset);
 
         // Initialize empty list for AuthenticatedUser objects
         //
@@ -125,17 +125,18 @@ public class UserServiceBean {
         user.setLastName(UserUtil.getStringOrNull(dbRowValues[2]));
         user.setFirstName(UserUtil.getStringOrNull(dbRowValues[3]));
         user.setEmail(UserUtil.getStringOrNull(dbRowValues[4]));
-        user.setAffiliation(UserUtil.getStringOrNull(dbRowValues[5]));
-        user.setSuperuser((Boolean) (dbRowValues[6]));
-        user.setPosition(UserUtil.getStringOrNull(dbRowValues[7]));
-        user.setNotificationsLanguage(new Locale(dbRowValues[8].toString()));
+        user.setEmailConfirmed(UserUtil.getTimestampOrNull(dbRowValues[5]));
+        user.setAffiliation(UserUtil.getStringOrNull(dbRowValues[6]));
+        user.setSuperuser((Boolean) (dbRowValues[7]));
+        user.setPosition(UserUtil.getStringOrNull(dbRowValues[8]));
+        user.setNotificationsLanguage(new Locale(dbRowValues[9].toString()));
 
-        user.setCreatedTime(UserUtil.getTimestampOrNull(dbRowValues[9]));
-        user.setLastLoginTime(UserUtil.getTimestampOrNull(dbRowValues[10]));
-        user.setLastApiUseTime(UserUtil.getTimestampOrNull(dbRowValues[11]));
+        user.setCreatedTime(UserUtil.getTimestampOrNull(dbRowValues[10]));
+        user.setLastLoginTime(UserUtil.getTimestampOrNull(dbRowValues[11]));
+        user.setLastApiUseTime(UserUtil.getTimestampOrNull(dbRowValues[12]));
 
-        user.setAuthProviderId(UserUtil.getStringOrNull(dbRowValues[12]));
-        user.setAuthProviderFactoryAlias(UserUtil.getStringOrNull(dbRowValues[13]));
+        user.setAuthProviderId(UserUtil.getStringOrNull(dbRowValues[13]));
+        user.setAuthProviderFactoryAlias(UserUtil.getStringOrNull(dbRowValues[14]));
 
         user.setRoles(roles);
         return user;
@@ -377,13 +378,9 @@ public class UserServiceBean {
      * @param resultLimit
      * @return
      */
-    private List<Object[]> getUserListCore(String searchTerm, String sortKey, Integer resultLimit, Integer offset) {
+    private List<Object[]> getUserListCore(String searchTerm, String sortKey, boolean isSortAscending, Integer resultLimit, Integer offset) {
 
-        if ((sortKey == null) || (sortKey.isEmpty())) {
-            sortKey = "u.username";
-        } else {
-            sortKey = "u." + sortKey;
-        }
+        sortKey = parseSortColumn(sortKey);
 
         if ((resultLimit == null) || (resultLimit < 1)) {
             resultLimit = 1;
@@ -409,7 +406,7 @@ public class UserServiceBean {
 
 
         String qstr = "SELECT u.id, u.useridentifier,";
-        qstr += " u.lastname, u.firstname, u.email,";
+        qstr += " u.lastname, u.firstname, u.email, u.emailconfirmed, ";
         qstr += " u.affiliation, u.superuser,";
         qstr += " u.position, u.notificationslanguage, ";
         qstr += " u.createdtime, u.lastlogintime, u.lastapiusetime, ";
@@ -421,7 +418,7 @@ public class UserServiceBean {
         qstr += " u.id = prov_lookup.authenticateduser_id";
         qstr += " AND prov_lookup.authenticationproviderid = prov.id";
         qstr += sharedSearchClause;
-        qstr += " ORDER BY u.useridentifier";
+        qstr += " ORDER BY " + sortKey + (isSortAscending ? " ASC" : " DESC");
         qstr += " LIMIT " + resultLimit;
         qstr += " OFFSET " + offset;
         qstr += ";";
@@ -433,6 +430,34 @@ public class UserServiceBean {
 
         return nativeQuery.getResultList();
 
+    }
+
+    private String parseSortColumn(String sortKey) {
+        if ((sortKey == null) || (sortKey.isEmpty())) {
+            sortKey = "u.id";
+        } else if(sortKey.equals("firstNameLastName")) {
+            sortKey = "u.firstname, u.lastname";
+        } else {
+            sortKey = "u." + sortKey;
+        }
+
+        return validateSortColumn(sortKey);
+    }
+
+    private String validateSortColumn(String sortKey) {
+        String[] validSortKeys = {"u.id", "u.useridentifier", "u.firstname, u.lastname",
+                "u.email", "u.email", "u.affiliation", "u.superuser"};
+
+        boolean isKeyValid = false;
+        for(String key : validSortKeys) {
+            if(key.equals(sortKey)) {
+                isKeyValid = true;
+            }
+        }
+        if(!isKeyValid) {
+            sortKey = "u.id";
+        }
+        return sortKey;
     }
 
     /**
