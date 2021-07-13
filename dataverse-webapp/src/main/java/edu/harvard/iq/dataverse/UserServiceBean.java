@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.RoleTranslationUtil;
 import edu.harvard.iq.dataverse.common.UserUtil;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
@@ -445,19 +446,10 @@ public class UserServiceBean {
     }
 
     private String validateSortColumn(String sortKey) {
-        String[] validSortKeys = {"u.id", "u.useridentifier", "u.firstname, u.lastname",
-                "u.email", "u.email", "u.affiliation", "u.superuser"};
+        List<String> validSortKeys = Lists.newArrayList("u.id", "u.useridentifier", "u.firstname, u.lastname",
+                "u.email", "u.email", "u.affiliation", "u.superuser");
 
-        boolean isKeyValid = false;
-        for(String key : validSortKeys) {
-            if(key.equals(sortKey)) {
-                isKeyValid = true;
-            }
-        }
-        if(!isKeyValid) {
-            sortKey = "u.id";
-        }
-        return sortKey;
+        return validSortKeys.contains(sortKey) ? sortKey : "u.id";
     }
 
     /**
