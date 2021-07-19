@@ -209,27 +209,26 @@ public class JsonLdBuilder {
         }
 
         List<FileMetadata> filesMetadata = datasetVersion.getFileMetadatas();
-        if (filesMetadata != null) {
-            JsonObjectBuilder license = Json.createObjectBuilder().add("@type", "CreativeWork");
+        JsonObjectBuilder license = Json.createObjectBuilder().add("@type", "CreativeWork");
 
-            if(hasSameTermsForAllFiles(filesMetadata)) {
-                FileTermsOfUse firstFileTerms = filesMetadata.get(0).getTermsOfUse();
-                FileTermsOfUse.TermsOfUseType termsType = firstFileTerms.getTermsOfUseType();
+        if(hasSameTermsForAllFiles(filesMetadata)) {
+            FileTermsOfUse firstFileTerms = filesMetadata.get(0).getTermsOfUse();
+            FileTermsOfUse.TermsOfUseType termsType = firstFileTerms.getTermsOfUseType();
 
-                if(termsType.equals(FileTermsOfUse.TermsOfUseType.LICENSE_BASED)) {
-                    license.add("name", firstFileTerms.getLicense().getName());
-                    license.add("url", firstFileTerms.getLicense().getUrl());
-                } else if (termsType.equals(FileTermsOfUse.TermsOfUseType.RESTRICTED)) {
-                    license.add("name", "Restricted access");
-                } else {
-                    license.add("name", "All rights reserved");
-                }
+            if(termsType.equals(FileTermsOfUse.TermsOfUseType.LICENSE_BASED)) {
+                license.add("name", firstFileTerms.getLicense().getName());
+                license.add("url", firstFileTerms.getLicense().getUrl());
+            } else if (termsType.equals(FileTermsOfUse.TermsOfUseType.RESTRICTED)) {
+                license.add("name", "Restricted access");
             } else {
-                license.add("name", "Different licenses or terms for individual files");
+                license.add("name", "All rights reserved");
             }
-
-            job.add("license", license);
+        } else {
+            license.add("name", "Different licenses or terms for individual files");
         }
+
+        job.add("license", license);
+
 
         job.add("includedInDataCatalog", Json.createObjectBuilder()
                 .add("@type", "DataCatalog")
