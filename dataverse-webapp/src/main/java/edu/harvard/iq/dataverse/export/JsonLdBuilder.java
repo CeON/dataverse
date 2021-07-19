@@ -285,7 +285,7 @@ public class JsonLdBuilder {
                     }
                     fileObject.add("@type", "DataDownload");
                     fileObject.add("name", fileMetadata.getLabel());
-                    fileObject.add("fileFormat", fileMetadata.getDataFile().getContentType());
+                    fileObject.add("encodingFormat", fileMetadata.getDataFile().getContentType());
                     fileObject.add("contentSize", fileMetadata.getDataFile().getFilesize());
                     fileObject.add("description", fileMetadata.getDescription());
                     fileObject.add("@id", filePidUrlAsString);
