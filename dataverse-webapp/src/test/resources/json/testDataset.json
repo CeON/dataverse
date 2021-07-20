@@ -8,10 +8,7 @@
   "lastUpdateTime": "2019-07-10T13:51:01Z",
   "releaseTime": "2019-07-10T13:51:01Z",
   "createTime": "2019-07-10T13:24:13Z",
-  "license": {
-    "@type":"CreativeWork",
-    "name":"Different licenses or terms for individual files"
-  },
+  "license": "CC0",
   "termsOfUse": "CC0 Waiver",
   "fileAccessRequest": false,
   "metadataBlocks": {
