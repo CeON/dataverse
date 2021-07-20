@@ -157,7 +157,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
      *                     happen* <p> <p> <p> * Famous last sentences etc.
      */
     public String init() throws IOException {
-        logger.log(Level.FINEST, () -> "init called");
+
         if (systemConfig.isReadonlyMode()) {
             return "/403.xhtml";
         }
@@ -311,7 +311,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
 
     public String getConvertTip() {
         return authProvider == null
-                ? ""
+                ? StringUtils.EMPTY
                 : BundleUtil.getStringFromBundle(
                         "oauth2.convertAccount.explanation", installationName, authProvider.getInfo().getTitle(),
                         systemConfig.getGuidesBaseUrl(preferredNotificationsLanguage), systemConfig.getGuidesVersion());
