@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.api.dto.FileDTO;
 import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
+import edu.harvard.iq.dataverse.export.ExportUtil;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
@@ -259,64 +260,19 @@ public class OpenAireExportUtil {
                                 creator_check = writeOpenTag(xmlw, "creators", creator_check);
                                 xmlw.writeStartElement("creator"); // <creator>
 
-                                boolean nameType_check = false;
-                                Map<String, String> creator_map = new HashMap<String, String>();
-                                if ((StringUtils.containsIgnoreCase(nameIdentifierScheme, "orcid"))) {
-                                    creator_map.put("nameType", "Personal");
-                                    nameType_check = true;
-                                }
-
                                 creatorName = Cleanup.normalize(creatorName);
-                                // Datacite algorithm, https://github.com/IQSS/dataverse/issues/2243#issuecomment-358615313
-                                if (creatorName.contains(",")) {
-                                    String givenName = FirstNames.getInstance().getFirstName(creatorName);
-                                    boolean isOrganization = Organizations.getInstance().isOrganization(creatorName);
+                                String givenName = FirstNames.getInstance().getFirstName(creatorName);
+                                boolean isOrganization = ExportUtil.isOrganization(creatorName);
+                                Map<String, String> creator_map = new HashMap<String, String>();
 
-                                    // creatorName=<FamilyName>, <FirstName>
-                                    if (givenName != null && !isOrganization) {
-                                        // givenName ok
-                                        creator_map.put("nameType", "Personal");
-                                        nameType_check = true;
-                                    } else if (isOrganization) {
-                                        creator_map.put("nameType", "Organizational");
-                                        nameType_check = false;
-                                    }
-                                    writeFullElement(xmlw, null, "creatorName", creator_map, creatorName, language);
-
-                                    if ((nameType_check) && (!creatorName.replaceFirst(",", "").contains(","))) {
-                                        // creatorName=<FamilyName>, <FirstName>
-                                        String[] fullName = creatorName.split(", ");
-                                        givenName = fullName[1];
-                                        String familyName = fullName[0];
-
-                                        writeFullElement(xmlw, null, "givenName", null, givenName, language);
-                                        writeFullElement(xmlw, null, "familyName", null, familyName, language);
-                                    }
-                                } else {
-                                    String givenName = FirstNames.getInstance().getFirstName(creatorName);
-                                    boolean isOrganization = Organizations.getInstance().isOrganization(creatorName);
-
-                                    if (givenName != null && !isOrganization) {
-                                        // givenName ok, creatorName=<FirstName> <FamilyName>
-                                        creator_map.put("nameType", "Personal");
-                                        nameType_check = true;
-                                        writeFullElement(xmlw, null, "creatorName", creator_map, creatorName, language);
-
-                                        String familyName = "";
-                                        if (givenName.length() + 1 < creatorName.length()) {
-                                            familyName = creatorName.substring(givenName.length() + 1);
-                                        }
-
-                                        writeFullElement(xmlw, null, "givenName", null, givenName, language);
-                                        writeFullElement(xmlw, null, "familyName", null, familyName, language);
-                                    } else {
-                                        // default
-                                        if (isOrganization) {
-                                            creator_map.put("nameType", "Organizational");
-                                        }
-                                        writeFullElement(xmlw, null, "creatorName", creator_map, creatorName, language);
-                                    }
+                                if ((StringUtils.containsIgnoreCase(nameIdentifierScheme, "orcid")) || (givenName != null && !isOrganization)) {
+                                    creator_map.put("nameType", "Personal");
+                                } else if (isOrganization) {
+                                    creator_map.put("nameType", "Organizational");
                                 }
+                                writeFullElement(xmlw, null, "creatorName", creator_map, creatorName, language);
+
+                                writeGivenNameAndFamilyNameElements(xmlw, creatorName, language, givenName, isOrganization);
 
                                 if (StringUtils.isNotBlank(nameIdentifier)) {
                                     creator_map.clear();
@@ -768,7 +724,8 @@ public class OpenAireExportUtil {
      * @param language               current language
      * @throws XMLStreamException
      */
-    public static void writeContributorElement(XMLStreamWriter xmlw, String contributorType, String contributorName, String contributorAffiliation, String language) throws XMLStreamException {
+    public static void writeContributorElement(XMLStreamWriter xmlw, String contributorType, String contributorName,
+                                               String contributorAffiliation, String language) throws XMLStreamException {
         // write a contributor
         xmlw.writeStartElement("contributor"); // <contributor>
 
@@ -776,63 +733,44 @@ public class OpenAireExportUtil {
             xmlw.writeAttribute("contributorType", contributorType.replaceAll(" ", ""));
         }
 
-        boolean nameType_check = false;
         Map<String, String> contributor_map = new HashMap<String, String>();
-
         contributorName = Cleanup.normalize(contributorName);
-        // Datacite algorithm, https://github.com/IQSS/dataverse/issues/2243#issuecomment-358615313
-        if (contributorName.contains(",")) {
-            String givenName = FirstNames.getInstance().getFirstName(contributorName);
-            boolean isOrganization = Organizations.getInstance().isOrganization(contributorName);
+        String givenName = FirstNames.getInstance().getFirstName(contributorName);
+        boolean isOrganization = ExportUtil.isOrganization(contributorName);
 
-            // contributorName=<FamilyName>, <FirstName>
-            if (givenName != null && !isOrganization) {
-                // givenName ok
-                contributor_map.put("nameType", "Personal");
-                nameType_check = true;
-            } else if (isOrganization || ("ContactPerson".equals(contributorType) && !isValidEmailAddress(
-                    contributorName))) {
-                contributor_map.put("nameType", "Organizational");
-            }
-            writeFullElement(xmlw, null, "contributorName", contributor_map, contributorName, language);
-
-            if ((nameType_check) && (!contributorName.replaceFirst(",", "").contains(","))) {
-                // contributorName=<FamilyName>, <FirstName>
-                String[] fullName = contributorName.split(", ");
-                givenName = fullName[1];
-                String familyName = fullName[0];
-
-                writeFullElement(xmlw, null, "givenName", null, givenName, language);
-                writeFullElement(xmlw, null, "familyName", null, familyName, language);
-            }
-        } else {
-            String givenName = FirstNames.getInstance().getFirstName(contributorName);
-            boolean isOrganization = Organizations.getInstance().isOrganization(contributorName);
-
-            if (givenName != null && !isOrganization) {
-                contributor_map.put("nameType", "Personal");
-                writeFullElement(xmlw, null, "contributorName", contributor_map, contributorName, language);
-
-                String familyName = "";
-                if (givenName.length() + 1 < contributorName.length()) {
-                    familyName = contributorName.substring(givenName.length() + 1);
-                }
-
-                writeFullElement(xmlw, null, "givenName", null, givenName, language);
-                writeFullElement(xmlw, null, "familyName", null, familyName, language);
-            } else {
-                // default
-                if (isOrganization || ("ContactPerson".equals(contributorType) && !isValidEmailAddress(contributorName))) {
-                    contributor_map.put("nameType", "Organizational");
-                }
-                writeFullElement(xmlw, null, "contributorName", contributor_map, contributorName, language);
-            }
+        if (givenName != null && !isOrganization) {
+            contributor_map.put("nameType", "Personal");
+        } else if ((isOrganization || "ContactPerson".equals(contributorType)) && !isValidEmailAddress(contributorName)) {
+            contributor_map.put("nameType", "Organizational");
         }
+        writeFullElement(xmlw, null, "contributorName", contributor_map, contributorName, language);
+
+        writeGivenNameAndFamilyNameElements(xmlw, contributorName, language, givenName, isOrganization);
 
         if (StringUtils.isNotBlank(contributorAffiliation)) {
             writeFullElement(xmlw, null, "affiliation", null, contributorAffiliation, language);
         }
         xmlw.writeEndElement(); // </contributor>
+    }
+
+    private static void writeGivenNameAndFamilyNameElements(XMLStreamWriter xmlw, String contributorName, String language,
+                                                            String givenName, boolean isOrganization) throws XMLStreamException {
+        if (contributorName.contains(",") && !isOrganization && (!contributorName.replaceFirst(",", "").contains(","))) {
+            String[] fullName = contributorName.split(", ");
+            givenName = fullName[1].trim();
+            String familyName = fullName[0].trim();
+
+            writeFullElement(xmlw, null, "givenName", null, givenName, language);
+            writeFullElement(xmlw, null, "familyName", null, familyName, language);
+        } else if (givenName != null && !isOrganization) {
+            String familyName = "";
+            if (givenName.length() + 1 < contributorName.length()) {
+                familyName = contributorName.substring(givenName.length() + 1);
+            }
+
+            writeFullElement(xmlw, null, "givenName", null, givenName, language);
+            writeFullElement(xmlw, null, "familyName", null, familyName, language);
+        }
     }
 
     /**
