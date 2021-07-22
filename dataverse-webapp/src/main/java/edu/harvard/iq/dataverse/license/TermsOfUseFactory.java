@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.license;
 
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
+import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseDAO;
-import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -44,6 +44,25 @@ public class TermsOfUseFactory {
         return createTermsOfUseFromLicense(defaultLicense);
     }
 
+    public FileTermsOfUse createUnknownTermsOfUse() {
+        return new FileTermsOfUse();
+    }
+
+    public FileTermsOfUse createTermsOfUseFromCC0License() {
+        final FileTermsOfUse fileTermsOfUse = new FileTermsOfUse();
+        fileTermsOfUse.setLicense(licenseDao.findLicenseByName("CC0 Creative Commons Zero 1.0 Waiver"));
+
+        return fileTermsOfUse;
+    }
+
+    public FileTermsOfUse createTermsOfUseWithExistingLicense(String licenseName) {
+        FileTermsOfUse termsOfUse = new FileTermsOfUse();
+        License foundLicense = licenseDao.findLicenseByName(licenseName);
+        termsOfUse.setLicense(foundLicense);
+
+        return termsOfUse;
+    }
+
     /**
      * Returns new instance of license based {@link FileTermsOfUse}
      * with the given license.
@@ -79,7 +98,7 @@ public class TermsOfUseFactory {
 
     /**
      * Return new instance of restricted access
-     * {@link FileTermsOfUse} with {@link FileTermsOfUse.RestrictType.CUSTOM} type
+     * {@link FileTermsOfUse} with {@link FileTermsOfUse.RestrictType#CUSTOM} type
      * and custom restrict reason text
      */
     public FileTermsOfUse createRestrictedCustomTermsOfUse(String customRestrictReason) {

@@ -85,16 +85,15 @@ public class JsonParser {
         this.lenient = lenient;
     }
 
+    /**
+     * @todo Instead of this getMandatoryString method we should run the
+     * String through ConstraintValidator. See EMailValidatorTest and
+     * EMailValidator for examples. That way we can check not only if it's
+     * required or not but other bean validation rules such as "must match
+     * this regex".
+     */
     public Dataverse parseDataverse(JsonObject jobj) throws JsonParseException {
         Dataverse dv = new Dataverse();
-
-        /**
-         * @todo Instead of this getMandatoryString method we should run the
-         * String through ConstraintValidator. See EMailValidatorTest and
-         * EMailValidator for examples. That way we can check not only if it's
-         * required or not but other bean validation rules such as "must match
-         * this regex".
-         */
         dv.setAlias(getMandatoryString(jobj, "alias"));
         dv.setName(getMandatoryString(jobj, "name"));
         dv.setDescription(jobj.getString("description", null));
@@ -219,7 +218,7 @@ public class JsonParser {
         IpGroup retVal = new IpGroup();
 
         if (obj.containsKey("id")) {
-            retVal.setId(Long.valueOf(obj.getInt("id")));
+            retVal.setId((long) obj.getInt("id"));
         }
         retVal.setDisplayName(obj.getString("name", null));
         retVal.setDescription(obj.getString("description", null));
@@ -229,11 +228,9 @@ public class JsonParser {
             obj.getJsonArray("ranges").stream()
                     .filter(jv -> jv.getValueType() == JsonValue.ValueType.ARRAY)
                     .map(jv -> (JsonArray) jv)
-                    .forEach(rr -> {
-                        retVal.add(
-                                IpAddressRange.make(IpAddress.valueOf(rr.getString(0)),
-                                                    IpAddress.valueOf(rr.getString(1))));
-                    });
+                    .forEach(rr -> retVal.add(
+                            IpAddressRange.make(IpAddress.valueOf(rr.getString(0)),
+                                                IpAddress.valueOf(rr.getString(1)))));
         }
         if (obj.containsKey("addresses")) {
             obj.getJsonArray("addresses").stream()
@@ -278,7 +275,7 @@ public class JsonParser {
             int versionNumberInt = obj.getInt("versionNumber", -1);
             Long versionNumber = null;
             if (versionNumberInt != -1) {
-                versionNumber = new Long(versionNumberInt);
+                versionNumber = (long) versionNumberInt;
             }
             dsv.setVersionNumber(versionNumber);
             dsv.setMinorVersionNumber(parseLong(obj.getString("minorVersionNumber", null)));
