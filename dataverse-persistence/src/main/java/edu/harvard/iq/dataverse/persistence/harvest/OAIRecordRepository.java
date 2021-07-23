@@ -44,7 +44,7 @@ public class OAIRecordRepository extends JpaRepository<Long, OAIRecord> {
     }
     
     public List<OAIRecord> findByGlobalIds(List<String> globalIds) {
-        return em.createQuery("SELECT r from OAIRecord r where r.globalId in :globalId", OAIRecord.class)
+        return em.createQuery("SELECT r from OAIRecord r where r.globalId in :globalIds", OAIRecord.class)
                 .setParameter("globalIds", globalIds)
                 .getResultList();
     }
