@@ -44,17 +44,26 @@ public class TermsOfUseFactory {
         return createTermsOfUseFromLicense(defaultLicense);
     }
 
+    /**
+     * Return new instance of {@link FileTermsOfUse} with unknown terms (used for legacy based ).
+     */
     public FileTermsOfUse createUnknownTermsOfUse() {
         return new FileTermsOfUse();
     }
 
+    /**
+     * Return new instance of {@link FileTermsOfUse} with CC0 license.
+     */
     public FileTermsOfUse createTermsOfUseFromCC0License() {
         final FileTermsOfUse fileTermsOfUse = new FileTermsOfUse();
-        fileTermsOfUse.setLicense(licenseDao.findLicenseByName("CC0 Creative Commons Zero 1.0 Waiver"));
+        fileTermsOfUse.setLicense(licenseDao.find(1));
 
         return fileTermsOfUse;
     }
 
+    /**
+     * Return new instance of existing license based {@link FileTermsOfUse}, with provided license name.
+     */
     public FileTermsOfUse createTermsOfUseWithExistingLicense(String licenseName) {
         FileTermsOfUse termsOfUse = new FileTermsOfUse();
         License foundLicense = licenseDao.findLicenseByName(licenseName);

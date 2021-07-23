@@ -16,7 +16,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess;
-import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess.License;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
@@ -295,25 +294,7 @@ public class JsonParser {
             dsv.setArchiveTime(parseTime(obj.getString("archiveTime", null)));
             dsv.setUNF(obj.getString("UNF", null));
             // Terms of Use related fields
-            TermsOfUseAndAccess terms = new TermsOfUseAndAccess();
-            terms.setTermsOfUse(obj.getString("termsOfUse", null));
-            terms.setTermsOfAccess(obj.getString("termsOfAccess", null));
-            terms.setConfidentialityDeclaration(obj.getString("confidentialityDeclaration", null));
-            terms.setSpecialPermissions(obj.getString("specialPermissions", null));
-            terms.setRestrictions(obj.getString("restrictions", null));
-            terms.setCitationRequirements(obj.getString("citationRequirements", null));
-            terms.setDepositorRequirements(obj.getString("depositorRequirements", null));
-            terms.setConditions(obj.getString("conditions", null));
-            terms.setDisclaimer(obj.getString("disclaimer", null));
-            terms.setDataAccessPlace(obj.getString("dataAccessPlace", null));
-            terms.setOriginalArchive(obj.getString("originalArchive", null));
-            terms.setAvailabilityStatus(obj.getString("availabilityStatus", null));
-            terms.setContactForAccess(obj.getString("contactForAccess", null));
-            terms.setSizeOfCollection(obj.getString("sizeOfCollection", null));
-            terms.setStudyCompletion(obj.getString("studyCompletion", null));
-            terms.setLicense(parseLicense(obj.getString("license", null)));
-            terms.setFileAccessRequest(obj.getBoolean("fileAccessRequest", false));
-            dsv.setTermsOfUseAndAccess(terms);
+            dsv.setTermsOfUseAndAccess(new TermsOfUseAndAccess());
 
             dsv.setDatasetFields(parseMetadataBlocks(obj.getJsonObject("metadataBlocks")));
 
@@ -335,13 +316,6 @@ public class JsonParser {
         } catch (NumberFormatException ex) {
             throw new JsonParseException("Error parsing number:" + ex.getMessage(), ex);
         }
-    }
-
-    private License parseLicense(String inString) {
-        if (inString != null && inString.equalsIgnoreCase("CC0")) {
-            return TermsOfUseAndAccess.License.CC0;
-        }
-        return TermsOfUseAndAccess.License.NONE;
     }
 
     public List<DatasetField> parseMetadataBlocks(JsonObject json) throws JsonParseException {
