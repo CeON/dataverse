@@ -3,10 +3,8 @@ package edu.harvard.iq.dataverse.export;
 import edu.harvard.iq.dataverse.export.openaire.FirstNames;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ExportUtil {
@@ -15,7 +13,6 @@ public class ExportUtil {
             "corporation", "institute", "foundation", "college", "school", "academy", "polytechnic", "hospital", "clinic",
             "research", "society", "lab", "laboratory", "library", "museum", "organization", "observatory", "service", "center"));
     private static final Set<String> BLACKLISTED_SIGNS = new HashSet<>(Arrays.asList("(", ")"));
-    public static List<String> names = new ArrayList<>();
 
     // -------------------- LOGIC --------------------
 

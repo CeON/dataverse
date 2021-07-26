@@ -40,7 +40,7 @@ public class FirstNamesTest {
             "Francesco|Francesco|''",
             "Cadili|''|Cadili",
             "Jorge Mario Bergoglio|Jorge Mario|Bergoglio",
-            "Jorge Bergoglio Mario Luigi|Jorge|Bergoglio Mario Luigi" // this works differently
+            "Jorge Bergoglio Mario Luigi|Jorge|Bergoglio Mario Luigi"
     })
     public void testExtractFirstAndLastNames(String fullname, String expectedFirstName, String expectedLastName) {
         assertThat(firstNames.extractFirstAndLastName(fullname))
