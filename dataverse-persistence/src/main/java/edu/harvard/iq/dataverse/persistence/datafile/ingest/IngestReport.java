@@ -141,10 +141,13 @@ public class IngestReport implements Serializable {
 
     public String getIngestReportMessage() {
 
-        return Optional.ofNullable(errorKey)
-                .orElse(IngestError.UNKNOWN_ERROR)
-                .getErrorMessage(Optional.ofNullable(errorArguments).
-                        orElseGet(Collections::emptyList));
+        final IngestError errorKey = Optional.ofNullable(this.errorKey)
+                                             .orElse(IngestError.UNKNOWN_ERROR);
+
+        return Optional.of(errorArguments)
+                       .filter(args -> !args.isEmpty())
+                       .map(errorKey::getErrorMessage)
+                       .orElseGet(errorKey::getErrorMessage);
     }
 
     public static IngestReport createIngestFailureReport(DataFile dataFile, IngestException ingestException) {
