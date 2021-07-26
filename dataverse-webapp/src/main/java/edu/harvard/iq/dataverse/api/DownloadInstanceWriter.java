@@ -350,6 +350,10 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
         }
     }
 
+    /**
+     * Fix for RFC6266 Content-Disposition encoding taken from primefaces:
+     * https://github.com/primefaces/primefaces/pull/2368
+     */
     private static String encodeURI(String string) throws UnsupportedEncodingException {
         if (string == null) {
             return null;
