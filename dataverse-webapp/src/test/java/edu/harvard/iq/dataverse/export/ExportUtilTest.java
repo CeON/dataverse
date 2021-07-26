@@ -1,50 +1,39 @@
 package edu.harvard.iq.dataverse.export;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 
 public class ExportUtilTest {
 
-    @Test
-    public void testIsPerson() {
-        Assert.assertTrue(ExportUtil.isPerson("Jan Kowalski"));
-        Assert.assertTrue(ExportUtil.isPerson("John Kowalsky"));
-        Assert.assertTrue(ExportUtil.isPerson("Kowalski, Jan"));
-        Assert.assertTrue(ExportUtil.isPerson("Kowalski, J."));
-        Assert.assertTrue(ExportUtil.isPerson("Kowalski, J.K."));
-        Assert.assertTrue(ExportUtil.isPerson("Kowalski, J.K.P."));
-        Assert.assertTrue(ExportUtil.isPerson("Jan Maria Kowalski"));
-        Assert.assertTrue(ExportUtil.isPerson("Jan Maria Kowalski Rokita"));
-
-        Assert.assertFalse(ExportUtil.isPerson("Xxx Kowalski"));
-        Assert.assertFalse(ExportUtil.isPerson("Kowalski, Xxx"));
-        Assert.assertFalse(ExportUtil.isPerson("Kowalski, j."));
-        Assert.assertFalse(ExportUtil.isPerson("Kowalski, J.x."));
-        Assert.assertFalse(ExportUtil.isPerson("Kowalski, J.5."));
-        Assert.assertFalse(ExportUtil.isPerson("Kowalski, J.k.P."));
-        Assert.assertFalse(ExportUtil.isPerson("Jan Maria Kowalski Rokita Nowak"));
-        Assert.assertFalse(ExportUtil.isPerson("Jan"));
+    @ParameterizedTest
+    @MethodSource("parametersForIsPersonTest")
+    public void testIsPerson(String name, boolean expected) {
+        Assert.assertEquals(expected, ExportUtil.isPerson(name));
     }
 
-    @Test
-    public void testIsOrganization() {
-        Assert.assertFalse(ExportUtil.isOrganization("Jan Kowalski"));
-        Assert.assertFalse(ExportUtil.isOrganization("John Kowalsky"));
-        Assert.assertFalse(ExportUtil.isOrganization("Kowalski, Jan"));
-        Assert.assertFalse(ExportUtil.isOrganization("Kowalski, J."));
-        Assert.assertFalse(ExportUtil.isOrganization("Kowalski, J.K."));
-        Assert.assertFalse(ExportUtil.isOrganization("Kowalski, J.K.P."));
-        Assert.assertFalse(ExportUtil.isOrganization("Jan Maria Kowalski"));
-        Assert.assertFalse(ExportUtil.isOrganization("Jan Maria Kowalski Rokita"));
-
-        Assert.assertTrue(ExportUtil.isOrganization("Xxx Kowalski"));
-        Assert.assertTrue(ExportUtil.isOrganization("Kowalski, Xxx"));
-        Assert.assertTrue(ExportUtil.isOrganization("Kowalski, j."));
-        Assert.assertTrue(ExportUtil.isOrganization("Kowalski, J.x."));
-        Assert.assertTrue(ExportUtil.isOrganization("Kowalski, J.5."));
-        Assert.assertTrue(ExportUtil.isOrganization("Kowalski, J.k.P."));
-        Assert.assertTrue(ExportUtil.isOrganization("Jan Maria Kowalski Rokita Nowak"));
-        Assert.assertTrue(ExportUtil.isOrganization("Jan"));
+    private static Stream<Arguments> parametersForIsPersonTest() {
+        return Stream.of(
+                Arguments.of("Jan Kowalski", true),
+                Arguments.of("John Kowalsky", true),
+                Arguments.of("Kowalski, Jan", true),
+                Arguments.of("Kowalski, J.", true),
+                Arguments.of("Kowalski, J.K.", true),
+                Arguments.of("Kowalski, J.K.P.", true),
+                Arguments.of("Jan Maria Kowalski", true),
+                Arguments.of("Jan Maria Kowalski Rokita", true),
+                Arguments.of("Xxx Kowalski", false),
+                Arguments.of("Kowalski, Xxx", false),
+                Arguments.of("Kowalski, j.", false),
+                Arguments.of("Kowalski, J.x.", false),
+                Arguments.of("Kowalski, J.5.", false),
+                Arguments.of("Kowalski, J.k.P.", false),
+                Arguments.of("Jan Maria Kowalski Rokita Nowak", false),
+                Arguments.of("Jan", false)
+        );
     }
 }

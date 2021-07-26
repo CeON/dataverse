@@ -75,7 +75,7 @@ public class JsonLdBuilder {
                 affiliation = datasetAuthor.getAffiliation().getValue();
             }
 
-            String authorType = (StringUtils.isNotBlank(datasetAuthor.getIdType()) && datasetAuthor.getIdType().equalsIgnoreCase("orcid")) ||
+            String authorType = "orcid".equalsIgnoreCase(datasetAuthor.getIdType()) ||
                     ExportUtil.isPerson(name) ? "Person" : "Organization";
             author.add("@type", authorType);
             author.add("name", name);

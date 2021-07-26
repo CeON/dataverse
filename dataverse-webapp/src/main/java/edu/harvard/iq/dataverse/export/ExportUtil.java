@@ -27,12 +27,16 @@ public class ExportUtil {
         int commaCount = StringUtils.countMatches(text, ",");
         if (commaCount == 0) {
             text = text.trim();
-            if (text.isEmpty()) return false;
+            if (text.isEmpty()) {
+                return false;
+            }
 
             String[] parts = text.split("\\s+");
             int nameLength = parts.length;
 
-            if (nameLength < 2 || nameLength > 4) return false;
+            if (nameLength < 2 || nameLength > 4) {
+                return false;
+            }
 
             return isName(parts[0]) &&
                     Arrays.stream(parts).noneMatch(ExportUtil::isWordBlacklisted) &&
@@ -42,7 +46,9 @@ public class ExportUtil {
             String[] words = namesPart.trim().split("\\s+");
 
             for (String word : words) {
-                if (!isNameOrInitial(word)) return false;
+                if (!isNameOrInitial(word)) {
+                    return false;
+                }
             }
             return true;
         }
@@ -76,7 +82,9 @@ public class ExportUtil {
         }
 
         for (int i = 0; i < word.length(); i += 2) {
-            if (!isInitial(word.substring(i, i+2))) return false;
+            if (!isInitial(word.substring(i, i+2))) {
+                return false;
+            }
         }
         return true;
     }

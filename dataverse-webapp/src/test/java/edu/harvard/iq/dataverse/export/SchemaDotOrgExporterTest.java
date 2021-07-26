@@ -19,6 +19,7 @@ import edu.harvard.iq.dataverse.qualifiers.TestBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -393,33 +394,7 @@ public class SchemaDotOrgExporterTest {
         dataverse.setName("LibraScholar");
         dataset.setOwner(dataverse);
 
-        FileMetadata fmd = MocksFactory.makeFileMetadata(10L, "README.md", 0);
-        DataFile dataFile = new DataFile();
-        dataFile.setId(42l);
-        dataFile.setFilesize(1234);
-        dataFile.setContentType("text/plain");
-        dataFile.setProtocol("doi");
-        dataFile.setAuthority("10.5072/FK2");
-        dataFile.setIdentifier("7V5MPI");
-        fmd.setDatasetVersion(version);
-        fmd.setDataFile(dataFile);
-        fmd.setDescription("README file.");
-
-        List<FileMetadata> fileMetadatas = new ArrayList<>();
-        FileTermsOfUse fileTermsOfUse = new FileTermsOfUse();
-        License license = new License();
-        license.setId(1L);
-        license.setUrl("testLicenseUrl");
-        license.setName("test universal name");
-        license.setActive(true);
-        fileTermsOfUse.setLicense(license);
-        fileTermsOfUse.setId(1L);
-        fileTermsOfUse.setAllRightsReserved(false);
-        fmd.setTermsOfUse(fileTermsOfUse);
-        fileMetadatas.add(fmd);
-        dataFile.setFileMetadatas(fileMetadatas);
-        dataFile.setOwner(dataset);
-        version.setFileMetadatas(fileMetadatas);
+        version.setFileMetadatas(Lists.emptyList());
 
         String jsonLd = schemaDotOrgExporter.exportDataset(version);
         JsonReader jsonReader2 = Json.createReader(new StringReader(jsonLd));
