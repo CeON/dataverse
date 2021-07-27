@@ -64,7 +64,7 @@ public class JsonLdBuilder {
         // Note that whenever you use "@id" you should also use "identifier" and vice versa.
         job.add("@id", datasetVersion.getDataset().getPersistentURL());
         job.add("identifier", datasetVersion.getDataset().getPersistentURL());
-        job.add("name", datasetVersion.getTitle());
+        job.add("name", datasetVersion.getParsedTitle());
         JsonArrayBuilder authors = Json.createArrayBuilder();
         for (DatasetAuthor datasetAuthor : datasetVersion.getDatasetAuthors()) {
             JsonObjectBuilder author = Json.createObjectBuilder();
@@ -74,13 +74,12 @@ public class JsonLdBuilder {
             if (authorAffiliation != null) {
                 affiliation = datasetAuthor.getAffiliation().getValue();
             }
-            // We are aware of "givenName" and "familyName" but instead of a person it might be an organization such as "Gallup Organization".
-            //author.add("@type", "Person");
+
+            String authorType = "orcid".equalsIgnoreCase(datasetAuthor.getIdType()) ||
+                    ExportUtil.isPerson(name) ? "Person" : "Organization";
+            author.add("@type", authorType);
             author.add("name", name);
-            // We are aware that the following error is thrown by https://search.google.com/structured-data/testing-tool
-            // "The property affiliation is not recognized by Google for an object of type Thing."
-            // Someone at Google has said this is ok.
-            // This logic could be moved into the `if (authorAffiliation != null)` block above.
+
             if (!StringUtils.isBlank(affiliation)) {
                 author.add("affiliation", affiliation);
             }
