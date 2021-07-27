@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.common.Util;
-import edu.harvard.iq.dataverse.datasetutility.OptionalFileParams;
 import edu.harvard.iq.dataverse.license.TermsOfUseFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
@@ -21,8 +20,6 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.json.CompoundVocabularyException;
 import edu.harvard.iq.dataverse.util.json.ControlledVocabularyException;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.control.Option;
 
 import javax.ejb.Stateless;
@@ -122,15 +119,13 @@ public class HarvestedJsonParser {
 
             JsonArray filesJson = obj.getJsonArray("files");
 
-            Option<TermsOfUseAndAccess.License> license = parseLicense(obj.getString("license", null));
-            String termsOfUse = obj.getString("termsOfUse", null);
-            Tuple2<Option<TermsOfUseAndAccess.License>, String> oldLicenses = Tuple.of(license, termsOfUse);
+            Option<FileTermsOfUse> oldLicense = parseLicense(obj.getString("license", null));
 
             if (filesJson == null) {
                 filesJson = obj.getJsonArray("fileMetadatas");
             }
             if (filesJson != null) {
-                List<FileMetadata> parsedMetadataFiles = parseFiles(filesJson, dsv, oldLicenses);
+                List<FileMetadata> parsedMetadataFiles = parseFiles(filesJson, dsv, oldLicense);
                 dsv.setFileMetadatas(new LinkedList<>());
                 for (FileMetadata parsedMetadataFile : parsedMetadataFiles) {
                     dsv.addFileMetadata(parsedMetadataFile);
@@ -153,13 +148,13 @@ public class HarvestedJsonParser {
         return str == null ? null : Util.getDateTimeFormat().parse(str);
     }
 
-    private Option<TermsOfUseAndAccess.License> parseLicense(String inString) {
+    private Option<FileTermsOfUse> parseLicense(String inString) {
         if (inString != null && inString.equalsIgnoreCase("CC0")) {
-            return Option.of(TermsOfUseAndAccess.License.CC0);
+            return Option.of(termsOfUseFactory.createTermsOfUseFromCC0License());
         }
 
         if (inString != null && inString.equalsIgnoreCase("NONE")) {
-            return Option.of(TermsOfUseAndAccess.License.NONE);
+            return Option.of(termsOfUseFactory.createUnknownTermsOfUse());
         }
 
         return Option.none();
@@ -418,7 +413,7 @@ public class HarvestedJsonParser {
         return vals;
     }
 
-    private List<FileMetadata> parseFiles(JsonArray metadatasJson, DatasetVersion dsv, Tuple2<Option<TermsOfUseAndAccess.License>, String> license) throws JsonParseException {
+    private List<FileMetadata> parseFiles(JsonArray metadatasJson, DatasetVersion dsv, Option<FileTermsOfUse> license) throws JsonParseException {
         List<FileMetadata> fileMetadatas = new LinkedList<>();
 
         if (metadatasJson != null) {
@@ -459,18 +454,11 @@ public class HarvestedJsonParser {
         return fileMetadatas;
     }
 
-    private Boolean setDatasetBasedLicense(Tuple2<Option<TermsOfUseAndAccess.License>, String> license, FileMetadata fileMetadata) {
-        return license._1()
+    private Boolean setDatasetBasedLicense(Option<FileTermsOfUse> license, FileMetadata fileMetadata) {
+        return license.toStream()
                       .map(datasetLicense -> {
-                          if (datasetLicense.equals(TermsOfUseAndAccess.License.NONE)) {
-                              fileMetadata.setTermsOfUse(termsOfUseFactory.createUnknownTermsOfUse());
-                              return true;
-                          }
-                          if (datasetLicense.equals(TermsOfUseAndAccess.License.CC0)) {
-                              fileMetadata.setTermsOfUse(termsOfUseFactory.createTermsOfUseFromCC0License());
-                              return true;
-                          }
-                          return false;
+                          fileMetadata.setTermsOfUse(datasetLicense);
+                          return true;
                       }).getOrElse(false);
     }
 
@@ -495,7 +483,7 @@ public class HarvestedJsonParser {
     }
 
     private List<DataFileCategory> getCategories(JsonObject filemetadataJson, Dataset dataset) {
-        JsonArray categories = filemetadataJson.getJsonArray(OptionalFileParams.CATEGORIES_ATTR_NAME);
+        JsonArray categories = filemetadataJson.getJsonArray("categories");
         if (categories == null || categories.isEmpty() || dataset == null) {
             return null;
         }

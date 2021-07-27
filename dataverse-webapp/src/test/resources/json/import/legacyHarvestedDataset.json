@@ -1,5 +1,5 @@
 {
-  "id": 1826177,
+  "id": 1334,
   "identifier": "FK2/PDRSIQ",
   "persistentUrl": "https://doi.org/10.70122/FK2/PDRSIQ",
   "protocol": "doi",
@@ -9,8 +9,8 @@
   "storageIdentifier": "file://10.70122/FK2/PDRSIQ",
   "datasetVersion":
   {
-    "id": 196441,
-    "datasetId": 1826177,
+    "id": 153,
+    "datasetId": 1234,
     "datasetPersistentId": "doi:10.70122/FK2/PDRSIQ",
     "storageIdentifier": "file://10.70122/FK2/PDRSIQ",
     "versionNumber": 8,
@@ -54,7 +54,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Abbott, Sam"
+                  "value": "Ab, Sam"
                 },
                 "authorAffiliation":
                 {
@@ -84,7 +84,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Bennett, Christopher"
+                  "value": "Bento, Cheron"
                 },
                 "authorAffiliation":
                 {
@@ -100,14 +100,14 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Hickson, Joe"
+                  "value": "Banmen, Joe"
                 },
                 "authorAffiliation":
                 {
                   "typeName": "authorAffiliation",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Met Office, Exeter, UK"
+                  "value": "Met Office, Exo, UK"
                 }
               },
               {
@@ -116,14 +116,14 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Allen, Jamie"
+                  "value": "Test, Jamie"
                 },
                 "authorAffiliation":
                 {
                   "typeName": "authorAffiliation",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Met Office, Exeter, UK"
+                  "value": "Met Office, Exo, UK"
                 }
               },
               {
@@ -132,7 +132,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Sherratt, Katharine"
+                  "value": "Sheraton, Katharine"
                 },
                 "authorAffiliation":
                 {
@@ -148,7 +148,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Funk, Sebastian"
+                  "value": "Seb, Sebastian"
                 },
                 "authorAffiliation":
                 {
@@ -172,14 +172,14 @@
                   "typeName": "datasetContactName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Abbott, Sam"
+                  "value": "Abi, Sam"
                 },
                 "datasetContactEmail":
                 {
                   "typeName": "datasetContactEmail",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "sam.abbott@lshtm.ac.uk"
+                  "value": "tester@gmail.com"
                 }
               }
             ]
@@ -595,7 +595,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826580,
+          "id": 182658,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/8MJHDB",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/8MJHDB",
           "filename": "cases_by_report.tab",
@@ -627,7 +627,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826581,
+          "id": 182681,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/BYTTSI",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/BYTTSI",
           "filename": "growth_rate.tab",
@@ -659,7 +659,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826582,
+          "id": 126582,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/N2TVET",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/N2TVET",
           "filename": "latest_date.rds",
@@ -686,7 +686,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826583,
+          "id": 182653,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/EES2QJ",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/EES2QJ",
           "filename": "reported_cases.tab",
@@ -718,7 +718,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826584,
+          "id": 186584,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/68QKV1",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/68QKV1",
           "filename": "rt.tab",
@@ -750,7 +750,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826585,
+          "id": 182685,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/3LTAOB",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/3LTAOB",
           "filename": "summary_data.tab",
@@ -782,7 +782,7 @@
         "datasetVersionId": 196441,
         "dataFile":
         {
-          "id": 1826586,
+          "id": 182586,
           "persistentId": "doi:10.70122/FK2/PDRSIQ/NGFDK8",
           "pidURL": "https://doi.org/10.70122/FK2/PDRSIQ/NGFDK8",
           "filename": "summary_table.tab",
@@ -807,6 +807,6 @@
         }
       }
     ],
-    "citation": "Abbott, Sam; Bennett, Christopher; Hickson, Joe; Allen, Jamie; Sherratt, Katharine; Funk, Sebastian, 2021, \"National and Subnational Estimates of the Covid 19 Reproduction Number (R) for Canada Based on Test Results\", https://doi.org/10.70122/FK2/PDRSIQ, Demo Dataverse, V8"
+    "citation": "Abi, Sam; Ben, Christopher; Hick, Joe; Ali, Jamie; Sheraton, Katharine; Fin, Sebastian, 2021, \"National and Subnational Estimates of the Covid 19 Reproduction Number (R) for Canada Based on Test Results\", https://doi.org/10.70122/FK2/PDRSIQ, Demo Dataverse, V8"
   }
 }

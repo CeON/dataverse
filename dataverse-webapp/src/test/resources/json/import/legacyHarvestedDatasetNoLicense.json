@@ -1,5 +1,5 @@
 {
-  "id": 1826177,
+  "id": 1334,
   "identifier": "FK2/PDRSIQ",
   "persistentUrl": "https://doi.org/10.70122/FK2/PDRSIQ",
   "protocol": "doi",
@@ -9,7 +9,7 @@
   "storageIdentifier": "file://10.70122/FK2/PDRSIQ",
   "datasetVersion":
   {
-    "id": 196441,
+    "id": 13,
     "datasetId": 1826177,
     "datasetPersistentId": "doi:10.70122/FK2/PDRSIQ",
     "storageIdentifier": "file://10.70122/FK2/PDRSIQ",
@@ -53,7 +53,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Abbott, Sam"
+                  "value": "Abbi, Sam"
                 },
                 "authorAffiliation":
                 {
@@ -83,7 +83,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Bennett, Christopher"
+                  "value": "Benit, Christopher"
                 },
                 "authorAffiliation":
                 {
@@ -99,7 +99,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Hickson, Joe"
+                  "value": "Hix, Joe"
                 },
                 "authorAffiliation":
                 {
@@ -115,7 +115,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Allen, Jamie"
+                  "value": "Ali, Jamie"
                 },
                 "authorAffiliation":
                 {
@@ -131,7 +131,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Sherratt, Katharine"
+                  "value": "Sheraton, Katharine"
                 },
                 "authorAffiliation":
                 {
@@ -147,7 +147,7 @@
                   "typeName": "authorName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Funk, Sebastian"
+                  "value": "Fin, Sebastian"
                 },
                 "authorAffiliation":
                 {
@@ -171,14 +171,14 @@
                   "typeName": "datasetContactName",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "Abbott, Sam"
+                  "value": "Abi, Sam"
                 },
                 "datasetContactEmail":
                 {
                   "typeName": "datasetContactEmail",
                   "multiple": false,
                   "typeClass": "primitive",
-                  "value": "sam.abbott@lshtm.ac.uk"
+                  "value": "tester@gmail.com"
                 }
               }
             ]
@@ -806,6 +806,6 @@
         }
       }
     ],
-    "citation": "Abbott, Sam; Bennett, Christopher; Hickson, Joe; Allen, Jamie; Sherratt, Katharine; Funk, Sebastian, 2021, \"National and Subnational Estimates of the Covid 19 Reproduction Number (R) for Canada Based on Test Results\", https://doi.org/10.70122/FK2/PDRSIQ, Demo Dataverse, V8"
+    "citation": "Abi, Sam; Ben, Christopher; Hick, Joe; Ali, Jamie; Sheraton, Katharine; Fin, Sebastian, 2021, \"National and Subnational Estimates of the Covid 19 Reproduction Number (R) for Canada Based on Test Results\", https://doi.org/10.70122/FK2/PDRSIQ, Demo Dataverse, V8"
   }
 }

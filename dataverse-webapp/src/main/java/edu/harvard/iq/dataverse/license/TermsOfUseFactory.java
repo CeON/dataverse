@@ -56,7 +56,7 @@ public class TermsOfUseFactory {
      */
     public FileTermsOfUse createTermsOfUseFromCC0License() {
         final FileTermsOfUse fileTermsOfUse = new FileTermsOfUse();
-        fileTermsOfUse.setLicense(licenseDao.find(1));
+        fileTermsOfUse.setLicense(licenseDao.find(License.CC0_LICENSE_ID));
 
         return fileTermsOfUse;
     }
