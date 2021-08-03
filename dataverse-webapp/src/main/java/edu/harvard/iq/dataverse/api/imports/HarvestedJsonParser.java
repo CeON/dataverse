@@ -24,6 +24,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
+import javax.json.JsonValue;
 import java.io.StringReader;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -198,22 +199,13 @@ public class HarvestedJsonParser {
         } else if (type.isControlledVocabulary()) {
             List<ControlledVocabularyValue> vals = parseControlledVocabularyValue(type, json);
             if (vals.size() > 0) {
-                for (ControlledVocabularyValue cvv : vals) {
-                    cvv.setDatasetFieldType(type);
-                }
                 datasetField.setControlledVocabularyValues(vals);
                 parsedFields.add(datasetField);
             }
         } else {
             // primitive
             List<DatasetField> values = parsePrimitiveValue(type, json);
-
-            if (values.size() == 1) {
-                datasetField.setFieldValue(values.get(0).getValue());
-                parsedFields.add(datasetField);
-            } else if (values.size() > 1) {
-                parsedFields.addAll(values);
-            }
+            parsedFields.addAll(values);
         }
 
         return parsedFields;
@@ -225,33 +217,27 @@ public class HarvestedJsonParser {
     }
 
     private List<ControlledVocabularyValue> parseControlledVocabularyValue(DatasetFieldType cvvType, JsonObject json) {
-        try {
-            if (cvvType.isAllowMultiples()) {
-                try {
-                    return parseControlledVocabularyMultiValues(cvvType, json);
-                } catch (ClassCastException cce) {
-                    return parseControlledVocabularySingleValue(cvvType, json);
-                }
-            } else {
-                try {
-                    return parseControlledVocabularySingleValue(cvvType, json);
-                } catch (ClassCastException cce) {
-                    List<ControlledVocabularyValue> vals = parseControlledVocabularyMultiValues(cvvType, json);
-                    for (ControlledVocabularyValue val : vals) {
-                        if (!"other".equalsIgnoreCase(val.getStrValue())) {
-                            return Collections.singletonList(val);
-                        }
-                    }
-                    return vals.size() > 0 ? Collections.singletonList(vals.get(0)) : Collections.emptyList();
+        JsonValue valueFieldValue = json.get("value");
+        if (valueFieldValue == null) {
+            return Collections.emptyList();
+        }
+
+        if (cvvType.isAllowMultiples() && valueFieldValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+            return parseControlledVocabularyMultiValues(cvvType, json);
+        } else if (!cvvType.isAllowMultiples() && valueFieldValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+            List<ControlledVocabularyValue> vals = parseControlledVocabularyMultiValues(cvvType, json);
+            for (ControlledVocabularyValue val : vals) {
+                if (!"other".equalsIgnoreCase(val.getStrValue())) {
+                    return Collections.singletonList(val);
                 }
             }
-        } catch (ClassCastException | NullPointerException exception) {
-            return Collections.emptyList();
+            return vals.size() > 0 ? Collections.singletonList(vals.get(0)) : Collections.emptyList();
+        } else {
+            return parseControlledVocabularySingleValue(cvvType, json);
         }
     }
 
-    private List<ControlledVocabularyValue> parseControlledVocabularyMultiValues(DatasetFieldType cvvType, JsonObject json)
-            throws ClassCastException, NullPointerException {
+    private List<ControlledVocabularyValue> parseControlledVocabularyMultiValues(DatasetFieldType cvvType, JsonObject json) {
         List<ControlledVocabularyValue> vals = new LinkedList<>();
         for (JsonString strVal : json.getJsonArray("value").getValuesAs(JsonString.class)) {
             String strValue = strVal.getString();
@@ -270,8 +256,7 @@ public class HarvestedJsonParser {
         return vals;
     }
 
-    private List<ControlledVocabularyValue> parseControlledVocabularySingleValue(DatasetFieldType cvvType, JsonObject json)
-            throws ClassCastException, NullPointerException {
+    private List<ControlledVocabularyValue> parseControlledVocabularySingleValue(DatasetFieldType cvvType, JsonObject json) {
         String strValue = json.getString("value");
         ControlledVocabularyValue cvv = datasetFieldSvc.findControlledVocabularyValueByDatasetFieldTypeAndStrValue(cvvType, strValue, true);
         if (cvv == null) {
@@ -282,33 +267,26 @@ public class HarvestedJsonParser {
 
     private List<DatasetField> parseCompoundValue(DatasetFieldType compoundType, JsonObject json) {
         List<DatasetField> vals = new LinkedList<>();
+        JsonValue valueFieldValue = json.get("value");
+        if (valueFieldValue == null) {
+            return vals;
+        }
 
-        try {
-            if (compoundType.isAllowMultiples()) {
-                try {
-                    vals.addAll(parseCompoundMultiValueField(compoundType, json));
-                } catch (ClassCastException | NullPointerException exception) {
-                    vals.add(parseCompoundSingleValueField(compoundType, json));
-                }
-            } else {
-                try {
-                    vals.add(parseCompoundSingleValueField(compoundType, json));
-                } catch (ClassCastException | NullPointerException exception) {
-                    List<DatasetField> multiValues = parseCompoundMultiValueField(compoundType, json);
-                    if (multiValues.size() > 0) {
-                        vals.add(multiValues.get(0));
-                    }
-                }
+        if (compoundType.isAllowMultiples() && valueFieldValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+            vals.addAll(parseCompoundMultiValueField(compoundType, json));
+        } else if (!compoundType.isAllowMultiples() && valueFieldValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+            List<DatasetField> multiValues = parseCompoundMultiValueField(compoundType, json);
+            if (multiValues.size() > 0) {
+                vals.add(multiValues.get(0));
             }
-        } catch (ClassCastException | NullPointerException ex) {
-            return Collections.emptyList();
+        } else {
+            vals.add(parseCompoundSingleValueField(compoundType, json));
         }
 
         return vals;
     }
 
-    private DatasetField parseCompoundSingleValueField(DatasetFieldType compoundType, JsonObject json)
-            throws ClassCastException, NullPointerException {
+    private DatasetField parseCompoundSingleValueField(DatasetFieldType compoundType, JsonObject json) {
         JsonObject value = json.getJsonObject("value");
         DatasetField parentField = new DatasetField();
         parentField.setDatasetFieldType(compoundType);
@@ -317,17 +295,18 @@ public class HarvestedJsonParser {
             JsonObject childFieldJson = value.getJsonObject(key);
             DatasetField childField = parseField(childFieldJson).get(0);
 
-            if (childField != null) {
-                parentField.getDatasetFieldsChildren().add(childField);
-                childField.setDatasetFieldParent(parentField);
+            if (!compoundType.getChildDatasetFieldTypes().contains(childField.getDatasetFieldType())) {
+                continue;
             }
+
+            parentField.getDatasetFieldsChildren().add(childField);
+            childField.setDatasetFieldParent(parentField);
         }
 
         return parentField;
     }
 
-    private List<DatasetField> parseCompoundMultiValueField(DatasetFieldType compoundType, JsonObject json)
-            throws ClassCastException, NullPointerException {
+    private List<DatasetField> parseCompoundMultiValueField(DatasetFieldType compoundType, JsonObject json) {
         List<DatasetField> vals = new LinkedList<>();
         for (JsonObject obj : json.getJsonArray("value").getValuesAs(JsonObject.class)) {
             DatasetField parentField = new DatasetField();
@@ -341,14 +320,12 @@ public class HarvestedJsonParser {
                 }
 
                 DatasetField childField = childFields.get(0);
-                if (childField != null) {
-                    if (!compoundType.getChildDatasetFieldTypes().contains(childField.getDatasetFieldType())) {
-                        continue;
-                    }
-
-                    parentField.getDatasetFieldsChildren().add(childField);
-                    childField.setDatasetFieldParent(parentField);
+                if (!compoundType.getChildDatasetFieldTypes().contains(childField.getDatasetFieldType())) {
+                    continue;
                 }
+
+                parentField.getDatasetFieldsChildren().add(childField);
+                childField.setDatasetFieldParent(parentField);
             }
             if (parentField.getDatasetFieldsChildren().size() > 0) {
                 vals.add(parentField);
@@ -360,37 +337,30 @@ public class HarvestedJsonParser {
     private List<DatasetField> parsePrimitiveValue(DatasetFieldType dft, JsonObject json) {
 
         List<DatasetField> vals = new LinkedList<>();
+        JsonValue valueFieldValue = json.get("value");
+        if (valueFieldValue == null) {
+            return vals;
+        }
 
-        try {
-            if (dft.isAllowMultiples()) {
-                try {
-                    vals.addAll(parsePrimitiveMultiValues(dft, json));
-                } catch (ClassCastException | NullPointerException exception) {
-                    vals.add(parsePrimitiveSingleValue(dft, json));
-                }
-            } else {
-                try {
-                    vals.add(parsePrimitiveSingleValue(dft, json));
-                } catch (ClassCastException | NullPointerException exception) {
-                    List<DatasetField> multiValues = parsePrimitiveMultiValues(dft, json);
-                    if (multiValues.size() > 0) {
-                        vals.add(multiValues.get(0));
-                    }
-                }
+        if (dft.isAllowMultiples() && valueFieldValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+            vals.addAll(parsePrimitiveMultiValues(dft, json));
+        } else if (!dft.isAllowMultiples() && valueFieldValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+            List<DatasetField> multiValues = parsePrimitiveMultiValues(dft, json);
+            if (multiValues.size() > 0) {
+                vals.add(multiValues.get(0));
             }
-        } catch (ClassCastException | NullPointerException ex) {
-            return Collections.emptyList();
+        } else {
+            vals.add(parsePrimitiveSingleValue(dft, json));
         }
 
         return vals;
     }
 
-    private List<DatasetField> parsePrimitiveMultiValues(DatasetFieldType dft, JsonObject json)
-            throws ClassCastException, NullPointerException {
+    private List<DatasetField> parsePrimitiveMultiValues(DatasetFieldType dft, JsonObject json) {
         List<DatasetField> vals = new LinkedList<>();
         for (JsonString val : json.getJsonArray("value").getValuesAs(JsonString.class)) {
             DatasetField datasetFieldValue = new DatasetField();
-            datasetFieldValue.setDisplayOrder(vals.size() - 1);
+            datasetFieldValue.setDisplayOrder(vals.size());
             datasetFieldValue.setFieldValue(val.getString().trim());
             datasetFieldValue.setDatasetFieldType(dft);
             vals.add(datasetFieldValue);
@@ -398,8 +368,7 @@ public class HarvestedJsonParser {
         return vals;
     }
 
-    private DatasetField parsePrimitiveSingleValue(DatasetFieldType dft, JsonObject json)
-            throws ClassCastException, NullPointerException {
+    private DatasetField parsePrimitiveSingleValue(DatasetFieldType dft, JsonObject json) {
         DatasetField datasetFieldValue = new DatasetField();
         datasetFieldValue.setFieldValue(json.getString("value").trim());
         datasetFieldValue.setDatasetFieldType(dft);
