@@ -106,6 +106,10 @@ public class FieldDTO {
         return field;
     }
 
+    public boolean isSinglePrimitive() {
+        return !multiple && "primitive".equals(typeClass);
+    }
+
     public String getSinglePrimitive() {
         return value == null ? "" : value.getAsString();
     }
