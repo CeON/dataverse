@@ -75,10 +75,10 @@ public class ExternalToolServiceBeanTest {
         Dataset dataset = new Dataset();
         datasetVersion.setDataset(dataset);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        dataset.setEmbargoDate(embargoed ? calendar.getTime() : null);
+        Calendar futureEmbargoExpirationDate = Calendar.getInstance();
+        futureEmbargoExpirationDate.setTime(new Date());
+        futureEmbargoExpirationDate.add(Calendar.DAY_OF_MONTH, 1);
+        dataset.setEmbargoDate(embargoed ? futureEmbargoExpirationDate.getTime() : null);
 
         FileMetadata metadata = new FileMetadata();
         metadata.setDatasetVersion(datasetVersion);
@@ -162,6 +162,7 @@ public class ExternalToolServiceBeanTest {
 
         // when & then
             assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+                    .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Required reserved word not found: {fileId}");
     }
 
@@ -169,6 +170,7 @@ public class ExternalToolServiceBeanTest {
     void parseAddExternalToolManifest__null() {
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(null))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("External tool manifest was null or empty!");
     }
 
@@ -176,6 +178,7 @@ public class ExternalToolServiceBeanTest {
     void parseAddExternalToolManifest__emptyString() {
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(""))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("External tool manifest was null or empty!");
     }
 
@@ -205,6 +208,7 @@ public class ExternalToolServiceBeanTest {
 
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown reserved word: mode1");
     }
 
@@ -220,6 +224,7 @@ public class ExternalToolServiceBeanTest {
 
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("displayName is required.");
     }
 
@@ -235,6 +240,7 @@ public class ExternalToolServiceBeanTest {
 
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("description is required.");
     }
 
@@ -251,6 +257,7 @@ public class ExternalToolServiceBeanTest {
 
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("toolUrl is required.");
     }
 
@@ -268,6 +275,7 @@ public class ExternalToolServiceBeanTest {
 
         // when & then
         assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Type must be one of these values: [explore, configure].");
     }
 

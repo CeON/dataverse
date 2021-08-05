@@ -107,13 +107,15 @@ public class ExternalToolServiceBean {
         return em.merge(externalTool);
     }
 
-    // Used only in REST
+    /**
+     * Should be used only in REST (ie. where it's currently used). For the other
+     * cases use the method {@link ExternalToolServiceBean#findExternalToolsByFileAndVersion(List, DataFile, DatasetVersion)}
+     */
     public static List<ExternalTool> findExternalToolsByFile(List<ExternalTool> allExternalTools, DataFile file) {
         // Map tabular data to it's mimetype (the isTabularData() check assures that this code works the same as before,
         // but it may need to change if tabular data is split into subtypes with differing mimetypes)
         final String contentType = file.isTabularData() ? TextMimeType.TSV_ALT.getMimeValue() : file.getContentType();
 
-        // Match tool and file type
         return allExternalTools.stream()
                 .filter(t -> t.getContentType().equals(contentType))
                 .collect(Collectors.toList());
@@ -126,25 +128,15 @@ public class ExternalToolServiceBean {
      */
     public List<ExternalTool> findExternalToolsByFileAndVersion(
             List<ExternalTool> allExternalTools, DataFile file, DatasetVersion datasetVersion) {
-        List<ExternalTool> externalTools = new ArrayList<>();
+
         // Map tabular data to it's mimetype (the isTabularData() check assures that this code works the same as before,
         // but it may need to change if tabular data is split into subtypes with differing mimetypes)
         final String contentType = file.isTabularData() ? TextMimeType.TSV_ALT.getMimeValue() : file.getContentType();
-        boolean isTsvAltContentType = contentType.equals(TextMimeType.TSV_ALT.getMimeValue());
 
-        allExternalTools.forEach((externalTool) -> {
-            // Match tool and file type
-            if (contentType.equals(externalTool.getContentType())) {
-
-                // Exclude non-public tsv files and those which do not have datatable
-                if (isTsvAltContentType && (!isFilePublic(file, datasetVersion) || !file.isTabularData())) {
-                    return;
-                }
-                externalTools.add(externalTool);
-            }
-        });
-
-        return externalTools;
+        return allExternalTools.stream()
+                .filter(t -> t.getContentType().equals(contentType))
+                .filter(t -> !isNonPublicOrNotIngestedTsvFile(file, datasetVersion))
+                .collect(Collectors.toList());
     }
 
     public static ExternalTool parseAddExternalToolManifest(String manifest) {
@@ -188,6 +180,13 @@ public class ExternalToolServiceBean {
     }
 
     // -------------------- PRIVATE --------------------
+
+    private boolean isNonPublicOrNotIngestedTsvFile(DataFile file, DatasetVersion datasetVersion) {
+        boolean isTsvAltContentType = TextMimeType.TSV_ALT.getMimeValue()
+                .equals(file.isTabularData() ? TextMimeType.TSV_ALT.getMimeValue() : file.getContentType());
+
+        return isTsvAltContentType && (!isFilePublic(file, datasetVersion) || !file.isTabularData());
+    }
 
     private boolean isFilePublic(DataFile file, DatasetVersion datasetVersion) {
         boolean released = datasetVersion.isReleased();

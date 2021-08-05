@@ -25,7 +25,6 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.FileUtil.FileCitationExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.primefaces.PrimeFaces;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
