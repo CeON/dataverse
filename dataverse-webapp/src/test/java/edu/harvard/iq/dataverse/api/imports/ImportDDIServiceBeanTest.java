@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.api.imports;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.UnitTestUtils;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
@@ -16,7 +15,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion.VersionState;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.xml.stream.XMLStreamException;
@@ -436,13 +434,11 @@ public class ImportDDIServiceBeanTest {
         DatasetVersionDTO datasetVersionDto = datasetDto.getDatasetVersion();
         MetadataBlockDTO citationBlock = datasetVersionDto.getMetadataBlocks().get("citation");
         
-        // TODO it is compound field
         assertThat(citationBlock.getField(DatasetFieldConstant.relatedMaterial)).isEqualTo(
                 createMultiplePrimitiveFieldDTO(DatasetFieldConstant.relatedMaterial, ImmutableList.of(
                     "<!--  parsed from DDI citation title and holdings -->\n\n" + 
                     "<a href=\"https://doi.org/10.1010/abc33\">https://doi.org/10.1010/abc33</a>")));
         
-        // TODO it is compound field
         assertThat(citationBlock.getField(DatasetFieldConstant.relatedDataset)).isEqualTo(
                 createMultiplePrimitiveFieldDTO(DatasetFieldConstant.relatedDataset, ImmutableList.of(
                     "<!--  parsed from DDI citation title and holdings -->\n\n" + 

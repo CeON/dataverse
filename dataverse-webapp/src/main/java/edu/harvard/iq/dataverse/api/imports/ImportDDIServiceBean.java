@@ -215,9 +215,10 @@ public class ImportDDIServiceBean {
      * to decide whether some license should be assigned or not.
      */
     private void applyTermsOfUseToFiles(DatasetDTO datasetDTO, TermsOfUseDataHolder termsOfUseDataHolder) {
+        String termsOfUse = termsOfUseDataHolder.getTermsOfUse();
+
         for (FileDTO file: datasetDTO.getDatasetVersion().getFiles()) {
-            String termsOfUse = termsOfUseDataHolder.getTermsOfUse();
-            
+
             if (StringUtils.isNotBlank(termsOfUse)) {
 
                 if (termsOfUse.equals(TERMS_OF_USE_CC0_LICENSE)) {
