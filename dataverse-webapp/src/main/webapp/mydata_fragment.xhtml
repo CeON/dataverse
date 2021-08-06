@@ -82,7 +82,7 @@
                         <f:param name="types" value="dataverses"/>
                         <f:param name="uId" value="#{MyDataSearchFragment.searchUserId}"/>
                         <c:forEach items="#{MyDataSearchFragment.selectedFilterQueries}" var="clickedFilterQuery" varStatus="status">
-                            <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
+                            <f:param name="fq#{status.index}" value='#{clickedFilterQuery.query}'/>
                         </c:forEach>
                         <c:forEach items="#{MyDataSearchFragment.roleFilters}" var="clickedRoleFilter" varStatus="status">
                             <f:param name="rf#{status.index}" value='#{clickedRoleFilter}'/>
