@@ -713,13 +713,13 @@ public class MyDataSearchFragment implements java.io.Serializable {
                     publicationStatusFacetCategory = new FacetCategory();
                     publicationStatusFacetCategory.setName(facetCat.getName());
                     publicationStatusFacetCategory.setFriendlyName(facetCat.getFriendlyName());
-                    for (FacetLabel facetLabel: facetCat.getFacetLabel()) {
+                    for (FacetLabel facetLabel: facetCat.getFacetLabels()) {
                         FacetLabel convertedFacetLabel = new FacetLabel(
                                 facetLabel.getName(),
                                 facetLabel.getDisplayName(),
                                 facetLabel.getCount()); 
                         convertedFacetLabel.setFilterQuery(facetLabel.getName());
-                        publicationStatusFacetCategory.addSingleFacetLabel(convertedFacetLabel);
+                        publicationStatusFacetCategory.addFacetLabel(convertedFacetLabel);
                     }
                     break;
                 }

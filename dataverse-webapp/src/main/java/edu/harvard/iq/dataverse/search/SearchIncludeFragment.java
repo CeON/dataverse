@@ -320,7 +320,7 @@ public class SearchIncludeFragment {
 
 
         for (FacetCategory facetCategory: solrQueryResponse.getFacetCategoryList()) {
-            if (facetCategory.getName().equals(SearchFields.PUBLICATION_STATUS) && facetCategory.getFacetLabel().size() < 2) {
+            if (facetCategory.getName().equals(SearchFields.PUBLICATION_STATUS) && facetCategory.getFacetLabels().size() < 2) {
                 continue;
             }
             facetCategoryList.add(facetCategory);

@@ -268,7 +268,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
     private void assertContainsFacetCount(FacetCategory actualFacet, String expectedName, long expectedCount) {
         FacetLabel actualFacetLabel = null;
-        for (FacetLabel facetLabel: actualFacet.getFacetLabel()) {
+        for (FacetLabel facetLabel: actualFacet.getFacetLabels()) {
             if (StringUtils.equals(facetLabel.getName(), expectedName)) {
                 actualFacetLabel = facetLabel;
                 break;

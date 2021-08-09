@@ -6,7 +6,7 @@ import java.util.List;
 public class FacetCategory {
 
     private String name;
-    private List<FacetLabel> facetLabel = new ArrayList<>(); // TODO: should be plural
+    private List<FacetLabel> facetLabels = new ArrayList<>();
     private String friendlyName;
 
     public String getName() {
@@ -17,16 +17,16 @@ public class FacetCategory {
         this.name = name;
     }
 
-    public void addSingleFacetLabel(FacetLabel facetLabel) {
-        this.facetLabel.add(facetLabel);
+    public void addFacetLabel(FacetLabel facetLabel) {
+        this.facetLabels.add(facetLabel);
     }
 
-    public List<FacetLabel> getFacetLabel() {
-        return facetLabel;
+    public List<FacetLabel> getFacetLabels() {
+        return facetLabels;
     }
 
-    public void setFacetLabel(List<FacetLabel> facetLabel) {
-        this.facetLabel = facetLabel;
+    public void setFacetLabels(List<FacetLabel> facetLabel) {
+        this.facetLabels = facetLabel;
     }
 
     public String getFriendlyName() {
@@ -43,7 +43,7 @@ public class FacetCategory {
 
     @Override
     public String toString() {
-        return "FacetCategory [name=" + name + ", facetLabel=" + facetLabel + ", friendlyName=" + friendlyName + "]";
+        return "FacetCategory [name=" + name + ", facetLabels=" + facetLabels + ", friendlyName=" + friendlyName + "]";
     }
     
 }

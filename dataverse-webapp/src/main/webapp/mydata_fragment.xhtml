@@ -181,7 +181,7 @@
             <p:outputPanel id="facetCategoryForm" rendered="#{MyDataSearchFragment.searchResultsCount > 0}">
                 <p:outputPanel id="facetCategoryList">
                     <h:outputText value="#{MyDataSearchFragment.publicationStatusFacetCategory.displayName}" styleClass="facetCategoryName"/>
-                    <p:dataList value="#{MyDataSearchFragment.publicationStatusFacetCategory.facetLabel}" var="facetLabel">
+                    <p:dataList value="#{MyDataSearchFragment.publicationStatusFacetCategory.facetLabels}" var="facetLabel">
                         <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{!MyDataSearchFragment.publicationStatusFilters.contains(facetLabel.filterQuery)}" styleClass="facetLink">
                             <h:outputFormat value="#{facetLabel.displayName} &#40;{0}&#41;">
                                 <f:param value="#{facetLabel.count}"/>

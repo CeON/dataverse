@@ -521,7 +521,7 @@ public class SearchServiceBean {
                 facetLabelList.add(facetLabel);
             }
 
-            facetCategory.setFacetLabel(facetLabelList);
+            facetCategory.setFacetLabels(facetLabelList);
 
             if (!facetLabelList.isEmpty()) {
                 facetCategoryList.add(facetCategory);

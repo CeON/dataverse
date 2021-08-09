@@ -154,7 +154,7 @@
                     <div class="ui-datalist ui-widget">
                         <div class="ui-datalist-content ui-widget-content">
                             <ul class="ui-datalist-data">
-                                <ui:repeat var="facetLabel" value="#{facetCategory.facetLabel}" varStatus="facetLabelStatus">
+                                <ui:repeat var="facetLabel" value="#{facetCategory.facetLabels}" varStatus="facetLabelStatus">
                                     <li class="ui-datalist-item facet-item #{facetLabelStatus.index ge 5 ? 'hidden-content' : ''}">
                                         <h:outputLink value="#{widgetWrapper.wrapURL(page)}" rendered="#{!SearchIncludeFragment.filterQueries.contains(facetLabel.filterQuery)}" styleClass="facetLink">
                                             <h:outputFormat value="#{facetLabel.displayName} &#40;{0}&#41; ">
