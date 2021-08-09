@@ -8,7 +8,7 @@ About ROR
 ---------
 
 ROR (Research Organization Registry) is a registry of identifiers for research
-organizations. ROR identifiers helps with matching affiliation data with institutions.
+organizations. ROR identifiers help with matching affiliation data with institutions.
 
 For more informations visit `official ROR homepage <https://ror.org/>`_
 
@@ -16,8 +16,8 @@ For more informations visit `official ROR homepage <https://ror.org/>`_
 ROR in Dataverse
 ----------------
 
-Dataverse uses ROR identifiers to enrich DataCite metadata format. In default dataset metadata fields
-configuration there is also turned on suggesting of ROR identifiers based on name of the organization.
+Dataverse uses ROR identifiers to enrich DataCite metadata format.
+In dataset metadata fields configuration there is an option for suggesting ROR identifiers based on organization name (turned on by default).
 
 
 Uploading ROR data
@@ -49,6 +49,7 @@ Dump can be prepared using ROR api:
 .. literalinclude:: ../_static/util/make_ror_dump.sh
 
 In example above we include ROR identifiers for institutions from `Great Britain` with type `Education`.
+You can modify ``ROR_FILTER`` variable in the script to obtain the data you want.
 
 Next you need to execute the same api endpoint as in full dump::
 
