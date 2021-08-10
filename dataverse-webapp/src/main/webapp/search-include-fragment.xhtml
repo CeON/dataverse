@@ -195,14 +195,14 @@
                     
                     <ui:fragment rendered="#{facetCategory.name != searchConstants.SEARCH_FIELD_TYPE and facetCategory.name != searchConstants.SEARCH_FIELD_SUBTREE}">
                         <div class="clearfix">
-                            <div class="pull-left hidden-content" jsf:rendered="#{facetCategory.facetLabel.size() gt 5}">
+                            <div class="pull-left hidden-content" jsf:rendered="#{facetCategory.facetLabels.size() gt 5}">
                                 <a href="#" data-facet-link="show-less">
                                     <h:outputText styleClass="sr-only" value="#{bundle['dataverse.search.filters.showMoreLess.screenReaderPrefix']} " />
                                     #{bundle.less}
                                     <h:outputText styleClass="sr-only" value=" #{bundle['dataverse.search.filters.showMoreLess.screenReaderPostfix']} #{facetCategory.displayName}" />
                                 </a>
                             </div>
-                            <div class="pull-right" jsf:rendered="#{facetCategory.facetLabel.size() gt 5}">
+                            <div class="pull-right" jsf:rendered="#{facetCategory.facetLabels.size() gt 5}">
                                 <a href="#" data-facet-link="show-more">
                                     <h:outputText styleClass="sr-only" value="#{bundle['dataverse.search.filters.showMoreLess.screenReaderPrefix']}" />
                                     #{bundle.more}
