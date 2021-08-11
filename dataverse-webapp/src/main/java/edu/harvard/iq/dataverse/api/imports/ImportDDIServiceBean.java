@@ -394,6 +394,8 @@ public class ImportDDIServiceBean {
 
     private void processOthrStdyMat(XMLStreamReader xmlr, DatasetVersionDTO dvDTO) throws XMLStreamException {
         List<Set<FieldDTO>> publications = new ArrayList<>();
+        List<Set<FieldDTO>> relatedMaterials = new ArrayList<>();
+        List<Set<FieldDTO>> relatedStudy = new ArrayList<>();
         boolean replicationForFound = false;
         for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
             if (event == XMLStreamConstants.START_ELEMENT) {
@@ -418,15 +420,10 @@ public class ImportDDIServiceBean {
                             }
                         }
                     } else {
-
-                        List<String> relMaterial = new ArrayList<>();
-                        relMaterial.add(parseText(xmlr, "relMat"));
-                        getCitation(dvDTO).addField(FieldDTO.createMultiplePrimitiveFieldDTO(DatasetFieldConstant.relatedMaterial, relMaterial));
+                        processRelMat(xmlr, dvDTO, relatedMaterials);
                     }
                 } else if (xmlr.getLocalName().equals("relStdy")) {
-                    List<String> relStudy = new ArrayList<>();
-                    relStudy.add(parseText(xmlr, "relStdy"));
-                    getCitation(dvDTO).addField(FieldDTO.createMultiplePrimitiveFieldDTO(DatasetFieldConstant.relatedDatasets, relStudy));
+                    processRelStdy(xmlr, dvDTO, relatedStudy);
                 } else if (xmlr.getLocalName().equals("relPubl")) {
                     processRelPubl(xmlr, dvDTO, publications);
                 } else if (xmlr.getLocalName().equals("othRefs")) {
@@ -440,7 +437,103 @@ public class ImportDDIServiceBean {
                 if (publications.size() > 0) {
                     getCitation(dvDTO).addField(FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.publication, publications));
                 }
+                if (!relatedMaterials.isEmpty()){
+                    getCitation(dvDTO).addField(FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.relatedMaterial, relatedMaterials));
+                }
+                if (!relatedStudy.isEmpty()){
+                    getCitation(dvDTO).addField(FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.relatedDataset, relatedStudy));
+                }
                 if (xmlr.getLocalName().equals("othrStdyMat")) {
+                    return;
+                }
+            }
+        }
+    }
+
+    private void processRelMat(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> materials) throws XMLStreamException {
+        HashSet<FieldDTO> set = new HashSet<>();
+        for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
+            if (event == XMLStreamConstants.START_ELEMENT) {
+                if (xmlr.getLocalName().equals("citation")) {
+                    for (int event2 = xmlr.next(); event2 != XMLStreamConstants.END_DOCUMENT; event2 = xmlr.next()) {
+                        if (event2 == XMLStreamConstants.START_ELEMENT) {
+                            if (xmlr.getLocalName().equals("titlStmt")) {
+                                for (int event3 = xmlr.next(); event3 != XMLStreamConstants.END_DOCUMENT; event3 = xmlr.next()) {
+                                    if (event3 == XMLStreamConstants.START_ELEMENT) {
+                                        if (xmlr.getLocalName().equals("IDNo")) {
+                                            set.add(FieldDTO.createVocabFieldDTO(DatasetFieldConstant.relatedMaterialIDType, xmlr
+                                                    .getAttributeValue(null, "agency")));
+                                            addToSet(set, DatasetFieldConstant.relatedMaterialIDNumber, parseText(xmlr));
+                                        }
+                                    } else if (event3 == XMLStreamConstants.END_ELEMENT) {
+                                        if (xmlr.getLocalName().equals("titlStmt")) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else if (xmlr.getLocalName().equals("biblCit")) {
+                                addToSet(set, DatasetFieldConstant.relatedMaterialCitation, parseText(xmlr));
+                            }
+                        } else if (event2 == XMLStreamConstants.END_ELEMENT) {
+                            if (xmlr.getLocalName().equals("citation")) {
+                                break;
+                            }
+                        }
+
+                    }
+                } else if (xmlr.getLocalName().equals("ExtLink")) {
+                    addToSet(set, DatasetFieldConstant.relatedMaterialURL, xmlr.getAttributeValue(null, "URI"));
+                }
+            } else if (event == XMLStreamConstants.END_ELEMENT) {
+                if (xmlr.getLocalName().equals("relMat")) {
+                    if (set.size() > 0) {
+                        materials.add(set);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    private void processRelStdy(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> studies) throws XMLStreamException {
+        HashSet<FieldDTO> set = new HashSet<>();
+        for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
+            if (event == XMLStreamConstants.START_ELEMENT) {
+                if (xmlr.getLocalName().equals("citation")) {
+                    for (int event2 = xmlr.next(); event2 != XMLStreamConstants.END_DOCUMENT; event2 = xmlr.next()) {
+                        if (event2 == XMLStreamConstants.START_ELEMENT) {
+                            if (xmlr.getLocalName().equals("titlStmt")) {
+                                for (int event3 = xmlr.next(); event3 != XMLStreamConstants.END_DOCUMENT; event3 = xmlr.next()) {
+                                    if (event3 == XMLStreamConstants.START_ELEMENT) {
+                                        if (xmlr.getLocalName().equals("IDNo")) {
+                                            set.add(FieldDTO.createVocabFieldDTO(DatasetFieldConstant.relatedDatasetIDType, xmlr
+                                                    .getAttributeValue(null, "agency")));
+                                            addToSet(set, DatasetFieldConstant.relatedDatasetIDNumber, parseText(xmlr));
+                                        }
+                                    } else if (event3 == XMLStreamConstants.END_ELEMENT) {
+                                        if (xmlr.getLocalName().equals("titlStmt")) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else if (xmlr.getLocalName().equals("biblCit")) {
+                                addToSet(set, DatasetFieldConstant.relatedDatasetCitation, parseText(xmlr));
+                            }
+                        } else if (event2 == XMLStreamConstants.END_ELEMENT) {
+                            if (xmlr.getLocalName().equals("citation")) {
+                                break;
+                            }
+                        }
+
+                    }
+                } else if (xmlr.getLocalName().equals("ExtLink")) {
+                    addToSet(set, DatasetFieldConstant.relatedDatasetURL, xmlr.getAttributeValue(null, "URI"));
+                }
+            } else if (event == XMLStreamConstants.END_ELEMENT) {
+                if (xmlr.getLocalName().equals("relStdy")) {
+                    if (set.size() > 0) {
+                        studies.add(set);
+                    }
                     return;
                 }
             }
@@ -455,11 +548,17 @@ public class ImportDDIServiceBean {
                     for (int event2 = xmlr.next(); event2 != XMLStreamConstants.END_DOCUMENT; event2 = xmlr.next()) {
                         if (event2 == XMLStreamConstants.START_ELEMENT) {
                             if (xmlr.getLocalName().equals("titlStmt")) {
-                                int event3 = xmlr.next();
-                                if (event3 == XMLStreamConstants.START_ELEMENT) {
-                                    if (xmlr.getLocalName().equals("IDNo")) {
-                                        set.add(FieldDTO.createVocabFieldDTO(DatasetFieldConstant.publicationIDType, xmlr.getAttributeValue(null, "agency")));
-                                        addToSet(set, DatasetFieldConstant.publicationIDNumber, parseText(xmlr));
+                                for (int event3 = xmlr.next(); event3 != XMLStreamConstants.END_DOCUMENT; event3 = xmlr.next()) {
+                                    if (event3 == XMLStreamConstants.START_ELEMENT) {
+                                        if (xmlr.getLocalName().equals("IDNo")) {
+                                            set.add(FieldDTO.createVocabFieldDTO(DatasetFieldConstant.publicationIDType, xmlr
+                                                    .getAttributeValue(null, "agency")));
+                                            addToSet(set, DatasetFieldConstant.publicationIDNumber, parseText(xmlr));
+                                        }
+                                    } else if (event3 == XMLStreamConstants.END_ELEMENT) {
+                                        if (xmlr.getLocalName().equals("titlStmt")) {
+                                            break;
+                                        }
                                     }
                                 }
                             } else if (xmlr.getLocalName().equals("biblCit")) {
