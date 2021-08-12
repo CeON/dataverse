@@ -4,13 +4,14 @@ import com.google.gson.JsonElement;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import org.apache.commons.io.IOUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ImportDDIServiceBeanTest {
 
@@ -27,31 +28,22 @@ class ImportDDIServiceBeanTest {
         DatasetDTO datasetDTO = importDDIServiceBean.doImport(ImportUtil.ImportType.HARVEST, ddiXml);
 
         //then
-
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialCitation))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialCitation))
                 .isNotNull();
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialIDType))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialIDType))
                 .isNotNull();
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialIDNumber))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialIDNumber))
                 .isNotNull();
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialURL))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialURL))
                 .isNotNull();
 
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetCitation))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetCitation))
                 .isNotNull();
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetIDType))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetIDType))
                 .isNotNull();
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetIDNumber))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetIDNumber))
                 .isNotNull();
-        Assertions
-                .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetURL))
+        assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedDataset, DatasetFieldConstant.relatedDatasetURL))
                 .isNotNull();
 
     }

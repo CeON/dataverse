@@ -451,7 +451,7 @@ public class ImportDDIServiceBean {
     }
 
     private void processRelMat(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> materials) throws XMLStreamException {
-        HashSet<FieldDTO> set = new HashSet<>();
+        Set<FieldDTO> set = new HashSet<>();
         for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
             if (event == XMLStreamConstants.START_ELEMENT) {
                 if (xmlr.getLocalName().equals("citation")) {
@@ -496,7 +496,7 @@ public class ImportDDIServiceBean {
     }
 
     private void processRelStdy(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> studies) throws XMLStreamException {
-        HashSet<FieldDTO> set = new HashSet<>();
+        Set<FieldDTO> set = new HashSet<>();
         for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
             if (event == XMLStreamConstants.START_ELEMENT) {
                 if (xmlr.getLocalName().equals("citation")) {
