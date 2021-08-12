@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.api.imports;
 
 import com.google.gson.JsonElement;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
@@ -28,7 +27,6 @@ class ImportDDIServiceBeanTest {
         DatasetDTO datasetDTO = importDDIServiceBean.doImport(ImportUtil.ImportType.HARVEST, ddiXml);
 
         //then
-        final MetadataBlockDTO citation = datasetDTO.getDatasetVersion().getMetadataBlocks().get("citation");
 
         Assertions
                 .assertThat(extractJsonValues(datasetDTO, DatasetFieldConstant.relatedMaterial, DatasetFieldConstant.relatedMaterialCitation))
