@@ -336,7 +336,12 @@ public class ImportDDIServiceBean {
         List<Set<FieldDTO>> publications = new ArrayList<>();
         List<Set<FieldDTO>> relatedMaterials = new ArrayList<>();
         List<Set<FieldDTO>> relatedStudy = new ArrayList<>();
+
+        Set<FieldDTO> legacyMaterialFields = new HashSet<>();
+        Set<FieldDTO> legacyStudyFields = new HashSet<>();
+
         boolean replicationForFound = false;
+        final String localName = xmlr.getLocalName();
         for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
             if (event == XMLStreamConstants.START_ELEMENT) {
                 if (xmlr.getLocalName().equals("relMat")) {
@@ -354,10 +359,10 @@ public class ImportDDIServiceBean {
                             }
                         }
                     } else {
-                        processRelMat(xmlr, dvDTO, relatedMaterials);
+                        processRelMat(xmlr, dvDTO, relatedMaterials, legacyMaterialFields);
                     }
                 } else if (xmlr.getLocalName().equals("relStdy")) {
-                    processRelStdy(xmlr, dvDTO, relatedStudy);
+                    processRelStdy(xmlr, dvDTO, relatedStudy, legacyStudyFields);
                 } else if (xmlr.getLocalName().equals("relPubl")) {
                     processRelPubl(xmlr, publications);
                 } else if (xmlr.getLocalName().equals("othRefs")) {
@@ -371,10 +376,16 @@ public class ImportDDIServiceBean {
                 if (!publications.isEmpty()) {
                     getCitation(dvDTO).addField(FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.publication, publications));
                 }
-                if (!relatedMaterials.isEmpty()){
+
+                if (!legacyMaterialFields.isEmpty()){
+                    legacyMaterialFields.forEach(fieldDTO -> getCitation(dvDTO).addField(fieldDTO));
+                } else if (!relatedMaterials.isEmpty()){
                     getCitation(dvDTO).addField(FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.relatedMaterial, relatedMaterials));
                 }
-                if (!relatedStudy.isEmpty()){
+
+                if (!legacyStudyFields.isEmpty()){
+                    legacyStudyFields.forEach(fieldDTO -> getCitation(dvDTO).addField(fieldDTO));
+                } else if (!relatedStudy.isEmpty()){
                     getCitation(dvDTO).addField(FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.relatedDataset, relatedStudy));
                 }
                 if (xmlr.getLocalName().equals("othrStdyMat")) {
@@ -384,9 +395,20 @@ public class ImportDDIServiceBean {
         }
     }
 
-    private void processRelMat(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> materials) throws XMLStreamException {
+    private void processRelMat(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,
+                               List<Set<FieldDTO>> materials, Set<FieldDTO> legacyDdi) throws XMLStreamException {
         Set<FieldDTO> set = new HashSet<>();
-        for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
+        for (int event = xmlr.next(), counter = 0; event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next(), counter++) {
+            if (isLegacyDdi(event, counter) && !StringUtils.isBlank(xmlr.getText())) {
+                final String citationText = xmlr.getText();
+                final FieldDTO citationFieldDto = FieldDTO.createPrimitiveFieldDTO(DatasetFieldConstant.relatedMaterialCitation, citationText);
+                final FieldDTO relatedMat = FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.relatedMaterial, citationFieldDto);
+
+                if (xmlr.next() == XMLStreamConstants.END_ELEMENT){
+                    legacyDdi.add(relatedMat);
+                    break;
+                }
+            }
             if (event == XMLStreamConstants.START_ELEMENT) {
                 if (xmlr.getLocalName().equals("citation")) {
                     for (int event2 = xmlr.next(); event2 != XMLStreamConstants.END_DOCUMENT; event2 = xmlr.next()) {
@@ -429,9 +451,23 @@ public class ImportDDIServiceBean {
         }
     }
 
-    private void processRelStdy(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> studies) throws XMLStreamException {
+    private boolean isLegacyDdi(int event, int counter) {
+        return event == XMLStreamConstants.CHARACTERS && counter == 0;
+    }
+
+    private void processRelStdy(XMLStreamReader xmlr, DatasetVersionDTO dvDTO,  List<Set<FieldDTO>> studies, Set<FieldDTO> legacyDdi) throws XMLStreamException {
         Set<FieldDTO> set = new HashSet<>();
-        for (int event = xmlr.next(); event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next()) {
+        for (int event = xmlr.next(), counter = 0; event != XMLStreamConstants.END_DOCUMENT; event = xmlr.next(), counter++) {
+            if (isLegacyDdi(event, counter) && !StringUtils.isBlank(xmlr.getText())) {
+                final String citationText = xmlr.getText();
+                final FieldDTO citationFieldDto = FieldDTO.createPrimitiveFieldDTO(DatasetFieldConstant.relatedDatasetCitation, citationText);
+                final FieldDTO relatedDataset = FieldDTO.createMultipleCompoundFieldDTO(DatasetFieldConstant.relatedDataset, citationFieldDto);
+
+                if (xmlr.next() == XMLStreamConstants.END_ELEMENT){
+                    legacyDdi.add(relatedDataset);
+                    break;
+                }
+            }
             if (event == XMLStreamConstants.START_ELEMENT) {
                 if (xmlr.getLocalName().equals("citation")) {
                     for (int event2 = xmlr.next(); event2 != XMLStreamConstants.END_DOCUMENT; event2 = xmlr.next()) {
