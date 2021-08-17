@@ -4,12 +4,12 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.RoleTranslationUtil;
 import edu.harvard.iq.dataverse.common.UserUtil;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
+import edu.harvard.iq.dataverse.persistence.user.UserRepository;
 import org.apache.commons.lang.StringUtils;
 import org.ocpsoft.common.util.Strings;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -31,13 +30,12 @@ public class UserServiceBean {
     @PersistenceContext
     EntityManager em;
 
-    @EJB
-    IndexServiceBean indexService;
+    @Inject
+    private UserRepository userRepository;
 
     public AuthenticatedUser find(Object pk) {
         return em.find(AuthenticatedUser.class, pk);
     }
-
 
     public AuthenticatedUser save(AuthenticatedUser user) {
         if (user.getId() == null) {
@@ -395,49 +393,14 @@ public class UserServiceBean {
             offset = 0;
         }
 
-        //Results of this query are used to build Authenticated User records:
-
         searchTerm = searchTerm.trim();
 
-        String sharedSearchClause = "";
-
-        if (!searchTerm.isEmpty()) {
-            sharedSearchClause = " AND " + getSharedSearchClause();
-        }
-
-
-        String qstr = "SELECT u.id, u.useridentifier,";
-        qstr += " u.lastname, u.firstname, u.email, u.emailconfirmed, ";
-        qstr += " u.affiliation, u.superuser,";
-        qstr += " u.position, u.notificationslanguage, ";
-        qstr += " u.createdtime, u.lastlogintime, u.lastapiusetime, ";
-        qstr += " prov.id, prov.factoryalias";
-        qstr += " FROM authenticateduser u,";
-        qstr += " authenticateduserlookup prov_lookup,";
-        qstr += " authenticationproviderrow prov";
-        qstr += " WHERE";
-        qstr += " u.id = prov_lookup.authenticateduser_id";
-        qstr += " AND prov_lookup.authenticationproviderid = prov.id";
-        qstr += sharedSearchClause;
-        qstr += " ORDER BY " + sortKey + (isSortAscending ? " ASC" : " DESC");
-        qstr += " LIMIT " + resultLimit;
-        qstr += " OFFSET " + offset;
-        qstr += ";";
-
-        logger.log(Level.FINE, "getUserCount: {0}", qstr);
-
-        Query nativeQuery = em.createNativeQuery(qstr);
-        nativeQuery.setParameter("searchTerm", searchTerm + "%");
-
-        return nativeQuery.getResultList();
-
+        return userRepository.findSearchedAuthenticatedUsers(sortKey, resultLimit, offset, searchTerm, isSortAscending);
     }
 
     private String parseSortColumn(String sortKey) {
         if ((sortKey == null) || (sortKey.isEmpty())) {
             sortKey = "u.id";
-        } else if(sortKey.equals("firstNameLastName")) {
-            sortKey = "u.firstname, u.lastname";
         } else {
             sortKey = "u." + sortKey;
         }
@@ -446,29 +409,11 @@ public class UserServiceBean {
     }
 
     private String validateSortColumn(String sortKey) {
-        List<String> validSortKeys = Lists.newArrayList("u.id", "u.useridentifier", "u.firstname, u.lastname",
-                "u.email", "u.email", "u.affiliation", "u.superuser");
+        List<String> validSortKeys = Lists.newArrayList("u.id", "u.useridentifier", "u.lastname",
+                "u.email", "u.affiliation", "u.superuser");
 
         return validSortKeys.contains(sortKey) ? sortKey : "u.id";
     }
-
-    /**
-     * The search clause needs to be consistent between the searches that:
-     * (1) get a user count
-     * (2) get a list of users
-     *
-     * @return
-     */
-    private String getSharedSearchClause() {
-
-        String searchClause = " (u.useridentifier ILIKE #searchTerm";
-        searchClause += " OR u.firstname ILIKE #searchTerm";
-        searchClause += " OR u.lastname ILIKE #searchTerm";
-        searchClause += " OR u.email ILIKE #searchTerm)";
-
-        return searchClause;
-    }
-
 
     /**
      * Return the number of superusers -- for the dashboard
@@ -506,30 +451,8 @@ public class UserServiceBean {
         if ((searchTerm == null) || (searchTerm.isEmpty())) {
             searchTerm = "";
         }
-        searchTerm = searchTerm.trim();
 
-
-        String sharedSearchClause = "";
-
-        if (!searchTerm.isEmpty()) {
-            sharedSearchClause = " AND " + getSharedSearchClause();
-        }
-
-        String qstr = "SELECT count(u.id)";
-        qstr += " FROM authenticateduser u,";
-        qstr += " authenticateduserlookup prov_lookup,";
-        qstr += " authenticationproviderrow prov";
-        qstr += " WHERE";
-        qstr += " u.id = prov_lookup.authenticateduser_id";
-        qstr += " AND prov_lookup.authenticationproviderid = prov.id";
-        qstr += sharedSearchClause;
-        qstr += ";";
-
-        Query nativeQuery = em.createNativeQuery(qstr);
-        nativeQuery.setParameter("searchTerm", searchTerm + "%");
-
-        return (Long) nativeQuery.getSingleResult();
-
+        return userRepository.countSearchedAuthenticatedUsers(searchTerm.trim());
     }
 
 

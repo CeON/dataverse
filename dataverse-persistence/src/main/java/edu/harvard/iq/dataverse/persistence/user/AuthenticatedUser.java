@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.persistence.user;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.common.UserUtil;
+import edu.harvard.iq.dataverse.persistence.JpaEntity;
 import edu.harvard.iq.dataverse.persistence.config.LocaleConverter;
 import edu.harvard.iq.dataverse.persistence.config.ValidateEmail;
 import edu.harvard.iq.dataverse.persistence.consent.AcceptedConsent;
@@ -63,7 +64,7 @@ import java.util.Objects;
 
 })
 @Entity
-public class AuthenticatedUser implements User, Serializable {
+public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
 
     public static final String IDENTIFIER_PREFIX = "@";
 
