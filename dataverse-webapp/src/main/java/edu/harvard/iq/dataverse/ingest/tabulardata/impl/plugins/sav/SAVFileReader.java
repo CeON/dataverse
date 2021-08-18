@@ -32,6 +32,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.PreDestroy;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -315,6 +316,13 @@ public class SAVFileReader extends TabularDataFileReader {
 
     public SAVFileReader(TabularDataFileReaderSpi originator) {
         super(originator);
+    }
+
+    @PreDestroy
+    private void cleanUp() {
+        if (ingesteddata != null && ingesteddata.getTabDelimitedFile() != null && ingesteddata.getTabDelimitedFile().exists()) {
+            ingesteddata.getTabDelimitedFile().delete();
+        }
     }
 
     // Methods ---------------------------------------------------------------//

@@ -456,19 +456,24 @@ public class DDIExportServiceBean {
 
     private void calculateFrequencies(DataFile df, List<DataVariable> vars) {
         Optional<File> tmpFile = Optional.empty();
+        Optional<File> tabFile = Optional.empty();
+        StorageIO<DataFile> storageIO = null;
         try {
-            StorageIO<DataFile> storageIO = DataAccess.dataAccess().getStorageIO(df);
+            storageIO = DataAccess.dataAccess().getStorageIO(df);
 
-            File tabFile = StorageIOUtils.obtainAsLocalFile(storageIO, storageIO.isRemoteFile());
-            tmpFile = storageIO.isRemoteFile() ? Optional.of(tabFile) : Optional.empty();
+            tabFile = Optional.of(StorageIOUtils.obtainAsLocalFile(storageIO, storageIO.isRemoteFile()));
+            tmpFile = storageIO.isRemoteFile() ? tabFile : Optional.empty();
 
-            IngestServiceBean.produceFrequencies(tabFile, vars);
+            IngestServiceBean.produceFrequencies(tabFile.get(), vars);
 
         } catch (Exception ex) {
             logger.warning(ex.getMessage());
             return;
         } finally {
             tmpFile.ifPresent(file -> file.delete());
+            if (storageIO != null && storageIO.isRemoteFile()) {
+                tabFile.ifPresent(File::delete);
+            }
         }
     }
 

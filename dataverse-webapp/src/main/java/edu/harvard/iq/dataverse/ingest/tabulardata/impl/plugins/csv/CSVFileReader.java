@@ -447,19 +447,18 @@ public class CSVFileReader extends TabularDataFileReader {
                 }
                 finalOut.println(StringUtils.join(caseRow, "\t"));
             }
+            long linecount = parser.getRecordNumber();
+            if (dataTable.getCaseQuantity().intValue() != linecount) {
+                List<String> args = Arrays.asList("" + dataTable.getCaseQuantity().intValue(),
+                        "" + linecount);
+                throw new IngestException(IngestError.CSV_LINE_MISMATCH, args);
+            }
+            return (int) linecount;
+        } finally {
+            firstPassTempFile.delete();
+            finalOut.close();
+            parser.close();
         }
-        long linecount = parser.getRecordNumber();
-        finalOut.close();
-        parser.close();
-        logger.fine("Tmp File: " + firstPassTempFile);
-        // Firstpass file is deleted to prevent tmp from filling up.
-        firstPassTempFile.delete();
-        if (dataTable.getCaseQuantity().intValue() != linecount) {
-            List<String> args = Arrays.asList("" + dataTable.getCaseQuantity().intValue(),
-                                              "" + linecount);
-            throw new IngestException(IngestError.CSV_LINE_MISMATCH, args);
-        }
-        return (int) linecount;
     }
 
 }
