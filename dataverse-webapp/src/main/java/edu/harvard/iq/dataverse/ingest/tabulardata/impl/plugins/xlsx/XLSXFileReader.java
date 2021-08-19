@@ -90,10 +90,20 @@ public class XLSXFileReader extends TabularDataFileReader {
     public TabularDataIngest read(BufferedInputStream stream, File dataFile) throws IOException {
         init();
 
+        File firstPassTempFile = null;
+        try {
+            firstPassTempFile = File.createTempFile("firstpass-", ".tab");
+            return getTabularDataIngest(stream, firstPassTempFile);
+        } finally {
+            firstPassTempFile.delete();
+        }
+
+    }
+
+    private TabularDataIngest getTabularDataIngest(BufferedInputStream stream, File firstPassTempFile) throws IOException {
+
         TabularDataIngest ingesteddata = new TabularDataIngest();
         DataTable dataTable = new DataTable();
-
-        File firstPassTempFile = File.createTempFile("firstpass-", ".tab");
         PrintWriter firstPassWriter = new PrintWriter(firstPassTempFile.getAbsolutePath());
         try {
             processSheet(stream, dataTable, firstPassWriter);
@@ -114,11 +124,9 @@ public class XLSXFileReader extends TabularDataFileReader {
         // 2nd pass:
 
 
-        PrintWriter finalWriter = null;
-        try (BufferedReader secondPassReader = new BufferedReader(new FileReader(firstPassTempFile))) {
-            File tabFileDestination = File.createTempFile("data-", ".tab");
-            finalWriter = new PrintWriter(tabFileDestination.getAbsolutePath());
-
+        File tabFileDestination = File.createTempFile("data-", ".tab");
+        try (BufferedReader secondPassReader = new BufferedReader(new FileReader(firstPassTempFile));
+             PrintWriter finalWriter = new PrintWriter(tabFileDestination.getAbsolutePath());) {
 
             int varQnty = dataTable.getVarQuantity().intValue();
             int lineCounter = 0;
@@ -229,9 +237,6 @@ public class XLSXFileReader extends TabularDataFileReader {
 
 
             return ingesteddata;
-        } finally {
-            finalWriter.close();
-            firstPassTempFile.delete();
         }
     }
 

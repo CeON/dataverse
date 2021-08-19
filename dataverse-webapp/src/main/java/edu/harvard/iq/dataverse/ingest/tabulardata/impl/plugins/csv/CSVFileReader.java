@@ -122,7 +122,12 @@ public class CSVFileReader extends TabularDataFileReader {
         File tabFileDestination = File.createTempFile("data-", ".tab");
         PrintWriter tabFileWriter = new PrintWriter(tabFileDestination.getAbsolutePath());
 
-        int lineCount = readFile(localBufferedReader, dataTable, tabFileWriter);
+        File firstPassTempFile = File.createTempFile("firstpass-", ".csv");
+        try {
+            int lineCount = readFile(localBufferedReader, dataTable, tabFileWriter, firstPassTempFile);
+        } finally {
+            firstPassTempFile.delete();
+        }
 
         logger.fine("Tab file produced: " + tabFileDestination.getAbsolutePath());
 
@@ -134,7 +139,7 @@ public class CSVFileReader extends TabularDataFileReader {
 
     }
 
-    public int readFile(BufferedReader csvReader, DataTable dataTable, PrintWriter finalOut) throws IOException {
+    public int readFile(BufferedReader csvReader, DataTable dataTable, PrintWriter finalOut, File firstPassTempFile) throws IOException {
 
         List<DataVariable> variableList = new ArrayList<>();
         CSVParser parser = new CSVParser(csvReader, inFormat.withHeader());
@@ -182,8 +187,6 @@ public class CSVFileReader extends TabularDataFileReader {
         // (we'll save the incoming stream in another temp file:)
         SimpleDateFormat[] selectedDateTimeFormat = new SimpleDateFormat[headers.size()];
         SimpleDateFormat[] selectedDateFormat = new SimpleDateFormat[headers.size()];
-
-        File firstPassTempFile = File.createTempFile("firstpass-", ".csv");
 
         try (CSVPrinter csvFilePrinter = new CSVPrinter(
                 // TODO allow other parsers of tabular data to use this parser by changin inFormat
@@ -455,7 +458,6 @@ public class CSVFileReader extends TabularDataFileReader {
             }
             return (int) linecount;
         } finally {
-            firstPassTempFile.delete();
             finalOut.close();
             parser.close();
         }

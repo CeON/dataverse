@@ -733,7 +733,6 @@ public class IngestServiceBean {
         }
 
         TabularDataIngest tabDataIngest = null;
-
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(localFile.get()))) {
 
             if (additionalData != null) {

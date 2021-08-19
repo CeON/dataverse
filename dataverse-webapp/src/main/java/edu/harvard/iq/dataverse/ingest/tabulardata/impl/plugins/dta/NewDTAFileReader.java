@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestError;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.PreDestroy;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -312,13 +311,6 @@ public class NewDTAFileReader extends TabularDataFileReader {
         STATA_RELEASE_NUMBER.put(DTAVersion, "v." + (DTAVersion - 104));
 
         CONSTANT_TABLE.put(DTAVersion, releaseconstant);
-    }
-
-    @PreDestroy
-    private void cleanUp() {
-        if (ingesteddata != null && ingesteddata.getTabDelimitedFile() != null && ingesteddata.getTabDelimitedFile().exists()) {
-            ingesteddata.getTabDelimitedFile().delete();
-        }
     }
 
     /*

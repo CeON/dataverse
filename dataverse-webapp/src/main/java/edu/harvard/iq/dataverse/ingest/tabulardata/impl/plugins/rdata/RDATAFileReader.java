@@ -39,7 +39,6 @@ import org.rosuda.REngine.Rserve.RFileInputStream;
 import org.rosuda.REngine.Rserve.RFileOutputStream;
 import org.rosuda.REngine.Rserve.RserveException;
 
-import javax.annotation.PreDestroy;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -125,13 +124,6 @@ public class RDATAFileReader extends TabularDataFileReader {
         mRWorkspace = new RWorkspace();
         mPID = RandomStringUtils.randomNumeric(6);
 
-    }
-
-    @PreDestroy
-    private void cleanUp() {
-        if (ingesteddata != null && ingesteddata.getTabDelimitedFile() != null && ingesteddata.getTabDelimitedFile().exists()) {
-            ingesteddata.getTabDelimitedFile().delete();
-        }
     }
 
     public String getRserveHost() {

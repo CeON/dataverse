@@ -32,7 +32,6 @@ import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.PreDestroy;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -438,13 +437,6 @@ public class DTAFileReader extends TabularDataFileReader {
      */
     public DTAFileReader(TabularDataFileReaderSpi originator) {
         super(originator);
-    }
-
-    @PreDestroy
-    private void cleanUp() {
-        if (ingesteddata != null && ingesteddata.getTabDelimitedFile() != null && ingesteddata.getTabDelimitedFile().exists()) {
-            ingesteddata.getTabDelimitedFile().delete();
-        }
     }
 
     // Methods ---------------------------------------------------------------//

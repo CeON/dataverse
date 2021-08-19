@@ -191,10 +191,6 @@ public class ImageThumbConverter {
         } finally {
             tempThumbnailFile.delete();
             tempPdfFile.ifPresent(File::delete);
-            if (storageIO.isRemoteFile()) {
-                sourcePdfFile.ifPresent(File::delete);
-            }
-
         }
 
         return true;
