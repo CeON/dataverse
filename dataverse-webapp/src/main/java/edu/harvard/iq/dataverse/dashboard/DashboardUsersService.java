@@ -36,20 +36,6 @@ public class DashboardUsersService {
 
     // -------------------- LOGIC --------------------
 
-    public AuthenticatedUser changeSuperuserStatus(AuthenticatedUser user) {
-        logger.fine("Toggling user's " + user.getIdentifier() + " superuser status; (current status: " + user.isSuperuser() + ")");
-        logger.fine("Attempting to save user " + user.getIdentifier());
-        logger.fine("selectedUserPersistent info: " + user.getId() + " set to: " + user.isSuperuser());
-
-        AuthenticatedUser dbUser = userServiceBean.find(user.getId());
-
-        if (dbUser.isSuperuser()) {
-            return revokeSuperuserStatus(dbUser);
-        } else {
-            return grantSuperuserStatus(dbUser);
-        }
-    }
-
     public AuthenticatedUser changeSuperuserStatus(Long userId) {
         AuthenticatedUser dbUser = userServiceBean.find(userId);
 
@@ -60,10 +46,6 @@ public class DashboardUsersService {
         } else {
             return grantSuperuserStatus(dbUser);
         }
-    }
-
-    public AuthenticatedUser revokeAllRolesForUser(AuthenticatedUser user) {
-        return commandEngine.submit(new RevokeAllRolesCommand(user, dvRequestService.getDataverseRequest()));
     }
 
     public AuthenticatedUser revokeAllRolesForUser(Long userId) {

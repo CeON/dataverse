@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.dashboard;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.userdata.UserListMaker;
 import edu.harvard.iq.dataverse.userdata.UserListResult;
+import edu.harvard.iq.dataverse.util.PrimefacesUtil;
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
@@ -57,7 +58,7 @@ public class LazyUsersInfoDataModel extends LazyDataModel<DashboardUserInfo> {
     @Override
     public List<DashboardUserInfo> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, FilterMeta> filterMeta) {
         // filter
-        String filterValue = getFilterValue(filterMeta);
+        String filterValue = getGlobalFilterValue(filterMeta);
 
         //sort
         String sortColumn = sortField != null ? sortField : "id";
@@ -67,20 +68,16 @@ public class LazyUsersInfoDataModel extends LazyDataModel<DashboardUserInfo> {
         UserListResult userListResult = runUserSearch(filterValue, pageSize, selectedPageNumber, sortColumn, isSortAscending);
         users = createDashboardUsers(userListResult);
 
-        this.setRowCount(userService.getUserCount(filterValue).intValue());
+        this.setRowCount(userListResult.getPager().getNumResults());
 
         return users;
     }
 
     // -------------------- PRIVATE --------------------
 
-    private String getFilterValue(Map<String, FilterMeta> filterMeta) {
-        String filterValue = StringUtils.EMPTY;
-        if (filterMeta.values().stream().findFirst().isPresent()) {
-            Object value = Objects.requireNonNull(filterMeta.values().stream().findFirst().get()).getFilterValue();
-            filterValue = value != null ? value.toString() : StringUtils.EMPTY;
-        }
-        return filterValue;
+    private String getGlobalFilterValue(Map<String, FilterMeta> filterMeta) {
+        FilterMeta globalFilter = filterMeta.getOrDefault(PrimefacesUtil.GLOBAL_FILTER_KEY, null);
+        return Objects.toString(globalFilter != null && globalFilter.getFilterValue() != null ? globalFilter.getFilterValue() : StringUtils.EMPTY);
     }
 
     private List<DashboardUserInfo> createDashboardUsers(UserListResult userListResult) {

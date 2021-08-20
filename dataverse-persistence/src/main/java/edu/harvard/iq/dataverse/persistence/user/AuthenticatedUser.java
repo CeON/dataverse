@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.persistence.user;
 
+import edu.harvard.iq.dataverse.common.AuthenticatedUserUtil;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.common.UserUtil;
@@ -179,31 +180,6 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         this.roles = roles;
     }
 
-    //For User List Admin dashboard - AuthenticatedProviderId
-    @Transient
-    private String authProviderId;
-
-    public String getAuthProviderId() {
-        return authProviderId;
-    }
-
-    public void setAuthProviderId(String authProviderId) {
-        this.authProviderId = authProviderId;
-    }
-
-
-    @Transient
-    private String authProviderFactoryAlias;
-
-    public String getAuthProviderFactoryAlias() {
-        return authProviderFactoryAlias;
-    }
-
-    public void setAuthProviderFactoryAlias(String authProviderFactoryAlias) {
-        this.authProviderFactoryAlias = authProviderFactoryAlias;
-    }
-
-
     @Override
     public boolean isAuthenticated() {
         return true;
@@ -340,8 +316,6 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
     }
 
     public JsonObjectBuilder toJson() {
-        //JsonObjectBuilder authenicatedUserJson = Json.createObjectBuilder();
-
         NullSafeJsonBuilder authenicatedUserJson = NullSafeJsonBuilder.jsonObjectBuilder();
 
         authenicatedUserJson.add("id", this.id);
@@ -354,7 +328,8 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         authenicatedUserJson.add("notificationsLanguage", UserUtil.getStringOrNull(this.notificationsLanguage));
         authenicatedUserJson.add("isSuperuser", this.superuser);
 
-        authenicatedUserJson.add("authenticationProvider", this.authProviderFactoryAlias);
+        authenicatedUserJson.add("authenticationProvider",
+                AuthenticatedUserUtil.getAuthenticationProviderFriendlyName(this.authenticatedUserLookup.getAuthenticationProviderId()));
         authenicatedUserJson.add("roles", UserUtil.getStringOrNull(this.roles));
 
         authenicatedUserJson.add("createdTime", UserUtil.getTimestampStringOrNull(this.createdTime));

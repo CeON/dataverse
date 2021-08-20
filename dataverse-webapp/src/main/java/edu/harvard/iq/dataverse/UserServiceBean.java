@@ -1,10 +1,9 @@
 package edu.harvard.iq.dataverse;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.common.RoleTranslationUtil;
 import edu.harvard.iq.dataverse.common.UserUtil;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.persistence.user.UserRepository;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserRepository;
 import org.apache.commons.lang.StringUtils;
 import org.ocpsoft.common.util.Strings;
 
@@ -15,12 +14,14 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserRepository.SortKey;
 
 @Stateless
 public class UserServiceBean {
@@ -31,7 +32,7 @@ public class UserServiceBean {
     EntityManager em;
 
     @Inject
-    private UserRepository userRepository;
+    private AuthenticatedUserRepository authenticatedUserRepository;
 
     public AuthenticatedUser find(Object pk) {
         return em.find(AuthenticatedUser.class, pk);
@@ -69,7 +70,7 @@ public class UserServiceBean {
             offset = 0;
         }
 
-        List<Object[]> userResults = getUserListCore(searchTerm, sortKey, isSortAscending, resultLimit, offset);
+        List<AuthenticatedUser> userResults = getUserListCore(searchTerm, sortKey, isSortAscending, resultLimit, offset);
 
         // Initialize empty list for AuthenticatedUser objects
         //
@@ -96,19 +97,16 @@ public class UserServiceBean {
         // -------------------------------------------------
         // We have results, format them into AuthenticatedUser objects
         // -------------------------------------------------
-        int rowNum = offset++;   // used for the rowNumber
         String roleString;
-        for (Object[] userInfo : userResults) {
+        for (AuthenticatedUser userInfo : userResults) {
             // GET ROLES FOR THIS USER FROM GIANT HASHMAP
-            rowNum++;
 
-            //String roles = getUserRolesAsString((Integer) dbResultRow[0]);
             roleString = "";
-            List<String> roleList = roleLookup.get("@" + userInfo[1]);
+            List<String> roleList = roleLookup.get("@" + userInfo.getUserIdentifier());
             if ((roleList != null) && (!roleList.isEmpty())) {
                 roleString = roleList.stream().collect(Collectors.joining(", "));
             }
-            AuthenticatedUser singleUser = createAuthenticatedUserForView(userInfo, roleString, rowNum);
+            AuthenticatedUser singleUser = addAuthenticatedUserRoles(userInfo, roleString);
             viewObjects.add(singleUser);
         }
 
@@ -116,29 +114,10 @@ public class UserServiceBean {
         return viewObjects;
     }
 
-    private AuthenticatedUser createAuthenticatedUserForView(Object[] dbRowValues, String roles, int rowNum) {
-        AuthenticatedUser user = new AuthenticatedUser();
+    private AuthenticatedUser addAuthenticatedUserRoles(AuthenticatedUser authenticatedUser, String roles) {
+        authenticatedUser.setRoles(roles);
 
-        user.setId(new Long((int) dbRowValues[0]));
-        user.setUserIdentifier((String) dbRowValues[1]);
-        user.setLastName(UserUtil.getStringOrNull(dbRowValues[2]));
-        user.setFirstName(UserUtil.getStringOrNull(dbRowValues[3]));
-        user.setEmail(UserUtil.getStringOrNull(dbRowValues[4]));
-        user.setEmailConfirmed(UserUtil.getTimestampOrNull(dbRowValues[5]));
-        user.setAffiliation(UserUtil.getStringOrNull(dbRowValues[6]));
-        user.setSuperuser((Boolean) (dbRowValues[7]));
-        user.setPosition(UserUtil.getStringOrNull(dbRowValues[8]));
-        user.setNotificationsLanguage(new Locale(dbRowValues[9].toString()));
-
-        user.setCreatedTime(UserUtil.getTimestampOrNull(dbRowValues[10]));
-        user.setLastLoginTime(UserUtil.getTimestampOrNull(dbRowValues[11]));
-        user.setLastApiUseTime(UserUtil.getTimestampOrNull(dbRowValues[12]));
-
-        user.setAuthProviderId(UserUtil.getStringOrNull(dbRowValues[13]));
-        user.setAuthProviderFactoryAlias(UserUtil.getStringOrNull(dbRowValues[14]));
-
-        user.setRoles(roles);
-        return user;
+        return authenticatedUser;
     }
 
     /**
@@ -148,16 +127,16 @@ public class UserServiceBean {
      * @param userObjectList
      * @return
      */
-    private HashMap<String, List<String>> retrieveRolesForUsers(List<Object[]> userObjectList) {
+    private HashMap<String, List<String>> retrieveRolesForUsers(List<AuthenticatedUser> userObjectList) {
         // Iterate through results, retrieving only the assignee identifiers
         // Note: userInfo[1], the assigneeIdentifier, cannot be null in the database
         //
         List<String> userIdentifierList = userObjectList.stream()
-                .map(userInfo -> (String) userInfo[1])
+                .map(AuthenticatedUser::getUserIdentifier)
                 .collect(Collectors.toList());
 
-        List<Integer> databaseIds = userObjectList.stream()
-                .map(userInfo -> (Integer) userInfo[0])
+        List<Long> databaseIds = userObjectList.stream()
+                .map(AuthenticatedUser::getId)
                 .collect(Collectors.toList());
 
 
@@ -377,9 +356,9 @@ public class UserServiceBean {
      * @param resultLimit
      * @return
      */
-    private List<Object[]> getUserListCore(String searchTerm, String sortKey, boolean isSortAscending, Integer resultLimit, Integer offset) {
+    private List<AuthenticatedUser> getUserListCore(String searchTerm, String sortKey, boolean isSortAscending, Integer resultLimit, Integer offset) {
 
-        sortKey = parseSortColumn(sortKey);
+        SortKey dashboardUserSortKey = parseSortColumn(sortKey);
 
         if ((resultLimit == null) || (resultLimit < 1)) {
             resultLimit = 1;
@@ -395,24 +374,23 @@ public class UserServiceBean {
 
         searchTerm = searchTerm.trim();
 
-        return userRepository.findSearchedAuthenticatedUsers(sortKey, resultLimit, offset, searchTerm, isSortAscending);
+        return authenticatedUserRepository.findSearchedAuthenticatedUsers(dashboardUserSortKey,
+                resultLimit, offset, searchTerm, isSortAscending);
     }
 
-    private String parseSortColumn(String sortKey) {
+    private SortKey parseSortColumn(String sortKey) {
         if ((sortKey == null) || (sortKey.isEmpty())) {
-            sortKey = "u.id";
-        } else {
-            sortKey = "u." + sortKey;
+            return SortKey.ID;
         }
 
         return validateSortColumn(sortKey);
     }
 
-    private String validateSortColumn(String sortKey) {
-        List<String> validSortKeys = Lists.newArrayList("u.id", "u.useridentifier", "u.lastname",
-                "u.email", "u.affiliation", "u.superuser");
-
-        return validSortKeys.contains(sortKey) ? sortKey : "u.id";
+    private SortKey validateSortColumn(String sortKey) {
+        return Arrays.stream(SortKey.values())
+                .filter(dashboardUserSortKey -> dashboardUserSortKey.equals(SortKey.fromString(sortKey)))
+                .findAny()
+                .orElse(SortKey.ID);
     }
 
     /**
@@ -452,7 +430,7 @@ public class UserServiceBean {
             searchTerm = "";
         }
 
-        return userRepository.countSearchedAuthenticatedUsers(searchTerm.trim());
+        return authenticatedUserRepository.countSearchedAuthenticatedUsers(searchTerm.trim());
     }
 
 

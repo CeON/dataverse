@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.dashboard;
 
 import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
+import edu.harvard.iq.dataverse.common.AuthenticatedUserUtil;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.userdata.UserListResult;
@@ -36,7 +36,7 @@ public class DashboardUserInfoService {
     // -------------------- PRIVATE --------------------
 
     private String getAuthProviderFriendlyName(AuthenticatedUser user) {
-        return AuthenticationProvider.getFriendlyName(user.getAuthProviderId());
+        return AuthenticatedUserUtil.getAuthenticationProviderFriendlyName(user.getAuthenticatedUserLookup().getAuthenticationProviderId());
     }
 
     private boolean hasSelectedConfirmedEmail(AuthenticatedUser user) {

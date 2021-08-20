@@ -29,19 +29,17 @@
                                  widgetVar="userInfoTable"
                                  var="user"
                                  value="#{DashboardUsersPage.users}"
-                                 selection="#{DashboardUsersPage.selectedUserInfo}"
                                  emptyMessage="#{bundle['dashboard.list_users.emptyList.message']}"
-                                 styleClass="largePopUp disable-scroll"
-                                 paginator="true" rows="10" paginatorAlwaysVisible="false" paginatorPosition="top"
+                                 paginator="true" paginatorAlwaysVisible="false" paginatorPosition="top"
                                  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} #{bundle['dashboard.list_users.usersPerPage.title']} {RowsPerPageDropdown}"
                                  rowsPerPageTemplate="10, 25, 50, 100"
-                                 selectionMode="single"
+                                 rows="10"
                                  lazy="true">
 
                         <p:ajax event="page" listener="#{DashboardUsersPage.setSelectedUserInfo(null)}"/>
 
                         <f:facet name="header">
-                            <div jsf:id="filesHeaderBlock" class="row" jsf:rendered="#{true}">
+                            <div jsf:id="usersHeaderBlock" class="row">
                                 <p:outputPanel id="searchPanel">
                                     <div class="col-sm-6">
                                         <!-- users search -->
@@ -49,19 +47,20 @@
                                             <p:inputText id="globalFilter" styleClass="form-control"
                                                          widgetVar="inputSearchTerm"
                                                          value="#{DashboardUsersPage.searchTerm}"
-                                                         onkeypress="if (event.keyCode == 13) { $('#dashboardUsersForm\\:userInfoTable\\:searchButton').click(); return false; }"
+                                                         onkeypress="if (event.keyCode == 13) { PF('searchButton').getJQ().click(); return false; }"
                                             />
                                             <p:watermark for="globalFilter"
                                                          value="#{bundle['dashboard.list_users.searchTerm.watermark']}"/>
 
                                             <span class="input-group-btn">
-                                        <p:commandLink id="searchButton" styleClass="btn btn-default"
-                                                       onclick="$('#dashboardUsersForm\\:userInfoTable\\:globalFilter\\:filter'); PF('userInfoTable').filter();"
-                                                       process="@this @widgetVar(inputSearchTerm)"
-                                                       update="@form"
-                                                       partialSubmit="true">
-                                            <span class="glyphicon glyphicon-search"></span> #{bundle['dataverse.search.btn.find']}
-                                        </p:commandLink>
+                                        <p:commandButton id="searchButton" styleClass="btn btn-default"
+                                                         widgetVar="searchButton"
+                                                         onclick="PF('userInfoTable').filter();"
+                                                         process="@this @widgetVar(inputSearchTerm)"
+                                                         update="@form"
+                                                         value="#{bundle['dataverse.search.btn.find']}"
+                                                         partialSubmit="true">
+                                        </p:commandButton>
                                         </span>
                                         </div>
                                     </div>
@@ -76,14 +75,14 @@
                             <h:outputText value="#{user.id}"/>
                         </p:column>
                         <p:column sortBy="#{user.identifier}"
-                                  field="useridentifier"
+                                  field="userIdentifier"
                                   headerText="#{bundle['dashboard.list_users.tbl_header.userIdentifier']}">
                             <span class="glyphicon glyphicon-user text-danger" jsf:rendered="#{user.superuser}"
                                   style="margin-right:6px;"></span>
                             <h:outputText value="#{user.identifier}" class="#{user.superuser ? 'text-danger' : ''}"/>
                         </p:column>
                         <p:column sortBy="#{user.name}"
-                                  field="lastname"
+                                  field="lastName"
                                   headerText="#{bundle['dashboard.list_users.tbl_header.name']}">
                             <h:outputText value="#{user.name}"/>
                         </p:column>
