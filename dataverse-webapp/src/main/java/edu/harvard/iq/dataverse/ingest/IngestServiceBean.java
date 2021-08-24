@@ -755,12 +755,6 @@ public class IngestServiceBean {
         String originalContentType = dataFile.getContentType();
         String originalFileName = dataFile.getFileMetadata().getLabel();
         long originalFileSize = dataFile.getFilesize();
-        boolean postIngestTasksSuccessful = false;
-
-        if (tabDataIngest == null) {
-            logger.warning("Ingest failed to produce data object.");
-            return false;
-        }
 
         File tabFile = tabDataIngest.getTabDelimitedFile();
 
@@ -780,9 +774,7 @@ public class IngestServiceBean {
         IngestUtil.modifyExistingFilename(
                 dataFile.getOwner().getLatestVersion(), dataFile.getFileMetadata(), FileUtil.replaceExtension(fileName, "tab"));
 
-        tabDataIngest.getDataTable().setOriginalFileFormat(
-                TextMimeType.CSV_ALT.getMimeValue().equals(dataFile.getContentType())
-                        ? TextMimeType.CSV.getMimeValue() : originalContentType);
+        tabDataIngest.getDataTable().setOriginalFileFormat(originalContentType);
         tabDataIngest.getDataTable().setOriginalFileSize(originalFileSize);
 
         dataFile.setDataTable(tabDataIngest.getDataTable());
@@ -791,7 +783,6 @@ public class IngestServiceBean {
         try {
             produceSummaryStatistics(dataFile, tabFile);
             produceFrequencyStatistics(dataFile, tabFile);
-            postIngestTasksSuccessful = true;
         } catch (IOException postIngestEx) {
 
             dataFile.SetIngestProblem();
@@ -799,17 +790,17 @@ public class IngestServiceBean {
                     IngestReport.createIngestFailureReport(dataFile, IngestError.STATS_OR_SIGNATURE_FAILURE, postIngestEx.getMessage()));
 
             restoreIngestedDataFile(dataFile, tabDataIngest, originalFileSize, originalFileName, originalContentType);
-            dataFile = fileService.saveInNewTransaction(dataFile);
+            fileService.saveInNewTransaction(dataFile);
 
             logger.warning("Ingest failure: post-ingest tasks.");
-        }
-
-        if (!postIngestTasksSuccessful) {
-            logger.warning("Ingest failure (!postIngestTasksSuccessful).");
             return false;
         }
 
-        return finalizeIngestService.finalizeIngest(dataFile, additionalData, tabDataIngest, tabFile);
+        try {
+            return finalizeIngestService.finalizeIngest(dataFile, additionalData, tabDataIngest, tabFile);
+        } finally {
+            tabFile.delete();
+        }
     }
 
 

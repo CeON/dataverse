@@ -66,8 +66,7 @@ public class FinalizeIngestService {
 
             if (dataFile != null) {
                 dataFile.SetIngestProblem();
-                dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile,
-                        IngestError.DB_FAIL));
+                dataFile.setIngestReport(IngestReport.createIngestFailureReport(dataFile, IngestError.DB_FAIL));
 
                 restoreIngestedDataFile(dataFile, tabDataIngest, originalFileSize, originalFileName, originalContentType);
 
@@ -91,18 +90,13 @@ public class FinalizeIngestService {
             try {
                 tabularStorageIO.backupAsAux(StorageIOConstants.SAVED_ORIGINAL_FILENAME_EXTENSION);
                 logger.fine("Saved the ingested original as a backup aux file: " + StorageIOConstants.SAVED_ORIGINAL_FILENAME_EXTENSION);
-            } catch (IOException iox) {
-                logger.warning("Failed to save the ingested original! " + iox.getMessage());
+            } catch (IOException ioe) {
+                logger.log(Level.WARNING, "Failed to save the ingested original!", ioe);
+                throw ioe;
             }
 
             // Replace contents of the file with the tab-delimited data produced:
             tabularStorageIO.savePath(Paths.get(tabFile.getAbsolutePath()));
-            // Reset the file size:
-            dataFile.setFilesize(tabularStorageIO.getSize());
-
-            // additional save prevents optimistic locking exception
-            fileService.save(dataFile);
-            logger.fine("saved data file after updating the size");
 
             // end of save as backup
         } catch (Exception e) {
@@ -118,12 +112,9 @@ public class FinalizeIngestService {
                 restoreIngestedDataFile(dataFile, tabDataIngest, originalFileSize, originalFileName, originalContentType);
 
                 fileService.save(dataFile);
+                return false;
             }
-        } finally {
-            // delete the temp tab-file:
-            tabFile.delete();
         }
-
         return true;
     }
 
