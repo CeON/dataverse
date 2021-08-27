@@ -4,10 +4,9 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseDialog;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
+
 import javax.faces.view.ViewScoped;
-
 import javax.inject.Named;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,10 +73,6 @@ public class RequestedDownloadType implements Serializable {
     public void initDownloadTypeForVar(FileMetadata fileMetadata) {
         this.fileMetadatas = Lists.newArrayList(fileMetadata);
         this.fileFormat = DownloadType.VAR;
-    }
-    public void initDownloadTypeForSubset(FileMetadata fileMetadata) {
-        this.fileMetadatas = Lists.newArrayList(fileMetadata);
-        this.fileFormat = DownloadType.SUBSET;
     }
     
     public void initDownloadTypeForWorldMap(FileMetadata fileMetadata) {
