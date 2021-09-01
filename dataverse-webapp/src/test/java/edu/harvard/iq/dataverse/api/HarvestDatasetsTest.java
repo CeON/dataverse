@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -27,6 +28,9 @@ import static org.mockito.Mockito.when;
 class HarvestDatasetsTest {
 
     @Mock
+    private DatasetService datasetService;
+
+    @Mock
     private DatasetDao datasetDao;
 
     @Mock
@@ -39,7 +43,7 @@ class HarvestDatasetsTest {
     private AuthenticationServiceBean authSvc;
 
     @InjectMocks
-    private HarvestDatasets harvestDatasets = new HarvestDatasets(datasetDao);
+    private HarvestDatasets harvestDatasets = new HarvestDatasets(datasetService);
 
     AuthenticatedUser authenticatedUser = new AuthenticatedUser();
 
@@ -60,7 +64,7 @@ class HarvestDatasetsTest {
         harvestDatasets.updateAllDatasetsLastChangeTime();
 
         // then
-        verify(datasetDao, times(1)).updateAllLastChangeForExporterTime();
+        verify(datasetService, times(1)).updateAllLastChangeForExporterTime();
     }
 
     @Test
@@ -73,7 +77,7 @@ class HarvestDatasetsTest {
 
         // then
         assertThat(response.getStatus()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
-        verify(datasetDao, never()).updateAllLastChangeForExporterTime();
+        verify(datasetService, never()).updateAllLastChangeForExporterTime();
     }
 
     @Test
@@ -86,8 +90,7 @@ class HarvestDatasetsTest {
         harvestDatasets.updateDatasetLastChangeTime("1");
 
         // then
-        assertThat(dataset.getLastChangeForExporterTime()).isNotEmpty();
-        verify(datasetDao, times(1)).merge(dataset);
+        verify(datasetService, times(1)).updateLastChangeForExporterTime(dataset);
     }
 
     @Test
@@ -100,6 +103,6 @@ class HarvestDatasetsTest {
 
         // then
         assertThat(response.getStatus()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
-        verify(datasetDao, never()).merge(any(Dataset.class));
+        verify(datasetService, never()).updateLastChangeForExporterTime(any(Dataset.class));
     }
 }
