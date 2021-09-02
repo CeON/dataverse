@@ -161,7 +161,7 @@
                                     <ui:repeat value="#{settingsWrapper.configuredLocales.entrySet().toArray()}" var="language">
                                         <li jsf:rendered="#{language.value ne dataverseSession.localeTitle}">
                                             <p:commandLink value="#{language.value}"
-                                                           lang="#{language.key}"
+                                                           pt:lang="#{language.key}"
                                                            style="#{'background: url(/resources/images/flags/'.concat(language.key).concat('.svg) no-repeat 90% center; background-size: 35px 35px')}">
                                                 <p:ajax event="click"
                                                         onsuccess="location.reload()"
