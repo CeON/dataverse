@@ -98,22 +98,22 @@ public class MyDataFilterParams {
      * @param dataverseRequest
      * @param roleHelper
      */
-    public MyDataFilterParams(DataverseRequest dataverseRequest, DataverseRolePermissionHelper roleHelper) {
-        if (dataverseRequest == null) {
-            throw new NullPointerException("MyDataFilterParams constructor: dataverseRequest cannot be null ");
-        }
-        this.dataverseRequest = dataverseRequest;
-        this.setAuthenticatedUserFromDataverseRequest(dataverseRequest);
-        this.userIdentifier = authenticatedUser.getIdentifier();
-
-        if (roleHelper == null) {
-            throw new NullPointerException("MyDataFilterParams constructor: roleHelper cannot be null");
-        }
-        this.dvObjectTypes = MyDataFilterParams.allDvObjectTypes;
-        this.publicationStatuses = MyDataFilterParams.allPublishedStates;
-        this.searchTerm = MyDataFilterParams.defaultSearchTerm;
-        this.roleIds = roleHelper.getRoleIdList();
-    }
+//    public MyDataFilterParams(DataverseRequest dataverseRequest, DataverseRolePermissionHelper roleHelper) {
+//        if (dataverseRequest == null) {
+//            throw new NullPointerException("MyDataFilterParams constructor: dataverseRequest cannot be null ");
+//        }
+//        this.dataverseRequest = dataverseRequest;
+//        this.setAuthenticatedUserFromDataverseRequest(dataverseRequest);
+//        this.userIdentifier = authenticatedUser.getIdentifier();
+//
+//        if (roleHelper == null) {
+//            throw new NullPointerException("MyDataFilterParams constructor: roleHelper cannot be null");
+//        }
+//        this.dvObjectTypes = MyDataFilterParams.allDvObjectTypes;
+//        this.publicationStatuses = MyDataFilterParams.allPublishedStates;
+//        this.searchTerm = MyDataFilterParams.defaultSearchTerm;
+//        this.roleIds = roleHelper.getRoleIdList();
+//    }
 
     /**
      * @param dataverseRequest
