@@ -270,7 +270,7 @@ public class DataFileCreator {
                     // Check if it's a "fake" file - a zip archive entry
                     // created for a MacOS X filesystem element: (these
                     // start with "._")
-                    if (!shortName.startsWith("._") && !shortName.startsWith(".DS_Store") && !"".equals(shortName)) {
+                    if (StringUtils.isNotBlank(shortName) && !shortName.startsWith("._") && !shortName.startsWith(".DS_Store")) {
                         // OK, this seems like an OK file entry - we'll try
                         // to read it and create a DataFile with it:
                         // TODO: cleanup of already unpacked files when there was some failure (for example reaching zipFileUnpackFilesLimit)

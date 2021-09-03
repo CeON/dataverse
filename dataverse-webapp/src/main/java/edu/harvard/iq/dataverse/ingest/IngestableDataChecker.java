@@ -57,16 +57,11 @@ import static java.lang.System.out;
  */
 public class IngestableDataChecker implements java.io.Serializable {
 
-    /**
-     *
-     */
-
-    // static fields
     private static Logger dbgLog = Logger.getLogger(IngestableDataChecker.class.getPackage().getName());
 
-    // default format set
+    // supported formats
     private static final String[] TABULAR_DATA_FORMAT_SET = {"POR", "SAV", "DTA", "RDA"};
-//    private String[] testFormatSet;
+
     // Map that returns a Stata Release number
     private static Map<Byte, String> stataReleaseNumber = new HashMap<Byte, String>();
     public static String STATA_13_HEADER = "<stata_dta><header><release>117</release>";

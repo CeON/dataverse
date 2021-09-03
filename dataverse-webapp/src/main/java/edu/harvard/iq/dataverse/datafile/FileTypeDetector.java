@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.activation.MimetypesFileTypeMap;
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -168,7 +169,7 @@ public class FileTypeDetector {
         logger.debug("begin isGraphMLFile()");
         
         try (FileReader fileReader = new FileReader(file)) {
-            javax.xml.stream.XMLInputFactory xmlif = javax.xml.stream.XMLInputFactory.newInstance();
+            XMLInputFactory xmlif = XMLInputFactory.newInstance();
             xmlif.setProperty("javax.xml.stream.isCoalescing", Boolean.TRUE);
 
             XMLStreamReader xmlr = xmlif.createXMLStreamReader(fileReader);
