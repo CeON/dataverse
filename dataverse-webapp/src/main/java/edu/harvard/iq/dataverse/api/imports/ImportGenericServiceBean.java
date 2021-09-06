@@ -14,7 +14,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.ForeignMetadataFieldMapping;
 import edu.harvard.iq.dataverse.persistence.dataset.ForeignMetadataFormatMapping;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
 
@@ -70,9 +69,6 @@ public class ImportGenericServiceBean {
 
     public static String DCTERMS = "http://purl.org/dc/terms/";
     public static final String OAI_DC_OPENING_TAG = "dc";
-    public static final String SOURCE_DVN_3_0 = "DVN_3_0";
-
-    public static final String NOTE_TYPE_REPLICATION_FOR = "DVN:REPLICATION_FOR";
 
     public enum ImportType {NEW, MIGRATION, HARVEST}
 
@@ -446,189 +442,6 @@ public class ImportGenericServiceBean {
             eventType = xmlr.next();
         }
         return content.toString();
-    }
-
-    private String parseText(XMLStreamReader xmlr, String endTag) throws XMLStreamException {
-        return (String) parseTextNew(xmlr, endTag);
-    }
-
-
-    private Object parseTextNew(XMLStreamReader xmlr, String endTag) throws XMLStreamException {
-        StringBuilder returnString = new StringBuilder();
-        Map<String, Object> returnMap = null;
-
-        while (true) {
-            if (returnString.length() > 0) {
-                returnString.append("\n");
-            }
-            int event = xmlr.next();
-            if (event == XMLStreamConstants.CHARACTERS) {
-                returnString.append(xmlr.getText().trim().replace('\n', ' '));
-            } else if (event == XMLStreamConstants.START_ELEMENT) {
-                switch (xmlr.getLocalName()) {
-                    case "p":
-                        returnString.append("<p>").append(parseText(xmlr, "p")).append("</p>");
-                        break;
-                    case "emph":
-                        returnString.append("<em>").append(parseText(xmlr, "emph")).append("</em>");
-                        break;
-                    case "hi":
-                        returnString.append("<strong>").append(parseText(xmlr, "hi")).append("</strong>");
-                        break;
-                    case "ExtLink":
-                        String uri = xmlr.getAttributeValue(null, "URI");
-                        String text = parseText(xmlr, "ExtLink").trim();
-                        returnString
-                                .append("<a href=\"")
-                                .append(uri)
-                                .append("\">")
-                                .append(StringUtil.isEmpty(text) ? uri : text)
-                                .append("</a>");
-                        break;
-                    case "list":
-                        returnString.append(parseText_list(xmlr));
-                        break;
-                    case "citation":
-                        if (SOURCE_DVN_3_0.equals(xmlr.getAttributeValue(null, "source"))) {
-                            returnMap = parseDVNCitation(xmlr);
-                        } else {
-                            returnString.append(parseText_citation(xmlr));
-                        }
-                        break;
-                    default:
-                        throw new EJBException("ERROR occurred in mapDDI (parseText): tag not yet supported: <" + xmlr.getLocalName() + ">");
-                }
-            } else if (event == XMLStreamConstants.END_ELEMENT) {
-                if (xmlr.getLocalName().equals(endTag)) {
-                    break;
-                }
-            }
-        }
-
-        if (returnMap != null) {
-            return returnMap;
-        }
-
-        return returnString.toString().trim();
-    }
-
-    private String parseText_list(XMLStreamReader xmlr) throws XMLStreamException {
-        String listString;
-        String listCloseTag;
-
-        String listType = xmlr.getAttributeValue(null, "type");
-        if ("bulleted".equals(listType)) {
-            listString = "<ul>\n";
-            listCloseTag = "</ul>";
-        } else if ("ordered".equals(listType)) {
-            listString = "<ol>\n";
-            listCloseTag = "</ol>";
-        } else {
-            throw new EJBException("ERROR occurred in mapDDI (parseText): ListType of types other than {bulleted, ordered} not currently supported.");
-        }
-
-        while (true) {
-            int event = xmlr.next();
-            if (event == XMLStreamConstants.START_ELEMENT) {
-                if (xmlr.getLocalName().equals("itm")) {
-                    listString += "<li>" + parseText(xmlr, "itm") + "</li>\n";
-                } else {
-                    throw new EJBException("ERROR occurred in mapDDI (parseText): ListType does not currently supported contained LabelType.");
-                }
-            } else if (event == XMLStreamConstants.END_ELEMENT) {
-                if (xmlr.getLocalName().equals("list")) {
-                    break;
-                }
-            }
-        }
-
-        return (listString + listCloseTag);
-    }
-
-    private String parseText_citation(XMLStreamReader xmlr) throws XMLStreamException {
-        StringBuilder citation = new StringBuilder("<!--  parsed from DDI citation title and holdings -->");
-        boolean addHoldings = false;
-        StringBuilder holdings = new StringBuilder();
-
-        while (true) {
-            int event = xmlr.next();
-            if (event == XMLStreamConstants.START_ELEMENT) {
-                if (xmlr.getLocalName().equals("titlStmt")) {
-                    while (true) {
-                        event = xmlr.next();
-                        if (event == XMLStreamConstants.START_ELEMENT) {
-                            if (xmlr.getLocalName().equals("titl")) {
-                                citation.append(parseText(xmlr));
-                            }
-                        } else if (event == XMLStreamConstants.END_ELEMENT) {
-                            if (xmlr.getLocalName().equals("titlStmt")) {
-                                break;
-                            }
-                        }
-                    }
-                } else if (xmlr.getLocalName().equals("holdings")) {
-                    String uri = xmlr.getAttributeValue(null, "URI");
-                    String holdingsText = parseText(xmlr);
-
-                    if (!StringUtil.isEmpty(uri) || !StringUtil.isEmpty(holdingsText)) {
-                        holdings.append(addHoldings ? ", " : "");
-                        addHoldings = true;
-
-                        if (StringUtil.isEmpty(uri)) {
-                            holdings.append(holdingsText);
-                        } else if (StringUtil.isEmpty(holdingsText)) {
-                            holdings.append("<a href=\"").append(uri).append("\">").append(uri).append("</a>");
-                        } else {
-                            // both uri and text have values
-                            holdings.append("<a href=\"").append(uri).append("\">").append(holdingsText).append("</a>");
-                        }
-                    }
-                }
-            } else if (event == XMLStreamConstants.END_ELEMENT) {
-                if (xmlr.getLocalName().equals("citation")) {
-                    break;
-                }
-            }
-        }
-
-        if (addHoldings) {
-            citation.append(" (").append(holdings).append(")");
-        }
-
-        return citation.toString();
-    }
-
-    private Map<String, Object> parseDVNCitation(XMLStreamReader xmlr) throws XMLStreamException {
-        Map<String, Object> returnValues = new HashMap<>();
-
-        while (true) {
-            int event = xmlr.next();
-            if (event == XMLStreamConstants.START_ELEMENT) {
-                switch (xmlr.getLocalName()) {
-                    case "IDNo":
-                        returnValues.put("idType", xmlr.getAttributeValue(null, "agency"));
-                        returnValues.put("idNumber", parseText(xmlr));
-                        break;
-                    case "biblCit":
-                        returnValues.put("text", parseText(xmlr));
-                        break;
-                    case "holdings":
-                        returnValues.put("url", xmlr.getAttributeValue(null, "URI"));
-                        break;
-                    case "notes":
-                        if (NOTE_TYPE_REPLICATION_FOR.equals(xmlr.getAttributeValue(null, "type"))) {
-                            returnValues.put("replicationData", true);
-                        }
-                        break;
-                }
-            } else if (event == XMLStreamConstants.END_ELEMENT) {
-                if (xmlr.getLocalName().equals("citation")) {
-                    break;
-                }
-            }
-        }
-
-        return returnValues;
     }
 
     private void addToSet(Set<FieldDTO> set, String typeName, String value) {
