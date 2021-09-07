@@ -22,6 +22,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.event.CloseEvent;
@@ -57,6 +58,7 @@ public class ImporterForm {
 
     private static final String METADATA_IMPORT_RESULT_ERROR = "metadata.import.result.error";
     private static final String UPLOAD_SUCCESSFUL = "metadata.import.upload.successful";
+    private static final String UPLOAD_EXCEEDS_MAX_SIZE = "metadata.import.upload.exceeds.max.size";
 
     public enum ImportStep {
         FIRST, SECOND;
@@ -126,12 +128,22 @@ public class ImporterForm {
         UploadedFile file = Optional.ofNullable(event)
                 .map(FileUploadEvent::getFile)
                 .orElseThrow(() -> new IllegalStateException("Null event or file"));
+        long maxUploadedFileSize = importer.getMaxUploadedFileSize();
+        if (maxUploadedFileSize != 0 && file.getSize() > maxUploadedFileSize) {
+            FacesContext.getCurrentInstance().addMessage(component.getClientId(),
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle(UPLOAD_EXCEEDS_MAX_SIZE, file.getFileName(),
+                            FileUtils.byteCountToDisplaySize(file.getSize()),
+                            FileUtils.byteCountToDisplaySize(maxUploadedFileSize)),
+                    StringUtils.EMPTY));
+            return;
+        }
         Path tempPath = prepareTempPath(file);
         Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
         component.setValue(tempPath.toFile());
-        FacesContext.getCurrentInstance().addMessage(component.getClientId(), 
+        FacesContext.getCurrentInstance().addMessage(component.getClientId(),
                 new FacesMessage(FacesMessage.SEVERITY_INFO,
-                BundleUtil.getStringFromBundle(UPLOAD_SUCCESSFUL, file.getFileName()),
+                    BundleUtil.getStringFromBundle(UPLOAD_SUCCESSFUL, file.getFileName()),
                 StringUtils.EMPTY));
     }
 
