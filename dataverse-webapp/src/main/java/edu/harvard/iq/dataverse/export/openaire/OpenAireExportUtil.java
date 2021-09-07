@@ -1381,16 +1381,15 @@ public class OpenAireExportUtil {
         }
 
         if (hasValidLocationBox(northLatitude, southLatitude, eastLongitude, westLongitude)) {
-            writeOpenTag(xmlw, "geoLocation", false);
+            String locationBoxValue = southLatitude + " " + westLongitude + " " + northLatitude + " " + eastLongitude;
 
+            writeOpenTag(xmlw, "geoLocation", false);
+            writeFullElement(xmlw, null, "geoLocationBox", null, locationBoxValue.trim().replaceAll(" +", " "), language);
             if (StringUtils.isNotBlank(geoLocationPlace)) {
                 writeFullElement(xmlw, null, "geoLocationPlace", null, geoLocationPlace, language);
             }
-
-            String locationBoxValue = southLatitude + " " + westLongitude + " " + northLatitude + " " + eastLongitude;
-
-            writeFullElement(xmlw, null, "geoLocationBox", null, locationBoxValue.trim().replaceAll(" +", " "), language);
             writeEndTag(xmlw, true);
+
             return true;
         }
         return false;
