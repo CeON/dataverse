@@ -102,6 +102,15 @@ public class ImporterForm {
                     : FormConstants.SINGLE_OPTIONS;
      }
 
+    public long getMaxUploadedFileSize() {
+        return importer.getMaxUploadedFileSize();
+    }
+
+    public String getInvalidSizeMessage() {
+        return BundleUtil.getStringFromBundle(UPLOAD_EXCEEDS_MAX_SIZE,
+                FileUtils.byteCountToDisplaySize(getMaxUploadedFileSize()));
+    }
+
     // -------------------- LOGIC --------------------
 
     public static ImporterForm createInitializedForm(MetadataImporter importer, Locale locale,
@@ -128,16 +137,6 @@ public class ImporterForm {
         UploadedFile file = Optional.ofNullable(event)
                 .map(FileUploadEvent::getFile)
                 .orElseThrow(() -> new IllegalStateException("Null event or file"));
-        long maxUploadedFileSize = importer.getMaxUploadedFileSize();
-        if (maxUploadedFileSize != 0 && file.getSize() > maxUploadedFileSize) {
-            FacesContext.getCurrentInstance().addMessage(component.getClientId(),
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    BundleUtil.getStringFromBundle(UPLOAD_EXCEEDS_MAX_SIZE, file.getFileName(),
-                            FileUtils.byteCountToDisplaySize(file.getSize()),
-                            FileUtils.byteCountToDisplaySize(maxUploadedFileSize)),
-                    StringUtils.EMPTY));
-            return;
-        }
         Path tempPath = prepareTempPath(file);
         Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
         component.setValue(tempPath.toFile());
