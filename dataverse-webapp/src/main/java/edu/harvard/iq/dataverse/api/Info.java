@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.api;
 
-import com.google.api.client.util.Lists;
 import edu.harvard.iq.dataverse.license.dto.ActiveLicenseDto;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseRepository;
