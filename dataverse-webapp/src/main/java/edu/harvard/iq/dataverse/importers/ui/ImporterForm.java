@@ -234,7 +234,7 @@ public class ImporterForm {
                 .map(i -> new ValidationResult(i.getViewId(), fetchEmptyInputMessage(i)))
                 .collect(Collectors.toSet());
         return validated.entrySet().stream()
-                .map(e -> new ValidationResult(keyToItem.get(e.getKey()).getViewId(), e.getValue()))
+                .map(e -> new ValidationResult(keyToItem.get(e.getKey()).getViewId(), bundleWrapper.getString(e.getValue())))
                 .collect(() -> validationResults, Set::add, Set::addAll);
     }
 
@@ -258,6 +258,7 @@ public class ImporterForm {
 
     private void showValidationMessages(Set<ValidationResult> validationResults) {
         FacesContext fctx = FacesContext.getCurrentInstance();
+        JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("metadata.import.form.validation.error"), "");
         for (ValidationResult result : validationResults) {
             Optional<UIComponent> soughtComponent =
                     JsfHelper.findComponent(Optional.ofNullable(fctx.getViewRoot()), result.viewId, String::endsWith);
@@ -269,7 +270,7 @@ public class ImporterForm {
                 ((UIInput) component).setValid(false);
             }
             fctx.addMessage(component.getClientId(),
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, StringUtils.EMPTY, bundleWrapper.getString(result.message)));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, StringUtils.EMPTY, result.message));
         }
     }
 
