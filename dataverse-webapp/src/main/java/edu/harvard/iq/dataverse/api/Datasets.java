@@ -4,9 +4,10 @@ import com.amazonaws.services.pi.model.InvalidArgumentException;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
-import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.S3PackageImporter;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.api.dto.SubmitForReviewDataDTO;
@@ -16,7 +17,6 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
 import edu.harvard.iq.dataverse.datafile.DataFileCreator;
-import edu.harvard.iq.dataverse.datafile.FileService;
 import edu.harvard.iq.dataverse.datafile.file.FileDownloadAPIHandler;
 import edu.harvard.iq.dataverse.dataset.DatasetService;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
@@ -97,6 +97,7 @@ import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.apache.commons.cli.MissingArgumentException;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -121,7 +122,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -152,9 +152,6 @@ import java.util.stream.Collectors;
 public class Datasets extends AbstractApiBean {
 
     private static final Logger logger = Logger.getLogger(Datasets.class.getCanonicalName());
-
-    @Inject
-    DataverseSession session;
 
     @EJB
     DatasetDao datasetDao;
@@ -202,9 +199,6 @@ public class Datasets extends AbstractApiBean {
     private OptionalFileParams optionalFileParamsSvc;
 
     @Inject
-    private FileService fileServiceBean;
-
-    @Inject
     private DataFileCreator dataFileCreator;
     
     @Inject
@@ -215,6 +209,15 @@ public class Datasets extends AbstractApiBean {
 
     @Inject
     private JsonPrinter jsonPrinter;
+
+    @Inject
+    private DataverseRoleServiceBean rolesSvc;
+
+    @Inject
+    private RoleAssigneeServiceBean roleAssigneeSvc;
+
+    @Inject
+    private PermissionServiceBean permissionSvc;
 
     /**
      * Used to consolidate the way we parse and handle dataset versions.
@@ -1720,11 +1723,15 @@ public class Datasets extends AbstractApiBean {
         //-------------------
         // (4) Run "runAddFileByDatasetId"
         //-------------------
-        addFileHelper.runAddFileByDataset(dataset,
+        try {
+            addFileHelper.runAddFileByDataset(dataset,
                                           newFilename,
                                           newFileContentType,
                                           fileInputStream,
                                           optionalFileParams);
+        } finally {
+            IOUtils.closeQuietly(fileInputStream);
+        }
 
 
         if (addFileHelper.hasError()) {
@@ -1924,6 +1931,20 @@ public class Datasets extends AbstractApiBean {
                 .filter("format"::equals)
                 .map(queryParameters::getFirst)
                 .anyMatch("original"::equals);
+    }
+
+    private RoleAssignee findAssignee(String identifier) {
+        try {
+            RoleAssignee roleAssignee = roleAssigneeSvc.getRoleAssignee(identifier);
+            return roleAssignee;
+        } catch (EJBException ex) {
+            Throwable cause = ex;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            logger.log(Level.INFO, "Exception caught looking up RoleAssignee based on identifier ''{0}'': {1}", new Object[]{identifier, cause.getMessage()});
+            return null;
+        }
     }
 
 }

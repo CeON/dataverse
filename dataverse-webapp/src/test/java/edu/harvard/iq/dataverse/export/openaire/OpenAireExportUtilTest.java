@@ -813,13 +813,12 @@ public class OpenAireExportUtilTest {
 
         writer.close();
         Assert.assertEquals("<geoLocations>" +
-                        "<geoLocation>" +
-                        "<geoLocationPlace>ProductionPlace</geoLocationPlace>" +
                         "<geoLocationBox>40 10 30 20</geoLocationBox>" +
+                        "<geoLocationPlace>ProductionPlace</geoLocationPlace>" +
                         "</geoLocation>" +
                         "<geoLocation>" +
-                        "<geoLocationPlace>ProductionPlace</geoLocationPlace>" +
                         "<geoLocationBox>80 50 70 60</geoLocationBox>" +
+                        "<geoLocationPlace>ProductionPlace</geoLocationPlace>" +
                         "</geoLocation>" +
                         "</geoLocations>",
                 writer.toString());
