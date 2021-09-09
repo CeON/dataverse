@@ -813,6 +813,7 @@ public class OpenAireExportUtilTest {
 
         writer.close();
         Assert.assertEquals("<geoLocations>" +
+                        "<geoLocation>" +
                         "<geoLocationBox>40 10 30 20</geoLocationBox>" +
                         "<geoLocationPlace>ProductionPlace</geoLocationPlace>" +
                         "</geoLocation>" +
