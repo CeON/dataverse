@@ -113,6 +113,9 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         updateVersion.setLastUpdateTime(getTimestamp());
         tempDataset.setModificationTime(getTimestamp());
 
+        // Mark dataset for reharvest
+        tempDataset.setLastChangeForExporterTime(getTimestamp());
+
         Dataset savedDataset = ctxt.em().merge(tempDataset);
         ctxt.em().merge(updateVersion);
 
