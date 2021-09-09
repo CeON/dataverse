@@ -658,10 +658,29 @@ public abstract class AbstractApiBean {
      *  HTTP Response methods *
     \* ====================== */
 
-    protected Response ok(JsonArrayBuilder bld) {
+    protected Response ok(JsonValue value) {
         return Response.ok(Json.createObjectBuilder()
-                                   .add("status", STATUS_OK)
-                                   .add("data", bld).build()).build();
+                .add("status", STATUS_OK)
+                .add("data", value).build())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
+    }
+
+    protected Response ok(JsonObjectBuilder bld) {
+        return ok(bld.build());
+    }
+
+    protected Response ok(JsonArrayBuilder bld) {
+        return ok(bld.build());
+    }
+
+    protected Response ok(String msg) {
+        return ok(Json.createObjectBuilder().add("message", msg));
+    }
+
+    protected Response ok(boolean value) {
+        JsonValue jsonValue = value ? JsonValue.TRUE : JsonValue.FALSE;
+        return ok(jsonValue);
     }
 
     protected Response ok(Object objectToBeSerialized) {
@@ -675,28 +694,6 @@ public abstract class AbstractApiBean {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(serializedObj)
                 .build();
-    }
-
-    protected Response ok(JsonObjectBuilder bld) {
-        return Response.ok(Json.createObjectBuilder()
-                                   .add("status", STATUS_OK)
-                                   .add("data", bld).build())
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-    protected Response ok(String msg) {
-        return Response.ok().entity(Json.createObjectBuilder()
-                                            .add("status", STATUS_OK)
-                                            .add("data", Json.createObjectBuilder().add("message", msg)).build())
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-    protected Response ok(boolean value) {
-        return Response.ok().entity(Json.createObjectBuilder()
-                                            .add("status", STATUS_OK)
-                                            .add("data", value).build()).build();
     }
 
     /**
