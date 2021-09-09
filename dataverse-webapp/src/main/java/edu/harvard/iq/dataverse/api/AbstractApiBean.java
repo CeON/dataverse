@@ -286,6 +286,13 @@ public abstract class AbstractApiBean {
         return findAuthenticatedUserOrDie(getRequestApiKey());
     }
 
+    protected AuthenticatedUser findSuperuserOrDie() throws WrappedResponse {
+        AuthenticatedUser user = findAuthenticatedUserOrDie();
+        if (!user.isSuperuser()) {
+            throw new WrappedResponse(forbidden("This API call can be used by superusers only"));
+        }
+        return user;
+    }
 
     private AuthenticatedUser findAuthenticatedUserOrDie(String key) throws WrappedResponse {
         AuthenticatedUser authUser = authSvc.lookupUser(key);
