@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.util.json;
 
-import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.common.Util;
@@ -12,10 +11,8 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.Rest
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetDistributor;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataset.TermsOfUseAndAccess;
@@ -24,10 +21,6 @@ import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
 import edu.harvard.iq.dataverse.persistence.group.ExplicitGroup;
-import edu.harvard.iq.dataverse.persistence.group.IpAddress;
-import edu.harvard.iq.dataverse.persistence.group.IpAddressRange;
-import edu.harvard.iq.dataverse.persistence.group.IpGroup;
-import edu.harvard.iq.dataverse.persistence.group.ShibGroup;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticationProviderRow;
 import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
@@ -36,8 +29,6 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssigneeDisplayInfo;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
-import edu.harvard.iq.dataverse.persistence.workflow.WorkflowStepData;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
@@ -45,13 +36,10 @@ import org.apache.commons.lang.StringUtils;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -69,7 +57,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.common.NullSafeJsonBuilder.jsonObjectBuilder;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Convert objects to Json.
@@ -360,17 +347,6 @@ public class JsonPrinter {
         return filesArr;
     }
 
-    public JsonObjectBuilder json(DatasetDistributor dist) {
-        return jsonObjectBuilder()
-                .add("displayOrder", dist.getDisplayOrder())
-                .add("version", dist.getVersion())
-                .add("abbreviation", json(dist.getAbbreviation()))
-                .add("affiliation", json(dist.getAffiliation()))
-                .add("logo", json(dist.getLogo()))
-                .add("name", json(dist.getName()))
-                .add("url", json(dist.getUrl()));
-    }
-
     public JsonObjectBuilder jsonByBlocks(List<DatasetField> fields, boolean excludeEmailFromExport) {
         JsonObjectBuilder blocksBld = jsonObjectBuilder();
 
@@ -398,17 +374,6 @@ public class JsonPrinter {
 
         blockBld.add("fields", parsedFields);
         return blockBld;
-    }
-
-    public JsonObject json(DatasetField dfv) {
-        if (dfv.isEmpty()) {
-            return null;
-        } else {
-            JsonArrayBuilder fieldArray = new JsonDatasetFieldsPrinter().json(Lists.newArrayList(dfv),
-                                                                                            true);
-            JsonArray out = fieldArray.build();
-            return out.getJsonObject(0);
-        }
     }
 
     public JsonObjectBuilder json(MetadataBlock blk) {
