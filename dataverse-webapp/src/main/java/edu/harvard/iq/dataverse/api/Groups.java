@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
+import edu.harvard.iq.dataverse.api.dto.IpGroupDTO;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroupProvider;
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Response;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.StringUtils.isNumeric;
 
@@ -73,7 +75,7 @@ public class Groups extends AbstractApiBean {
                             grp.getPersistedGroupAlias() == null ? "ipGroup" : grp.getPersistedGroupAlias()));
 
             grp = ipGroupPrv.store(grp);
-            return created("/groups/ip/" + grp.getPersistedGroupAlias(), jsonPrinter.json(grp));
+            return created("/groups/ip/" + grp.getPersistedGroupAlias(), new IpGroupDTO.Converter().convert(grp));
 
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error while storing a new IP group: " + e.getMessage(), e);
@@ -104,7 +106,7 @@ public class Groups extends AbstractApiBean {
             IpGroup grp = new JsonParser().parseIpGroup(dto);
             grp.setPersistedGroupAlias(groupName);
             grp = ipGroupPrv.store(grp);
-            return created("/groups/ip/" + grp.getPersistedGroupAlias(), jsonPrinter.json(grp));
+            return created("/groups/ip/" + grp.getPersistedGroupAlias(), new IpGroupDTO.Converter().convert(grp));
 
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error while storing a new IP group: " + e.getMessage(), e);
@@ -117,8 +119,8 @@ public class Groups extends AbstractApiBean {
     @Path("ip")
     public Response listIpGroups() {
         return ok(ipGroupPrv.findGlobalGroups().stream()
-                .map(g -> jsonPrinter.json(g))
-                .collect(jsonPrinter.toJsonArray()));
+                .map(g -> new IpGroupDTO.Converter().convert(g))
+                .collect(Collectors.toList()));
     }
 
     @GET
@@ -133,7 +135,7 @@ public class Groups extends AbstractApiBean {
 
         return (grp == null)
                 ? notFound("Group " + groupIdtf + " not found")
-                : ok(jsonPrinter.json(grp));
+                : ok(new IpGroupDTO.Converter().convert(grp));
     }
 
     @DELETE

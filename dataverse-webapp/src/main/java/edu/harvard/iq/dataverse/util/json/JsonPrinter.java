@@ -163,36 +163,6 @@ public class JsonPrinter {
                 .add("affiliation", d.getAffiliation());
     }
 
-    public JsonObjectBuilder json(IpGroup grp) {
-        // collect single addresses
-        List<String> singles = grp.getRanges().stream().filter(IpAddressRange::isSingleAddress)
-                .map(IpAddressRange::getBottom)
-                .map(IpAddress::toString).collect(toList());
-        // collect "real" ranges
-        List<List<String>> ranges = grp.getRanges().stream().filter(rng -> !rng.isSingleAddress())
-                .map(rng -> Arrays.asList(rng.getBottom().toString(), rng.getTop().toString()))
-                .collect(toList());
-
-        JsonObjectBuilder bld = jsonObjectBuilder()
-                .add("alias", grp.getPersistedGroupAlias())
-                .add("identifier", grp.getIdentifier())
-                .add("id", grp.getId())
-                .add("name", grp.getDisplayName())
-                .add("description", grp.getDescription());
-
-        if (!singles.isEmpty()) {
-            bld.add("addresses", asJsonArray(singles));
-        }
-
-        if (!ranges.isEmpty()) {
-            JsonArrayBuilder rangesBld = Json.createArrayBuilder();
-            ranges.forEach(r -> rangesBld.add(Json.createArrayBuilder().add(r.get(0)).add(r.get(1))));
-            bld.add("ranges", rangesBld);
-        }
-
-        return bld;
-    }
-
     public JsonObjectBuilder json(ShibGroup grp) {
         return jsonObjectBuilder()
                 .add("name", grp.getName())

@@ -5,6 +5,7 @@
 package edu.harvard.iq.dataverse.util.json;
 
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
+import edu.harvard.iq.dataverse.api.dto.IpGroupDTO;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
 import edu.harvard.iq.dataverse.citation.CitationDataExtractor;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
@@ -26,6 +27,8 @@ import edu.harvard.iq.dataverse.persistence.user.GuestUser;
 import edu.harvard.iq.dataverse.qualifiers.TestBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import io.vavr.API;
+import io.vavr.control.Try;
+import org.apache.commons.lang.SerializationException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -557,7 +561,7 @@ public class JsonParserTest {
         original.add(IpAddressRange.make(IpAddress.valueOf("1:2:3::4:5"), IpAddress.valueOf("1:2:3::4:5")));
         original.add(IpAddressRange.make(IpAddress.valueOf("1:2:3::3:ff"), IpAddress.valueOf("1:2:3::3:5")));
 
-        JsonObject serialized = jsonPrinter.json(original).build();
+        JsonObject serialized = serialize(new IpGroupDTO.Converter().convert(original));
 
         System.out.println(serialized.toString());
 
@@ -581,7 +585,7 @@ public class JsonParserTest {
 
         original.add(IpAddressRange.make(IpAddress.valueOf("1.1.1.1"), IpAddress.valueOf("1.1.1.1")));
 
-        JsonObject serialized = jsonPrinter.json(original).build();
+        JsonObject serialized = serialize(new IpGroupDTO.Converter().convert(original));
 
         System.out.println(serialized.toString());
 
@@ -623,7 +627,7 @@ public class JsonParserTest {
         original.add(IpAddressRange.make(IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61"),
                                          IpAddress.valueOf("fe80::22c9:d0ff:fe48:ce61")));
 
-        JsonObject serialized = jsonPrinter.json(original).build();
+        JsonObject serialized = serialize(new IpGroupDTO.Converter().convert(original));
 
         System.out.println(serialized.toString());
 
@@ -791,6 +795,14 @@ public class JsonParserTest {
             return cvv;
         }
 
+    }
+
+    private <T> JsonObject serialize(T object) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String serializedObj = Try.of(() -> objectMapper.writeValueAsString(object))
+                .getOrElseThrow(t -> new SerializationException("There was a problem with serializing object", t));
+        JsonReader reader = Json.createReader(new StringReader(serializedObj));
+        return reader.readObject();
     }
 
     private DatasetVersion createEmptyDatasetVersion() {
