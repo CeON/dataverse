@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.api.dto.IpGroupDTO;
+import edu.harvard.iq.dataverse.api.dto.ShibGroupDTO;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroupProvider;
@@ -24,6 +25,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -174,11 +176,10 @@ public class Groups extends AbstractApiBean {
     @GET
     @Path("shib")
     public Response listShibGroups() {
-        JsonArrayBuilder arrBld = Json.createArrayBuilder();
-        for (ShibGroup g : shibGroupPrv.findGlobalGroups()) {
-            arrBld.add(jsonPrinter.json(g));
-        }
-        return ok(arrBld);
+        List<ShibGroupDTO> shibGroups = shibGroupPrv.findGlobalGroups().stream()
+                .map(g -> new ShibGroupDTO.Converter().convert(g))
+                .collect(Collectors.toList());
+        return ok(shibGroups);
     }
 
     @POST

@@ -163,14 +163,6 @@ public class JsonPrinter {
                 .add("affiliation", d.getAffiliation());
     }
 
-    public JsonObjectBuilder json(ShibGroup grp) {
-        return jsonObjectBuilder()
-                .add("name", grp.getName())
-                .add("attribute", grp.getAttribute())
-                .add("pattern", grp.getPattern())
-                .add("id", grp.getId());
-    }
-
     public JsonArrayBuilder rolesToJson(List<DataverseRole> role) {
         JsonArrayBuilder bld = Json.createArrayBuilder();
         for (DataverseRole r : role) {
