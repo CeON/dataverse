@@ -1,7 +1,9 @@
 package edu.harvard.iq.dataverse.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import edu.harvard.iq.dataverse.persistence.group.ShibGroup;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ShibGroupDTO {
     private String name;
     private String attribute;

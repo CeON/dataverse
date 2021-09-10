@@ -147,15 +147,6 @@ public class JsonPrinter {
         return bld;
     }
 
-    public JsonObjectBuilder json(DatasetLock lock) {
-        return jsonObjectBuilder()
-                .add("lockType", lock.getReason().toString())
-                .add("date", lock.getStartTime().toString())
-                .add("user", lock.getUser().getUserIdentifier())
-                .add("message", lock.getInfo());
-
-    }
-
     public JsonObjectBuilder json(RoleAssigneeDisplayInfo d) {
         return jsonObjectBuilder()
                 .add("title", d.getTitle())
