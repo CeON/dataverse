@@ -178,27 +178,6 @@ public class JsonPrinter {
         return bld;
     }
 
-    public JsonObjectBuilder json(Workflow wf) {
-        JsonObjectBuilder bld = jsonObjectBuilder();
-        bld.add("name", wf.getName());
-        if (wf.getId() != null) {
-            bld.add("id", wf.getId());
-        }
-
-        if (wf.getSteps() != null && !wf.getSteps().isEmpty()) {
-            JsonArrayBuilder arr = Json.createArrayBuilder();
-            for (WorkflowStepData stp : wf.getSteps()) {
-                arr.add(jsonObjectBuilder().add("stepType", stp.getStepType())
-                                .add("provider", stp.getProviderId())
-                                .add("parameters", mapToObject(stp.getStepParameters()))
-                                .add("requiredSettings", mapToObject(stp.getStepSettings())));
-            }
-            bld.add("steps", arr);
-        }
-
-        return bld;
-    }
-
     public JsonObjectBuilder json(Dataverse dv) {
         JsonObjectBuilder bld = jsonObjectBuilder()
                 .add("id", dv.getId())
