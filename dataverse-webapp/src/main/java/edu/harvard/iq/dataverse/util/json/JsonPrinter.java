@@ -648,22 +648,6 @@ public class JsonPrinter {
         }
     }
 
-    /**
-     * Takes a map, returns a Json object for this map.
-     * If map is {@code null}, returns {@code null}.
-     *
-     * @param in the map to be translated
-     * @return a Json Builder of the map, or {@code null}.
-     */
-    public JsonObjectBuilder mapToObject(Map<String, String> in) {
-        if (in == null) {
-            return null;
-        }
-        JsonObjectBuilder b = jsonObjectBuilder();
-        in.keySet().forEach(k -> b.add(k, in.get(k)));
-        return b;
-    }
-
     // -------------------- PRIVATE --------------------
 
     private String getRootDataverseNameforCitation(Dataset dataset) {
