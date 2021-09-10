@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
+import edu.harvard.iq.dataverse.api.dto.ApiResponseDTO;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
@@ -47,7 +48,6 @@ import edu.harvard.iq.dataverse.persistence.user.GuestUser;
 import edu.harvard.iq.dataverse.persistence.user.PrivateUrlUser;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import edu.harvard.iq.dataverse.persistence.user.UserNotificationRepository;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -678,15 +678,12 @@ public abstract class AbstractApiBean {
         return ok(Json.createObjectBuilder().add("message", msg));
     }
 
-    protected Response ok(boolean value) {
-        JsonValue jsonValue = value ? JsonValue.TRUE : JsonValue.FALSE;
-        return ok(jsonValue);
-    }
-
-    protected Response ok(Object objectToBeSerialized) {
+    protected <T> Response ok(T objectToBeSerialized) {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        String serializedObj = Try.of(() -> objectMapper.writeValueAsString(objectToBeSerialized))
+        ApiResponseDTO<T> response = new ApiResponseDTO<>(Status.OK, objectToBeSerialized);
+
+        String serializedObj = Try.of(() -> objectMapper.writeValueAsString(response))
                 .getOrElseThrow(throwable -> new SerializationException("There was a problem with serializing object",
                                                                         throwable));
 

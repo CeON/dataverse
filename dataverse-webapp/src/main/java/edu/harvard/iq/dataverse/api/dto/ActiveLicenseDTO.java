@@ -1,14 +1,14 @@
-package edu.harvard.iq.dataverse.license.dto;
+package edu.harvard.iq.dataverse.api.dto;
 
 /**
  * Helper class used for listing active licenses in @link /api/info/activeLicenses endpoint.
  */
-public class ActiveLicenseDto {
+public class ActiveLicenseDTO {
     private String license;
 
     // -------------------- CONSTRUCTORS --------------------
 
-    public ActiveLicenseDto(String license) {
+    public ActiveLicenseDTO(String license) {
         this.license = license;
     }
 

@@ -63,7 +63,6 @@ import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonPrinter;
-import org.jsoup.Jsoup;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -509,7 +508,7 @@ public class Dataverses extends AbstractApiBean {
             if (permissionSvc
                     .requestOn(req, dataverse)
                     .has(Permission.EditDataverse)) {
-                return ok(dataverse.isMetadataBlockRoot());
+                return ok(Boolean.valueOf(dataverse.isMetadataBlockRoot()));
             } else {
                 return error(Status.FORBIDDEN, "Not authorized");
             }
