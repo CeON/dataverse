@@ -339,7 +339,7 @@ public class SearchServiceBean {
                 }
 
             }
-            SolrSearchResult solrSearchResult = new SolrSearchResult(query, name);
+            SolrSearchResult solrSearchResult = new SolrSearchResult();
             // @todo put all this in the constructor?
             List<String> states = (List<String>) solrDocument.getFieldValue(SearchFields.PUBLICATION_STATUS);
             if (states != null) {

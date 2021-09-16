@@ -2,10 +2,8 @@ package edu.harvard.iq.dataverse.search.response;
 
 import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.common.Util;
-import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrField;
@@ -49,8 +47,6 @@ public class SolrSearchResult {
      * downloadable image" at https://github.com/IQSS/dataverse/issues/3616
      */
     private String imageUrl;
-    private DatasetThumbnail datasetThumbnail;
-    private String query;
     private String name;
     private String nameSort;
     private Date releaseOrCreateDate;
@@ -106,7 +102,6 @@ public class SolrSearchResult {
     //Determine if the search result is owned by any of the dvs in the tree of the DV displayed
     private boolean isInTree;
     private float score;
-    private List<String> userRole;
     private boolean harvested = false;
     private List<String> fileCategories = null;
     private List<String> tabularDataTags = null;
@@ -116,8 +111,7 @@ public class SolrSearchResult {
 
     private String filePersistentId = null;
 
-    public SolrSearchResult(String queryFromUser, String name) {
-        this.query = queryFromUser;
+    public SolrSearchResult() {
     }
 
     public boolean isIsInTree() {
@@ -407,9 +401,7 @@ public class SolrSearchResult {
         String datasetName = null;
         String datasetId = null;
         String datasetPersistentId = null;
-        String filePersistentId = null;
         String preferredUrl = null;
-        String apiUrl = null;
 
         if (this.type == SearchObjectType.DATAVERSES) {
             displayName = this.name;
@@ -615,22 +607,6 @@ public class SolrSearchResult {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public DatasetThumbnail getDatasetThumbnail() {
-        return datasetThumbnail;
-    }
-
-    public void setDatasetThumbnail(DatasetThumbnail datasetThumbnail) {
-        this.datasetThumbnail = datasetThumbnail;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
     }
 
     public String getName() {
@@ -857,12 +833,6 @@ public class SolrSearchResult {
              */
             String badString = "null";
             if (!identifier.contains(badString)) {
-                if (entity != null && type == SearchObjectType.DATASETS) {
-                    if (this.isHarvested() && ((Dataset) entity).getHarvestedFrom() != null) {
-                        String remoteArchiveUrl = ((Dataset) entity).getRemoteArchiveURL();
-                        return remoteArchiveUrl;
-                    }
-                }
                 if (isDraftState()) {
                     return "/dataset.xhtml?persistentId=" + identifier + "&version=DRAFT";
                 }
@@ -875,17 +845,6 @@ public class SolrSearchResult {
             logger.info("Dataset identifier/globalId was null. Returning failsafe URL: " + failSafeUrl);
             return failSafeUrl;
         }
-    }
-
-    public String getFileParentIdentifier() {
-        if (entity == null) {
-            return null;
-        }
-        if (type == SearchObjectType.FILES) {
-            return parent.getParentIdentifier();   // Dataset globalID
-        }
-
-        return null;
     }
 
     public void setFilePersistentId(String pid) {
@@ -961,13 +920,6 @@ public class SolrSearchResult {
         } else {
             return null;
         }
-    }
-    public List<String> getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(List<String> userRole) {
-        this.userRole = userRole;
     }
 
     public void setIdentifierOfDataverse(String id) {
