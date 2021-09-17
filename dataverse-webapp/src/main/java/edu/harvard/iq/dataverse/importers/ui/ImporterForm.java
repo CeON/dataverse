@@ -22,6 +22,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.event.CloseEvent;
@@ -57,6 +58,7 @@ public class ImporterForm {
 
     private static final String METADATA_IMPORT_RESULT_ERROR = "metadata.import.result.error";
     private static final String UPLOAD_SUCCESSFUL = "metadata.import.upload.successful";
+    private static final String UPLOAD_EXCEEDS_MAX_SIZE = "metadata.import.upload.exceeds.max.size";
 
     public enum ImportStep {
         FIRST, SECOND;
@@ -100,6 +102,15 @@ public class ImporterForm {
                     : FormConstants.SINGLE_OPTIONS;
      }
 
+    public long getMaxUploadedFileSize() {
+        return importer.getMaxUploadedFileSize();
+    }
+
+    public String getInvalidSizeMessage() {
+        return BundleUtil.getStringFromBundle(UPLOAD_EXCEEDS_MAX_SIZE,
+                FileUtils.byteCountToDisplaySize(getMaxUploadedFileSize()));
+    }
+
     // -------------------- LOGIC --------------------
 
     public static ImporterForm createInitializedForm(MetadataImporter importer, Locale locale,
@@ -129,9 +140,9 @@ public class ImporterForm {
         Path tempPath = prepareTempPath(file);
         Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
         component.setValue(tempPath.toFile());
-        FacesContext.getCurrentInstance().addMessage(component.getClientId(), 
+        FacesContext.getCurrentInstance().addMessage(component.getClientId(),
                 new FacesMessage(FacesMessage.SEVERITY_INFO,
-                BundleUtil.getStringFromBundle(UPLOAD_SUCCESSFUL, file.getFileName()),
+                    BundleUtil.getStringFromBundle(UPLOAD_SUCCESSFUL, file.getFileName()),
                 StringUtils.EMPTY));
     }
 
@@ -223,7 +234,7 @@ public class ImporterForm {
                 .map(i -> new ValidationResult(i.getViewId(), fetchEmptyInputMessage(i)))
                 .collect(Collectors.toSet());
         return validated.entrySet().stream()
-                .map(e -> new ValidationResult(keyToItem.get(e.getKey()).getViewId(), e.getValue()))
+                .map(e -> new ValidationResult(keyToItem.get(e.getKey()).getViewId(), bundleWrapper.getString(e.getValue())))
                 .collect(() -> validationResults, Set::add, Set::addAll);
     }
 
@@ -247,6 +258,7 @@ public class ImporterForm {
 
     private void showValidationMessages(Set<ValidationResult> validationResults) {
         FacesContext fctx = FacesContext.getCurrentInstance();
+        JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("metadata.import.form.validation.error"), "");
         for (ValidationResult result : validationResults) {
             Optional<UIComponent> soughtComponent =
                     JsfHelper.findComponent(Optional.ofNullable(fctx.getViewRoot()), result.viewId, String::endsWith);
@@ -258,7 +270,7 @@ public class ImporterForm {
                 ((UIInput) component).setValid(false);
             }
             fctx.addMessage(component.getClientId(),
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, StringUtils.EMPTY, bundleWrapper.getString(result.message)));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, StringUtils.EMPTY, result.message));
         }
     }
 
