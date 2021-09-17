@@ -46,9 +46,7 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -1724,6 +1722,15 @@ public class EditDatafilesPage implements java.io.Serializable {
             selectedFile.setTermsOfUseForm(termsOfUseCopy);
         }
 
+    }
+
+    Map<String, Long> uploadedFileSizes = new HashMap<>();
+
+    public void measureUploadedFileSize() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getRequestParameterMap().entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith("FILE"))
+        .forEach(entry -> uploadedFileSizes.put(entry.getKey(), Long.parseLong(entry.getValue())));
     }
 
 }

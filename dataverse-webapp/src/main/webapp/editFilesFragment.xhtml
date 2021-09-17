@@ -98,7 +98,8 @@
                                     </h:outputFormat>
                                 </p>
 
-                                <script>
+                                <script type="text/javascript">
+                                    //<![CDATA[
                                     function uploadWidgetDropMsg() {
                                         var fileUpload = $('div[id$="fileUpload"] div.ui-fileupload-content');
                                         if ($(fileUpload).children('#dragdropMsg').length === 0) {
@@ -113,11 +114,10 @@
                                     function uploadWidgetDropRemoveMsg() {
                                         $('div[id$="fileUpload"] div.ui-fileupload-content div#dragdropMsg').remove();
                                     }
-
-                                    $(document).ready(function () {
-                                        uploadWidgetDropMsg();
-                                    });
+                                    //]]>
                                 </script>
+                                <p:remoteCommand name="fileSizeListener"
+                                                 actionListener="#{EditDatafilesPage.measureUploadedFileSize}"/>
                                 <!-- ATTENTION: the update= attribute in the fileUpload component -->
                                 <!-- below appears to be super important -->
                                 <!-- Note the "oncomplete=" attribute in the p:fileUpload -->
@@ -154,7 +154,7 @@
                                               update=":datasetForm:filesTable, @([id$=filesButtons])"
                                               label="#{bundle['file.selectToAddBtn']}"
                                               oncomplete="uploadFinished(PF('fileUploadWidget'));"
-                                              onstart="javascript:uploadWidgetDropRemoveMsg();uploadStarted();"
+                                              onstart="javascript:uploadWidgetDropRemoveMsg(); "
                                               onerror="javascript:uploadFailure();"
                                               sizeLimit="#{EditDatafilesPage.getMaxFileUploadSizeInBytes()}"
                                               fileLimit="#{EditDatafilesPage.getMaxNumberOfFiles()}"
@@ -979,6 +979,7 @@
     <script type="text/javascript" src="/resources/js/dropins.js" id="dropboxjs"
             data-app-key="#{EditDatafilesPage.dropBoxKey}"/>
     <script type="text/javascript">
+        //<![CDATA[
         function deleteFinished() {
             $('button[id$="updateEditDataFilesButtonsForDelete"]').trigger('click');
             $('button[id$="allDeletesFinished"]').trigger('click');
@@ -1020,5 +1021,23 @@
             };
             Dropbox.choose(options);
         }
+
+        function checkBatchFileSize(file) {
+            setTimeout(function () {
+                console.log(file);
+                let files = PF('fileUploadWidget').cfg.fileShow;
+                console.log(files);
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    fileSizeListener([{name: 'FILE'+ file.name, value: file.size}])
+                }
+            }, 0);
+        }
+
+        $(document).ready(function () {
+            uploadWidgetDropMsg();
+
+        })
+        //]]>
     </script>
 </ui:composition>
