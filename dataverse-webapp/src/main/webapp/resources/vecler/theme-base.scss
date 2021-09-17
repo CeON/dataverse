@@ -2762,8 +2762,8 @@ table[id$="resultsTable"] {
 			font-size: 0.867em;
 		}
 
-		.label-container {
-			word-break: break-all;
+		.label-container > .label { 
+			display: inline-block;
 		}
 	}
 
