@@ -2123,6 +2123,10 @@ $navbar-height: 102px;
 				cursor: pointer;
 			}
 		}
+
+		+ ul[id$="-mode-selector"] {
+			margin-left: -0.25em;
+		}
 	}
 
     div {
@@ -2152,6 +2156,31 @@ $navbar-height: 102px;
 	@include accessibility-controls-mobile;
 }
 
+.selected-option-check {
+	display: none;
+}
+
+@mixin mode-selector-checkmark-colors($text: $main-color, $background: #fff) {
+	.selected-option-check:before {
+		color: $text;
+		text-shadow: 1px 1px $background, -1px 1px $background, 1px -1px $background, -1px -1px $background;
+	}
+}
+@mixin mode-selector-checkmark {
+	.selected-option-check {
+		display: inline;
+
+		&:before {
+			content: "✔";
+			position: absolute;
+			top: 0.875em;
+			left: 0.875em;
+		}
+	}
+
+	@include mode-selector-checkmark-colors;
+}
+
 #eighty-limit-mode-selector button,
 #wcag-text-mode-selector button {
 	position: relative;
@@ -2167,9 +2196,11 @@ $navbar-height: 102px;
 		content: "Aa";
 	}
 }
-body.eighty-limit-toggle #eighty-limit-mode-selector button,
-body.wcag-text-toggle #wcag-text-mode-selector button {
+#eighty-limit-mode-selector button[aria-pressed="true"],
+#wcag-text-mode-selector button[aria-pressed="true"] {
 	color: $focus-color;
+
+	@include mode-selector-checkmark;
 }
 
 #eighty-limit-mode-selector button::before {
@@ -2222,10 +2253,19 @@ body.wcag-text-toggle #wcag-text-mode-selector button {
 	color: $main-color !important;
 	font-weight: bold;
 	text-decoration: none !important;
+	overflow: hidden;
 
 	&::before {
 		content: "Aa";
 	}
+}
+
+#high-contrast-mode-selector button[aria-pressed="true"] {
+	@include mode-selector-checkmark;
+}
+
+#accessibility-controls button[aria-pressed="true"]:not(.toggle) {
+	cursor: default;
 }
 
 /* Footer */
@@ -3650,11 +3690,11 @@ body.font-size-percent-200 {
 
 /* Misc fixes */
 
-body:not([class*="font-size-percent"]) {
-	#font-size-mode-selector button.default {
-		color: $focus-color;
-		cursor: default;
-	}
+#font-size-mode-selector button[aria-pressed="true"] {
+	color: $focus-color;
+	cursor: default;
+
+	@include mode-selector-checkmark;
 }
 
 body.font-size-percent-150 {
@@ -3679,11 +3719,6 @@ body.font-size-percent-150 {
 
 	.ui-picklist-filter-container .ui-icon-search {
 		margin: 5px 5px 0 0;
-	}
-
-	#font-size-mode-selector button.percent-150 {
-		color: $focus-color;
-		cursor: default;
 	}
 
 	.ql-formats button {
@@ -3717,11 +3752,6 @@ body.font-size-percent-200 {
 
 	.ui-picklist-filter-container .ui-icon-search {
 		margin: 10px 10px 0 0;
-	}
-
-	#font-size-mode-selector button.percent-200 {
-		color: $focus-color;
-		cursor: default;
 	}
 
 	.ql-formats button {
@@ -4858,9 +4888,12 @@ body.font-size-percent-200 {
 		}
 	}
 
-	&.eighty-limit-toggle #eighty-limit-mode-selector button,
-	&.wcag-text-toggle #wcag-text-mode-selector button {
+	#eighty-limit-mode-selector button[aria-pressed="true"],
+	#wcag-text-mode-selector button[aria-pressed="true"],
+	#font-size-mode-selector button[aria-pressed="true"] {
 		color: $contrast-alt-focus-color;
+
+		@include mode-selector-checkmark-colors($contrast-foreground-color, $contrast-background-color);
 	}
 
 	#font-size-mode-selector button {
@@ -4871,13 +4904,6 @@ body.font-size-percent-200 {
 		&::before {
 			text-decoration: underline;
 		}
-	}
-
-	&:not([class*=font-size-percent]) #font-size-mode-selector button.default,
-	&.font-size-percent-150 #font-size-mode-selector button.percent-150,
-	&.font-size-percent-200 #font-size-mode-selector button.percent-200 {
-		color: $contrast-alt-focus-color;
-		cursor: default;
 	}
 
 	#footer .footer-links .row {
@@ -4989,6 +5015,11 @@ body.font-size-percent-200 {
 
 body.high-contrast-yellow-on-black {
 	@include high-contrast-template();
+
+	#high-contrast-mode-selector button.yellow-on-black {
+		@include mode-selector-checkmark;
+		@include mode-selector-checkmark-colors(#ff0, #000);
+	}
 }
 #high-contrast-mode-selector button.yellow-on-black {
 	border-color: #ff0;
