@@ -1498,6 +1498,10 @@ div[id$="notifications"].ui-tabs-panel {
 					word-wrap: break-word;
 					word-break: break-word;
 					hyphens: auto;
+
+					* {
+						white-space: normal;
+					}
 				}
 
 				& + th {
