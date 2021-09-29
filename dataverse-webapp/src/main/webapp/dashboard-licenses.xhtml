@@ -11,6 +11,7 @@
 
 <h:body>
     <f:metadata>
+        <ui:param name="pageTitle" value="#{bundle['dashboard.license.header']}" />
         <f:viewParam name="dataverseId" value="#{dashboardPage.dataverseId}"/>
         <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
         <f:viewAction action="#{LicenseListingPage.init}"/>
@@ -105,7 +106,7 @@
                                                 width="64" height="64"/>
                             </p:column>
                             <p:column headerText="#{bundle['dashboard.license.active']}"
-                                      style="width: 10%; text-align: center; vertical-align: middle">
+                                      style="width: 10%; text-align: center; vertical-align: middle" class="table-cell-vertical-mobile">
                                 <p:selectBooleanCheckbox value="#{otherTos.active}">
                                     <p:ajax update="@this"
                                             listener="#{OtherTermsOfUseTab.saveLicenseActiveStatus(otherTos)}"/>
