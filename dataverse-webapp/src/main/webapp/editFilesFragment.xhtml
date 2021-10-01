@@ -161,8 +161,8 @@
                                               fileLimit="#{EditDatafilesPage.getMaxNumberOfFiles()}"
                                               invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}"
                                               sequential="true"
-                                              pt:maxBatchSize="#{EditDatafilesPage.maxBatchSize}"
-                                              pt:uploadBatchTooBigMessage="#{bundle['dataset.file.uploadBatchTooBig']}"
+                                              pt:data-maxBatchSize="#{EditDatafilesPage.maxBatchSize}"
+                                              pt:data-uploadBatchTooBigMessage="#{bundle['dataset.file.uploadBatchTooBig']}"
                                               widgetVar="fileUploadWidget"/>
 
                                 <div jsf:id="dropboxBlock"
@@ -377,7 +377,7 @@
                                  rowSelectMode="checkbox"
                                  selection="#{EditDatafilesPage.selectedFiles}"
                                  var="fileMetadata"
-                                 pt:currentBatchSize="#{EditDatafilesPage.currentBatchSize}"
+                                 pt:data-currentBatchSize="#{EditDatafilesPage.currentBatchSize}"
                                  widgetVar="filesTable"
                                  emptyMessage="#{showFileUpload ? bundle['file.noUploadedFiles.tip'] : bundle['file.noSelectedFiles.tip']}"
                                  styleClass="filesTable medium-min-width"

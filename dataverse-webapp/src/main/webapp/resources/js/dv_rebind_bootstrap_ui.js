@@ -289,9 +289,10 @@ function reinitializePrimefacesComponentsJS() {
                         }
 
                         var totalSize = 0;
-                        const filesTable = PF('filesTable');
+                        const filesTable = $('[data-currentBatchSize]');
+
                         if (filesTable) {
-                            const currentBatchSize = parseInt(filesTable.jq.attr('currentBatchSize') || 0);
+                            const currentBatchSize = parseInt(filesTable.attr('data-currentBatchSize') || 0);
                             totalSize = currentBatchSize;
                         }
 
@@ -301,11 +302,11 @@ function reinitializePrimefacesComponentsJS() {
                             }
                         }
 
-                        const maxBatchSize = parseInt($this.jq.attr('maxBatchSize') || 0);
+                        const maxBatchSize = parseInt($this.jq.attr('data-maxBatchSize') || 0);
                         if (maxBatchSize > 0 && maxBatchSize < totalSize) {
                             $this.clearMessages();
                             $this.showMessage({
-                                summary: $this.jq.attr('uploadBatchTooBigMessage')
+                                summary: $this.jq.attr('data-uploadBatchTooBigMessage')
                             });
                             return;
                         }
