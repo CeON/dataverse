@@ -698,6 +698,14 @@ div.ui-selectonemenu.form-control {
 	padding: 1px 0;
 }
 
+.ui-selectcheckboxmenu-panel {
+	max-width: 100vw;
+
+	.ui-selectcheckboxmenu-list-item {
+		white-space: break-spaces;
+	}
+}
+
 .ui-selectcheckboxmenu .ui-selectcheckboxmenu-multiple-container  {
 	padding-right: 2em; /* same as primefaces ui-selectcheckboxmenu-trigger width */
 
@@ -934,6 +942,21 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 
 .col-no-padding {
 	padding: 0;
+}
+
+@media screen and (max-width: 40em) {
+	.ui-fileupload-buttonbar .ui-button {
+		padding: 0;
+
+		.ui-button-text {
+			display: block;
+		}
+	}
+}
+
+.row.form-horizontal .form-group {
+	margin-left: 0;
+	margin-right: 0;
 }
 
 /* Graphical text editor */
@@ -3158,6 +3181,30 @@ div.filesTable {
 
 	.dropdown-submenu.pull-left > .dropdown-menu {
 		left: 0;
+	}
+}
+
+/* Move Data dashboard page */
+
+.dataset-move-form .form-group {
+	.ui-autocomplete {
+		width: 100%;
+	}
+
+	@media screen and (min-width: $screen-sm-min) {
+		label {
+			margin-top: 0.3125em;
+		}
+	}
+
+	@media screen and (max-width: $screen-xs-max) {
+		.col-xs-12 {
+			padding: 0;
+
+			+ .col-xs-12 {
+				margin-top: 0.5em;
+			}
+		}
 	}
 }
 
