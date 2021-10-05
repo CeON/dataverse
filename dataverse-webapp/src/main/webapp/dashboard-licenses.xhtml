@@ -31,14 +31,13 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col licenses-top-buttons">
-                                    <p:commandButton action="#{LicenseListingPage.redirectToLicenseReorderPage()}"
-                                                     value="#{bundle['dashboard.license.reorderButton']}"
-                                                     styleClass="btn "/>
+                                    <p:commandLink action="#{LicenseListingPage.redirectToLicenseReorderPage()}" styleClass="btn btn-default btn-access">
+                                        <span class="glyphicon glyphicon-sort"/> #{bundle['dashboard.license.reorderButton']}
+                                    </p:commandLink>
 
-                                    <p:commandButton onclick="PF('newLicense').show();"
-                                                     value="#{bundle['dashboard.license.newLicense.add']}"
-                                                     styleClass="btn"/>
-
+                                    <p:commandLink onclick="PF('newLicense').show();" styleClass="btn btn-default btn-access">
+                                        <span class="glyphicon glyphicon-plus"/> #{bundle['dashboard.license.newLicense.add']}
+                                    </p:commandLink>
                                 </div>
                             </div>
                         </div>
