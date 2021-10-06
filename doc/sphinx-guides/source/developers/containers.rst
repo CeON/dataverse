@@ -156,7 +156,7 @@ First, set the Docker environment variables so that ``docker build`` and ``docke
 
 When you're ready to build, change to the right directory::
 
-    cd conf/dockermethod 
+    cd conf/docker
 
 And then run the build script in "internal" mode::
 

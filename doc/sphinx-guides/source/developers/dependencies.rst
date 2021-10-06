@@ -150,7 +150,7 @@ Maven can manage versions of transitive dependencies in four ways:
    and add a ``<version>`` tag. Many bigger and standard use projects provide those, making the POM much less bloated
    compared to adding every bit yourself.
 
-A reduced example, only showing bits relevant to this cases and usage of an explicit transitive dep directly:
+A reduced example, only showing bits relevant to these cases and usage of an explicit transitive dep directly:
 
 .. code-block:: xml
     :linenos:

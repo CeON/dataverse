@@ -54,7 +54,7 @@ Installing Glassfish
 
 .. note:: The Dataverse installer need not be run as root, and it is recommended that Glassfish not run as root either. We suggest the creation of a glassfish service account for this purpose.
 
-Examples in this section assumes that you want to install glassfish in ``/usr/local/glassfish4.1.2`` directory.
+Examples in this section assume that you want to install glassfish in ``/usr/local/glassfish4.1.2`` directory.
 
 - Download and install Glassfish::
 

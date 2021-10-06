@@ -624,7 +624,7 @@ Footnotes
    https://www.iana.org/assignments/media-types/text/tab-separated-values
 
 .. [2]
-   Although the structure of the data, can violate the
+   Although the structure of the data can violate the
    “Each record must have the same number of fields” tenet of TSV
 
 .. [3]

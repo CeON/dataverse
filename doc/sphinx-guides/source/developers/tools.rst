@@ -14,7 +14,7 @@ http://wiki.netbeans.org/ChromeExtensionInstallation
 pgAdmin
 +++++++
 
-pgAdmin is an graphical tool to manage your database. You can download it from https://www.pgadmin.org
+pgAdmin is a graphical tool to manage your database. You can download it from https://www.pgadmin.org
 
 Maven
 +++++

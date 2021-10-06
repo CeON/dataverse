@@ -53,7 +53,7 @@ Pull requests take all shapes and sizes, from a one-character typo fix to hundre
 
 If you are writing code (rather than documentation), please see :doc:`testing` for guidance on writing tests.
 
-The example of creating a pull request presented in this section and it's subsections has to do with fixing an important issue with the :doc:`documentation` but applies to fixing code as well.
+The example of creating a pull request presented in this section and its subsections has to do with fixing an important issue with the :doc:`documentation` but applies to fixing code as well.
 
 Find or Create a GitHub Issue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

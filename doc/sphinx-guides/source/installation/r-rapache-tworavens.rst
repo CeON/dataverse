@@ -555,7 +555,7 @@ III. What the install.pl script does:
 The instruction presented in this section are performed by the ``install.pl`` script. **Provided for reference only!** 
 It could be used to configure it all by hand, if necessary, or 
 to verify that the installer has done it correctly. 
-Once again: **normally you would NOT need to individually perform the this steps**!
+Once again: **normally you would NOT need to individually perform these steps**!
 
 TwoRavens is distributed with a few hard-coded host and directory names. So these 
 need to be replaced with  the values specific to your system. 

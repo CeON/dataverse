@@ -402,7 +402,7 @@ In the Widgets tab, you can copy and paste the code snippets for the widget you 
 Dataset Widget
 ~~~~~~~~~~~~~~
 
-The Dataset Widget allows the citation, mhttps://jasnopis.pl/ - fajna apkaetadata, files and terms of your dataset to be displayed on your website. When someone downloads a data file in the widget, it will download directly from the datasets on your website. If a file is restricted, they will be directed to your dataverse to log in, instead of logging in through the widget on your site. 
+The Dataset Widget allows the citation, metadata, files and terms of your dataset to be displayed on your website. When someone downloads a data file in the widget, it will download directly from the datasets on your website. If a file is restricted, they will be directed to your dataverse to log in, instead of logging in through the widget on your site. 
 
 To edit your dataset, you will need to return to the Dataverse repository where the dataset is stored. You can easily do this by clicking on the link that says "Data Stored in (Name) Dataverse" found in the bottom of the widget.
 

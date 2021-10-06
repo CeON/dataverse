@@ -711,7 +711,7 @@ For example::
 
 If the dataset is not locked (or if there is no lock of the specified type), the API will exit with a warning message. 
 
-(Note that all of this API calls support both the database id and persistent identifier notation for referencing the dataset)
+(Note that all of these API calls support both the database id and persistent identifier notation for referencing the dataset)
 
 
 Files
@@ -1388,7 +1388,7 @@ Execute a saved search by database id and make links to dataverses and datasets 
 
   PUT http://$SERVER/api/admin/savedsearches/makelinks/$id?debug=true
 
-Execute all saved searches and make links to dataverses and datasets that are found. ``debug`` parameters works in the same manner as in making links for single saved search::
+Execute all saved searches and make links to dataverses and datasets that are found. ``debug`` parameter works in the same manner as in making links for single saved search::
 
   PUT http://$SERVER/api/admin/savedsearches/makelinks/all?debug=true
 

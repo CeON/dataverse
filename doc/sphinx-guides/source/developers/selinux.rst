@@ -18,7 +18,7 @@ This document is something of a survival guide for anyone who is tasked with upd
 Development Environment
 -----------------------
 
-In order to work on the ``shibboleth.te`` file you need to ``ssh`` into a RHEL or CentOS box running Shibboleth (instructions are in the :doc:`/installation/shibboleth` section of the Installation Guide) such as https://beta.dataverse.org or https://demo.dataverse.org that has installed all the mention commands in this document. As of this writing, the ``policycoreutils-python`` RPM was required.
+In order to work on the ``shibboleth.te`` file you need to ``ssh`` into a RHEL or CentOS box running Shibboleth (instructions are in the :doc:`/installation/shibboleth` section of the Installation Guide) such as https://beta.dataverse.org or https://demo.dataverse.org that has installed all the commands mentioned in this document. As of this writing, the ``policycoreutils-python`` RPM was required.
 
 Recreating the shibboleth.te File
 ---------------------------------
