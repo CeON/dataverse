@@ -1,0 +1,1 @@
+ALTER TABLE datasetfieldtype ADD COLUMN validation TEXT DEFAULT '[]' NOT NULL;
