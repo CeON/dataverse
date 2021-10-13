@@ -12,11 +12,11 @@ import java.util.Map;
 
 @Eager
 @ApplicationScoped
-public class StandardTextValidator extends StandardFieldValidatorBase {
+public class StandardInputValidator extends StandardFieldValidatorBase {
 
     @Override
     public String getName() {
-        return "standard_text";
+        return "standard_input";
     }
 
     @Override

@@ -44,6 +44,12 @@ public class FieldValidationDispatcher {
                 .collect(Collectors.toList());
     }
 
+    public ValidationResult validateField(DatasetField field) {
+        return isNotTemplateField(field)
+                ? executeSingleValidation(field)
+                : ValidationResult.ok();
+    }
+
 
     // -------------------- PRIVATE --------------------
 

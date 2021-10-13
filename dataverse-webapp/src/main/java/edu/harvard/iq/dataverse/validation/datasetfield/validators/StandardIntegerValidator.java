@@ -15,7 +15,7 @@ public class StandardIntegerValidator extends StandardFieldValidatorBase {
 
     @Override
     public String getName() {
-        return "standard_integer";
+        return "standard_int";
     }
 
     @Override
