@@ -67,9 +67,7 @@ public class FieldValidationDispatcher {
 
     private ValidationConfiguration readConfiguration(String configurationJson) {
         try {
-            configurationJson = configurationJson.trim().startsWith("[")
-                    ? String.format("{\"validations\":%s}", configurationJson)
-                    : String.format("{\"validations\":[%s]}", configurationJson);
+            configurationJson = String.format("{\"validations\":%s}", configurationJson.trim());
             return objectMapper.readValue(configurationJson, ValidationConfiguration.class);
         } catch (IOException e) {
             throw new RuntimeException(e);

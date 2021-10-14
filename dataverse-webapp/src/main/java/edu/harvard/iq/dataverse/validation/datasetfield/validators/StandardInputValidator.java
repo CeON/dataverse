@@ -23,7 +23,7 @@ public class StandardInputValidator extends StandardFieldValidatorBase {
     public ValidationResult validate(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
         String validationFormat = params.get("format");
         if (StringUtils.isNotBlank(validationFormat)) {
-            return field.getValue().matches(field.getDatasetFieldType().getValidationFormat())
+            return field.getValue().matches(validationFormat)
                     ? ValidationResult.ok()
                     : ValidationResult.invalid(field, BundleUtil.getStringFromBundle("isNotValidEntry",
                     field.getDatasetFieldType().getDisplayName()));
