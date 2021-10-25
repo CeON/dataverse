@@ -1793,17 +1793,28 @@ div.filesTable {
 	table {
 		padding-left: 10px;
 	}
+
+	.ui-selectoneradio {
+		tr, td {
+			display: flex;
+			align-items: center;
+		}
+	}
 }
 
 @mixin table-metrics-mobile {
 	.table-metrics {
-		&, tbody, tr, td {
+		&, tbody, .ui-selectoneradio tr, .ui-selectoneradio td {
 			display: block;
 			width: 100%;
 		}
 
+		tbody > tr > td {
+			width: 100%;
+		}
+
 		table {
-			&, tbody, tr, td {
+			&, tbody, .ui-selectoneradio tr, .ui-selectoneradio td {
 				display: block;
 				width: 100%;
 			}
