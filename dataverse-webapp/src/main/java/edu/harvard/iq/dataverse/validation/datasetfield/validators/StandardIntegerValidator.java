@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Eager
 @ApplicationScoped
-public class StandardIntegerValidator extends StandardFieldValidatorBase {
+public class StandardIntegerValidator extends FieldValidatorBase {
 
     @Override
     public String getName() {
@@ -19,7 +19,7 @@ public class StandardIntegerValidator extends StandardFieldValidatorBase {
     }
 
     @Override
-    public ValidationResult validate(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
+    public ValidationResult isValid(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
         try {
             Integer.parseInt(field.getValue());
             return ValidationResult.ok();

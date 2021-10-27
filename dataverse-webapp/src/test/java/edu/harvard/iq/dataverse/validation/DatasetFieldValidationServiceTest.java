@@ -47,6 +47,7 @@ class DatasetFieldValidationServiceTest {
                 .thenReturn(ValidationResult.ok());
         when(datasetField.getTopParentDatasetField()).thenReturn(datasetField);
         when(datasetField.getDatasetFieldType()).thenReturn(datasetFieldType);
+        when(datasetField.getValue()).thenReturn("7");
         when(datasetFieldType.getName()).thenReturn("testField");
         when(datasetVersion.getFlatDatasetFields()).thenReturn(Collections.singletonList(datasetField));
         when(datasetFieldType.getValidation()).thenReturn("[{\"name\":\"standard_int\"}]");
@@ -60,20 +61,6 @@ class DatasetFieldValidationServiceTest {
     void validateFieldsOfDatasetVersion() {
         // given & when
         service.validateFieldsOfDatasetVersion(datasetVersion);
-
-        // then
-        Mockito.verify(registry, only()).get(eq("standard_int"));
-        Mockito.verify(intValidator, only()).isValid(eq(datasetField), anyMap(), anyMap());
-    }
-
-    @Test
-    void createValidatorsWithContext__validateField() {
-        // given
-        DatasetFieldValidationService.ValidatorsWithContext validatorsWithContext
-                = service.createValidatorsWithContext(datasetVersion);
-
-        // when
-        validatorsWithContext.init(datasetVersion).validateField(datasetField);
 
         // then
         Mockito.verify(registry, only()).get(eq("standard_int"));

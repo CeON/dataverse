@@ -38,37 +38,4 @@ public class DatasetFieldValidationService {
                 });
         return validationResults;
     }
-
-    public ValidatorsWithContext createValidatorsWithContext(DatasetVersion datasetVersion) {
-        return new ValidatorsWithContext(registry)
-                .init(datasetVersion);
-    }
-
-    // -------------------- INNER CLASSES --------------------
-
-    public static class ValidatorsWithContext {
-        private FieldValidationDispatcher dispatcher;
-
-        // -------------------- CONSTRUCTORS --------------------
-
-        private ValidatorsWithContext(FieldValidatorRegistry registry) {
-            this.dispatcher = new FieldValidationDispatcher(registry);
-        }
-
-        // -------------------- LOGIC --------------------
-
-        public ValidationResult validateField(DatasetField field) {
-            field.setValidationMessage(null);
-            ValidationResult result = dispatcher.validateField(field);
-            if (!result.isOk()) {
-                field.setValidationMessage(result.getMessage());
-            }
-            return result;
-        }
-
-        ValidatorsWithContext init(DatasetVersion datasetVersion) {
-            dispatcher.init(datasetVersion);
-            return this;
-        }
-    }
 }

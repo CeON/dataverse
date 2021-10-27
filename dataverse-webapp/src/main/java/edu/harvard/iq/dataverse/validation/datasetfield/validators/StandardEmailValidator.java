@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Eager
 @ApplicationScoped
-public class StandardEmailValidator extends StandardFieldValidatorBase {
+public class StandardEmailValidator extends FieldValidatorBase {
 
     @Override
     public String getName() {
@@ -20,7 +20,7 @@ public class StandardEmailValidator extends StandardFieldValidatorBase {
     }
 
     @Override
-    public ValidationResult validate(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
+    public ValidationResult isValid(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
         return EmailValidator.getInstance().isValid(field.getValue())
                 ? ValidationResult.ok()
                 : ValidationResult.invalid(field,

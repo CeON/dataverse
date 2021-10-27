@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.Template;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.validation.datasetfield.validators.FieldValidatorBase;
 import edu.harvard.iq.dataverse.validation.datasetfield.validators.StandardInputValidator;
 import edu.harvard.iq.dataverse.validation.datasetfield.validators.StandardIntegerValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -41,8 +43,7 @@ class FieldValidationDispatcherTest {
         datasetVersion.setDataset(dataset);
         datasetFieldType = new DatasetFieldType() {
             @Override
-            public String getDisplayName() { return "testField";
-            }
+            public String getDisplayName() { return "testField"; }
         };
         datasetFieldType.setName("testField");
         datasetFieldType.setFieldType(FieldType.TEXT);
@@ -94,46 +95,71 @@ class FieldValidationDispatcherTest {
     }
 
     @Test
-    void validateSingleField() {
+    void executeValidations__emptyRequiredField() {
         // given
-        datasetFieldType.setValidation("[{\"name\":\"standard_int\"}]");
-        datasetField.setValue("44 1/2");
+        datasetFieldType.setRequired(true);
 
         // when
-        ValidationResult result = dispatcher.init(Collections.singletonList(datasetField)).validateField(datasetField);
+        List<ValidationResult> results = dispatcher.init(Collections.singletonList(datasetField)).executeValidations();
 
         // then
-        assertThat(result.isOk()).isFalse();
+        assertThat(results)
+                .extracting(ValidationResult::getMessage, ValidationResult::isOk)
+                .containsExactly(tuple("testField is required.", false));
     }
 
     @Test
-    @DisplayName("When field is valid validateSingleField(…) should return result with isOk() returning true")
-    void validateSingleField__ok() {
+    void executeValidations__nonEmptyRequired() {
         // given
-        datasetFieldType.setValidation("[{\"name\":\"standard_input\",\"parameters\":[\"format:[0-9]\"]}]");
-        datasetField.setValue("7");
+        datasetFieldType.setRequired(true);
+        datasetField.setFieldValue("abc");
+        datasetFieldType.setValidation("[]");
 
         // when
-        ValidationResult result = dispatcher.init(Collections.singletonList(datasetField)).validateField(datasetField);
+        List<ValidationResult> results = dispatcher.init(Collections.singletonList(datasetField)).executeValidations();
 
         // then
-        assertThat(result.isOk()).isTrue();
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    @DisplayName("NA value should bypass any further validations")
+    void executeValidations__NAValue() {
+        // given
+        datasetField.setFieldValue(DatasetField.NA_VALUE);
+        FieldValidator failingValidator = new FieldValidatorBase() {
+            @Override
+            public String getName() {
+                return "failing_validator";
+            }
+
+            @Override
+            public ValidationResult isValid(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
+                return ValidationResult.invalid(field, "message");
+            }
+        };
+        registry.register(failingValidator);
+        datasetFieldType.setValidation("[{\"name\":\"failing_validator\"}]");
+
+        // when
+        List<ValidationResult> results = dispatcher.init(Collections.singletonList(datasetField)).executeValidations();
+
+        // then
+        assertThat(results).isEmpty();
     }
 
     @Test
     @DisplayName("Fields with template should bypass validation")
-    void templatesBypassValidation() {
+    void templatesBypassesValidation() {
         // given
         datasetFieldType.setValidation("[{\"name\":\"standard_int\"}]");
         datasetField.setValue("abcd");
         datasetField.setTemplate(new Template());
 
         // when
-        ValidationResult result = dispatcher.init(Collections.singletonList(datasetField)).validateField(datasetField);
         List<ValidationResult> results = dispatcher.init(Collections.singletonList(datasetField)).executeValidations();
 
         // then
-        assertThat(result.isOk()).isTrue();
         assertThat(results).isEmpty();
     }
 }

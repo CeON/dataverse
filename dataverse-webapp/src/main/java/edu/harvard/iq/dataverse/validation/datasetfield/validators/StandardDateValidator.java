@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 @Eager
 @ApplicationScoped
-public class StandardDateValidator extends StandardFieldValidatorBase {
+public class StandardDateValidator extends FieldValidatorBase {
     private static final String YYYY_MM_DD_FORMAT = "yyyy-MM-dd";
     private static final String YYYY_MM_FORMAT = "yyyy-MM";
     private static final String YYYY_FORMAT = "yyyy";
@@ -32,12 +32,12 @@ public class StandardDateValidator extends StandardFieldValidatorBase {
     }
 
     @Override
-    public ValidationResult validate(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
+    public ValidationResult isValid(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
         String value = field.getValue();
         value = value.startsWith("-") ? value.substring(1) : value;
 
         for (DateTimeFormatter parser : PARSERS) {
-            if (isValid(value, parser)) {
+            if (isValidDate(value, parser)) {
                 return ValidationResult.ok();
             }
         }
@@ -47,7 +47,7 @@ public class StandardDateValidator extends StandardFieldValidatorBase {
 
     // -------------------- LOGIC --------------------
 
-    private boolean isValid(String value, DateTimeFormatter parser) {
+    private boolean isValidDate(String value, DateTimeFormatter parser) {
         try {
             TemporalAccessor parsed = parser.parse(value);
             int year = parsed.get(ChronoField.YEAR_OF_ERA);

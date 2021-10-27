@@ -274,37 +274,12 @@ public class ImportServiceBean {
             ds.setOwner(owner);
             ds.getLatestVersion().setDatasetFields(ds.getLatestVersion().initDatasetFields());
 
-            // Check data against required contraints
+            // Check data against validation contraints
             DatasetVersion versionToValidate = ds.getVersions().get(0);
             List<ValidationResult> validationResults = fieldValidationService.validateFieldsOfDatasetVersion(versionToValidate);
             if (!validationResults.isEmpty()) {
                 // For migration and harvest, add NA for missing required values
                 validationResults.forEach(r -> r.getField().setFieldValue(DatasetField.NA_VALUE));
-            }
-
-            // Check data against validation constraints
-            // If we are migrating and "scrub migration data" is true we attempt to fix invalid data
-            // if the fix fails stop processing of this file by throwing exception
-            validationResults = fieldValidationService.validateFieldsOfDatasetVersion(versionToValidate);
-            if (!validationResults.isEmpty()) {
-                DatasetFieldValidationService.ValidatorsWithContext validators
-                        = fieldValidationService.createValidatorsWithContext(versionToValidate);
-                for (ValidationResult result : validationResults) {
-                    DatasetField field = result.getField();
-                    boolean fixed = false;
-                    if (settingsService.isTrueForKey(SettingsServiceBean.Key.ScrubMigrationData)) {
-                        fixed = processMigrationValidationError(field, cleanupLog, metadataFile.getName());
-                        if (fixed) {
-                            fixed = validators.validateField(field).isOk();
-                        }
-                    }
-                    if (!fixed) {
-                        String message = String.format("Data modified - File: %s; Field: %s; Invalid value:  '%s' Converted Value:'%s'",
-                                metadataFile.getName(), field.getDatasetFieldType().getDisplayName(), field.getValue(), DatasetField.NA_VALUE);
-                        cleanupLog.println(message);
-                        field.setFieldValue(DatasetField.NA_VALUE);
-                    }
-                }
             }
 
             // A Global ID is required, in order for us to be able to harvest and import
@@ -418,7 +393,7 @@ public class ImportServiceBean {
             ds.setOwner(owner);
             ds.getLatestVersion().setDatasetFields(ds.getLatestVersion().initDatasetFields());
 
-            // Check data against required contraints
+            // Check data against validation contraints
             DatasetVersion versionToValidate = ds.getVersions().get(0);
             List<ValidationResult> validationResults = fieldValidationService.validateFieldsOfDatasetVersion(versionToValidate);
             if (!validationResults.isEmpty()) {
@@ -433,36 +408,6 @@ public class ImportServiceBean {
                                     .map(ValidationResult::getMessage)
                                     .collect(Collectors.joining(" ")));
                     throw new ImportException(errMsg);
-                }
-            }
-
-            // Check data against validation constraints
-            // If we are migrating and "scrub migration data" is true we attempt to fix invalid data
-            // if the fix fails stop processing of this file by throwing exception
-            validationResults = fieldValidationService.validateFieldsOfDatasetVersion(versionToValidate);
-            if (!validationResults.isEmpty()) {
-                DatasetFieldValidationService.ValidatorsWithContext validators = fieldValidationService.createValidatorsWithContext(versionToValidate);
-                for (ValidationResult result : validationResults) {
-                    DatasetField field = result.getField();
-                    boolean fixed = false;
-                    if (ImportType.HARVEST.equals(importType) && settingsService.isTrueForKey(SettingsServiceBean.Key.ScrubMigrationData)) {
-                        fixed = processMigrationValidationError(field, cleanupLog, fileName);
-                        if (fixed) {
-                            fixed = validators.validateField(field).isOk();
-                        }
-                    }
-                    if (!fixed) {
-                        if (ImportType.HARVEST.equals(importType)) {
-                            String message = String.format("Data modified - File: %s; Field: %s; Invalid value:  '%s' Converted Value:'%s'",
-                                    fileName, field.getDatasetFieldType().getDisplayName(), field.getValue(), DatasetField.NA_VALUE);
-                            cleanupLog.println(message);
-                            field.setFieldValue(DatasetField.NA_VALUE);
-                        } else {
-                            String message = String.format(" Validation error for value: %s, %s",
-                                    field.getValue(), field.getValidationMessage());
-                            throw new ImportException(message);
-                        }
-                    }
                 }
             }
 

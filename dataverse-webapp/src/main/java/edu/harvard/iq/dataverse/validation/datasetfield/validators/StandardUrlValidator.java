@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Eager
 @ApplicationScoped
-public class StandardUrlValidator extends StandardFieldValidatorBase {
+public class StandardUrlValidator extends FieldValidatorBase {
 
     @Override
     public String getName() {
@@ -21,7 +21,7 @@ public class StandardUrlValidator extends StandardFieldValidatorBase {
     }
 
     @Override
-    public ValidationResult validate(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
+    public ValidationResult isValid(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
         try {
             new URL(field.getValue());
             return ValidationResult.ok();

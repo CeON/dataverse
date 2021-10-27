@@ -20,7 +20,7 @@ class StandardNumberValidatorTest {
             "44.125,true",
             "abcd,false",
     })
-    void validate(String value, boolean expectedResult) {
+    void isValid(String value, boolean expectedResult) {
         // given
         DatasetField datasetField = new DatasetField();
         datasetField.setDatasetFieldType(new DatasetFieldType());
@@ -28,7 +28,7 @@ class StandardNumberValidatorTest {
 
         // when
         ValidationResult result =
-                validator.validate(datasetField, Collections.emptyMap(), Collections.emptyMap());
+                validator.isValid(datasetField, Collections.emptyMap(), Collections.emptyMap());
 
         // then
         assertThat(result.isOk()).isEqualTo(expectedResult);

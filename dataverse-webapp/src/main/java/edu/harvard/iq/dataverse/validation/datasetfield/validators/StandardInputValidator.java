@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Eager
 @ApplicationScoped
-public class StandardInputValidator extends StandardFieldValidatorBase {
+public class StandardInputValidator extends FieldValidatorBase {
 
     @Override
     public String getName() {
@@ -20,7 +20,7 @@ public class StandardInputValidator extends StandardFieldValidatorBase {
     }
 
     @Override
-    public ValidationResult validate(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
+    public ValidationResult isValid(DatasetField field, Map<String, String> params, Map<String, List<DatasetField>> fieldIndex) {
         String validationFormat = params.get("format");
         if (StringUtils.isNotBlank(validationFormat)) {
             return field.getValue().matches(validationFormat)
