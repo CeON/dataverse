@@ -806,6 +806,15 @@ textarea {
     display: inline;
 }
 
+.ui-spinner-button {
+	background: #fff;
+	border: 1px solid #ddd;
+
+	&:hover {
+		background: #eee;
+	}
+}
+
 /* Overriding bootstrap defaults */
 legend.control-label {
     border-bottom: none;
@@ -2938,13 +2947,17 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 	}
 }
 
-div.alert-info.bg-citation {
+div.alert-info.bg-citation,
+div.alert-danger.bg-danger {
 	padding: 15px 20px;
 	border: 0;
 	border-radius: $border-radius;
-	background-color: $search-result-desc-color;
 
 	color: $main-text-color;
+}
+
+div.alert-info.bg-citation {
+	background-color: $search-result-desc-color;
 }
 
 .alert.alert-info.p-grid .p-col img {
@@ -4115,6 +4128,7 @@ body.font-size-percent-200 {
 	.panel,
 	.btn.btn-default.btn-access,
 	div.alert-info.bg-citation,
+	div.alert-danger.bg-danger,
 	.ui-chkbox-box .ui-chkbox-icon::before,
 	#resultsCountPaginatorBlock div.results-count,
 	#metrics-content, #metrics-label,
@@ -4177,6 +4191,7 @@ body.font-size-percent-200 {
 
 	.ui-dialog.ui-widget.ui-widget-content,
 	div.alert-info.bg-citation,
+	div.alert-danger.bg-danger,
 	#navbarsearch-modal,
 	#search-row-panel,
 	.panel {
