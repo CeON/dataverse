@@ -568,7 +568,8 @@ textarea,
 .ui-tabs-header,
 .ui-sortable-column,
 .select-scroll-block,
-ul.pagination a {
+ul.pagination a,
+.ui-paginator a[class*=ui-paginator] {
 	&:focus {
 		outline-offset: -2px;
 	}
@@ -698,6 +699,14 @@ div.ui-selectonemenu.form-control {
 	padding: 1px 0;
 }
 
+.ui-selectcheckboxmenu-panel {
+	max-width: 100vw;
+
+	.ui-selectcheckboxmenu-list-item {
+		white-space: break-spaces;
+	}
+}
+
 .ui-selectcheckboxmenu .ui-selectcheckboxmenu-multiple-container  {
 	padding-right: 2em; /* same as primefaces ui-selectcheckboxmenu-trigger width */
 
@@ -796,6 +805,15 @@ textarea {
 }
 .control-label-with-tooltip .control-label {
     display: inline;
+}
+
+.ui-spinner-button {
+	background: #fff;
+	border: 1px solid #ddd;
+
+	&:hover {
+		background: #eee;
+	}
 }
 
 /* Overriding bootstrap defaults */
@@ -934,6 +952,21 @@ div.form-col-container.edit-compound-field div.form-col-container.form-hidden-co
 
 .col-no-padding {
 	padding: 0;
+}
+
+@media screen and (max-width: 40em) {
+	.ui-fileupload-buttonbar .ui-button {
+		padding: 0;
+
+		.ui-button-text {
+			display: block;
+		}
+	}
+}
+
+.row.form-horizontal .form-group {
+	margin-left: 0;
+	margin-right: 0;
 }
 
 /* Graphical text editor */
@@ -1233,6 +1266,22 @@ input.fancy-checkbox[type=checkbox] {
     }
 }
 
+@media screen and (max-width: $screen-xs-max) {
+	.ui-picklist .ui-picklist-buttons .ui-picklist-buttons-cell {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+/* Fix scroll block on touch devices */
+.ui-picklist .ui-sortable-handle {
+	touch-action: auto;
+}
+
+/* Fix erroneous horizontal scrollbar in Chrome */
+.ui-picklist.ui-picklist-responsive > div.ui-helper-hidden-accessible {
+	width: 1px !important;
+}
 
 /* Float elements parent size fix */
 .col-md-6.form-group.form-col-container {
@@ -1657,6 +1706,13 @@ div.filesTable {
 	}
 }
 
+/* Fix erroneous horizontal scrollbar in mobile Chrome */
+.ui-datatable-tablewrapper {
+	.ui-helper-hidden-accessible, .sr-only {
+		position: fixed;
+	}
+}
+
 /* Fix submenus in scrollable tables not overflowing outside */
 .ui-tabs {
 	position: static;
@@ -1798,6 +1854,10 @@ div.filesTable {
 
 @media screen and (max-width: $screen-xs-max) {
 	@include table-metrics-mobile;
+
+	th.table-cell-vertical-mobile .ui-column-title {
+		writing-mode: vertical-lr;
+	}
 }
 
 .ui-sortable-handle {
@@ -2054,6 +2114,23 @@ $navbar-height: 102px;
 	margin: 8px;
 }
 
+@media screen and (min-width: $screen-md-min) {
+	#userDisplayInfoTitle {
+		max-width: 100px;
+		display: inline-block;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		vertical-align: bottom;
+	}
+}
+
+@media screen and (min-width: $screen-lg-min) {
+	#userDisplayInfoTitle {
+		max-width: 200px;
+	}
+}
+
 @media screen and (max-width: $screen-xs-max) {
 	$navbar-height-mobile: 70px;
 
@@ -2114,6 +2191,8 @@ $navbar-height: 102px;
 			height: $navbar-height;
 	}
 }
+
+/* Accessibility controls */
 
 #accessibility-controls {
 	position: absolute;
@@ -2286,6 +2365,116 @@ $navbar-height: 102px;
 
 #accessibility-controls button[aria-pressed="true"]:not(.toggle) {
 	cursor: default;
+}
+
+/* Force navbar mobile mode on sm-md screen width */
+
+@mixin force-navbar-mobile {
+	.navbar-toggle {
+		display: block;
+	}
+
+	.navbar-header {
+		float: none;
+	}
+
+	.navbar-default #topNavBar {
+		border-top: 1px solid $gray-border-color;
+
+		&.navbar-collapse.collapse {
+			display: none !important;
+
+			&.in {
+				display: block !important;
+			}
+		}
+
+		.pull-right {
+			width: 100%;
+			float: none !important;
+		}
+
+		.navbar-nav {
+			height: auto;
+			margin: 7.5px -15px;
+			display: block;
+
+			> li, .navbar-left {
+				float: none !important;
+			}
+
+			.open .dropdown-menu {
+				position: static;
+				float: none;
+				width: auto;
+				margin-top: 0;
+				background-color: transparent;
+				border: 0;
+				-webkit-box-shadow: none;
+				box-shadow: none;
+
+				> li > a {
+					line-height: 20px;
+
+					&:focus, &:hover {
+						background-image: none;
+					}
+				}
+
+				.dropdown-header, > li > a, > li > form > a {
+					padding: 0.667em 1em !important;
+				}
+			}
+		}
+	}
+
+	@include accessibility-controls-mobile;
+
+	.navbar-default #topNavBar .navbar-nav .open .dropdown-menu {
+		.dropdown-header, > li > a, > li > form > a {
+			padding: 0.667em 1em !important;
+		}
+	}
+
+	.navbar-nav .open .dropdown-menu {
+		position: static;
+		float: none;
+		width: 100%;
+		margin-top: 0;
+		background-color: transparent;
+		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	}
+
+	.navbar-default #topNavBar .navbar-nav .open .dropdown-menu {
+		.dropdown-header, > li > a, > li > form > a {
+			padding: 0.667em 1em !important;
+		}
+	}
+
+	.navbar-nav .open .dropdown-menu {
+		position: static;
+		float: none;
+		width: 100%;
+		margin-top: 0;
+		background-color: transparent;
+		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	}
+}
+
+@media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+	@include force-navbar-mobile;
+
+	body.navbar-expanded {
+		overflow: hidden;
+	}
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+	@include force-navbar-mobile;
+
+	body.navbar-expanded {
+		overflow: hidden;
+	}
 }
 
 /* Footer */
@@ -2722,15 +2911,17 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 @media screen and (max-width: $screen-xs-max) {
 	.row.row-offcanvas.row-offcanvas-left {
 		#dv-sidebar {
-			visibility: hidden;
+			display: none;
 			opacity: 0;
+			height: 0;
 
 			transition: opacity 0.25s ease-in-out;
 		}
 
 		&.active #dv-sidebar {
-			visibility: visible;
+			display: block;
 			opacity: 1;
+			height: auto;
 
 			transition: opacity 0.25s ease-in-out;
 		}
@@ -2773,13 +2964,17 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 	}
 }
 
-div.alert-info.bg-citation {
+div.alert-info.bg-citation,
+div.alert-danger.bg-danger {
 	padding: 15px 20px;
 	border: 0;
 	border-radius: $border-radius;
-	background-color: $search-result-desc-color;
 
 	color: $main-text-color;
+}
+
+div.alert-info.bg-citation {
+	background-color: $search-result-desc-color;
 }
 
 .alert.alert-info.p-grid .p-col img {
@@ -2902,6 +3097,23 @@ div.filesTable .ui-paginator {
 	}
 }
 
+@media screen and (min-width: $screen-sm-min) {
+	.ui-paginator-container {
+		display: inline;
+		margin-right: 1em;
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	.ui-paginator .ui-paginator-current, .ui-paginator .ui-paginator-rpp-options {
+		margin-right: 0;
+	}
+
+	.ui-paginator-container {
+		margin-bottom: 0.5em;
+	}
+}
+
 .file-title-label {
 	word-break: break-all;
 }
@@ -2983,6 +3195,10 @@ div.filesTable .ui-paginator {
 
 .dataverseHeaderCell span[style="color:#888888;"] {
 	color: $gray-text-color !important;
+}
+
+#dataverseHeader .dataverseHeaderLogo img {
+	max-width: Min(940px, calc(100vw - 30px));
 }
 
 @media screen and (max-width: $screen-xs-max) {
@@ -3157,6 +3373,30 @@ div.filesTable {
 	}
 }
 
+/* Move Data dashboard page */
+
+.dataset-move-form .form-group {
+	.ui-autocomplete {
+		width: 100%;
+	}
+
+	@media screen and (min-width: $screen-sm-min) {
+		label {
+			margin-top: 0.3125em;
+		}
+	}
+
+	@media screen and (max-width: $screen-xs-max) {
+		.col-xs-12 {
+			padding: 0;
+
+			+ .col-xs-12 {
+				margin-top: 0.5em;
+			}
+		}
+	}
+}
+
 /* Modal */
 
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
@@ -3200,6 +3440,8 @@ div.filesTable {
 .ui-dialog.ui-widget.ui-widget-content {
 	min-height: 200px;
 	min-width: 320px;
+	max-width: 100vw;
+	max-height: 100vh;
 	border: none;
 	border-radius: $border-radius;
 	box-shadow: 0 5px 10px rgba(0,0,0,0.2);
@@ -3547,80 +3789,7 @@ body.wcag-text-toggle {
 body.font-size-percent-150,
 body.font-size-percent-200 {
 	@media (min-width: $screen-sm-min) {
-		.navbar-toggle {
-			display: block;
-		}
-
-		.navbar-header {
-			float: none;
-		}
-
-		.navbar-default #topNavBar {
-			border-top: 1px solid $gray-border-color;
-
-			&.navbar-collapse.collapse {
-				display: none !important;
-
-				&.in {
-					display: block !important;
-				}
-			}
-
-			.pull-right {
-				width: 100%;
-				float: none !important;
-			}
-
-			.navbar-nav {
-				height: auto;
-				margin: 7.5px -15px;
-				display: block;
-
-				> li, .navbar-left {
-					float: none !important;
-				}
-
-				.open .dropdown-menu {
-					position: static;
-					float: none;
-					width: auto;
-					margin-top: 0;
-					background-color: transparent;
-					border: 0;
-					-webkit-box-shadow: none;
-					box-shadow: none;
-
-					> li > a {
-						line-height: 20px;
-
-						&:focus, &:hover {
-							background-image: none;
-						}
-					}
-
-					.dropdown-header, > li > a, > li > form > a {
-						padding: 0.667em 1em !important;
-					}
-				}
-			}
-		}
-
-		@include accessibility-controls-mobile;
-	}
-
-	.navbar-default #topNavBar .navbar-nav .open .dropdown-menu {
-		.dropdown-header, > li > a, > li > form > a {
-			padding: 0.667em 1em !important;
-		}
-	}
-
-	.navbar-nav .open .dropdown-menu {
-		position: static;
-		float: none;
-		width: 100%;
-		margin-top: 0;
-		background-color: transparent;
-		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+		@include force-navbar-mobile;
 	}
 }
 
@@ -3993,6 +4162,7 @@ body.font-size-percent-200 {
 	.panel,
 	.btn.btn-default.btn-access,
 	div.alert-info.bg-citation,
+	div.alert-danger.bg-danger,
 	.ui-chkbox-box .ui-chkbox-icon::before,
 	#resultsCountPaginatorBlock div.results-count,
 	#metrics-content, #metrics-label,
@@ -4055,6 +4225,7 @@ body.font-size-percent-200 {
 
 	.ui-dialog.ui-widget.ui-widget-content,
 	div.alert-info.bg-citation,
+	div.alert-danger.bg-danger,
 	#navbarsearch-modal,
 	#search-row-panel,
 	.panel {
