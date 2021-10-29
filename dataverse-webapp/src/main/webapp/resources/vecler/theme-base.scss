@@ -1804,9 +1804,17 @@ div.filesTable {
 
 @mixin table-metrics-mobile {
 	.table-metrics {
-		&, tbody, .ui-selectoneradio tr, .ui-selectoneradio td {
+		&, tbody {
 			display: block;
 			width: 100%;
+		}
+
+		.ui-selectoneradio tr, .ui-selectoneradio td {
+			width: 100%;
+		}
+
+		.ui-selectoneradio tr {
+			flex-direction: column;
 		}
 
 		tbody > tr > td {
