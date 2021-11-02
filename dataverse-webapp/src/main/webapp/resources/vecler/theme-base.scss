@@ -568,7 +568,8 @@ textarea,
 .ui-tabs-header,
 .ui-sortable-column,
 .select-scroll-block,
-ul.pagination a {
+ul.pagination a,
+.ui-paginator a[class*=ui-paginator] {
 	&:focus {
 		outline-offset: -2px;
 	}
@@ -804,6 +805,15 @@ textarea {
 }
 .control-label-with-tooltip .control-label {
     display: inline;
+}
+
+.ui-spinner-button {
+	background: #fff;
+	border: 1px solid #ddd;
+
+	&:hover {
+		background: #eee;
+	}
 }
 
 /* Overriding bootstrap defaults */
@@ -1256,6 +1266,22 @@ input.fancy-checkbox[type=checkbox] {
     }
 }
 
+@media screen and (max-width: $screen-xs-max) {
+	.ui-picklist .ui-picklist-buttons .ui-picklist-buttons-cell {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+/* Fix scroll block on touch devices */
+.ui-picklist .ui-sortable-handle {
+	touch-action: auto;
+}
+
+/* Fix erroneous horizontal scrollbar in Chrome */
+.ui-picklist.ui-picklist-responsive > div.ui-helper-hidden-accessible {
+	width: 1px !important;
+}
 
 /* Float elements parent size fix */
 .col-md-6.form-group.form-col-container {
@@ -1677,6 +1703,13 @@ div.manageTable,
 div.filesTable {
 	&.ui-datatable.ui-widget div.ui-datatable-tablewrapper {
 		overflow-x: auto;
+	}
+}
+
+/* Fix erroneous horizontal scrollbar in mobile Chrome */
+.ui-datatable-tablewrapper {
+	.ui-helper-hidden-accessible, .sr-only {
+		position: fixed;
 	}
 }
 
@@ -2950,13 +2983,17 @@ div[id$="facetCategoryList"] div li div.ui-widget {
 	}
 }
 
-div.alert-info.bg-citation {
+div.alert-info.bg-citation,
+div.alert-danger.bg-danger {
 	padding: 15px 20px;
 	border: 0;
 	border-radius: $border-radius;
-	background-color: $search-result-desc-color;
 
 	color: $main-text-color;
+}
+
+div.alert-info.bg-citation {
+	background-color: $search-result-desc-color;
 }
 
 .alert.alert-info.p-grid .p-col img {
@@ -3079,6 +3116,23 @@ div.filesTable .ui-paginator {
 	}
 }
 
+@media screen and (min-width: $screen-sm-min) {
+	.ui-paginator-container {
+		display: inline;
+		margin-right: 1em;
+	}
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	.ui-paginator .ui-paginator-current, .ui-paginator .ui-paginator-rpp-options {
+		margin-right: 0;
+	}
+
+	.ui-paginator-container {
+		margin-bottom: 0.5em;
+	}
+}
+
 .file-title-label {
 	word-break: break-all;
 }
@@ -3160,6 +3214,10 @@ div.filesTable .ui-paginator {
 
 .dataverseHeaderCell span[style="color:#888888;"] {
 	color: $gray-text-color !important;
+}
+
+#dataverseHeader .dataverseHeaderLogo img {
+	max-width: Min(940px, calc(100vw - 30px));
 }
 
 @media screen and (max-width: $screen-xs-max) {
@@ -4123,6 +4181,7 @@ body.font-size-percent-200 {
 	.panel,
 	.btn.btn-default.btn-access,
 	div.alert-info.bg-citation,
+	div.alert-danger.bg-danger,
 	.ui-chkbox-box .ui-chkbox-icon::before,
 	#resultsCountPaginatorBlock div.results-count,
 	#metrics-content, #metrics-label,
@@ -4185,6 +4244,7 @@ body.font-size-percent-200 {
 
 	.ui-dialog.ui-widget.ui-widget-content,
 	div.alert-info.bg-citation,
+	div.alert-danger.bg-danger,
 	#navbarsearch-modal,
 	#search-row-panel,
 	.panel {
