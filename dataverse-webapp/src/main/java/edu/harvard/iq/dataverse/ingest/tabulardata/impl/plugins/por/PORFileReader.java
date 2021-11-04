@@ -227,7 +227,7 @@ public class PORFileReader extends TabularDataFileReader {
                     headerId = "8S";
                 }
 
-                decode(headerId, bfReader, charset);
+                decode(headerId, bfReader);
 
                 // for last iteration
                 if (headerId.equals("F")) {
@@ -381,7 +381,7 @@ public class PORFileReader extends TabularDataFileReader {
         }
     }
 
-    private void decode(String headerId, BufferedReader reader, Charset charset) throws IOException {
+    private void decode(String headerId, BufferedReader reader) throws IOException {
         if (headerId.equals("1")) {
             decodeProductName(reader);
         } else if (headerId.equals("2")) {
@@ -413,7 +413,7 @@ public class PORFileReader extends TabularDataFileReader {
         } else if (headerId.equals("E")) {
             decodeDocument(reader);
         } else if (headerId.equals("F")) {
-            decodeData(reader, charset);
+            decodeData(reader);
         }
     }
 
@@ -1044,7 +1044,7 @@ public class PORFileReader extends TabularDataFileReader {
         ///smd.getFileInformation().put("document", StringUtils.join(document," " ));
     }
 
-    private void decodeData(BufferedReader reader, Charset charset) throws IOException {
+    private void decodeData(BufferedReader reader) throws IOException {
         // TODO: get rid of this "variableTypeFinal"; -- L.A. 4.0 beta
         int[] variableTypeFinal = new int[varQnty];
         dateFormatList = new String[varQnty];
@@ -1054,7 +1054,7 @@ public class PORFileReader extends TabularDataFileReader {
         ingesteddata.setTabDelimitedFile(tabDelimitedDataFile);
 
         try (PrintWriter pwout
-                     = new PrintWriter(new OutputStreamWriter(new FileOutputStream(tabDelimitedDataFile), charset), true)) {
+                     = new PrintWriter(new OutputStreamWriter(new FileOutputStream(tabDelimitedDataFile), StandardCharsets.UTF_8), true)) {
 
             variableFormatTypeList = new String[varQnty];
             for (int i = 0; i < varQnty; i++) {
