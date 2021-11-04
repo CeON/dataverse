@@ -85,8 +85,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     /** A watermark to be displayed in the UI. */
     private String watermark;
 
-    private String validationFormat;
-
     @OneToMany(mappedBy = "datasetFieldType")
     private Set<DataverseFacet> dataverseFacets;
 
@@ -214,10 +212,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
 
     public boolean isFacetable() {
         return facetable;
-    }
-
-    public String getValidationFormat() {
-        return validationFormat;
     }
 
     public boolean isDisplayOnCreate() {
@@ -451,6 +445,18 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         return allowMultiples || isParentAllowsMutlipleValues();
     }
 
+    /**
+     * Indicates whether gui should visually separate instances of this field.
+     */
+    public boolean isSeparableOnGui() {
+        return isAllowMultiples()
+                && (isCompound()
+                        ? childDatasetFieldTypes.stream()
+                            .map(DatasetFieldType::getFieldType)
+                            .anyMatch(FieldType.TEXTBOX::equals)
+                        : fieldType.equals(FieldType.TEXTBOX));
+    }
+
     // -------------------- PRIVATE --------------------
 
     private String getLocaleTitleWithParent() {
@@ -516,10 +522,6 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
 
     public void setFacetable(boolean facetable) {
         this.facetable = facetable;
-    }
-
-    public void setValidationFormat(String validationFormat) {
-        this.validationFormat = validationFormat;
     }
 
     public void setDisplayOnCreate(boolean displayOnCreate) {

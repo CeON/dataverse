@@ -620,8 +620,8 @@ input:disabled {
 // It will not read any checkbox labels.
 .ui-helper-hidden-accessible {
     input, select {
-        -webkit-transform: none; 
-        -moz-transform: none; 
+        -webkit-transform: none;
+        -moz-transform: none;
         -ms-transform: none;
         transform: none;
     }
@@ -1826,17 +1826,36 @@ div.filesTable {
 	table {
 		padding-left: 10px;
 	}
+
+	.ui-selectoneradio {
+		tr, td {
+			display: flex;
+			align-items: center;
+		}
+	}
 }
 
 @mixin table-metrics-mobile {
 	.table-metrics {
-		&, tbody, tr, td {
+		&, tbody {
 			display: block;
 			width: 100%;
 		}
 
+		.ui-selectoneradio tr, .ui-selectoneradio td {
+			width: 100%;
+		}
+
+		.ui-selectoneradio tr {
+			flex-direction: column;
+		}
+
+		tbody > tr > td {
+			width: 100%;
+		}
+
 		table {
-			&, tbody, tr, td {
+			&, tbody, .ui-selectoneradio tr, .ui-selectoneradio td {
 				display: block;
 				width: 100%;
 			}
@@ -3036,7 +3055,7 @@ table[id$="resultsTable"] {
 			font-size: 0.867em;
 		}
 
-		.label-container > .label { 
+		.label-container > .label {
 			display: inline-block;
 		}
 	}
@@ -3342,12 +3361,14 @@ div.filesTable {
 }
 
 .datasetfield-value + .datasetfield-value {
-	border-top: 1px solid $gray-border-color;
-	padding-top: 8px;
-
 	p {
 		margin-top: 10px;
 	}
+}
+
+.datasetfield-value.datasetfield-separable + .datasetfield-value.datasetfield-separable {
+	border-top: 1px solid $gray-border-color;
+	padding-top: 8px;
 }
 
 /* Fix submenu entries not accessible by keyboard */
