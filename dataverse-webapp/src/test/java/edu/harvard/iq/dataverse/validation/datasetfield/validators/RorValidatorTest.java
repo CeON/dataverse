@@ -12,6 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RorValidatorTest {
 
+    private RorValidator validator = new RorValidator();
+
     @ParameterizedTest
     @CsvSource({
             "https://ror.org/01q8f6705, true",
@@ -42,6 +44,4 @@ class RorValidatorTest {
         // then
         assertThat(result.isOk()).isEqualTo(expectedResult);
     }
-
-    RorValidator validator = new RorValidator();
 }
