@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.json.JsonObjectBuilder;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -26,16 +25,6 @@ public class BatchImport extends AbstractApiBean {
 
     @EJB
     ImportServiceBean importService;
-    @EJB
-    BatchServiceBean batchService;
-
-    @GET
-    @ApiWriteOperation
-    @Path("harvest")
-    public Response harvest(@QueryParam("path") String fileDir, @QueryParam("dv") String parentIdtf, @QueryParam("createDV") Boolean createDV, @QueryParam("key") String apiKey) throws IOException {
-        return startBatchJob(fileDir, parentIdtf, apiKey, ImportType.HARVEST, createDV);
-
-    }
 
     /**
      * Import a new Dataset with DDI xml data posted in the request
@@ -72,54 +61,6 @@ public class BatchImport extends AbstractApiBean {
         } catch (ImportException | IOException e) {
             return error(Response.Status.BAD_REQUEST, e.getMessage());
         }
-    }
-
-    /**
-     * Import single or multiple datasets that are in the local filesystem
-     *
-     * @param fileDir    the absolute path of the file or directory (all files
-     *                   within the directory will be imported
-     * @param parentIdtf the dataverse to import into (id or alias)
-     * @param apiKey     user's api key
-     * @return import status (including id's of the datasets created)
-     */
-    @GET
-    @ApiWriteOperation
-    @Path("import")
-    public Response getImport(@QueryParam("path") String fileDir, @QueryParam("dv") String parentIdtf, @QueryParam("createDV") Boolean createDV, @QueryParam("key") String apiKey) {
-
-        return startBatchJob(fileDir, parentIdtf, apiKey, ImportType.NEW, createDV);
-
-    }
-
-    private Response startBatchJob(String fileDir, String parentIdtf, String apiKey, ImportType importType, Boolean createDV) {
-        if (createDV == null) {
-            createDV = Boolean.FALSE;
-        }
-        try {
-            DataverseRequest dataverseRequest;
-            try {
-                dataverseRequest = createDataverseRequest(findAuthenticatedUserOrDie());
-            } catch (WrappedResponse wr) {
-                return wr.getResponse();
-            }
-            if (parentIdtf == null) {
-                parentIdtf = "root";
-            }
-            Dataverse owner = findDataverse(parentIdtf);
-            if (owner == null) {
-                if (createDV) {
-                    owner = importService.createDataverse(parentIdtf, dataverseRequest);
-                } else {
-                    return error(Response.Status.NOT_FOUND, "Can't find dataverse with identifier='" + parentIdtf + "'");
-                }
-            }
-            batchService.processFilePath(fileDir, parentIdtf, dataverseRequest, owner, importType, createDV);
-
-        } catch (ImportException e) {
-            return error(Response.Status.BAD_REQUEST, "Import Exception, " + e.getMessage());
-        }
-        return this.accepted();
     }
 
     private Dataverse findDataverse(String idtf) {
