@@ -201,10 +201,8 @@ public class DataverseUserPage implements java.io.Serializable {
         userAuthProvider = authenticationService.lookupProvider(currentUser);
         preferredNotificationsLanguage = currentUser.getNotificationsLanguage();
 
-        if (editMode == EditMode.EDIT && !isAccountDetailsEditable()) {
-            return permissionsWrapper.notAuthorized();
-        }
-        if (editMode == EditMode.CHANGE_PASSWORD && !isPasswordEditable()) {
+        if (editMode == EditMode.EDIT && !isAccountDetailsEditable()
+            || editMode == EditMode.CHANGE_PASSWORD && !isPasswordEditable()) {
             return permissionsWrapper.notAuthorized();
         }
 
@@ -212,9 +210,6 @@ public class DataverseUserPage implements java.io.Serializable {
         case "notifications":
             activeIndex = 1;
             displayNotification();
-            break;
-        case "dataRelatedToMe":
-            initMyData();
             break;
         case "accountInfo":
             activeIndex = 2;
@@ -456,9 +451,6 @@ public class DataverseUserPage implements java.io.Serializable {
         if ("notifications".equals(event.getTab().getId())) {
             displayNotification();
         }
-        if ("dataRelatedToMe".equals(event.getTab().getId())) {
-            initMyData();
-        }
     }
 
     public void sendConfirmEmail() {
@@ -604,11 +596,6 @@ public class DataverseUserPage implements java.io.Serializable {
                 userNotificationRepository.save(userNotification);
             }
         }
-    }
-
-    private String initMyData() {
-        return !session.getUser().isAuthenticated()
-                ? permissionsWrapper.notAuthorized() : null;
     }
 
     // -------------------- SETTERS --------------------
