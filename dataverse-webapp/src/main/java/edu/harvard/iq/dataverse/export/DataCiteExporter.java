@@ -1,9 +1,12 @@
 package edu.harvard.iq.dataverse.export;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.BundleUtil;
+import edu.harvard.iq.dataverse.export.datacite.ResourceDTOCreator;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
-import edu.harvard.iq.dataverse.globalid.DOIDataCiteRegisterService;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -53,9 +56,14 @@ public class DataCiteExporter implements Exporter {
         Map<String, String> metadata = citationFactory.create(version)
                 .getCitationData()
                 .getDataCiteMetadata();
-
-        return DOIDataCiteRegisterService.getMetadataFromDvObject(
-                version.getDataset().getGlobalId().asString(), metadata, version.getDataset());
+        try {
+            XmlMapper mapper = new XmlMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            return mapper.writeValueAsString(new ResourceDTOCreator()
+                    .create(version.getDataset().getGlobalId().asString(), metadata, version.getDataset()));
+        } catch (JsonProcessingException jpe) {
+            throw new RuntimeException(jpe);
+        }
     }
 
     @Override

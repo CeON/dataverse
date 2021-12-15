@@ -758,7 +758,8 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
                     if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorAffiliationIdentifier)) {
                         datasetAuthor.setAffiliationIdentifier(subField);
                     }
-                    if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorIdType)) {
+                    if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorIdType)
+                            && !subField.getControlledVocabularyValues().isEmpty()) {
                         datasetAuthor.setIdType(subField.getControlledVocabularyValues().get(0).getStrValue());
                     }
                     if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorIdValue)) {

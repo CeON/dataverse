@@ -1,10 +1,13 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
-import edu.harvard.iq.dataverse.globalid.DOIDataCiteRegisterService;
+import edu.harvard.iq.dataverse.export.datacite.ResourceDTOCreator;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
@@ -31,6 +34,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequiredPermissions(Permission.PublishDataset)
@@ -81,8 +85,17 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                     Map<String, String> metadata = citationFactory.create(dv)
                             .getCitationData()
                             .getDataCiteMetadata();
-                    String dataciteXml = DOIDataCiteRegisterService.getMetadataFromDvObject(
-                            dv.getDataset().getGlobalId().asString(), metadata, dv.getDataset());
+
+                    String dataciteXml;
+                    try {
+                        XmlMapper mapper = new XmlMapper();
+                        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                        dataciteXml = mapper.writeValueAsString(new ResourceDTOCreator()
+                                .create(dv.getDataset().getGlobalId().asString(), metadata, dv.getDataset()));
+                    } catch (JsonProcessingException jpe) {
+                        logger.log(Level.WARNING, "Error while creating XML", jpe);
+                        throw new RuntimeException(jpe);
+                    }
 
                     MessageDigest messageDigest = MessageDigest.getInstance("MD5");
                     try (PipedInputStream dataciteIn = new PipedInputStream(); DigestInputStream digestInputStream = new DigestInputStream(dataciteIn, messageDigest)) {
@@ -94,8 +107,6 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                                 dataciteOut.write(dataciteXml.getBytes(StandardCharsets.UTF_8));
                             } catch (Exception e) {
                                 logger.severe("Error creating datacite.xml: " + e.getMessage());
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
                                 throw new RuntimeException("Error creating datacite.xml: " + e.getMessage());
                             }
                         }).start();
