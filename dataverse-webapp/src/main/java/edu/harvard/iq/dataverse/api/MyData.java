@@ -77,18 +77,13 @@ public class MyData extends AbstractApiBean {
                                    @QueryParam("selected_page") Integer selectedPage,
                                    @QueryParam("mydata_search_term") String searchTerm,
                                    @QueryParam("role_ids") List<Long> roleIds,
-                                   @QueryParam("userIdentifier") String userIdentifier,
-                                   @QueryParam("key") String apiToken) {
+                                   @QueryParam("userIdentifier") String userIdentifier) throws WrappedResponse {
         boolean OTHER_USER = false;
 
         // For superusers the searchUser may differ from the authUser
         AuthenticatedUser authUser;
         AuthenticatedUser searchUser = null;
-        try {
-            authUser = findAuthenticatedUserOrDie();
-        } catch (WrappedResponse wrappedResponse) {
-            return wrappedResponse.getResponse();
-        }
+        authUser = findAuthenticatedUserOrDie();
 
         // If person is a superuser, see if a userIdentifier has been specified and use that instead
         if (authUser.isSuperuser() && StringUtils.isNotEmpty(userIdentifier)) {
@@ -160,11 +155,7 @@ public class MyData extends AbstractApiBean {
                 return notFound(MyData.MSG_NO_RESULTS_FOUND);
             }
         } catch (SearchException ex) {
-            solrQueryResponse = null;
             logger.severe("Solr SearchException: " + ex.getMessage());
-        }
-
-        if (solrQueryResponse == null) {
             return error(Response.Status.INTERNAL_SERVER_ERROR, "Sorry! There was an error with the search service.");
         }
 

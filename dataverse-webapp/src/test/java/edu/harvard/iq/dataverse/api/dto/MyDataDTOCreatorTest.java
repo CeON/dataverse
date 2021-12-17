@@ -65,7 +65,7 @@ class MyDataDTOCreatorTest {
 
         // then
         assertThat(myData.getPagination())
-                .extracting(PagerDTO::getNumResultsString, PagerDTO::getEndCardNumberString)
+                .extracting(PagerDTO::getNumResultsString, PagerDTO::getEndResultNumberString)
                 .containsExactly("20", "10");
         assertThat(myData.getItems())
                 .extracting(SolrSearchResultDTO::getEntityId)

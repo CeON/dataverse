@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
+import edu.harvard.iq.dataverse.api.AbstractApiBean.WrappedResponse;
 import edu.harvard.iq.dataverse.api.dto.SolrSearchResultDTOCreatorTest;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -95,11 +96,11 @@ class MyDataTest {
     }
 
     @Test
-    void retrieveMyData() throws IOException {
+    void retrieveMyData() throws WrappedResponse {
         // given & when
         Response response = endpoint.retrieveMyData(Arrays.asList("Dataverse", "Dataset", "DataFile"),
                 Arrays.asList("Published"), 1, "",
-                Arrays.asList(1L, 2L), "user", "123456");
+                Arrays.asList(1L, 2L), "user");
 
         // then
         String result = (String) response.getEntity();
@@ -115,9 +116,7 @@ class MyDataTest {
         List<Object[]> result = new ArrayList<>();
         for (int i = 0; i < elements.length; i = i + size) {
             Object[] listElement = new Object[size];
-            for (int j = 0; j < size; j++) {
-                listElement[j] = elements[i + j];
-            }
+            System.arraycopy(elements, i, listElement, 0, size);
             result.add(listElement);
         }
         return result;

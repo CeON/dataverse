@@ -25,12 +25,6 @@ public class PagerDTO {
     private Boolean hasNextPageNumber;
     private Integer nextPageNumber;
 
-    private Integer startCardNumber;
-    private Integer endCardNumber;
-    private String startCardNumberString;
-    private String endCardNumberString;
-    private Integer remainingCards;
-
     private Integer startResultNumber;
     private Integer endResultNumber;
     private String startResultNumberString;
@@ -80,26 +74,6 @@ public class PagerDTO {
 
     public Integer getNextPageNumber() {
         return nextPageNumber;
-    }
-
-    public Integer getStartCardNumber() {
-        return startCardNumber;
-    }
-
-    public Integer getEndCardNumber() {
-        return endCardNumber;
-    }
-
-    public String getStartCardNumberString() {
-        return startCardNumberString;
-    }
-
-    public String getEndCardNumberString() {
-        return endCardNumberString;
-    }
-
-    public Integer getRemainingCards() {
-        return remainingCards;
     }
 
     public Integer getStartResultNumber() {
@@ -172,26 +146,6 @@ public class PagerDTO {
         this.nextPageNumber = nextPageNumber;
     }
 
-    public void setStartCardNumber(Integer startCardNumber) {
-        this.startCardNumber = startCardNumber;
-    }
-
-    public void setEndCardNumber(Integer endCardNumber) {
-        this.endCardNumber = endCardNumber;
-    }
-
-    public void setStartCardNumberString(String startCardNumberString) {
-        this.startCardNumberString = startCardNumberString;
-    }
-
-    public void setEndCardNumberString(String endCardNumberString) {
-        this.endCardNumberString = endCardNumberString;
-    }
-
-    public void setRemainingCards(Integer remainingCards) {
-        this.remainingCards = remainingCards;
-    }
-
     public void setStartResultNumber(Integer startResultNumber) {
         this.startResultNumber = startResultNumber;
     }
@@ -223,9 +177,8 @@ public class PagerDTO {
     // -------------------- INNER CLASSES --------------------
 
     public static class Converter {
-        public enum Mode { CARD, RESULT }
 
-        public PagerDTO convert(Pager pager, Mode mode) {
+        public PagerDTO convert(Pager pager) {
             PagerDTO converted = new PagerDTO();
             converted.setNecessary(pager.isPagerNecessary());
             converted.setNumResults(pager.getNumResults());
@@ -238,19 +191,11 @@ public class PagerDTO {
             converted.setHasNextPageNumber(pager.hasNextPageNumber());
             converted.setNextPageNumber(pager.getNextPageNumber());
 
-            if (Mode.CARD.equals(mode)) {
-                converted.setStartCardNumber(pager.getStartCardNumber());
-                converted.setEndCardNumber(pager.getEndCardNumber());
-                converted.setStartCardNumberString(pager.addCommasToNumber(pager.getStartCardNumber()));
-                converted.setEndCardNumberString(pager.addCommasToNumber(pager.getEndCardNumber()));
-                converted.setRemainingCards(pager.getRemainingCards());
-            } else {
-                converted.setStartResultNumber(pager.getStartCardNumber());
-                converted.setEndResultNumber(pager.getEndCardNumber());
-                converted.setStartResultNumberString(pager.addCommasToNumber(pager.getStartCardNumber()));
-                converted.setEndResultNumberString(pager.addCommasToNumber(pager.getEndCardNumber()));
-                converted.setRemainingResults(pager.getRemainingCards());
-            }
+            converted.setStartResultNumber(pager.getStartCardNumber());
+            converted.setEndResultNumber(pager.getEndCardNumber());
+            converted.setStartResultNumberString(pager.addCommasToNumber(pager.getStartCardNumber()));
+            converted.setEndResultNumberString(pager.addCommasToNumber(pager.getEndCardNumber()));
+            converted.setRemainingResults(pager.getRemainingCards());
 
             converted.setNumberNextResults(pager.getNumberNextResults());
             converted.setPageNumberList(Arrays.stream(pager.getPageNumberList())

@@ -523,17 +523,19 @@ public class SolrSearchResultDTO {
             List<SolrSearchResultDTO> results = response.getSolrSearchResults().stream()
                     .map(this::createResult)
                     .collect(Collectors.toList());
-            List<Long> ids = results.stream()
+            List<Long> nonFileIds = results.stream()
+                    .filter(r -> !SearchObjectType.FILES.getSolrValue().equals(r.getType()))
                     .map(SolrSearchResultDTO::getEntityId)
                     .collect(Collectors.toList());
-            Map<Long, String> idToParentAlias = dataverseDao.getParentAliasesForIds(ids).stream()
+            Map<Long, String> nonFileIdToParentAlias = dataverseDao.getParentAliasesForIds(nonFileIds).stream()
                     .collect(Collectors.toMap(i -> (Long) i[0], i -> (String) i[1], (next, prev) -> next));
-            Map<Long, List<String>> idToRoles = roleTagRetriever.getRolesForCard(ids);
+            List<Long> allIds = results.stream()
+                    .map(SolrSearchResultDTO::getEntityId)
+                    .collect(Collectors.toList());
+            Map<Long, List<String>> idToRoles = roleTagRetriever.getRolesForCard(allIds);
             for (SolrSearchResultDTO result : results) {
                 Long id = result.getEntityId();
-                if (!SearchObjectType.FILES.getSolrValue().equals(result.getType())) {
-                    result.setParentAlias(idToParentAlias.get(id));
-                }
+                result.setParentAlias(nonFileIdToParentAlias.get(id));
                 result.setUserRoles(idToRoles.get(id));
             }
             return results;

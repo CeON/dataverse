@@ -14,14 +14,13 @@ class PagerDTOConverterTest {
         Pager pager = new Pager(20, 10, 1);
 
         // when
-        PagerDTO converted = converter.convert(pager, PagerDTO.Converter.Mode.CARD);
+        PagerDTO converted = converter.convert(pager);
 
         // then
         assertThat(converted).extracting(PagerDTO::getNecessary, PagerDTO::getNumResults, PagerDTO::getPageCount)
                 .containsExactly(true, 20, 2);
-        assertThat(converted).extracting(PagerDTO::getStartCardNumber, PagerDTO::getRemainingCards,
-                PagerDTO::getStartResultNumber, PagerDTO::getRemainingResults)
-                .containsExactly(1, 10, null, null);
+        assertThat(converted).extracting(PagerDTO::getStartResultNumber, PagerDTO::getRemainingResults)
+                .containsExactly(1, 10);
         assertThat(converted.getPageNumberList()).containsExactly(1, 2);
     }
 }
