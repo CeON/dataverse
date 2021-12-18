@@ -5,13 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTOCreator;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResourceCreator;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Map;
 
 /**
  * @author qqmyers
@@ -53,14 +52,14 @@ public class DataCiteExporter implements Exporter {
 
     @Override
     public String exportDataset(DatasetVersion version) {
-        Map<String, String> metadata = citationFactory.create(version)
+        String publicationYear = citationFactory.create(version)
                 .getCitationData()
-                .getDataCiteMetadata();
+                .getYear();
         try {
             XmlMapper mapper = new XmlMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            return mapper.writeValueAsString(new ResourceDTOCreator()
-                    .create(version.getDataset().getGlobalId().asString(), metadata, version.getDataset()));
+            return mapper.writeValueAsString(new DataCiteResourceCreator()
+                    .create(version.getDataset().getGlobalId().asString(), publicationYear, version.getDataset()));
         } catch (JsonProcessingException jpe) {
             throw new RuntimeException(jpe);
         }

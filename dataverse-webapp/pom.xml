@@ -18,7 +18,7 @@
         <m2eclipse.wtp.contextRoot>/</m2eclipse.wtp.contextRoot>
     </properties>
     <!-- Declare any DIRECT dependencies here.
-         In case the depency is both transitive and direct (e. g. some common lib for logging),
+         In case the dependency is both transitive and direct (e. g. some common lib for logging),
          manage the version in <manageDependencies> and add the direct dependency here WITHOUT version tag, too.
     -->
     <!-- TODO: Housekeeping is utterly needed. -->
@@ -28,10 +28,6 @@
             <artifactId>dataverse-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- Must be defined before dataverse-test-common -->
-        <!-- this ensures that xml writing will use this implementation -->
-        <!-- in tests instead of the one provided in embedeed glassfish -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>

@@ -3,9 +3,9 @@ package edu.harvard.iq.dataverse.globalid;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Identifier;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTOCreator;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Identifier;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResourceCreator;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.cache.DOIDataCiteRegisterCache;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Description;
+import static edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Description;
 
 /**
  * @author luopc
@@ -97,29 +97,29 @@ public class DOIDataCiteRegisterService {
         registerDOI(identifier.split(":")[1], target, xmlMetadata);
     }
 
-    public void deactivateIdentifier(String identifier, Map<String, String> metadata, DvObject dvObject) {
-        String metadataString = getMetadataForDeactivateId(identifier, metadata, dvObject);
+    public void deactivateIdentifier(String identifier) {
+        String metadataString = getMetadataForDeactivateId(identifier);
         client.postMetadata(metadataString);
         client.inactiveDataset(identifier.substring(identifier.indexOf(":") + 1));
     }
 
     public String getMetadataFromDvObject(String identifier, Map<String, String> metadata, DvObject dvObject) {
-        ResourceDTOCreator dtoCreator = new ResourceDTOCreator();
-        ResourceDTO resource = dtoCreator.create(identifier, metadata, dvObject);
+        DataCiteResourceCreator dtoCreator = new DataCiteResourceCreator();
+        DataCiteResource resource = dtoCreator.create(identifier, metadata.get("datacite.publicationyear"), dvObject);
         return convertToXml(resource);
     }
 
-    public String getMetadataForDeactivateId(String identifier, Map<String, String> metadata, DvObject dvObject) {
-        ResourceDTO resource = new ResourceDTO();
+    public String getMetadataForDeactivateId(String identifier) {
+        DataCiteResource resource = new DataCiteResource();
         resource.setIdentifier(new Identifier(identifier.substring(identifier.indexOf(":") + 1)));
         resource.setDescriptions(Collections.singletonList(new Description(":unav")));
-        resource.setTitles(Collections.singletonList(metadata.get("datacite.title")));
+        resource.setTitles(Collections.singletonList("This item has been removed from publication"));
         resource.setPublisher(":unav");
-        resource.setPublicationYear(metadata.get("datacite.publicationyear"));
+        resource.setPublicationYear("9999");
         return convertToXml(resource);
     }
 
-    public void modifyIdentifier(String identifier, HashMap<String, String> metadata, DvObject dvObject) throws IOException {
+    public void modifyIdentifier(String identifier, Map<String, String> metadata, DvObject dvObject) throws IOException {
 
         String xmlMetadata = getMetadataFromDvObject(identifier, metadata, dvObject);
 
@@ -188,8 +188,8 @@ public class DOIDataCiteRegisterService {
         }
     }
 
-    public HashMap<String, String> getMetadata(String identifier) throws IOException {
-        HashMap<String, String> metadata = new HashMap<>();
+    public Map<String, String> getMetadata(String identifier) throws IOException {
+        Map<String, String> metadata = new HashMap<>();
         try {
             DataCiteMdsApiClient client = getClient();
             String xmlMetadata = client.getMetadata(identifier.substring(identifier.indexOf(":") + 1));
@@ -235,7 +235,7 @@ public class DOIDataCiteRegisterService {
         return client;
     }
 
-    private String convertToXml(ResourceDTO resource) {
+    private String convertToXml(DataCiteResource resource) {
         try {
             XmlMapper mapper = new XmlMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

@@ -1,14 +1,15 @@
 package edu.harvard.iq.dataverse.export.datacite;
 
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Affiliation;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Contributor;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Creator;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Description;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.FunderIdentifier;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.FundingReference;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.Identifier;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.NameIdentifier;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTO.RelatedIdentifier;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Affiliation;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Contributor;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.ContributorType;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Creator;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Description;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.FunderIdentifier;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.FundingReference;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Identifier;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.NameIdentifier;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.RelatedIdentifier;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -21,16 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ResourceDTOCreator {
+public class DataCiteResourceCreator {
 
     // -------------------- LOGIC --------------------
 
-    public ResourceDTO create(String identifier, Map<String, String> metadata, DvObject dvObject) {
+    public DataCiteResource create(String identifier, String publicationYear, DvObject dvObject) {
         Dataset dataset = getDataset(dvObject);
-        ResourceDTO resource = new ResourceDTO();
+        DataCiteResource resource = new DataCiteResource();
 
         resource.setIdentifier(extractIdentifier(identifier));
         resource.setCreators(extractCreators(dataset));
@@ -41,7 +41,6 @@ public class ResourceDTOCreator {
 
         // Can't use "UNKNOWN" here because DataCite will respond with "[facet 'pattern']
         // the value 'unknown' is not accepted by the pattern '[\d]{4}'"
-        String publicationYear = metadata.get("datacite.publicationyear");
         resource.setPublicationYear(StringUtils.isEmpty(publicationYear) ? "9999" : publicationYear);
         resource.setRelatedIdentifiers(extractRelatedIdentifiers(dvObject));
 
@@ -141,12 +140,12 @@ public class ResourceDTOCreator {
         List<Contributor> contributors = new ArrayList<>();
         List<Contributor> contacts = dataset.getLatestVersion().getDatasetContacts().stream()
                 .filter(c -> StringUtils.isNotEmpty(c[0]))
-                .map(c -> new Contributor("ContactPerson", c[0],
+                .map(c -> new Contributor(ContributorType.ContactPerson, c[0],
                         StringUtils.isNotEmpty(c[1]) ? new Affiliation(c[1]) : null))
                 .collect(Collectors.toList());
         List<Contributor> producers = dataset.getLatestVersion().getDatasetProducers().stream()
                 .filter(p -> StringUtils.isNotEmpty(p[0]))
-                .map(p -> new Contributor("Producer", p[0],
+                .map(p -> new Contributor(ContributorType.Producer, p[0],
                         StringUtils.isNotEmpty(p[1]) ? new Affiliation(p[1]) : null))
                 .collect(Collectors.toList());
         if (!contacts.isEmpty() || !producers.isEmpty()) {
@@ -158,9 +157,6 @@ public class ResourceDTOCreator {
 
     private List<FundingReference> extractFundingReferences(Dataset dataset) {
         List<DatasetFundingReference> fundingReferencesFromDataset = dataset.getLatestVersion().getFundingReferences();
-        if (fundingReferencesFromDataset == null || fundingReferencesFromDataset.isEmpty()) {
-            return Collections.emptyList();
-        }
         return fundingReferencesFromDataset.stream()
                 .filter(r -> r.getAgency() != null && !r.getAgency().getValue().isEmpty())
                 .map(this::extractFundingReference)

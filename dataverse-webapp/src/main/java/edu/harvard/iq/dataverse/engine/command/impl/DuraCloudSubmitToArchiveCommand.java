@@ -7,7 +7,7 @@ import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
-import edu.harvard.iq.dataverse.export.datacite.ResourceDTOCreator;
+import edu.harvard.iq.dataverse.export.datacite.DataCiteResourceCreator;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
@@ -82,16 +82,16 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                     store = storeManager.getPrimaryContentStore();
                     // Create space to copy archival files to
                     store.createSpace(spaceName);
-                    Map<String, String> metadata = citationFactory.create(dv)
+                    String publicationYear = citationFactory.create(dv)
                             .getCitationData()
-                            .getDataCiteMetadata();
+                            .getYear();
 
                     String dataciteXml;
                     try {
                         XmlMapper mapper = new XmlMapper();
                         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-                        dataciteXml = mapper.writeValueAsString(new ResourceDTOCreator()
-                                .create(dv.getDataset().getGlobalId().asString(), metadata, dv.getDataset()));
+                        dataciteXml = mapper.writeValueAsString(new DataCiteResourceCreator()
+                                .create(dv.getDataset().getGlobalId().asString(), publicationYear, dv.getDataset()));
                     } catch (JsonProcessingException jpe) {
                         logger.log(Level.WARNING, "Error while creating XML", jpe);
                         throw new RuntimeException(jpe);
@@ -111,7 +111,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                             }
                         }).start();
 
-                        String checksum = store.addContent(spaceName, "datacite.xml", digestInputStream, -1l, null, null,
+                        String checksum = store.addContent(spaceName, "datacite.xml", digestInputStream, -1L, null, null,
                                                            null);
                         logger.fine("Content: datacite.xml added with checksum: " + checksum);
                         String localchecksum = Hex.encodeHexString(digestInputStream.getMessageDigest().digest());
@@ -143,7 +143,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                                 }
                             }).start();
 
-                            checksum = store.addContent(spaceName, fileName, digestInputStream2, -1l, null, null,
+                            checksum = store.addContent(spaceName, fileName, digestInputStream2, -1L, null, null,
                                                         null);
                             logger.fine("Content: " + fileName + " added with checksum: " + checksum);
                             localchecksum = Hex.encodeHexString(digestInputStream2.getMessageDigest().digest());

@@ -11,7 +11,7 @@ import java.util.List;
 @JacksonXmlRootElement(localName = "resource")
 @JsonPropertyOrder({ "xsiSchemaLocation", "xmlns", "xmlnsXsi", "identifier", "creators", "titles", "publisher",
         "publicationYear", "resourceType", "relatedIdentifiers", "descriptions", "contributors", "fundingReferences" })
-public class ResourceDTO {
+public class DataCiteResource {
 
     @JacksonXmlProperty(isAttribute = true, localName = "xsi:schemaLocation")
     private String xsiSchemaLocation = "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd";
@@ -386,7 +386,7 @@ public class ResourceDTO {
 
     public static class Contributor {
         @JacksonXmlProperty(isAttribute = true)
-        private String contributorType;
+        private ContributorType contributorType;
 
         private String contributorName;
 
@@ -394,7 +394,7 @@ public class ResourceDTO {
 
         // -------------------- CONSTRUCTORS --------------------
 
-        public Contributor(String contributorType, String contributorName, Affiliation affiliation) {
+        public Contributor(ContributorType contributorType, String contributorName, Affiliation affiliation) {
             this.contributorType = contributorType;
             this.contributorName = contributorName;
             this.affiliation = affiliation;
@@ -402,7 +402,7 @@ public class ResourceDTO {
 
         // -------------------- GETTERS --------------------
 
-        public String getContributorType() {
+        public ContributorType getContributorType() {
             return contributorType;
         }
 
@@ -416,7 +416,7 @@ public class ResourceDTO {
 
         // -------------------- SETTERS --------------------
 
-        public void setContributorType(String contributorType) {
+        public void setContributorType(ContributorType contributorType) {
             this.contributorType = contributorType;
         }
 
@@ -483,5 +483,12 @@ public class ResourceDTO {
         public void setValue(String value) {
             this.value = value;
         }
+    }
+
+    public enum ContributorType {
+        ContactPerson,
+        Producer
+
+        // All possible values: http://schema.datacite.org/meta/kernel-4.1/include/datacite-contributorType-v4.xsd
     }
 }

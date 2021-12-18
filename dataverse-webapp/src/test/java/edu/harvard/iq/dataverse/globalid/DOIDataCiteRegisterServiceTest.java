@@ -215,28 +215,25 @@ class DOIDataCiteRegisterServiceTest {
         Dataset dataset = createDataset();
         dataset.setIdentifier(identifier);
 
-        final HashMap<String, String> metadata = new HashMap<>();
-        metadata.put("datacite.title", "testTitle");
-        metadata.put("datacite.publicationyear", "2002");
-
         //when
-        String metadataForDeactivateIdentifier = doiDataCiteRegisterService.getMetadataForDeactivateId(identifier, metadata, dataset);
+        String metadataForDeactivateIdentifier = doiDataCiteRegisterService.getMetadataForDeactivateId(identifier);
 
         //then
-        assertThat(metadataForDeactivateIdentifier).isEqualTo("<resource xsi:schemaLocation=\"http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd\"" +
-                                                                      " xmlns=\"http://datacite.org/schema/kernel-4\"" +
-                                                                      " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
-                                                                      "<identifier identifierType=\"DOI\">Testid</identifier>" +
-                                                                      "<titles>" +
-                                                                      "<title>testTitle</title>" +
-                                                                      "</titles>" +
-                                                                      "<publisher>:unav</publisher>" +
-                                                                      "<publicationYear>2002</publicationYear>" +
-                                                                      "<resourceType resourceTypeGeneral=\"Dataset\"/>" +
-                                                                      "<descriptions>" +
-                                                                      "<description descriptionType=\"Abstract\">:unav</description>" +
-                                                                      "</descriptions>" +
-                                                                      "</resource>");
+        assertThat(metadataForDeactivateIdentifier).isEqualTo(
+                "<resource xsi:schemaLocation=\"http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd\"" +
+                  " xmlns=\"http://datacite.org/schema/kernel-4\"" +
+                  " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
+                  "<identifier identifierType=\"DOI\">Testid</identifier>" +
+                  "<titles>" +
+                  "<title>This item has been removed from publication</title>" +
+                  "</titles>" +
+                  "<publisher>:unav</publisher>" +
+                  "<publicationYear>9999</publicationYear>" +
+                  "<resourceType resourceTypeGeneral=\"Dataset\"/>" +
+                  "<descriptions>" +
+                  "<description descriptionType=\"Abstract\">:unav</description>" +
+                  "</descriptions>" +
+                  "</resource>");
 
     }
 

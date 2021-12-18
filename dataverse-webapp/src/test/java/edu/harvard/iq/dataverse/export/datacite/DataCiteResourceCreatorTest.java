@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is only minimal test for the class, as the more comprehensive tests
  * are located in DOIDataCiteRegisterServiceTest.
  */
-class ResourceDTOCreatorTest {
+class DataCiteResourceCreatorTest {
 
     @Test
     void create() {
@@ -26,13 +26,14 @@ class ResourceDTOCreatorTest {
         dataset.setVersions(Collections.singletonList(version));
 
         // when
-        ResourceDTO resourceDTO = new ResourceDTOCreator().create("doi:10.5072/FK2/ZJLYL1", Collections.emptyMap(), dataset);
+        DataCiteResource dataCiteResource = new DataCiteResourceCreator()
+                .create("doi:10.5072/FK2/ZJLYL1", null, dataset);
 
         // then
-        assertThat(resourceDTO)
-                .extracting(r -> r.getIdentifier().getValue(), ResourceDTO::getPublisher, ResourceDTO::getPublicationYear)
+        assertThat(dataCiteResource)
+                .extracting(r -> r.getIdentifier().getValue(), DataCiteResource::getPublisher, DataCiteResource::getPublicationYear)
                 .containsExactly("10.5072/FK2/ZJLYL1", ":unav", "9999");
-        assertThat(resourceDTO)
+        assertThat(dataCiteResource)
                 .extracting(r -> r.getCreators().size(),
                         r -> r.getContributors().size(),
                         r -> r.getRelatedIdentifiers().size(),

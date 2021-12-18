@@ -93,17 +93,6 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         return metadata;
     }
 
-    protected Map<String, String> getDOIMetadataForDestroyedDataset() {
-        Map<String, String> metadata = new HashMap<>();
-        String titleString = "This item has been removed from publication";
-
-        metadata.put("datacite.creator", UNAVAILABLE);
-        metadata.put("datacite.title", titleString);
-        metadata.put("datacite.publisher", UNAVAILABLE);
-        metadata.put("datacite.publicationyear", "9999");
-        return metadata;
-    }
-
     protected String getTargetUrl(DvObject dvObjectIn) {
         logger.log(Level.FINE, "getTargetUrl");
         return systemConfig.getDataverseSiteUrl() + dvObjectIn.getTargetUrl() + dvObjectIn.getGlobalId().asString();
@@ -165,10 +154,6 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
             DataFile df = (DataFile) dvObject;
             String fileDescription = df.getDescription();
             metadataTemplate.setDescription(fileDescription == null ? "" : fileDescription);
-            String datasetPid = df.getOwner().getGlobalId().asString();
-            metadataTemplate.setDatasetIdentifier(datasetPid);
-        } else {
-            metadataTemplate.setDatasetIdentifier("");
         }
 
         metadataTemplate.setContacts(dataset.getLatestVersion().getDatasetContacts());
@@ -201,7 +186,6 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
 
         private String xmlMetadata;
         private String identifier;
-        private String datasetIdentifier;
         private List<String> datafileIdentifiers;
         private List<String> creators;
         private String title;
@@ -242,10 +226,6 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
 
         public void setIdentifier(String identifier) {
             this.identifier = identifier;
-        }
-
-        public void setDatasetIdentifier(String datasetIdentifier) {
-            this.datasetIdentifier = datasetIdentifier;
         }
 
         public List<String> getCreators() {
