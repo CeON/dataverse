@@ -31,10 +31,12 @@ public class UserServiceBean {
     private static final Logger logger = Logger.getLogger(UserServiceBean.class.getCanonicalName());
 
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
 
     @Inject
     private AuthenticatedUserRepository authenticatedUserRepository;
+
+    // -------------------- LOGIC --------------------
 
     public AuthenticatedUser find(Object pk) {
         return em.find(AuthenticatedUser.class, pk);
@@ -80,6 +82,42 @@ public class UserServiceBean {
 
         return viewObjects;
     }
+
+    /**
+     * Return the number of superusers -- for the dashboard
+     */
+    public Long getSuperUserCount() {
+        String qstr = "SELECT count(au) FROM AuthenticatedUser au WHERE au.superuser = :superuserTrue";
+        Query query = em.createQuery(qstr);
+        query.setParameter("superuserTrue", true);
+
+        return (Long) query.getSingleResult();
+    }
+
+    public Long getTotalUserCount() {
+        return getUserCount("");
+    }
+
+    public Long getUserCount(String searchTerm) {
+        if (StringUtils.isEmpty(searchTerm)) {
+            searchTerm = "";
+        }
+        return authenticatedUserRepository.countSearchedAuthenticatedUsers(searchTerm.trim());
+    }
+
+    public AuthenticatedUser updateLastLogin(AuthenticatedUser user) {
+        //assumes that AuthenticatedUser user already exists
+        user.setLastLoginTime(new Timestamp(new Date().getTime()));
+        return save(user);
+    }
+
+    public AuthenticatedUser updateLastApiUseTime(AuthenticatedUser user) {
+        //assumes that AuthenticatedUser user already exists
+        user.setLastApiUseTime(new Timestamp(new Date().getTime()));
+        return save(user);
+    }
+
+    // -------------------- PRIVATE --------------------
 
     private AuthenticatedUser addAuthenticatedUserRoles(AuthenticatedUser authenticatedUser, String roles) {
         authenticatedUser.setRoles(roles);
@@ -258,40 +296,6 @@ public class UserServiceBean {
                 .filter(dashboardUserSortKey -> dashboardUserSortKey.equals(SortKey.fromString(sortKey)))
                 .findAny()
                 .orElse(SortKey.ID);
-    }
-
-    /**
-     * Return the number of superusers -- for the dashboard
-     */
-    public Long getSuperUserCount() {
-        String qstr = "SELECT count(au) FROM AuthenticatedUser au WHERE au.superuser = :superuserTrue";
-        Query query = em.createQuery(qstr);
-        query.setParameter("superuserTrue", true);
-
-        return (Long) query.getSingleResult();
-    }
-
-    public Long getTotalUserCount() {
-        return getUserCount("");
-    }
-
-    public Long getUserCount(String searchTerm) {
-        if (StringUtils.isEmpty(searchTerm)) {
-            searchTerm = "";
-        }
-        return authenticatedUserRepository.countSearchedAuthenticatedUsers(searchTerm.trim());
-    }
-
-    public AuthenticatedUser updateLastLogin(AuthenticatedUser user) {
-        //assumes that AuthenticatedUser user already exists
-        user.setLastLoginTime(new Timestamp(new Date().getTime()));
-        return save(user);
-    }
-
-    public AuthenticatedUser updateLastApiUseTime(AuthenticatedUser user) {
-        //assumes that AuthenticatedUser user already exists
-        user.setLastApiUseTime(new Timestamp(new Date().getTime()));
-        return save(user);
     }
 
     private String getStringOrNull(Object dbResult) {

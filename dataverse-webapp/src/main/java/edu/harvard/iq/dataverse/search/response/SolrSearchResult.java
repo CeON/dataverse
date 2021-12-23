@@ -98,68 +98,28 @@ public class SolrSearchResult {
     private String nameOfDataverse = null;
 
     private String filePersistentId = null;
+    private List<String> matchedFields;
 
-    public SolrSearchResult() {
-    }
+    // -------------------- CONSTRUCTORS --------------------
+
+    public SolrSearchResult() { }
+
+    // -------------------- GETTERS --------------------
 
     public boolean isIsInTree() {
         return isInTree;
-    }
-
-    public void setIsInTree(boolean isInTree) {
-        this.isInTree = isInTree;
     }
 
     public boolean isHarvested() {
         return harvested;
     }
 
-    public void setHarvested(boolean harvested) {
-        this.harvested = harvested;
-    }
-
     public boolean isPublishedState() {
         return publishedState;
     }
 
-    public void setPublishedState(boolean publishedState) {
-        this.publishedState = publishedState;
-    }
-
     public boolean isUnpublishedState() {
         return unpublishedState;
-    }
-
-    public void setUnpublishedState(boolean unpublishedState) {
-        this.unpublishedState = unpublishedState;
-    }
-
-    public void setPublicationStatuses(List<SearchPublicationStatus> statuses) {
-
-        if (statuses == null) {
-            publicationStatuses = new ArrayList<>();
-            return;
-        }
-        publicationStatuses = statuses;
-
-        for (SearchPublicationStatus status : publicationStatuses) {
-
-            if (status == SearchPublicationStatus.UNPUBLISHED) {
-                setUnpublishedState(true);
-
-            } else if (status == SearchPublicationStatus.PUBLISHED) {
-                setPublishedState(true);
-
-            } else if (status == SearchPublicationStatus.DRAFT) {
-                setDraftState(true);
-
-            } else if (status == SearchPublicationStatus.IN_REVIEW) {
-                setInReviewState(true);
-
-            } else if (status == SearchPublicationStatus.DEACCESSIONED) {
-                setDeaccessionedState(true);
-            }
-        }
     }
 
     public List<SearchPublicationStatus> getPublicationStatuses() {
@@ -170,30 +130,12 @@ public class SolrSearchResult {
         return draftState;
     }
 
-    public void setDraftState(boolean draftState) {
-        this.draftState = draftState;
-    }
-
     public boolean isInReviewState() {
         return inReviewState;
     }
 
-    public void setInReviewState(boolean inReviewState) {
-        this.inReviewState = inReviewState;
-    }
-
     public boolean isDeaccessionedState() {
         return deaccessionedState;
-    }
-
-    public void setDeaccessionedState(boolean deaccessionedState) {
-        this.deaccessionedState = deaccessionedState;
-    }
-
-    private List<String> matchedFields;
-
-    public void setHighlightsAsMap(Map<String, Highlight> highlightsAsMap) {
-        this.highlightsAsMap = highlightsAsMap;
     }
 
     public String getFilePersistentId() {
@@ -210,6 +152,369 @@ public class SolrSearchResult {
 
     public Map<SolrField, Highlight> getHighlightsMap() {
         return highlightsMap;
+    }
+
+    public List<String> getMatchedFields() {
+        return matchedFields;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Long getEntityId() {
+        return entityId;
+    }
+
+    public DvObject getEntity() {
+        return entity;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public SearchObjectType getType() {
+        return type;
+    }
+
+    public String getHtmlUrl() {
+        return htmlUrl;
+    }
+
+    public String getPersistentUrl() {
+        return persistentUrl;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public String getApiUrl() {
+        return apiUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescriptionNoSnippet() {
+        return descriptionNoSnippet;
+    }
+
+    public List<String> getDatasetAuthors() {
+        return datasetAuthors;
+    }
+
+    public String getDeaccessionReason() {
+        return deaccessionReason;
+    }
+
+    public List<String> getFileCategories() {
+        return fileCategories;
+    }
+
+    public List<String> getTabularDataTags() {
+        return tabularDataTags;
+    }
+
+    public SearchParentInfo getParent() {
+        return parent;
+    }
+
+    public String getDataverseAffiliation() {
+        return dataverseAffiliation;
+    }
+
+    public String getCitation() {
+        return citation;
+    }
+
+    public String getCitationHtml() {
+        return citationHtml;
+    }
+
+    public String getFiletype() {
+        return filetype;
+    }
+
+    public String getFileContentType() {
+        return fileContentType;
+    }
+
+    public String getUnf() {
+        return unf;
+    }
+
+    public Long getFileSizeInBytes() {
+        return fileSizeInBytes;
+    }
+
+    public DataFile.ChecksumType getFileChecksumType() {
+        return fileChecksumType;
+    }
+
+    public String getFileChecksumValue() {
+        return fileChecksumValue;
+    }
+
+    public String getNameSort() {
+        return nameSort;
+    }
+
+    public Date getReleaseOrCreateDate() {
+        return releaseOrCreateDate;
+    }
+
+    public Long getDatasetVersionId() {
+        return datasetVersionId;
+    }
+
+    public String getDataverseAlias() {
+        return dataverseAlias;
+    }
+
+    public float getScore() {
+        return score;
+    }
+
+    public String getDataverseParentAlias() {
+        return dataverseParentAlias;
+    }
+
+    public String getFileAccess() {
+        return fileAccess;
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setIsInTree(boolean isInTree) {
+        this.isInTree = isInTree;
+    }
+
+    public void setHarvested(boolean harvested) {
+        this.harvested = harvested;
+    }
+
+    public void setPublishedState(boolean publishedState) {
+        this.publishedState = publishedState;
+    }
+
+    public void setUnpublishedState(boolean unpublishedState) {
+        this.unpublishedState = unpublishedState;
+    }
+
+    public void setDraftState(boolean draftState) {
+        this.draftState = draftState;
+    }
+
+    public void setInReviewState(boolean inReviewState) {
+        this.inReviewState = inReviewState;
+    }
+
+    public void setDeaccessionedState(boolean deaccessionedState) {
+        this.deaccessionedState = deaccessionedState;
+    }
+
+    public void setHighlightsAsMap(Map<String, Highlight> highlightsAsMap) {
+        this.highlightsAsMap = highlightsAsMap;
+    }
+
+    public void setHighlightsMap(Map<SolrField, Highlight> highlightsMap) {
+        this.highlightsMap = highlightsMap;
+    }
+
+    public void setMatchedFields(List<String> matchedFields) {
+        this.matchedFields = matchedFields;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setEntityId(Long entityId) {
+        this.entityId = entityId;
+    }
+
+    public void setEntity(DvObject entity) {
+        this.entity = entity;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public void setType(SearchObjectType type) {
+        this.type = type;
+    }
+
+    public void setHtmlUrl(String htmlUrl) {
+        this.htmlUrl = htmlUrl;
+    }
+
+    public void setPersistentUrl(String persistentUrl) {
+        this.persistentUrl = persistentUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescriptionNoSnippet(String descriptionNoSnippet) {
+        this.descriptionNoSnippet = descriptionNoSnippet;
+    }
+
+    public void setDatasetAuthors(List<String> datasetAuthors) {
+        this.datasetAuthors = datasetAuthors;
+    }
+
+    public void setDeaccessionReason(String deaccessionReason) {
+        this.deaccessionReason = deaccessionReason;
+    }
+
+    public void setHighlightsAsList(List<Highlight> highlightsAsList) {
+        this.highlightsAsList = highlightsAsList;
+    }
+
+    public void setFileCategories(List<String> fileCategories) {
+        this.fileCategories = fileCategories;
+    }
+
+    public void setTabularDataTags(List<String> tabularDataTags) {
+        this.tabularDataTags = tabularDataTags;
+    }
+
+    public void setParent(SearchParentInfo parent) {
+        this.parent = parent;
+    }
+
+    public void setDataverseAffiliation(String dataverseAffiliation) {
+        this.dataverseAffiliation = dataverseAffiliation;
+    }
+
+    public void setCitation(String citation) {
+        this.citation = citation;
+    }
+
+    public void setCitationHtml(String citationHtml) {
+        this.citationHtml = citationHtml;
+    }
+
+    public void setFiletype(String filetype) {
+        this.filetype = filetype;
+    }
+
+    public void setFileContentType(String fileContentType) {
+        this.fileContentType = fileContentType;
+    }
+
+    public void setUnf(String unf) {
+        this.unf = unf;
+    }
+
+    public void setFileSizeInBytes(Long fileSizeInBytes) {
+        this.fileSizeInBytes = fileSizeInBytes;
+    }
+
+    public void setFileMd5(String fileMd5) {
+        this.fileMd5 = fileMd5;
+    }
+
+    public void setFileChecksumType(DataFile.ChecksumType fileChecksumType) {
+        this.fileChecksumType = fileChecksumType;
+    }
+
+    public void setFileChecksumValue(String fileChecksumValue) {
+        this.fileChecksumValue = fileChecksumValue;
+    }
+
+    public void setNameSort(String nameSort) {
+        this.nameSort = nameSort;
+    }
+
+    public void setReleaseOrCreateDate(Date releaseOrCreateDate) {
+        this.releaseOrCreateDate = releaseOrCreateDate;
+    }
+
+    public void setDatasetVersionId(Long datasetVersionId) {
+        this.datasetVersionId = datasetVersionId;
+    }
+
+    public void setFilePersistentId(String pid) {
+        filePersistentId = pid;
+    }
+
+    public void setDataverseAlias(String dataverseAlias) {
+        this.dataverseAlias = dataverseAlias;
+    }
+
+    public void setDataverseParentAlias(String dataverseParentAlias) {
+        this.dataverseParentAlias = dataverseParentAlias;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
+    }
+
+    public void setIdentifierOfDataverse(String id) {
+        this.identifierOfDataverse = id;
+    }
+
+    public void setNameOfDataverse(String id) {
+        this.nameOfDataverse = id;
+    }
+
+    public void setFileAccess(String fileAccess) {
+        this.fileAccess = fileAccess;
+    }
+
+    // -------------------- LOGIC --------------------
+
+    public void setPublicationStatuses(List<SearchPublicationStatus> statuses) {
+        if (statuses == null) {
+            publicationStatuses = new ArrayList<>();
+            return;
+        }
+
+        publicationStatuses = statuses;
+
+        for (SearchPublicationStatus status : publicationStatuses) {
+            if (status == SearchPublicationStatus.UNPUBLISHED) {
+                setUnpublishedState(true);
+            } else if (status == SearchPublicationStatus.PUBLISHED) {
+                setPublishedState(true);
+            } else if (status == SearchPublicationStatus.DRAFT) {
+                setDraftState(true);
+            } else if (status == SearchPublicationStatus.IN_REVIEW) {
+                setInReviewState(true);
+            } else if (status == SearchPublicationStatus.DEACCESSIONED) {
+                setDeaccessionedState(true);
+            }
+        }
     }
 
     public String getNameHighlightSnippet() {
@@ -245,143 +550,6 @@ public class SolrSearchResult {
         return highlight != null ? highlight.getSnippets() : new ArrayList<>();
     }
 
-    public void setHighlightsMap(Map<SolrField, Highlight> highlightsMap) {
-        this.highlightsMap = highlightsMap;
-    }
-
-    public List<String> getMatchedFields() {
-        return matchedFields;
-    }
-
-    public void setMatchedFields(List<String> matchedFields) {
-        this.matchedFields = matchedFields;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s:%s:%d", id, name != null ? name : title, entityId);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Long entityId) {
-        this.entityId = entityId;
-    }
-
-    public DvObject getEntity() {
-        return entity;
-    }
-
-    public void setEntity(DvObject entity) {
-        this.entity = entity;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
-    public SearchObjectType getType() {
-        return type;
-    }
-
-    public void setType(SearchObjectType type) {
-        this.type = type;
-    }
-
-    public String getHtmlUrl() {
-        return htmlUrl;
-    }
-
-    public void setHtmlUrl(String htmlUrl) {
-        this.htmlUrl = htmlUrl;
-    }
-
-    public String getPersistentUrl() {
-        return persistentUrl;
-    }
-
-    public void setPersistentUrl(String persistentUrl) {
-        this.persistentUrl = persistentUrl;
-    }
-
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
-
-    public String getApiUrl() {
-        return apiUrl;
-    }
-
-    public void setApiUrl(String apiUrl) {
-        this.apiUrl = apiUrl;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescriptionNoSnippet() {
-        return descriptionNoSnippet;
-    }
-
-    public void setDescriptionNoSnippet(String descriptionNoSnippet) {
-        this.descriptionNoSnippet = descriptionNoSnippet;
-    }
-
-    public List<String> getDatasetAuthors() {
-        return datasetAuthors;
-    }
-
-    public void setDatasetAuthors(List<String> datasetAuthors) {
-        this.datasetAuthors = datasetAuthors;
-    }
-
-    public String getDeaccessionReason() {
-        return deaccessionReason;
-    }
-
-    public void setDeaccessionReason(String deaccessionReason) {
-        this.deaccessionReason = deaccessionReason;
-    }
-
     public List<Highlight> getHighlightsAsList() {
         List<Highlight> filtered = new ArrayList<>();
         for (Highlight highlight : highlightsAsList) {
@@ -401,30 +569,6 @@ public class SolrSearchResult {
         return filtered;
     }
 
-    public void setHighlightsAsList(List<Highlight> highlightsAsList) {
-        this.highlightsAsList = highlightsAsList;
-    }
-
-    public List<String> getFileCategories() {
-        return fileCategories;
-    }
-
-    public void setFileCategories(List<String> fileCategories) {
-        this.fileCategories = fileCategories;
-    }
-
-    public List<String> getTabularDataTags() {
-        return tabularDataTags;
-    }
-
-    public void setTabularDataTags(List<String> tabularDataTags) {
-        this.tabularDataTags = tabularDataTags;
-    }
-
-    public SearchParentInfo getParent() {
-        return parent;
-    }
-
     public Long getParentIdAsLong() {
         if (getParent() == null || getParent().getId() == null) {
             return null;
@@ -439,112 +583,8 @@ public class SolrSearchResult {
         }
     }
 
-    public void setParent(SearchParentInfo parent) {
-        this.parent = parent;
-    }
-
-    public String getDataverseAffiliation() {
-        return dataverseAffiliation;
-    }
-
-    public void setDataverseAffiliation(String dataverseAffiliation) {
-        this.dataverseAffiliation = dataverseAffiliation;
-    }
-
-    public String getCitation() {
-        return citation;
-    }
-
-    public void setCitation(String citation) {
-        this.citation = citation;
-    }
-
-    public String getCitationHtml() {
-        return citationHtml;
-    }
-
-    public void setCitationHtml(String citationHtml) {
-        this.citationHtml = citationHtml;
-    }
-
-    public String getFiletype() {
-        return filetype;
-    }
-
-    public void setFiletype(String filetype) {
-        this.filetype = filetype;
-    }
-
-    public String getFileContentType() {
-        return fileContentType;
-    }
-
-    public void setFileContentType(String fileContentType) {
-        this.fileContentType = fileContentType;
-    }
-
-    public String getUnf() {
-        return unf;
-    }
-
-    public void setUnf(String unf) {
-        this.unf = unf;
-    }
-
-    public Long getFileSizeInBytes() {
-        return fileSizeInBytes;
-    }
-
-    public void setFileSizeInBytes(Long fileSizeInBytes) {
-        this.fileSizeInBytes = fileSizeInBytes;
-    }
-
     public String getFileMd5() {
         return DataFile.ChecksumType.MD5.equals(getFileChecksumType()) ? fileMd5 : null;
-    }
-
-    public void setFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
-    }
-
-    public DataFile.ChecksumType getFileChecksumType() {
-        return fileChecksumType;
-    }
-
-    public void setFileChecksumType(DataFile.ChecksumType fileChecksumType) {
-        this.fileChecksumType = fileChecksumType;
-    }
-
-    public String getFileChecksumValue() {
-        return fileChecksumValue;
-    }
-
-    public void setFileChecksumValue(String fileChecksumValue) {
-        this.fileChecksumValue = fileChecksumValue;
-    }
-
-    public String getNameSort() {
-        return nameSort;
-    }
-
-    public void setNameSort(String nameSort) {
-        this.nameSort = nameSort;
-    }
-
-    public Date getReleaseOrCreateDate() {
-        return releaseOrCreateDate;
-    }
-
-    public void setReleaseOrCreateDate(Date releaseOrCreateDate) {
-        this.releaseOrCreateDate = releaseOrCreateDate;
-    }
-
-    public Long getDatasetVersionId() {
-        return datasetVersionId;
-    }
-
-    public void setDatasetVersionId(Long datasetVersionId) {
-        this.datasetVersionId = datasetVersionId;
     }
 
     public String getDatasetUrl() {
@@ -558,12 +598,12 @@ public class SolrSearchResult {
              */
             String badString = "null";
             if (!identifier.contains(badString)) {
-                if (isDraftState()) {
-                    return "/dataset.xhtml?persistentId=" + identifier + "&version=DRAFT";
-                }
-                return "/dataset.xhtml?persistentId=" + identifier;
+                return isDraftState()
+                        ? "/dataset.xhtml?persistentId=" + identifier + "&version=DRAFT"
+                        : "/dataset.xhtml?persistentId=" + identifier;
             } else {
-                logger.info("Dataset identifier/globalId contains \"" + badString + "\" perhaps due to https://github.com/IQSS/dataverse/issues/1147 . Fix data in database and reindex. Returning failsafe URL: " + failSafeUrl);
+                logger.info("Dataset identifier/globalId contains \"" + badString
+                        + "\" perhaps due to https://github.com/IQSS/dataverse/issues/1147 . Fix data in database and reindex. Returning failsafe URL: " + failSafeUrl);
                 return failSafeUrl;
             }
         } else {
@@ -571,21 +611,13 @@ public class SolrSearchResult {
             return failSafeUrl;
         }
     }
-
-    public void setFilePersistentId(String pid) {
-        filePersistentId = pid;
-    }
-
     public String getFileUrl() {
         if (identifier != null) {
-            if (isDraftState()) {
-                return "/file.xhtml?persistentId=" + identifier + "&version=DRAFT";
-            }
-            return "/file.xhtml?persistentId=" + identifier;
+            return isDraftState()
+                    ? "/file.xhtml?persistentId=" + identifier + "&version=DRAFT"
+                    : "/file.xhtml?persistentId=" + identifier;
         }
-
         return "/file.xhtml?fileId=" + entityId + "&datasetVersionId=" + datasetVersionId;
-
     }
 
     public String getFileDatasetUrl() {
@@ -596,43 +628,10 @@ public class SolrSearchResult {
                 : "/dataset.xhtml?id=" + parent.getId() + "&versionId=" + datasetVersionId;
     }
 
-    public String getDataverseAlias() {
-        return dataverseAlias;
-    }
+    // -------------------- toString --------------------
 
-    public void setDataverseAlias(String dataverseAlias) {
-        this.dataverseAlias = dataverseAlias;
-    }
-
-    public String getDataverseParentAlias() {
-        return dataverseParentAlias;
-    }
-
-    public void setDataverseParentAlias(String dataverseParentAlias) {
-        this.dataverseParentAlias = dataverseParentAlias;
-    }
-
-    public float getScore() {
-        return score;
-    }
-
-    public void setScore(float score) {
-        this.score = score;
-    }
-
-    public void setIdentifierOfDataverse(String id) {
-        this.identifierOfDataverse = id;
-    }
-
-    public void setNameOfDataverse(String id) {
-        this.nameOfDataverse = id;
-    }
-
-    public String getFileAccess() {
-        return fileAccess;
-    }
-
-    public void setFileAccess(String fileAccess) {
-        this.fileAccess = fileAccess;
+    @Override
+    public String toString() {
+        return String.format("%s:%s:%d", id, name != null ? name : title, entityId);
     }
 }

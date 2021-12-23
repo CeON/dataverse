@@ -31,9 +31,8 @@ import java.util.Objects;
 /**
  * When adding an attribute to this class, be sure to update the following:
  * <p>
- * (1) AuthenticatedUser.toJSON() - within this class   (REQUIRED)
- * (2) UserServiceBean.getUserListCore() - native SQL query
- * (3) UserServiceBean.createAuthenticatedUserForView() - add values to a detached AuthenticatedUser object
+ * (1) UserServiceBean.getUserListCore() - native SQL query
+ * (2) UserServiceBean.createAuthenticatedUserForView() - add values to a detached AuthenticatedUser object
  *
  * @author rmp553
  */
@@ -112,14 +111,101 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<AcceptedConsent> acceptedConsents = new ArrayList<>();
 
+    @OneToOne(mappedBy = "authenticatedUser")
+    private AuthenticatedUserLookup authenticatedUserLookup;
+
     private boolean superuser;
 
     /**
-     * @todo Consider storing a hash of *all* potentially interesting Shibboleth
      * attribute key/value pairs, not just the Identity Provider (IdP).
      */
     @Transient
     private String shibIdentityProvider;
+
+    //For User List Admin dashboard
+    @Transient
+    private String roles;
+
+    // -------------------- GETTERS --------------------
+
+    public List<DatasetLock> getDatasetLocks() {
+        return datasetLocks;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getUserIdentifier() {
+        return userIdentifier;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAffiliation() {
+        return affiliation;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public Timestamp getEmailConfirmed() {
+        return emailConfirmed;
+    }
+
+    public Locale getNotificationsLanguage() {
+        return notificationsLanguage;
+    }
+
+    /**
+     * Consents that were accepted by user.
+     * This is history table so no element should be removed from this list.
+     */
+    public List<AcceptedConsent> getAcceptedConsents() {
+        return acceptedConsents;
+    }
+
+    @Override
+    public boolean isSuperuser() {
+        return superuser;
+    }
+
+    public AuthenticatedUserLookup getAuthenticatedUserLookup() {
+        return authenticatedUserLookup;
+    }
+
+    public String getShibIdentityProvider() {
+        return shibIdentityProvider;
+    }
+
+    public Timestamp getLastLoginTime() {
+        return this.lastLoginTime;
+    }
+
+    public Timestamp getCreatedTime() {
+        return this.createdTime;
+    }
+
+    public Timestamp getLastApiUseTime() {
+        return this.lastApiUseTime;
+    }
+
+    // -------------------- LOGIC --------------------
 
     @Override
     public String getIdentifier() {
@@ -129,14 +215,6 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetLock> datasetLocks;
 
-    public List<DatasetLock> getDatasetLocks() {
-        return datasetLocks;
-    }
-
-    public void setDatasetLocks(List<DatasetLock> datasetLocks) {
-        this.datasetLocks = datasetLocks;
-    }
-
     @Override
     public AuthenticatedUserDisplayInfo getDisplayInfo() {
         return new AuthenticatedUserDisplayInfo(firstName, lastName, email, affiliation, position);
@@ -144,7 +222,6 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
 
     /**
      * Takes the passed info object and updated the internal fields according to it.
-     *
      * @param inf the info from which we update the fields.
      */
     public void applyDisplayInfo(AuthenticatedUserDisplayInfo inf) {
@@ -161,46 +238,41 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         }
     }
 
-
-    //For User List Admin dashboard
-    @Transient
-    private String roles;
-
-    public String getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
-
     @Override
     public boolean isAuthenticated() {
         return true;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUserIdentifier() {
-        return userIdentifier;
-    }
-
-    public void setUserIdentifier(String userIdentifier) {
-        this.userIdentifier = userIdentifier;
     }
 
     public String getName() {
         return firstName + " " + lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getSortByString() {
+        return String.format("%s %s %s", getLastName(), getFirstName(), getUserIdentifier());
+    }
+
+    public String getOrcidId() {
+        String authProviderId = getAuthenticatedUserLookup().getAuthenticationProviderId();
+        return AuthenticatedUserLookup.ORCID_PROVIDER_ID_PRODUCTION.equals(authProviderId)
+                ? getAuthenticatedUserLookup().getPersistentUserId() : null;
+    }
+
+    // -------------------- SETTERS --------------------
+
+    public void setDatasetLocks(List<DatasetLock> datasetLocks) {
+        this.datasetLocks = datasetLocks;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUserIdentifier(String userIdentifier) {
+        this.userIdentifier = userIdentifier;
     }
 
     //Stripping spaces to continue support of #2945
@@ -208,81 +280,62 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         this.email = email.trim();
     }
 
-    public String getAffiliation() {
-        return affiliation;
-    }
-
     public void setAffiliation(String affiliation) {
         this.affiliation = affiliation;
-    }
-
-    public String getPosition() {
-        return position;
     }
 
     public void setPosition(String position) {
         this.position = position;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
-    public Timestamp getEmailConfirmed() {
-        return emailConfirmed;
-    }
-
     public void setEmailConfirmed(Timestamp emailConfirmed) {
         this.emailConfirmed = emailConfirmed;
-    }
-
-    public Locale getNotificationsLanguage() {
-        return notificationsLanguage;
     }
 
     public void setNotificationsLanguage(Locale notificationsLanguage) {
         this.notificationsLanguage = notificationsLanguage;
     }
 
-    /**
-     * Consents that were accepted by user.
-     * This is history table so no element should be removed from this list.
-     */
-    public List<AcceptedConsent> getAcceptedConsents() {
-        return acceptedConsents;
-    }
-
-    @Override
-    public boolean isSuperuser() {
-        return superuser;
-    }
-
     public void setSuperuser(boolean superuser) {
         this.superuser = superuser;
-    }
-
-    @OneToOne(mappedBy = "authenticatedUser")
-    private AuthenticatedUserLookup authenticatedUserLookup;
-
-    public AuthenticatedUserLookup getAuthenticatedUserLookup() {
-        return authenticatedUserLookup;
     }
 
     public void setAuthenticatedUserLookup(AuthenticatedUserLookup authenticatedUserLookup) {
         this.authenticatedUserLookup = authenticatedUserLookup;
     }
+
+    public void setShibIdentityProvider(String shibIdentityProvider) {
+        this.shibIdentityProvider = shibIdentityProvider;
+    }
+
+    public void setLastLoginTime(Timestamp lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    public void setCreatedTime(Timestamp createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public void setLastApiUseTime(Timestamp lastApiUseTime) {
+        this.lastApiUseTime = lastApiUseTime;
+    }
+
+    // -------------------- toString --------------------
+
+    @Override
+    public String toString() {
+        return "[AuthenticatedUser identifier:" + getIdentifier() + "]";
+    }
+
+    // -------------------- hashCode & equals --------------------
 
     @Override
     public int hashCode() {
@@ -294,52 +347,5 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         // TODO: Warning - this method won't work in the case the id fields are not set
         return object instanceof AuthenticatedUser
                 && Objects.equals(getId(), ((AuthenticatedUser) object).getId());
-    }
-
-    public String getShibIdentityProvider() {
-        return shibIdentityProvider;
-    }
-
-    public void setShibIdentityProvider(String shibIdentityProvider) {
-        this.shibIdentityProvider = shibIdentityProvider;
-    }
-
-    @Override
-    public String toString() {
-        return "[AuthenticatedUser identifier:" + getIdentifier() + "]";
-    }
-
-    public String getSortByString() {
-        return String.format("%s %s %s", getLastName(), getFirstName(), getUserIdentifier());
-    }
-
-    public void setLastLoginTime(Timestamp lastLoginTime) {
-        this.lastLoginTime = lastLoginTime;
-    }
-
-    public Timestamp getLastLoginTime() {
-        return this.lastLoginTime;
-    }
-
-    public void setCreatedTime(Timestamp createdTime) {
-        this.createdTime = createdTime;
-    }
-
-    public Timestamp getCreatedTime() {
-        return this.createdTime;
-    }
-
-    public void setLastApiUseTime(Timestamp lastApiUseTime) {
-        this.lastApiUseTime = lastApiUseTime;
-    }
-
-    public Timestamp getLastApiUseTime() {
-        return this.lastApiUseTime;
-    }
-
-    public String getOrcidId() {
-        String authProviderId = getAuthenticatedUserLookup().getAuthenticationProviderId();
-        return AuthenticatedUserLookup.ORCID_PROVIDER_ID_PRODUCTION.equals(authProviderId)
-                ? getAuthenticatedUserLookup().getPersistentUserId() : null;
     }
 }
