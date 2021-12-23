@@ -1,9 +1,5 @@
 package edu.harvard.iq.dataverse.persistence.user;
 
-import edu.harvard.iq.dataverse.common.AuthenticatedUserUtil;
-import edu.harvard.iq.dataverse.common.BundleUtil;
-import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
-import edu.harvard.iq.dataverse.common.UserUtil;
 import edu.harvard.iq.dataverse.persistence.JpaEntity;
 import edu.harvard.iq.dataverse.persistence.config.LocaleConverter;
 import edu.harvard.iq.dataverse.persistence.config.ValidateEmail;
@@ -12,8 +8,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetLock;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -292,19 +286,14 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
 
     @Override
     public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
+        return id != null ? id.hashCode() : 0;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof AuthenticatedUser)) {
-            return false;
-        }
-        AuthenticatedUser other = (AuthenticatedUser) object;
-        return Objects.equals(getId(), other.getId());
+        return object instanceof AuthenticatedUser
+                && Objects.equals(getId(), ((AuthenticatedUser) object).getId());
     }
 
     public String getShibIdentityProvider() {
@@ -315,83 +304,22 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         this.shibIdentityProvider = shibIdentityProvider;
     }
 
-    public JsonObjectBuilder toJson() {
-        NullSafeJsonBuilder authenicatedUserJson = NullSafeJsonBuilder.jsonObjectBuilder();
-
-        authenicatedUserJson.add("id", this.id);
-        authenicatedUserJson.add("userIdentifier", this.userIdentifier);
-        authenicatedUserJson.add("lastName", this.lastName);
-        authenicatedUserJson.add("firstName", this.firstName);
-        authenicatedUserJson.add("email", this.email);
-        authenicatedUserJson.add("affiliation", UserUtil.getStringOrNull(this.affiliation));
-        authenicatedUserJson.add("position", UserUtil.getStringOrNull(this.position));
-        authenicatedUserJson.add("notificationsLanguage", UserUtil.getStringOrNull(this.notificationsLanguage));
-        authenicatedUserJson.add("isSuperuser", this.superuser);
-
-        authenicatedUserJson.add("authenticationProvider",
-                AuthenticatedUserUtil.getAuthenticationProviderFriendlyName(this.authenticatedUserLookup.getAuthenticationProviderId()));
-        authenicatedUserJson.add("roles", UserUtil.getStringOrNull(this.roles));
-
-        authenicatedUserJson.add("createdTime", UserUtil.getTimestampStringOrNull(this.createdTime));
-        authenicatedUserJson.add("lastLoginTime", UserUtil.getTimestampStringOrNull(this.lastLoginTime));
-        authenicatedUserJson.add("lastApiUseTime", UserUtil.getTimestampStringOrNull(this.lastApiUseTime));
-
-        return authenicatedUserJson;
-    }
-
-    /**
-     * May be used for translating API field names.
-     * <p>
-     * Should match order of "toJson()" method
-     *
-     * @return
-     */
-    public static JsonObjectBuilder getBundleStrings() {
-
-        return Json.createObjectBuilder()
-                .add("userId", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.userId"))
-                .add("userIdentifier", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.userIdentifier"))
-                .add("lastName", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.lastName"))
-                .add("firstName", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.firstName"))
-                .add("email", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.email"))
-                .add("affiliation", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.affiliation"))
-                .add("position", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.position"))
-                .add("isSuperuser", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.isSuperuser"))
-
-                .add("authenticationProvider", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.authProviderFactoryAlias"))
-                .add("roles", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.roles"))
-
-                .add("createdTime", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.createdTime"))
-                .add("lastLoginTime", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.lastLoginTime"))
-                .add("lastApiUseTime", BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header.lastApiUseTime"))
-                ;
-
-    }
-
     @Override
     public String toString() {
         return "[AuthenticatedUser identifier:" + getIdentifier() + "]";
     }
 
     public String getSortByString() {
-        return this.getLastName() + " " + this.getFirstName() + " " + this.getUserIdentifier();
+        return String.format("%s %s %s", getLastName(), getFirstName(), getUserIdentifier());
     }
 
-    /**
-     * @param lastLoginTime
-     */
     public void setLastLoginTime(Timestamp lastLoginTime) {
-
         this.lastLoginTime = lastLoginTime;
     }
 
-    /**
-     * @param lastLoginTime
-     */
     public Timestamp getLastLoginTime() {
         return this.lastLoginTime;
     }
-
 
     public void setCreatedTime(Timestamp createdTime) {
         this.createdTime = createdTime;
@@ -401,27 +329,17 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
         return this.createdTime;
     }
 
-
-    /**
-     * @param lastApiUseTime
-     */
     public void setLastApiUseTime(Timestamp lastApiUseTime) {
         this.lastApiUseTime = lastApiUseTime;
     }
 
-    /**
-     * @param lastApiUseTime
-     */
     public Timestamp getLastApiUseTime() {
-
         return this.lastApiUseTime;
     }
 
     public String getOrcidId() {
         String authProviderId = getAuthenticatedUserLookup().getAuthenticationProviderId();
-        if (AuthenticatedUserLookup.ORCID_PROVIDER_ID_PRODUCTION.equals(authProviderId)) {
-            return getAuthenticatedUserLookup().getPersistentUserId();
-        }
-        return null;
+        return AuthenticatedUserLookup.ORCID_PROVIDER_ID_PRODUCTION.equals(authProviderId)
+                ? getAuthenticatedUserLookup().getPersistentUserId() : null;
     }
 }

@@ -1,26 +1,17 @@
 package edu.harvard.iq.dataverse.search.response;
 
-import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
-import edu.harvard.iq.dataverse.common.Util;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrField;
 import edu.harvard.iq.dataverse.search.query.SearchObjectType;
 import edu.harvard.iq.dataverse.search.query.SearchPublicationStatus;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import static edu.harvard.iq.dataverse.common.NullSafeJsonBuilder.jsonObjectBuilder;
 
 public class SolrSearchResult {
 
@@ -151,8 +142,6 @@ public class SolrSearchResult {
         }
         publicationStatuses = statuses;
 
-        // set booleans for individual statuses
-        //
         for (SearchPublicationStatus status : publicationStatuses) {
 
             if (status == SearchPublicationStatus.UNPUBLISHED) {
@@ -173,9 +162,6 @@ public class SolrSearchResult {
         }
     }
 
-    /**
-     * Never return null, return an empty list instead
-     */
     public List<SearchPublicationStatus> getPublicationStatuses() {
         return publicationStatuses;
     }
@@ -274,178 +260,6 @@ public class SolrSearchResult {
     @Override
     public String toString() {
         return String.format("%s:%s:%d", id, name != null ? name : title, entityId);
-    }
-
-    public JsonArrayBuilder getRelevance() {
-        JsonArrayBuilder matchedFieldsArray = Json.createArrayBuilder();
-        JsonObjectBuilder matchedFieldObject = Json.createObjectBuilder();
-        for (Map.Entry<SolrField, Highlight> entry : highlightsMap.entrySet()) {
-            SolrField solrField = entry.getKey();
-            Highlight snippets = entry.getValue();
-            JsonArrayBuilder snippetArrayBuilder = Json.createArrayBuilder();
-            JsonObjectBuilder matchedFieldDetails = Json.createObjectBuilder();
-            for (String highlight : snippets.getSnippets()) {
-                snippetArrayBuilder.add(highlight);
-            }
-            /**
-             * @todo for the Search API, it might be nice to return offset
-             * numbers rather than html snippets surrounded by span tags or
-             * whatever.
-             *
-             * That's what the GitHub Search API does: "Requests can opt to
-             * receive those text fragments in the response, and every fragment
-             * is accompanied by numeric offsets identifying the exact location
-             * of each matching search term."
-             * https://developer.github.com/v3/search/#text-match-metadata
-             *
-             * It's not clear if getting the offset values is possible with
-             * Solr, however:
-             * stackoverflow.com/questions/13863118/can-solr-highlighting-also-indicate-the-position-or-offset-of-the-returned-fragments-within-the-original-field
-             */
-            matchedFieldDetails.add("snippets", snippetArrayBuilder);
-            /**
-             * @todo In addition to the name of the field used by Solr , it
-             * would be nice to show the "friendly" name of the field we show in
-             * the GUI.
-             */
-//            matchedFieldDetails.add("friendly", "FIXME");
-            matchedFieldObject.add(solrField.getNameSearchable(), matchedFieldDetails);
-            matchedFieldsArray.add(matchedFieldObject);
-        }
-        return matchedFieldsArray;
-    }
-
-    public JsonObject toJsonObject(boolean showRelevance, boolean showEntityIds, boolean showApiUrls) {
-        return json(showRelevance, showEntityIds, showApiUrls).build();
-    }
-
-    public JsonObjectBuilder json(boolean showRelevance, boolean showEntityIds, boolean showApiUrls) {
-
-        if (type == null) {
-            return jsonObjectBuilder();
-        }
-
-        String displayName = null;
-
-        String identifierLabel = null;
-        String datasetCitation = null;
-        String datasetName = null;
-        String datasetId = null;
-        String datasetPersistentId = null;
-        String preferredUrl = null;
-
-        if (type == SearchObjectType.DATAVERSES) {
-            displayName = name;
-            identifierLabel = "identifier";
-            preferredUrl = getHtmlUrl();
-        } else if (type == SearchObjectType.DATASETS) {
-            displayName = title;
-            identifierLabel = "global_id";
-            preferredUrl = getPersistentUrl();
-            /**
-             * @todo Should we show the name of the parent dataverse?
-             */
-        } else if (type == SearchObjectType.FILES) {
-            displayName = name;
-            identifierLabel = "file_id";
-            preferredUrl = getDownloadUrl();
-            /**
-             * @todo show more information for a file's parent, such as the
-             * title of the dataset it belongs to.
-             */
-            datasetCitation = parent.getCitation();
-            datasetName = parent.getName();
-            datasetId = parent.getId();
-            datasetPersistentId = parent.getParentIdentifier();
-        }
-
-        //displayName = null; // testing NullSafeJsonBuilder
-        // because we are using NullSafeJsonBuilder key/value pairs will be dropped if the value is null
-        NullSafeJsonBuilder nullSafeJsonBuilder = jsonObjectBuilder()
-                .add("name", displayName)
-                .add("type", getDisplayType())
-                .add("url", preferredUrl)
-                .add("image_url", getImageUrl())
-                //                .add("persistent_url", persistentUrl)
-                //                .add("download_url", downloadUrl)
-                /**
-                 * @todo How much value is there in exposing the identifier for
-                 * dataverses? For
-                 */
-                .add(identifierLabel, identifier)
-                /**
-                 * @todo Get dataset description from dsDescriptionValue. Also,
-                 * is descriptionNoSnippet the right field to use generally?
-                 *
-                 * @todo What about the fact that datasets can now have multiple
-                 * descriptions? Should we create an array called
-                 * "additional_descriptions" that gets populated if there is
-                 * more than one dataset description?
-                 *
-                 * @todo Why aren't file descriptions ever null? They always
-                 * have an empty string at least.
-                 */
-                .add("description", descriptionNoSnippet)
-                /**
-                 * @todo In the future we'd like to support non-public datasets
-                 * per https://github.com/IQSS/dataverse/issues/1299 but for now
-                 * we are only supporting non-public searches.
-                 */
-                .add("published_at", getDateTimePublished())
-                /**
-                 * @todo Expose MIME Type:
-                 * https://github.com/IQSS/dataverse/issues/1595
-                 */
-                .add("file_type", filetype)
-                .add("file_content_type", fileContentType)
-                .add("size_in_bytes", getFileSizeInBytes())
-                /**
-                 * "md5" was the only possible value so it's hard-coded here but
-                 * we might want to deprecate it someday since we now put the
-                 * MD5 or SHA-1 in "checksum".
-                 */
-                .add("md5", getFileMd5())
-                .add("checksum", getChecksumTypeAndValue(getFileChecksumType(), getFileChecksumValue()))
-                .add("unf", getUnf())
-                .add("file_persistent_id", filePersistentId)
-                .add("dataset_name", datasetName)
-                .add("dataset_id", datasetId)
-                .add("dataset_persistent_id", datasetPersistentId)
-                .add("dataset_citation", datasetCitation)
-                .add("deaccession_reason", deaccessionReason)
-                .add("citationHtml", citationHtml)
-                .add("identifier_of_dataverse", identifierOfDataverse)
-                .add("name_of_dataverse", nameOfDataverse)
-                .add("citation", citation);
-        // Now that nullSafeJsonBuilder has been instatiated, check for null before adding to it!
-        if (showRelevance) {
-            nullSafeJsonBuilder.add("matches", getRelevance());
-            nullSafeJsonBuilder.add("score", getScore());
-        }
-        if (showEntityIds) {
-            nullSafeJsonBuilder.add("entity_id", entityId);
-        }
-
-        if (showApiUrls) {
-            /**
-             * @todo We should probably have a metadata_url or api_url concept
-             * enabled by default, not hidden behind an undocumented boolean.
-             * For datasets, this would be http://example.com/api/datasets/10 or
-             * whatever (to get more detailed JSON), but right now this requires
-             * an API token. Discuss at
-             * https://docs.google.com/document/d/1d8sT2GLSavgiAuMTVX8KzTCX0lROEET1edhvHHRDZOs/edit?usp=sharing";
-             */
-            nullSafeJsonBuilder.add("api_url", getApiUrl());
-        }
-        // NullSafeJsonBuilder is awesome but can't build null safe arrays. :(
-        if (!datasetAuthors.isEmpty()) {
-            JsonArrayBuilder authors = Json.createArrayBuilder();
-            for (String datasetAuthor : datasetAuthors) {
-                authors.add(datasetAuthor);
-            }
-            nullSafeJsonBuilder.add("authors", authors);
-        }
-        return nullSafeJsonBuilder;
     }
 
     public String getId() {
@@ -612,7 +426,6 @@ public class SolrSearchResult {
     }
 
     public Long getParentIdAsLong() {
-
         if (getParent() == null || getParent().getId() == null) {
             return null;
         }
@@ -776,40 +589,25 @@ public class SolrSearchResult {
     }
 
     public String getFileDatasetUrl() {
-
         String parentDatasetGlobalId = parent.getParentIdentifier();
 
-        if (parentDatasetGlobalId != null) {
-            return "/dataset.xhtml?persistentId=" + parentDatasetGlobalId;
-        } else {
-            return "/dataset.xhtml?id=" + parent.getId() + "&versionId=" + datasetVersionId;
-        }
+        return parentDatasetGlobalId != null
+                ? "/dataset.xhtml?persistentId=" + parentDatasetGlobalId
+                : "/dataset.xhtml?id=" + parent.getId() + "&versionId=" + datasetVersionId;
     }
 
-    /**
-     * @return the dataverseAlias
-     */
     public String getDataverseAlias() {
         return dataverseAlias;
     }
 
-    /**
-     * @param dataverseAlias the dataverseAlias to set
-     */
     public void setDataverseAlias(String dataverseAlias) {
         this.dataverseAlias = dataverseAlias;
     }
 
-    /**
-     * @return the dataverseParentAlias
-     */
     public String getDataverseParentAlias() {
         return dataverseParentAlias;
     }
 
-    /**
-     * @param dataverseParentAlias the dataverseParentAlias to set
-     */
     public void setDataverseParentAlias(String dataverseParentAlias) {
         this.dataverseParentAlias = dataverseParentAlias;
     }
@@ -836,38 +634,5 @@ public class SolrSearchResult {
 
     public void setFileAccess(String fileAccess) {
         this.fileAccess = fileAccess;
-    }
-
-    private JsonObjectBuilder getChecksumTypeAndValue(DataFile.ChecksumType checksumType, String checksumValue) {
-        return checksumType != null
-                ? Json.createObjectBuilder()
-                        .add("type", checksumType.toString())
-                        .add("value", checksumValue)
-                : null;
-    }
-
-    // TODO: These methods should be moved to SolrSearchResultDTO as soon
-    //  as we get rid of JSON builders in dependent API endpoints
-    // -------------------- TO BE MOVED --------------------
-
-    public String getDisplayType() {
-        switch (type) {
-            case DATAVERSES:
-                return SearchConstants.DATAVERSE;
-            case DATASETS:
-                return SearchConstants.DATASET;
-            case FILES:
-                return SearchConstants.FILE;
-            default:
-                return null;
-        }
-    }
-
-    public String getDateTimePublished() {
-        String datePublished = null;
-        if (!draftState) {
-            datePublished = releaseOrCreateDate == null ? null : Util.getDateTimeFormat().format(releaseOrCreateDate);
-        }
-        return datePublished;
     }
 }
