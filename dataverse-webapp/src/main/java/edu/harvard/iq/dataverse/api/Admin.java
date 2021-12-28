@@ -12,6 +12,9 @@ import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
+import edu.harvard.iq.dataverse.api.dto.AuthenticationProviderRowDTO;
+import edu.harvard.iq.dataverse.api.dto.RoleAssigneeDisplayInfoDTO;
+import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleDTO;
 import edu.harvard.iq.dataverse.authorization.AuthTestDataServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
@@ -105,6 +108,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.common.NullSafeJsonBuilder.jsonObjectBuilder;
 
@@ -231,8 +235,11 @@ public class Admin extends AbstractApiBean {
     @Path("authenticationProviders")
     @GET
     public Response listAuthProviders() {
+        AuthenticationProviderRowDTO.Converter converter = new AuthenticationProviderRowDTO.Converter();
         return ok(em.createNamedQuery("AuthenticationProviderRow.findAll", AuthenticationProviderRow.class)
-                          .getResultList().stream().map(r -> jsonPrinter.json(r)).collect(jsonPrinter.toJsonArray()));
+                .getResultList().stream()
+                .map(converter::convert)
+                .collect(Collectors.toList()));
     }
 
     @POST
@@ -252,7 +259,8 @@ public class Admin extends AbstractApiBean {
                 authSvc.deregisterProvider(provider.getId());
                 authSvc.registerProvider(provider);
             }
-            return created("/api/admin/authenticationProviders/" + managed.getId(), jsonPrinter.json(managed));
+            return created("/api/admin/authenticationProviders/" + managed.getId(),
+                    new AuthenticationProviderRowDTO.Converter().convert(managed));
         } catch (AuthorizationSetupException e) {
             return error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -262,7 +270,8 @@ public class Admin extends AbstractApiBean {
     @GET
     public Response showProvider(@PathParam("id") String id) {
         AuthenticationProviderRow row = em.find(AuthenticationProviderRow.class, id);
-        return (row != null) ? ok(jsonPrinter.json(row))
+        return row != null
+                ? ok(new AuthenticationProviderRowDTO.Converter().convert(row))
                 : error(Status.NOT_FOUND, "Can't find authetication provider with id '" + id + "'");
     }
 
@@ -945,11 +954,11 @@ public class Admin extends AbstractApiBean {
     @GET
     @Path("assignments/assignees/{raIdtf: .*}")
     public Response getAssignmentsFor(@PathParam("raIdtf") String raIdtf) {
-
-        JsonArrayBuilder arr = Json.createArrayBuilder();
-        roleAssigneeSvc.getAssignmentsFor(raIdtf).forEach(a -> arr.add(jsonPrinter.json(a)));
-
-        return ok(arr);
+        RoleAssignmentDTO.Converter converter = new RoleAssignmentDTO.Converter();
+        List<RoleAssignmentDTO> assignments = roleAssigneeSvc.getAssignmentsFor(raIdtf).stream()
+                .map(converter::convert)
+                .collect(Collectors.toList());
+        return ok(assignments);
     }
 
     /**
@@ -1042,7 +1051,9 @@ public class Admin extends AbstractApiBean {
     @Path("assignee/{idtf}")
     public Response findRoleAssignee(@PathParam("idtf") String idtf) {
         RoleAssignee ra = roleAssigneeSvc.getRoleAssignee(idtf);
-        return (ra == null) ? notFound("Role Assignee '" + idtf + "' not found.") : ok(jsonPrinter.json(ra.getDisplayInfo()));
+        return ra == null
+                ? notFound("Role Assignee '" + idtf + "' not found.")
+                : ok(new RoleAssigneeDisplayInfoDTO.Converter().convert(ra.getDisplayInfo()));
     }
 
     @POST

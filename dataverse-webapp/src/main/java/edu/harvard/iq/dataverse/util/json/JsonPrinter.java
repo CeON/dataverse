@@ -17,18 +17,11 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
-import edu.harvard.iq.dataverse.persistence.group.ExplicitGroup;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.persistence.user.AuthenticationProviderRow;
 import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import edu.harvard.iq.dataverse.persistence.user.RoleAssigneeDisplayInfo;
-import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
-import edu.harvard.iq.dataverse.persistence.user.User;
-import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -42,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,15 +80,6 @@ public class JsonPrinter {
         return arr;
     }
 
-    public JsonObjectBuilder json(User u) {
-        RoleAssigneeDisplayInfo displayInfo = u.getDisplayInfo();
-        return jsonObjectBuilder()
-                .add("identifier", u.getIdentifier())
-                .add("displayInfo", jsonObjectBuilder()
-                        .add("Title", displayInfo.getTitle())
-                        .add("email", displayInfo.getEmailAddress()));
-    }
-
     public JsonObjectBuilder json(AuthenticatedUser authenticatedUser) {
         return jsonObjectBuilder()
                 .add("id", authenticatedUser.getId())
@@ -117,27 +100,10 @@ public class JsonPrinter {
                      authenticatedUser.getAuthenticatedUserLookup().getAuthenticationProviderId());
     }
 
-    public JsonObjectBuilder json(RoleAssignment ra) {
-        return jsonObjectBuilder()
-                .add("id", ra.getId())
-                .add("assignee", ra.getAssigneeIdentifier())
-                .add("roleId", ra.getRole().getId())
-                .add("_roleAlias", ra.getRole().getAlias())
-                .add("privateUrlToken", ra.getPrivateUrlToken())
-                .add("definitionPointId", ra.getDefinitionPoint().getId());
-    }
-
     public JsonArrayBuilder json(Set<Permission> permissions) {
         JsonArrayBuilder bld = Json.createArrayBuilder();
         permissions.forEach(p -> bld.add(p.name()));
         return bld;
-    }
-
-    public JsonObjectBuilder json(RoleAssigneeDisplayInfo d) {
-        return jsonObjectBuilder()
-                .add("title", d.getTitle())
-                .add("email", d.getEmailAddress())
-                .add("affiliation", d.getAffiliation());
     }
 
     public JsonArrayBuilder rolesToJson(List<DataverseRole> role) {
@@ -273,7 +239,7 @@ public class JsonPrinter {
 
 
         List<FileMetadata> dataFileList = dataFiles.stream()
-                .map(x -> x.getFileMetadata())
+                .map(DataFile::getFileMetadata)
                 .collect(Collectors.toList());
 
 
@@ -497,91 +463,17 @@ public class JsonPrinter {
         return tabularTags;
     }
 
-    public JsonObjectBuilder json(AuthenticationProviderRow aRow) {
-        return jsonObjectBuilder()
-                .add("id", aRow.getId())
-                .add("factoryAlias", aRow.getFactoryAlias())
-                .add("title", aRow.getTitle())
-                .add("subtitle", aRow.getSubtitle())
-                .add("factoryData", aRow.getFactoryData())
-                .add("enabled", aRow.isEnabled())
-                ;
-    }
-
-    public JsonObjectBuilder json(PrivateUrl privateUrl) {
-        return jsonObjectBuilder()
-                // We provide the token here as a convenience even though it is also in the role assignment.
-                .add("token", privateUrl.getToken())
-                .add("link", privateUrl.getLink())
-                .add("roleAssignment", json(privateUrl.getRoleAssignment()));
-    }
-
-    public JsonObjectBuilder json(ExplicitGroup eg) {
-        JsonArrayBuilder ras = Json.createArrayBuilder();
-        for (String u : eg.getContainedRoleAssgineeIdentifiers()) {
-            ras.add(u);
-        }
-        return jsonObjectBuilder()
-                .add("identifier", eg.getIdentifier())
-                .add("groupAliasInOwner", eg.getGroupAliasInOwner())
-                .add("owner", eg.getOwner().getId())
-                .add("description", eg.getDescription())
-                .add("displayName", eg.getDisplayName())
-                .add("containedRoleAssignees", ras);
-    }
-
-    public JsonObjectBuilder json(DataverseFacet aFacet) {
-        return jsonObjectBuilder()
-                .add("id", String.valueOf(aFacet.getId())) // TODO should just be id I think
-                .add("name", aFacet.getDatasetFieldType().getDisplayName());
-    }
-
-    public Collector<String, JsonArrayBuilder, JsonArrayBuilder> stringsToJsonArray() {
-        return new Collector<String, JsonArrayBuilder, JsonArrayBuilder>() {
-
-            @Override
-            public Supplier<JsonArrayBuilder> supplier() {
-                return () -> Json.createArrayBuilder();
-            }
-
-            @Override
-            public BiConsumer<JsonArrayBuilder, String> accumulator() {
-                return (JsonArrayBuilder b, String s) -> b.add(s);
-            }
-
-            @Override
-            public BinaryOperator<JsonArrayBuilder> combiner() {
-                return (jab1, jab2) -> {
-                    JsonArrayBuilder retVal = Json.createArrayBuilder();
-                    jab1.build().forEach(retVal::add);
-                    jab2.build().forEach(retVal::add);
-                    return retVal;
-                };
-            }
-
-            @Override
-            public Function<JsonArrayBuilder, JsonArrayBuilder> finisher() {
-                return Function.identity();
-            }
-
-            @Override
-            public Set<Collector.Characteristics> characteristics() {
-                return EnumSet.of(Collector.Characteristics.IDENTITY_FINISH);
-            }
-        };
-    }
-
     public Collector<JsonObjectBuilder, ArrayList<JsonObjectBuilder>, JsonArrayBuilder> toJsonArray() {
         return new Collector<JsonObjectBuilder, ArrayList<JsonObjectBuilder>, JsonArrayBuilder>() {
 
             @Override
             public Supplier<ArrayList<JsonObjectBuilder>> supplier() {
-                return () -> new ArrayList<>();
+                return ArrayList::new;
             }
 
             @Override
             public BiConsumer<ArrayList<JsonObjectBuilder>, JsonObjectBuilder> accumulator() {
-                return (t, u) -> t.add(u);
+                return ArrayList::add;
             }
 
             @Override
@@ -594,7 +486,7 @@ public class JsonPrinter {
 
             @Override
             public Function<ArrayList<JsonObjectBuilder>, JsonArrayBuilder> finisher() {
-                return (l) -> {
+                return l -> {
                     JsonArrayBuilder bld = Json.createArrayBuilder();
                     l.forEach(bld::add);
                     return bld;

@@ -11,6 +11,8 @@ import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.S3PackageImporter;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.api.dto.DatasetLockDTO;
+import edu.harvard.iq.dataverse.api.dto.PrivateUrlDTO;
+import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
 import edu.harvard.iq.dataverse.api.dto.SubmitForReviewDataDTO;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
@@ -1208,7 +1210,7 @@ public class Datasets extends AbstractApiBean {
             DataverseRole theRole = rolesSvc.findBuiltinRoleByAlias(BuiltInRole.ADMIN);
             String privateUrlToken = null;
             return ok(
-                    jsonPrinter.json(execCommand(new AssignRoleCommand(assignee,
+                    new RoleAssignmentDTO.Converter().convert(execCommand(new AssignRoleCommand(assignee,
                                                            theRole,
                                                            dataset,
                                                            createDataverseRequest(findUserOrDie()),
@@ -1222,11 +1224,12 @@ public class Datasets extends AbstractApiBean {
     @GET
     @Path("{identifier}/assignments")
     public Response getAssignments(@PathParam("identifier") String id) {
+        RoleAssignmentDTO.Converter converter = new RoleAssignmentDTO.Converter();
         return response(req ->
                                 ok(execCommand(
                                         new ListRoleAssignments(req, findDatasetOrDie(id))).stream()
-                                        .map(ra -> jsonPrinter.json(ra))
-                                        .collect(jsonPrinter.toJsonArray())));
+                                        .map(converter::convert)
+                                        .collect(Collectors.toList())));
     }
 
     @GET
@@ -1234,7 +1237,8 @@ public class Datasets extends AbstractApiBean {
     public Response getPrivateUrlData(@PathParam("id") String idSupplied) {
         return response(req -> {
             PrivateUrl privateUrl = execCommand(new GetPrivateUrlCommand(req, findDatasetOrDie(idSupplied)));
-            return (privateUrl != null) ? ok(jsonPrinter.json(privateUrl))
+            return privateUrl != null
+                    ? ok(new PrivateUrlDTO.Converter().convert(privateUrl))
                     : error(Response.Status.NOT_FOUND, "Private URL not found.");
         });
     }
@@ -1243,9 +1247,9 @@ public class Datasets extends AbstractApiBean {
     @ApiWriteOperation
     @Path("{id}/privateUrl")
     public Response createPrivateUrl(@PathParam("id") String idSupplied) {
-        return response(req ->
-                                ok(jsonPrinter.json(execCommand(
-                                        new CreatePrivateUrlCommand(req, findDatasetOrDie(idSupplied))))));
+        return response(req -> ok(
+                new PrivateUrlDTO.Converter().convert(
+                        execCommand(new CreatePrivateUrlCommand(req, findDatasetOrDie(idSupplied))))));
     }
 
     @DELETE

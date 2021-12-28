@@ -75,50 +75,6 @@ public class JsonPrinterTest {
     }
 
     @Test
-    public void testJson_RoleAssignment() {
-        //given
-        DataverseRole aRole = new DataverseRole();
-        RoleAssignee anAssignee = new PrivateUrlUser(42);
-        Dataset dataset = new Dataset();
-        dataset.setId(123L);
-        String privateUrlToken = "e1d53cf6-794a-457a-9709-7c07629a8267";
-        RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
-
-        //when
-        JsonObjectBuilder job = jsonPrinter.json(ra);
-        assertNotNull(job);
-        JsonObject jsonObject = job.build();
-
-        //then
-        assertEquals("#42", jsonObject.getString("assignee"));
-        assertEquals(123, jsonObject.getInt("definitionPointId"));
-        assertEquals("e1d53cf6-794a-457a-9709-7c07629a8267", jsonObject.getString("privateUrlToken"));
-    }
-
-    @Test
-    public void testJson_PrivateUrl() {
-        //given
-        DataverseRole aRole = new DataverseRole();
-        RoleAssignee anAssignee = new PrivateUrlUser(42);
-        Dataset dataset = new Dataset();
-        String privateUrlToken = "e1d53cf6-794a-457a-9709-7c07629a8267";
-        RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
-        String dataverseSiteUrl = "https://dataverse.example.edu";
-        PrivateUrl privateUrl = new PrivateUrl(ra, dataset, dataverseSiteUrl);
-
-        //when
-        JsonObjectBuilder job = jsonPrinter.json(privateUrl);
-        assertNotNull(job);
-        JsonObject jsonObject = job.build();
-
-        //then
-        assertEquals("e1d53cf6-794a-457a-9709-7c07629a8267", jsonObject.getString("token"));
-        assertEquals("https://dataverse.example.edu/privateurl.xhtml?token=e1d53cf6-794a-457a-9709-7c07629a8267", jsonObject.getString("link"));
-        assertEquals("e1d53cf6-794a-457a-9709-7c07629a8267", jsonObject.getJsonObject("roleAssignment").getString("privateUrlToken"));
-        assertEquals("#42", jsonObject.getJsonObject("roleAssignment").getString("assignee"));
-    }
-
-    @Test
     public void testGetFileCategories() {
         //given
         FileMetadata fmd = MocksFactory.makeFileMetadata(10L, "", 0);

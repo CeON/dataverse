@@ -6,7 +6,9 @@ import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
 import edu.harvard.iq.dataverse.api.dto.ExplicitGroupDTO;
+import edu.harvard.iq.dataverse.api.dto.ExplicitGroupInputDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
+import edu.harvard.iq.dataverse.api.dto.RoleAssignmentInputDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleDTO;
 import edu.harvard.iq.dataverse.api.imports.ImportException;
 import edu.harvard.iq.dataverse.api.imports.ImportServiceBean;
@@ -105,6 +107,7 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.util.StringUtil.nonEmpty;
 import static org.apache.commons.lang.StringUtils.isNumeric;
@@ -671,18 +674,17 @@ public class Dataverses extends AbstractApiBean {
     @GET
     @Path("{identifier}/assignments")
     public Response listAssignments(@PathParam("identifier") String dvIdtf) {
+        RoleAssignmentDTO.Converter converter = new RoleAssignmentDTO.Converter();
         return response(req -> ok(
-                execCommand(new ListRoleAssignments(req, findDataverseOrDie(dvIdtf)))
-                        .stream()
-                        .map(a -> jsonPrinter.json(a))
-                        .collect(jsonPrinter.toJsonArray())
-        ));
+                execCommand(new ListRoleAssignments(req, findDataverseOrDie(dvIdtf))).stream()
+                        .map(converter::convert)
+                        .collect(Collectors.toList())));
     }
 
     @POST
     @ApiWriteOperation
     @Path("{identifier}/assignments")
-    public Response createAssignment(RoleAssignmentDTO ra, @PathParam("identifier") String dvIdtf, @QueryParam("key") String apiKey) {
+    public Response createAssignment(RoleAssignmentInputDTO ra, @PathParam("identifier") String dvIdtf, @QueryParam("key") String apiKey) {
 
         try {
             final DataverseRequest req = createDataverseRequest(findUserOrDie());
@@ -711,7 +713,8 @@ public class Dataverses extends AbstractApiBean {
             }
             String privateUrlToken = null;
 
-            return ok(jsonPrinter.json(execCommand(new AssignRoleCommand(assignee, theRole, dataverse, req, privateUrlToken))));
+            return ok(new RoleAssignmentDTO.Converter().convert(
+                    execCommand(new AssignRoleCommand(assignee, theRole, dataverse, req, privateUrlToken))));
 
         } catch (WrappedResponse ex) {
             logger.log(Level.WARNING, "Can''t create assignment: {0}", ex.getMessage());
@@ -756,7 +759,7 @@ public class Dataverses extends AbstractApiBean {
     @POST
     @ApiWriteOperation
     @Path("{identifier}/groups/")
-    public Response createExplicitGroup(ExplicitGroupDTO dto, @PathParam("identifier") String dvIdtf) {
+    public Response createExplicitGroup(ExplicitGroupInputDTO dto, @PathParam("identifier") String dvIdtf) {
         return response(req -> {
             ExplicitGroupProvider prv = explicitGroupSvc.getProvider();
             ExplicitGroup newGroup = dto.apply(prv.makeGroup());
@@ -764,40 +767,39 @@ public class Dataverses extends AbstractApiBean {
             newGroup = execCommand(new CreateExplicitGroupCommand(req, findDataverseOrDie(dvIdtf), newGroup));
 
             String groupUri = String.format("%s/groups/%s", dvIdtf, newGroup.getGroupAliasInOwner());
-            return created(groupUri, jsonPrinter.json(newGroup));
+            return created(groupUri, new ExplicitGroupDTO.Converter().convert(newGroup));
         });
     }
 
     @GET
     @Path("{identifier}/groups/")
     public Response listGroups(@PathParam("identifier") String dvIdtf, @QueryParam("key") String apiKey) {
+        ExplicitGroupDTO.Converter converter = new ExplicitGroupDTO.Converter();
         return response(req -> ok(
-                execCommand(new ListExplicitGroupsCommand(req, findDataverseOrDie(dvIdtf)))
-                        .stream().map(eg -> jsonPrinter.json(eg))
-                        .collect(jsonPrinter.toJsonArray())
-        ));
+                execCommand(new ListExplicitGroupsCommand(req, findDataverseOrDie(dvIdtf))).stream()
+                        .map(converter::convert)
+                        .collect(Collectors.toList())));
     }
 
     @GET
     @Path("{identifier}/groups/{aliasInOwner}")
     public Response getGroupByOwnerAndAliasInOwner(@PathParam("identifier") String dvIdtf,
                                                    @PathParam("aliasInOwner") String grpAliasInOwner) {
-        return response(req -> ok(jsonPrinter.json(findExplicitGroupOrDie(findDataverseOrDie(dvIdtf),
-                                                              req,
-                                                              grpAliasInOwner))));
+        return response(req -> ok(new ExplicitGroupDTO.Converter().convert(
+                findExplicitGroupOrDie(findDataverseOrDie(dvIdtf), req, grpAliasInOwner))));
     }
 
     @PUT
     @ApiWriteOperation
     @Path("{identifier}/groups/{aliasInOwner}")
-    public Response updateGroup(ExplicitGroupDTO groupDto,
+    public Response updateGroup(ExplicitGroupInputDTO groupDto,
                                 @PathParam("identifier") String dvIdtf,
                                 @PathParam("aliasInOwner") String grpAliasInOwner) {
-        return response(req -> ok(jsonPrinter.json(execCommand(
-                new UpdateExplicitGroupCommand(req,
-                                               groupDto.apply(findExplicitGroupOrDie(findDataverseOrDie(dvIdtf),
-                                                                                     req,
-                                                                                     grpAliasInOwner)))))));
+        return response(req -> ok(new ExplicitGroupDTO.Converter().convert(
+                execCommand(
+                        new UpdateExplicitGroupCommand(
+                                req, groupDto.apply(
+                                        findExplicitGroupOrDie(findDataverseOrDie(dvIdtf), req, grpAliasInOwner)))))));
     }
 
     @PUT
@@ -875,11 +877,11 @@ public class Dataverses extends AbstractApiBean {
                                      @PathParam("identifier") String dvIdtf,
                                      @PathParam("aliasInOwner") String grpAliasInOwner) {
         return response(req -> ok(
-                jsonPrinter.json(
+                new ExplicitGroupDTO.Converter().convert(
                         execCommand(
                                 new AddRoleAssigneesToExplicitGroupCommand(req,
-                                                                           findExplicitGroupOrDie(findDataverseOrDie(
-                                                                                   dvIdtf), req, grpAliasInOwner),
+                                                                           findExplicitGroupOrDie(
+                                                                                   findDataverseOrDie(dvIdtf), req, grpAliasInOwner),
                                                                            new TreeSet<>(roleAssingeeIdentifiers))))));
     }
 
@@ -898,11 +900,9 @@ public class Dataverses extends AbstractApiBean {
     public Response deleteRoleAssingee(@PathParam("identifier") String dvIdtf,
                                        @PathParam("aliasInOwner") String grpAliasInOwner,
                                        @PathParam("roleAssigneeIdentifier") String roleAssigneeIdentifier) {
-        return response(req -> ok(jsonPrinter.json(execCommand(
+        return response(req -> ok(new ExplicitGroupDTO.Converter().convert(execCommand(
                 new RemoveRoleAssigneesFromExplicitGroupCommand(req,
-                                                                findExplicitGroupOrDie(findDataverseOrDie(dvIdtf),
-                                                                                       req,
-                                                                                       grpAliasInOwner),
+                                                                findExplicitGroupOrDie(findDataverseOrDie(dvIdtf), req, grpAliasInOwner),
                                                                 Collections.singleton(roleAssigneeIdentifier))))));
     }
 
