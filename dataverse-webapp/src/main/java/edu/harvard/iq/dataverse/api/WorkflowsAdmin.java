@@ -34,7 +34,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.workflow.execution.WorkflowContext.TriggerType.PostPublishDataset;
 
@@ -80,9 +83,10 @@ public class WorkflowsAdmin extends AbstractApiBean {
 
     @GET
     public Response listWorkflows() {
+        WorkflowDTO.Converter converter = new WorkflowDTO.Converter();
         return ok(workflows.listWorkflows().stream()
-                .map(jsonPrinter.brief::json)
-                .collect(jsonPrinter.toJsonArray()));
+                .map(converter::convertMinimal)
+                .collect(Collectors.toList()));
     }
 
     @PUT
@@ -109,14 +113,14 @@ public class WorkflowsAdmin extends AbstractApiBean {
     @GET
     @Path("default/")
     public Response listDefaults() {
-        JsonObjectBuilder bld = Json.createObjectBuilder();
-        for (TriggerType tp : TriggerType.values()) {
-            bld.add(tp.name(),
-                    workflows.getDefaultWorkflow(tp)
-                            .map(wf -> (JsonValue) jsonPrinter.brief.json(wf).build())
-                            .orElse(JsonValue.NULL));
+        WorkflowDTO.Converter converter = new WorkflowDTO.Converter();
+        Map<String, Object> dto = new HashMap<>();
+        for (TriggerType trigger : TriggerType.values()) {
+            dto.put(trigger.name(), workflows.getDefaultWorkflow(trigger)
+                    .map(converter::convertMinimal)
+                    .orElse(null));
         }
-        return ok(bld);
+        return ok(dto);
     }
 
     @GET

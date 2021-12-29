@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.api;
 import edu.harvard.iq.dataverse.DataverseRoleServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
+import edu.harvard.iq.dataverse.api.dto.DataverseRoleDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleDTO;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteRoleCommand;
@@ -47,7 +48,8 @@ public class Roles extends AbstractApiBean {
             final User user = findUserOrDie();
             final DataverseRole role = findRoleOrDie(id);
             return (permissionSvc.userOn(user, role.getOwner()).has(Permission.ManageDataversePermissions))
-                    ? ok(jsonPrinter.json(role)) : permissionError("Permission required to view roles.");
+                    ? ok(new DataverseRoleDTO.Converter().convert(role))
+                    : permissionError("Permission required to view roles.");
         });
     }
 
@@ -65,9 +67,9 @@ public class Roles extends AbstractApiBean {
     @ApiWriteOperation
     public Response createNewRole(RoleDTO roleDto,
                                   @QueryParam("dvo") String dvoIdtf) {
-        return response(req -> ok(jsonPrinter.json(execCommand(
-                new CreateRoleCommand(roleDto.asRole(),
-                                      req, findDataverseOrDie(dvoIdtf))))));
+        return response(req -> ok(
+                new DataverseRoleDTO.Converter().convert(
+                        execCommand(new CreateRoleCommand(roleDto.asRole(), req, findDataverseOrDie(dvoIdtf))))));
     }
 
     private DataverseRole findRoleOrDie(long id) throws WrappedResponse {

@@ -39,7 +39,7 @@ class PrivateUrlDTOConverterTest {
         assertThat(converted.getRoleAssignment())
                 .extracting(RoleAssignmentDTO::getId, RoleAssignmentDTO::getAssignee, RoleAssignmentDTO::getRoleId,
                         RoleAssignmentDTO::getRoleAlias, RoleAssignmentDTO::getPrivateUrlToken, RoleAssignmentDTO::getDefinitionPointId)
-                .contains(21L, "@User", 1L,
+                .containsExactly(21L, "@User", 1L,
                         "Role 1", "token", 3L);
     }
 }

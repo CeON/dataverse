@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.util.json;
 
 import edu.harvard.iq.dataverse.citation.CitationFactory;
-import edu.harvard.iq.dataverse.common.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.common.Util;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -16,12 +15,6 @@ import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
-import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
-import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
-import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -78,113 +71,6 @@ public class JsonPrinter {
             arr.add(s);
         }
         return arr;
-    }
-
-    public JsonObjectBuilder json(AuthenticatedUser authenticatedUser) {
-        return jsonObjectBuilder()
-                .add("id", authenticatedUser.getId())
-                .add("identifier", authenticatedUser.getIdentifier())
-                .add("displayName", authenticatedUser.getDisplayInfo().getTitle())
-                .add("firstName", authenticatedUser.getFirstName())
-                .add("lastName", authenticatedUser.getLastName())
-                .add("email", authenticatedUser.getEmail())
-                .add("superuser", authenticatedUser.isSuperuser())
-                .add("affiliation", authenticatedUser.getAffiliation())
-                .add("position", authenticatedUser.getPosition())
-                .add("persistentUserId", authenticatedUser.getAuthenticatedUserLookup().getPersistentUserId())
-                .add("emailLastConfirmed", authenticatedUser.getEmailConfirmed())
-                .add("createdTime", authenticatedUser.getCreatedTime())
-                .add("lastLoginTime", authenticatedUser.getLastLoginTime())
-                .add("lastApiUseTime", authenticatedUser.getLastApiUseTime())
-                .add("authenticationProviderId",
-                     authenticatedUser.getAuthenticatedUserLookup().getAuthenticationProviderId());
-    }
-
-    public JsonArrayBuilder json(Set<Permission> permissions) {
-        JsonArrayBuilder bld = Json.createArrayBuilder();
-        permissions.forEach(p -> bld.add(p.name()));
-        return bld;
-    }
-
-    public JsonArrayBuilder rolesToJson(List<DataverseRole> role) {
-        JsonArrayBuilder bld = Json.createArrayBuilder();
-        for (DataverseRole r : role) {
-            bld.add(json(r));
-        }
-        return bld;
-    }
-
-    public JsonObjectBuilder json(DataverseRole role) {
-        JsonObjectBuilder bld = jsonObjectBuilder()
-                .add("alias", role.getAlias())
-                .add("name", role.getName())
-                .add("permissions", json(role.permissions()))
-                .add("description", role.getDescription());
-        if (role.getId() != null) {
-            bld.add("id", role.getId());
-        }
-        if (role.getOwner() != null && role.getOwner().getId() != null) {
-            bld.add("ownerId", role.getOwner().getId());
-        }
-
-        return bld;
-    }
-
-    public JsonObjectBuilder json(Dataverse dv) {
-        JsonObjectBuilder bld = jsonObjectBuilder()
-                .add("id", dv.getId())
-                .add("alias", dv.getAlias())
-                .add("name", dv.getName())
-                .add("affiliation", dv.getAffiliation())
-                .add("dataverseContacts", json(dv.getDataverseContacts()))
-                .add("permissionRoot", dv.isPermissionRoot())
-                .add("description", dv.getDescription())
-                .add("dataverseType", dv.getDataverseType().name());
-        if (dv.getOwner() != null) {
-            bld.add("ownerId", dv.getOwner().getId());
-        }
-        if (dv.getCreateDate() != null) {
-            bld.add("creationDate", Util.getDateTimeFormat().format(dv.getCreateDate()));
-        }
-        if (dv.getCreator() != null) {
-            bld.add("creator", json(dv.getCreator()));
-        }
-        if (dv.getDataverseTheme() != null) {
-            bld.add("theme", json(dv.getDataverseTheme()));
-        }
-
-        return bld;
-    }
-
-    public JsonArrayBuilder json(List<DataverseContact> dataverseContacts) {
-        return dataverseContacts.stream()
-                .map(dc -> jsonObjectBuilder()
-                        .add("displayOrder", dc.getDisplayOrder())
-                        .add("contactEmail", dc.getContactEmail())
-                ).collect(toJsonArray());
-    }
-
-    public JsonObjectBuilder json(DataverseTheme theme) {
-        final NullSafeJsonBuilder baseObject = jsonObjectBuilder()
-                .add("id", theme.getId())
-                .add("logo", theme.getLogo())
-                .add("tagline", theme.getTagline())
-                .add("linkUrl", theme.getLinkUrl())
-                .add("linkColor", theme.getLinkColor())
-                .add("textColor", theme.getTextColor())
-                .add("backgroundColor", theme.getBackgroundColor());
-        if (theme.getLogoAlignment() != null) {
-            baseObject.add("logoBackgroundColor", theme.getLogoBackgroundColor());
-        }
-        return baseObject;
-    }
-
-    public JsonObjectBuilder json(BuiltinUser user) {
-        return (user == null)
-                ? null
-                : jsonObjectBuilder()
-                .add("id", user.getId())
-                .add("userName", user.getUserName());
     }
 
     public JsonObjectBuilder json(Dataset ds) {

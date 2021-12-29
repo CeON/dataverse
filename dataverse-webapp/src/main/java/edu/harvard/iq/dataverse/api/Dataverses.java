@@ -5,6 +5,8 @@ import edu.harvard.iq.dataverse.MetadataBlockDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
+import edu.harvard.iq.dataverse.api.dto.DataverseDTO;
+import edu.harvard.iq.dataverse.api.dto.DataverseRoleDTO;
 import edu.harvard.iq.dataverse.api.dto.ExplicitGroupDTO;
 import edu.harvard.iq.dataverse.api.dto.ExplicitGroupInputDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
@@ -186,7 +188,7 @@ public class Dataverses extends AbstractApiBean {
 
             AuthenticatedUser u = findAuthenticatedUserOrDie();
             d = execCommand(new CreateDataverseCommand(d, createDataverseRequest(u), null, null));
-            return created("/dataverses/" + d.getAlias(), jsonPrinter.json(d));
+            return created("/dataverses/" + d.getAlias(), new DataverseDTO.Converter().convert(d));
         } catch (WrappedResponse ww) {
             Throwable cause = ww.getCause();
             StringBuilder sb = new StringBuilder();
@@ -436,7 +438,7 @@ public class Dataverses extends AbstractApiBean {
     @GET
     @Path("{identifier}")
     public Response viewDataverse(@PathParam("identifier") String idtf) {
-        return allowCors(response(req -> ok(jsonPrinter.json(execCommand(
+        return allowCors(response(req -> ok(new DataverseDTO.Converter().convert(execCommand(
                 new GetDataverseCommand(req, findDataverseOrDie(idtf)))))));
     }
 
@@ -655,20 +657,20 @@ public class Dataverses extends AbstractApiBean {
     @GET
     @Path("{identifier}/roles")
     public Response listRoles(@PathParam("identifier") String dvIdtf) {
+        DataverseRoleDTO.Converter converter = new DataverseRoleDTO.Converter();
         return response(req -> ok(
-                execCommand(new ListRolesCommand(req, findDataverseOrDie(dvIdtf)))
-                        .stream().map(r -> jsonPrinter.json(r))
-                        .collect(jsonPrinter.toJsonArray())
-        ));
+                execCommand(
+                    new ListRolesCommand(req, findDataverseOrDie(dvIdtf))).stream()
+                        .map(converter::convert)
+                        .collect(Collectors.toList())));
     }
 
     @POST
     @ApiWriteOperation
     @Path("{identifier}/roles")
     public Response createRole(RoleDTO roleDto, @PathParam("identifier") String dvIdtf) {
-        return response(req -> ok(jsonPrinter.json(execCommand(new CreateRoleCommand(roleDto.asRole(),
-                                                                         req,
-                                                                         findDataverseOrDie(dvIdtf))))));
+        return response(req -> ok(new DataverseRoleDTO.Converter().convert(
+                execCommand(new CreateRoleCommand(roleDto.asRole(), req, findDataverseOrDie(dvIdtf))))));
     }
 
     @GET
@@ -748,9 +750,9 @@ public class Dataverses extends AbstractApiBean {
     public Response publishDataverse(@PathParam("identifier") String dvIdtf) {
         try {
             Dataverse dv = findDataverseOrDie(dvIdtf);
-            return ok(jsonPrinter.json(execCommand(new PublishDataverseCommand(createDataverseRequest(findAuthenticatedUserOrDie()),
-                                                                   dv))));
-
+            return ok(new DataverseDTO.Converter().convert(
+                    execCommand(
+                            new PublishDataverseCommand(createDataverseRequest(findAuthenticatedUserOrDie()), dv))));
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }

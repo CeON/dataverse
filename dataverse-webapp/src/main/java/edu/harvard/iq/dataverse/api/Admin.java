@@ -12,7 +12,10 @@ import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
+import edu.harvard.iq.dataverse.api.dto.AuthenticatedUserDTO;
 import edu.harvard.iq.dataverse.api.dto.AuthenticationProviderRowDTO;
+import edu.harvard.iq.dataverse.api.dto.DataverseDTO;
+import edu.harvard.iq.dataverse.api.dto.DataverseRoleDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssigneeDisplayInfoDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleDTO;
@@ -104,6 +107,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.time.Clock;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -228,8 +232,13 @@ public class Admin extends AbstractApiBean {
     @GET
     public Response listAuthProviderFactories() {
         return ok(authSvc.listProviderFactories().stream()
-                          .map(f -> jsonObjectBuilder().add("alias", f.getAlias()).add("info", f.getInfo()))
-                          .collect(jsonPrinter.toJsonArray()));
+                .map(f -> {
+                    Map<String, String> dto = new HashMap<>();
+                    dto.put("alias", f.getAlias());
+                    dto.put("info", f.getInfo());
+                    return dto;
+                })
+                .collect(Collectors.toList()));
     }
 
     @Path("authenticationProviders")
@@ -363,7 +372,7 @@ public class Admin extends AbstractApiBean {
     public Response getAuthenticatedUser(@PathParam("identifier") String identifier) {
         AuthenticatedUser authenticatedUser = authSvc.getAuthenticatedUser(identifier);
         if (authenticatedUser != null) {
-            return ok(jsonPrinter.json(authenticatedUser));
+            return ok(new AuthenticatedUserDTO.Converter().convert(authenticatedUser));
         }
         return error(Response.Status.BAD_REQUEST, "User " + identifier + " not found.");
     }
@@ -388,7 +397,7 @@ public class Admin extends AbstractApiBean {
             Dataverse dataverse = dataverseSvc.find(id);
             if (dataverse != null) {
                 AuthenticatedUser authenticatedUser = dataverse.getCreator();
-                return ok(jsonPrinter.json(execCommand(
+                return ok(new DataverseDTO.Converter().convert(execCommand(
                         new PublishDataverseCommand(createDataverseRequest(authenticatedUser), dataverse))));
             } else {
                 return error(Status.BAD_REQUEST, "Could not find dataverse with id " + id);
@@ -410,11 +419,11 @@ public class Admin extends AbstractApiBean {
         } catch (WrappedResponse ex) {
             return error(Response.Status.FORBIDDEN, "Superusers only.");
         }
-        JsonArrayBuilder userArray = Json.createArrayBuilder();
-        authSvc.findAllAuthenticatedUsers().stream().forEach((user) -> {
-            userArray.add(jsonPrinter.json(user));
-        });
-        return ok(userArray);
+
+        AuthenticatedUserDTO.Converter converter = new AuthenticatedUserDTO.Converter();
+        return ok(authSvc.findAllAuthenticatedUsers().stream()
+                .map(converter::convert)
+                .collect(Collectors.toList()));
     }
 
     @GET
@@ -465,10 +474,9 @@ public class Admin extends AbstractApiBean {
                                                                      persistentUserId);
         AuthenticatedUserDisplayInfo userDisplayInfo = new AuthenticatedUserDisplayInfo(firstName, lastName,
                                                                                         emailAddress, affiliation, position);
-        boolean generateUniqueIdentifier = true;
         AuthenticatedUser authenticatedUser = authSvc.createAuthenticatedUser(userRecordId,
                                                                               proposedAuthenticatedUserIdentifier, userDisplayInfo, true);
-        return ok(jsonPrinter.json(authenticatedUser));
+        return ok(new AuthenticatedUserDTO.Converter().convert(authenticatedUser));
     }
 
     //TODO: Delete this endpoint after 4.9.3. Was updated with change in docs. --MAD
@@ -879,7 +887,7 @@ public class Admin extends AbstractApiBean {
         ActionLogRecord alr = new ActionLogRecord(ActionLogRecord.ActionType.Admin, "createBuiltInRole")
                 .setInfo(roleDto.getAlias() + ":" + roleDto.getDescription());
         try {
-            return ok(jsonPrinter.json(rolesSvc.save(roleDto.asRole())));
+            return ok(new DataverseRoleDTO.Converter().convert(rolesSvc.save(roleDto.asRole())));
         } catch (Exception e) {
             alr.setActionResult(ActionLogRecord.Result.InternalError);
             alr.setInfo(alr.getInfo() + "// " + e.getMessage());
@@ -893,7 +901,10 @@ public class Admin extends AbstractApiBean {
     @Path("roles")
     public Response listBuiltinRoles() {
         try {
-            return ok(jsonPrinter.rolesToJson(rolesSvc.findBuiltinRoles()));
+            DataverseRoleDTO.Converter converter = new DataverseRoleDTO.Converter();
+            return ok(rolesSvc.findBuiltinRoles().stream()
+                    .map(converter::convert)
+                    .collect(Collectors.toList()));
         } catch (Exception e) {
             return error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -1025,26 +1036,19 @@ public class Admin extends AbstractApiBean {
 
     @GET
     @Path("permissions/{dvo}")
-    public Response findPermissonsOn(@PathParam("dvo") String dvo) {
-        try {
-            DvObject dvObj = dvObjectDao.findDvo(dvo);
-            if (dvObj == null) {
-                return notFound("DvObject " + dvo + " not found");
-            }
-            try {
-                User aUser = findUserOrDie();
-                JsonObjectBuilder bld = Json.createObjectBuilder();
-                bld.add("user", aUser.getIdentifier());
-                bld.add("permissions", jsonPrinter.json(permissionSvc.permissionsFor(createDataverseRequest(aUser), dvObj)));
-                return ok(bld);
-
-            } catch (WrappedResponse wr) {
-                return wr.getResponse();
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error while testing permissions", e);
-            return error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+    public Response findPermissonsOn(@PathParam("dvo") String dvo) throws WrappedResponse {
+        DvObject dvObj = dvObjectDao.findDvo(dvo);
+        if (dvObj == null) {
+            return notFound("DvObject " + dvo + " not found");
         }
+        User aUser = findUserOrDie();
+        Map<String, Object> dto = new HashMap<>();
+        List<String> permissions = permissionSvc.permissionsFor(createDataverseRequest(aUser), dvObj).stream()
+                .map(Enum::name)
+                .collect(Collectors.toList());
+        dto.put("user", aUser.getIdentifier());
+        dto.put("permissions", permissions);
+        return ok(dto);
     }
 
     @GET

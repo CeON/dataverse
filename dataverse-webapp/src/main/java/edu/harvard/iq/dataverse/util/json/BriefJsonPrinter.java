@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.util.json;
 
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
-import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 
 import javax.json.JsonObjectBuilder;
 
@@ -32,10 +31,5 @@ public class BriefJsonPrinter {
                 .add("displayName", blk.getLocaleDisplayName())
                 .add("name", blk.getName())
                 ;
-    }
-
-    public JsonObjectBuilder json(Workflow wf) {
-        return jsonObjectBuilder().add("id", wf.getId())
-                .add("name", wf.getName());
     }
 }

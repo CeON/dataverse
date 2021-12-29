@@ -70,26 +70,4 @@ public class BriefJsonPrinterTest {
         assertEquals(1, res.getInt("id"));
         assertEquals(3, res.keySet().size());
     }
-
-    /**
-     * Test of json method, of class BriefJsonPrinter.
-     */
-    @Test
-    public void testJson_Workflow() {
-        //given
-        Workflow wf = new Workflow();
-        wf.setId(1l);
-        wf.setName("Name");
-        BriefJsonPrinter sut = new BriefJsonPrinter();
-
-        //when
-        JsonObject res = sut.json(wf).build();
-
-        //then
-        assertEquals("Name", res.getString("name"));
-        assertEquals(1, res.getInt("id"));
-        assertEquals(2, res.keySet().size());
-
-    }
-
 }
