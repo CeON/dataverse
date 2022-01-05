@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.export.openaire;
 
 import com.google.gson.Gson;
-import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
-import edu.harvard.iq.dataverse.api.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import org.apache.commons.io.FileUtils;

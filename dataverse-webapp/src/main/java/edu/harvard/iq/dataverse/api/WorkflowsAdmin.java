@@ -12,7 +12,6 @@ import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecution;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.workflow.WorkflowServiceBean;
 import edu.harvard.iq.dataverse.workflow.execution.WorkflowContext;
 import edu.harvard.iq.dataverse.workflow.execution.WorkflowContext.TriggerType;
@@ -21,10 +20,7 @@ import edu.harvard.iq.dataverse.workflow.execution.WorkflowExecutionService;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -62,10 +58,6 @@ public class WorkflowsAdmin extends AbstractApiBean {
 
     @Inject
     private DatasetRepository datasetRepository;
-
-    @Inject
-    private JsonPrinter jsonPrinter;
-
 
     @POST
     @ApiWriteOperation

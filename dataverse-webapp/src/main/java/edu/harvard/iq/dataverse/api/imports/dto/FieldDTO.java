@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.api.dto;
+package edu.harvard.iq.dataverse.api.imports.dto;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

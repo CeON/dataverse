@@ -5,10 +5,12 @@ import edu.harvard.iq.dataverse.MetadataBlockDao;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.api.annotations.ApiWriteOperation;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DataverseDTO;
 import edu.harvard.iq.dataverse.api.dto.DataverseRoleDTO;
 import edu.harvard.iq.dataverse.api.dto.ExplicitGroupDTO;
 import edu.harvard.iq.dataverse.api.dto.ExplicitGroupInputDTO;
+import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentInputDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleDTO;
@@ -70,7 +72,6 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -103,8 +104,11 @@ import javax.ws.rs.core.Response.Status;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -133,9 +137,6 @@ public class Dataverses extends AbstractApiBean {
 
     @Inject
     private DataverseLinkingService dataverseLinkingService;
-
-    @Inject
-    private JsonPrinter jsonPrinter;
 
     @Inject
     private DataverseRoleServiceBean rolesSvc;
@@ -469,18 +470,14 @@ public class Dataverses extends AbstractApiBean {
 
     @GET
     @Path("{identifier}/metadatablocks")
-    public Response listMetadataBlocks(@PathParam("identifier") String dvIdtf) {
-        try {
-            JsonArrayBuilder arr = Json.createArrayBuilder();
-            final List<MetadataBlock> blocks = execCommand(new ListMetadataBlocksCommand(createDataverseRequest(
-                    findUserOrDie()), findDataverseOrDie(dvIdtf)));
-            for (MetadataBlock mdb : blocks) {
-                arr.add(jsonPrinter.brief.json(mdb));
-            }
-            return allowCors(ok(arr));
-        } catch (WrappedResponse we) {
-            return we.getResponse();
-        }
+    public Response listMetadataBlocks(@PathParam("identifier") String dvIdtf) throws WrappedResponse {
+        final List<MetadataBlock> blocks = execCommand(new ListMetadataBlocksCommand(createDataverseRequest(
+                findUserOrDie()), findDataverseOrDie(dvIdtf)));
+        MetadataBlockDTO.Converter converter = new MetadataBlockDTO.Converter();
+        return allowCors(ok(blocks.stream()
+                .filter(Objects::nonNull)
+                .map(converter::convertMinimal)
+                .collect(Collectors.toList())));
     }
 
     @POST
@@ -626,22 +623,25 @@ public class Dataverses extends AbstractApiBean {
     @GET
     @Path("{identifier}/contents")
     public Response listContent(@PathParam("identifier") String dvIdtf) throws WrappedResponse {
-
-        DvObject.Visitor<JsonObjectBuilder> ser = new DvObject.Visitor<JsonObjectBuilder>() {
+        DvObject.Visitor<Object> visitor = new DvObject.Visitor<Object>() {
             @Override
-            public JsonObjectBuilder visit(Dataverse dv) {
-                return Json.createObjectBuilder().add("type", "dataverse")
-                        .add("id", dv.getId())
-                        .add("title", dv.getName());
+            public Object visit(Dataverse dv) {
+                Map<String, Object> dto = new HashMap<>();
+                dto.put("type", "dataverse");
+                dto.put("id", dv.getId());
+                dto.put("title", dv.getName());
+                return dto;
             }
 
             @Override
-            public JsonObjectBuilder visit(Dataset ds) {
-                return jsonPrinter.json(ds).add("type", "dataset");
+            public Object visit(Dataset ds) {
+                Map<String, Object> dto = new DatasetDTO.Converter().convert(ds).asMap();
+                dto.put("type", "dataset");
+                return dto;
             }
 
             @Override
-            public JsonObjectBuilder visit(DataFile df) {
+            public Object visit(DataFile df) {
                 throw new UnsupportedOperationException("Files don't live directly in Dataverses");
             }
         };
@@ -649,9 +649,8 @@ public class Dataverses extends AbstractApiBean {
         return allowCors(response(req -> ok(
                 execCommand(new ListDataverseContentCommand(req, findDataverseOrDie(dvIdtf)))
                         .stream()
-                        .map(dvo -> dvo.accept(ser))
-                        .collect(jsonPrinter.toJsonArray()))
-        ));
+                        .map(dvo -> dvo.accept(visitor))
+                        .collect(Collectors.toList()))));
     }
 
     @GET

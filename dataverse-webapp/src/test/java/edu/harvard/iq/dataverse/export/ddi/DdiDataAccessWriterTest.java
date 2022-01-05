@@ -1,9 +1,9 @@
 package edu.harvard.iq.dataverse.export.ddi;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
-import edu.harvard.iq.dataverse.api.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.RestrictType;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import org.junit.jupiter.api.AfterEach;

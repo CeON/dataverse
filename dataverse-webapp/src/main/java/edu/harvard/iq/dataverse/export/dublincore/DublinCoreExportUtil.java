@@ -2,10 +2,10 @@ package edu.harvard.iq.dataverse.export.dublincore;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
-import edu.harvard.iq.dataverse.api.dto.FieldDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FieldDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.export.ddi.DdiDatasetExportService;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
@@ -48,10 +48,10 @@ public class DublinCoreExportUtil {
     public static String DEFAULT_DC_FLAVOR = DC_FLAVOR_DCTERMS;
 
 
-    public static void datasetJson2dublincore(JsonObject datasetDtoAsJson, OutputStream outputStream, String dcFlavor) throws XMLStreamException {
-        logger.fine(JsonUtil.prettyPrint(datasetDtoAsJson.toString()));
+    public static void datasetJson2dublincore(String datasetDtoAsJson, OutputStream outputStream, String dcFlavor) throws XMLStreamException {
+        logger.fine(JsonUtil.prettyPrint(datasetDtoAsJson));
         Gson gson = new Gson();
-        DatasetDTO datasetDto = gson.fromJson(datasetDtoAsJson.toString(), DatasetDTO.class);
+        DatasetDTO datasetDto = gson.fromJson(datasetDtoAsJson, DatasetDTO.class);
 
         dto2dublincore(datasetDto, outputStream, dcFlavor);
     }

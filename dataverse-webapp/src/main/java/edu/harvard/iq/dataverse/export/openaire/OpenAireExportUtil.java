@@ -2,11 +2,11 @@ package edu.harvard.iq.dataverse.export.openaire;
 
 import com.google.gson.Gson;
 import com.rometools.utils.Lists;
-import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
-import edu.harvard.iq.dataverse.api.dto.FieldDTO;
-import edu.harvard.iq.dataverse.api.dto.FileDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FieldDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
@@ -48,10 +48,10 @@ public class OpenAireExportUtil {
     public static String RESOURCE_NAMESPACE = "http://datacite.org/schema/kernel-3";
     public static String RESOURCE_SCHEMA_LOCATION = "http://schema.datacite.org/meta/kernel-3.1/metadata.xsd";
 
-    public static void datasetJson2openaire(JsonObject datasetDtoAsJson, OutputStream outputStream) throws XMLStreamException {
-        logger.fine(JsonUtil.prettyPrint(datasetDtoAsJson.toString()));
+    public static void datasetJson2openaire(String datasetDtoAsJson, OutputStream outputStream) throws XMLStreamException {
+        logger.fine(JsonUtil.prettyPrint(datasetDtoAsJson));
         Gson gson = new Gson();
-        DatasetDTO datasetDto = gson.fromJson(datasetDtoAsJson.toString(), DatasetDTO.class);
+        DatasetDTO datasetDto = gson.fromJson(datasetDtoAsJson, DatasetDTO.class);
 
         dto2openaire(datasetDto, outputStream);
     }
@@ -1566,26 +1566,26 @@ public class OpenAireExportUtil {
         }
         return false;
     }
-    
+
     public static boolean areAllFilesAllRightsReserved(List<FileDTO> files) {
         return files
                 .stream()
                 .allMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.ALL_RIGHTS_RESERVED));
     }
-    
+
     public static boolean areAllFilesRestricted(List<FileDTO> files) {
         return files
                 .stream()
                 .allMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.RESTRICTED));
     }
-    
-    
+
+
     public static boolean hasRestrictedFile(List<FileDTO> files) {
         return files
                 .stream()
                 .anyMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.RESTRICTED));
     }
-    
+
 
     public static boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType termsOfUseType) {
         return fileDTO.getTermsOfUseType().equals(termsOfUseType.toString());

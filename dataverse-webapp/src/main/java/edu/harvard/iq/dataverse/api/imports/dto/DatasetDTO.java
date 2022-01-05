@@ -1,0 +1,132 @@
+package edu.harvard.iq.dataverse.api.imports.dto;
+
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+
+import java.util.List;
+
+/**
+ * Data transfer object for {@link Dataset}.
+ *
+ * @author michael
+ */
+public class DatasetDTO implements java.io.Serializable {
+    private String id;
+    private String identifier;
+    private String protocol;
+    private String authority;
+    private String globalIdCreateTime;
+    private String publisher;
+    private String publicationDate;
+    private String embargoDate;
+    private boolean embargoActive;
+    private boolean hasActiveGuestbook;
+    private DatasetVersionDTO datasetVersion;
+    private List<DataFileDTO> dataFiles;
+    public static final String DOI_PROTOCOL = "doi";
+    public static final String HDL_PROTOCOL = "hdl";
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+
+    public String getGlobalIdCreateTime() {
+        return globalIdCreateTime;
+    }
+
+    public void setGlobalIdCreateTime(String globalIdCreateTime) {
+        this.globalIdCreateTime = globalIdCreateTime;
+    }
+
+    public DatasetVersionDTO getDatasetVersion() {
+        return datasetVersion;
+    }
+
+    public void setDatasetVersion(DatasetVersionDTO datasetVersion) {
+        this.datasetVersion = datasetVersion;
+    }
+
+    /**
+     * Flags whether there is an active guestbook on dataset.
+     * Need for OpenAire exporter <rightsList> element specification.
+     */
+    public boolean hasActiveGuestbook() {
+        return hasActiveGuestbook;
+    }
+
+    public void setHasActiveGuestbook(boolean hasActiveGuestbook) {
+        this.hasActiveGuestbook = hasActiveGuestbook;
+    }
+
+    public List<DataFileDTO> getDataFiles() {
+        return dataFiles;
+    }
+
+    public void setDataFiles(List<DataFileDTO> dataFiles) {
+        this.dataFiles = dataFiles;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public String getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(String publicationDate) {
+        this.publicationDate = publicationDate;
+    }
+
+    public String getEmbargoDate() {
+        return embargoDate;
+    }
+
+    public void setEmbargoDate(String embargoDate) {
+        this.embargoDate = embargoDate;
+    }
+
+    public boolean isEmbargoActive() {
+        return embargoActive;
+    }
+
+    public void setEmbargoActive(boolean embargoActive) {
+        this.embargoActive = embargoActive;
+    }
+
+    @Override
+    public String toString() {
+        return "DatasetDTO{" + "id=" + id + ", identifier=" + identifier + ", protocol=" + protocol + ", authority=" + authority + ", globalIdCreateTime=" + globalIdCreateTime + ", datasetVersion=" + datasetVersion + ", dataFiles=" + dataFiles + '}';
+    }
+
+}

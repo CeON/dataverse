@@ -1,12 +1,10 @@
 package edu.harvard.iq.dataverse.export.ddi;
 
-import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.api.dto.DataFileDTO;
-import edu.harvard.iq.dataverse.api.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DataFileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
-import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -26,8 +23,6 @@ import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,12 +62,12 @@ public class DdiFileWriterTest {
         dataFileDto.setDescription("some description");
         dataFileDto.setContentType("plain/text");
         fileDto.setDataFile(dataFileDto);
-        
-        
+
+
         // when
         ddiFileWriter.writeOtherMatFromFileDto(xmlw, fileDto);
         xmlw.flush();
-        
+
         // then
         assertThat(writer.toString()).isEqualTo("<otherMat ID=\"f10\" URI=\"https://doi.org/pid\" level=\"datafile\">"
                 + "<labl>file.txt</labl>"
@@ -90,12 +85,12 @@ public class DdiFileWriterTest {
         fileDto.setDataFile(dataFileDto);
 
         when(systemConfig.getDataverseSiteUrl()).thenReturn("http://localhost:8080");
-        
-        
+
+
         // when
         ddiFileWriter.writeOtherMatFromFileDto(xmlw, fileDto);
         xmlw.flush();
-        
+
         // then
         assertThat(writer.toString()).contains("URI=\"http://localhost:8080/api/access/datafile/10\"");
     }
@@ -104,11 +99,11 @@ public class DdiFileWriterTest {
     void writeOtherMatFromFileMetadata() throws XMLStreamException, IOException {
         // given
         FileMetadata fileMetadata = createFileMetadata();
-        
+
         // when
         ddiFileWriter.writeOtherMatFromFileMetadata(xmlw, fileMetadata);
         xmlw.flush();
-        
+
         // then
         assertThat(writer.toString()).isEqualTo("<otherMat ID=\"f15\" URI=\"https://doi.org/10.1012/someId\" level=\"datafile\">"
                 + "<labl>file.txt</labl>"
@@ -123,25 +118,25 @@ public class DdiFileWriterTest {
         when(systemConfig.getDataverseSiteUrl()).thenReturn("http://localhost:8080");
         FileMetadata fileMetadata = createFileMetadata();
         fileMetadata.getDataFile().setIdentifier(null);
-        
+
         // when
         ddiFileWriter.writeOtherMatFromFileMetadata(xmlw, fileMetadata);
         xmlw.flush();
-        
+
         // then
         assertThat(writer.toString()).contains("URI=\"http://localhost:8080/api/access/datafile/15\"");
     }
-    
+
     @Test
     void writeFileDscr() throws XMLStreamException {
         // given
         when(systemConfig.getDataverseSiteUrl()).thenReturn("http://localhost:8080");
         FileMetadata fileMetadata = createFileMetadataForTabularFile();
-        
+
         // when
         ddiFileWriter.writeFileDscr(xmlw, fileMetadata);
         xmlw.flush();
-        
+
         // then
         assertThat(writer.toString()).isEqualTo("<fileDscr ID=\"f15\" URI=\"http://localhost:8080/api/access/datafile/15\">"
                 + "<fileTxt>"
@@ -152,9 +147,9 @@ public class DdiFileWriterTest {
                 + "fileType>plain/text</fileType>"
                 + "</fileTxt></fileDscr>");
     }
-    
+
     // -------------------- PRIVATE --------------------
-    
+
     private FileMetadata createFileMetadata() {
         FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setLabel("file.txt");
@@ -169,17 +164,17 @@ public class DdiFileWriterTest {
         fileMetadata.setDataFile(dataFile);
         return fileMetadata;
     }
-    
+
     private FileMetadata createFileMetadataForTabularFile() {
         FileMetadata fileMetadata = createFileMetadata();
         DataFile dataFile = fileMetadata.getDataFile();
-        
+
         DataTable dataTable = new DataTable();
         dataTable.setVarQuantity(3L);
         dataTable.setCaseQuantity(100L);
         dataTable.setRecordsPerCase(10L);
         dataFile.setDataTable(dataTable);
-        
+
         return fileMetadata;
     }
 }

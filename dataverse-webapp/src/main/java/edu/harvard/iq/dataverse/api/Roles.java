@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.engine.command.impl.DeleteRoleCommand;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.User;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -31,9 +30,6 @@ import javax.ws.rs.core.Response;
 @Stateless
 @Path("roles")
 public class Roles extends AbstractApiBean {
-
-    @Inject
-    private JsonPrinter jsonPrinter;
 
     @Inject
     private DataverseRoleServiceBean rolesSvc;

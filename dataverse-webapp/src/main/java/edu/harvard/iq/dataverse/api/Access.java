@@ -52,7 +52,6 @@ import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.worldmapauth.WorldMapTokenServiceBean;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -60,8 +59,6 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.BadRequestException;
@@ -152,8 +149,6 @@ public class Access extends AbstractApiBean {
     private ImageThumbConverter imageThumbConverter;
     @Inject
     private CitationFactory citationFactory;
-    @Inject
-    private JsonPrinter jsonPrinter;
     @Inject
     private RoleAssigneeServiceBean roleAssigneeSvc;
 

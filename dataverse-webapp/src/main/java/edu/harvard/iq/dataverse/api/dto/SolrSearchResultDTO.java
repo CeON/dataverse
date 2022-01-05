@@ -480,35 +480,11 @@ public class SolrSearchResultDTO {
 
     // -------------------- INNER CLASSES --------------------
 
-    public static class ChecksumDTO {
-        private String type;
-        private String value;
-
-        // -------------------- GETTERS --------------------
-
-        public String getType() {
-            return type;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        // -------------------- SETTERS --------------------
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
-
     public static class Creator {
 
         private DataverseDao dataverseDao;
         private RoleTagRetriever roleTagRetriever;
+        private ChecksumDTO.Creator checksumCreator = new ChecksumDTO.Creator();
 
         // -------------------- CONSTRUCTORS --------------------
 
@@ -575,7 +551,7 @@ public class SolrSearchResultDTO {
             created.setFileContentType(result.getFileContentType());
             created.setSizeInBytes(result.getFileSizeInBytes());
             created.setMd5(result.getFileMd5());
-            created.setChecksum(createChecksum(result));
+            created.setChecksum(checksumCreator.create(result));
             created.setUnf(result.getUnf());
             created.setFilePersistentId(result.getFilePersistentId());
             created.setDeaccessionReason(result.getDeaccessionReason());
@@ -626,16 +602,6 @@ public class SolrSearchResultDTO {
                 matches.add(matchedField);
             }
             return matches;
-        }
-
-        private ChecksumDTO createChecksum(SolrSearchResult result) {
-            if (result.getFileChecksumType() == null) {
-                return null;
-            }
-            ChecksumDTO checksum = new ChecksumDTO();
-            checksum.setType(result.getFileChecksumType().toString());
-            checksum.setValue(result.getFileChecksumValue());
-            return checksum;
         }
     }
 }

@@ -38,7 +38,7 @@ class DublinCoreExportUtilTest {
 
         // when
         OutputStream output = new ByteArrayOutputStream();
-        DublinCoreExportUtil.datasetJson2dublincore(json, output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
+        DublinCoreExportUtil.datasetJson2dublincore(json.toString(), output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
         String result = XmlPrinter.prettyPrintXml(output.toString());
 
         // then
@@ -67,7 +67,7 @@ class DublinCoreExportUtilTest {
 
         // when
         OutputStream output = new ByteArrayOutputStream();
-        DublinCoreExportUtil.datasetJson2dublincore(json, output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
+        DublinCoreExportUtil.datasetJson2dublincore(json.toString(), output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
         String result = output.toString();
 
         // then

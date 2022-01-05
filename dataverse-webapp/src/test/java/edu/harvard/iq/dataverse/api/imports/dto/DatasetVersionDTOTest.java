@@ -1,11 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package edu.harvard.iq.dataverse.util.json;
+package edu.harvard.iq.dataverse.api.imports.dto;
 
-import static org.junit.Assert.assertEquals;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import edu.harvard.iq.dataverse.UnitTestUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,18 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import edu.harvard.iq.dataverse.UnitTestUtils;
-import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
-import edu.harvard.iq.dataverse.api.dto.FieldDTO;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author ellenk

@@ -74,7 +74,6 @@ import edu.harvard.iq.dataverse.userdata.UserListMaker;
 import edu.harvard.iq.dataverse.userdata.UserListResult;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.validation.BeanValidationServiceBean;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
 import io.vavr.control.Option;
@@ -153,9 +152,6 @@ public class Admin extends AbstractApiBean {
 
     @Inject
     private DatasetThumbnailService datasetThumbnailService;
-
-    @Inject
-    private JsonPrinter jsonPrinter;
 
     @Inject
     private DataverseRoleServiceBean rolesSvc;

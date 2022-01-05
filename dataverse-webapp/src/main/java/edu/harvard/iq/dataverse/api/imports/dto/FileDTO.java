@@ -1,4 +1,4 @@
-package edu.harvard.iq.dataverse.api.dto;
+package edu.harvard.iq.dataverse.api.imports.dto;
 
 public class FileDTO {
 

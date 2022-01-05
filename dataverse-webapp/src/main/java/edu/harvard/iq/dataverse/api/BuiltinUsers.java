@@ -15,7 +15,6 @@ import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
@@ -50,9 +49,6 @@ public class BuiltinUsers extends AbstractApiBean {
 
     @EJB
     protected BuiltinUserServiceBean builtinUserSvc;
-
-    @Inject
-    private JsonPrinter jsonPrinter;
 
     @Inject
     private ActionLogServiceBean actionLogSvc;

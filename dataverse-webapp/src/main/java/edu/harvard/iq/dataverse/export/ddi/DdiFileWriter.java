@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.export.ddi;
 
-import edu.harvard.iq.dataverse.api.dto.DataFileDTO;
-import edu.harvard.iq.dataverse.api.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.DataFileDTO;
+import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
@@ -49,7 +49,7 @@ public class DdiFileWriter {
 
         DataFileDTO dataFileDto = fileDto.getDataFile();
         String fileDdiId = "f" + dataFileDto.getId();
-        String fileUrl = StringUtils.isNotEmpty(dataFileDto.getPidURL()) ? 
+        String fileUrl = StringUtils.isNotEmpty(dataFileDto.getPidURL()) ?
                 dataFileDto.getPidURL()
                 : systemConfig.getDataverseSiteUrl() + "/api/access/datafile/" + dataFileDto.getId();
 
@@ -73,7 +73,7 @@ public class DdiFileWriter {
         DataFile dataFile = fileMetadata.getDataFile();
         String fileDdiId = "f" + dataFile.getId();
 
-        String fileUrl = dataFile.getGlobalId().isComplete() ? 
+        String fileUrl = dataFile.getGlobalId().isComplete() ?
                 dataFile.getGlobalId().toURL().toString()
                 : systemConfig.getDataverseSiteUrl() + "/api/access/datafile/" + dataFile.getId();
 
@@ -137,7 +137,7 @@ public class DdiFileWriter {
 
     // -------------------- PRIVATE --------------------
 
-    private void writeOtherMatFile(XMLStreamWriter xmlw, String fileDdiId, String fileUrl, 
+    private void writeOtherMatFile(XMLStreamWriter xmlw, String fileDdiId, String fileUrl,
             String label, String description, String contentType) throws XMLStreamException {
         xmlw.writeStartElement("otherMat");
         writeAttribute(xmlw, "ID", fileDdiId);

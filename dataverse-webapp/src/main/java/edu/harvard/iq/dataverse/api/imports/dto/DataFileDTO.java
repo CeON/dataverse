@@ -1,4 +1,6 @@
-package edu.harvard.iq.dataverse.api.dto;
+package edu.harvard.iq.dataverse.api.imports.dto;
+
+import edu.harvard.iq.dataverse.api.dto.DataTableDTO;
 
 import java.util.ArrayList;
 import java.util.List;
