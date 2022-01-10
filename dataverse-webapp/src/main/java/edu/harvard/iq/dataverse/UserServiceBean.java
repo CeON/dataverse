@@ -67,9 +67,6 @@ public class UserServiceBean {
         offset = offset == null || offset < 0 ? Integer.valueOf(0) : offset;
 
         List<AuthenticatedUser> userResults = getUserListCore(searchTerm, sortKey, isSortAscending, resultLimit, offset);
-        if (userResults == null) {
-            return Collections.emptyList();
-        }
 
         Map<String, List<String>> roleLookup = retrieveRolesForUsers(userResults);
 
@@ -163,21 +160,14 @@ public class UserServiceBean {
         Query nativeQuery = em.createNativeQuery(qstr);
 
         List<Object[]> dbRoleResults = nativeQuery.getResultList();
-        if (dbRoleResults == null) {
-            return Collections.emptyMap();
-        }
 
         Map<String, List<String>> userRoleLookup = new HashMap<>();
 
         String userIdentifier;
         String userRole;
         for (Object[] dbResultRow : dbRoleResults) {
-            userIdentifier = getStringOrNull(dbResultRow[0]);
-            userRole = RoleTranslationUtil.getLocaleNameFromAlias(getStringOrNull(dbResultRow[1]),
-                        getStringOrNull(dbResultRow[2]));
-            if (userIdentifier == null || userRole == null) { // should never be null
-                continue;
-            }
+            userIdentifier = (String) dbResultRow[0];
+            userRole = RoleTranslationUtil.getLocaleNameFromAlias((String) dbResultRow[1], (String) dbResultRow[2]);
             List<String> userRoleList = userRoleLookup.getOrDefault(userIdentifier, new ArrayList<>());
             if (!userRoleList.contains(userRole)) {
                 userRoleList.add(userRole);
@@ -209,15 +199,12 @@ public class UserServiceBean {
 
         nativeQuery = em.createNativeQuery(qstr);
         List<Object[]> groupResults = nativeQuery.getResultList();
-        if (groupResults == null) {
-            return userRoleLookup;
-        }
 
         Set<String> groupIdentifiers = new HashSet<>();
 
         for (Object[] group : groupResults) {
-            String alias = getStringOrNull(group[0]);
-            String user = getStringOrNull(group[1]);
+            String alias = (String) group[0];
+            String user = (String) group[1];
             if (alias == null) {
                 continue;
             }
@@ -252,12 +239,8 @@ public class UserServiceBean {
         }
 
         for (Object[] dbResultRow : dbRoleResults) {
-            String groupIdentifier = getStringOrNull(dbResultRow[0]);
-            String groupRole = RoleTranslationUtil.getLocaleNameFromAlias(getStringOrNull(dbResultRow[1]),
-                        getStringOrNull(dbResultRow[2]));
-            if (groupIdentifier == null || groupRole == null) { // should never be null
-                continue;
-            }
+            String groupIdentifier = (String) dbResultRow[0];
+            String groupRole = RoleTranslationUtil.getLocaleNameFromAlias((String) dbResultRow[1], (String) dbResultRow[2]);
             List<String> groupUserList = groupsLookup.getOrDefault(groupIdentifier, Collections.emptyList());
             for (String groupUserIdentifier : groupUserList) {
                 groupUserIdentifier = "@" + groupUserIdentifier;

@@ -116,15 +116,15 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
 
     private boolean superuser;
 
-    /**
-     * attribute key/value pairs, not just the Identity Provider (IdP).
-     */
     @Transient
     private String shibIdentityProvider;
 
     //For User List Admin dashboard
     @Transient
     private String roles;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    private List<DatasetLock> datasetLocks;
 
     // -------------------- GETTERS --------------------
 
@@ -211,9 +211,6 @@ public class AuthenticatedUser implements User, Serializable, JpaEntity<Long> {
     public String getIdentifier() {
         return IDENTIFIER_PREFIX + userIdentifier;
     }
-
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
-    private List<DatasetLock> datasetLocks;
 
     @Override
     public AuthenticatedUserDisplayInfo getDisplayInfo() {

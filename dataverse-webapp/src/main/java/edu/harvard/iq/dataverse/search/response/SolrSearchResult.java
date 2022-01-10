@@ -588,36 +588,22 @@ public class SolrSearchResult {
     }
 
     public String getDatasetUrl() {
-        String failSafeUrl = "/dataset.xhtml?id=" + entityId + "&versionId=" + datasetVersionId;
-        if (identifier != null) {
-            /**
-             * Unfortunately, colons in the globalId (doi:10...) are converted
-             * to %3A (doi%3A10...). To prevent this we switched many JSF tags
-             * to a plain "a" tag with an href as suggested at
-             * http://stackoverflow.com/questions/24733959/houtputlink-value-escaped
-             */
-            String badString = "null";
-            if (!identifier.contains(badString)) {
-                return isDraftState()
-                        ? "/dataset.xhtml?persistentId=" + identifier + "&version=DRAFT"
-                        : "/dataset.xhtml?persistentId=" + identifier;
-            } else {
-                logger.info("Dataset identifier/globalId contains \"" + badString
-                        + "\" perhaps due to https://github.com/IQSS/dataverse/issues/1147 . Fix data in database and reindex. Returning failsafe URL: " + failSafeUrl);
-                return failSafeUrl;
-            }
-        } else {
+        if (identifier == null) {
+            String failSafeUrl = "/dataset.xhtml?id=" + entityId + "&versionId=" + datasetVersionId;
             logger.info("Dataset identifier/globalId was null. Returning failsafe URL: " + failSafeUrl);
             return failSafeUrl;
         }
+        return isDraftState()
+                ? "/dataset.xhtml?persistentId=" + identifier + "&version=DRAFT"
+                : "/dataset.xhtml?persistentId=" + identifier;
     }
     public String getFileUrl() {
-        if (identifier != null) {
-            return isDraftState()
-                    ? "/file.xhtml?persistentId=" + identifier + "&version=DRAFT"
-                    : "/file.xhtml?persistentId=" + identifier;
+        if (identifier == null) {
+            return "/file.xhtml?fileId=" + entityId + "&datasetVersionId=" + datasetVersionId;
         }
-        return "/file.xhtml?fileId=" + entityId + "&datasetVersionId=" + datasetVersionId;
+        return isDraftState()
+                ? "/file.xhtml?persistentId=" + identifier + "&version=DRAFT"
+                : "/file.xhtml?persistentId=" + identifier;
     }
 
     public String getFileDatasetUrl() {

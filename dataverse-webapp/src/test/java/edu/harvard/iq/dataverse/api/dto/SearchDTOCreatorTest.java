@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,8 +39,13 @@ class SearchDTOCreatorTest {
                 .containsExactly("query", 4L, 4, 1L);
         assertThat(result.getSpellingAlternatives())
                 .contains(entry("e", "[ee, eee]"));
-        assertThat(result.getFacets().toString())
-                .contains("Category 1", "Category 2", "Label 1", "Label 2", "Label 3");
+        Map<String, SearchDTO.FacetCategoryDTO> facets = result.getFacets().get(0);
+        assertThat(facets).containsOnlyKeys("Category 1", "Category 2");
+        assertThat(facets.values().stream()
+                .flatMap(f -> f.getLabels().stream()
+                        .flatMap(l -> l.keySet().stream()))
+                .collect(Collectors.toSet()))
+                .containsExactlyInAnyOrder("Label 1", "Label 2", "Label 3");
     }
 
     // -------------------- PRIVATE --------------------

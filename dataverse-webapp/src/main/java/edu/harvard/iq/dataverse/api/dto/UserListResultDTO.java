@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.userdata.UserListResult;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -220,16 +221,15 @@ public class UserListResultDTO {
                         user.setEmail(u.getEmail());
                         user.setAffiliation(u.getAffiliation());
                         user.setPosition(u.getPosition());
-                        user.setNotificationsLanguage(u.getNotificationsLanguage() != null
-                                ? u.getNotificationsLanguage().toString() : null);
+                        user.setNotificationsLanguage(Objects.toString(u.getNotificationsLanguage(), null));
                         user.setIsSuperuser(u.isSuperuser());
                         user.setAuthenticationProvider(
                                 AuthenticatedUserUtil.getAuthenticationProviderFriendlyName(
                                         u.getAuthenticatedUserLookup().getAuthenticationProviderId()));
                         user.setRoles(u.getRoles());
-                        user.setCreatedTime(safeToString(u.getCreatedTime()));
-                        user.setLastLoginTime(safeToString(u.getLastLoginTime()));
-                        user.setLastApiUseTime(safeToString(u.getLastApiUseTime()));
+                        user.setCreatedTime(Objects.toString(u.getCreatedTime(), null));
+                        user.setLastLoginTime(Objects.toString(u.getLastLoginTime(), null));
+                        user.setLastApiUseTime(Objects.toString(u.getLastApiUseTime(), null));
                         return user;
                     })
                     .collect(Collectors.toList()));
@@ -253,10 +253,6 @@ public class UserListResultDTO {
             for (String name : names) {
                 map.put(name, BundleUtil.getStringFromBundle("dashboard.list_users.tbl_header." + name));
             }
-        }
-
-        private <T> String safeToString(T object) {
-            return object != null ? object.toString() : null;
         }
     }
 }

@@ -9,7 +9,7 @@ import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class SearchDTO {
 
     private List<SolrSearchResultDTO> items;
 
-    private List<Object> facets = new ArrayList<>();
+    private List<Map<String, FacetCategoryDTO>> facets = new ArrayList<>();
 
     @JsonProperty("count_in_response")
     private Integer countInResponse;
@@ -59,7 +59,7 @@ public class SearchDTO {
         return items;
     }
 
-    public List<Object> getFacets() {
+    public List<Map<String, FacetCategoryDTO>> getFacets() {
         return facets;
     }
 
@@ -89,7 +89,7 @@ public class SearchDTO {
         this.items = items;
     }
 
-    public void setFacets(List<Object> facets) {
+    public void setFacets(List<Map<String, FacetCategoryDTO>> facets) {
         this.facets = facets;
     }
 
@@ -98,6 +98,31 @@ public class SearchDTO {
     }
 
     // -------------------- INNER CLASSES --------------------
+
+    public static class FacetCategoryDTO {
+        private String friendly;
+        private List<Map<String, Long>> labels;
+
+        // -------------------- GETTERS --------------------
+
+        public String getFriendly() {
+            return friendly;
+        }
+
+        public List<Map<String, Long>> getLabels() {
+            return labels;
+        }
+
+        // -------------------- SETTERS --------------------
+
+        public void setFriendly(String friendly) {
+            this.friendly = friendly;
+        }
+
+        public void setLabels(List<Map<String, Long>> labels) {
+            this.labels = labels;
+        }
+    }
 
     public static class Creator {
         public SearchDTO create(SolrQueryResponse response) {
@@ -120,12 +145,12 @@ public class SearchDTO {
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString(), (prev, next) -> next));
         }
 
-        private Object createFacets(SolrQueryResponse response) {
-            Map<String, Object> facetCategories = new HashMap<>();
+        private Map<String, FacetCategoryDTO> createFacets(SolrQueryResponse response) {
+            Map<String, FacetCategoryDTO> facetCategories = new LinkedHashMap<>();
             for (FacetCategory category : response.getFacetCategoryList()) {
-                Map<String, Object> facetCategory = new HashMap<>();
-                facetCategory.put("friendly", category.getFriendlyName());
-                facetCategory.put("labels", category.getFacetLabels().stream()
+                FacetCategoryDTO facetCategory = new FacetCategoryDTO();
+                facetCategory.setFriendly(category.getFriendlyName());
+                facetCategory.setLabels(category.getFacetLabels().stream()
                         .map(l -> Collections.singletonMap(l.getName(), l.getCount()))
                         .collect(Collectors.toList()));
                 facetCategories.put(category.getName(), facetCategory);
