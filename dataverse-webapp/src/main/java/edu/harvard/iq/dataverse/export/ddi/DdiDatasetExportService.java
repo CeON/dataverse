@@ -1,10 +1,10 @@
 package edu.harvard.iq.dataverse.export.ddi;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.DatasetVersionDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.FieldDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO;
+import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +27,11 @@ import java.util.Set;
 import static edu.harvard.iq.dataverse.export.ddi.DdiConstants.DDI_NAMESPACE;
 import static edu.harvard.iq.dataverse.export.ddi.DdiConstants.DDI_SCHEMA_LOCATION;
 import static edu.harvard.iq.dataverse.export.ddi.DdiConstants.DDI_VERSION;
-import static edu.harvard.iq.dataverse.util.xml.XmlStreamWriterUtils.*;
+import static edu.harvard.iq.dataverse.util.xml.XmlStreamWriterUtils.writeAttribute;
+import static edu.harvard.iq.dataverse.util.xml.XmlStreamWriterUtils.writeFullAttributesOnlyElement;
+import static edu.harvard.iq.dataverse.util.xml.XmlStreamWriterUtils.writeFullElement;
+import static edu.harvard.iq.dataverse.util.xml.XmlStreamWriterUtils.writeFullElementList;
+import static edu.harvard.iq.dataverse.util.xml.XmlStreamWriterUtils.writeFullElementWithAttributes;
 import static java.util.stream.Collectors.toList;
 
 
@@ -58,7 +61,7 @@ public class DdiDatasetExportService {
 
     // "short" ddi, without the "<fileDscr>"  and "<dataDscr>/<var>" sections:
     public void datasetJson2ddi(DatasetDTO datasetDto, OutputStream outputStream,
-                                       Map<String, Map<String, String>> localizedVocabularyIndex)
+                                Map<String, Map<String, String>> localizedVocabularyIndex)
             throws XMLStreamException {
 
         XMLStreamWriter xmlw = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
@@ -67,7 +70,7 @@ public class DdiDatasetExportService {
 
         writeDocDescElement(xmlw, datasetDto);
         createStdyDscr(xmlw, datasetDto, localizedVocabularyIndex);
-        if(!datasetDto.isEmbargoActive()) {
+        if(!datasetDto.getEmbargoActive()) {
             createOtherMatsFromFileDtos(xmlw, datasetDto.getDatasetVersion().getFiles());
         }
         xmlw.writeEndElement(); // codeBook
@@ -86,7 +89,7 @@ public class DdiDatasetExportService {
 
         writeDocDescElement(xmlw, datasetDto);
         createStdyDscr(xmlw, datasetDto, localizedVocabularyIndex);
-        if(!datasetDto.isEmbargoActive()) {
+        if(!datasetDto.getEmbargoActive()) {
             createFileDscr(xmlw, version.getFileMetadatas());
             createDataDscr(xmlw, version.getFileMetadatas());
             createOtherMatsFromFileMetadatas(xmlw, version.getFileMetadatas());
@@ -220,7 +223,7 @@ public class DdiDatasetExportService {
 
     private void writeOtherIdElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.otherId)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.otherId)) {
 
             String otherId = extractFieldWithTypeAsString(foo, DatasetFieldConstant.otherIdValue);
             String otherIdAgency = extractFieldWithTypeAsString(foo, DatasetFieldConstant.otherIdAgency);
@@ -234,7 +237,7 @@ public class DdiDatasetExportService {
 
         xmlw.writeStartElement("rspStmt");
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.author)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.author)) {
             String authorName = extractFieldWithTypeAsString(foo, DatasetFieldConstant.authorName);
             String authorAffiliation = extractFieldWithTypeAsString(foo, DatasetFieldConstant.authorAffiliation);
 
@@ -249,7 +252,7 @@ public class DdiDatasetExportService {
 
         xmlw.writeStartElement("prodStmt");
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(version, DatasetFieldConstant.producer)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(version, DatasetFieldConstant.producer)) {
 
             String producerName = extractFieldWithTypeAsString(foo, DatasetFieldConstant.producerName);
             String producerAffiliation = extractFieldWithTypeAsString(foo, DatasetFieldConstant.producerAffiliation);
@@ -272,7 +275,7 @@ public class DdiDatasetExportService {
 
     private void writeSoftwareElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.software)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.software)) {
 
             String softwareName = extractFieldWithTypeAsString(foo, DatasetFieldConstant.softwareName);
             String softwareVersion = extractFieldWithTypeAsString(foo, DatasetFieldConstant.softwareVersion);
@@ -284,7 +287,7 @@ public class DdiDatasetExportService {
 
     private void writeGrantElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.grantNumber)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.grantNumber)) {
 
             String grantNumber = extractFieldWithTypeAsString(foo, DatasetFieldConstant.grantNumberValue);
             String grantAgency = extractFieldWithTypeAsString(foo, DatasetFieldConstant.grantNumberAgency);
@@ -296,7 +299,7 @@ public class DdiDatasetExportService {
 
     private void writeDistributorsElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.distributor)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.distributor)) {
 
             String distributorName = extractFieldWithTypeAsString(foo, DatasetFieldConstant.distributorName);
             String distributorAffiliation = extractFieldWithTypeAsString(foo, DatasetFieldConstant.distributorAffiliation);
@@ -312,7 +315,7 @@ public class DdiDatasetExportService {
 
     private void writeContactsElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.datasetContact)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.datasetContact)) {
 
             String datasetContactName = extractFieldWithTypeAsString(foo, DatasetFieldConstant.datasetContactName);
             String datasetContactAffiliation = extractFieldWithTypeAsString(foo, DatasetFieldConstant.datasetContactAffiliation);
@@ -326,7 +329,7 @@ public class DdiDatasetExportService {
     }
 
     private void writeSeriesElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
-        Set<FieldDTO> childrenOfSeries = extractChildrenOfSingleCompoundField(datasetVersionDTO, DatasetFieldConstant.series);
+        Set<DatasetFieldDTO> childrenOfSeries = extractChildrenOfSingleCompoundField(datasetVersionDTO, DatasetFieldConstant.series);
 
         if (!childrenOfSeries.isEmpty()) {
             xmlw.writeStartElement("serStmt");
@@ -356,7 +359,7 @@ public class DdiDatasetExportService {
 
         writeFullElementList(xmlw, "keyword", dto2PrimitiveList(datasetVersionDTO, DatasetFieldConstant.subject));
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.keyword)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.keyword)) {
 
             String keywordValue = extractFieldWithTypeAsString(foo, DatasetFieldConstant.keywordValue);
             String keywordVocab = extractFieldWithTypeAsString(foo, DatasetFieldConstant.keywordVocab);
@@ -368,7 +371,7 @@ public class DdiDatasetExportService {
 
         }
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.topicClassification)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.topicClassification)) {
 
             String topicClassificationValue = extractFieldWithTypeAsString(foo, DatasetFieldConstant.topicClassValue);
             String topicClassificationVocab = extractFieldWithTypeAsString(foo, DatasetFieldConstant.topicClassVocab);
@@ -384,7 +387,7 @@ public class DdiDatasetExportService {
 
     private void writeAbstractElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.description)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.description)) {
 
             String descriptionText = extractFieldWithTypeAsString(foo, DatasetFieldConstant.descriptionText);
             String descriptionDate = extractFieldWithTypeAsString(foo, DatasetFieldConstant.descriptionDate);
@@ -398,7 +401,7 @@ public class DdiDatasetExportService {
         xmlw.writeStartElement("sumDscr");
 
         Integer per = 0;
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.timePeriodCovered)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.timePeriodCovered)) {
             String dateValStart = extractFieldWithTypeAsString(foo, DatasetFieldConstant.timePeriodCoveredStart);
             String dateValEnd = extractFieldWithTypeAsString(foo, DatasetFieldConstant.timePeriodCoveredEnd);
             per++;
@@ -408,7 +411,7 @@ public class DdiDatasetExportService {
         }
 
         Integer coll = 0;
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.dateOfCollection)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.dateOfCollection)) {
             String dateValStart = extractFieldWithTypeAsString(foo, DatasetFieldConstant.dateOfCollectionStart);
             String dateValEnd = extractFieldWithTypeAsString(foo, DatasetFieldConstant.dateOfCollectionEnd);
             coll++;
@@ -418,14 +421,14 @@ public class DdiDatasetExportService {
         }
 
 
-        List<Set<FieldDTO>> childrenOfGeographicCoverages = extractChildrenOfMultipleCompoundField(
+        List<Set<DatasetFieldDTO>> childrenOfGeographicCoverages = extractChildrenOfMultipleCompoundField(
                 datasetVersionDTO, DatasetFieldConstant.geographicCoverage);
 
-        for (Set<FieldDTO> foo : childrenOfGeographicCoverages) {
+        for (Set<DatasetFieldDTO> foo : childrenOfGeographicCoverages) {
             writeFullElement(xmlw, "nation", extractFieldWithTypeAsString(foo, DatasetFieldConstant.country));
         }
 
-        for (Set<FieldDTO> foo : childrenOfGeographicCoverages) {
+        for (Set<DatasetFieldDTO> foo : childrenOfGeographicCoverages) {
 
             writeFullElement(xmlw, "geogCover", extractFieldWithTypeAsString(foo, DatasetFieldConstant.city));
             writeFullElement(xmlw, "geogCover", extractFieldWithTypeAsString(foo, DatasetFieldConstant.state));
@@ -435,7 +438,7 @@ public class DdiDatasetExportService {
 
         writeFullElementList(xmlw, "geogUnit", dto2PrimitiveList(datasetVersionDTO, DatasetFieldConstant.geographicUnit));
 
-        Set<FieldDTO> childrenOfFirstGeographicBoundingBox = extractChildrenOfMultipleCompoundField(
+        Set<DatasetFieldDTO> childrenOfFirstGeographicBoundingBox = extractChildrenOfMultipleCompoundField(
                 datasetVersionDTO, DatasetFieldConstant.geographicBoundingBox)
                 .stream().findFirst().orElse(Collections.emptySet());
 
@@ -513,7 +516,7 @@ public class DdiDatasetExportService {
     }
 
     private void writeTargetSampleElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
-        Set<FieldDTO> childrenOfTargetSampleSize = extractChildrenOfSingleCompoundField(datasetVersionDTO, DatasetFieldConstant.targetSampleSize);
+        Set<DatasetFieldDTO> childrenOfTargetSampleSize = extractChildrenOfSingleCompoundField(datasetVersionDTO, DatasetFieldConstant.targetSampleSize);
 
         if (!childrenOfTargetSampleSize.isEmpty()) {
             xmlw.writeStartElement("targetSampleSize");
@@ -533,7 +536,7 @@ public class DdiDatasetExportService {
     }
 
     private void writeNotesElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
-        Set<FieldDTO> childrenOfSocialNotes = extractChildrenOfSingleCompoundField(datasetVersionDTO, DatasetFieldConstant.socialScienceNotes);
+        Set<DatasetFieldDTO> childrenOfSocialNotes = extractChildrenOfSingleCompoundField(datasetVersionDTO, DatasetFieldConstant.socialScienceNotes);
 
         String notesText = extractFieldWithTypeAsString(childrenOfSocialNotes, DatasetFieldConstant.socialScienceNotesText);
         String notesType = extractFieldWithTypeAsString(childrenOfSocialNotes, DatasetFieldConstant.socialScienceNotesType);
@@ -563,7 +566,7 @@ public class DdiDatasetExportService {
 
     private void writeRelPublElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.publication)) {
+        for (Set<DatasetFieldDTO> foo : extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.publication)) {
             String citation = extractFieldWithTypeAsString(foo, DatasetFieldConstant.publicationCitation);
             String idType = extractFieldWithTypeAsString(foo, DatasetFieldConstant.publicationIDType);
             String idNumber = extractFieldWithTypeAsString(foo, DatasetFieldConstant.publicationIDNumber);
@@ -575,7 +578,7 @@ public class DdiDatasetExportService {
 
     private void writeRelMatElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> relatedMaterial: extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.relatedMaterial)) {
+        for (Set<DatasetFieldDTO> relatedMaterial: extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.relatedMaterial)) {
 
             String citation = extractFieldWithTypeAsString(relatedMaterial, DatasetFieldConstant.relatedMaterialCitation);
             String idType = extractFieldWithTypeAsString(relatedMaterial, DatasetFieldConstant.relatedMaterialIDType);
@@ -589,7 +592,7 @@ public class DdiDatasetExportService {
 
     private void writeRelStdyElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO) throws XMLStreamException {
 
-        for (Set<FieldDTO> relatedDataset: extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.relatedDataset)) {
+        for (Set<DatasetFieldDTO> relatedDataset: extractChildrenOfMultipleCompoundField(datasetVersionDTO, DatasetFieldConstant.relatedDataset)) {
 
             String citation = extractFieldWithTypeAsString(relatedDataset, DatasetFieldConstant.relatedDatasetCitation);
             String idType = extractFieldWithTypeAsString(relatedDataset, DatasetFieldConstant.relatedDatasetIDType);
@@ -620,8 +623,8 @@ public class DdiDatasetExportService {
         }
     }
 
-    private void createOtherMatsFromFileDtos(XMLStreamWriter xmlw, List<FileDTO> files) throws XMLStreamException {
-        for (FileDTO file: files) {
+    private void createOtherMatsFromFileDtos(XMLStreamWriter xmlw, List<FileMetadataDTO> files) throws XMLStreamException {
+        for (FileMetadataDTO file: files) {
             ddiFileWriter.writeOtherMatFromFileDto(xmlw, file);
         }
     }
@@ -664,13 +667,13 @@ public class DdiDatasetExportService {
 
     private String dto2Primitive(DatasetVersionDTO datasetVersionDTO, String datasetFieldTypeName) {
         return findFieldWithType(datasetVersionDTO, datasetFieldTypeName)
-                .map(metadataField -> metadataField.getSinglePrimitive())
+                .map(DatasetFieldDTO::getSinglePrimitive)
                 .orElse(StringUtils.EMPTY);
     }
 
     private List<String> dto2PrimitiveList(DatasetVersionDTO datasetVersionDTO, String datasetFieldTypeName) {
         return findFieldWithType(datasetVersionDTO, datasetFieldTypeName)
-                .map(metadataField -> metadataField.getMultiplePrimitive())
+                .map(DatasetFieldDTO::getMultiplePrimitive)
                 .orElse(Collections.emptyList());
     }
 
@@ -697,27 +700,27 @@ public class DdiDatasetExportService {
                 .orElse(Collections.emptyList());
     }
 
-    private List<Set<FieldDTO>> extractChildrenOfMultipleCompoundField(DatasetVersionDTO datasetVersionDTO, String fieldType) {
+    private List<Set<DatasetFieldDTO>> extractChildrenOfMultipleCompoundField(DatasetVersionDTO datasetVersionDTO, String fieldType) {
         return findFieldWithType(datasetVersionDTO, fieldType)
-                .map(metadataField -> metadataField.getMultipleCompound())
+                .map(DatasetFieldDTO::getMultipleCompound)
                 .orElse(Collections.emptyList());
     }
 
-    private Set<FieldDTO> extractChildrenOfSingleCompoundField(DatasetVersionDTO datasetVersionDTO, String fieldType) {
+    private Set<DatasetFieldDTO> extractChildrenOfSingleCompoundField(DatasetVersionDTO datasetVersionDTO, String fieldType) {
         return findFieldWithType(datasetVersionDTO, fieldType)
-                .map(metadataField -> metadataField.getSingleCompound())
+                .map(DatasetFieldDTO::getSingleCompound)
                 .orElse(Collections.emptySet());
     }
 
-    private String extractFieldWithTypeAsString(Set<FieldDTO> compoundFieldChildren, String fieldType) {
+    private String extractFieldWithTypeAsString(Set<DatasetFieldDTO> compoundFieldChildren, String fieldType) {
         return compoundFieldChildren.stream()
                 .filter(f -> f.getTypeName().equals(fieldType))
-                .map(f -> f.getSinglePrimitive())
+                .map(DatasetFieldDTO::getSinglePrimitive)
                 .findFirst()
                 .orElse(StringUtils.EMPTY);
     }
 
-    private Optional<FieldDTO> findFieldWithType(DatasetVersionDTO datasetVersionDTO, String fieldType) {
+    private Optional<DatasetFieldDTO> findFieldWithType(DatasetVersionDTO datasetVersionDTO, String fieldType) {
         return datasetVersionDTO.getMetadataBlocks().values().stream()
                 .flatMap(metadataBlock -> metadataBlock.getFields().stream())
                 .filter(field -> field.getTypeName().equals(fieldType))

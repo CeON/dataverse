@@ -3,10 +3,10 @@ package edu.harvard.iq.dataverse.export.ddi;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import edu.harvard.iq.dataverse.UnitTestUtils;
-import edu.harvard.iq.dataverse.api.imports.dto.DataFileDTO;
-import edu.harvard.iq.dataverse.api.dto.DataTableDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO;
+import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO.DataFileDTO;
+import edu.harvard.iq.dataverse.export.DeserializartionHelper;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.json.JsonObject;
 import javax.xml.stream.XMLStreamException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -83,7 +82,7 @@ class DdiDatasetExportServiceTest {
                     .add("files", createArrayBuilder())).build();
 
         DatasetDTO datasetDTO = new Gson().fromJson(json.toString(), DatasetDTO.class);
-
+        datasetDTO.setEmbargoActive(false);
         Map<String, String> collectionModeIndex = new HashMap<>();
         collectionModeIndex.put(modeA, "Collection mode A");
         collectionModeIndex.put(modeB, "Collection mode B");
@@ -142,26 +141,25 @@ class DdiDatasetExportServiceTest {
         // given
         DatasetDTO datasetDTO = readDtoFromFile("json/export/ddi/dataset-finch1.json");
 
-        FileDTO tabularFileDto = new FileDTO();
+        FileMetadataDTO file1 = new FileMetadataDTO();
         DataFileDTO tabularDataFileDto = new DataFileDTO();
-        tabularDataFileDto.setFilename("file.tab");
-        tabularDataFileDto.setDataTables(Lists.newArrayList(new DataTableDTO()));
-        tabularFileDto.setDataFile(tabularDataFileDto);
+        tabularDataFileDto.setFilename("file1.tab");
+        file1.setDataFile(tabularDataFileDto);
 
-        FileDTO nonTabularFileDto = new FileDTO();
+        FileMetadataDTO file2 = new FileMetadataDTO();
         DataFileDTO nonTabularDataFileDto = new DataFileDTO();
         nonTabularDataFileDto.setFilename("file2.txt");
-        nonTabularFileDto.setDataFile(nonTabularDataFileDto);
+        file2.setDataFile(nonTabularDataFileDto);
 
-        datasetDTO.getDatasetVersion().setFiles(Lists.newArrayList(tabularFileDto, nonTabularFileDto));
+        datasetDTO.getDatasetVersion().setFiles(Lists.newArrayList(file1, file2));
 
         // when
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ddiDatasetExportService.datasetJson2ddi(datasetDTO, outputStream, Collections.emptyMap());
 
         // then
-        verify(ddiFileWriter).writeOtherMatFromFileDto(any(), same(nonTabularFileDto));
-        verify(ddiFileWriter).writeOtherMatFromFileDto(any(), same(tabularFileDto));
+        verify(ddiFileWriter).writeOtherMatFromFileDto(any(), same(file2));
+        verify(ddiFileWriter).writeOtherMatFromFileDto(any(), same(file1));
         verifyNoMoreInteractions(ddiFileWriter);
 
     }
@@ -203,7 +201,10 @@ class DdiDatasetExportServiceTest {
     private DatasetDTO readDtoFromFile(String path) throws IOException {
         String datasetDtoJson = UnitTestUtils.readFileToString(path);
         Gson gson = new Gson();
-        return gson.fromJson(datasetDtoJson, DatasetDTO.class);
+        DatasetDTO dto = gson.fromJson(datasetDtoJson, DatasetDTO.class);
+        dto.setEmbargoActive(false);
+        DeserializartionHelper.repairNestedDatasetFields(dto);
+        return dto;
     }
 
     private String readFile(String path) throws IOException, URISyntaxException {

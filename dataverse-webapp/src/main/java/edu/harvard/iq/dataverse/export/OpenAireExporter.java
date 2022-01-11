@@ -43,8 +43,7 @@ public class OpenAireExporter extends ExporterBase {
     @Override
     public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            String datasetAsJson = createDatasetJsonString(version);
-            OpenAireExportUtil.datasetJson2openaire(datasetAsJson, byteArrayOutputStream);
+            OpenAireExportUtil.datasetJson2openaire(createDTO(version), byteArrayOutputStream);
             return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
         } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DataCite OpenAIRE export", xse);

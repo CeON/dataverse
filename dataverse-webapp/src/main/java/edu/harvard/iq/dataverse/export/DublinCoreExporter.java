@@ -27,11 +27,9 @@ public class DublinCoreExporter extends ExporterBase {
 
     @Override
     public String exportDataset(DatasetVersion version) throws ExportException {
-        String jsonDatasetVersion = createDatasetJsonString(version);
-
         return Try.withResources(ByteArrayOutputStream::new)
                 .of(byteArrayOutputStream -> {
-                    DublinCoreExportUtil.datasetJson2dublincore(jsonDatasetVersion,
+                    DublinCoreExportUtil.datasetJson2dublincore(createDTO(version),
                                                                 byteArrayOutputStream,
                                                                 DublinCoreExportUtil.DC_FLAVOR_OAI);
                     return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());

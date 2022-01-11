@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.export.ddi;
 
-import edu.harvard.iq.dataverse.api.imports.dto.DataFileDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO;
+import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO.DataFileDTO;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,9 +53,9 @@ public class DdiFileWriterTest {
     @Test
     void writeOtherMatFromFileDto() throws XMLStreamException, IOException {
         // given
-        FileDTO fileDto = new FileDTO();
+        FileMetadataDTO fileDto = new FileMetadataDTO();
         DataFileDTO dataFileDto = new DataFileDTO();
-        dataFileDto.setId("10");
+        dataFileDto.setId(10L);
         dataFileDto.setPidURL("https://doi.org/pid");
         dataFileDto.setFilename("file.txt");
         dataFileDto.setDescription("some description");
@@ -78,9 +77,9 @@ public class DdiFileWriterTest {
     @Test
     void writeOtherMatFromFileDto_without_pid_url() throws XMLStreamException, IOException {
         // given
-        FileDTO fileDto = new FileDTO();
+        FileMetadataDTO fileDto = new FileMetadataDTO();
         DataFileDTO dataFileDto = new DataFileDTO();
-        dataFileDto.setId("10");
+        dataFileDto.setId(10L);
         dataFileDto.setFilename("file.txt");
         fileDto.setDataFile(dataFileDto);
 

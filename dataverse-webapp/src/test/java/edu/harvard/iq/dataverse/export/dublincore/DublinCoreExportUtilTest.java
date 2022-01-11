@@ -1,5 +1,8 @@
 package edu.harvard.iq.dataverse.export.dublincore;
 
+import com.google.gson.Gson;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.export.DeserializartionHelper;
 import edu.harvard.iq.dataverse.util.xml.XmlPrinter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +41,10 @@ class DublinCoreExportUtilTest {
 
         // when
         OutputStream output = new ByteArrayOutputStream();
-        DublinCoreExportUtil.datasetJson2dublincore(json.toString(), output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
+        Gson gson = new Gson();
+        DatasetDTO datasetDto = gson.fromJson(json.toString(), DatasetDTO.class);
+        DeserializartionHelper.repairNestedDatasetFields(datasetDto);
+        DublinCoreExportUtil.datasetJson2dublincore(datasetDto, output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
         String result = XmlPrinter.prettyPrintXml(output.toString());
 
         // then

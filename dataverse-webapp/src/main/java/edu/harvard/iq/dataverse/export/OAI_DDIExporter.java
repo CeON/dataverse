@@ -1,7 +1,5 @@
 package edu.harvard.iq.dataverse.export;
 
-import com.google.gson.Gson;
-import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.export.ddi.DdiConstants;
@@ -61,14 +59,10 @@ public class OAI_DDIExporter extends ExporterBase {
     @Override
     public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            String datasetAsJson = createDatasetJsonString(version);
             Map<String, Map<String, String>> localizedValuesIndex
                     = vocabularyValuesIndexer.indexLocalizedNamesOfUsedKeysByTypeAndValue(version, Locale.ENGLISH);
 
-            Gson gson = new Gson();
-            DatasetDTO datasetDto = gson.fromJson(datasetAsJson, DatasetDTO.class);
-
-            ddiDatasetExportService.datasetJson2ddi(datasetDto, byteArrayOutputStream, localizedValuesIndex);
+            ddiDatasetExportService.datasetJson2ddi(createDTO(version), byteArrayOutputStream, localizedValuesIndex);
             return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
         } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DDI export");

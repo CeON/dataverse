@@ -49,8 +49,7 @@ public class DCTermsExporter extends ExporterBase {
     @Override
     public String exportDataset(DatasetVersion version) throws ExportException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            String datasetAsJson = createDatasetJsonString(version);
-            DublinCoreExportUtil.datasetJson2dublincore(datasetAsJson, byteArrayOutputStream, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
+            DublinCoreExportUtil.datasetJson2dublincore(createDTO(version), byteArrayOutputStream, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
             return byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
         } catch (XMLStreamException | IOException xse) {
             throw new ExportException("Caught XMLStreamException performing DCTERMS export", xse);

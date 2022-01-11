@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
@@ -15,8 +16,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -89,6 +92,7 @@ public class MetadataBlockWithFieldsDTO {
     // -------------------- INNER CLASSES --------------------
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
     public static class DatasetFieldDTO {
         private String typeName;
         private Boolean multiple;
@@ -119,6 +123,41 @@ public class MetadataBlockWithFieldsDTO {
         @JsonIgnore
         public boolean isEmailType() {
             return emailType;
+        }
+
+        // -------------------- LOGIC --------------------
+
+        public String getSinglePrimitive() {
+            return value == null ? "" : (String) value;
+        }
+
+        public String getSingleVocab() {
+            return getSinglePrimitive();
+        }
+
+        public Set<DatasetFieldDTO> getSingleCompound() {
+            return value != null
+                    ? new LinkedHashSet<>(((Map<String, DatasetFieldDTO>) value).values())
+                    : Collections.emptySet();
+        }
+
+        public List<String> getMultiplePrimitive() {
+            return value != null
+                    ? (List<String>) value : Collections.emptyList();
+        }
+
+        public List<String> getMultipleVocab() {
+            return getMultiplePrimitive();
+        }
+
+        public List<Set<DatasetFieldDTO>> getMultipleCompound() {
+            if (value == null) {
+                return Collections.emptyList();
+            }
+            List<Map<String, DatasetFieldDTO>> fieldList = (List<Map<String, DatasetFieldDTO>>) value;
+            return fieldList.stream()
+                    .map(v -> new LinkedHashSet<>(v.values()))
+                    .collect(Collectors.toList());
         }
 
         // -------------------- SETTERS --------------------
@@ -213,7 +252,7 @@ public class MetadataBlockWithFieldsDTO {
                             .map(ControlledVocabularyValue::getStrValue)
                             .collect(Collectors.toList());
                     field.setValue(extractValue(fieldType, values));
-                } else if(fieldType.isPrimitive()) {
+                } else if (fieldType.isPrimitive()) {
                     field.setValue(child.getFieldValue().getOrElse((String) null));
                 }
                 children.put(field.getTypeName(), field);

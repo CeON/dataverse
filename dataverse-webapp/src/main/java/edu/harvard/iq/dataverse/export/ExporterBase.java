@@ -27,18 +27,22 @@ public abstract class ExporterBase implements Exporter {
     // -------------------- LOGIC --------------------
 
     protected String createDatasetJsonString(DatasetVersion datasetVersion) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(createDTO(datasetVersion));
+        } catch (JsonProcessingException jpe) {
+            logger.warn("Exception during JSON creation. Empty JSON returned", jpe);
+            return "{}";
+        }
+    }
+
+    protected DatasetDTO createDTO(DatasetVersion datasetVersion) {
         DatasetDTO datasetDto = new DatasetDTO.Converter().convert(datasetVersion.getDataset());
         DatasetVersionDTO versionDto = new DatasetVersionDTO.Converter(citationFactory).convertWithCitation(datasetVersion);
         datasetDto.setDatasetVersion(versionDto);
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport)) {
             versionDto.clearEmailFields();
         }
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(datasetDto);
-        } catch (JsonProcessingException jpe) {
-            logger.warn("Exception during JSON creation. Empty JSON returned", jpe);
-            return "{}";
-        }
+        return datasetDto;
     }
 }

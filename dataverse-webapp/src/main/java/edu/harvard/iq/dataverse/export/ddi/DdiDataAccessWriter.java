@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.export.ddi;
 
-import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.FileDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.util.xml.XmlAttribute;
@@ -32,7 +32,7 @@ public class DdiDataAccessWriter {
         writeFullElementWithAttributes(xmlw, "notes", termsOfUseAndAccess._2(),
                 XmlAttribute.of("type", DdiConstants.NOTE_TYPE_TERMS_OF_ACCESS),
                 XmlAttribute.of("level", "dv"));
-        writeFullElement(xmlw, "setAvail", datasetDTO.isEmbargoActive() ?
+        writeFullElement(xmlw, "setAvail", datasetDTO.getEmbargoActive() ?
                 "Files in this dataset will be available from " + datasetDTO.getEmbargoDate() + "." : StringUtils.EMPTY);
         xmlw.writeEndElement();
     }
@@ -40,16 +40,16 @@ public class DdiDataAccessWriter {
     // -------------------- PRIVATE --------------------
 
     private Tuple2<String, String> obtainTermsOfUseAndAccess(DatasetDTO datasetDTO) {
-        if (datasetDTO.isEmbargoActive()) {
+        if (datasetDTO.getEmbargoActive()) {
             return new Tuple2<>(StringUtils.EMPTY, "Access to all files in this dataset is embargoed.");
         }
-        List<FileDTO> files = datasetDTO.getDatasetVersion().getFiles();
+        List<FileMetadataDTO> files = datasetDTO.getDatasetVersion().getFiles();
         if (CollectionUtils.isEmpty(files)) {
             return new Tuple2<>(StringUtils.EMPTY, StringUtils.EMPTY);
         }
 
         if (areAllFilesHaveSameTermsOfUseTypeOrLicense(files)) {
-            FileDTO firstFile = files.get(0);
+            FileMetadataDTO firstFile = files.get(0);
             if (isOfTermsOfUseType(firstFile, TermsOfUseType.ALL_RIGHTS_RESERVED)) {
                 return new Tuple2<>("All rights reserved", StringUtils.EMPTY);
             }
@@ -64,7 +64,7 @@ public class DdiDataAccessWriter {
         }
     }
 
-    private String obtainTermsOfAccessForAllRestrictedFiles(List<FileDTO> files) {
+    private String obtainTermsOfAccessForAllRestrictedFiles(List<FileMetadataDTO> files) {
         if (areAllFilesHaveSameRestrictedType(files)) {
             return "Access to all files in this dataset is restricted. " + obtainRestrictedTypeText(files.get(0));
         } else {
@@ -72,7 +72,7 @@ public class DdiDataAccessWriter {
         }
     }
 
-    private String obtainRestrictedTypeText(FileDTO file) {
+    private String obtainRestrictedTypeText(FileMetadataDTO file) {
         if (StringUtils.equals(FileTermsOfUse.RestrictType.CUSTOM.name(), file.getAccessConditions())) {
             return file.getAccessConditionsCustomText();
         }
@@ -89,32 +89,30 @@ public class DdiDataAccessWriter {
     }
 
 
-    private boolean areAllFilesHaveSameTermsOfUseTypeOrLicense(List<FileDTO> files) {
-        FileDTO firstFile = files.get(0);
+    private boolean areAllFilesHaveSameTermsOfUseTypeOrLicense(List<FileMetadataDTO> files) {
+        FileMetadataDTO firstFile = files.get(0);
 
-        return files.stream().allMatch(fileDTO -> {
-            return StringUtils.equals(firstFile.getLicenseName(), fileDTO.getLicenseName()) &&
-                    StringUtils.equals(firstFile.getTermsOfUseType(), fileDTO.getTermsOfUseType());
-        });
+        return files.stream().allMatch(fileDTO ->
+                StringUtils.equals(firstFile.getLicenseName(), fileDTO.getLicenseName())
+                && StringUtils.equals(firstFile.getTermsOfUseType(), fileDTO.getTermsOfUseType()));
     }
 
-    private boolean areAllFilesHaveSameRestrictedType(List<FileDTO> files) {
-        FileDTO firstFile = files.get(0);
+    private boolean areAllFilesHaveSameRestrictedType(List<FileMetadataDTO> files) {
+        FileMetadataDTO firstFile = files.get(0);
 
-        return files.stream().allMatch(fileDTO -> {
-            return StringUtils.equals(firstFile.getAccessConditions(), fileDTO.getAccessConditions()) &&
-                    StringUtils.equals(firstFile.getAccessConditionsCustomText(), fileDTO.getAccessConditionsCustomText());
-        });
+        return files.stream().allMatch(fileDTO ->
+                StringUtils.equals(firstFile.getAccessConditions(), fileDTO.getAccessConditions())
+                && StringUtils.equals(firstFile.getAccessConditionsCustomText(), fileDTO.getAccessConditionsCustomText()));
     }
 
-    private boolean hasRestrictedFile(List<FileDTO> files) {
+    private boolean hasRestrictedFile(List<FileMetadataDTO> files) {
         return files
                 .stream()
                 .anyMatch(fileDTO -> isOfTermsOfUseType(fileDTO, FileTermsOfUse.TermsOfUseType.RESTRICTED));
     }
 
 
-    private boolean isOfTermsOfUseType(FileDTO fileDTO, FileTermsOfUse.TermsOfUseType termsOfUseType) {
+    private boolean isOfTermsOfUseType(FileMetadataDTO fileDTO, FileTermsOfUse.TermsOfUseType termsOfUseType) {
         return fileDTO.getTermsOfUseType().equals(termsOfUseType.toString());
     }
 }

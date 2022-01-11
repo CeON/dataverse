@@ -1,8 +1,8 @@
 package edu.harvard.iq.dataverse.export;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.api.imports.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.imports.dto.FieldDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
 import edu.harvard.iq.dataverse.citation.CitationDataExtractor;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.citation.StandardCitationFormatsConverter;
@@ -88,7 +88,7 @@ public class DDIExporterTest {
         DatasetDTO datasetDTO = datasetDtoCaptor.getValue();
 
         assertThat(extractDatasetField(datasetDTO, "email")).isPresent();
-        FieldDTO capturedEmailField = extractDatasetField(datasetDTO, "email").get();
+        DatasetFieldDTO capturedEmailField = extractDatasetField(datasetDTO, "email").get();
         assertThat(capturedEmailField.getSinglePrimitive()).isEqualTo("example@domain.com");
 
     }
@@ -127,7 +127,7 @@ public class DDIExporterTest {
 
     // -------------------- PRIVATE --------------------
 
-    private Optional<FieldDTO> extractDatasetField(DatasetDTO dataset, String fieldTypeName) {
+    private Optional<DatasetFieldDTO> extractDatasetField(DatasetDTO dataset, String fieldTypeName) {
         return dataset.getDatasetVersion().getMetadataBlocks().values().stream()
                 .flatMap(block -> block.getFields().stream())
                 .filter(field -> field.getTypeName().equals(fieldTypeName))
