@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -37,6 +36,9 @@ public class DatasetVersionDTO {
 
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         private String citation;
+
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private String releaseDate;
 
     // -------------------- GETTERS --------------------
 
@@ -110,6 +112,10 @@ public class DatasetVersionDTO {
 
     public String getCitation() {
         return citation;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
     // -------------------- LOGIC --------------------
@@ -191,6 +197,10 @@ public class DatasetVersionDTO {
 
     public void setCitation(String citation) {
         this.citation = citation;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     // -------------------- INNER CLASSES --------------------

@@ -5,7 +5,7 @@ import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO;
 import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
@@ -155,7 +155,7 @@ public class OpenAireExportUtil {
             if ("citation".equals(key)) {
                 for (DatasetFieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.language.equals(fieldDTO.getTypeName())) {
-                        for (String language_found : fieldDTO.getMultipleVocab()) {
+                        for (String language_found : fieldDTO.getMultipleVocabulary()) {
                             if (StringUtils.isNotBlank(language_found)) {
                                 language = language_found;
                                 break;
@@ -396,7 +396,7 @@ public class OpenAireExportUtil {
             if ("citation".equals(key)) {
                 for (DatasetFieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.subject.equals(fieldDTO.getTypeName())) {
-                        for (String subject : fieldDTO.getMultipleVocab()) {
+                        for (String subject : fieldDTO.getMultipleVocabulary()) {
                             if (StringUtils.isNotBlank(subject)) {
                                 subject_check = writeOpenTag(xmlw, "subjects", subject_check);
                                 writeSubjectElement(xmlw, null, null, subject, language);
@@ -811,7 +811,7 @@ public class OpenAireExportUtil {
             if ("citation".equals(key)) {
                 for (DatasetFieldDTO fieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.kindOfData.equals(fieldDTO.getTypeName())) {
-                        for (String resourceType : fieldDTO.getMultipleVocab()) {
+                        for (String resourceType : fieldDTO.getMultipleVocabulary()) {
                             if (StringUtils.isNotBlank(resourceType)) {
                                 Map<String, String> resourceType_map = new HashMap<String, String>();
                                 resourceType_map.put("resourceTypeGeneral", "Dataset");

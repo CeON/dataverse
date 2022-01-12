@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.api.dto;
 
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

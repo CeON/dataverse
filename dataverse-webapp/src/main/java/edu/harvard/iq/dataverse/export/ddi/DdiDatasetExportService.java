@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.FileMetadataDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
@@ -196,7 +196,7 @@ public class DdiDatasetExportService {
 
         writeFullElementWithAttributes(xmlw, "version", datasetVersionDTO.getVersionNumber().toString(),
                 XmlAttribute.of("date", datasetVersionDTO.getReleaseTime().substring(0, 10)),
-                XmlAttribute.of("type", datasetVersionDTO.getVersionState().toString()));
+                XmlAttribute.of("type", datasetVersionDTO.getVersionState()));
 
         xmlw.writeEndElement(); // verStmt
     }
@@ -648,8 +648,8 @@ public class DdiDatasetExportService {
 
         if (!tabularFiles.isEmpty()) {
             xmlw.writeStartElement("dataDscr");
-            for (FileMetadata file: tabularFiles) {
-                for (DataVariable variable: file.getDataFile().getDataTable().getDataVariables()) {
+            for (FileMetadata file : tabularFiles) {
+                for (DataVariable variable : file.getDataFile().getDataTable().getDataVariables()) {
                     ddiVariableWriter.createVarDDI(xmlw, variable, file);
                 }
             }

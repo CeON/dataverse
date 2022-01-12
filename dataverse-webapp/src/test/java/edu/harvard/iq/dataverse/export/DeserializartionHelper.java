@@ -3,7 +3,7 @@ package edu.harvard.iq.dataverse.export;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTO;
 
 import java.util.Collection;
 import java.util.Collections;

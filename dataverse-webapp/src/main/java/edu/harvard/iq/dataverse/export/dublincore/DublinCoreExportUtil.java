@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
 import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO.DatasetFieldDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.export.ddi.DdiDatasetExportService;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
@@ -240,7 +240,7 @@ public class DublinCoreExportUtil {
             if ("citation".equals(key)) {
                 for (DatasetFieldDTO DatasetFieldDTO : value.getFields()) {
                     if (DatasetFieldConstant.subject.equals(DatasetFieldDTO.getTypeName())) {
-                        for (String subject : DatasetFieldDTO.getMultipleVocab()) {
+                        for (String subject : DatasetFieldDTO.getMultipleVocabulary()) {
                             xmlw.writeStartElement(dcFlavor + ":" + "subject");
                             xmlw.writeCharacters(subject);
                             xmlw.writeEndElement(); //Keyword
