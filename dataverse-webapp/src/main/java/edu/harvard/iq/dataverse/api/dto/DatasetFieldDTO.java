@@ -3,8 +3,18 @@ package edu.harvard.iq.dataverse.api.dto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldUtil;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldsByType;
+import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
+import io.vavr.control.Option;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +77,30 @@ public class DatasetFieldDTO {
         return getSinglePrimitive();
     }
 
+    /**
+     * Removes all email-type subfields from compound field.
+     * @return true if after email fields removal there are no other subfields
+     *  left and the field should be removed. False otherwise.
+     */
+    public boolean clearEmailSubfields() {
+        if (!"compound".equals(typeClass) || value == null) {
+            return false;
+        }
+        if (Map.class.isAssignableFrom(value.getClass())) {
+            return clearEmailSubfields(value).isEmpty();
+        }
+        List<?> valueList = (List<?>) value;
+        for (Object element : valueList) {
+            if (!Map.class.isAssignableFrom(element.getClass())) {
+                break;
+            } else {
+                clearEmailSubfields(element);
+            }
+        }
+        valueList.removeIf(f -> Map.class.isAssignableFrom(f.getClass()) && ((Map<?, ?>) f).isEmpty());
+        return valueList.isEmpty();
+    }
+
     public Set<DatasetFieldDTO> getSingleCompound() {
         return value != null
                 ? new LinkedHashSet<>(((Map<String, DatasetFieldDTO>) value).values())
@@ -90,6 +124,14 @@ public class DatasetFieldDTO {
         return fieldList.stream()
                 .map(v -> new LinkedHashSet<>(v.values()))
                 .collect(Collectors.toList());
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private Map<String, DatasetFieldDTO> clearEmailSubfields(Object value) {
+        Map<String, DatasetFieldDTO> subfieldsMap = (Map<String, DatasetFieldDTO>) value;
+        subfieldsMap.values().removeIf(DatasetFieldDTO::isEmailType);
+        return subfieldsMap;
     }
 
     // -------------------- SETTERS --------------------
@@ -134,5 +176,83 @@ public class DatasetFieldDTO {
                 Objects.equals(multiple, that.multiple) &&
                 Objects.equals(typeClass, that.typeClass) &&
                 Objects.equals(value, that.value);
+    }
+
+    // -------------------- INNER CLASSES --------------------
+
+    public static class Creator {
+
+        // -------------------- LOGIC --------------------
+
+        public List<DatasetFieldDTO> create(List<DatasetField> datasetFields) {
+            datasetFields.sort(Comparator.comparing(DatasetField::getDatasetFieldTypeDisplayOrder));
+            datasetFields.forEach(f -> f.getDatasetFieldsChildren()
+                    .sort(Comparator.comparing(DatasetField::getDatasetFieldTypeDisplayOrder)));
+            List<DatasetFieldDTO> fields = new ArrayList<>();
+            for (DatasetFieldsByType fieldsByType : DatasetFieldUtil.groupByType(datasetFields)) {
+                DatasetFieldType fieldType = fieldsByType.getDatasetFieldType();
+                DatasetFieldDTO field = createForType(fieldType);
+                List<DatasetField> fieldsOfType = fieldsByType.getDatasetFields();
+                List<?> values = Collections.emptyList();
+                if (fieldType.isControlledVocabulary()) {
+                    values = fieldsOfType.stream()
+                            .flatMap(f -> f.getControlledVocabularyValues().stream())
+                            .sorted(ControlledVocabularyValue.DisplayOrder)
+                            .map(ControlledVocabularyValue::getStrValue)
+                            .collect(Collectors.toList());
+                } else if (fieldType.isPrimitive()) {
+                    values = fieldsOfType.stream()
+                            .map(DatasetField::getFieldValue)
+                            .filter(Option::isDefined)
+                            .map(Option::get)
+                            .collect(Collectors.toList());
+                } else if (fieldType.isCompound()) {
+                    values = fieldsOfType.stream()
+                            .map(this::extractChildren)
+                            .collect(Collectors.toList());
+                }
+                field.setValue(extractValue(fieldType, values));
+                fields.add(field);
+            }
+            return fields;
+        }
+
+        // -------------------- PRIVATE --------------------
+
+        private DatasetFieldDTO createForType(DatasetFieldType fieldType) {
+            DatasetFieldDTO field = new DatasetFieldDTO();
+            field.setTypeName(fieldType.getName());
+            field.setMultiple(fieldType.isAllowMultiples());
+            field.setTypeClass(fieldType.isControlledVocabulary()
+                    ? "controlledVocabulary"
+                    : fieldType.isCompound()
+                    ? "compound" : "primitive");
+            field.setEmailType(fieldType.getFieldType() == FieldType.EMAIL);
+            return field;
+        }
+
+        private Object extractChildren(DatasetField datasetField) {
+            Map<String, DatasetFieldDTO> children = new LinkedHashMap<>();
+            for(DatasetField child : datasetField.getDatasetFieldsChildren()) {
+                DatasetFieldType fieldType = child.getDatasetFieldType();
+                DatasetFieldDTO field = createForType(fieldType);
+                if (fieldType.isControlledVocabulary()) {
+                    List<String> values = child.getControlledVocabularyValues().stream()
+                            .sorted(Comparator.comparing(ControlledVocabularyValue::getDisplayOrder))
+                            .map(ControlledVocabularyValue::getStrValue)
+                            .collect(Collectors.toList());
+                    field.setValue(extractValue(fieldType, values));
+                } else if (fieldType.isPrimitive()) {
+                    field.setValue(child.getFieldValue().getOrElse((String) null));
+                }
+                children.put(field.getTypeName(), field);
+            }
+            return children;
+        }
+
+        private <T> Object extractValue(DatasetFieldType fieldType, List<T> values) {
+            return fieldType.isAllowMultiples() || values.size() > 1
+                    ? values : values.get(0);
+        }
     }
 }

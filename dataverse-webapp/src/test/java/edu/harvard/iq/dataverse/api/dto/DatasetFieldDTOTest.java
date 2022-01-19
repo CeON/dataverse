@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -103,6 +104,102 @@ class DatasetFieldDTOTest {
                         .collect(Collectors.toList()))
                 .containsExactly("first:inner-field-1", "first:inner-field-2",
                         "second:inner-field-1", "second:inner-field-2");
+    }
+
+    @Test
+    void clearEmailSubfields__notCompound() {
+        // given
+        DatasetFieldDTO field = new DatasetFieldDTO();
+        field.setTypeClass("primitive");
+
+        // when
+        boolean shouldDeleteField = field.clearEmailSubfields();
+
+        // then
+        assertThat(shouldDeleteField).isFalse();
+    }
+
+    @Test
+    void clearEmailSubfields__singleCompound_emailOnly() {
+        // given
+        DatasetFieldDTO field = new DatasetFieldDTO();
+        field.setTypeClass("compound");
+        Map<String, DatasetFieldDTO> emailSubfields = createInnerFields("");
+        emailSubfields.values().forEach(f -> f.setEmailType(true));
+        field.setValue(emailSubfields);
+
+        // when
+        boolean shouldDelete = field.clearEmailSubfields();
+
+        // then
+        assertThat(shouldDelete).isTrue();
+        assertThat((Map<?, ?>) field.getValue()).isEmpty();
+    }
+
+    @Test
+    void clearEmailSubfields__singleCompound_mixed() {
+        // given
+        DatasetFieldDTO field = new DatasetFieldDTO();
+        field.setTypeClass("compound");
+        Map<String, DatasetFieldDTO> mixedSubfields = createInnerFields("");
+        mixedSubfields.get("inner-field-2").setEmailType(true);
+        field.setValue(mixedSubfields);
+
+        // when
+        boolean shouldDelete = field.clearEmailSubfields();
+
+        // then
+        assertThat(shouldDelete).isFalse();
+        assertThat((Map<?, ?>) field.getValue()).hasSize(1);
+    }
+
+    @Test
+    void clearEmailSubfields__multipleCompound_emailOnly() {
+        // given
+        DatasetFieldDTO field = new DatasetFieldDTO();
+        field.setTypeClass("compound");
+
+        List<Map<String, DatasetFieldDTO>> value = IntStream.of(1, 2, 3)
+                .mapToObj(i -> {
+                    Map<String, DatasetFieldDTO> emailSubfields = createInnerFields("");
+                    emailSubfields.values().forEach(f -> f.setEmailType(true));
+                    field.setValue(emailSubfields);
+                    return emailSubfields;
+                })
+                .collect(Collectors.toList());
+        field.setValue(value);
+
+        // when
+        boolean shouldDelete = field.clearEmailSubfields();
+
+        // then
+        assertThat(shouldDelete).isTrue();
+        assertThat((List<?>) field.getValue()).isEmpty();
+    }
+
+    @Test
+    void clearEmailSubfields__multipleCompound_mixed() {
+        // given
+        DatasetFieldDTO field = new DatasetFieldDTO();
+        field.setTypeClass("compound");
+
+        List<Map<String, DatasetFieldDTO>> value = IntStream.of(1, 2, 3)
+                .mapToObj(i -> {
+                    Map<String, DatasetFieldDTO> subfields = createInnerFields("");
+                    subfields.get("inner-field-1").setEmailType(i > 1); // 1:F 2:T 3:T
+                    subfields.get("inner-field-2").setEmailType(i > 2); // 1:F 2:F 3:T
+                    field.setValue(subfields);
+                    return subfields;
+                })
+                .collect(Collectors.toList());
+        field.setValue(value);
+
+        // when
+        boolean shouldDelete = field.clearEmailSubfields();
+
+        // then
+        assertThat(shouldDelete).isFalse();
+        assertThat((List<?>) field.getValue()).hasSize(2);
     }
 
     // -------------------- PRIVATE --------------------

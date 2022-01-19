@@ -111,9 +111,12 @@ class MetadataBlockWithFieldsDTOTest {
         anotherFieldWithEmail.setEmailType(true);
 
         DatasetFieldDTO emailsContainer = new DatasetFieldDTO();
+        emailsContainer.setTypeName("emailsContainer");
         emailsContainer.setTypeClass("compound");
 
-        emailsContainer.setValue(embedIntoMap(fieldWithEmail, anotherFieldWithEmail));
+        emailsContainer.setValue(list(
+                embedIntoMap(fieldWithEmail, anotherFieldWithEmail),
+                embedIntoMap(fieldWithEmail, anotherFieldWithEmail)));
 
         DatasetFieldDTO emailAndFieldContainer = new DatasetFieldDTO();
         emailAndFieldContainer.setTypeName("emailAndFieldContainer");
@@ -123,7 +126,9 @@ class MetadataBlockWithFieldsDTOTest {
         field.setTypeName("field");
         field.setTypeClass("primitive");
 
-        emailAndFieldContainer.setValue(embedIntoMap(field, fieldWithEmail));
+        emailAndFieldContainer.setValue(list(
+                embedIntoMap(field, fieldWithEmail),
+                embedIntoMap(fieldWithEmail, anotherFieldWithEmail)));
 
         block.setFields(list(emailsContainer, emailAndFieldContainer));
 
@@ -134,8 +139,8 @@ class MetadataBlockWithFieldsDTOTest {
         assertThat(block.getFields())
                 .extracting(DatasetFieldDTO::getTypeName)
                 .containsExactly("emailAndFieldContainer");
-        Map<String, DatasetFieldDTO> values = (Map<String, DatasetFieldDTO>) block.getFields().get(0).getValue();
-        assertThat(values)
+        List<Map<String, DatasetFieldDTO>> values = (List<Map<String, DatasetFieldDTO>>) block.getFields().get(0).getValue();
+        assertThat(values.get(0))
                 .hasSize(1)
                 .containsKey("field");
     }

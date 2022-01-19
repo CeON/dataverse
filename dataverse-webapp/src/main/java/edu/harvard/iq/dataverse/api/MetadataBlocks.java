@@ -13,7 +13,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +33,6 @@ public class MetadataBlocks extends AbstractApiBean {
     public Response list() {
         MetadataBlockDTO.Converter converter = new MetadataBlockDTO.Converter();
         return allowCors(ok(metadataBlockSvc.listMetadataBlocks().stream()
-                .filter(Objects::nonNull)
                 .map(converter::convertMinimal)
                 .collect(Collectors.toList())));
     }
