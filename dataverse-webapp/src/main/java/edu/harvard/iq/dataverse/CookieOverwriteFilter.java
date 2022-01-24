@@ -36,7 +36,7 @@ public class CookieOverwriteFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (session != null) {
-            // This call will force the session to be created if it's not created yet
+            // This call will somehow force the session to be initialized if it's not initialized yet
             session.getId();
         }
         HttpServletResponse servletResponse = (HttpServletResponse) response;
