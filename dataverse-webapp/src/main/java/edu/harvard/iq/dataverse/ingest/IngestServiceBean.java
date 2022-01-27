@@ -146,6 +146,8 @@ public class IngestServiceBean {
 
     private DataAccess dataAccess = DataAccess.dataAccess();
 
+    // -------------------- LOGIC --------------------
+
     // This method tries to permanently store new files on the filesystem.
     // Then it adds the files that *have been successfully saved* to the
     // dataset (by attaching the DataFiles to the Dataset, and the corresponding
@@ -420,66 +422,6 @@ public class IngestServiceBean {
         return sb.toString();
     }
 
-
-    private void produceSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
-        produceDiscreteNumericSummaryStatistics(table, dataFile);
-        produceContinuousSummaryStatistics(table, dataFile);
-        produceCharacterSummaryStatistics(table, dataFile);
-
-        recalculateDataFileUNF(dataFile);
-        recalculateDatasetVersionUNF(dataFile.getFileMetadata().getDatasetVersion());
-    }
-
-    private void produceContinuousSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
-        DataTable dataTable = dataFile.getDataTable();
-        int numberOfCases = dataTable.getCaseQuantity().intValue();
-        for (int i = 0; i < dataTable.getVarQuantity(); i++) {
-            if (dataTable.getDataVariables().get(i).isIntervalContinuous()) {
-                if ("float".equals(dataTable.getDataVariables().get(i).getFormat())) {
-                    Float[] variableVector = TabularSubsetGenerator.subsetFloatVector(table, i, numberOfCases);
-                    calculateContinuousSummaryStatistics(dataFile, i, variableVector);
-                    calculateUNF(dataFile, i, variableVector);
-                } else {
-                    Double[] variableVector = TabularSubsetGenerator.subsetDoubleVector(table, i, numberOfCases);
-                    calculateContinuousSummaryStatistics(dataFile, i, variableVector);
-                    calculateUNF(dataFile, i, variableVector);
-                }
-            }
-        }
-    }
-
-    private void produceDiscreteNumericSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
-        DataTable dataTable = dataFile.getDataTable();
-        int numberOfCases = dataTable.getCaseQuantity().intValue();
-        for (int i = 0; i < dataTable.getVarQuantity(); i++) {
-            Long[] vector = TabularSubsetGenerator.subsetLongVector(table, i, numberOfCases);
-            calculateContinuousSummaryStatistics(dataFile, i, vector);
-            calculateUNF(dataFile, i, vector);
-        }
-    }
-
-    /*
-    At this point it's still not clear what kinds of summary stats we
-    want for character types. Though we are pretty confident we don't
-    want to keep doing what we used to do in the past, i.e. simply
-    store the total counts for all the unique values; even if it's a
-    very long vector, and *every* value in it is unique. (As a result
-    of this, our Categorical Variable Value table is the single
-    largest in the production database. With no evidence whatsoever,
-    that this information is at all useful.
-        -- L.A. Jul. 2014
-    */
-    private void produceCharacterSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
-        DataTable dataTable = dataFile.getDataTable();
-        int numberOfCases = dataTable.getCaseQuantity().intValue();
-        for (int i = 0; i < dataTable.getVarQuantity(); i++) {
-            if (dataTable.getDataVariables().get(i).isTypeCharacter()) {
-                String[] variableVector = TabularSubsetGenerator.subsetStringVector(table, i, numberOfCases);
-                calculateUNF(dataFile, i, variableVector);
-            }
-        }
-    }
-
     public static void produceFrequencyStatistics(String[][] table, DataFile dataFile) throws IOException {
         List<DataVariable> vars = dataFile.getDataTable().getDataVariables();
         produceFrequencies(table, vars);
@@ -492,71 +434,6 @@ public class IngestServiceBean {
         DataTable dataTable = vars.get(0).getDataTable();
         String[][] table = TabularSubsetGenerator.readFileIntoTable(dataTable, generatedTabularFile);
         produceFrequencies(table, vars);
-    }
-
-    private static void produceFrequencies(String[][] table, List<DataVariable> vars) {
-        for (int i = 0; i < vars.size(); i++) {
-            Collection<VariableCategory> cats = vars.get(i).getCategories();
-            int caseQuantity = vars.get(i).getDataTable().getCaseQuantity().intValue();
-            boolean isNumeric = vars.get(i).isTypeNumeric();
-            Object[] variableVector;
-            if (cats.size() > 0) {
-                if (isNumeric) {
-                    variableVector = TabularSubsetGenerator.subsetFloatVector(table, i, caseQuantity);
-                } else {
-                    variableVector = TabularSubsetGenerator.subsetStringVector(table, i, caseQuantity);
-                }
-                Map<Object, Double> freq = calculateFrequency(variableVector);
-                for (VariableCategory cat : cats) {
-                    Object catValue;
-                    if (isNumeric) {
-                        catValue = new Float(cat.getValue());
-                    } else {
-                        catValue = cat.getValue();
-                    }
-                    Double numberFreq = freq.get(catValue);
-                    if (numberFreq != null) {
-                        cat.setFrequency(numberFreq);
-                    } else {
-                        cat.setFrequency(0D);
-                    }
-                }
-            }
-        }
-    }
-
-    private static Map<Object, Double> calculateFrequency(Object[] variableVector) {
-        Map<Object, Double> frequencies = new HashMap<>();
-
-        for (Object variable : variableVector) {
-            if (variable != null) {
-                Double freqNum = frequencies.get(variable);
-                frequencies.put(variable, freqNum != null ? freqNum + 1 : 1D);
-            }
-        }
-        return frequencies;
-    }
-
-    private void recalculateDataFileUNF(DataFile dataFile) {
-        String[] unfValues = new String[dataFile.getDataTable().getVarQuantity().intValue()];
-        String fileUnfValue = null;
-
-        for (int i = 0; i < dataFile.getDataTable().getVarQuantity(); i++) {
-            String varunf = dataFile.getDataTable().getDataVariables().get(i).getUnf();
-            unfValues[i] = varunf;
-        }
-
-        try {
-            fileUnfValue = UNFUtil.calculateUNF(unfValues);
-        } catch (IOException ex) {
-            logger.warning("Failed to recalculate the UNF for the datafile id=" + dataFile.getId());
-        } catch (UnfException uex) {
-            logger.warning("UNF Exception: Failed to recalculate the UNF for the dataset version id=" + dataFile.getId());
-        }
-
-        if (fileUnfValue != null) {
-            dataFile.getDataTable().setUnf(fileUnfValue);
-        }
     }
 
     public void recalculateDatasetVersionUNF(DatasetVersion version) {
@@ -719,17 +596,6 @@ public class IngestServiceBean {
         }
     }
 
-
-    private void restoreIngestedDataFile(DataFile dataFile, TabularDataIngest tabDataIngest, long originalSize, String originalFileName, String originalContentType) {
-        dataFile.setDataTable(null);
-        if (tabDataIngest != null && tabDataIngest.getDataTable() != null) {
-            tabDataIngest.getDataTable().setDataFile(null);
-        }
-        dataFile.getFileMetadata().setLabel(originalFileName);
-        dataFile.setContentType(originalContentType);
-        dataFile.setFilesize(originalSize);
-    }
-
     public TabularDataFileReader getTabDataReaderByMimeType(String mimeType) {
         /*
          * Same as the comment above; since we don't have any ingest plugins loadable
@@ -828,6 +694,91 @@ public class IngestServiceBean {
         return ingestSuccessful;
     }
 
+    // This method takes a list of file ids, checks the format type of the ingested
+    // original, and attempts to fix it if it's missing.
+    // Note the @Asynchronous attribute - this allows us to just kick off and run this
+    // (potentially large) job in the background.
+    // The method is called by the "fixmissingoriginaltypes" /admin api call.
+    @Asynchronous
+    public void fixMissingOriginalTypes(List<Long> datafileIds) {
+        for (Long fileId : datafileIds) {
+            fixMissingOriginalType(fileId);
+        }
+        logger.info("Finished repairing tabular data files that were missing the original file format labels.");
+    }
+
+    // This method takes a list of file ids and tries to fix the size of the saved
+    // original, if present
+    // Note the @Asynchronous attribute - this allows us to just kick off and run this
+    // (potentially large) job in the background.
+    // The method is called by the "fixmissingoriginalsizes" /admin api call.
+    @Asynchronous
+    public void fixMissingOriginalSizes(List<Long> datafileIds) {
+        for (Long fileId : datafileIds) {
+            fixMissingOriginalSize(fileId);
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Exception encountered: ", e);
+            }
+        }
+        logger.info("Finished repairing tabular data files that were missing the original file sizes.");
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private void restoreIngestedDataFile(DataFile dataFile, TabularDataIngest tabDataIngest, long originalSize, String originalFileName, String originalContentType) {
+        dataFile.setDataTable(null);
+        if (tabDataIngest != null && tabDataIngest.getDataTable() != null) {
+            tabDataIngest.getDataTable().setDataFile(null);
+        }
+        dataFile.getFileMetadata().setLabel(originalFileName);
+        dataFile.setContentType(originalContentType);
+        dataFile.setFilesize(originalSize);
+    }
+
+    private static void produceFrequencies(String[][] table, List<DataVariable> vars) {
+        for (int i = 0; i < vars.size(); i++) {
+            Collection<VariableCategory> cats = vars.get(i).getCategories();
+            int caseQuantity = vars.get(i).getDataTable().getCaseQuantity().intValue();
+            boolean isNumeric = vars.get(i).isTypeNumeric();
+            Object[] variableVector;
+            if (cats.size() > 0) {
+                if (isNumeric) {
+                    variableVector = TabularSubsetGenerator.subsetFloatVector(table, i, caseQuantity);
+                } else {
+                    variableVector = TabularSubsetGenerator.subsetStringVector(table, i, caseQuantity);
+                }
+                Map<Object, Double> freq = calculateFrequency(variableVector);
+                for (VariableCategory cat : cats) {
+                    Object catValue;
+                    if (isNumeric) {
+                        catValue = new Float(cat.getValue());
+                    } else {
+                        catValue = cat.getValue();
+                    }
+                    Double numberFreq = freq.get(catValue);
+                    if (numberFreq != null) {
+                        cat.setFrequency(numberFreq);
+                    } else {
+                        cat.setFrequency(0D);
+                    }
+                }
+            }
+        }
+    }
+
+    private static Map<Object, Double> calculateFrequency(Object[] variableVector) {
+        Map<Object, Double> frequencies = new HashMap<>();
+
+        for (Object variable : variableVector) {
+            if (variable != null) {
+                Double freqNum = frequencies.get(variable);
+                frequencies.put(variable, freqNum != null ? freqNum + 1 : 1D);
+            }
+        }
+        return frequencies;
+    }
 
     private void processDatasetMetadata(FileMetadataIngest fileMetadataIngest, DatasetVersion editVersion) {
 
@@ -1281,7 +1232,7 @@ public class IngestServiceBean {
                     "(float) variable " + varnum);
         } catch (UnfException uex) {
             logger.warning("UNF Exception: thrown when attempted to calculate UNF signature for numeric, \"continuous\" " +
-                            "(float) variable" + varnum);
+                    "(float) variable" + varnum);
         }
 
         if (unf != null) {
@@ -1291,35 +1242,85 @@ public class IngestServiceBean {
         }
     }
 
-    // This method takes a list of file ids, checks the format type of the ingested
-    // original, and attempts to fix it if it's missing.
-    // Note the @Asynchronous attribute - this allows us to just kick off and run this
-    // (potentially large) job in the background.
-    // The method is called by the "fixmissingoriginaltypes" /admin api call.
-    @Asynchronous
-    public void fixMissingOriginalTypes(List<Long> datafileIds) {
-        for (Long fileId : datafileIds) {
-            fixMissingOriginalType(fileId);
-        }
-        logger.info("Finished repairing tabular data files that were missing the original file format labels.");
+    private void produceSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
+        produceDiscreteNumericSummaryStatistics(table, dataFile);
+        produceContinuousSummaryStatistics(table, dataFile);
+        produceCharacterSummaryStatistics(table, dataFile);
+
+        recalculateDataFileUNF(dataFile);
+        recalculateDatasetVersionUNF(dataFile.getFileMetadata().getDatasetVersion());
     }
 
-    // This method takes a list of file ids and tries to fix the size of the saved
-    // original, if present
-    // Note the @Asynchronous attribute - this allows us to just kick off and run this
-    // (potentially large) job in the background.
-    // The method is called by the "fixmissingoriginalsizes" /admin api call.
-    @Asynchronous
-    public void fixMissingOriginalSizes(List<Long> datafileIds) {
-        for (Long fileId : datafileIds) {
-            fixMissingOriginalSize(fileId);
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "Exception encountered: ", e);
+    private void produceDiscreteNumericSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
+        DataTable dataTable = dataFile.getDataTable();
+        int numberOfCases = dataTable.getCaseQuantity().intValue();
+        for (int i = 0; i < dataTable.getVarQuantity(); i++) {
+            Long[] vector = TabularSubsetGenerator.subsetLongVector(table, i, numberOfCases);
+            calculateContinuousSummaryStatistics(dataFile, i, vector);
+            calculateUNF(dataFile, i, vector);
+        }
+    }
+
+    private void produceContinuousSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
+        DataTable dataTable = dataFile.getDataTable();
+        int numberOfCases = dataTable.getCaseQuantity().intValue();
+        for (int i = 0; i < dataTable.getVarQuantity(); i++) {
+            if (dataTable.getDataVariables().get(i).isIntervalContinuous()) {
+                if ("float".equals(dataTable.getDataVariables().get(i).getFormat())) {
+                    Float[] variableVector = TabularSubsetGenerator.subsetFloatVector(table, i, numberOfCases);
+                    calculateContinuousSummaryStatistics(dataFile, i, variableVector);
+                    calculateUNF(dataFile, i, variableVector);
+                } else {
+                    Double[] variableVector = TabularSubsetGenerator.subsetDoubleVector(table, i, numberOfCases);
+                    calculateContinuousSummaryStatistics(dataFile, i, variableVector);
+                    calculateUNF(dataFile, i, variableVector);
+                }
             }
         }
-        logger.info("Finished repairing tabular data files that were missing the original file sizes.");
+    }
+
+    /*
+    At this point it's still not clear what kinds of summary stats we
+    want for character types. Though we are pretty confident we don't
+    want to keep doing what we used to do in the past, i.e. simply
+    store the total counts for all the unique values; even if it's a
+    very long vector, and *every* value in it is unique. (As a result
+    of this, our Categorical Variable Value table is the single
+    largest in the production database. With no evidence whatsoever,
+    that this information is at all useful.
+        -- L.A. Jul. 2014
+    */
+    private void produceCharacterSummaryStatistics(String[][] table, DataFile dataFile) throws IOException {
+        DataTable dataTable = dataFile.getDataTable();
+        int numberOfCases = dataTable.getCaseQuantity().intValue();
+        for (int i = 0; i < dataTable.getVarQuantity(); i++) {
+            if (dataTable.getDataVariables().get(i).isTypeCharacter()) {
+                String[] variableVector = TabularSubsetGenerator.subsetStringVector(table, i, numberOfCases);
+                calculateUNF(dataFile, i, variableVector);
+            }
+        }
+    }
+
+    private void recalculateDataFileUNF(DataFile dataFile) {
+        String[] unfValues = new String[dataFile.getDataTable().getVarQuantity().intValue()];
+        String fileUnfValue = null;
+
+        for (int i = 0; i < dataFile.getDataTable().getVarQuantity(); i++) {
+            String varunf = dataFile.getDataTable().getDataVariables().get(i).getUnf();
+            unfValues[i] = varunf;
+        }
+
+        try {
+            fileUnfValue = UNFUtil.calculateUNF(unfValues);
+        } catch (IOException ex) {
+            logger.warning("Failed to recalculate the UNF for the datafile id=" + dataFile.getId());
+        } catch (UnfException uex) {
+            logger.warning("UNF Exception: Failed to recalculate the UNF for the dataset version id=" + dataFile.getId());
+        }
+
+        if (fileUnfValue != null) {
+            dataFile.getDataTable().setUnf(fileUnfValue);
+        }
     }
 
     // This method fixes a datatable object that's missing the format type of
