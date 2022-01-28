@@ -467,13 +467,8 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
         DatasetVersion cloned = new DatasetVersion();
         cloned.setVersionState(getPriorVersionState());
         cloned.setFileMetadatas(new ArrayList<>());
-
-        if (UNF != null) {
-            cloned.setUNF(UNF);
-        }
-        if (datasetFields != null && !datasetFields.isEmpty()) {
-            cloned.setDatasetFields(DatasetFieldUtil.copyDatasetFields(datasetFields));
-        }
+        cloned.setUNF(UNF);
+        cloned.setDatasetFields(DatasetFieldUtil.copyDatasetFields(datasetFields));
 
         for (FileMetadata fm : fileMetadatas) {
             FileMetadata newFm = new FileMetadata();
@@ -571,7 +566,6 @@ public class DatasetVersion implements Serializable, JpaEntity<Long>, DatasetVer
                     author.setIdValue(mapIfNotNull(e.get(DatasetFieldConstant.authorIdValue), DatasetField::getDisplayValue));
                     return author;
                 })
-                .sorted(displayOrderComparator)
                 .collect(Collectors.toList());
     }
 
