@@ -134,7 +134,6 @@ class JsonLdBuilderTest {
         assertEquals("", obj.getString("name"));
         JsonArray emptyArray = Json.createArrayBuilder().build();
         assertEquals(emptyArray, obj.getJsonArray("creator"));
-        assertEquals(emptyArray, obj.getJsonArray("author"));
         assertEquals(emptyArray, obj.getJsonArray("keywords"));
         assertEquals("Organization", obj.getJsonObject("publisher").getString("@type"));
         assertEquals("LibraScholar", obj.getJsonObject("publisher").getString("name"));
