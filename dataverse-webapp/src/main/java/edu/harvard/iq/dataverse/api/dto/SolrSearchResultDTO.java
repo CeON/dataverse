@@ -559,7 +559,7 @@ public class SolrSearchResultDTO {
             dto.setFileContentType(result.getFileContentType());
             dto.setSizeInBytes(result.getFileSizeInBytes());
             dto.setMd5(result.getFileMd5());
-            dto.setChecksum(createChecksum(result));
+            dto.setChecksum(checksumCreator.create(result));
             dto.setUnf(result.getUnf());
             dto.setFilePersistentId(result.getFilePersistentId());
             dto.setDeaccessionReason(result.getDeaccessionReason());
