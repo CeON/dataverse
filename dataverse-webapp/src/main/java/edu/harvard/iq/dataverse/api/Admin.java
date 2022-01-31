@@ -19,6 +19,7 @@ import edu.harvard.iq.dataverse.api.dto.DataverseRoleDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssigneeDisplayInfoDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
 import edu.harvard.iq.dataverse.api.dto.RoleDTO;
+import edu.harvard.iq.dataverse.api.dto.UserListResultDTO;
 import edu.harvard.iq.dataverse.authorization.AuthTestDataServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -446,7 +447,7 @@ public class Admin extends AbstractApiBean {
         String sortKey = null;
         UserListResult userListResult = userListMaker.runUserSearch(searchTerm, itemsPerPage, selectedPage, sortKey, true);
 
-        return ok(userListResult.toJSON());
+        return ok(new UserListResultDTO.Converter().convert(userListResult));
     }
 
     /**

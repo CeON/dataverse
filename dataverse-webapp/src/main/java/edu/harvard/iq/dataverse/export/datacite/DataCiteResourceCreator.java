@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.export.datacite;
 
+import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Affiliation;
 import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.Contributor;
 import edu.harvard.iq.dataverse.export.datacite.DataCiteResource.ContributorType;
@@ -15,14 +16,19 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetAuthor;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetField;
-import edu.harvard.iq.dataverse.persistence.dataset.DatasetFundingReference;
-import org.apache.commons.lang3.StringEscapeUtils;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import io.vavr.Tuple;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
 public class DataCiteResourceCreator {
 
@@ -36,7 +42,7 @@ public class DataCiteResourceCreator {
         resource.setCreators(extractCreators(dataset));
         resource.setTitles(Collections.singletonList(dvObject.getDisplayName()));
 
-        String publisher = dataset.getLatestVersion().getRootDataverseNameforCitation();
+        String publisher = dataset.getLatestVersion().getRootDataverseNameForCitation();
         resource.setPublisher(StringUtils.isEmpty(publisher) ? ":unav" : publisher);
 
         // Can't use "UNKNOWN" here because DataCite will respond with "[facet 'pattern']
@@ -110,7 +116,7 @@ public class DataCiteResourceCreator {
         if (dvObject.isInstanceofDataset()) {
             Dataset dataset = (Dataset) dvObject;
             if (!dataset.hasActiveEmbargo() && !dataset.getFiles().isEmpty()
-                    && !(dataset.getFiles().get(0).getIdentifier() == null)) {
+                    && dataset.getFiles().get(0).getIdentifier() != null) {
                 return dataset.getFiles().stream()
                         .filter(f -> StringUtils.isNotEmpty(f.getGlobalId().asString()))
                         .map(f -> new RelatedIdentifier(f.getGlobalId().asString(),  "HasPart"))
@@ -127,10 +133,10 @@ public class DataCiteResourceCreator {
     private List<Description> extractDescription(DvObject dvObject) {
         if (dvObject.isInstanceofDataset()) {
             Dataset dataset = getDataset(dvObject);
-            String description = StringEscapeUtils.unescapeHtml4(dataset.getLatestVersion().getDescriptionPlainText());
+            String description = unescapeHtml4(dataset.getLatestVersion().getDescriptionPlainText());
             return Collections.singletonList(new Description(description));
         } else if (dvObject.isInstanceofDataFile()) {
-            String fileDescription = ((DataFile) dvObject).getDescription();
+            String fileDescription = unescapeHtml4(((DataFile) dvObject).getDescription());
             return Collections.singletonList(new Description(fileDescription != null ? fileDescription : ""));
         }
         return Collections.emptyList();
@@ -138,40 +144,70 @@ public class DataCiteResourceCreator {
 
     private List<Contributor> extractContributors(Dataset dataset) {
         List<Contributor> contributors = new ArrayList<>();
-        List<Contributor> contacts = dataset.getLatestVersion().getDatasetContacts().stream()
-                .filter(c -> StringUtils.isNotEmpty(c[0]))
-                .map(c -> new Contributor(ContributorType.ContactPerson, c[0],
-                        StringUtils.isNotEmpty(c[1]) ? new Affiliation(c[1]) : null))
-                .collect(Collectors.toList());
-        List<Contributor> producers = dataset.getLatestVersion().getDatasetProducers().stream()
-                .filter(p -> StringUtils.isNotEmpty(p[0]))
-                .map(p -> new Contributor(ContributorType.Producer, p[0],
-                        StringUtils.isNotEmpty(p[1]) ? new Affiliation(p[1]) : null))
-                .collect(Collectors.toList());
-        if (!contacts.isEmpty() || !producers.isEmpty()) {
-            contributors.addAll(contacts);
-            contributors.addAll(producers);
-        }
+        contributors.addAll(extractDatasetContactsAsContributors(dataset));
+        contributors.addAll(extractDatasetProducersAsContributors(dataset));
         return contributors;
     }
 
-    private List<FundingReference> extractFundingReferences(Dataset dataset) {
-        List<DatasetFundingReference> fundingReferencesFromDataset = dataset.getLatestVersion().getFundingReferences();
-        return fundingReferencesFromDataset.stream()
-                .filter(r -> r.getAgency() != null && !r.getAgency().getValue().isEmpty())
-                .map(this::extractFundingReference)
+    private List<Contributor> extractDatasetContactsAsContributors(Dataset dataset) {
+        return dataset.getLatestVersion().extractSubfields(DatasetFieldConstant.datasetContact,
+                Arrays.asList(DatasetFieldConstant.datasetContactName, DatasetFieldConstant.datasetContactAffiliation))
+                .stream()
+                .filter(e -> {
+                    DatasetField contact = e.get(DatasetFieldConstant.datasetContactName);
+                    return contact != null && !contact.isEmptyForDisplay() && StringUtils.isNotEmpty(contact.getDisplayValue());
+                })
+                .map(e -> Tuple.of(e.get(DatasetFieldConstant.datasetContactName), e.get(DatasetFieldConstant.datasetContactAffiliation)))
+                .map(t -> Tuple.of(t._1.getDisplayValue(),
+                        t._2 != null ? t._2.getFieldValue().getOrElse(StringUtils.EMPTY) : StringUtils.EMPTY))
+                .map(t -> new Contributor(ContributorType.ContactPerson, t._1,
+                        StringUtils.isNotEmpty(t._2) ? new Affiliation(t._2) : null))
                 .collect(Collectors.toList());
     }
 
-    private FundingReference extractFundingReference(DatasetFundingReference reference) {
+    public List<Contributor> extractDatasetProducersAsContributors(Dataset dataset) {
+        return dataset.getLatestVersion().extractSubfields(DatasetFieldConstant.producer,
+                Arrays.asList(DatasetFieldConstant.producerName, DatasetFieldConstant.producerAffiliation))
+                .stream()
+                .filter(e -> {
+                    DatasetField name = e.get(DatasetFieldConstant.producerName);
+                    return name != null && !name.isEmptyForDisplay() && StringUtils.isNotEmpty(name.getDisplayValue());
+                })
+                .map(e -> Tuple.of(e.get(DatasetFieldConstant.producerName), e.get(DatasetFieldConstant.producerAffiliation)))
+                .map(t -> Tuple.of(t._1.getDisplayValue(),
+                        t._2 != null ? t._2.getFieldValue().getOrElse(StringUtils.EMPTY) : StringUtils.EMPTY))
+                .map(t -> new Contributor(ContributorType.Producer, t._1,
+                        StringUtils.isNotEmpty(t._2) ? new Affiliation(t._2) : null))
+                .collect(Collectors.toList());
+    }
+
+    private List<FundingReference> extractFundingReferences(Dataset dataset) {
+        DatasetVersion version = dataset.getLatestVersion();
+        return version.extractSubfields(DatasetFieldConstant.grantNumber,
+                Arrays.asList(DatasetFieldConstant.grantNumberAgency, DatasetFieldConstant.grantNumberAgencyShortName,
+                        DatasetFieldConstant.grantNumberAgencyIdentifier, DatasetFieldConstant.grantNumberProgram,
+                        DatasetFieldConstant.grantNumberValue))
+                .stream()
+                .map(this::extractFundingReference)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private FundingReference extractFundingReference(Map<String, DatasetField> fieldMap) {
         FundingReference fundingReference = new FundingReference();
-        fundingReference.setFunderName(reference.getAgency().getValue());
-        if (reference.getAgencyIdentifier() != null && !reference.getAgencyIdentifier().isEmpty()) {
-            fundingReference.setFunderIdentifier(
-                    new FunderIdentifier(reference.getAgencyIdentifier().getValue()));
+        DatasetField agencyName = fieldMap.get(DatasetFieldConstant.grantNumberAgency);
+        agencyName = agencyName != null ? agencyName : fieldMap.get(DatasetFieldConstant.grantNumberAgencyShortName);
+        if (agencyName == null || agencyName.isEmpty()) {
+            return null;
         }
-        if (reference.getProgramIdentifier() != null && !reference.getProgramIdentifier().isEmpty()) {
-            fundingReference.setAwardNumber(reference.getProgramIdentifier().getValue());
+        fundingReference.setFunderName(agencyName.getValue());
+        DatasetField agencyIdentifier = fieldMap.get(DatasetFieldConstant.grantNumberAgencyIdentifier);
+        if (agencyIdentifier != null && !agencyIdentifier.isEmpty()) {
+            fundingReference.setFunderIdentifier(new FunderIdentifier(agencyIdentifier.getValue()));
+        }
+        DatasetField programIdentifier = fieldMap.get(DatasetFieldConstant.grantNumberValue);
+        if (programIdentifier != null && !programIdentifier.isEmpty()) {
+            fundingReference.setAwardNumber(programIdentifier.getValue());
         }
         return fundingReference;
     }
