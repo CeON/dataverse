@@ -110,12 +110,6 @@ public class JsonLdBuilder {
          */
         job.add("creator", authorsArray);
         /**
-         * "author" is still here for backward compatibility. Depending on how
-         * the "creator" experiment above goes, we may deprecate it in the
-         * future.
-         */
-        job.add("author", authorsArray);
-        /**
          * We are aware that there is a "datePublished" field but it means "Date
          * of first broadcast/publication." This only makes sense for a 1.0
          * version.
