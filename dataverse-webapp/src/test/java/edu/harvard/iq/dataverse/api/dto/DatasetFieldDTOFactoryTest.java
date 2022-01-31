@@ -25,7 +25,7 @@ class DatasetFieldDTOFactoryTest {
                 .extracting(DatasetFieldDTO::getTypeName, DatasetFieldDTO::getMultiple,
                         DatasetFieldDTO::getTypeClass, DatasetFieldDTO::getSinglePrimitive)
                 .containsExactly("authorAffiliation", false,
-                        "primitive", "Top");
+                        DatasetFieldDTO.PRIMITIVE, "Top");
     }
 
     @Test
@@ -40,7 +40,7 @@ class DatasetFieldDTOFactoryTest {
         // then
         assertThat(astroType)
                 .extracting(DatasetFieldDTO::getTypeName, DatasetFieldDTO::getMultiple, DatasetFieldDTO::getTypeClass)
-                .containsExactly("astroType", true, "controlledVocabulary");
+                .containsExactly("astroType", true, DatasetFieldDTO.VOCABULARY);
         assertThat(astroType.getMultipleVocabulary()).containsExactlyElementsOf(values);
     }
 
@@ -69,7 +69,7 @@ class DatasetFieldDTOFactoryTest {
         // then
         assertThat(compoundField)
                 .extracting(DatasetFieldDTO::getTypeName, DatasetFieldDTO::getMultiple, DatasetFieldDTO::getTypeClass)
-                .containsExactly("author", true, "compound");
+                .containsExactly("author", true, DatasetFieldDTO.COMPOUND);
         assertThat(compoundField.getMultipleCompound()).isEqualTo(authorList);
     }
 
@@ -89,7 +89,7 @@ class DatasetFieldDTOFactoryTest {
         // then
         assertThat(compoundField)
                 .extracting(DatasetFieldDTO::getTypeName, DatasetFieldDTO::getMultiple, DatasetFieldDTO::getTypeClass)
-                .containsExactly("author", false, "compound");
+                .containsExactly("author", false, DatasetFieldDTO.COMPOUND);
         assertThat(compoundField.getSingleCompound()).containsExactly(authorFields);
     }
 

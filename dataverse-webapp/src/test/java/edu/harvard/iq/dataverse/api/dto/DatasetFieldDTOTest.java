@@ -110,7 +110,7 @@ class DatasetFieldDTOTest {
     void clearEmailSubfields__notCompound() {
         // given
         DatasetFieldDTO field = new DatasetFieldDTO();
-        field.setTypeClass("primitive");
+        field.setTypeClass(DatasetFieldDTO.PRIMITIVE);
 
         // when
         boolean shouldDeleteField = field.clearEmailSubfields();
@@ -123,7 +123,7 @@ class DatasetFieldDTOTest {
     void clearEmailSubfields__singleCompound_emailOnly() {
         // given
         DatasetFieldDTO field = new DatasetFieldDTO();
-        field.setTypeClass("compound");
+        field.setTypeClass(DatasetFieldDTO.COMPOUND);
         Map<String, DatasetFieldDTO> emailSubfields = createInnerFields("");
         emailSubfields.values().forEach(f -> f.setEmailType(true));
         field.setValue(emailSubfields);
@@ -140,7 +140,7 @@ class DatasetFieldDTOTest {
     void clearEmailSubfields__singleCompound_mixed() {
         // given
         DatasetFieldDTO field = new DatasetFieldDTO();
-        field.setTypeClass("compound");
+        field.setTypeClass(DatasetFieldDTO.COMPOUND);
         Map<String, DatasetFieldDTO> mixedSubfields = createInnerFields("");
         mixedSubfields.get("inner-field-2").setEmailType(true);
         field.setValue(mixedSubfields);
@@ -157,7 +157,7 @@ class DatasetFieldDTOTest {
     void clearEmailSubfields__multipleCompound_emailOnly() {
         // given
         DatasetFieldDTO field = new DatasetFieldDTO();
-        field.setTypeClass("compound");
+        field.setTypeClass(DatasetFieldDTO.COMPOUND);
 
         List<Map<String, DatasetFieldDTO>> value = IntStream.of(1, 2, 3)
                 .mapToObj(i -> {
@@ -181,7 +181,7 @@ class DatasetFieldDTOTest {
     void clearEmailSubfields__multipleCompound_mixed() {
         // given
         DatasetFieldDTO field = new DatasetFieldDTO();
-        field.setTypeClass("compound");
+        field.setTypeClass(DatasetFieldDTO.COMPOUND);
 
         List<Map<String, DatasetFieldDTO>> value = IntStream.of(1, 2, 3)
                 .mapToObj(i -> {

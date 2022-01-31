@@ -25,9 +25,23 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 public class DatasetFieldDTO {
+    public static final String PRIMITIVE = "primitive";
+    public static final String VOCABULARY = "controlledVocabulary";
+    public static final String COMPOUND = "compound";
+
     private String typeName;
     private Boolean multiple;
     private String typeClass;
+
+    /**
+     * This property can hold one of following types:
+     * <ul>
+     *     <li> {@code String} – for primitive/vocabulary value of non-multiple field
+     *     <li> {@code List<String>} – for multiple primitive/vocabulary values
+     *     <li> {@code Map<String, DatasetFieldDTO>} – for non-multiple compound field
+     *     <li> {@code List<Map<String, DatasetFieldDTO>>} – for multiple compound field
+     * </ul>
+     */
     private Object value;
 
     @JsonIgnore
@@ -83,7 +97,7 @@ public class DatasetFieldDTO {
      *  left and the field should be removed. False otherwise.
      */
     public boolean clearEmailSubfields() {
-        if (!"compound".equals(typeClass) || value == null) {
+        if (!COMPOUND.equals(typeClass) || value == null) {
             return false;
         }
         if (Map.class.isAssignableFrom(value.getClass())) {
@@ -224,9 +238,9 @@ public class DatasetFieldDTO {
             field.setTypeName(fieldType.getName());
             field.setMultiple(fieldType.isAllowMultiples());
             field.setTypeClass(fieldType.isControlledVocabulary()
-                    ? "controlledVocabulary"
+                    ? VOCABULARY
                     : fieldType.isCompound()
-                    ? "compound" : "primitive");
+                    ? COMPOUND : PRIMITIVE);
             field.setEmailType(fieldType.getFieldType() == FieldType.EMAIL);
             return field;
         }

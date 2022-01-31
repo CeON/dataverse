@@ -19,12 +19,12 @@ class MetadataBlockWithFieldsDTOTest {
         MetadataBlockWithFieldsDTO block = new MetadataBlockWithFieldsDTO();
 
         DatasetFieldDTO fieldWithEmail = new DatasetFieldDTO();
-        fieldWithEmail.setTypeClass("primitive");
+        fieldWithEmail.setTypeClass(DatasetFieldDTO.PRIMITIVE);
         fieldWithEmail.setEmailType(true);
 
         DatasetFieldDTO field = new DatasetFieldDTO();
         field.setTypeName("field");
-        field.setTypeClass("primitive");
+        field.setTypeClass(DatasetFieldDTO.PRIMITIVE);
 
         block.setFields(list(fieldWithEmail, field));
 
@@ -43,11 +43,11 @@ class MetadataBlockWithFieldsDTOTest {
         MetadataBlockWithFieldsDTO block = new MetadataBlockWithFieldsDTO();
 
         DatasetFieldDTO fieldWithEmail = new DatasetFieldDTO();
-        fieldWithEmail.setTypeClass("primitive");
+        fieldWithEmail.setTypeClass(DatasetFieldDTO.PRIMITIVE);
         fieldWithEmail.setEmailType(true);
 
         DatasetFieldDTO anotherFieldWithEmail = new DatasetFieldDTO();
-        anotherFieldWithEmail.setTypeClass("primitive");
+        anotherFieldWithEmail.setTypeClass(DatasetFieldDTO.PRIMITIVE);
         anotherFieldWithEmail.setEmailType(true);
 
         block.setFields(list(fieldWithEmail, anotherFieldWithEmail));
@@ -65,22 +65,22 @@ class MetadataBlockWithFieldsDTOTest {
         MetadataBlockWithFieldsDTO block = new MetadataBlockWithFieldsDTO();
 
         DatasetFieldDTO emailContainer = new DatasetFieldDTO();
-        emailContainer.setTypeClass("compound");
+        emailContainer.setTypeClass(DatasetFieldDTO.COMPOUND);
 
         DatasetFieldDTO fieldWithEmail = new DatasetFieldDTO();
         fieldWithEmail.setTypeName("email");
-        fieldWithEmail.setTypeClass("primitive");
+        fieldWithEmail.setTypeClass(DatasetFieldDTO.PRIMITIVE);
         fieldWithEmail.setEmailType(true);
 
         emailContainer.setValue(embedIntoMap(fieldWithEmail));
 
         DatasetFieldDTO fieldContainer = new DatasetFieldDTO();
         fieldContainer.setTypeName("fieldContainer");
-        fieldContainer.setTypeClass("compound");
+        fieldContainer.setTypeClass(DatasetFieldDTO.COMPOUND);
 
         DatasetFieldDTO field = new DatasetFieldDTO();
         field.setTypeName("field");
-        field.setTypeClass("primitive");
+        field.setTypeClass(DatasetFieldDTO.PRIMITIVE);
 
         fieldContainer.setValue(embedIntoMap(field));
 
@@ -102,17 +102,17 @@ class MetadataBlockWithFieldsDTOTest {
 
         DatasetFieldDTO fieldWithEmail = new DatasetFieldDTO();
         fieldWithEmail.setTypeName("email");
-        fieldWithEmail.setTypeClass("primitive");
+        fieldWithEmail.setTypeClass(DatasetFieldDTO.PRIMITIVE);
         fieldWithEmail.setEmailType(true);
 
         DatasetFieldDTO anotherFieldWithEmail = new DatasetFieldDTO();
         anotherFieldWithEmail.setTypeName("email");
-        anotherFieldWithEmail.setTypeClass("primitive");
+        anotherFieldWithEmail.setTypeClass(DatasetFieldDTO.PRIMITIVE);
         anotherFieldWithEmail.setEmailType(true);
 
         DatasetFieldDTO emailsContainer = new DatasetFieldDTO();
         emailsContainer.setTypeName("emailsContainer");
-        emailsContainer.setTypeClass("compound");
+        emailsContainer.setTypeClass(DatasetFieldDTO.COMPOUND);
 
         emailsContainer.setValue(list(
                 embedIntoMap(fieldWithEmail, anotherFieldWithEmail),
@@ -120,11 +120,11 @@ class MetadataBlockWithFieldsDTOTest {
 
         DatasetFieldDTO emailAndFieldContainer = new DatasetFieldDTO();
         emailAndFieldContainer.setTypeName("emailAndFieldContainer");
-        emailAndFieldContainer.setTypeClass("compound");
+        emailAndFieldContainer.setTypeClass(DatasetFieldDTO.COMPOUND);
 
         DatasetFieldDTO field = new DatasetFieldDTO();
         field.setTypeName("field");
-        field.setTypeClass("primitive");
+        field.setTypeClass(DatasetFieldDTO.PRIMITIVE);
 
         emailAndFieldContainer.setValue(list(
                 embedIntoMap(field, fieldWithEmail),

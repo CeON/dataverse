@@ -2,6 +2,10 @@ package edu.harvard.iq.dataverse.export.dublincore;
 
 import com.google.gson.Gson;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTO;
+import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTOFactory;
+import edu.harvard.iq.dataverse.api.dto.DatasetVersionDTO;
+import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO;
 import edu.harvard.iq.dataverse.export.DeserializartionHelper;
 import edu.harvard.iq.dataverse.util.xml.XmlPrinter;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 import static javax.json.Json.createArrayBuilder;
 import static javax.json.Json.createObjectBuilder;
@@ -57,23 +62,24 @@ class DublinCoreExportUtilTest {
     void datasetJson2dublincore__singleValueInsteadOfArray() throws Exception {
 
         // given
-        JsonObject json = createObjectBuilder()
-                .add("identifier", "PCA2E3")
-                .add("protocol", "doi")
-                .add("authority", "10.5072/FK2")
-                .add("datasetVersion", createObjectBuilder()
-                    .add("metadataBlocks", createObjectBuilder()
-                        .add("citation", createObjectBuilder()
-                            .add("fields", createArrayBuilder()
-                                .add(createObjectBuilder()
-                                    .add("typeName", "language")
-                                    .add("multiple", false)
-                                    .add("typeClass", "controlledVocabulary")
-                                    .add("value", "Polish")))))).build();
+        DatasetFieldDTO field = DatasetFieldDTOFactory.createVocabulary("language", "Polish");
+
+        MetadataBlockWithFieldsDTO metadataBlock = new MetadataBlockWithFieldsDTO();
+        metadataBlock.setDisplayName("citation");
+        metadataBlock.setFields(Collections.singletonList(field));
+
+        DatasetVersionDTO version = new DatasetVersionDTO();
+        version.setMetadataBlocks(Collections.singletonMap("citation", metadataBlock));
+
+        DatasetDTO dataset = new DatasetDTO();
+        dataset.setIdentifier("PCA2E3");
+        dataset.setProtocol("doi");
+        dataset.setAuthority("10.5072/FK2");
+        dataset.setDatasetVersion(version);
 
         // when
         OutputStream output = new ByteArrayOutputStream();
-        DublinCoreExportUtil.datasetJson2dublincore(json.toString(), output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
+        DublinCoreExportUtil.datasetJson2dublincore(dataset, output, DublinCoreExportUtil.DC_FLAVOR_DCTERMS);
         String result = output.toString();
 
         // then

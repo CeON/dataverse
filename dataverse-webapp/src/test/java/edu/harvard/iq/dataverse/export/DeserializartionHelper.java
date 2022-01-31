@@ -28,7 +28,7 @@ public class DeserializartionHelper {
         for (MetadataBlockWithFieldsDTO block : blocks) {
             List<DatasetFieldDTO> fields = block.getFields();
             for (DatasetFieldDTO field : fields) {
-                if (!"compound".equals(field.getTypeClass())) {
+                if (!DatasetFieldDTO.COMPOUND.equals(field.getTypeClass())) {
                     continue;
                 }
                 if (field.getMultiple()) {

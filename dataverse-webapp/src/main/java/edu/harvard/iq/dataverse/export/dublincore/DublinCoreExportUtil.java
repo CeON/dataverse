@@ -43,22 +43,7 @@ public class DublinCoreExportUtil {
     public static String DC_FLAVOR_OAI = "dc";
     public static String DC_FLAVOR_DCTERMS = "dcterms";
 
-    public static String DEFAULT_DC_FLAVOR = DC_FLAVOR_DCTERMS;
-
-
-    public static void datasetJson2dublincore(String datasetDtoAsJson, OutputStream outputStream, String dcFlavor) throws XMLStreamException {
-        logger.fine(JsonUtil.prettyPrint(datasetDtoAsJson));
-        Gson gson = new Gson();
-        DatasetDTO datasetDto = gson.fromJson(datasetDtoAsJson, DatasetDTO.class);
-
-        dto2dublincore(datasetDto, outputStream, dcFlavor);
-    }
-
     public static void datasetJson2dublincore(DatasetDTO datasetDto, OutputStream outputStream, String dcFlavor) throws XMLStreamException {
-        dto2dublincore(datasetDto, outputStream, dcFlavor);
-    }
-
-    private static void dto2dublincore(DatasetDTO datasetDto, OutputStream outputStream, String dcFlavor) throws XMLStreamException {
         XMLStreamWriter xmlw = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
         if (DC_FLAVOR_DCTERMS.equals(dcFlavor)) {
             xmlw.writeStartDocument();
@@ -78,7 +63,6 @@ public class DublinCoreExportUtil {
             //writeAttribute(xmlw, "version", DEFAULT_XML_VERSION);
             createOAIDC(xmlw, datasetDto, dcFlavor);
         }
-
 
         xmlw.writeEndElement(); // <metadata> or <oai_dc:dc>
         xmlw.flush();
