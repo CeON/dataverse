@@ -110,12 +110,7 @@ public class IngestMessageBean implements MessageListener {
                             datafile.setDataTable(null);
 
                             logger.info("trying to save datafile and the failed ingest report, id=" + datafile_id);
-                            datafile = datafileService.save(datafile);
-
-                            Dataset dataset = datafile.getOwner();
-                            if (dataset != null && dataset.getId() != null) {
-                                ingestService.sendFailNotification();
-                            }
+                            datafileService.save(datafile);
                         }
                     }
                 }

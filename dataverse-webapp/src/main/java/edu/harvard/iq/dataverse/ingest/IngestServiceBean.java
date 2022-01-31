@@ -22,7 +22,6 @@ package edu.harvard.iq.dataverse.ingest;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DatasetDao;
-import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.files.mime.ApplicationMimeType;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
@@ -84,7 +83,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.BufferedInputStream;
@@ -438,10 +436,6 @@ public class IngestServiceBean {
 
     public void recalculateDatasetVersionUNF(DatasetVersion version) {
         IngestUtil.recalculateDatasetVersionUNF(version);
-    }
-
-    public void sendFailNotification() {
-        new FacesMessage(BundleUtil.getStringFromBundle("ingest.failed"));
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
