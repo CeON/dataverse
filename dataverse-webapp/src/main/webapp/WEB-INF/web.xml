@@ -124,6 +124,10 @@
         <servlet-name>HomepageServlet</servlet-name>
         <servlet-class>edu.harvard.iq.dataverse.HomepageServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SamlAuthenticationServlet</servlet-name>
+        <servlet-class>edu.harvard.iq.dataverse.authorization.providers.saml.SamlAuthenticationServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>HomepageServlet</servlet-name>
@@ -144,6 +148,10 @@
     <servlet-mapping>
         <servlet-name>Citation Servlet</servlet-name>
         <url-pattern>/citation</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SamlAuthenticationServlet</servlet-name>
+        <url-pattern>/saml/*</url-pattern>
     </servlet-mapping>
 
     <session-config>

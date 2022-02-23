@@ -7,7 +7,7 @@ import javax.enterprise.inject.Produces;
 public class FileSettingLocationsFactory {
 
     // -------------------- LOGIC --------------------
-    
+
     /**
      * Returns setting locations used in production. That is:
      * <p>
@@ -18,6 +18,7 @@ public class FileSettingLocationsFactory {
     public FileSettingLocations buildSettingLocations() {
         FileSettingLocations settingLocations = new FileSettingLocations();
         settingLocations.addLocation(SettingLocationType.CLASSPATH, "/config/dataverse.default.properties", false);
+        settingLocations.addLocation(SettingLocationType.CLASSPATH, "/config/saml.properties", false);
         settingLocations.addLocation(SettingLocationType.FILESYSTEM, System.getProperty("user.home") + "/.dataverse/dataverse.properties", true);
         return settingLocations;
     }
