@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.authorization.providers.saml;
 
 import com.onelogin.saml2.settings.Saml2Settings;
+import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.persistence.user.SamlIdentityProvider;
 import edu.harvard.iq.dataverse.persistence.user.SamlIdentityProviderRepository;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +32,9 @@ class SamlConfigurationServiceTest {
     @Mock
     private SamlIdentityProviderRepository samlIdpRepository;
 
+    @Mock
+    private AuthenticationServiceBean authenticationService;
+
     private SamlConfigurationService service;
 
     private Map<String, Object> idpSettings = new HashMap<>();
@@ -38,13 +42,27 @@ class SamlConfigurationServiceTest {
     @BeforeEach
     void setUp() {
         idpSettings.clear();
-        service = new SamlConfigurationService(settingsService, samlIdpRepository, (metadataUrl, idpEntityId) -> {
-            idpSettings.put("onelogin.saml2.idp.entityid", idpEntityId);
-            return idpSettings;
-        });
+        service = new SamlConfigurationService(settingsService, samlIdpRepository, authenticationService,
+                (metadataUrl, idpEntityId) -> {
+                    idpSettings.put("onelogin.saml2.idp.entityid", idpEntityId);
+                    return idpSettings;
+                });
     }
 
     // -------------------- TESTS --------------------
+
+    @Test
+    void isSamlLoginEnabled() {
+        // given
+        when(authenticationService.getAuthenticationProvider(anyString()))
+                .thenReturn(new SamlAuthenticationProvider(null));
+
+        // when
+        boolean enabled = service.isSamlLoginEnabled();
+
+        // then
+        assertThat(enabled).isTrue();
+    }
 
     @Test
     void buildSettings__fromProvider() {
@@ -65,7 +83,7 @@ class SamlConfigurationServiceTest {
     void buildSettings__formProviderId() {
         // given
         SamlIdentityProvider provider = new SamlIdentityProvider(1L, "idpEntityId", "url", "name");
-        when(samlIdpRepository.findByEntityId("idpEntityId")).thenReturn(provider);
+        when(samlIdpRepository.findByEntityId("idpEntityId")).thenReturn(Optional.of(provider));
         mockSpSettings();
 
         // when
@@ -123,7 +141,7 @@ class SamlConfigurationServiceTest {
     // -------------------- PRIVATE --------------------
 
     private void mockSpSettings() {
-        when(settingsService.getFileSettingsForPrefix(":onelogin"))
+        when(settingsService.getFileBasedSettingsForPrefix(":onelogin"))
                 .thenReturn(Collections.singletonMap("onelogin.saml2.sp.entityid", "spEntityId"));
     }
 }

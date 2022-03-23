@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthentic
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.DevOAuthAccountType;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2TokenDataServiceBean;
+import edu.harvard.iq.dataverse.authorization.providers.saml.SamlAuthenticationServlet;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.consent.ConsentDto;
 import edu.harvard.iq.dataverse.consent.ConsentService;
@@ -189,8 +190,8 @@ public class ExternalIdpFirstLoginPage implements Serializable {
                     .getExternalContext()
                     .getSession(false);
             if (httpSession != null) {
-                newUser = (ExternalIdpUserRecord) httpSession.getAttribute("NewUser");
-                httpSession.removeAttribute("NewUser");
+                newUser = (ExternalIdpUserRecord) httpSession.getAttribute(SamlAuthenticationServlet.NEW_USER_SESSION_PARAM);
+                httpSession.removeAttribute(SamlAuthenticationServlet.NEW_USER_SESSION_PARAM);
             }
         }
         if (newUser == null) {

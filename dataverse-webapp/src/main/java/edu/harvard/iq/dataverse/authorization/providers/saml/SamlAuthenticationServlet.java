@@ -26,8 +26,11 @@ import java.security.cert.CertificateEncodingException;
 import java.util.List;
 
 public class SamlAuthenticationServlet extends HttpServlet {
-
     private static final Logger logger = LoggerFactory.getLogger(SamlAuthenticationServlet.class);
+
+    private static final String SAML_DISABLED = "SAML authentication is currently disabled.";
+
+    public static final String NEW_USER_SESSION_PARAM = "NewUser";
 
     private AuthenticationServiceBean authenticationService;
     private DataverseSession session;
@@ -49,23 +52,26 @@ public class SamlAuthenticationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Saml2Settings settings = samlConfigurationService.buildSpSettings();
-        List<String> errors = settings.checkSPSettings();
-        if (errors.isEmpty()) {
-            try (ServletOutputStream out = response.getOutputStream();
-                 final OutputStreamWriter writer = new OutputStreamWriter(out)) {
-                writer.write(settings.getSPMetadata());
-            } catch (CertificateEncodingException cee) {
-                logger.warn("There was an issue while producing metadata", cee);
-            }
-        } else {
-            logger.warn("Errors getting metadata for Dataverse SP: " + errors);
-            super.doGet(request, response);
+        if (!samlConfigurationService.isSamlLoginEnabled()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, SAML_DISABLED);
+            return;
+        }
+        String path = request.getPathInfo();
+        switch (path) {
+            case "/metadata":
+                metadata(response);
+                break;
+            default:
+                super.doGet(request, response);
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!samlConfigurationService.isSamlLoginEnabled()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, SAML_DISABLED);
+            return;
+        }
         String path = request.getPathInfo();
         switch (path) {
             case "/acs":
@@ -80,6 +86,22 @@ public class SamlAuthenticationServlet extends HttpServlet {
     }
 
     // -------------------- PRIVATE --------------------
+
+    private void metadata(HttpServletResponse response) throws IOException {
+        Saml2Settings settings = samlConfigurationService.buildSpSettings();
+        List<String> errors = settings.checkSPSettings();
+        if (errors.isEmpty()) {
+            try (ServletOutputStream out = response.getOutputStream();
+                 final OutputStreamWriter writer = new OutputStreamWriter(out)) {
+                writer.write(settings.getSPMetadata());
+            } catch (CertificateEncodingException cee) {
+                logger.warn("There was an issue while producing metadata", cee);
+            }
+        } else {
+            logger.warn("Errors while getting metadata for Dataverse SP: " + errors);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
+        }
+    }
 
     private void login(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -102,7 +124,7 @@ public class SamlAuthenticationServlet extends HttpServlet {
                             ? relayState
                             : systemConfig.getDataverseSiteUrl());
                 } else {
-                    request.getSession().setAttribute("NewUser", userRecord);
+                    request.getSession().setAttribute(NEW_USER_SESSION_PARAM, userRecord);
                     response.sendRedirect("/firstLogin.xhtml");
                 }
             }
@@ -111,5 +133,6 @@ public class SamlAuthenticationServlet extends HttpServlet {
         }
     }
 
+    // For future use (if we want to synchronize logouts or implement IdP-initiated logout).
     private void logout(HttpServletRequest request, HttpServletResponse response) { }
 }

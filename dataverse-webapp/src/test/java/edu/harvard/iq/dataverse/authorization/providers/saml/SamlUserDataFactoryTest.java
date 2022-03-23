@@ -33,7 +33,7 @@ class SamlUserDataFactoryTest {
         Map<String, List<String>> attributes = new HashMap<>();
         attributes.put("cn", Collections.singletonList("firstName"));
         attributes.put("sn", Collections.singletonList("surname"));
-        attributes.put("mail", Collections.singletonList("email"));
+        attributes.put("mail", Collections.singletonList("secondEmail; email ,thirdEmail;"));
         when(auth.getAttributes()).thenReturn(attributes);
 
         // when

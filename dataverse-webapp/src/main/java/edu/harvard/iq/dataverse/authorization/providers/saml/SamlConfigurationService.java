@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.authorization.providers.saml;
 import com.onelogin.saml2.settings.IdPMetadataParser;
 import com.onelogin.saml2.settings.Saml2Settings;
 import com.onelogin.saml2.settings.SettingsBuilder;
+import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
+import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.persistence.user.SamlIdentityProvider;
 import edu.harvard.iq.dataverse.persistence.user.SamlIdentityProviderRepository;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -27,6 +29,7 @@ public class SamlConfigurationService {
 
     private SettingsServiceBean settingsService;
     private SamlIdentityProviderRepository samlIdpRepository;
+    private AuthenticationServiceBean authenticationService;
 
     private BiFunction<String, String, Map<String, Object>> parser = (String idpMetadataUrl, String idpEntityId) -> {
         try {
@@ -42,25 +45,33 @@ public class SamlConfigurationService {
     public SamlConfigurationService() { }
 
     @Inject
-    public SamlConfigurationService(SettingsServiceBean settingsService, SamlIdentityProviderRepository samlIdpRepository) {
+    public SamlConfigurationService(SettingsServiceBean settingsService, SamlIdentityProviderRepository samlIdpRepository,
+                                    AuthenticationServiceBean authenticationService) {
         this.settingsService = settingsService;
         this.samlIdpRepository = samlIdpRepository;
+        this.authenticationService = authenticationService;
     }
 
     public SamlConfigurationService(SettingsServiceBean settingsService, SamlIdentityProviderRepository samlIdpRepository,
-                                    BiFunction<String, String, Map<String, Object>> parser) {
-        this(settingsService, samlIdpRepository);
+                                    AuthenticationServiceBean authenticationService, BiFunction<String, String, Map<String, Object>> parser) {
+        this(settingsService, samlIdpRepository, authenticationService);
         this.parser = parser;
     }
 
     // -------------------- LOGIC --------------------
+
+    public boolean isSamlLoginEnabled() {
+        AuthenticationProvider samlProvider = authenticationService.getAuthenticationProvider("saml");
+        return samlProvider != null;
+    }
 
     public Saml2Settings buildSettings(SamlIdentityProvider provider) {
         return buildSettings(readSpSettings(), parser.apply(provider.getMetadataUrl(), provider.getEntityId()));
     }
 
     public Saml2Settings buildSettings(String idpEntityId) {
-        SamlIdentityProvider provider = samlIdpRepository.findByEntityId(idpEntityId);
+        SamlIdentityProvider provider = samlIdpRepository.findByEntityId(idpEntityId)
+                .orElseThrow(() -> new RuntimeException("There is no provider with id =" + idpEntityId));
         return buildSettings(provider);
     }
 
@@ -85,7 +96,7 @@ public class SamlConfigurationService {
     }
 
     private Map<String, Object> readSpSettings() {
-        Map<String, String> spSettings = settingsService.getFileSettingsForPrefix(":onelogin");
+        Map<String, String> spSettings = settingsService.getFileBasedSettingsForPrefix(":onelogin");
         return spSettings.entrySet().stream()
                 .map(e -> Tuple.of(normalizeKey(e.getKey()), substitutePlaceholders(e.getValue())))
                 .collect(HashMap::new, (m, e) -> m.put(e._1(), e._2()), Map::putAll);

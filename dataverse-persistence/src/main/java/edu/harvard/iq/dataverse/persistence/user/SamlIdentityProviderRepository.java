@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.persistence.JpaRepository;
 
 import javax.ejb.Singleton;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class SamlIdentityProviderRepository extends JpaRepository<Long, SamlIdentityProvider> {
@@ -16,13 +17,13 @@ public class SamlIdentityProviderRepository extends JpaRepository<Long, SamlIden
 
     // -------------------- LOGIC --------------------
 
-    public SamlIdentityProvider findByEntityId(String entityId) {
+    public Optional<SamlIdentityProvider> findByEntityId(String entityId) {
         List<SamlIdentityProvider> entityIdList =
                 em.createNamedQuery("SamlIdentityProvider.findByEntityId", SamlIdentityProvider.class)
                         .setParameter("entityId", entityId)
                         .getResultList();
         return entityIdList.isEmpty()
-                ? null
-                : entityIdList.get(0);
+                ? Optional.empty()
+                : Optional.of(entityIdList.get(0));
     }
 }

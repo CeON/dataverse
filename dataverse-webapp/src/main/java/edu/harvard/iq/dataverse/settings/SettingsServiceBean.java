@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -823,7 +822,7 @@ public class SettingsServiceBean {
         return mergedSettings;
     }
 
-    public Map<String, String> getFileSettingsForPrefix(String prefix) {
+    public Map<String, String> getFileBasedSettingsForPrefix(String prefix) {
         Map<String, String> settings = fileBasedSettingsFetcher.getAllSettings();
         Set<String> keys = settings.keySet();
         return keys.stream()

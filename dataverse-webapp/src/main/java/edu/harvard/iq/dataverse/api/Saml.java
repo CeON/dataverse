@@ -41,20 +41,15 @@ public class Saml extends AbstractApiBean {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllProviders() throws WrappedResponse {
-        AuthenticatedUser user = findAuthenticatedUserOrDie();
-        return user.isSuperuser()
-                ? ok(idpManagementSerivce.listAll())
-                : unauthorized(SUPERUSER_REQUIRED_WARNING);
+        findSuperuserOrDie();
+        return ok(idpManagementSerivce.listAll());
     }
 
     @Path("/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProvider(@PathParam("id") Long id) throws WrappedResponse {
-        AuthenticatedUser user = findAuthenticatedUserOrDie();
-        if (!user.isSuperuser()) {
-            return unauthorized(SUPERUSER_REQUIRED_WARNING);
-        }
+        findSuperuserOrDie();
         Optional<SamlIdentityProviderDTO> provider = idpManagementSerivce.listSingle(id);
         return provider.isPresent()
                 ? ok(provider.get())
@@ -67,14 +62,10 @@ public class Saml extends AbstractApiBean {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response add(List<SamlIdentityProviderDTO> providers) throws WrappedResponse {
-        AuthenticatedUser user = findAuthenticatedUserOrDie();
-        if (!user.isSuperuser()) {
-            return unauthorized(SUPERUSER_REQUIRED_WARNING);
-        }
-        if (providers == null) {
-            return badRequest("No providers data");
-        }
-        return handleResult(idpManagementSerivce.create(providers), "Provider(s) added");
+        findSuperuserOrDie();
+        return providers != null
+                ? handleResult(idpManagementSerivce.create(providers), "Provider(s) added")
+                : badRequest("No providers data");
     }
 
     @Path("/")
@@ -83,14 +74,10 @@ public class Saml extends AbstractApiBean {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(SamlIdentityProviderDTO provider) throws WrappedResponse {
-        AuthenticatedUser user = findAuthenticatedUserOrDie();
-        if (!user.isSuperuser()) {
-            return unauthorized(SUPERUSER_REQUIRED_WARNING);
-        }
-        if (provider == null) {
-            return badRequest("Incomplete or null input json");
-        }
-        return handleResult(idpManagementSerivce.update(provider), "Provider updated");
+        findSuperuserOrDie();
+        return provider != null
+                ? handleResult(idpManagementSerivce.update(provider), "Provider updated")
+                : badRequest("Incomplete or null input json");
     }
 
     @Path("/{id}")
@@ -98,10 +85,7 @@ public class Saml extends AbstractApiBean {
     @ApiWriteOperation
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("id") Long id) throws WrappedResponse {
-        AuthenticatedUser user = findAuthenticatedUserOrDie();
-        if (!user.isSuperuser()) {
-            return unauthorized(SUPERUSER_REQUIRED_WARNING);
-        }
+        findSuperuserOrDie();
         return handleResult(idpManagementSerivce.delete(id), "Provider deleted");
     }
 
