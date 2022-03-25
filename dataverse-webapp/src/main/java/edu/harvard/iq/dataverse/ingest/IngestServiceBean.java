@@ -155,23 +155,24 @@ public class IngestServiceBean {
     // DataFileCategory objects, if any were already assigned to the files).
     // It must be called before we attempt to permanently save the files in
     // the database by calling the Save command on the dataset and/or version.
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<DataFile> saveAndAddFilesToDataset(DatasetVersion version, List<DataFile> newFiles) {
         List<DataFile> result = new ArrayList<>();
 
         if (newFiles == null || newFiles.isEmpty()) {
             return result;
         }
+        ArrayList<DataFile> newFilesCopy = new ArrayList<>(newFiles);
         // final check for duplicate file names;
         // we tried to make the file names unique on upload, but then
         // the user may have edited them on the "add files" page, and
         // renamed FOOBAR-1.txt back to FOOBAR.txt...
 
-        IngestUtil.checkForDuplicateFileNamesFinal(version, newFiles);
+        IngestUtil.checkForDuplicateFileNamesFinal(version, newFilesCopy);
 
         Dataset dataset = version.getDataset();
 
-        for (DataFile dataFile : newFiles) {
-
+        for (DataFile dataFile : newFilesCopy) {
             Path tempLocationPath = Paths.get(FileUtil.getFilesTempDirectory() + "/" + dataFile.getStorageIdentifier());
 
             boolean unattached = false;
