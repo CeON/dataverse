@@ -62,7 +62,7 @@ public class SamlIdpDataFetcher {
             String url = identityProvider.getMetadataUrl();
             String xml = xmlFetcher.fetchXml(url);
             identityProvider.setConfigurationXml(xml);
-            identityProvider.setLastTimeOfXmlDownload(new Timestamp(new Date().getTime()));
+            identityProvider.setLastTimeOfXmlDownload(new Timestamp(clock.millis()));
             idpRepository.save(identityProvider);
         }
         return Util.convertStringToDocument(identityProvider.getConfigurationXml());
