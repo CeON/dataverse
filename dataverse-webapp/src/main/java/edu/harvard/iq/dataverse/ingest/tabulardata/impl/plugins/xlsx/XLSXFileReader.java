@@ -70,13 +70,13 @@ public class XLSXFileReader extends TabularDataFileReader {
     private static final Logger dbglog = Logger.getLogger(XLSXFileReader.class.getPackage().getName());
     private char delimiterChar = '\t';
 
+    private static XlsxColumnIndexConverter converter = new XlsxColumnIndexConverter();
+
     public XLSXFileReader(TabularDataFileReaderSpi originator) {
         super(originator);
     }
 
-    private void init() throws IOException {
-
-    }
+    private void init() throws IOException { }
 
     /**
      * Reads an XLSX file, converts it into a dataverse DataTable.
@@ -361,7 +361,7 @@ public class XLSXFileReader extends TabularDataFileReader {
                 if (!indexAttribute.matches(".*[0-9]")) {
                     dbglog.warning("Invalid index (r) attribute in a cell element: " + indexAttribute + "!");
                 }
-                columnCount = getColumnCount(indexAttribute.replaceFirst("[0-9].*$", ""));
+                columnCount = converter.columnToIndex(indexAttribute.replaceFirst("[0-9].*$", ""));
 
                 if (columnCount < 0) {
                     throw new IngestException(IngestError.EXCEL_AMBIGUOUS_INDEX_POSITION);
@@ -372,28 +372,6 @@ public class XLSXFileReader extends TabularDataFileReader {
             }
             // Clear contents cache
             cellContents = "";
-        }
-
-        private int getColumnCount(String columnTag) {
-            int count = -1;
-            if (columnTag.length() == 1 && columnTag.matches("[A-Z]")) {
-                count = columnTag.charAt(0) - 'A';
-            } else {
-                dbglog.warning("Unsupported column index tag: " + columnTag);
-            }
-
-            return count;
-        }
-
-        private String getColumnLetterTag(int columnCount) {
-            if (columnCount < 0 || columnCount > 25) {
-                dbglog.warning("Multi-letter column codes not yet supported.");
-                return null;
-            }
-            int letterCode = 'A' + columnCount;
-            char[] letterTag = new char[1];
-            letterTag[0] = (char) letterCode;
-            return new String(letterTag);
         }
 
         public void endElement(String uri, String localName, String name) {
@@ -433,11 +411,7 @@ public class XLSXFileReader extends TabularDataFileReader {
 
 
                         if (varName == null || varName.equals("")) {
-                            varName = getColumnLetterTag(i);
-                            // TODO:
-                            // Add a sensible variable name validation algorithm.
-                            // -- L.A. 4.0 alpha 1
-                            //throw new IOException ("Invalid variable names in the first line!");
+                            varName = converter.indexToColumn(i);
                         }
 
                         if (varName == null) {
