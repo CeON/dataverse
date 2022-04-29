@@ -196,17 +196,14 @@ public class Groups extends AbstractApiBean {
     public Response deleteSamlGroup(@PathParam("primaryKey") String id) {
         SamlGroup doomed = samlGroupProvider.get(id);
         if (doomed != null) {
-            boolean deleted;
             try {
-                deleted = samlGroupProvider.delete(doomed);
-            } catch (Exception ex) {
-                return error(Response.Status.BAD_REQUEST, ex.getMessage());
+                samlGroupProvider.delete(doomed);
+                return ok("Saml group " + id + " deleted");
+            } catch (IllegalArgumentException iae) {
+                return error(Response.Status.BAD_REQUEST, iae.getMessage());
             }
-            return deleted
-                    ? ok("Saml group " + id + " deleted")
-                    : error(Response.Status.BAD_REQUEST, "Could not delete Saml group with an id of " + id);
         } else {
-            return error(Response.Status.BAD_REQUEST, "Could not find Saml group with an id of " + id);
+            return notFound("Could not find Saml group with an id of " + id);
         }
     }
 }

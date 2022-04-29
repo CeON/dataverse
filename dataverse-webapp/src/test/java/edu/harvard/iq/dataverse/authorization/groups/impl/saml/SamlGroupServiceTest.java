@@ -103,10 +103,9 @@ class SamlGroupServiceTest {
         SamlGroup toDelete = new SamlGroup("toDelete", "eid");
 
         // when
-        boolean deleted = service.delete(toDelete);
+        service.delete(toDelete);
 
         // then
         verify(repository, times(1)).mergeAndDelete(toDelete);
-        assertThat(deleted).isTrue();
     }
 }

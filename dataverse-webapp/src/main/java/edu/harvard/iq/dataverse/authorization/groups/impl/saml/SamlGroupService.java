@@ -49,7 +49,7 @@ public class SamlGroupService {
     }
 
     public SamlGroup save(String name, String entityId) {
-        ActionLogRecord alr = new ActionLogRecord(ActionLogRecord.ActionType.GlobalGroups, "shibCreate");
+        ActionLogRecord alr = new ActionLogRecord(ActionLogRecord.ActionType.GlobalGroups, "samlCreate");
         alr.setInfo(name + ": " + entityId);
 
         SamlGroup saved = repository.saveAndFlush(new SamlGroup(name, entityId));
@@ -67,7 +67,7 @@ public class SamlGroupService {
         return groupsForUser;
     }
 
-    public boolean delete(SamlGroup doomed) throws Exception {
+    public void delete(SamlGroup doomed) {
         ActionLogRecord alr = new ActionLogRecord(ActionLogRecord.ActionType.GlobalGroups, "samlDelete");
         alr.setInfo(doomed.getName() + ":" + doomed.getIdentifier());
 
@@ -75,7 +75,6 @@ public class SamlGroupService {
         if (assignments.isEmpty()) {
             repository.mergeAndDelete(doomed);
             actionLogSvc.log(alr);
-            return true;
         } else {
             List<String> assignmentIds = new ArrayList<>();
             for (RoleAssignment assignment : assignments) {
@@ -86,7 +85,7 @@ public class SamlGroupService {
             logger.info(message);
             actionLogSvc.log(alr.setActionResult(ActionLogRecord.Result.BadRequest)
                                      .setInfo(alr.getInfo() + "// " + message));
-            throw new Exception(message);
+            throw new IllegalStateException(message);
         }
     }
 }

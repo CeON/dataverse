@@ -85,8 +85,8 @@ public class SamlGroupProvider implements GroupProvider<SamlGroup> {
         return samlGroupService.save(samlGroup.getName(), samlGroup.getEntityId());
     }
 
-    public boolean delete(SamlGroup doomed) throws Exception {
-        return samlGroupService.delete(doomed);
+    public void delete(SamlGroup doomed) {
+        samlGroupService.delete(doomed);
     }
 
     @Override
