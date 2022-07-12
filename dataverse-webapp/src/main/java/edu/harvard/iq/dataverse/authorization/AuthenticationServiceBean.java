@@ -663,9 +663,8 @@ public class AuthenticationServiceBean {
     }
 
     public AuthenticatedUser updateAuthenticatedUser(AuthenticatedUser user, AuthenticatedUserDisplayInfo userDisplayInfo, Locale userNotificationsLanguage) {
-        updateAuthenticatedUser(user, userDisplayInfo);
         user.setNotificationsLanguage(userNotificationsLanguage);
-        return update(user);
+        return updateAuthenticatedUser(user, userDisplayInfo);
     }
 
     public List<AuthenticatedUser> findAllAuthenticatedUsers() {

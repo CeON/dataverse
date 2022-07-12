@@ -125,6 +125,8 @@ public class ExternalIdpFirstLoginPage implements Serializable {
 
     private Boolean notificationLanguageSelectionEnabled;
 
+    private Boolean disableSamlFilledFields = false;
+
     // -------------------- GETTERS --------------------
 
     public AuthenticationProvider getAuthProvider() {
@@ -157,6 +159,10 @@ public class ExternalIdpFirstLoginPage implements Serializable {
 
     public Boolean getNotificationLanguageSelectionEnabled() {
         return notificationLanguageSelectionEnabled;
+    }
+
+    public Boolean getDisableSamlFilledFields() {
+        return disableSamlFilledFields;
     }
 
     // -------------------- LOGIC --------------------
@@ -192,6 +198,7 @@ public class ExternalIdpFirstLoginPage implements Serializable {
                     .getSession(false);
             if (httpSession != null) {
                 newUser = (ExternalIdpUserRecord) httpSession.getAttribute(SamlAuthenticationServlet.NEW_USER_SESSION_PARAM);
+                disableSamlFilledFields = true;
                 httpSession.removeAttribute(SamlAuthenticationServlet.NEW_USER_SESSION_PARAM);
             }
         }

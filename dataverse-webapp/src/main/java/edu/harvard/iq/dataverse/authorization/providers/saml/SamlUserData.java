@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.authorization.providers.saml;
 
 import edu.harvard.iq.dataverse.authorization.common.ExternalIdpUserRecord;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserDisplayInfo;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,10 @@ public class SamlUserData {
     public ExternalIdpUserRecord toExternalIdpUserRecord() {
         return new ExternalIdpUserRecord(SamlAuthenticationProvider.PROVIDER_ID, getCompositeId(), null,
                 new AuthenticatedUserDisplayInfo(getName(), getSurname(), getEmail(), null, null));
+    }
+
+    public boolean isCompleteForLogin() {
+        return StringUtils.isNoneBlank(name, surname, email);
     }
 
     // -------------------- SETTERS --------------------
