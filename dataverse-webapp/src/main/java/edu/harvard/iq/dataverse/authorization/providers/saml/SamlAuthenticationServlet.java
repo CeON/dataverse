@@ -34,6 +34,7 @@ public class SamlAuthenticationServlet extends HttpServlet {
     private static final String SAML_DISABLED = "SAML authentication is currently disabled.";
 
     public static final String NEW_USER_SESSION_PARAM = "NewUser";
+    public static final String USER_TO_CONVERT_SESSION_PARAM = "UserToConvert";
     public static final String SAML_LOGIN_ISSUE_SESSION_PARAM = "SamlLoginIssues";
 
     private AuthenticationServiceBean authenticationService;
@@ -127,8 +128,14 @@ public class SamlAuthenticationServlet extends HttpServlet {
             UserRecordIdentifier userRecordId = userRecord.toUserRecordIdentifier();
             AuthenticatedUser user = authenticationService.lookupUser(userRecordId);
             if (user == null) {
-                request.getSession().setAttribute(NEW_USER_SESSION_PARAM, userRecord);
-                response.sendRedirect("/firstLogin.xhtml");
+                boolean emailExists = authenticationService.getAuthenticatedUserByEmail(userData.getEmail()) != null;
+                if (emailExists) {
+                    request.getSession().setAttribute(USER_TO_CONVERT_SESSION_PARAM, userData);
+                    response.sendRedirect("/convertAccount.xhtml");
+                } else {
+                    request.getSession().setAttribute(NEW_USER_SESSION_PARAM, userRecord);
+                    response.sendRedirect("/firstLogin.xhtml");
+                }
                 return;
             }
             Either<SamlLoginIssue, AuthenticatedUser> updateResult = systemConfig.isReadonlyMode()

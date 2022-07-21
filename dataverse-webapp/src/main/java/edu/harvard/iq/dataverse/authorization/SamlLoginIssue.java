@@ -32,6 +32,11 @@ public class SamlLoginIssue implements Serializable {
         return this;
     }
 
+    public SamlLoginIssue addMessage(String message) {
+        this.messages.add(message);
+        return this;
+    }
+
     // -------------------- INNER CLASSES --------------------
 
     public enum Type {

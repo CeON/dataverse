@@ -5,7 +5,6 @@ import edu.harvard.iq.dataverse.authorization.SamlLoginIssue.Type;
 import edu.harvard.iq.dataverse.authorization.providers.saml.SamlUserData;
 import edu.harvard.iq.dataverse.persistence.ActionLogRecord;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Either;
 
 import javax.ejb.Stateless;
@@ -42,7 +41,7 @@ public class SamlDataUpdateService {
      */
     public Either<SamlLoginIssue, AuthenticatedUser> updateUserIfNeeded(AuthenticatedUser user, SamlUserData samlData) {
         if (!samlData.isCompleteForLogin()) {
-            return Either.left(new SamlLoginIssue(Type.INCOMPLETE_DATA));
+            return Either.left(new SamlLoginIssue(Type.INCOMPLETE_DATA).addMessage(samlData.printLoginData()));
         }
         boolean updated = updateDifferingFields(user, samlData);
         if (!updated) {

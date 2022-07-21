@@ -193,9 +193,7 @@ public class ExternalIdpFirstLoginPage implements Serializable {
         if (newUser == null) {
             // If new user tries to sign up with SAML then the user data
             // will is stored in the http session
-            HttpSession httpSession = (HttpSession) FacesContext.getCurrentInstance()
-                    .getExternalContext()
-                    .getSession(false);
+            HttpSession httpSession = JsfHelper.getCurrentSession();
             if (httpSession != null) {
                 newUser = (ExternalIdpUserRecord) httpSession.getAttribute(SamlAuthenticationServlet.NEW_USER_SESSION_PARAM);
                 disableSamlFilledFields = true;

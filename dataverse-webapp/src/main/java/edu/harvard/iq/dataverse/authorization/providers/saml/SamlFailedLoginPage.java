@@ -34,6 +34,7 @@ public class SamlFailedLoginPage implements Serializable {
                 ? (SamlLoginIssue) session.getAttribute(SamlAuthenticationServlet.SAML_LOGIN_ISSUE_SESSION_PARAM) : null;
         if (loginIssue != null) {
             samlLoginIssue = loginIssue;
+            session.removeAttribute(SamlAuthenticationServlet.SAML_LOGIN_ISSUE_SESSION_PARAM);
         } else {
             logger.warn("Cannot find session or original login issue. Using AUTHENTICATION_ERROR.");
             samlLoginIssue = new SamlLoginIssue(SamlLoginIssue.Type.AUTHENTICATION_ERROR);
