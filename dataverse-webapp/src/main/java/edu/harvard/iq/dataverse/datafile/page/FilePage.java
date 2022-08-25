@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.datafile.page;
 
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.citation.CitationFactory;
@@ -17,6 +18,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
+import edu.harvard.iq.dataverse.externaltools.ExternalToolHandler;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseDialog;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -28,10 +30,12 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.Term
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseIcon;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
+import edu.harvard.iq.dataverse.persistence.guestbook.GuestbookResponse;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.control.Try;
+import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
@@ -73,6 +77,8 @@ public class FilePage implements java.io.Serializable {
     private FileService fileService;
     private GuestbookResponseDialog guestbookResponseDialog;
     private CitationFactory citationFactory;
+    private DataverseSession session;
+    private ExternalToolHandler externalToolHandler;
 
     private FileMetadata fileMetadata;
     private Long fileId;
@@ -88,6 +94,7 @@ public class FilePage implements java.io.Serializable {
     private Boolean thumbnailAvailable = null;
     private Boolean lockedFromEditsVar;
     private Boolean lockedFromDownloadVar;
+    private Boolean guestbookResponseProvided = false;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -100,7 +107,8 @@ public class FilePage implements java.io.Serializable {
                     ExternalToolServiceBean externalToolService, DataverseRequestServiceBean dvRequestService,
                     PermissionsWrapper permissionsWrapper, FileDownloadHelper fileDownloadHelper,
                     ExportService exportService, FileService fileService,
-                    GuestbookResponseDialog guestbookResponseDialog, CitationFactory citationFactory) {
+                    GuestbookResponseDialog guestbookResponseDialog, CitationFactory citationFactory,
+                    DataverseSession session, ExternalToolHandler externalToolHandler) {
         this.datafileService = datafileService;
         this.datasetVersionService = datasetVersionService;
         this.permissionService = permissionService;
@@ -113,6 +121,8 @@ public class FilePage implements java.io.Serializable {
         this.fileService = fileService;
         this.guestbookResponseDialog = guestbookResponseDialog;
         this.citationFactory = citationFactory;
+        this.session = session;
+        this.externalToolHandler = externalToolHandler;
     }
 
     // -------------------- GETTERS --------------------
@@ -153,6 +163,14 @@ public class FilePage implements java.io.Serializable {
         return exploreTools;
     }
 
+    public List<ExternalTool> getPreviewTools() {
+        return previewTools;
+    }
+
+    public Boolean getGuestbookResponseProvided() {
+        return guestbookResponseProvided;
+    }
+
     // -------------------- LOGIC --------------------
 
     public String init() {
@@ -160,9 +178,7 @@ public class FilePage implements java.io.Serializable {
             return permissionsWrapper.notFound();
         }
 
-        // ---------------------------------------
         // Set the file and datasetVersion
-        // ---------------------------------------
         if (fileId != null) {
             file = datafileService.find(fileId);
         } else {
@@ -176,16 +192,15 @@ public class FilePage implements java.io.Serializable {
             return permissionsWrapper.notFound();
         }
 
-        // Is the Dataset harvested?
         if (file.getOwner().isHarvested()) {
             // if so, we'll simply forward to the remote URL for the original
             // source of this harvested dataset:
             String originalSourceURL = file.getOwner().getRemoteArchiveURL();
-            if (originalSourceURL != null && !originalSourceURL.equals("")) {
+            if (StringUtils.isNotBlank(originalSourceURL)) {
                 logger.fine("redirecting to " + originalSourceURL);
                 try {
                     FacesContext.getCurrentInstance().getExternalContext().redirect(originalSourceURL);
-                } catch (IOException ioex) {
+                } catch (IOException ioe) {
                     // must be a bad URL...
                     // we don't need to do anything special here - we'll redirect
                     // to the local 404 page, below.
@@ -217,8 +232,8 @@ public class FilePage implements java.io.Serializable {
         // -> Go to the Login page
         // Check permisisons
 
-        boolean authorized = (fileMetadata.getDatasetVersion().isReleased()) ||
-                (!fileMetadata.getDatasetVersion().isReleased() && this.canViewUnpublishedDataset());
+        boolean authorized = fileMetadata.getDatasetVersion().isReleased()
+                || (!fileMetadata.getDatasetVersion().isReleased() && this.canViewUnpublishedDataset());
 
         if (!authorized) {
             return permissionsWrapper.notAuthorized();
@@ -232,11 +247,8 @@ public class FilePage implements java.io.Serializable {
         // Currently, tabular data files are the only type of derived file created, so
         // isTabularData() works - true for tabular types where a .tab file has been
         // created and false for other mimetypes
-        String contentType = file.getContentType();
         // For tabular data, indicate successful ingest by returning a contentType for the derived .tab file
-        if (file.isTabularData()) {
-            contentType = TextMimeType.TSV_ALT.getMimeValue();
-        }
+        String contentType = file.isTabularData() ? TextMimeType.TSV_ALT.getMimeValue() : file.getContentType();
         configureTools = externalToolService.findExternalTools(ExternalTool.Type.CONFIGURE, contentType, file, version);
         exploreTools = externalToolService.findExternalTools(ExternalTool.Type.EXPLORE, contentType, file, version);
         previewTools = externalToolService.findExternalTools(ExternalTool.Type.PREVIEW, contentType, file, version);
@@ -460,6 +472,19 @@ public class FilePage implements java.io.Serializable {
     //This can probably be replaced by calling JsfHelper from the provpopup bean
     public void showProvError() {
         JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("file.metadataTab.provenance.error"), "");
+    }
+
+    public String getPreviewUrl() {
+        if (previewTools.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+        ExternalTool previewer = previewTools.get(0);
+        return externalToolHandler.buildToolUrlWithQueryParams(previewer, file, null, session.getLocaleCode()) + "&preview=true";
+    }
+
+    public void showPreview(GuestbookResponse guestbookResponse) {
+        fileDownloadHelper.writeGuestbookResponseForPreview(guestbookResponse, fileMetadata, previewTools.get(0));
+        guestbookResponseProvided = true;
     }
 
     // -------------------- PRIVATE --------------------

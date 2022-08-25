@@ -112,26 +112,26 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("description", "This tool is awesome.");
-        job.add("type", "explore");
-        job.add("toolUrl", "http://awesometool.com");
-        job.add("toolParameters", Json.createObjectBuilder()
-            .add("queryParameters", Json.createArrayBuilder()
-                .add(Json.createObjectBuilder()
-                         .add("fileid", "{fileId}")
-                         .build())
-                .add(Json.createObjectBuilder()
-                         .add("key", "{apiToken}")
-                         .build())
-                .build())
-            .build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+                .add("description", "This tool is awesome.")
+                .add("type", "explore")
+                .add("toolUrl", "http://awesometool.com")
+                .add("toolParameters", Json.createObjectBuilder()
+                    .add("queryParameters", Json.createArrayBuilder()
+                        .add(Json.createObjectBuilder()
+                            .add("fileid", "{fileId}")
+                            .build())
+                        .add(Json.createObjectBuilder()
+                            .add("key", "{apiToken}")
+                            .build())
+                        .build())
+                    .build())
+                .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when
-        ExternalTool externalTool = ExternalToolServiceBean.parseAddExternalToolManifest(tool);
+        ExternalTool externalTool = externalToolServiceBean.parseAddExternalToolManifest(tool);
 
         // then
         assertThat(externalTool.getDisplayName()).isEqualTo("AwesomeTool");
@@ -145,31 +145,31 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__noFileId() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("description", "This tool is awesome.");
-        job.add("type", "explore");
-        job.add("toolUrl", "http://awesometool.com");
-        job.add("toolParameters", Json.createObjectBuilder()
-            .add("queryParameters", Json.createArrayBuilder()
-                .add(Json.createObjectBuilder()
-                         .add("key", "{apiToken}")
-                         .build())
-                .build())
-            .build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+                .add("description", "This tool is awesome.")
+                .add("type", "explore")
+                .add("toolUrl", "http://awesometool.com")
+                .add("toolParameters", Json.createObjectBuilder()
+                    .add("queryParameters", Json.createArrayBuilder()
+                        .add(Json.createObjectBuilder()
+                            .add("key", "{apiToken}")
+                            .build())
+                        .build())
+                    .build())
+                .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when & then
-            assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Required reserved word not found: {fileId}");
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(tool))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Required reserved word not found: {fileId}");
     }
 
     @Test
     void parseAddExternalToolManifest__null() {
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(null))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("External tool manifest was null or empty!");
     }
@@ -177,7 +177,7 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__emptyString() {
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(""))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("External tool manifest was null or empty!");
     }
@@ -185,29 +185,29 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__unknownReservedWord() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("description", "This tool is awesome.");
-        job.add("type", "explore");
-        job.add("toolUrl", "http://awesometool.com");
-        job.add("toolParameters", Json.createObjectBuilder()
-            .add("queryParameters", Json.createArrayBuilder()
-                .add(Json.createObjectBuilder()
-                     .add("fileid", "{fileId}")
-                     .build())
-                .add(Json.createObjectBuilder()
-                     .add("key", "{apiToken}")
-                     .build())
-                .add(Json.createObjectBuilder()
-                     .add("mode", "mode1")
-                     .build())
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+            .add("description", "This tool is awesome.")
+                .add("type", "explore")
+                .add("toolUrl", "http://awesometool.com")
+                .add("toolParameters", Json.createObjectBuilder()
+                .add("queryParameters", Json.createArrayBuilder()
+                    .add(Json.createObjectBuilder()
+                         .add("fileid", "{fileId}")
+                         .build())
+                    .add(Json.createObjectBuilder()
+                         .add("key", "{apiToken}")
+                         .build())
+                    .add(Json.createObjectBuilder()
+                         .add("mode", "mode1")
+                         .build())
+                    .build())
                 .build())
-            .build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+                .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(tool))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown reserved word: mode1");
     }
@@ -215,15 +215,15 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__noDisplayName() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("description", "This tool is awesome.");
-        job.add("toolUrl", "http://awesometool.com");
-        job.add("toolParameters", Json.createObjectBuilder().build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("description", "This tool is awesome.")
+            .add("toolUrl", "http://awesometool.com")
+            .add("toolParameters", Json.createObjectBuilder().build())
+            .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(tool))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("displayName is required.");
     }
@@ -231,15 +231,15 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__noDescription() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("toolUrl", "http://awesometool.com");
-        job.add("toolParameters", Json.createObjectBuilder().build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+            .add("toolUrl", "http://awesometool.com")
+            .add("toolParameters", Json.createObjectBuilder().build())
+            .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(tool))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("description is required.");
     }
@@ -247,16 +247,16 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__noToolUrl() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("description", "This tool is awesome.");
-        job.add("type", "explore");
-        job.add("toolParameters", Json.createObjectBuilder().build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+            .add("description", "Ths tool is awesome.")
+            .add("type", "explore")
+            .add("toolParameters", Json.createObjectBuilder().build())
+            .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(tool))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("toolUrl is required.");
     }
@@ -264,46 +264,45 @@ public class ExternalToolServiceBeanTest {
     @Test
     void parseAddExternalToolManifest__wrongType() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("description", "This tool is awesome.");
-        job.add("type", "noSuchType");
-        job.add("toolUrl", "http://awesometool.com");
-        job.add("toolParameters", Json.createObjectBuilder().build());
-        job.add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+            .add("description", "This tool is awesome.")
+            .add("type", "noSuchType")
+            .add("toolUrl", "http://awesometool.com")
+            .add("toolParameters", Json.createObjectBuilder().build())
+            .add(ExternalTool.CONTENT_TYPE, TextMimeType.TSV_ALT.getMimeValue());
+        String tool = json.build().toString();
 
         // when & then
-        assertThatThrownBy(() -> ExternalToolServiceBean.parseAddExternalToolManifest(tool))
+        assertThatThrownBy(() -> externalToolServiceBean.parseAddExternalToolManifest(tool))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Type must be one of these values: [explore, configure].");
+                .hasMessage("Type must be one of these values: explore, configure, preview.");
     }
 
     @Test
     void parseAddExternalToolManifest__noContentType() {
         // given
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("displayName", "AwesomeTool");
-        job.add("description", "This tool is awesome.");
-        job.add("type", "explore");
-        job.add("toolUrl", "http://awesometool.com");
-
-        job.add("toolParameters", Json.createObjectBuilder().add("queryParameters", Json.createArrayBuilder()
-            .add(Json.createObjectBuilder()
-                 .add("fileid", "{fileId}")
-                 .build())
-            .add(Json.createObjectBuilder()
-                 .add("key", "{apiToken}")
-                 .build())
-            .build())
-        .build());
-        String tool = job.build().toString();
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("displayName", "AwesomeTool")
+            .add("description", "This tool is awesome.")
+            .add("type", "explore")
+            .add("toolUrl", "http://awesometool.com")
+            .add("toolParameters", Json.createObjectBuilder()
+                .add("queryParameters", Json.createArrayBuilder()
+                    .add(Json.createObjectBuilder()
+                        .add("fileid", "{fileId}")
+                        .build())
+                    .add(Json.createObjectBuilder()
+                        .add("key", "{apiToken}")
+                        .build())
+                    .build())
+                .build());
+        String tool = json.build().toString();
 
         // when
-        ExternalTool externalTool = ExternalToolServiceBean.parseAddExternalToolManifest(tool);
+        ExternalTool externalTool = externalToolServiceBean.parseAddExternalToolManifest(tool);
 
         // then
         assertThat(externalTool.getContentType()).isEqualTo(TextMimeType.TSV_ALT.getMimeValue());
     }
-
 }

@@ -469,6 +469,10 @@ public class DatasetFilesTab implements Serializable {
         return getCachedToolsForDataFile(fileId, ExternalTool.Type.EXPLORE);
     }
 
+    public List<ExternalTool> getPreviewToolsForDataFile(Long fileId) {
+        return getCachedToolsForDataFile(fileId, ExternalTool.Type.PREVIEW);
+    }
+
     public boolean shouldAllowRestrictedFileRequest() {
         return confirmEmailService.hasEffectivelyUnconfirmedMail(session.getUser());
     }
