@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.persistence.datafile;
 
+import edu.harvard.iq.dataverse.persistence.JpaEntity;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.persistence.Column;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
  * an {@link ExternalToolHandler}.
  */
 @Entity
-public class ExternalTool implements Serializable {
+public class ExternalTool implements Serializable, JpaEntity<Long> {
 
     public static final String DISPLAY_NAME = "displayName";
     public static final String DESCRIPTION = "description";

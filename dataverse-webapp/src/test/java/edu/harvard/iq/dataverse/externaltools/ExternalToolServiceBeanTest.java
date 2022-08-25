@@ -1,16 +1,10 @@
 package edu.harvard.iq.dataverse.externaltools;
 
-import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
-import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.citation.CitationFactory;
 import edu.harvard.iq.dataverse.common.files.mime.TextMimeType;
-import edu.harvard.iq.dataverse.datasetutility.WorldMapPermissionHelper;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
+import edu.harvard.iq.dataverse.persistence.datafile.ExternalToolRepository;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -21,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.json.Json;
@@ -38,25 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(MockitoExtension.class)
 public class ExternalToolServiceBeanTest {
 
-    @InjectMocks
-    ExternalToolServiceBean externalToolServiceBean;
-
-    @Mock
-    private DataFileServiceBean datafileService;
-    @Mock
-    private AuthenticationServiceBean authService;
-    @Mock
-    private ExternalToolHandler externalToolHandler;
-    @Mock
-    private DataverseSession session;
-    @Mock
-    private EjbDataverseEngine commandEngine;
-    @Mock
-    private DataverseRequestServiceBean dvRequestService;
-    @Mock
-    private WorldMapPermissionHelper worldMapPermissionHelper;
-    @Mock
-    private CitationFactory citationFactory;
+    ExternalToolServiceBean externalToolServiceBean = new ExternalToolServiceBean(new ExternalToolRepository());
 
     // -------------------- TESTS --------------------
 

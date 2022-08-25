@@ -5,22 +5,17 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool.ReservedWord;
 import edu.harvard.iq.dataverse.persistence.datafile.ExternalTool.Type;
+import edu.harvard.iq.dataverse.persistence.datafile.ExternalToolRepository;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -31,65 +26,48 @@ public class ExternalToolServiceBean {
 
     private static final Logger logger = Logger.getLogger(ExternalToolServiceBean.class.getCanonicalName());
 
-    @PersistenceContext(unitName = "VDCNet-ejbPU")
-    private EntityManager em;
+    private ExternalToolRepository repository;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    @Deprecated
+    public ExternalToolServiceBean() { }
+
+    @Inject
+    public ExternalToolServiceBean(ExternalToolRepository repository) {
+        this.repository = repository;
+    }
 
     // -------------------- LOGIC --------------------
 
     public List<ExternalTool> findAll() {
-        TypedQuery<ExternalTool> typedQuery = em.createQuery("SELECT OBJECT(o) FROM ExternalTool AS o ORDER BY o.id", ExternalTool.class);
-        return typedQuery.getResultList();
+        return repository.findAll();
     }
 
     /**
      * @return A list of tools or an empty list.
      */
     public List<ExternalTool> findByType(Type type) {
-        return findByType(type, null);
+        return repository.findByType(type, null);
     }
 
     /**
      * @return A list of tools or an empty list.
      */
     public List<ExternalTool> findByType(Type type, String contentType) {
-
-        // If contentType==null, get all tools of the given ExternalTool.Type
-        TypedQuery<ExternalTool> typedQuery = em.createQuery(
-                "SELECT OBJECT(o) FROM ExternalTool AS o WHERE o.type = :type"
-                        + (contentType != null ? " AND o.contentType = :contentType" : ""),
-                ExternalTool.class);
-        typedQuery.setParameter("type", type);
-        if (contentType != null) {
-            typedQuery.setParameter("contentType", contentType);
-        }
-        List<ExternalTool> toolsFromQuery = typedQuery.getResultList();
-        return new ArrayList<>(toolsFromQuery != null ? toolsFromQuery : Collections.emptyList());
-    }
-
-    public ExternalTool findById(long id) {
-        TypedQuery<ExternalTool> typedQuery = em.createQuery("SELECT OBJECT(o) FROM ExternalTool AS o WHERE o.id = :id", ExternalTool.class);
-        typedQuery.setParameter("id", id);
-        try {
-            return typedQuery.getSingleResult();
-        } catch (NoResultException | NonUniqueResultException ex) {
-            return null;
-        }
+        return repository.findByType(type, contentType);
     }
 
     public boolean delete(long doomedId) {
-        ExternalTool doomed = findById(doomedId);
-        try {
-            em.remove(doomed);
+        if (repository.findById(doomedId).isPresent()) {
+            repository.deleteById(doomedId);
             return true;
-        } catch (Exception ex) {
-            logger.info("Could not delete external tool with id of " + doomedId);
-            return false;
         }
+        return false;
     }
 
     public ExternalTool save(ExternalTool externalTool) {
-        em.persist(externalTool);
-        return em.merge(externalTool);
+        return repository.save(externalTool);
     }
 
     /**
