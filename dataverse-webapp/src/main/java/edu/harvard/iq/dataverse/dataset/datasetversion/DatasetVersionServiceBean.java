@@ -1080,6 +1080,7 @@ w
         return updateDatasetVersion(editVersion, new ArrayList<>(), validateLenient);
     }
 
+//    @TransactionAttribute(TransactionAttributeType.NEVER)
     public Dataset updateDatasetVersion(DatasetVersion editVersion, List<DataFile> filesToDelete, boolean validateLenient) {
         List<ValidationResult> validationResults = fieldValidationService.validateFieldsOfDatasetVersion(editVersion);
         Set<ConstraintViolation<FileMetadata>> constraintViolations = editVersion.validateFileMetadata();
@@ -1092,10 +1093,13 @@ w
         Dataset dataset = editVersion.getDataset();
         DatasetVersion datasetBeforeChanges = findLatestVersion(dataset.getId());
 
+        log.warn("before: UpdateDatasetVersionCommand ");
         UpdateDatasetVersionCommand command = new UpdateDatasetVersionCommand(
                 dataset, dvRequestService.getDataverseRequest(), filesToDelete, datasetBeforeChanges);
         command.setValidateLenient(validateLenient);
-        return commandEngine.submit(command);
+        Dataset d = commandEngine.submit(command);
+        log.warn("after: UpdateDatasetVersionCommand ");
+        return d;
     }
 
     private DatasetVersion findLatestVersion(long datasetId) {

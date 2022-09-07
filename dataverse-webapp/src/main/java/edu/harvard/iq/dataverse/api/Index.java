@@ -331,25 +331,6 @@ public class Index extends AbstractApiBean {
         }
     }
 
-    /**
-     * This is just a demo of the modular math logic we use for indexAll.
-     */
-    @GET
-    @Path("mod")
-    public Response indexMod(@QueryParam("partitions") long partitions, @QueryParam("which") long which) {
-        long numObjectToConsider = 100;
-        List<Long> dvObjectsIds = new ArrayList<>();
-        for (long i = 1; i <= numObjectToConsider; i++) {
-            dvObjectsIds.add(i);
-        }
-        List<Long> mine = IndexUtil.findDvObjectIdsToProcessMod(dvObjectsIds, partitions, which);
-        JsonObjectBuilder response = Json.createObjectBuilder();
-        response.add("partitions", partitions);
-        response.add("which", which);
-        response.add("mine", mine.toString());
-        return ok(response);
-    }
-
     @GET
     @Path("perms")
     public Response indexAllPermissions() {
@@ -382,13 +363,11 @@ public class Index extends AbstractApiBean {
         }
 
         JsonObjectBuilder permissionsInDatabaseButStaleInOrMissingFromSolr = getPermissionsInDatabaseButStaleInOrMissingFromSolr();
-        JsonObjectBuilder permissionsInSolrButNotDatabase = getPermissionsInSolrButNotDatabase();
 
         JsonObjectBuilder data = Json.createObjectBuilder()
                 .add("contentInDatabaseButStaleInOrMissingFromIndex", contentInDatabaseButStaleInOrMissingFromSolr)
                 .add("contentInIndexButNotDatabase", contentInSolrButNotDatabase)
-                .add("permissionsInDatabaseButStaleInOrMissingFromIndex", permissionsInDatabaseButStaleInOrMissingFromSolr)
-                .add("permissionsInIndexButNotDatabase", permissionsInSolrButNotDatabase);
+                .add("permissionsInDatabaseButStaleInOrMissingFromIndex", permissionsInDatabaseButStaleInOrMissingFromSolr);
 
         return ok(data);
     }
@@ -444,16 +423,6 @@ public class Index extends AbstractApiBean {
     private JsonObjectBuilder getPermissionsInDatabaseButStaleInOrMissingFromSolr() {
         List<Long> staleOrMissingPermissions;
         staleOrMissingPermissions = solrIndexService.findPermissionsInDatabaseButStaleInOrMissingFromSolr();
-        JsonArrayBuilder stalePermissionList = Json.createArrayBuilder();
-        for (Long dvObjectId : staleOrMissingPermissions) {
-            stalePermissionList.add(dvObjectId);
-        }
-        return Json.createObjectBuilder()
-                .add("dvobjects", stalePermissionList.build().size());
-    }
-
-    private JsonObjectBuilder getPermissionsInSolrButNotDatabase() {
-        List<Long> staleOrMissingPermissions = solrIndexService.findPermissionsInSolrNoLongerInDatabase();
         JsonArrayBuilder stalePermissionList = Json.createArrayBuilder();
         for (Long dvObjectId : staleOrMissingPermissions) {
             stalePermissionList.add(dvObjectId);

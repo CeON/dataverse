@@ -61,6 +61,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
 
     @Override
     public Dataset execute(CommandContext ctxt)  {
+        logger.info("before: any action in UpdateDatasetVerionCommand");
         if (!(getUser() instanceof AuthenticatedUser)) {
             throw new IllegalCommandException("Only authenticated users can update datasets", this);
         }
@@ -74,6 +75,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
         final DatasetVersion editVersion = getDataset().getEditVersion();
         tidyUpFields(editVersion);
 
+        logger.info("before: first merge in UpdateDatasetVerionCommand");
         // Merge the new version into out JPA context, if needed.
         if (editVersion.isNew()) {
             ctxt.em().persist(editVersion);
@@ -113,6 +115,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
                 recalculateUNF = true;
             }
         }
+        logger.info("before: second merge in UpdateDatasetVerionCommand");
         // we have to merge to update the database but not flush because
         // we don't want to create two draft versions!
         Dataset tempDataset = ctxt.em().merge(getDataset());
@@ -152,10 +155,14 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
         tempDataset.getEditVersion().setLastUpdateTime(getTimestamp());
         tempDataset.setModificationTime(getTimestamp());
 
+        logger.info("before: third merge in UpdateDatasetVerionCommand");
         Dataset savedDataset = ctxt.em().merge(tempDataset);
+        logger.info("before: flush in UpdateDatasetVerionCommand");
         ctxt.em().flush();
 
+        logger.info("before: update dataset user");
         updateDatasetUser(ctxt);
+        logger.info("before: indexDataset in update dataset command");
         ctxt.index().indexDataset(savedDataset, true);
         if (clone != null) {
             DatasetVersionDifference dvd = new DatasetVersionDifference(savedDataset.getEditVersion(), clone);
