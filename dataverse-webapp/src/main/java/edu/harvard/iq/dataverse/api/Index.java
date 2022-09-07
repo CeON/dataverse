@@ -32,7 +32,6 @@ import edu.harvard.iq.dataverse.search.SolrField;
 import edu.harvard.iq.dataverse.search.index.IndexBatchServiceBean;
 import edu.harvard.iq.dataverse.search.index.IndexResponse;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
-import edu.harvard.iq.dataverse.search.index.IndexUtil;
 import edu.harvard.iq.dataverse.search.index.PermissionsSolrDoc;
 import edu.harvard.iq.dataverse.search.index.PermissionsSolrDocFactory;
 import edu.harvard.iq.dataverse.search.index.SolrIndexServiceBean;
