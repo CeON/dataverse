@@ -6,6 +6,7 @@
 package edu.harvard.iq.dataverse.mail;
 
 import edu.harvard.iq.dataverse.DataverseDao;
+import edu.harvard.iq.dataverse.notification.NotificationParameter;
 import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
@@ -82,7 +83,7 @@ public class MailService implements java.io.Serializable {
     public Boolean sendNotificationEmail(EmailNotificationDto notification) {
 
         String userEmail = notification.getUserEmail();
-        
+
         String systemEmail = settingsService.getValueForKey(Key.SystemEmail);
         Tuple2<String, String> messageAndSubject = mailMessageCreator.getMessageAndSubject(notification, systemEmail);
 
@@ -90,14 +91,15 @@ public class MailService implements java.io.Serializable {
             return false;
         }
 
-        String footerMessage = getFooterMailMessage(notification.getNotificationReceiver().getNotificationsLanguage());
-
-        return sendMail(userEmail, new EmailContent(messageAndSubject._2(), messageAndSubject._1(), footerMessage));
+        String footerMessage = getFooterMailMessage(notification.getNotificationType(),
+                notification.getNotificationReceiver().getNotificationsLanguage());
+        String replyTo = notification.getParameter(NotificationParameter.REPLY_TO.key());
+        return sendMail(userEmail, replyTo, new EmailContent(messageAndSubject._2(), messageAndSubject._1(), footerMessage));
     }
 
-    public CompletableFuture<Boolean> sendMailAsync(String recipientsEmails, EmailContent emailContent) {
+    public CompletableFuture<Boolean> sendMailAsync(String recipientsEmails, String replyTo, EmailContent emailContent) {
 
-        return CompletableFuture.supplyAsync(() -> sendMail(recipientsEmails, emailContent), executorService);
+        return CompletableFuture.supplyAsync(() -> sendMail(recipientsEmails, replyTo, emailContent), executorService);
     }
 
     public CompletableFuture<Boolean> sendMailAsync(String replyEmail, String recipientsEmails, String subject, String messageText) {
@@ -110,11 +112,12 @@ public class MailService implements java.io.Serializable {
      *
      * @param recipientsEmails - comma separated emails.
      */
-    public boolean sendMail(String recipientsEmails, EmailContent emailContent) {
+    public boolean sendMail(String recipientsEmails, String replyTo, EmailContent emailContent) {
 
         Email email = newMailWithOverseerIfExists()
                 .from(getSystemAddress())
                 .withRecipients(mailMessageCreator.createRecipients(recipientsEmails, StringUtils.EMPTY))
+                .withReplyTo(replyTo)
                 .withSubject(emailContent.getSubject())
                 .appendText(emailContent.getMessageText() + emailContent.getFooter())
                 .buildEmail();
@@ -146,10 +149,9 @@ public class MailService implements java.io.Serializable {
                 .getOrElse(false);
     }
 
-    public String getFooterMailMessage(Locale footerLocale) {
-        return mailMessageCreator.createMailFooterMessage(footerLocale,
-                                                          dataverseDao.findRootDataverse().getName(),
-                                                          getSystemAddress());
+    public String getFooterMailMessage(String notificationType, Locale footerLocale) {
+        return mailMessageCreator.createMailFooterMessage(notificationType, footerLocale,
+                dataverseDao.findRootDataverse().getName(), getSystemAddress());
     }
 
     public InternetAddress getSystemAddress() {

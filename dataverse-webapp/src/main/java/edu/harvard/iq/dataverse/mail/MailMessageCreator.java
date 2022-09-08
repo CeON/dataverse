@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.RoleTranslationUtil;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
+import edu.harvard.iq.dataverse.notification.NotificationParameter;
 import edu.harvard.iq.dataverse.notification.dto.EmailNotificationDto;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
@@ -16,6 +17,7 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserRepository;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole;
 import edu.harvard.iq.dataverse.persistence.user.NotificationType;
@@ -50,14 +52,11 @@ import static edu.harvard.iq.dataverse.persistence.user.NotificationType.*;
 public class MailMessageCreator {
 
     private SystemConfig systemConfig;
-
     private PermissionServiceBean permissionService;
-
     private DataverseDao dataverseDao;
-
     private ConfirmEmailServiceBean confirmEmailService;
-
     private GenericDao genericDao;
+    private AuthenticatedUserRepository authenticatedUserRepository;
 
     private static final Logger logger = Logger.getLogger(MailMessageCreator.class.getCanonicalName());
 
@@ -69,12 +68,13 @@ public class MailMessageCreator {
     @Inject
     public MailMessageCreator(SystemConfig systemConfig, PermissionServiceBean permissionService,
                               DataverseDao dataverseDao, ConfirmEmailServiceBean confirmEmailService,
-                              GenericDao genericDao) {
+                              GenericDao genericDao, AuthenticatedUserRepository authenticatedUserRepository) {
         this.systemConfig = systemConfig;
         this.permissionService = permissionService;
         this.dataverseDao = dataverseDao;
         this.confirmEmailService = confirmEmailService;
         this.genericDao = genericDao;
+        this.authenticatedUserRepository = authenticatedUserRepository;
     }
 
     // -------------------- LOGIC --------------------
@@ -82,9 +82,10 @@ public class MailMessageCreator {
     /**
      * Creates footer for email message.
      */
-    public String createMailFooterMessage(Locale messageLocale, String rootDataverseName, InternetAddress systemAddress) {
-
-        return BundleUtil.getStringFromBundleWithLocale("notification.email.closing", messageLocale,
+    public String createMailFooterMessage(String notificationType, Locale messageLocale, String rootDataverseName, InternetAddress systemAddress) {
+        String closingLine = RETURNEDDS.equals(notificationType)
+                ? "notification.email.closing.other" : "notification.email.closing";
+        return BundleUtil.getStringFromBundleWithLocale(closingLine, messageLocale,
                         BrandingUtil.getSupportTeamEmailAddress(systemAddress),
                         BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName, messageLocale));
     }
@@ -280,13 +281,13 @@ public class MailMessageCreator {
             case GRANTFILEACCESSINFO:
                 pattern = BundleUtil.getStringFromBundleWithLocale("notification.email.grant.file.access.info.text", notificationsEmailLanguage);
                 messageText += MessageFormat.format(pattern,
-                        notificationDto.getCustomUserMessage(), dataset.getDisplayName(), getDatasetLink(dataset),
+                        notificationDto.getParameter(NotificationParameter.GRANTED_BY.key()), dataset.getDisplayName(), getDatasetLink(dataset),
                         getNumberOfUsersRequestingForFileAccess(dataset), getDatasetManageFilePermissionsLink(dataset));
                 return messageText;
             case REJECTFILEACCESSINFO:
                 pattern = BundleUtil.getStringFromBundleWithLocale("notification.email.reject.file.access.info.text", notificationsEmailLanguage);
                 messageText += MessageFormat.format(pattern,
-                        notificationDto.getCustomUserMessage(), dataset.getDisplayName(), getDatasetLink(dataset),
+                        notificationDto.getParameter(NotificationParameter.REJECTED_BY.key()), dataset.getDisplayName(), getDatasetLink(dataset),
                         getNumberOfUsersRequestingForFileAccess(dataset), getDatasetManageFilePermissionsLink(dataset));
                 return messageText;
         }
@@ -324,10 +325,10 @@ public class MailMessageCreator {
                         version.getDataset().getOwner().getDisplayName(),
                         getDataverseLink(version.getDataset().getOwner()));
             case SUBMITTEDDS:
-                AuthenticatedUser requestor = notificationDto.getRequestor();
-                String requestorName = requestor.getFirstName() + " " + requestor.getLastName();
+                AuthenticatedUser requestor = findRequestor(notificationDto.getParameter(NotificationParameter.REQUESTOR_ID.key()));
 
-                String requestorEmail = requestor.getEmail();
+                String requestorName = requestor != null ? requestor.getFirstName() + " " + requestor.getLastName() : StringUtils.EMPTY;
+                String requestorEmail = requestor != null ? requestor.getEmail() : StringUtils.EMPTY;
 
                 return greetingsText +
                         BundleUtil.getStringFromBundleWithLocale("notification.email.wasSubmittedForReview",
@@ -338,18 +339,22 @@ public class MailMessageCreator {
                                 getDataverseLink(version.getDataset().getOwner()),
                                 requestorName,
                                 requestorEmail) +
-                        addUserCustomMessage(notificationDto,
-                                BundleUtil.getStringFromBundleWithLocale("dataset.reject.messageBox.label", notificationsEmailLanguage));
+                        addUserCustomMessageForSubmit(notificationDto,
+                                BundleUtil.getStringFromBundleWithLocale("dataset.reject.messageBox.label",
+                                        notificationsEmailLanguage));
             case RETURNEDDS:
-                return greetingsText +
-                        BundleUtil.getStringFromBundleWithLocale("notification.email.wasReturnedByReviewer",
+                return greetingsText
+                        + BundleUtil.getStringFromBundleWithLocale("notification.email.wasReturnedByReviewer",
                                 notificationsEmailLanguage,
                                 version.getDataset().getDisplayName(),
                                 getDatasetDraftLink(version.getDataset()),
                                 version.getDataset().getOwner().getDisplayName(),
-                                getDataverseLink(version.getDataset().getOwner())) +
-                        addUserCustomMessage(notificationDto,
-                                BundleUtil.getStringFromBundleWithLocale("dataset.reject.messageBox.label", notificationsEmailLanguage));
+                                getDataverseLink(version.getDataset().getOwner()))
+                        + addUserCustomMessageForReturn(notificationDto,
+                                BundleUtil.getStringFromBundleWithLocale("notification.email.additional.message",
+                                        notificationsEmailLanguage))
+                        + BundleUtil.getStringFromBundleWithLocale("notification.email.returned.replyTo",
+                            notificationsEmailLanguage, notificationDto.getParameter(NotificationParameter.REPLY_TO.key()));
             case FILESYSTEMIMPORT:
 
                 return greetingsText +
@@ -368,9 +373,16 @@ public class MailMessageCreator {
         return StringUtils.EMPTY;
     }
 
-    private String addUserCustomMessage(EmailNotificationDto notificationDto, String messagePrefix) {
-        if(StringUtils.isNotEmpty(notificationDto.getCustomUserMessage())) {
-            return String.format("\n\n%s\n\n%s", messagePrefix, notificationDto.getCustomUserMessage());
+    private String addUserCustomMessageForSubmit(EmailNotificationDto notificationDto, String messagePrefix) {
+        if(StringUtils.isNotEmpty(notificationDto.getParameter(NotificationParameter.MESSAGE.key()))) {
+            return String.format("\n\n%s\n\n%s", messagePrefix, notificationDto.getParameter(NotificationParameter.MESSAGE.key()));
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private String addUserCustomMessageForReturn(EmailNotificationDto notificationDto, String messagePrefix) {
+        if(StringUtils.isNotEmpty(notificationDto.getParameter(NotificationParameter.MESSAGE.key()))) {
+            return String.format("\n\n%s\n\n=====\n\n%s\n\n=====", messagePrefix, notificationDto.getParameter(NotificationParameter.MESSAGE.key()));
         }
         return StringUtils.EMPTY;
     }
@@ -381,7 +393,7 @@ public class MailMessageCreator {
                 notificationsEmailLanguage);
 
         if (notificationDto.getNotificationType().equals(REQUESTFILEACCESS)) {
-            AuthenticatedUser requestor = notificationDto.getRequestor();
+            AuthenticatedUser requestor = findRequestor(notificationDto.getParameter(NotificationParameter.REQUESTOR_ID.key()));
             String pattern = BundleUtil.getStringFromBundleWithLocale("notification.email.requestFileAccess",
                     notificationsEmailLanguage);
 
@@ -540,5 +552,12 @@ public class MailMessageCreator {
                 .distinct()
                 .count();
         return String.valueOf(numberOfUsersRequestingForAccess);
+    }
+
+    private AuthenticatedUser findRequestor(String requestorId) {
+        if (StringUtils.isEmpty(requestorId)) {
+            return null;
+        }
+        return authenticatedUserRepository.findById(Long.valueOf(requestorId)).orElse(null);
     }
 }
