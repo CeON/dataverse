@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO;
 import edu.harvard.iq.dataverse.api.dto.DatasetFieldDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.common.MarkupChecker;
+import edu.harvard.iq.dataverse.export.RelatedIdentifierTypeConstants;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -905,110 +906,63 @@ public class OpenAireExportUtil {
     public static void writeRelatedIdentifierElement(XMLStreamWriter xmlw, DatasetVersionDTO datasetVersionDTO, String language) throws XMLStreamException {
         // relatedIdentifiers -> relatedIdentifier with relatedIdentifierType and relationType attributes
         boolean relatedIdentifier_check = false;
-        HashMap relatedIdentifierTypeMap = new HashMap();
-        {
-            relatedIdentifierTypeMap.put("ARK".toLowerCase(), "ARK");
-            relatedIdentifierTypeMap.put("arXiv".toLowerCase(), "arXiv");
-            relatedIdentifierTypeMap.put("bibcode".toLowerCase(), "bibcode");
-            relatedIdentifierTypeMap.put("DOI".toLowerCase(), "DOI");
-            relatedIdentifierTypeMap.put("EAN13".toLowerCase(), "EAN13");
-            relatedIdentifierTypeMap.put("EISSN".toLowerCase(), "EISSN");
-            relatedIdentifierTypeMap.put("Handle".toLowerCase(), "Handle");
-            relatedIdentifierTypeMap.put("ISBN".toLowerCase(), "ISBN");
-            relatedIdentifierTypeMap.put("ISSN".toLowerCase(), "ISSN");
-            relatedIdentifierTypeMap.put("ISTC".toLowerCase(), "ISTC");
-            relatedIdentifierTypeMap.put("LISSN".toLowerCase(), "LISSN");
-            relatedIdentifierTypeMap.put("LSID".toLowerCase(), "LSID");
-            relatedIdentifierTypeMap.put("PISSN".toLowerCase(), "PISSN");
-            relatedIdentifierTypeMap.put("PMID".toLowerCase(), "PMID");
-            relatedIdentifierTypeMap.put("PURL".toLowerCase(), "PURL");
-            relatedIdentifierTypeMap.put("UPC".toLowerCase(), "UPC");
-            relatedIdentifierTypeMap.put("URL".toLowerCase(), "URL");
-            relatedIdentifierTypeMap.put("URN".toLowerCase(), "URN");
-            relatedIdentifierTypeMap.put("WOS".toLowerCase(), "WOS");
-        }
+        Map<String, String> relatedIdentifierTypeMap = RelatedIdentifierTypeConstants.getAlternativeToMainIdTypeIndex();
 
         for (Map.Entry<String, MetadataBlockWithFieldsDTO> entry : datasetVersionDTO.getMetadataBlocks().entrySet()) {
             String key = entry.getKey();
+            if (!"citation".equals(key)) {
+                continue;
+            }
             MetadataBlockWithFieldsDTO value = entry.getValue();
-            if ("citation".equals(key)) {
-                for (DatasetFieldDTO fieldDTO : value.getFields()) {
-                    if (DatasetFieldConstant.publication.equals(fieldDTO.getTypeName())
-                        || DatasetFieldConstant.relatedDataset.equals(fieldDTO.getTypeName())
-                        || DatasetFieldConstant.relatedMaterial.equals(fieldDTO.getTypeName())) {
-                        for (Set<DatasetFieldDTO> foo : fieldDTO.getMultipleCompound()) {
-                            String relatedIdentifierType = null;
-                            String relatedIdentifier = null; // is used when relatedIdentifierType variable is not URL
-                            String relatedURL = null; // is used when relatedIdentifierType variable is URL
-                            String relationType = null;
+            for (DatasetFieldDTO fieldDTO : value.getFields()) {
+                if (DatasetFieldConstant.publication.equals(fieldDTO.getTypeName())
+                    || DatasetFieldConstant.relatedDataset.equals(fieldDTO.getTypeName())
+                    || DatasetFieldConstant.relatedMaterial.equals(fieldDTO.getTypeName())) {
+                    for (Set<DatasetFieldDTO> compound : fieldDTO.getMultipleCompound()) {
+                        String relatedIdentifierType = null;
+                        String relatedIdentifier = null; // is used when relatedIdentifierType variable is not URL
+                        String relatedURL = null; // is used when relatedIdentifierType variable is URL
+                        String relationType = null;
 
-                            for (Iterator<DatasetFieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
-                                DatasetFieldDTO next = iterator.next();
-                                if (DatasetFieldConstant.publicationIDType.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedDatasetIDType.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedMaterialIDType.equals(next.getTypeName())) {
-                                    relatedIdentifierType = next.getSinglePrimitive();
-                                }
-                                if (DatasetFieldConstant.publicationIDNumber.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedDatasetIDNumber.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedMaterialIDNumber.equals(next.getTypeName())) {
-                                    relatedIdentifier = next.getSinglePrimitive();
-                                }
-                                if (DatasetFieldConstant.publicationURL.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedDatasetURL.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedMaterialURL.equals(next.getTypeName())) {
-                                    relatedURL = next.getSinglePrimitive();
-                                }
-                                if (DatasetFieldConstant.publicationRelationType.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedDatasetRelationType.equals(next.getTypeName())
-                                    || DatasetFieldConstant.relatedMaterialRelationType.equals(next.getTypeName())) {
-                                    relationType = next.getSinglePrimitive();
-                                }
+                        for (DatasetFieldDTO subField : compound) {
+                            if (DatasetFieldConstant.publicationIDType.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedDatasetIDType.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedMaterialIDType.equals(subField.getTypeName())) {
+                                relatedIdentifierType = subField.getSinglePrimitive();
+                            }
+                            if (DatasetFieldConstant.publicationIDNumber.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedDatasetIDNumber.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedMaterialIDNumber.equals(subField.getTypeName())) {
+                                relatedIdentifier = subField.getSinglePrimitive();
+                            }
+                            if (DatasetFieldConstant.publicationURL.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedDatasetURL.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedMaterialURL.equals(subField.getTypeName())) {
+                                relatedURL = subField.getSinglePrimitive();
+                            }
+                            if (DatasetFieldConstant.publicationRelationType.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedDatasetRelationType.equals(subField.getTypeName())
+                                    || DatasetFieldConstant.relatedMaterialRelationType.equals(subField.getTypeName())) {
+                                relationType = subField.getSinglePrimitive();
+                            }
+                        }
+
+                        if (StringUtils.isNotBlank(relatedIdentifierType)) {
+                            relatedIdentifier_check = writeOpenTag(xmlw, "relatedIdentifiers", relatedIdentifier_check);
+
+                            // fix case
+                            if (relatedIdentifierTypeMap.containsKey(relatedIdentifierType)) {
+                                relatedIdentifierType = relatedIdentifierTypeMap.get(relatedIdentifierType);
                             }
 
-                            if (StringUtils.isNotBlank(relatedIdentifierType)) {
-                                relatedIdentifier_check = writeOpenTag(xmlw,
-                                                                       "relatedIdentifiers",
-                                                                       relatedIdentifier_check);
+                            Map<String, String> relatedIdentifier_map = new HashMap<>();
+                            relatedIdentifier_map.put("relatedIdentifierType", relatedIdentifierType);
+                            relatedIdentifier_map.put("relationType", relationType);
 
-                                Map<String, String> relatedIdentifier_map = new HashMap<String, String>();
-                                // fix case
-                                if (relatedIdentifierTypeMap.containsKey(relatedIdentifierType)) {
-                                    relatedIdentifierType = (String) relatedIdentifierTypeMap.get(relatedIdentifierType);
-                                }
-
-                                relatedIdentifier_map.put("relatedIdentifierType", relatedIdentifierType);
-                                relatedIdentifier_map.put("relationType", relationType);
-
-                                if (StringUtils.containsIgnoreCase(relatedIdentifierType, "url")) {
-                                    writeFullElement(xmlw,
-                                                     null,
-                                                     "relatedIdentifier",
-                                                     relatedIdentifier_map,
-                                                     relatedURL,
-                                                     language);
-                                } else {
-                                    if (StringUtils.contains(relatedIdentifier, "http")) {
-                                        String site = relatedIdentifier.substring(0,
-                                                                                  relatedIdentifier.indexOf("/") + 2);
-                                        relatedIdentifier = relatedIdentifier.replace(relatedIdentifier.substring(0,
-                                                                                                                  relatedIdentifier.indexOf(
-                                                                                                                          "/") + 2),
-                                                                                      "");
-                                        site = site + relatedIdentifier.substring(0,
-                                                                                  relatedIdentifier.indexOf("/") + 1);
-                                        relatedIdentifier = relatedIdentifier.substring(relatedIdentifier.indexOf("/") + 1);
-
-                                        relatedIdentifier_map.put("SchemeURI", site);
-                                    }
-                                    writeFullElement(xmlw,
-                                                     null,
-                                                     "relatedIdentifier",
-                                                     relatedIdentifier_map,
-                                                     relatedIdentifier,
-                                                     language);
-                                }
-                            }
+                            writeFullElement(xmlw, null, "relatedIdentifier", relatedIdentifier_map,
+                                    StringUtils.containsIgnoreCase(relatedIdentifierType, "url")
+                                            ? relatedURL : relatedIdentifier,
+                                    language);
                         }
                     }
                 }
@@ -1434,7 +1388,8 @@ public class OpenAireExportUtil {
      * @param value      Value
      * @throws XMLStreamException
      */
-    public static void writeFullElement(XMLStreamWriter xmlw, String tag_parent, String tag_son, Map<String, String> map, String value, String language) throws XMLStreamException {
+    public static void writeFullElement(XMLStreamWriter xmlw, String tag_parent, String tag_son,
+                                        Map<String, String> map, String value, String language) throws XMLStreamException {
         // write a full generic metadata
         if (StringUtils.isNotBlank(value)) {
             boolean tag_parent_check = false;
@@ -1450,8 +1405,8 @@ public class OpenAireExportUtil {
 
             if (map != null) {
                 if (StringUtils.isNotBlank(language)) {
-                    if (StringUtils.containsIgnoreCase(tag_son, "subject") || StringUtils.containsIgnoreCase(tag_parent,
-                                                                                                             "subject")) {
+                    if (StringUtils.containsIgnoreCase(tag_son, "subject")
+                            || StringUtils.containsIgnoreCase(tag_parent, "subject")) {
                         map.put("xml:lang", language);
                     }
                 }
