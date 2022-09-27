@@ -217,7 +217,6 @@ public class Dataset extends DvObjectContainer {
     /**
      * Retrieves the dataset lock for the passed reason.
      *
-     * @param reason
      * @return the dataset lock, or {@code null}.
      */
     public DatasetLock getLockFor(DatasetLock.Reason reason) {
@@ -239,8 +238,6 @@ public class Dataset extends DvObjectContainer {
 
     /**
      * JPA use only!
-     *
-     * @param datasetLocks
      */
     void setLocks(Set<DatasetLock> datasetLocks) {
         this.datasetLocks = datasetLocks;
@@ -306,15 +303,15 @@ public class Dataset extends DvObjectContainer {
      * Dataset is considered as deaccessioned if all of it's versions are deaccessioned.
      */
     public boolean isDeaccessioned() {
-        return versions.stream().allMatch(version -> version.isDeaccessioned());
+        return versions.stream().allMatch(DatasetVersion::isDeaccessioned);
     }
 
     public boolean hasActiveEmbargo() {
-        return this.getEmbargoDate().isDefined() && Instant.now().isBefore(this.getEmbargoDate().get().toInstant());
+        return getEmbargoDate().isDefined() && Instant.now().isBefore(getEmbargoDate().get().toInstant());
     }
 
     public boolean hasEverBeenPublished() {
-        return this.getVersions().size() > 1 || this.getLatestVersion().getVersionState() != DatasetVersion.VersionState.DRAFT;
+        return getVersions().size() > 1 || getLatestVersion().getVersionState() != DatasetVersion.VersionState.DRAFT;
     }
 
     public DatasetVersion getLatestVersion() {
@@ -387,7 +384,7 @@ public class Dataset extends DvObjectContainer {
      * @return The edit version {@code this}.
      */
     public DatasetVersion getEditVersion() {
-        DatasetVersion latestVersion = this.getLatestVersion();
+        DatasetVersion latestVersion = getLatestVersion();
         if (latestVersion.isWorkingCopy()) {
             return latestVersion;
         }
@@ -395,16 +392,15 @@ public class Dataset extends DvObjectContainer {
     }
 
     public Date getMostRecentMajorVersionReleaseDate() {
-        if (this.isHarvested()) {
+        if (isHarvested()) {
             return getVersions().get(0).getReleaseTime();
-        } else {
-            for (DatasetVersion version : this.getVersions()) {
-                if (version.isReleased() && version.getMinorVersionNumber().equals((long) 0)) {
-                    return version.getReleaseTime();
-                }
-            }
-            return null;
         }
+        for (DatasetVersion version : getVersions()) {
+            if (version.isReleased() && version.getMinorVersionNumber().equals(0L)) {
+                return version.getReleaseTime();
+            }
+        }
+        return null;
     }
 
     /**
@@ -418,7 +414,7 @@ public class Dataset extends DvObjectContainer {
     }
 
     public DatasetVersion getReleasedVersion() {
-        for (DatasetVersion version : this.getVersions()) {
+        for (DatasetVersion version : getVersions()) {
             if (version.isReleased()) {
                 return version;
             }
@@ -460,7 +456,7 @@ public class Dataset extends DvObjectContainer {
                     DataFileCategory newCategory = new DataFileCategory();
                     newCategory.setName(newCategoryName);
                     newCategory.setDataset(this);
-                    this.addFileCategory(newCategory);
+                    addFileCategory(newCategory);
                 }
             }
         }
@@ -479,7 +475,7 @@ public class Dataset extends DvObjectContainer {
             DataFileCategory newCategory = new DataFileCategory();
             newCategory.setName(categoryName);
             newCategory.setDataset(this);
-            this.addFileCategory(newCategory);
+            addFileCategory(newCategory);
 
             return newCategory;
         }
@@ -499,13 +495,13 @@ public class Dataset extends DvObjectContainer {
     }
 
     public Path getFileSystemDirectory(String filesRootDirectory) {
-        return Paths.get(filesRootDirectory, this.getStorageIdentifier());
+        return Paths.get(filesRootDirectory, getStorageIdentifier());
     }
 
     public String getAlternativePersistentIdentifier() {
         String retVal = null;
-        if (this.getAlternativePersistentIndentifiers() != null && !this.getAlternativePersistentIndentifiers().isEmpty()) {
-            for (AlternativePersistentIdentifier api : this.getAlternativePersistentIndentifiers()) {
+        if (getAlternativePersistentIndentifiers() != null && !getAlternativePersistentIndentifiers().isEmpty()) {
+            for (AlternativePersistentIdentifier api : getAlternativePersistentIndentifiers()) {
                 retVal = retVal != null ? retVal + "; " : "";
                 retVal += api.getProtocol() + ":";
                 retVal += api.getAuthority() + "/";
@@ -517,8 +513,8 @@ public class Dataset extends DvObjectContainer {
 
     public String getAuthorityForFileStorage() {
         String retVal = getAuthority();
-        if (this.getAlternativePersistentIndentifiers() != null && !this.getAlternativePersistentIndentifiers().isEmpty()) {
-            for (AlternativePersistentIdentifier api : this.getAlternativePersistentIndentifiers()) {
+        if (getAlternativePersistentIndentifiers() != null && !getAlternativePersistentIndentifiers().isEmpty()) {
+            for (AlternativePersistentIdentifier api : getAlternativePersistentIndentifiers()) {
                 retVal = api.getAuthority();
             }
         }
@@ -527,8 +523,8 @@ public class Dataset extends DvObjectContainer {
 
     public String getIdentifierForFileStorage() {
         String retVal = getIdentifier();
-        if (this.getAlternativePersistentIndentifiers() != null && !this.getAlternativePersistentIndentifiers().isEmpty()) {
-            for (AlternativePersistentIdentifier api : this.getAlternativePersistentIndentifiers()) {
+        if (getAlternativePersistentIndentifiers() != null && !getAlternativePersistentIndentifiers().isEmpty()) {
+            for (AlternativePersistentIdentifier api : getAlternativePersistentIndentifiers()) {
                 retVal = api.getIdentifier();
             }
         }
@@ -540,7 +536,7 @@ public class Dataset extends DvObjectContainer {
         if (isHarvested()) {
             throw new IllegalStateException();
         }
-        for (DatasetVersion dv : this.getVersions()) {
+        for (DatasetVersion dv : getVersions()) {
             if (!dv.isWorkingCopy()) {
                 return (dv.getVersionNumber().intValue() + 1) + ".0";
             }
@@ -553,7 +549,7 @@ public class Dataset extends DvObjectContainer {
         if (isHarvested()) {
             throw new IllegalStateException();
         }
-        for (DatasetVersion dv : this.getVersions()) {
+        for (DatasetVersion dv : getVersions()) {
             if (!dv.isWorkingCopy()) {
                 return dv.getVersionNumber().intValue() + "."
                         + (dv.getMinorVersionNumber().intValue() + 1);
@@ -563,7 +559,7 @@ public class Dataset extends DvObjectContainer {
     }
 
     public Integer getVersionNumber() {
-        for (DatasetVersion dv : this.getVersions()) {
+        for (DatasetVersion dv : getVersions()) {
             if (!dv.isWorkingCopy()) {
                 return dv.getVersionNumber().intValue();
             }
@@ -572,7 +568,7 @@ public class Dataset extends DvObjectContainer {
     }
 
     public Integer getMinorVersionNumber() {
-        for (DatasetVersion dv : this.getVersions()) {
+        for (DatasetVersion dv : getVersions()) {
             if (!dv.isWorkingCopy()) {
                 return dv.getMinorVersionNumber().intValue();
             }
@@ -631,24 +627,24 @@ public class Dataset extends DvObjectContainer {
 
     public String getRemoteArchiveURL() {
         if (isHarvested()) {
-            if (HarvestingClient.HARVEST_STYLE_DATAVERSE.equals(this.getHarvestedFrom().getHarvestStyle())) {
-                return this.getHarvestedFrom().getArchiveUrl() + "/dataset.xhtml?persistentId=" + getGlobalIdString();
-            } else if (HarvestingClient.HARVEST_STYLE_VDC.equals(this.getHarvestedFrom().getHarvestStyle())) {
-                String rootArchiveUrl = this.getHarvestedFrom().getHarvestingUrl();
+            if (HarvestingClient.HARVEST_STYLE_DATAVERSE.equals(getHarvestedFrom().getHarvestStyle())) {
+                return getHarvestedFrom().getArchiveUrl() + "/dataset.xhtml?persistentId=" + getGlobalIdString();
+            } else if (HarvestingClient.HARVEST_STYLE_VDC.equals(getHarvestedFrom().getHarvestStyle())) {
+                String rootArchiveUrl = getHarvestedFrom().getHarvestingUrl();
                 int c = rootArchiveUrl.indexOf("/OAIHandler");
                 if (c > 0) {
                     rootArchiveUrl = rootArchiveUrl.substring(0, c);
                     return rootArchiveUrl + "/faces/study/StudyPage.xhtml?globalId=" + getGlobalIdString();
                 }
-            } else if (HarvestingClient.HARVEST_STYLE_ICPSR.equals(this.getHarvestedFrom().getHarvestStyle())) {
+            } else if (HarvestingClient.HARVEST_STYLE_ICPSR.equals(getHarvestedFrom().getHarvestStyle())) {
                 // For the ICPSR, it turns out that the best thing to do is to
                 // rely on the DOI to send the user to the right landing page for
                 // the study:
                 //String icpsrId = identifier;
-                //return this.getOwner().getHarvestingClient().getArchiveUrl() + "/icpsrweb/ICPSR/studies/"+icpsrId+"?q="+icpsrId+"&amp;searchSource=icpsr-landing";
-                return "http://doi.org/" + this.getAuthority() + "/" + this.getIdentifier();
-            } else if (HarvestingClient.HARVEST_STYLE_NESSTAR.equals(this.getHarvestedFrom().getHarvestStyle())) {
-                String nServerURL = this.getHarvestedFrom().getArchiveUrl();
+                //return getOwner().getHarvestingClient().getArchiveUrl() + "/icpsrweb/ICPSR/studies/"+icpsrId+"?q="+icpsrId+"&amp;searchSource=icpsr-landing";
+                return "http://doi.org/" + getAuthority() + "/" + getIdentifier();
+            } else if (HarvestingClient.HARVEST_STYLE_NESSTAR.equals(getHarvestedFrom().getHarvestStyle())) {
+                String nServerURL = getHarvestedFrom().getArchiveUrl();
                 // chop any trailing slashes in the server URL - or they will result
                 // in multiple slashes in the final URL pointing to the study
                 // on server of origin; Nesstar doesn't like it, apparently.
@@ -658,23 +654,22 @@ public class Dataset extends DvObjectContainer {
 
                 nServerURLencoded = nServerURLencoded.replace(":", "%3A").replace("/", "%2F");
                 //SEK 09/13/18
-                String NesstarWebviewPage = nServerURL
+
+                return nServerURL
                         + "/webview/?mode=documentation&submode=abstract&studydoc="
                         + nServerURLencoded + "%2Fobj%2FfStudy%2F"
-                        + this.getIdentifier()
+                        + getIdentifier()
                         + "&top=yes";
-
-                return NesstarWebviewPage;
-            } else if (HarvestingClient.HARVEST_STYLE_ROPER.equals(this.getHarvestedFrom().getHarvestStyle())) {
-                return this.getHarvestedFrom().getArchiveUrl() + "/CFIDE/cf/action/catalog/abstract.cfm?archno=" + this.getIdentifier();
-            } else if (HarvestingClient.HARVEST_STYLE_HGL.equals(this.getHarvestedFrom().getHarvestStyle())) {
+            } else if (HarvestingClient.HARVEST_STYLE_ROPER.equals(getHarvestedFrom().getHarvestStyle())) {
+                return getHarvestedFrom().getArchiveUrl() + "/CFIDE/cf/action/catalog/abstract.cfm?archno=" + getIdentifier();
+            } else if (HarvestingClient.HARVEST_STYLE_HGL.equals(getHarvestedFrom().getHarvestStyle())) {
                 // a bit of a hack, true.
                 // HGL documents, when turned into Dataverse studies/datasets
                 // all 1 datafile; the location ("storage identifier") of the file
                 // is the URL pointing back to the HGL GUI viewer. This is what
                 // we will display for the dataset URL.  -- L.A.
                 // TODO: create a 4.+ ticket for a cleaner solution.
-                List<DataFile> dataFiles = this.getFiles();
+                List<DataFile> dataFiles = getFiles();
                 if (dataFiles != null && dataFiles.size() == 1) {
                     if (dataFiles.get(0) != null) {
                         String hglUrl = dataFiles.get(0).getStorageIdentifier();
@@ -683,9 +678,9 @@ public class Dataset extends DvObjectContainer {
                         }
                     }
                 }
-                return this.getHarvestedFrom().getArchiveUrl();
+                return getHarvestedFrom().getArchiveUrl();
             } else {
-                return this.getHarvestedFrom().getArchiveUrl();
+                return getHarvestedFrom().getArchiveUrl();
             }
         }
 

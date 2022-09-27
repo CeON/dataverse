@@ -44,6 +44,7 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 import org.apache.tika.io.IOUtils;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -72,6 +73,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
@@ -547,6 +549,23 @@ public class IndexServiceBean {
         return indexResponse.toString();
     }
 
+    private Date findReleaseDate(IndexableDataset indexableDataset) {
+        DatasetVersion currentVersion = indexableDataset.getDatasetVersion();
+        Dataset dataset = currentVersion.getDataset();
+        Long minor = currentVersion.getMinorVersionNumber();
+        if (Objects.equals(minor, 0L)) {
+            return dataset.getMostRecentMajorVersionReleaseDate();
+        }
+        Long major = currentVersion.getVersionNumber();
+        for (DatasetVersion version : dataset.getVersions()) {
+            if (Objects.equals(version.getVersionNumber(), major)
+                && Objects.equals(version.getMinorVersionNumber(), 0L)) {
+                return version.getReleaseTime();
+            }
+        }
+        return dataset.getMostRecentMajorVersionReleaseDate();
+    }
+
     private String addOrUpdateDataset(IndexableDataset indexableDataset) {
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
@@ -586,7 +605,7 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.DATAVERSE_NAME, dataset.getDataverseContext().getDisplayName());
 
         Date datasetSortByDate;
-        Date majorVersionReleaseDate = dataset.getMostRecentMajorVersionReleaseDate();
+        Date majorVersionReleaseDate = findReleaseDate(indexableDataset); // dataset.getMostRecentMajorVersionReleaseDate();
         if (majorVersionReleaseDate != null) {
             String msg = "major release date found: " + majorVersionReleaseDate.toString();
             logger.fine(msg);
@@ -598,21 +617,23 @@ public class IndexServiceBean {
                 solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, SearchPublicationStatus.DEACCESSIONED.getSolrValue());
             }
             Date createDate = dataset.getCreateDate();
-            if (createDate != null) {
-                String msg = "can't find major release date, using create date: " + createDate;
-                logger.fine(msg);
-                datasetSortByDate = createDate;
-            } else {
-                String msg = "can't find major release date or create date, using \"now\"";
-                logger.info(msg);
-                datasetSortByDate = new Date();
-            }
+            logger.fine("can't find major release date " +
+                    (createDate != null ? "using create date: " + createDate : "or create date, using \"now\""));
+            datasetSortByDate = createDate != null ? createDate : new Date();
         }
         solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, datasetSortByDate);
         solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE_SEARCHABLE_TEXT, convertToFriendlyDate(datasetSortByDate));
 
         if (state.equals(IndexableDataset.DatasetState.PUBLISHED)) {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, SearchPublicationStatus.PUBLISHED.getSolrValue());
+            SolrInputField field = solrInputDocument.getField(SearchFields.PUBLICATION_STATUS);
+            if (field.getValues().stream().anyMatch(v -> SearchPublicationStatus.UNPUBLISHED.getSolrValue().equals(v))) {
+                List<Object> values = field.getValues().stream()
+                        .filter(v -> !SearchPublicationStatus.UNPUBLISHED.getSolrValue().equals(v))
+                        .collect(Collectors.toList());
+                solrInputDocument.removeField(SearchFields.PUBLICATION_STATUS);
+                solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, values);
+            }
         } else if (state.equals(IndexableDataset.DatasetState.WORKING_COPY)) {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, SearchPublicationStatus.DRAFT.getSolrValue());
         }
