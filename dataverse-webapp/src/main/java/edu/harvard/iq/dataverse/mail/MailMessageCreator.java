@@ -61,9 +61,9 @@ public class MailMessageCreator {
     private static final Logger logger = Logger.getLogger(MailMessageCreator.class.getCanonicalName());
 
     // -------------------- CONSTRUCTORS --------------------
+
     @Deprecated /* JEE requirement */
-    public MailMessageCreator() {
-    }
+    public MailMessageCreator() { }
 
     @Inject
     public MailMessageCreator(SystemConfig systemConfig, PermissionServiceBean permissionService,
@@ -82,10 +82,8 @@ public class MailMessageCreator {
     /**
      * Creates footer for email message.
      */
-    public String createMailFooterMessage(String notificationType, Locale messageLocale, String rootDataverseName, InternetAddress systemAddress) {
-        String closingLine = RETURNEDDS.equals(notificationType)
-                ? "notification.email.closing.other" : "notification.email.closing";
-        return BundleUtil.getStringFromBundleWithLocale(closingLine, messageLocale,
+    public String createMailFooterMessage(String closingLineKey, Locale messageLocale, String rootDataverseName, InternetAddress systemAddress) {
+        return BundleUtil.getStringFromBundleWithLocale(closingLineKey, messageLocale,
                         BrandingUtil.getSupportTeamEmailAddress(systemAddress),
                         BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName, messageLocale));
     }
@@ -129,21 +127,16 @@ public class MailMessageCreator {
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.DATASET_VERSION) {
             DatasetVersion datasetVersion = genericDao.find(notificationDto.getDvObjectId(), DatasetVersion.class);
             String message = datasetVersionMessage(notificationDto, datasetVersion);
-
             String subject = getSubjectText(notificationDto, rootDataverseName.get());
 
-            return subject.isEmpty() ?
-                    Tuple.of(message,
-                             getSubjectTextForDatasetVersion(notificationDto,
-                                                             rootDataverseName.get(),
-                                                             datasetVersion)) :
-                    Tuple.of(message, subject);
+            return subject.isEmpty()
+                    ? Tuple.of(message,
+                             getSubjectTextForDatasetVersion(notificationDto, rootDataverseName.get(), datasetVersion))
+                    : Tuple.of(message, subject);
         }
 
         if (notificationDto.getNotificationObjectType() == NotificationObjectType.AUTHENTICATED_USER) {
-
-            String message = authenticatedUserMessage(notificationDto,
-                                                      rootDataverseName.get(),
+            String message = authenticatedUserMessage(notificationDto, rootDataverseName.get(),
                                                       MailUtil.parseSystemAddress(systemEmail));
             String subject = getSubjectText(notificationDto, rootDataverseName.get());
 
@@ -172,7 +165,6 @@ public class MailMessageCreator {
     // -------------------- PRIVATE --------------------
 
     private String dataverseMessage(EmailNotificationDto notificationDto, Dataverse dataverse) {
-
         Locale notificationsEmailLanguage = notificationDto.getNotificationReceiver().getNotificationsLanguage();
         String messageText = BundleUtil.getStringFromBundleWithLocale("notification.email.greeting",
                 notificationsEmailLanguage);
@@ -180,7 +172,6 @@ public class MailMessageCreator {
 
         switch (notificationDto.getNotificationType()) {
             case ASSIGNROLE:
-
                 String joinedRoleNames = permissionService.getRolesOfUser(notificationDto.getNotificationReceiver(), dataverse).stream()
                         .map(RoleAssignment::getRole)
                         .map(DataverseRole::getAlias)
@@ -190,10 +181,7 @@ public class MailMessageCreator {
                 String pattern = BundleUtil.getStringFromBundleWithLocale("notification.email.assignRole",
                         notificationsEmailLanguage);
 
-                messageText += MessageFormat.format(pattern,
-                                                    joinedRoleNames,
-                                                    objectType,
-                                                    dataverse.getDisplayName(),
+                messageText += MessageFormat.format(pattern, joinedRoleNames, objectType, dataverse.getDisplayName(),
                                                     getDataverseLink(dataverse));
 
                 if (joinedRoleNames.contains(BuiltInRole.FILE_DOWNLOADER.getAlias())) {
@@ -205,24 +193,17 @@ public class MailMessageCreator {
 
                 return messageText;
             case REVOKEROLE:
-                messageText += MessageFormat.format(BundleUtil.getStringFromBundleWithLocale("notification.email.revokeRole",
-                        notificationsEmailLanguage),
-                                                    objectType,
-                                                    dataverse.getDisplayName(),
-                                                    getDataverseLink(dataverse));
+                messageText += MessageFormat.format(
+                        BundleUtil.getStringFromBundleWithLocale("notification.email.revokeRole", notificationsEmailLanguage),
+                        objectType, dataverse.getDisplayName(), getDataverseLink(dataverse));
                 return messageText;
             case CREATEDV:
                 Dataverse parentDataverse = dataverse.getOwner();
-
-                String dataverseCreatedMessage = BundleUtil.getStringFromBundleWithLocale("notification.email.createDataverse", notificationsEmailLanguage,
-                                                                                        dataverse.getDisplayName(),
-                                                                                        getDataverseLink(dataverse),
-                                                                                        parentDataverse != null ? parentDataverse.getDisplayName() : "",
-                                                                                        parentDataverse != null ? getDataverseLink(
-                                                                                                parentDataverse) : "",
-                                                                                        systemConfig.getGuidesBaseUrl(notificationsEmailLanguage),
-                                                                                        systemConfig.getGuidesVersion());
-
+                String dataverseCreatedMessage = BundleUtil.getStringFromBundleWithLocale("notification.email.createDataverse",
+                        notificationsEmailLanguage, dataverse.getDisplayName(), getDataverseLink(dataverse),
+                        parentDataverse != null ? parentDataverse.getDisplayName() : "",
+                        parentDataverse != null ? getDataverseLink(parentDataverse) : "",
+                        systemConfig.getGuidesBaseUrl(notificationsEmailLanguage), systemConfig.getGuidesVersion());
                 logger.fine(dataverseCreatedMessage);
                 return messageText + dataverseCreatedMessage;
         }
@@ -337,8 +318,7 @@ public class MailMessageCreator {
                                 getDatasetDraftLink(version.getDataset()),
                                 version.getDataset().getOwner().getDisplayName(),
                                 getDataverseLink(version.getDataset().getOwner()),
-                                requestorName,
-                                requestorEmail) +
+                                requestorName, requestorEmail) +
                         addUserCustomMessageForSubmit(notificationDto,
                                 BundleUtil.getStringFromBundleWithLocale("dataset.reject.messageBox.label",
                                         notificationsEmailLanguage));
@@ -397,8 +377,8 @@ public class MailMessageCreator {
             String pattern = BundleUtil.getStringFromBundleWithLocale("notification.email.requestFileAccess",
                     notificationsEmailLanguage);
 
-            String requestorName = requestor.getFirstName() + " " + requestor.getLastName();
-            String requestorEmail = requestor.getEmail();
+            String requestorName = requestor != null ? requestor.getFirstName() + " " + requestor.getLastName() : StringUtils.EMPTY;
+            String requestorEmail = requestor != null ? requestor.getEmail() : StringUtils.EMPTY;
 
             messageText += MessageFormat.format(pattern, dataFile.getOwner().getDisplayName(), requestorName,
                     requestorEmail, getDatasetManageFileAccessLink(dataFile));

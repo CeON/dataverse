@@ -74,7 +74,7 @@ public class SubmitDatasetForReviewCommand extends AbstractDatasetCommand<Datase
         if (user == null || !user.isAuthenticated()) {
             return;
         }
-                List<AuthenticatedUser> curators = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
+        List<AuthenticatedUser> curators = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         AuthenticatedUser requestor = (AuthenticatedUser) user;
         Timestamp timestamp = new Timestamp(new Date().getTime());
         Map<String, String> parameters = new HashMap<>();

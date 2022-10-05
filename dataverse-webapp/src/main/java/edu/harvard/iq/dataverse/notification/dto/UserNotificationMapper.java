@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.notification.dto;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.notification.NotificationParameter;
+import edu.harvard.iq.dataverse.notification.NotificationParametersUtil;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -38,17 +39,21 @@ public class UserNotificationMapper {
     private PermissionServiceBean permissionService;
     private UserNotificationService userNotificationService;
     private AuthenticatedUserRepository authenticatedUserRepository;
+    private NotificationParametersUtil notificationParametersUtil;
 
     // -------------------- CONSTRUCTORS --------------------
 
     @Deprecated
-    public UserNotificationMapper() { }
+    public UserNotificationMapper() {
+        this.notificationParametersUtil = new NotificationParametersUtil();
+    }
 
     @Inject
     public UserNotificationMapper(DataverseRepository dataverseRepository, DatasetRepository datasetRepository,
                                   DatasetVersionRepository datasetVersionRepository, DataFileRepository dataFileRepository,
                                   FileMetadataRepository fileMetadataRepository, PermissionServiceBean permissionService,
                                   UserNotificationService userNotificationService, AuthenticatedUserRepository authenticatedUserRepository) {
+        this();
         this.dataverseRepository = dataverseRepository;
         this.datasetRepository = datasetRepository;
         this.datasetVersionRepository = datasetVersionRepository;
@@ -63,7 +68,7 @@ public class UserNotificationMapper {
 
     public UserNotificationDTO toDTO(UserNotification userNotification) {
         UserNotificationDTO notificationDTO = new UserNotificationDTO();
-        Map<String, String> parameters = userNotificationService.getParameters(userNotification);
+        Map<String, String> parameters = notificationParametersUtil.getParameters(userNotification);
 
         notificationDTO.setId(userNotification.getId());
         notificationDTO.setDisplayAsRead(userNotification.isReadNotification());

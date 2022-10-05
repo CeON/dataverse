@@ -103,7 +103,7 @@ public class MailMessageCreatorTest {
         InternetAddress systemEmail = MailUtil.parseSystemAddress(SYSTEMEMAIL);
 
         // when
-        String footerMessage = mailMessageCreator.createMailFooterMessage(NotificationType.CREATEDV, Locale.ENGLISH, ROOTDVNAME, systemEmail);
+        String footerMessage = mailMessageCreator.createMailFooterMessage( "notification.email.closing", Locale.ENGLISH, ROOTDVNAME, systemEmail);
 
         // then
         assertThat(footerMessage).isEqualTo(getFooterMessage());

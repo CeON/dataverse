@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.notification.dto;
 
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
+import edu.harvard.iq.dataverse.notification.NotificationParametersUtil;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 
@@ -11,14 +12,18 @@ import javax.inject.Inject;
 public class EmailNotificationMapper {
 
     private UserNotificationService userNotificationService;
+    private NotificationParametersUtil notificationParametersUtil;
 
     // -------------------- CONSTRUCTORS --------------------
 
     @Deprecated
-    public EmailNotificationMapper() { }
+    public EmailNotificationMapper() {
+        this.notificationParametersUtil = new NotificationParametersUtil();
+    }
 
     @Inject
     public EmailNotificationMapper(UserNotificationService userNotificationService) {
+        this();
         this.userNotificationService = userNotificationService;
     }
 
@@ -32,7 +37,6 @@ public class EmailNotificationMapper {
                 userNotification.getObjectId(),
                 notificationObjectType,
                 userNotification.getUser(),
-                userNotificationService.getParameters(userNotification)
-        );
+                notificationParametersUtil.getParameters(userNotification));
     }
 }

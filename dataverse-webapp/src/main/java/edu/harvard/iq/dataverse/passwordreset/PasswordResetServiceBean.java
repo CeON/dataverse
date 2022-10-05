@@ -135,7 +135,7 @@ public class PasswordResetServiceBean {
         String toAddress = authUser.getEmail();
         String subject = BundleUtil.getStringFromBundleWithLocale("notification.email.passwordReset.subject", authUser.getNotificationsLanguage());
 
-        String footerMailMessage = mailService.getFooterMailMessage(null, authUser.getNotificationsLanguage());
+        String footerMailMessage = mailService.getDefaultFooterMailMessage(authUser.getNotificationsLanguage());
         boolean emailSent = mailService.sendMail(toAddress, null, new EmailContent(subject, messageBody, footerMailMessage));
 
         if (!emailSent) {
@@ -265,7 +265,7 @@ public class PasswordResetServiceBean {
 
             String messageBody = BundleUtil.getStringFromBundleWithLocale("notification.email.passwordResetConfirmation", authUser.getNotificationsLanguage(), authUser.getName(), user.getUserName());
 
-            String footerMailMessage = mailService.getFooterMailMessage(null, authUser.getNotificationsLanguage());
+            String footerMailMessage = mailService.getDefaultFooterMailMessage(authUser.getNotificationsLanguage());
             mailService.sendMailAsync(toAddress, null, new EmailContent(subject, messageBody, footerMailMessage));
             return new PasswordChangeAttemptResponse(true, messageSummary, messageDetail);
         } else {

@@ -20,6 +20,7 @@ import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.notification.NotificationParameter;
+import edu.harvard.iq.dataverse.notification.NotificationParametersUtil;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.consent.AcceptedConsent;
@@ -91,6 +92,8 @@ public class MergeInAccountServiceIT extends WebappArquillianDeployment {
     @EJB private AcceptedConsentDao acceptedConsentDao;
     @EJB private OAuthTokenDataDao oAuthTokenDataDao;
     @Inject private UserNotificationService userNotificationService;
+    private NotificationParametersUtil notificationParametersUtil = new NotificationParametersUtil();
+
     @PersistenceContext(unitName = "VDCNet-ejbPU") private EntityManager entityManager;
 
     @Test
@@ -217,7 +220,7 @@ public class MergeInAccountServiceIT extends WebappArquillianDeployment {
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put(NotificationParameter.REQUESTOR_ID.key(), authenticatedUser.getId().toString());
-        userNotificationService.setParameters(userNotification, parameters);
+        notificationParametersUtil.setParameters(userNotification, parameters);
 
         userNotificationRequestor.setType("testType");
         userNotificationRepository.save(userNotificationRequestor);
