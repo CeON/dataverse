@@ -162,6 +162,10 @@ public class DataFile extends DvObject implements Comparable<DataFile> {
     @Column
     private Long uncompressedSize = 0L;
 
+    /**
+     * This flag has only meaning for ingestable files and when unset prevents
+     * the file from being ingested.
+     */
     @Transient
     private Boolean includedInIngest = Boolean.TRUE;
 
