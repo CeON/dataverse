@@ -148,18 +148,19 @@ public class DataCiteResourceCreator {
                     .map(f -> f != null ? f.getValue() : null)
                     .toArray(String[]::new);
             String relatedIdType = fields[RelatedIdFields.RELATED_ID_TYPE.ordinal()];
-            if (StringUtils.isBlank(relatedIdType)) {
+            String relationType = fields[RelatedIdFields.RELATION_TYPE.ordinal()];
+            if (StringUtils.isBlank(relatedIdType) || StringUtils.isBlank(relatedIdType)) {
                 continue;
             }
-            Map<String, String> alternativeToMainIdTypeIndex = RelatedIdentifierTypeConstants.getAlternativeToMainIdTypeIndex();
-            if (alternativeToMainIdTypeIndex.containsKey(relatedIdType)) {
-                relatedIdType = alternativeToMainIdTypeIndex.get(relatedIdType);
+            if (RelatedIdentifierTypeConstants.ALTERNATIVE_TO_MAIN_ID_TYPE_INDEX.containsKey(relatedIdType)) {
+                relatedIdType = RelatedIdentifierTypeConstants.ALTERNATIVE_TO_MAIN_ID_TYPE_INDEX.get(relatedIdType);
             }
+
             identifiers.add(new RelatedIdentifier(
                     StringUtils.containsIgnoreCase(relatedIdType, "url")
                             ? fields[RelatedIdFields.URL.ordinal()]
                             : fields[RelatedIdFields.RELATED_ID.ordinal()],
-                    fields[RelatedIdFields.RELATION_TYPE.ordinal()], relatedIdType));
+                    relationType, relatedIdType));
         }
         return identifiers;
     }
