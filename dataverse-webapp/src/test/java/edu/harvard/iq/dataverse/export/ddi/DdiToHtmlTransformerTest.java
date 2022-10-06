@@ -20,7 +20,7 @@ class DdiToHtmlTransformerTest {
         // given & when
         StringWriter output = new StringWriter();
         try (InputStream input = this.getClass().getClassLoader()
-                .getResourceAsStream("xml/export/ddi/dataset-finch1.xml")) {
+                .getResourceAsStream("xml/export/ddi/dataset-forHtml.xml")) {
             transformer.transform(input, output);
         }
 

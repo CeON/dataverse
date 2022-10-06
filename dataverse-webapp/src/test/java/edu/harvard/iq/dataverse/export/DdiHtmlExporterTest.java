@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 class DdiHtmlExporterTest {
 
     @Mock private CitationFactory citationFactory;
-    @Mock private Citation citation;
     @Mock private SettingsServiceBean settingsService;
     @Mock private DdiDatasetExportService ddiDatasetExportService;
     @Mock private VocabularyValuesIndexer vocabularyValuesIndexer;
@@ -38,6 +37,8 @@ class DdiHtmlExporterTest {
 
     @InjectMocks
     private DdiHtmlExporter exporter;
+
+    @Mock private Citation citation;
 
     // -------------------- TESTS --------------------
 

@@ -57,9 +57,7 @@ public class DdiHtmlExporter extends ExporterBase {
         } catch (XMLStreamException e) {
             logger.warn("Exception encountered: ", e);
         }
-        return "<html><body>"
-                + BundleUtil.getStringFromBundle("dataset.export.error")
-                + "</body></html>";
+        return "<html><body>Error encountered during dataset export.</body></html>";
     }
 
     @Override
