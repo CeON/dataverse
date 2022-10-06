@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.search.index;
 
 import com.google.common.collect.Lists;
-import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -25,7 +24,6 @@ public class PermissionsSolrDocFactory {
 
     private SearchPermissionsFinder searchPermissionsService;
     private DvObjectServiceBean dvObjectService;
-    private DatasetDao datasetDao;
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -36,10 +34,9 @@ public class PermissionsSolrDocFactory {
 
     @Inject
     public PermissionsSolrDocFactory(SearchPermissionsFinder searchPermissionsService,
-            DvObjectServiceBean dvObjectService, DatasetDao datasetDao) {
+            DvObjectServiceBean dvObjectService) {
         this.searchPermissionsService = searchPermissionsService;
         this.dvObjectService = dvObjectService;
-        this.datasetDao = datasetDao;
     }
 
     // -------------------- LOGIC --------------------
@@ -65,32 +62,12 @@ public class PermissionsSolrDocFactory {
     }
 
     /**
-     * Returns {@link PermissionsSolrDoc}s for dvobject with its children
-     * <p>
-     * Note that method does not check for dataverse hierarchy.
-     * That is {@link PermissionsSolrDoc}s of directly assigned
-     * datasets and datafiles will be returned alongside with
-     * {@link PermissionsSolrDoc}s of the given dataverse.
+     * Returns {@link PermissionsSolrDoc}s for dataset and datafiles attached to that dataset
      */
-    public List<PermissionsSolrDoc> determinePermissionsDocsOnSelfAndChildren(DvObject dvObject) {
+    public List<PermissionsSolrDoc> determinePermissionsDocsForDatasetWithDataFiles(Dataset dvObject) {
         List<PermissionsSolrDoc> definitionPoints = new ArrayList<>();
-
-        if (dvObject.isInstanceofDataverse()) {
-            Dataverse selfDataverse = (Dataverse) dvObject;
-            if (!selfDataverse.isRoot()) {
-                definitionPoints.addAll(determinePermissionsDocsOnSelfOnly(dvObject));
-            }
-            List<Dataset> directChildDatasetsOfDvDefPoint = datasetDao.findByOwnerId(selfDataverse.getId());
-            for (Dataset dataset : directChildDatasetsOfDvDefPoint) {
-                definitionPoints.addAll(determinePermissionsDocsOnSelfOnly(dataset));
-                definitionPoints.addAll(constructDatafileSolrDocsFromDataset(dataset));
-            }
-        } else if (dvObject.isInstanceofDataset()) {
-            definitionPoints.addAll(determinePermissionsDocsOnSelfOnly(dvObject));
-            definitionPoints.addAll(constructDatafileSolrDocsFromDataset((Dataset) dvObject));
-        } else {
-            definitionPoints.addAll(determinePermissionsDocsOnSelfOnly(dvObject));
-        }
+        definitionPoints.addAll(determinePermissionsDocsOnSelfOnly(dvObject));
+        definitionPoints.addAll(constructDatafileSolrDocsFromDataset((Dataset) dvObject));
         return definitionPoints;
     }
 
