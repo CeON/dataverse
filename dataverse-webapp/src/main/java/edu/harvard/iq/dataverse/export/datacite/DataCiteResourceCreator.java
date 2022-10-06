@@ -149,7 +149,7 @@ public class DataCiteResourceCreator {
                     .toArray(String[]::new);
             String relatedIdType = fields[RelatedIdFields.RELATED_ID_TYPE.ordinal()];
             String relationType = fields[RelatedIdFields.RELATION_TYPE.ordinal()];
-            if (StringUtils.isBlank(relatedIdType) || StringUtils.isBlank(relatedIdType)) {
+            if (StringUtils.isBlank(relatedIdType) || StringUtils.isBlank(relationType)) {
                 continue;
             }
             if (RelatedIdentifierTypeConstants.ALTERNATIVE_TO_MAIN_ID_TYPE_INDEX.containsKey(relatedIdType)) {
