@@ -68,10 +68,10 @@ public class DataFile extends DvObject implements Comparable<DataFile> {
     private static final long serialVersionUID = 1L;
 
     public static final String TARGET_URL = "/file.xhtml?persistentId=";
-    public static final char INGEST_STATUS_NONE = 65;
-    public static final char INGEST_STATUS_SCHEDULED = 66;
-    public static final char INGEST_STATUS_INPROGRESS = 67;
-    public static final char INGEST_STATUS_ERROR = 68;
+    public static final char INGEST_STATUS_NONE = 65; // 'A'
+    public static final char INGEST_STATUS_SCHEDULED = 66; // 'B'
+    public static final char INGEST_STATUS_INPROGRESS = 67; // 'C'
+    public static final char INGEST_STATUS_ERROR = 68; // 'D'
 
     public static final Long ROOT_DATAFILE_ID_DEFAULT = -1L;
 
