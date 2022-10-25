@@ -47,8 +47,8 @@ public class ReturnDatasetToAuthorCommand extends AbstractDatasetCommand<Dataset
         ctxt.datasets().addWorkflowComment(workflowComment);
 
         updateDatasetUser(ctxt);
-        ctxt.em().flush();
         Dataset savedDataset = ctxt.em().merge(dataset);
+        ctxt.em().flush();
         ctxt.engine().submit(new RemoveLockCommand(getRequest(), getDataset(), DatasetLock.Reason.InReview));
 
         sendNotification(ctxt, savedDataset);
