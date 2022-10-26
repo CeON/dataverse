@@ -46,21 +46,32 @@ class UningestInfoServiceTest {
     }
 
     @Test
-    void listUningestableFiles_AND_hasUningestableFiles__uinngestableDatasets() {
+    void listUningestableFiles_AND_hasUningestableFiles__uinngestableDatasets_releasedDataset() {
         // given
         Dataset releasedDataset = prepareDatasetWithDataFile("text/csv", true, 'D', null);
         releasedDataset.getLatestVersion().setVersionState(DatasetVersion.VersionState.RELEASED);
+
+        // when
+        List<DataFile> files = service.listUningestableFiles(releasedDataset);
+        boolean hasUningestableFiles = service.hasUningestableFiles(releasedDataset);
+
+        // then
+        assertThat(files).isEmpty();
+        assertThat(hasUningestableFiles).isFalse();
+    }
+
+    @Test
+    void listUningestableFiles_AND_hasUningestableFiles__uinngestableDatasets_emptyDataset() {
+        // given
         Dataset noFilesDataset = new Dataset();
 
-        for (Dataset dataset : new Dataset[] { releasedDataset, noFilesDataset }) {
-            // when
-            List<DataFile> files = service.listUningestableFiles(dataset);
-            boolean hasUningestableFiles = service.hasUningestableFiles(dataset);
+        // when
+        List<DataFile> files = service.listUningestableFiles(noFilesDataset);
+        boolean hasUningestableFiles = service.hasUningestableFiles(noFilesDataset);
 
-            // then
-            assertThat(files).isEmpty();
-            assertThat(hasUningestableFiles).isFalse();
-        }
+        // then
+        assertThat(files).isEmpty();
+        assertThat(hasUningestableFiles).isFalse();
     }
 
     // -------------------- PRIVATE --------------------

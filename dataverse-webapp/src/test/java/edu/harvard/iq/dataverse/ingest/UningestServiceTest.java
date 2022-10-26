@@ -7,12 +7,9 @@ import edu.harvard.iq.dataverse.dataset.datasetversion.DatasetVersionServiceBean
 import edu.harvard.iq.dataverse.persistence.MocksFactory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileRepository;
-import edu.harvard.iq.dataverse.persistence.datafile.DataFileTagRepository;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTable;
 import edu.harvard.iq.dataverse.persistence.datafile.DataTableRepository;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
-import edu.harvard.iq.dataverse.persistence.datafile.FileMetadataRepository;
-import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestReportRepository;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersionRepository;
@@ -25,13 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -46,10 +41,7 @@ class UningestServiceTest {
     @Mock private StorageIO<DataFile> storage;
     @Mock private DataAccess dataAccess;
     @Mock private DataTableRepository dataTableRepository;
-    @Mock private IngestReportRepository ingestReportRepository;
-    @Mock private DataFileTagRepository dataFileTagRepository;
     @Mock private DataFileRepository dataFileRepository;
-    @Mock private FileMetadataRepository fileMetadataRepository;
     @Mock private MapLayerMetadataServiceBean mapLayerMetadataService;
     @Mock private DatasetVersionRepository datasetVersionRepository;
     @Mock private DatasetVersionServiceBean datasetVersionService;
@@ -74,15 +66,13 @@ class UningestServiceTest {
         when(dataAccess.getStorageIO(any(DataFile.class))).thenReturn(storage);
 
         // when
-        service.uningest(Collections.singletonList(file), user);
+        service.uningest(file, user);
 
         // then
         verify(dataAccess).getStorageIO(file);
         verify(storage).revertBackupAsAux(anyString());
         verify(dataTableRepository).deleteById(11L);
         assertThat(file.getDataTable()).isNull();
-        verify(dataFileTagRepository).removeByIds(anyList());
-        verify(ingestReportRepository).deleteForDataFileId(file.getId());
         assertThat(file.getIngestStatus()).isEqualTo(DataFile.INGEST_STATUS_NONE);
         verify(dataFileRepository, atLeastOnce()).save(file);
         verify(mapLayerMetadataService).findMetadataByDatafile(file);
@@ -99,14 +89,12 @@ class UningestServiceTest {
         file.setDataTable(null);
 
         // when
-        service.uningest(Collections.singletonList(file), user);
+        service.uningest(file, user);
 
         // then
         verify(dataAccess, never()).getStorageIO(any());
         verify(storage, never()).revertBackupAsAux(anyString());
         verify(dataTableRepository, never()).deleteById(11L);
-        verify(dataFileTagRepository, never()).removeByIds(anyList());
-        verify(ingestReportRepository).deleteForDataFileId(file.getId());
         assertThat(file.getIngestStatus()).isEqualTo(DataFile.INGEST_STATUS_NONE);
         verify(dataFileRepository, atLeastOnce()).save(file);
         verify(mapLayerMetadataService).findMetadataByDatafile(file);
@@ -128,9 +116,9 @@ class UningestServiceTest {
                 .setVersionState(DatasetVersion.VersionState.RELEASED);
 
         // when & then
-        assertThatThrownBy(() -> service.uningest(Collections.singletonList(multipleVersions), user))
+        assertThatThrownBy(() -> service.uningest(multipleVersions, user))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> service.uningest(Collections.singletonList(nonDraftFile), user))
+        assertThatThrownBy(() -> service.uningest(nonDraftFile, user))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 

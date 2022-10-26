@@ -92,7 +92,7 @@ public class UningestPage implements Serializable {
             return;
         }
         AuthenticatedUser user = (AuthenticatedUser) dataverseSession.getUser();
-        uningestService.uningest(Collections.singletonList(toUningest.getDataFile()), user);
+        uningestService.uningest(toUningest.getDataFile(), user);
         uningestableFiles = prepareItemList();
         toUningest = null;
     }

@@ -183,6 +183,6 @@ public class UningestFileCommand extends AbstractVoidCommand {
         Query query = ctxt.em().createQuery("DELETE from IngestReport as o where o.dataFile.id  =:fileid");
         query.setParameter("fileid", fileid);
         query.executeUpdate();
-        uningest.setIngestStatus("A".charAt(0));
+        uningest.setIngestStatus(DataFile.INGEST_STATUS_NONE);
     }
 }
