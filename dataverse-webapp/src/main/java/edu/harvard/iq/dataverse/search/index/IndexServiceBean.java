@@ -553,16 +553,23 @@ public class IndexServiceBean {
         DatasetVersion currentVersion = indexableDataset.getDatasetVersion();
         Dataset dataset = currentVersion.getDataset();
         Long minor = currentVersion.getMinorVersionNumber();
+
+        // If this is already a major version, then find previously published major version
         if (Objects.equals(minor, 0L)) {
             return dataset.getMostRecentMajorVersionReleaseDate();
         }
         Long major = currentVersion.getVersionNumber();
+
+        // If this is a minor version, then find its major version, even if that is unavailable now
         for (DatasetVersion version : dataset.getVersions()) {
             if (Objects.equals(version.getVersionNumber(), major)
                 && Objects.equals(version.getMinorVersionNumber(), 0L)) {
                 return version.getReleaseTime();
             }
         }
+
+        // If somehow the major version of current minor version was not found, then try to find any
+        // major version previously published
         return dataset.getMostRecentMajorVersionReleaseDate();
     }
 
@@ -627,13 +634,6 @@ public class IndexServiceBean {
         if (state.equals(IndexableDataset.DatasetState.PUBLISHED)) {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, SearchPublicationStatus.PUBLISHED.getSolrValue());
             SolrInputField field = solrInputDocument.getField(SearchFields.PUBLICATION_STATUS);
-            if (field.getValues().stream().anyMatch(v -> SearchPublicationStatus.UNPUBLISHED.getSolrValue().equals(v))) {
-                List<Object> values = field.getValues().stream()
-                        .filter(v -> !SearchPublicationStatus.UNPUBLISHED.getSolrValue().equals(v))
-                        .collect(Collectors.toList());
-                solrInputDocument.removeField(SearchFields.PUBLICATION_STATUS);
-                solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, values);
-            }
         } else if (state.equals(IndexableDataset.DatasetState.WORKING_COPY)) {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, SearchPublicationStatus.DRAFT.getSolrValue());
         }
