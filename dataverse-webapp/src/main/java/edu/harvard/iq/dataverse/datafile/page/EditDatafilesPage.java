@@ -46,7 +46,7 @@ import io.vavr.control.Try;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.event.FileUploadEvent;
@@ -84,6 +84,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
 import static edu.harvard.iq.dataverse.common.FileSizeUtil.bytesToHumanReadable;
@@ -128,6 +129,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     private FileService fileService;
     private DatasetThumbnailService datasetThumbnailService;
     private ImageThumbConverter imageThumbConverter;
+    private DuplicatesService duplicatesService;
 
     private Dataset dataset = new Dataset();
 
@@ -170,10 +172,6 @@ public class EditDatafilesPage implements java.io.Serializable {
     private String uploadSuccessMessage = null;
     private String uploadComponentId = null;
 
-    private String dupeFileNamesExisting = null;
-    private String dupeFileNamesNew = null;
-    private boolean multipleDupesExisting = false;
-    private boolean multipleDupesNew = false;
     private boolean uploadInProgress = false;
 
     private Map<String, String> temporaryThumbnailsMap = new HashMap<>();
@@ -191,6 +189,10 @@ public class EditDatafilesPage implements java.io.Serializable {
     private String ingestLanguageEncoding = null;
     private String savedLabelsTempFile = null;
 
+    private boolean hasDuplicates;
+    private List<DuplicatesService.DuplicateGroup> duplicatesList = new ArrayList<>();
+    private List<FileMetadata> filesTableBackup = new ArrayList<>();
+
     // -------------------- CONSTRUCTORS --------------------
 
     public EditDatafilesPage() { }
@@ -205,7 +207,8 @@ public class EditDatafilesPage implements java.io.Serializable {
                              SettingsWrapper settingsWrapper, DatasetVersionServiceBean datasetVersionService,
                              TermsOfUseFormMapper termsOfUseFormMapper, TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory,
                              DatasetService datasetService, FileService fileService,
-                             DatasetThumbnailService datasetThumbnailService, ImageThumbConverter imageThumbConverter) {
+                             DatasetThumbnailService datasetThumbnailService, ImageThumbConverter imageThumbConverter,
+                             DuplicatesService duplicatesService) {
         this.datasetDao = datasetDao;
         this.datafileDao = datafileDao;
         this.dataFileCreator = dataFileCreator;
@@ -226,6 +229,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         this.fileService = fileService;
         this.datasetThumbnailService = datasetThumbnailService;
         this.imageThumbConverter = imageThumbConverter;
+        this.duplicatesService = duplicatesService;
     }
 
     // -------------------- GETTERS --------------------
@@ -323,6 +327,14 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     public List<SelectItem> getTermsOfUseSelectItems() {
         return termsOfUseSelectItems;
+    }
+
+    public boolean getHasDuplicates() {
+        return hasDuplicates;
+    }
+
+    public List<DuplicatesService.DuplicateGroup> getDuplicatesList() {
+        return duplicatesList;
     }
 
     // -------------------- LOGIC --------------------
@@ -516,11 +528,12 @@ public class EditDatafilesPage implements java.io.Serializable {
                 // Also remove checksum from the list of newly uploaded checksums (perhaps odd
                 // to delete and then try uploading the same file again, but it seems like it
                 // should be allowed/the checksum list is part of the state to clean-up
-                checksumMapNew.remove(dataFileToDelete.getChecksumValue());
+//                checksumMapNew.remove(dataFileToDelete.getChecksumValue());
             }
         }
         logger.fine("Files was removed from the list - changes will persist after save changes will be executed");
         JsfHelper.addFlashSuccessMessage(getStringFromBundle("file.deleted.success", fileNames));
+        hasDuplicates = hasDuplicatesInUploadedFiles(newFiles);
     }
 
     /**
@@ -749,7 +762,6 @@ public class EditDatafilesPage implements java.io.Serializable {
                 dropBoxMethod.releaseConnection();
             }
 
-            // Check if there are duplicate files or ingest warnings
             uploadWarningMessage = processUploadedFileList(datafiles);
             logger.fine("Warning message during upload: " + uploadWarningMessage);
 
@@ -837,15 +849,10 @@ public class EditDatafilesPage implements java.io.Serializable {
                     .addMessage(uploadComponentId, new FacesMessage(FacesMessage.SEVERITY_INFO, getStringFromBundle("dataset.file.uploadWorked"), uploadSuccessMessage));
         }
 
-        // We clear the following duplicate warning labels, because we want to only inform the user of the duplicates
-        // dropped in the current upload attempt - for ex., one batch of drag-and-dropped files, or a single file
-        // uploaded through the file chooser.
-        dupeFileNamesExisting = null;
-        dupeFileNamesNew = null;
-        multipleDupesExisting = false;
-        multipleDupesNew = false;
         uploadWarningMessage = null;
         uploadSuccessMessage = null;
+
+        hasDuplicates = hasDuplicatesInUploadedFiles(newFiles);
     }
 
     public Long getMaxBatchSize() {
@@ -1134,7 +1141,62 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
     }
 
+    public void initDuplicatesDialog() {
+        duplicatesList = listDuplicates();
+    }
+
+    public boolean hasDuplicatesSelected() {
+        return duplicatesList.stream()
+                .map(DuplicatesService.DuplicateGroup::getDuplicates)
+                .flatMap(Collection::stream)
+                .anyMatch(DuplicatesService.DuplicateItem::isSelected);
+    }
+
+    public boolean hasDuplicatesWithWorkingVersion() {
+        return duplicatesList.stream()
+                .anyMatch(g -> !g.getExistingDuplicatesLabels().isEmpty());
+    }
+
+    public void deleteSelectedDuplicates() {
+        selectedFiles = duplicatesList.stream()
+                .map(DuplicatesService.DuplicateGroup::getDuplicates)
+                .flatMap(Collection::stream)
+                .filter(DuplicatesService.DuplicateItem::isSelected)
+                .map(f -> f.getDataFile().getFileMetadata())
+                .collect(Collectors.toList());
+        deleteFiles();
+        duplicatesList = listDuplicates();
+        selectedFiles.clear();
+
+        // We store the contents of the datatable and clear it.
+        // The reason is following: when we're removing a row it happens that contents of deleted row
+        // (ie. file label and description) are inserted into the next remaining row. So we store the data,
+        // destroy current table and then reconstruct it.
+        filesTableBackup.addAll(fileMetadatas);
+        fileMetadatas.clear();
+    }
+
+    public void duplicatesDeletionFinished() {
+        // We reconstruct the contents of files table.
+        fileMetadatas.addAll(filesTableBackup);
+        filesTableBackup.clear();
+    }
+
     // -------------------- PRIVATE --------------------
+
+    private List<DuplicatesService.DuplicateGroup> listDuplicates() {
+        return duplicatesService.listDuplicates(listExistingFiles(), newFiles);
+    }
+
+    private boolean hasDuplicatesInUploadedFiles(List<DataFile> files) {
+        return duplicatesService.hasDuplicatesInUploadedFiles(listExistingFiles(), files);
+    }
+
+    private List<DataFile> listExistingFiles() {
+        return workingVersion.getFileMetadatas().stream()
+                .map(FileMetadata::getDataFile)
+                .collect(Collectors.toList());
+    }
 
     private void updateCurrentBatchSizeForDeletedDataFile(DataFile dataFileToDelete) {
         dataFileUploadInfo.removeFromDataFilesToSave(dataFileToDelete);
@@ -1276,8 +1338,8 @@ public class EditDatafilesPage implements java.io.Serializable {
         // contain 1 file--method is called for every file even if the UI shows "simultaneous uploads"
 
         // Iterate through list of DataFile objects
-        for (DataFile dFileList1 : dFileList) {
-            dataFile = dFileList1;
+        for (DataFile currentFile : dFileList) {
+            dataFile = currentFile;
             // Check for ingest warnings
             if (dataFile.isIngestProblem()) {
                 if (dataFile.getIngestReport() != null) {
@@ -1288,65 +1350,13 @@ public class EditDatafilesPage implements java.io.Serializable {
                 dataFile.setIngestDone();
             }
 
-            // Check for duplicates -- e.g. file is already in the dataset,
-            // or if another file with the same checksum has already been
-            // uploaded.
-            if (isFileAlreadyInDataset(dataFile)) {
-                if (dupeFileNamesExisting == null) {
-                    dupeFileNamesExisting = dataFile.getFileMetadata().getLabel();
-                } else {
-                    dupeFileNamesExisting = dupeFileNamesExisting.concat(", " + dataFile.getFileMetadata().getLabel());
-                    multipleDupesExisting = true;
-                }
-                // remove temp file
-                deleteTempFile(dataFile);
-                updateCurrentBatchSizeForDeletedDataFile(dataFile);
-            } else if (isFileAlreadyUploaded(dataFile)) {
-                if (dupeFileNamesNew == null) {
-                    dupeFileNamesNew = dataFile.getFileMetadata().getLabel();
-                } else {
-                    dupeFileNamesNew = dupeFileNamesNew.concat(", " + dataFile.getFileMetadata().getLabel());
-                    multipleDupesNew = true;
-                }
-                // remove temp file
-                deleteTempFile(dataFile);
-                updateCurrentBatchSizeForDeletedDataFile(dataFile);
-            } else {
-                // OK, this one is not a duplicate, we want it.
-                // But let's check if its filename is a duplicate of another
-                // file already uploaded, or already in the dataset:
-                dataFile.getFileMetadata().setLabel(duplicateFilenameCheck(dataFile.getFileMetadata()));
-                if (isTemporaryPreviewAvailable(dataFile.getStorageIdentifier(), dataFile.getContentType())) {
-                    dataFile.setPreviewImageAvailable(true);
-                }
-                uploadedFiles.add(dataFile);
-                // We are NOT adding the fileMetadata to the list that is being used
-                // to render the page; we'll do that once we know that all the individual uploads
-                // in this batch (as in, a bunch of drag-and-dropped files) have finished.
-                //fileMetadatas.add(dataFile.getFileMetadata());
+            // Let's check if filename is a duplicate of another
+            // file already uploaded, or already in the dataset:
+            dataFile.getFileMetadata().setLabel(createNewNameIfDuplicated(dataFile.getFileMetadata()));
+            if (isTemporaryPreviewAvailable(dataFile.getStorageIdentifier(), dataFile.getContentType())) {
+                dataFile.setPreviewImageAvailable(true);
             }
-        }
-
-        // Format error message for duplicate files
-        // (note the separate messages for the files already in the dataset,
-        // and the newly uploaded ones)
-        if (dupeFileNamesExisting != null) {
-            String duplicateFilesErrorMessage = multipleDupesExisting
-                    ? getStringFromBundle("dataset.files.exist") + dupeFileNamesExisting + getStringFromBundle("dataset.file.skip")
-                    : getStringFromBundle("dataset.file.exist") + dupeFileNamesExisting;
-            warningMessage = warningMessage == null
-                    ? duplicateFilesErrorMessage
-                    : warningMessage.concat("; " + duplicateFilesErrorMessage);
-        }
-
-        if (dupeFileNamesNew != null) {
-            String duplicateFilesErrorMessage = multipleDupesNew
-                    ? getStringFromBundle("dataset.files.duplicate") + dupeFileNamesNew + getStringFromBundle("dataset.file.skip")
-                    : getStringFromBundle("dataset.file.duplicate") + dupeFileNamesNew + getStringFromBundle("dataset.file.skip");
-
-            warningMessage = warningMessage == null
-                    ? duplicateFilesErrorMessage
-                    : warningMessage.concat("; " + duplicateFilesErrorMessage);
+            uploadedFiles.add(dataFile);
         }
 
         if (warningMessage != null) {
@@ -1356,11 +1366,11 @@ public class EditDatafilesPage implements java.io.Serializable {
         return null;
     }
 
-    private String duplicateFilenameCheck(FileMetadata fileMetadata) {
+    private String createNewNameIfDuplicated(FileMetadata fileMetadata) {
         if (fileLabelsExisting == null) {
             fileLabelsExisting = IngestUtil.existingPathNamesAsSet(workingVersion);
         }
-        return IngestUtil.duplicateFilenameCheck(fileMetadata, fileLabelsExisting);
+        return IngestUtil.createNewNameIfDuplicated(fileMetadata, fileLabelsExisting);
     }
 
     private void initChecksumMap() {
@@ -1521,5 +1531,4 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void setIngestEncoding(String ingestEncoding) {
         this.ingestLanguageEncoding = ingestEncoding;
     }
-
 }
