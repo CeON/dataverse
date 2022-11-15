@@ -817,10 +817,14 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dataset.getDataverseContext().getIndexableCategoryName());
                     datafileSolrInputDocument.addField(SearchFields.ACCESS,
                                                        fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED ? SearchConstants.RESTRICTED : SearchConstants.PUBLIC);
+<<<<<<< HEAD
                     if (fileMetadata.getTermsOfUse().getLicense() != null) {
                         licensesIndexed.add(fileMetadata.getTermsOfUse().getLicense().getName());
                         datafileSolrInputDocument.addField(SearchFields.LICENSE, fileMetadata.getTermsOfUse().getLicense().getName());
                     }
+=======
+                    licensesIndexed.add(fileMetadata.getTermsOfUse().getLicense().getName());
+>>>>>>> 2db56c7eee6bc1ec598a823474cdea6fb2d8a557
 
                     /* Full-text indexing using Apache Tika */
                     if (doFullTextIndexing) {
