@@ -179,8 +179,4 @@ public class SolrQueryCreator {
         return numberField.getMinimum() != null || numberField.getMaximum() != null;
     }
     
-    public void setLicenseRepository(LicenseRepository licenseRepository) {
-        this.licenseRepository = licenseRepository;
-    }
-
 }

@@ -7,16 +7,19 @@ import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import com.google.common.collect.Lists;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
 
 import edu.harvard.iq.dataverse.persistence.datafile.license.License;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseRepository;
@@ -29,7 +32,7 @@ import edu.harvard.iq.dataverse.search.advanced.SelectOneSearchField;
 import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.TextSearchField;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 class SolrQueryCreatorTest {
 
     @Mock
@@ -150,10 +153,17 @@ class SolrQueryCreatorTest {
         license1.setName("License 1");
         License license2 = new License();
         license2.setName("License 2");
-        when(licenseRepository.getById(new Long(1))).thenReturn(license1);
-        when(licenseRepository.getById(new Long(2))).thenReturn(license2);
-        when(licenseRepository.findById(anyLong())).thenReturn(Optional.empty());
-        solrQueryCreator.setLicenseRepository(licenseRepository);
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                if (invocation.getArgument(0).equals(1L)) {
+                    return license1;
+                } else if (invocation.getArgument(0).equals(2L)) {
+                    return license2;
+                } else {
+                    return null;
+                }
+            }
+        }).when(licenseRepository).getById(anyLong());        
         SearchBlock searchBlock = new SearchBlock("TEST", "TEST", createCheckboxLicenseSearchFields());
         //when
         String result = solrQueryCreator.constructQuery(Lists.newArrayList((searchBlock)));
