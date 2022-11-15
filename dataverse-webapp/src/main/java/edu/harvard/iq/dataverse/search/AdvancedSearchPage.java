@@ -1,10 +1,27 @@
 package edu.harvard.iq.dataverse.search;
 
+import javax.ejb.EJB;
+import javax.faces.model.SelectItem;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import org.apache.commons.lang.StringUtils;
+import org.omnifaces.cdi.ViewScoped;
+
+import static java.util.stream.Collectors.toList;
+
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.WidgetWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
+import edu.harvard.iq.dataverse.license.TermsOfUseSelectItemsFactory;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
@@ -19,19 +36,6 @@ import edu.harvard.iq.dataverse.search.advanced.SelectOneSearchField;
 import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.TextSearchField;
 import io.vavr.Tuple;
-import org.apache.commons.lang.StringUtils;
-import org.omnifaces.cdi.ViewScoped;
-
-import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Page class responsible for showing search fields for Metadata blocks, files/dataverses blocks
@@ -54,6 +58,9 @@ public class AdvancedSearchPage implements java.io.Serializable {
 
     @Inject
     private SolrQueryCreator solrQueryCreator;
+    
+    @Inject
+    private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
 
     private Dataverse dataverse;
     private String dataverseIdentifier;
@@ -255,6 +262,14 @@ public class AdvancedSearchPage implements java.io.Serializable {
                                                   BundleUtil.getStringFromBundle("advanced.search.files.variableLabel"),
                                                   BundleUtil.getStringFromBundle("advanced.search.files.variableLabel.tip")));
 
+        CheckboxSearchField licenseSearchField = new CheckboxSearchField(SearchFields.LICENSE,
+                BundleUtil.getStringFromBundle("advanced.search.files.license"),
+                BundleUtil.getStringFromBundle("advanced.search.files.license.tip"));
+
+        for (SelectItem selectItem:termsOfUseSelectItemsFactory.buildLicenseSelectItems()) {
+            licenseSearchField.getCheckboxLabelAndValue().add(Tuple.of(selectItem.getLabel(), selectItem.getValue().toString()));
+        }
+        filesSearchFields.add(licenseSearchField);
         return filesSearchFields;
     }
 
