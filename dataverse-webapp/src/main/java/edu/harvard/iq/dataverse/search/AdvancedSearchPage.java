@@ -1,21 +1,5 @@
 package edu.harvard.iq.dataverse.search;
 
-import javax.ejb.EJB;
-import javax.faces.model.SelectItem;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang.StringUtils;
-import org.omnifaces.cdi.ViewScoped;
-
-import static java.util.stream.Collectors.toList;
-
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.WidgetWrapper;
@@ -36,6 +20,20 @@ import edu.harvard.iq.dataverse.search.advanced.SelectOneSearchField;
 import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.TextSearchField;
 import io.vavr.Tuple;
+import org.apache.commons.lang.StringUtils;
+import org.omnifaces.cdi.ViewScoped;
+
+import javax.ejb.EJB;
+import javax.faces.model.SelectItem;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Page class responsible for showing search fields for Metadata blocks, files/dataverses blocks

@@ -634,10 +634,9 @@ public class SearchServiceBean {
         }
 
         if(formattedFacetCategoryName.equals(SearchFields.LICENSE)) {
-            Optional<License> license = licenseRepository.findLicenseByName(facetLabelName);
-            if (license.isPresent()) {
-                return license.get().getLocalizedName(BundleUtil.getCurrentLocale());
-            }
+            return licenseRepository.findLicenseByName(facetLabelName)
+                .map(l -> l.getLocalizedName(BundleUtil.getCurrentLocale()))
+                .orElse(facetLabelName);
         }
 
         return facetLabelName;
