@@ -549,30 +549,6 @@ public class IndexServiceBean {
         return indexResponse.toString();
     }
 
-    private Date findReleaseDate(IndexableDataset indexableDataset) {
-        DatasetVersion currentVersion = indexableDataset.getDatasetVersion();
-        Dataset dataset = currentVersion.getDataset();
-        Long minor = currentVersion.getMinorVersionNumber();
-
-        // If this is already a major version, then find previously published major version
-        if (Objects.equals(minor, 0L)) {
-            return dataset.getMostRecentMajorVersionReleaseDate();
-        }
-        Long major = currentVersion.getVersionNumber();
-
-        // If this is a minor version, then find its major version, even if that is unavailable now
-        for (DatasetVersion version : dataset.getVersions()) {
-            if (Objects.equals(version.getVersionNumber(), major)
-                && Objects.equals(version.getMinorVersionNumber(), 0L)) {
-                return version.getReleaseTime();
-            }
-        }
-
-        // If somehow the major version of current minor version was not found, then try to find any
-        // major version previously published
-        return dataset.getMostRecentMajorVersionReleaseDate();
-    }
-
     private String addOrUpdateDataset(IndexableDataset indexableDataset) {
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
@@ -612,7 +588,7 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.DATAVERSE_NAME, dataset.getDataverseContext().getDisplayName());
 
         Date datasetSortByDate;
-        Date majorVersionReleaseDate = findReleaseDate(indexableDataset); // dataset.getMostRecentMajorVersionReleaseDate();
+        Date majorVersionReleaseDate = getMostRecentMajorVersionReleaseDate(dataset);
         if (majorVersionReleaseDate != null) {
             String msg = "major release date found: " + majorVersionReleaseDate.toString();
             logger.fine(msg);
@@ -1073,6 +1049,18 @@ public class IndexServiceBean {
         // return "indexed dataset " + dataset.getId() + " as " + solrDocId +
         // "\nindexFilesResults for " + solrDocId + ":" + fileInfo.toString();
         return "indexed dataset " + dsId + " as " + datasetSolrDocId + ". filesIndexed: " + filesIndexed;
+    }
+
+    private Date getMostRecentMajorVersionReleaseDate(Dataset dataset) {
+        if (dataset.isHarvested()) {
+            return dataset.getVersions().get(0).getReleaseTime();
+        }
+        for (DatasetVersion version : dataset.getVersions()) {
+            if (version.getReleaseTime() != null && version.getMinorVersionNumber().equals(0L)) {
+                return version.getReleaseTime();
+            }
+        }
+        return null;
     }
 
     /**

@@ -391,18 +391,6 @@ public class Dataset extends DvObjectContainer {
         return createNewDatasetVersion();
     }
 
-    public Date getMostRecentMajorVersionReleaseDate() {
-        if (isHarvested()) {
-            return getVersions().get(0).getReleaseTime();
-        }
-        for (DatasetVersion version : getVersions()) {
-            if (version.isReleased() && version.getMinorVersionNumber().equals(0L)) {
-                return version.getReleaseTime();
-            }
-        }
-        return null;
-    }
-
     /**
      * Returns true if dataset contains any version with released state.
      */
