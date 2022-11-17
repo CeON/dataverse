@@ -33,7 +33,9 @@ import edu.harvard.iq.dataverse.error.DataverseError;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.guestbook.GuestbookResponseServiceBean;
+import edu.harvard.iq.dataverse.ingest.UningestInfoService;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
+import edu.harvard.iq.dataverse.notification.NotificationParameter;
 import edu.harvard.iq.dataverse.persistence.datafile.MapLayerMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseIcon;
@@ -65,16 +67,17 @@ import org.omnifaces.cdi.ViewScoped;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
@@ -97,53 +100,32 @@ import java.util.stream.Stream;
  */
 @ViewScoped
 @Named("DatasetPage")
-public class DatasetPage implements java.io.Serializable {
+public class DatasetPage implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
 
-
-    @EJB
-    DatasetVersionServiceBean datasetVersionService;
-    @EJB
-    DataFileServiceBean datafileService;
-    @EJB
-    PermissionServiceBean permissionService;
-    @EJB
-    EjbDataverseEngine commandEngine;
-    @Inject
-    DataverseSession session;
-    @EJB
-    MapLayerMetadataServiceBean mapLayerMetadataService;
-    @Inject
-    SettingsServiceBean settingsService;
-    @Inject
-    DataverseRequestServiceBean dvRequestService;
-    @Inject
-    PermissionsWrapper permissionsWrapper;
-    @Inject
-    ThumbnailServiceWrapper thumbnailServiceWrapper;
-    @Inject
-    private ExportService exportService;
-    @Inject
-    private DatasetService datasetService;
-    @Inject
-    private DatasetThumbnailService datasetThumbnailService;
-    @Inject
-    private DatasetSummaryService datasetSummaryService;
-    @Inject
-    private SystemConfig systemConfig;
-    @Inject
-    private CitationFactory citationFactory;
-    @Inject
-    private DatasetPageFacade datasetPageFacade;
-    @Inject
+    private DataverseSession session;
+    private EjbDataverseEngine commandEngine;
+    private PermissionsWrapper permissionsWrapper;
     private DatasetCitationsCountRepository datasetCitationsCountRepository;
-    @Inject
+    private SystemConfig systemConfig;
+    private DatasetVersionServiceBean datasetVersionService;
+    private DataFileServiceBean datafileService;
+    private PermissionServiceBean permissionService;
+    private MapLayerMetadataServiceBean mapLayerMetadataService;
+    private SettingsServiceBean settingsService;
+    private DataverseRequestServiceBean dvRequestService;
+    private ThumbnailServiceWrapper thumbnailServiceWrapper;
+    private ExportService exportService;
+    private DatasetService datasetService;
+    private DatasetThumbnailService datasetThumbnailService;
+    private DatasetSummaryService datasetSummaryService;
     private GuestbookResponseServiceBean guestbookResponseService;
-    @Inject
     private ConfirmEmailServiceBean confirmEmailService;
-    @Inject
     private AuthenticationServiceBean authenticationService;
+    private DatasetPageFacade datasetPageFacade;
+    private CitationFactory citationFactory;
+    private UningestInfoService uningestInfoService;
 
     private Dataset dataset = new Dataset();
 
@@ -164,8 +146,13 @@ public class DatasetPage implements java.io.Serializable {
     private boolean thumbnailStringIsCached = false;
     private Optional<Boolean> isLatestDatasetWithAnyFilesIncluded = Optional.empty();
     private Optional<Boolean> isDsvMinorUpdate = Optional.empty();
+
     private String returnToAuthorReason;
+    private String replyTo;
+    private boolean sendCopy = true;
+
     private String contributorMessageToCurator;
+
     private Integer fileSize;
     private int datasetCitationsCount;
     private Long datasetDownloadCount;
@@ -173,6 +160,47 @@ public class DatasetPage implements java.io.Serializable {
     private List<DatasetFileTermDifferenceItem> fileTermDiffsWithLatestReleased;
 
     private Date currentEmbargoDate;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public DatasetPage() { }
+
+    @Inject
+    public DatasetPage(DataverseSession session, EjbDataverseEngine commandEngine,
+                       PermissionsWrapper permissionsWrapper, DatasetCitationsCountRepository datasetCitationsCountRepository,
+                       SystemConfig systemConfig, DatasetVersionServiceBean datasetVersionService,
+                       DataFileServiceBean datafileService, PermissionServiceBean permissionService,
+                       MapLayerMetadataServiceBean mapLayerMetadataService, SettingsServiceBean settingsService,
+                       DataverseRequestServiceBean dvRequestService, ThumbnailServiceWrapper thumbnailServiceWrapper,
+                       ExportService exportService, DatasetService datasetService,
+                       DatasetThumbnailService datasetThumbnailService, DatasetSummaryService datasetSummaryService,
+                       GuestbookResponseServiceBean guestbookResponseService, ConfirmEmailServiceBean confirmEmailService,
+                       AuthenticationServiceBean authenticationService, DatasetPageFacade datasetPageFacade,
+                       CitationFactory citationFactory, UningestInfoService uningestInfoService) {
+        this.session = session;
+        this.commandEngine = commandEngine;
+        this.permissionsWrapper = permissionsWrapper;
+        this.datasetCitationsCountRepository = datasetCitationsCountRepository;
+        this.systemConfig = systemConfig;
+        this.datasetVersionService = datasetVersionService;
+        this.datafileService = datafileService;
+        this.permissionService = permissionService;
+        this.mapLayerMetadataService = mapLayerMetadataService;
+        this.settingsService = settingsService;
+        this.dvRequestService = dvRequestService;
+        this.thumbnailServiceWrapper = thumbnailServiceWrapper;
+        this.exportService = exportService;
+        this.datasetService = datasetService;
+        this.datasetThumbnailService = datasetThumbnailService;
+        this.datasetSummaryService = datasetSummaryService;
+        this.guestbookResponseService = guestbookResponseService;
+        this.confirmEmailService = confirmEmailService;
+        this.authenticationService = authenticationService;
+        this.datasetPageFacade = datasetPageFacade;
+        this.citationFactory = citationFactory;
+        this.uningestInfoService = uningestInfoService;
+    }
+
 
     // This is the Dataset-level thumbnail;
     // it's either the thumbnail of the designated datafile,
@@ -208,17 +236,15 @@ public class DatasetPage implements java.io.Serializable {
             }
 
             thumbnailString = datasetThumbnail.getBase64image();
-            thumbnailStringIsCached = true;
-            return thumbnailString;
         } else {
             thumbnailString = thumbnailServiceWrapper.getDatasetCardImageAsBase64Url(dataset, workingVersion.getId(), !workingVersion.isDraft());
-            thumbnailStringIsCached = true;
-            return thumbnailString;
         }
+        thumbnailStringIsCached = true;
+        return thumbnailString;
     }
 
     public void setThumbnailString(String thumbnailString) {
-        //Dummy method
+        // Dummy method
     }
 
     private Boolean thisLatestReleasedVersion = null;
@@ -259,11 +285,8 @@ public class DatasetPage implements java.io.Serializable {
         } catch (Exception ex) {
             // whatever...
         }
-
         thisLatestReleasedVersion = workingVersion.equals(latestPublishedVersion);
-
         return thisLatestReleasedVersion;
-
     }
 
     public boolean showEditDropdownButton() {
@@ -307,8 +330,8 @@ public class DatasetPage implements java.io.Serializable {
 
         boolean isUserAllowedToLink = Stream.of(user)
               .filter(User::isAuthenticated)
-              .anyMatch(authUser -> !systemConfig.isUnconfirmedMailRestrictionModeEnabled() || (systemConfig.isUnconfirmedMailRestrictionModeEnabled() &&
-                      confirmEmailService.hasVerifiedEmail((AuthenticatedUser) authUser)));
+              .anyMatch(authUser -> !systemConfig.isUnconfirmedMailRestrictionModeEnabled()
+                      || confirmEmailService.hasVerifiedEmail((AuthenticatedUser) authUser));
 
         return !systemConfig.isReadonlyMode() && isUserAllowedToLink
                 && !workingVersion.isDeaccessioned() && dataset.isReleased();
@@ -322,6 +345,10 @@ public class DatasetPage implements java.io.Serializable {
      */
     public boolean isSessionUserAuthenticated() {
         return session.getUser().isAuthenticated();
+    }
+
+    public boolean hasAnythingToUningest() {
+        return uningestInfoService.hasUningestableFiles(dataset);
     }
 
     private final Map<Long, MapLayerMetadata> mapLayerMetadataLookup = new HashMap<>();
@@ -414,6 +441,22 @@ public class DatasetPage implements java.io.Serializable {
         return datasetDownloadCount;
     }
 
+    public String getReplyTo() {
+        return replyTo;
+    }
+
+    public void setReplyTo(String replyTo) {
+        this.replyTo = replyTo;
+    }
+
+    public boolean isSendCopy() {
+        return sendCopy;
+    }
+
+    public void setSendCopy(boolean sendCopy) {
+        this.sendCopy = sendCopy;
+    }
+
     /**
      * Create a hashmap consisting of { DataFile.id : MapLayerMetadata object}
      * <p>
@@ -421,19 +464,16 @@ public class DatasetPage implements java.io.Serializable {
      * use 1 query to get them
      */
     private void loadMapLayerMetadataLookup() {
-        if (this.dataset == null) {
-        }
-        if (this.dataset.getId() == null) {
+        if (dataset == null || dataset.getId() == null) {
             return;
         }
-        List<MapLayerMetadata> mapLayerMetadataList = mapLayerMetadataService.getMapLayerMetadataForDataset(this.dataset);
+        List<MapLayerMetadata> mapLayerMetadataList = mapLayerMetadataService.getMapLayerMetadataForDataset(dataset);
         if (mapLayerMetadataList == null) {
             return;
         }
-        for (MapLayerMetadata layer_metadata : mapLayerMetadataList) {
-            mapLayerMetadataLookup.put(layer_metadata.getDataFile().getId(), layer_metadata);
+        for (MapLayerMetadata layerMetadata : mapLayerMetadataList) {
+            mapLayerMetadataLookup.put(layerMetadata.getDataFile().getId(), layerMetadata);
         }
-
     }// A DataFile may have a related MapLayerMetadata object
 
 
@@ -448,130 +488,135 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String init(boolean initFull) {
-        if (dataset.getId() != null || versionId != null || persistentId != null) { // view mode for a dataset
-
-            DatasetVersionServiceBean.RetrieveDatasetVersionResponse retrieveDatasetVersionResponse = null;
-
-            // ---------------------------------------
-            // Set the workingVersion and Dataset
-            // ---------------------------------------
-            if (persistentId != null) {
-                logger.fine("initializing DatasetPage with persistent ID " + persistentId);
-                // Set Working Version and Dataset by PersistentID
-                dataset = datasetPageFacade.findByGlobalId(persistentId);
-                if (dataset == null) {
-                    logger.warning("No such dataset: " + persistentId);
-                    return permissionsWrapper.notFound();
-                }
-                logger.fine("retrieved dataset, id=" + dataset.getId());
-
-                retrieveDatasetVersionResponse = datasetVersionService.selectRequestedVersion(dataset.getVersions(), version);
-                //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionByPersistentId(persistentId, version);
-                this.workingVersion = retrieveDatasetVersionResponse.getDatasetVersion();
-                logger.fine("retrieved version: id: " + workingVersion.getId() + ", state: " + this.workingVersion.getVersionState());
-
-            } else if (dataset.getId() != null) {
-                // Set Working Version and Dataset by Datasaet Id and Version
-                dataset = datasetPageFacade.retrieveDataset(dataset.getId());
-                if (dataset == null) {
-                    logger.warning("No such dataset: " + dataset);
-                    return permissionsWrapper.notFound();
-                }
-                //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionById(dataset.getId(), version);
-                retrieveDatasetVersionResponse = datasetVersionService.selectRequestedVersion(dataset.getVersions(), version);
-                this.workingVersion = retrieveDatasetVersionResponse.getDatasetVersion();
-                logger.info("retreived version: id: " + workingVersion.getId() + ", state: " + this.workingVersion.getVersionState());
-
-            } else if (versionId != null) {
-                // TODO: 4.2.1 - this method is broken as of now!
-                // Set Working Version and Dataset by DatasaetVersion Id
-                //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionByVersionId(versionId);
-
-            }
-
-            if (retrieveDatasetVersionResponse == null) {
-                return permissionsWrapper.notFound();
-            }
-
-
-            //this.dataset = this.workingVersion.getDataset();
-
-            // end: Set the workingVersion and Dataset
-            // ---------------------------------------
-            // Is the DatasetVersion or Dataset null?
-            //
-            if (workingVersion == null || this.dataset == null) {
-                return permissionsWrapper.notFound();
-            }
-
-            // Is the Dataset harvested?
-
-            if (dataset.isHarvested()) {
-                // if so, we'll simply forward to the remote URL for the original
-                // source of this harvested dataset:
-                String originalSourceURL = dataset.getRemoteArchiveURL();
-                if (originalSourceURL != null && !originalSourceURL.equals("")) {
-                    logger.fine("redirecting to " + originalSourceURL);
-                    try {
-                        FacesContext.getCurrentInstance().getExternalContext().redirect(originalSourceURL);
-                    } catch (IOException ioex) {
-                        // must be a bad URL...
-                        // we don't need to do anything special here - we'll redirect
-                        // to the local 404 page, below.
-                        logger.warning("failed to issue a redirect to " + originalSourceURL);
-                    }
-                    return originalSourceURL;
-                }
-
-                return permissionsWrapper.notFound();
-            }
-
-            // Check permisisons
-            if (!(workingVersion.isReleased() || workingVersion.isDeaccessioned()) && !this.canViewUnpublishedDataset()) {
-                return permissionsWrapper.notAuthorized();
-            }
-
-            if (!retrieveDatasetVersionResponse.wasRequestedVersionRetrieved()) {
-                //msg("checkit " + retrieveDatasetVersionResponse.getDifferentVersionMessage());
-                JsfHelper.addFlashWarningMessage(retrieveDatasetVersionResponse.getDifferentVersionMessage());//BundleUtil.getStringFromBundle("dataset.message.metadataSuccess"));
-            }
-
-            // init the citation
-            displayCitation = citationFactory.create(workingVersion).toString(true);
-            initCurrentEmbargo();
-            datasetCitationsCount = datasetCitationsCountRepository.findByDatasetId(dataset.getId())
-                    .map(DatasetCitationsCount::getCitationsCount).orElse(0);
-
-            fetchMetricsDownloadCount();
-
-            if (initFull) {
-                // init the list of FileMetadatas
-                if (workingVersion.isDraft() && canUpdateDataset()) {
-                    readOnly = false;
-                }
-
-                datasetNextMajorVersion = this.dataset.getNextMajorVersionString();
-                datasetNextMinorVersion = this.dataset.getNextMinorVersionString();
-                returnToAuthorReason = StringUtils.EMPTY;
-                contributorMessageToCurator = StringUtils.EMPTY;
-                fileTermDiffsWithLatestReleased = Lists.newArrayList();
-
-                setExistReleasedVersion(resetExistRealeaseVersion());
-                //moving setVersionTabList to tab change event
-                //setVersionTabList(resetVersionTabList());
-                //setReleasedVersionTabList(resetReleasedVersionTabList());
-                //SEK - lazymodel may be needed for datascroller in future release
-                // lazyModel = new LazyFileMetadataDataModel(workingVersion.getId(), datafileService );
-                // populate MapLayerMetadata
-                this.loadMapLayerMetadataLookup();  // A DataFile may have a related MapLayerMetadata object
-            }
-        } else {
+        if (dataset.getId() == null && versionId == null && persistentId == null) {
             return permissionsWrapper.notFound();
+        }
+        // view mode for a dataset
+
+        DatasetVersionServiceBean.RetrieveDatasetVersionResponse retrieveDatasetVersionResponse = null;
+
+        // ---------------------------------------
+        // Set the workingVersion and Dataset
+        // ---------------------------------------
+        if (persistentId != null) {
+            logger.fine("initializing DatasetPage with persistent ID " + persistentId);
+            // Set Working Version and Dataset by PersistentID
+            dataset = datasetPageFacade.findByGlobalId(persistentId);
+            if (dataset == null) {
+                logger.warning("No such dataset: " + persistentId);
+                return permissionsWrapper.notFound();
+            }
+            logger.fine("retrieved dataset, id=" + dataset.getId());
+
+            retrieveDatasetVersionResponse = datasetVersionService.selectRequestedVersion(dataset.getVersions(), version);
+            //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionByPersistentId(persistentId, version);
+            workingVersion = retrieveDatasetVersionResponse.getDatasetVersion();
+            logger.fine("retrieved version: id: " + workingVersion.getId() + ", state: " + workingVersion.getVersionState());
+
+        } else if (dataset.getId() != null) {
+            // Set Working Version and Dataset by Dataset Id and Version
+            dataset = datasetPageFacade.retrieveDataset(dataset.getId());
+            if (dataset == null) {
+                logger.warning("No such dataset: " + dataset);
+                return permissionsWrapper.notFound();
+            }
+            //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionById(dataset.getId(), version);
+            retrieveDatasetVersionResponse = datasetVersionService.selectRequestedVersion(dataset.getVersions(), version);
+            workingVersion = retrieveDatasetVersionResponse.getDatasetVersion();
+            logger.info("retreived version: id: " + workingVersion.getId() + ", state: " + workingVersion.getVersionState());
+
+        } else if (versionId != null) {
+            // TODO: 4.2.1 - this method is broken as of now!
+            // Set Working Version and Dataset by DatasetVersion Id
+            //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionByVersionId(versionId);
+
+        }
+
+        if (retrieveDatasetVersionResponse == null) {
+            return permissionsWrapper.notFound();
+        }
+
+
+        //dataset = workingVersion.getDataset();
+
+        // end: Set the workingVersion and Dataset
+        // ---------------------------------------
+        // Is the DatasetVersion or Dataset null?
+        //
+        if (workingVersion == null || dataset == null) {
+            return permissionsWrapper.notFound();
+        }
+
+        // Is the Dataset harvested?
+
+        if (dataset.isHarvested()) {
+            // if so, we'll simply forward to the remote URL for the original
+            // source of this harvested dataset:
+            String originalSourceURL = dataset.getRemoteArchiveURL();
+            if (originalSourceURL != null && !originalSourceURL.equals("")) {
+                logger.fine("redirecting to " + originalSourceURL);
+                try {
+                    FacesContext.getCurrentInstance().getExternalContext().redirect(originalSourceURL);
+                } catch (IOException ioex) {
+                    // must be a bad URL...
+                    // we don't need to do anything special here - we'll redirect
+                    // to the local 404 page, below.
+                    logger.warning("failed to issue a redirect to " + originalSourceURL);
+                }
+                return originalSourceURL;
+            }
+
+            return permissionsWrapper.notFound();
+        }
+
+        // Check permisisons
+        if (!(workingVersion.isReleased() || workingVersion.isDeaccessioned()) && !canViewUnpublishedDataset()) {
+            return permissionsWrapper.notAuthorized();
+        }
+
+        if (!retrieveDatasetVersionResponse.wasRequestedVersionRetrieved()) {
+            //msg("checkit " + retrieveDatasetVersionResponse.getDifferentVersionMessage());
+            JsfHelper.addFlashWarningMessage(retrieveDatasetVersionResponse.getDifferentVersionMessage());//BundleUtil.getStringFromBundle("dataset.message.metadataSuccess"));
+        }
+
+        // init the citation
+        displayCitation = citationFactory.create(workingVersion).toString(true);
+        initCurrentEmbargo();
+        datasetCitationsCount = datasetCitationsCountRepository.findByDatasetId(dataset.getId())
+                .map(DatasetCitationsCount::getCitationsCount).orElse(0);
+
+        fetchMetricsDownloadCount();
+
+        if (initFull) {
+            // init the list of FileMetadatas
+            if (workingVersion.isDraft() && canUpdateDataset()) {
+                readOnly = false;
+            }
+
+            datasetNextMajorVersion = dataset.getNextMajorVersionString();
+            datasetNextMinorVersion = dataset.getNextMinorVersionString();
+            returnToAuthorReason = StringUtils.EMPTY;
+            contributorMessageToCurator = StringUtils.EMPTY;
+            fileTermDiffsWithLatestReleased = Lists.newArrayList();
+
+            setExistReleasedVersion(resetExistRealeaseVersion());
+            //moving setVersionTabList to tab change event
+            //setVersionTabList(resetVersionTabList());
+            //setReleasedVersionTabList(resetReleasedVersionTabList());
+            //SEK - lazymodel may be needed for datascroller in future release
+            // lazyModel = new LazyFileMetadataDataModel(workingVersion.getId(), datafileService );
+            // populate MapLayerMetadata
+            loadMapLayerMetadataLookup();  // A DataFile may have a related MapLayerMetadata object
         }
         try {
             privateUrl = commandEngine.submit(new GetPrivateUrlCommand(dvRequestService.getDataverseRequest(), dataset));
         } catch (CommandException ex) {
             // No big deal. The user simply doesn't have access to create or delete a Private URL.
+        }
+
+        if (session.getUser() instanceof AuthenticatedUser) {
+            AuthenticatedUser replyToUser = (AuthenticatedUser) session.getUser();
+            replyTo = replyToUser.getEmail();
         }
 
         return null;
@@ -584,9 +629,7 @@ public class DatasetPage implements java.io.Serializable {
     public boolean isViewedFromPrivateUrl() {
         if (session.getUser() instanceof PrivateUrlUser) {
             PrivateUrlUser privateUrlUser = (PrivateUrlUser) session.getUser();
-            if (dataset != null && dataset.getId().equals(privateUrlUser.getDatasetId())) {
-                return true;
-            }
+            return dataset != null && dataset.getId().equals(privateUrlUser.getDatasetId());
         }
         return false;
     }
@@ -616,7 +659,11 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String sendBackToContributor() {
-        Try.of(() -> commandEngine.submit(new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, returnToAuthorReason)))
+        Map<String, String> params = new HashMap<>();
+        params.put(NotificationParameter.MESSAGE.key(), returnToAuthorReason);
+        params.put(NotificationParameter.REPLY_TO.key(), replyTo);
+        params.put(NotificationParameter.SEND_COPY.key(), String.valueOf(sendCopy));
+        Try.of(() -> commandEngine.submit(new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, params)))
                 .onSuccess(ds -> JsfHelper.addFlashSuccessMessage(BundleUtil.getStringFromBundle("dataset.reject.success")))
                 .onFailure(throwable -> logger.log(Level.SEVERE, "Sending back to Contributor failed:", throwable))
                 .onFailure(throwable -> JsfHelper.addFlashErrorMessage(BundleUtil.getStringFromBundle("dataset.reject.failure", throwable.getMessage())));
@@ -1239,6 +1286,19 @@ public class DatasetPage implements java.io.Serializable {
         validateVersusMaximumDate(context, toValidate, embargoDate);
     }
 
+    public void validateReplyToEmail(FacesContext context, UIComponent component, Object value) throws ValidatorException {
+        if (value == null) {
+            return;
+        }
+        String email = (String) value;
+        boolean valid = org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(email);
+        if (!valid) {
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    email + " " + BundleUtil.getStringFromBundle("email.invalid"), ""));
+        }
+    }
+
+
     public boolean isUserUnderEmbargo() {
         return dataset.hasActiveEmbargo() && !permissionsWrapper.canViewUnpublishedDataset(dataset);
     }
@@ -1300,6 +1360,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     // -------------------- PRIVATE ---------------------
+
     private void validateVersusMaximumDate(FacesContext context, UIComponent toValidate, Object embargoDate) {
         if(isMaximumEmbargoLengthSet() &&
                 !Objects.isNull(embargoDate) &&
