@@ -177,9 +177,6 @@ public class EditDatafilesPage implements java.io.Serializable {
     private Map<String, String> temporaryThumbnailsMap = new HashMap<>();
     private Set<String> fileLabelsExisting = null;
 
-    private Map<String, Integer> checksumMapOld = null; // checksums of the files already in the dataset
-    private Map<String, Integer> checksumMapNew = null; // checksums of the new files already uploaded
-
     private Boolean lockedFromEditsVar;
 
     private FileMetadata fileMetadataSelectedForThumbnailPopup = null;
@@ -525,10 +522,6 @@ public class EditDatafilesPage implements java.io.Serializable {
                 removeDataFileFromList(newFiles, dataFileToDelete);
                 deleteTempFile(dataFileToDelete);
                 updateCurrentBatchSizeForDeletedDataFile(dataFileToDelete);
-                // Also remove checksum from the list of newly uploaded checksums (perhaps odd
-                // to delete and then try uploading the same file again, but it seems like it
-                // should be allowed/the checksum list is part of the state to clean-up
-//                checksumMapNew.remove(dataFileToDelete.getChecksumValue());
             }
         }
         logger.fine("Files was removed from the list - changes will persist after save changes will be executed");
@@ -1371,46 +1364,6 @@ public class EditDatafilesPage implements java.io.Serializable {
             fileLabelsExisting = IngestUtil.existingPathNamesAsSet(workingVersion);
         }
         return IngestUtil.createNewNameIfDuplicated(fileMetadata, fileLabelsExisting);
-    }
-
-    private void initChecksumMap() {
-        checksumMapOld = new HashMap<>();
-        for (FileMetadata fileMetadata : workingVersion.getFileMetadatas()) {
-            if (fileMetadata.getDataFile() != null && fileMetadata.getDataFile().getId() != null) {
-                String checksum = fileMetadata.getDataFile().getChecksumValue();
-                if (checksum != null) {
-                    checksumMapOld.put(checksum, 1);
-                }
-            }
-        }
-    }
-
-    private boolean isFileAlreadyInDataset(DataFile dataFile) {
-        if (checksumMapOld == null) {
-            initChecksumMap();
-        }
-
-        String checksum = dataFile.getChecksumValue();
-        return checksum != null && checksumMapOld.get(checksum) != null;
-    }
-
-    private boolean isFileAlreadyUploaded(DataFile dataFile) {
-        if (checksumMapNew == null) {
-            checksumMapNew = new HashMap<>();
-        }
-
-        String checksum = dataFile.getChecksumValue();
-
-        if (checksum == null) {
-            return false;
-        }
-
-        if (checksumMapNew.get(checksum) != null) {
-            return true;
-        }
-
-        checksumMapNew.put(checksum, 1);
-        return false;
     }
 
     private void setTagsForTabularData(Collection<String> selectedDataFileTags, FileMetadata fileMetadata) {
