@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFileCategory;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFileTag;
 import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
+import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse;
 import edu.harvard.iq.dataverse.persistence.datafile.license.FileTermsOfUse.TermsOfUseType;
 import edu.harvard.iq.dataverse.persistence.dataset.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
@@ -86,6 +87,22 @@ public class IndexServiceBean {
 
     private static final Logger logger = Logger.getLogger(IndexServiceBean.class.getCanonicalName());
 
+    enum IndexedTermOfUse {
+        MULTIPLE("multiple"),
+        RESTRICTED("restricted"),
+        ALL_RIGHTS_RESERVED("allRightsReserved");
+        
+        String name;
+        
+        IndexedTermOfUse(String name) {
+            this.name = name;
+        }
+        
+        public String getName() {
+            return name;
+        }
+    };
+    
     @EJB
     DvObjectServiceBean dvObjectService;
     @EJB
@@ -773,6 +790,8 @@ public class IndexServiceBean {
             }
 
             List<SolrInputDocument> filesToIndex = new ArrayList<>();
+            FileTermsOfUse firstFileTermsOfUse = null;
+            boolean sameLicenseForAllFiles = true;
             for (FileMetadata fileMetadata : fileMetadatas) {
                 boolean indexThisMetadata = true;
                 if (checkForDuplicateMetadata) {
@@ -814,8 +833,18 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dataset.getDataverseContext().getIndexableCategoryName());
                     datafileSolrInputDocument.addField(SearchFields.ACCESS,
                                                        fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED ? SearchConstants.RESTRICTED : SearchConstants.PUBLIC);
+                    
+                    if (!dataset.hasActiveEmbargo()) {
+                        if (fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.LICENSE_BASED && fileMetadata.getTermsOfUse().getLicense() != null) {
+                            datafileSolrInputDocument.addField(SearchFields.LICENSE, fileMetadata.getTermsOfUse().getLicense().getName());
+                        } else if (fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.ALL_RIGHTS_RESERVED) {
+                            datafileSolrInputDocument.addField(SearchFields.LICENSE, IndexedTermOfUse.ALL_RIGHTS_RESERVED.getName());
+                        } else if (fileMetadata.getTermsOfUse().getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
+                            datafileSolrInputDocument.addField(SearchFields.LICENSE, IndexedTermOfUse.RESTRICTED.getName());
+                        }
+                    }
+
                     if (fileMetadata.getTermsOfUse().getLicense() != null) {
-                        licensesIndexed.add(fileMetadata.getTermsOfUse().getLicense().getName());
                         datafileSolrInputDocument.addField(SearchFields.LICENSE, fileMetadata.getTermsOfUse().getLicense().getName());
                     }
 
@@ -1032,13 +1061,44 @@ public class IndexServiceBean {
                         filesToIndex.add(datafileSolrInputDocument);
                     }
                 }
+                
+                if (firstFileTermsOfUse == null) {
+                    firstFileTermsOfUse = fileMetadata.getTermsOfUse();
+                } else if (sameLicenseForAllFiles) {
+                    if (firstFileTermsOfUse.getTermsOfUseType() != fileMetadata.getTermsOfUse().getTermsOfUseType()) {
+                        sameLicenseForAllFiles = false;
+                    }
+                    if (firstFileTermsOfUse.getTermsOfUseType() == TermsOfUseType.LICENSE_BASED) {
+                        sameLicenseForAllFiles = (firstFileTermsOfUse.getLicense() != null && fileMetadata.getTermsOfUse().getLicense() != null)  
+                                                 ? firstFileTermsOfUse.getLicense().getId().equals(fileMetadata.getTermsOfUse().getLicense().getId()) : false;
+                    }
+                    if (firstFileTermsOfUse.getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
+                        sameLicenseForAllFiles = firstFileTermsOfUse.getRestrictType() == fileMetadata.getTermsOfUse().getRestrictType() &&
+                                StringUtils.equals(firstFileTermsOfUse.getRestrictCustomText(), fileMetadata.getTermsOfUse().getRestrictCustomText());
+                    }
+                    if (firstFileTermsOfUse.getTermsOfUseType() == TermsOfUseType.ALL_RIGHTS_RESERVED) {
+                        sameLicenseForAllFiles = firstFileTermsOfUse.getRestrictType() == fileMetadata.getTermsOfUse().getRestrictType();
+                    }
+                }
             }
 
-            
+            if (!dataset.hasActiveEmbargo() && firstFileTermsOfUse != null) {
+                if (sameLicenseForAllFiles) {
+                    if (firstFileTermsOfUse.getTermsOfUseType() == TermsOfUseType.LICENSE_BASED && firstFileTermsOfUse.getLicense() != null) {
+                        solrInputDocument.addField(SearchFields.LICENSE, firstFileTermsOfUse.getLicense().getName());
+                    } else if (firstFileTermsOfUse.getTermsOfUseType() == TermsOfUseType.ALL_RIGHTS_RESERVED) {
+                        solrInputDocument.addField(SearchFields.LICENSE, IndexedTermOfUse.ALL_RIGHTS_RESERVED.getName());
+                    } else if (firstFileTermsOfUse.getTermsOfUseType() == TermsOfUseType.RESTRICTED) {
+                        solrInputDocument.addField(SearchFields.LICENSE, IndexedTermOfUse.RESTRICTED.getName());
+                    }
+                } else {
+                    solrInputDocument.addField(SearchFields.LICENSE, IndexedTermOfUse.MULTIPLE.getName());
+                }
+            }
+
             docs.addAll(filesToIndex);
         }
 
-        solrInputDocument.addField(SearchFields.LICENSE, licensesIndexed);
         docs.add(solrInputDocument);
         
         try {
