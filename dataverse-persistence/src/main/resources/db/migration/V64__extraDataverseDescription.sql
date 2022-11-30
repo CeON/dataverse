@@ -1,2 +1,2 @@
-ALTER TABLE dataverse
-ADD COLUMN additional_description TEXT;
+alter table dataverse
+add column additional_description text;
