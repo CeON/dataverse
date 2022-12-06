@@ -1,22 +1,5 @@
 package edu.harvard.iq.dataverse.timer;
 
-import com.google.api.client.util.Preconditions;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.datafile.FileIntegrityChecker;
-import edu.harvard.iq.dataverse.datafile.pojo.FilesIntegrityReport;
-import edu.harvard.iq.dataverse.dataset.DatasetCitationsCountUpdater;
-import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.harvest.client.HarvestTimerInfo;
-import edu.harvard.iq.dataverse.harvest.client.HarvesterServiceBean;
-import edu.harvard.iq.dataverse.harvest.client.HarvestingClientDao;
-import edu.harvard.iq.dataverse.harvest.server.OAISetServiceBean;
-import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
-import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
-import edu.harvard.iq.dataverse.util.SystemConfig;
-import org.apache.commons.lang3.StringUtils;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.DependsOn;
@@ -31,6 +14,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -38,8 +22,31 @@ import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.api.client.util.Preconditions;
+
+import edu.harvard.iq.dataverse.DatasetDao;
+import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.datafile.FileIntegrityChecker;
+import edu.harvard.iq.dataverse.datafile.pojo.FilesIntegrityReport;
+import edu.harvard.iq.dataverse.dataset.DatasetCitationsCountUpdater;
+import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.harvest.client.HarvestTimerInfo;
+import edu.harvard.iq.dataverse.harvest.client.HarvesterServiceBean;
+import edu.harvard.iq.dataverse.harvest.client.HarvestingClientDao;
+import edu.harvard.iq.dataverse.harvest.server.OAISetServiceBean;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
+import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
+import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
+import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 
 
 /**
@@ -76,6 +83,12 @@ public class DataverseTimerServiceBean implements Serializable {
     @Inject
     DatasetCitationsCountUpdater datasetCitationsCountUpdater;
 
+    @Inject
+    DatasetDao datasetDao;
+    
+    @Inject
+    IndexServiceBean indexServiceBean;
+
     @PostConstruct
     public void init() {
         logger.info("PostConstruct timer check.");
@@ -96,10 +109,17 @@ public class DataverseTimerServiceBean implements Serializable {
 
             createIntegrityCheckTimer();
             createCitationCountUpdateTimer();
+            
+            createReindexAfterEmbargoTimer();
 
         } else {
             logger.info("Skipping timer server init (I am not the dedicated timer server)");
         }
+    }
+
+    private void createReindexAfterEmbargoTimer() {
+        // TODO Auto-generated method stub
+        
     }
 
     public void createTimer(Date initialExpiration, long intervalDuration, Serializable info) {
@@ -194,8 +214,17 @@ public class DataverseTimerServiceBean implements Serializable {
             logger.info(report.getSummaryInfo());
         } else if (timer.getInfo() instanceof CitationCountUpdateTimerInfo) {
             datasetCitationsCountUpdater.updateCitationCount();
+        } else if (timer.getInfo() instanceof AfterEmbargoReindexTimerInfo) {
+            reindexAfterEmbargo();
         }
 
+    }
+
+    private void reindexAfterEmbargo() {
+        List<Dataset> datasetsAfterEmbargo = datasetDao.findNotIndexedAfterEmbargo();
+        for (Dataset dataset:datasetsAfterEmbargo) {
+            indexServiceBean.indexDataset(dataset, true);
+        }
     }
 
     public void removeAllTimers() {

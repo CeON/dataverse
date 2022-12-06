@@ -89,6 +89,9 @@ public class DatasetDao implements java.io.Serializable {
         return em.createQuery("select object(o) from Dataset as o order by o.id", Dataset.class).getResultList();
     }
 
+    public List<Dataset> findNotIndexedAfterEmbargo() {
+        return em.createQuery("select object(o) from Dataset o where o.embargoDate > o.indexTime", Dataset.class).getResultList();
+    }
 
     public List<Long> findAllLocalDatasetIds() {
         return em.createQuery("SELECT o.id FROM Dataset o WHERE o.harvestedFrom IS null ORDER BY o.id", Long.class).getResultList();
@@ -511,4 +514,5 @@ public class DatasetDao implements java.io.Serializable {
         query.setParameter("date", date, TemporalType.TIMESTAMP);
         query.executeUpdate();
     }
+    
 }
