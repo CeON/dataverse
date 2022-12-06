@@ -24,4 +24,11 @@ public class SolrPermission {
     public Permission getType() {
         return type;
     }
+
+    // -------------------- toString --------------------
+
+    @Override
+    public String toString() {
+        return "SolrPermission{type=" + type + ", permittedEntities=" + permittedEntities + '}';
+    }
 }

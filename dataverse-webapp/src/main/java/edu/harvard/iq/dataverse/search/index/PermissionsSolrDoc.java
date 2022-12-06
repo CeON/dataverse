@@ -89,6 +89,6 @@ public class PermissionsSolrDoc {
     public String toString() {
         return "PermissionsSolrDoc [dvObjectId=" + dvObjectId + ", solrId=" + solrId + ", datasetVersionId="
                 + datasetVersionId + ", nameOrTitle=" + nameOrTitle + ", searchPermissions=" + searchPermissions
-                + ", addDatasetPermissions=" + "]";
+                + ", addDatasetPermissions=" + addDatasetPermissions +  "]";
     }
 }
