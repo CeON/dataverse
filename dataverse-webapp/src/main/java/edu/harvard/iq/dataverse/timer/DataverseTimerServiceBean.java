@@ -118,8 +118,19 @@ public class DataverseTimerServiceBean implements Serializable {
     }
 
     private void createReindexAfterEmbargoTimer() {
-        // TODO Auto-generated method stub
-        
+        String cronExpression = settingsService.getValueForKey(Key.ReindexAfterEmbargoTimerExpression);
+
+        if (StringUtils.isNotBlank(cronExpression)) {
+            ScheduleExpression expression = cronToScheduleExpression(cronExpression);
+
+            TimerConfig timerConfig = new TimerConfig();
+            timerConfig.setPersistent(false);
+            timerConfig.setInfo(new AfterEmbargoReindexTimerInfo());
+            Timer timer = timerService.createCalendarTimer(expression, timerConfig);
+            logger.info("ReindexAfterEmbargoTimerExpression: timer created, initial expiration: " + timer.getNextTimeout());
+        } else {
+            logger.info("ReindexAfterEmbargoTimerExpression is empty. Skipping creation of timer.");
+        }
     }
 
     public void createTimer(Date initialExpiration, long intervalDuration, Serializable info) {

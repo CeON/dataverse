@@ -233,6 +233,24 @@ INSERT INTO datafile (id, checksumtype, checksumvalue, contenttype, filesize, in
 INSERT INTO filetermsofuse (id, allrightsreserved, restrictcustomtext, restricttype, license_id) VALUES (120, false, NULL, 'NOT_FOR_REDISTRIBUTION', null);
 INSERT INTO filemetadata (id, description, directorylabel, label, prov_freeform, restricted, version, datafile_id, datasetversion_id, displayorder, termsofuse_id) VALUES (113, '', NULL, 'restricted.zip', NULL, NULL, 5, 58, 36, 2, 120);
 
+--- Dataset after embargo for reindex
+
+INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate,
+                      creator_id, createdate, modificationtime, permissionmodificationtime, indextime)
+    VALUES (101, 'Dataset', 51, false, NULL, NULL, NULL, NULL, true, '', NULL, NULL,
+            2, '2019-08-22 08:22:33.069', '2019-09-27 12:00:43.188', '2019-08-22 08:22:33.069', '2019-12-01 08:22:33.069');
+INSERT INTO dataset (id, embargodate)
+    VALUES (101, '2020-01-01 00:00:00');
+
+--- Dataset after embargo already reindexed
+
+INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate,
+                      creator_id, createdate, modificationtime, permissionmodificationtime, indextime)
+    VALUES (102, 'Dataset', 51, false, NULL, NULL, NULL, NULL, true, '', NULL, NULL,
+            2, '2019-08-22 08:22:33.069', '2019-09-27 12:00:43.188', '2019-08-22 08:22:33.069', '2020-02-01 00:00:00');
+INSERT INTO dataset (id, embargodate)
+    VALUES (102, '2020-01-01 00:00:00');
+
 -------------------- DATASET CITATION COUNTS --------------------
 
 INSERT INTO datasetCitationscount(id, dataset_id, citationsCount) VALUES(1, 56, 8);

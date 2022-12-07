@@ -35,6 +35,8 @@ import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -90,7 +92,9 @@ public class DatasetDao implements java.io.Serializable {
     }
 
     public List<Dataset> findNotIndexedAfterEmbargo() {
-        return em.createQuery("select object(o) from Dataset o where o.embargoDate > o.indexTime", Dataset.class).getResultList();
+        TypedQuery<Dataset> typedQuery = em.createQuery("select d from Dataset d, DvObject o where d.id = o.id and d.embargoDate < :actualTimestamp and d.embargoDate > o.indexTime", Dataset.class);
+        typedQuery.setParameter("actualTimestamp", Timestamp.from(Instant.now()));
+        return typedQuery.getResultList();
     }
 
     public List<Long> findAllLocalDatasetIds() {
