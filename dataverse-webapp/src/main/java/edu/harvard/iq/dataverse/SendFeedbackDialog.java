@@ -193,7 +193,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
             mailService.sendMailAsync(feedback.getFromEmail(), feedback.getToEmail(), feedback.getSubject(), feedback.getBody());
         }
         if (sendCopy) {
-            sendCopy(rootDataverseName);
+            sendCopy(rootDataverseName, feedbacks.get(0));
         }
         JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("contact.send.success"));
 
@@ -214,7 +214,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
 
     // -------------------- PRIVATE --------------------
 
-    private void sendCopy(String rootDataverseName) {
+    private void sendCopy(String rootDataverseName, Feedback feedback) {
         String mail = isLoggedIn() ? loggedInUserEmail() : userEmail;
         Locale locale = isLoggedIn() ? loggedInUserLanguage() : BundleUtil.getCurrentLocale();
         
@@ -236,7 +236,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         String content = header + BundleUtil.getStringFromBundleWithLocale("contact.copy.message.template", locale, userMessage)
                 + mailService.getFooterMailMessage(null, locale);
         mailService.sendMailAsync(null, mail,
-                BundleUtil.getStringFromBundleWithLocale("contact.copy.message.subject", locale, messageSubject), content);
+                BundleUtil.getStringFromBundleWithLocale("contact.copy.message.subject", locale, feedback.getSubject()), content);
     }
 
     // -------------------- SETTERS --------------------
