@@ -206,10 +206,6 @@ public class SendFeedbackDialog implements java.io.Serializable {
         return dataverseSession.getUser().getDisplayInfo().getEmailAddress();
     }
 
-    private Locale loggedInUserLanguage() {
-        return ((AuthenticatedUser)dataverseSession.getUser()).getNotificationsLanguage();
-    }
-
     // -------------------- PRIVATE --------------------
 
     private void sendCopy(String rootDataverseName, Feedback feedback) {
@@ -235,6 +231,10 @@ public class SendFeedbackDialog implements java.io.Serializable {
                 + mailService.getFooterMailMessage(null, locale);
         mailService.sendMailAsync(null, mail,
                 BundleUtil.getStringFromBundleWithLocale("contact.copy.message.subject", locale, feedback.getSubject()), content);
+    }
+
+    private Locale loggedInUserLanguage() {
+        return ((AuthenticatedUser)dataverseSession.getUser()).getNotificationsLanguage();
     }
 
     // -------------------- SETTERS --------------------
