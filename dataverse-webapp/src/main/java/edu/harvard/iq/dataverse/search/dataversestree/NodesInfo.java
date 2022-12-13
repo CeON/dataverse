@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.search.dataversestree;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class NodesInfo {
@@ -11,8 +12,8 @@ public class NodesInfo {
     // -------------------- CONSTRUCTORS --------------------
 
     public NodesInfo(Map<Long, NodePermission> permissions, Set<Long> expandableNodes, Long rootNodeId) {
-        this.permissions = permissions;
-        this.expandableNodes = expandableNodes;
+        this.permissions = Objects.requireNonNull(permissions);
+        this.expandableNodes = Objects.requireNonNull(expandableNodes);
         this.rootNodeId = rootNodeId;
     }
 
