@@ -1,22 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.validator.ValidatorException;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.mail.internet.InternetAddress;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.logging.Logger;
-
-import org.apache.commons.validator.routines.EmailValidator;
-import org.omnifaces.cdi.ViewScoped;
-
 import edu.harvard.iq.dataverse.common.BrandingUtil;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.feedback.Feedback;
@@ -30,6 +13,21 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import org.apache.commons.validator.routines.EmailValidator;
+import org.omnifaces.cdi.ViewScoped;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.validator.ValidatorException;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.mail.internet.InternetAddress;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.logging.Logger;
 
 @ViewScoped
 @Named
