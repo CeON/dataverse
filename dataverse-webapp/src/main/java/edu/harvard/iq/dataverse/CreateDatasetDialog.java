@@ -75,7 +75,7 @@ public class CreateDatasetDialog implements Serializable {
             return;
         }
         lookupPermissions = dataverseLookupService.createLookupPermissions(dataverseRequestService.getDataverseRequest());
-                nodesInfo = solrTreeService.fetchNodesInfo(dataverseRequestService.getDataverseRequest());
+        nodesInfo = solrTreeService.fetchNodesInfo(dataverseRequestService.getDataverseRequest());
         TreeNode firstNode = new DefaultTreeNode(new NodeData(nodesInfo.getRootNodeId(), "Root", true,
                 nodesInfo.isSelectable(nodesInfo.getRootNodeId())), rootNode);
         fetchChildNodes(firstNode);
