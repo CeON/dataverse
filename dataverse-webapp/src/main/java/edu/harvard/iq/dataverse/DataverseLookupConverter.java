@@ -33,8 +33,6 @@ public class DataverseLookupConverter implements Converter {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
-        return value == null || StringUtils.EMPTY.equals(value)
-                ? StringUtils.EMPTY
-                : ((LookupData) value).getName();
+        return value == null ? StringUtils.EMPTY : ((LookupData) value).getName();
     }
 }
