@@ -1,4 +1,4 @@
-function initDrodb() {
+function initDvJS() {
   
   function initGeo() {
     // Order of coordinates in GEOBOX datafield

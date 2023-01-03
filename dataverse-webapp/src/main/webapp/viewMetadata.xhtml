@@ -21,9 +21,13 @@
                 </a>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first?'in':''}">
                     <script>
-                        $('#panelCollapse#{block.index}').on('shown.bs.collapse', function() {
-                            Drodb.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
-                        });
+                        if ($('#panelCollapse#{block.index}').hasClass('in')) {
+                            DvJS.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
+                        } else {
+                            $('#panelCollapse#{block.index}').on('shown.bs.collapse', function() {
+                                DvJS.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
+                            });
+                        }
                     </script>
                     <div class="panel-body metadata-panel-body">
                         <ui:fragment rendered="#{block.first}">
@@ -58,7 +62,7 @@
                                 </div>
                             </div>
                         </ui:fragment>
-                        <ui:repeat value="#{metadataBlockVal.value}" var="fieldsByType">
+                        <ui:repeat value="#{metadataBlockVal.value}" var="fieldsByType" varStatus="fieldTypeIndex">
                             <div class="form-group">
                                 <div class="col-sm-3 control-label section-title">
                                     <h:outputText value="#{fieldsByType.datasetFieldType.localeTitle}" escape="false" />
@@ -72,6 +76,7 @@
                                 <ui:include src="viewMetadataField.xhtml">
                                     <ui:param name="fieldsByType" value="#{fieldsByType}"/>
                                     <ui:param name="mdBlockName" value="#{metadataBlockVal.key.name}"/>
+                                    <ui:param name="fieldIndex" value="#{fieldTypeIndex.index}"/>
                                 </ui:include>
                             </div>
                         </ui:repeat>
