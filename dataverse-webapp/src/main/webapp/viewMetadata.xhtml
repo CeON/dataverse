@@ -20,15 +20,6 @@
                     <h3>#{metadataBlockVal.key.localeDisplayName} &#160;<span class="collapseSrc glyphicon #{block.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}" aria-hidden="true"/></h3>
                 </a>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first?'in':''}">
-                    <script>
-                        if ($('#panelCollapse#{block.index}').hasClass('in')) {
-                            DvJS.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
-                        } else {
-                            $('#panelCollapse#{block.index}').on('shown.bs.collapse', function() {
-                                DvJS.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
-                            });
-                        }
-                    </script>
                     <div class="panel-body metadata-panel-body">
                         <ui:fragment rendered="#{block.first}">
                             <div class="form-group" jsf:rendered="#{!empty globalId}">
@@ -81,6 +72,15 @@
                             </div>
                         </ui:repeat>
                     </div>
+                    <script>
+                        if ($('#panelCollapse#{block.index}').hasClass('in')) {
+                            DvJS.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
+                        } else {
+                            $('#panelCollapse#{block.index}').on('shown.bs.collapse', function() {
+                                DvJS.Geo.MetadataView.initializeAll('map_#{metadataBlockVal.key.name}');
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </ui:repeat>
