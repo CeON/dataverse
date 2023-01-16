@@ -156,10 +156,10 @@
                     </div>
                     <script>
                     if ($('#panelCollapse#{block.index}').hasClass('in')) {
-                        DvJS.Geo.EditView.initializeAll('map_');
+                        DvJS.Geo.EditView.initializeAll('map_#{metadataBlockVal.key.name}');
                     } else {
                         $('#panelCollapse#{block.index}').on('shown.bs.collapse', function() {
-                            DvJS.Geo.EditView.initializeAll('map_');
+                            DvJS.Geo.EditView.initializeAll('map_#{metadataBlockVal.key.name}');
                         });
                     }
                     </script>

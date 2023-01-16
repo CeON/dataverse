@@ -27,7 +27,6 @@
 
     <c:set var="widgetVar" value="#{mapId}_#{datasetField.datasetFieldType.name}"/>
     <p:inputText value="#{datasetField.value}" id="geoInputText"
-                 pt:data-field="#{datasetField.datasetFieldType.name}"
                  onchange="DvJS.Geo.EditView.putValue('#{mapId}', '#{datasetField.datasetFieldType.name}', $(this).val()); DvJS.Geo.EditView.updateMap('#{mapId}')"
                  widgetVar="#{widgetVar}"
                  pt:data-handler="#{widgetVar}"
