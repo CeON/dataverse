@@ -155,12 +155,7 @@ public class IndexServiceBean {
             logger.info(msg);
             return new AsyncResult<>(msg);
         }
-        /* TODO TODO TODO
-        if (dataverse.isRoot()) {
-            String msg = "The root dataverse should not be indexed. Returning.";
-            return new AsyncResult<>(msg);
-        }
-         */
+
         Dataverse rootDataverse = dataverseDao.findRootDataverse();
 
         Collection<SolrInputDocument> docs = new ArrayList<>();
