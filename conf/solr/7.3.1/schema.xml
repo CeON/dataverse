@@ -788,6 +788,11 @@
       </analyzer>
     </fieldType>
 
+    <!-- Geobox -->
+    <dynamicField name="*_geobox" type="geobox" stored="false" indexed="true"/>
+    <fieldType name="geobox" stored="false" indexed="true" class="solr.SpatialRecursivePrefixTreeFieldType"
+               spatialContextFactory="JTS" geo="true"/>
+
     <!-- some examples for different languages (generally ordered by ISO code) -->
 
     <!-- Arabic -->
