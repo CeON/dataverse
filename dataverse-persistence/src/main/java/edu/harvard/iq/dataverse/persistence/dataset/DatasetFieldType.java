@@ -468,6 +468,10 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
                         : fieldType.equals(FieldType.TEXTBOX));
     }
 
+    public String getMetadata(String key) {
+        return metadata.get(key);
+    }
+
     // -------------------- PRIVATE --------------------
 
     private String getLocaleTitleWithParent() {
