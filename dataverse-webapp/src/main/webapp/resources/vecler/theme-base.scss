@@ -1929,7 +1929,7 @@ $navbar-height: 102px;
 	box-shadow: none;
 	border-top: 4px solid $icon-color;
 	border-bottom: none;
-
+	
 	.container {
 		position: relative;
 	}
@@ -2044,6 +2044,10 @@ $navbar-height: 102px;
 		height: 100%;
 		border-bottom: 1px solid $gray-border-color;
 		z-index: -1;
+	}
+
+	form.navbar-form-link a.ui-commandlink {
+		padding: 10px 20px;
 	}
 }
 
@@ -2297,6 +2301,10 @@ body:not(.high-contrast-yellow-on-black) .superior-logo.contrast {
 	}
 }
 @media screen and (min-width: $screen-sm-min) {
+	#navbarFixed form.navbar-form.navbar-form-link {
+		margin: calc(-0.333em - 11px) 0;
+	}
+
 	.navbar-default #topNavBar #accessibility-controls {
 			display: table-cell;
 			vertical-align: middle;

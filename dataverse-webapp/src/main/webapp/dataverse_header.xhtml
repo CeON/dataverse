@@ -157,18 +157,15 @@
                 
                 <div class="main-menu-container">
                     <nav class="main-menu">
-                        <!-- This button had to be placed into a separate UL, as there were issues with the even positioning of all the buttons otherwise-->
                         <ul class="nav navbar-nav">
-                                <li jsf:rendered="#{dataverseSession.user.authenticated}">
-                                    <h:form styleClass="navbar-form navbar-left navbar-form-link">
-                                        <p:commandLink action="#{CreateDatasetDialog.init()}" update="create-dataset-dialog"
-                                                       oncomplete="primeFacesShowModal('createDatasetDialog', this)">
-                                            <h:outputText value="#{bundle['add.dataset.button']}"/>
-                                        </p:commandLink>
-                                    </h:form>
-                                </li>
-                        </ul>
-                        <ul class="nav navbar-nav">
+                            <li jsf:rendered="#{dataverseSession.user.authenticated}">
+                                <h:form styleClass="navbar-form navbar-left navbar-form-link">
+                                    <p:commandLink action="#{CreateDatasetDialog.init()}" update="create-dataset-dialog"
+                                                   oncomplete="primeFacesShowModal('createDatasetDialog', this)">
+                                        <h:outputText value="#{bundle['add.dataset.button']}"/>
+                                    </p:commandLink>
+                                </h:form>
+                            </li>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"
                                         aria-haspopup="true" aria-controls="navbarsearch-modal" aria-expanded="false">
