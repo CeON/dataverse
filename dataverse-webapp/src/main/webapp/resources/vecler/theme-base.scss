@@ -2609,6 +2609,35 @@ body:not(.high-contrast-yellow-on-black) .superior-logo.contrast {
 		background-color: transparent;
 		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	}
+
+	.main-menu-container {
+		float: none;
+		text-align: left;
+	}
+
+	.accessibility-controls-container {
+		float: none;
+	}
+
+	.navbar-default #topNavBar .navbar-nav > li {
+		display: block;
+	}
+
+	.navbar-default #topNavBar #accessibility-controls::after {
+		display: none;
+	}
+
+	@media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+		.main-menu-container {
+			margin-left: 25px;
+		}
+	}
+
+	@media screen and (min-width: $screen-md-min) {
+		.main-menu-container {
+			margin-left: 15px;
+		}
+	}
 }
 
 @media only screen and (hover: none) and (pointer: coarse) {
