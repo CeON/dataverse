@@ -2048,6 +2048,7 @@ $navbar-height: 102px;
 
 	form.navbar-form-link a.ui-commandlink {
 		padding: 10px 20px;
+		line-height: 21px;
 	}
 }
 
@@ -2064,6 +2065,8 @@ $navbar-height: 102px;
 
 	#topNavBar .navbar-nav {
 		> li {
+			height: 40px;
+			vertical-align: bottom;
 			float: none;
 			display: inline-block;
 
@@ -2099,6 +2102,13 @@ $navbar-height: 102px;
 			bottom: 2px;
 			margin-right: 3px;
 		}
+	}
+}
+
+@media screen and (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+	.navbar-default #topNavBar .navbar-nav > li > a,
+	#navbarFixed form.navbar-form-link a.ui-commandlink {
+		padding: 10px;
 	}
 }
 
@@ -2210,7 +2220,11 @@ body:not(.high-contrast-yellow-on-black) .superior-logo.contrast {
 	margin: 8px;
 }
 
-@media screen and (min-width: $screen-md-min) {
+@media screen and (min-width: $screen-sm-min) {
+	.accountName .glyphicon-user {
+		display: none;
+	}
+
 	#userDisplayInfoTitle {
 		max-width: 100px;
 		display: inline-block;
@@ -2222,6 +2236,10 @@ body:not(.high-contrast-yellow-on-black) .superior-logo.contrast {
 }
 
 @media screen and (min-width: $screen-lg-min) {
+	.accountName .glyphicon-user {
+		display: inline-block;
+	}
+
 	#userDisplayInfoTitle {
 		max-width: 200px;
 	}
@@ -2301,10 +2319,6 @@ body:not(.high-contrast-yellow-on-black) .superior-logo.contrast {
 	}
 }
 @media screen and (min-width: $screen-sm-min) {
-	#navbarFixed form.navbar-form.navbar-form-link {
-		margin: calc(-0.333em - 11px) 0;
-	}
-
 	.navbar-default #topNavBar #accessibility-controls {
 			display: table-cell;
 			vertical-align: middle;
