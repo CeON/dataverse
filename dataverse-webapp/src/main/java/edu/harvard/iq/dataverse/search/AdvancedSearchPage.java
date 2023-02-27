@@ -6,19 +6,21 @@ import edu.harvard.iq.dataverse.WidgetWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.license.TermsOfUseSelectItemsFactory;
+import edu.harvard.iq.dataverse.persistence.datafile.license.License;
+import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseRepository;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
-import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.search.advanced.CheckboxSearchField;
-import edu.harvard.iq.dataverse.search.advanced.DateSearchField;
-import edu.harvard.iq.dataverse.search.advanced.GroupingSearchField;
-import edu.harvard.iq.dataverse.search.advanced.NumberSearchField;
+import edu.harvard.iq.dataverse.search.advanced.field.CheckboxSearchField;
+import edu.harvard.iq.dataverse.search.advanced.field.DateSearchField;
+import edu.harvard.iq.dataverse.search.advanced.field.GroupingSearchField;
 import edu.harvard.iq.dataverse.search.advanced.SearchBlock;
-import edu.harvard.iq.dataverse.search.advanced.SearchField;
-import edu.harvard.iq.dataverse.search.advanced.SelectOneSearchField;
+import edu.harvard.iq.dataverse.search.advanced.field.LicenseCheckboxSearchField;
+import edu.harvard.iq.dataverse.search.advanced.field.SearchField;
+import edu.harvard.iq.dataverse.search.advanced.SearchFieldFactory;
 import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
-import edu.harvard.iq.dataverse.search.advanced.TextSearchField;
+import edu.harvard.iq.dataverse.search.advanced.field.TextSearchField;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.validation.SearchFormValidationService;
 import edu.harvard.iq.dataverse.validation.ValidationEnhancer;
@@ -29,6 +31,8 @@ import io.vavr.Tuple;
 import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.cdi.ViewScoped;
 
+import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -61,6 +65,8 @@ public class AdvancedSearchPage implements Serializable {
     private SolrQueryCreator solrQueryCreator;
     private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
     private SearchFormValidationService validationService;
+    private SearchFieldFactory searchFieldFactory;
+    private LicenseRepository licenseRepository;
 
     private Dataverse dataverse;
     private String dataverseIdentifier;
@@ -79,14 +85,16 @@ public class AdvancedSearchPage implements Serializable {
     @Inject
     public AdvancedSearchPage(DataverseDao dataverseDao, DatasetFieldServiceBean datasetFieldService,
                               WidgetWrapper widgetWrapper, SolrQueryCreator solrQueryCreator,
-                              TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory,
-                              SearchFormValidationService validationService) {
+                              TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory, SearchFormValidationService validationService,
+                              SearchFieldFactory searchFieldFactory, LicenseRepository licenseRepository) {
         this.dataverseDao = dataverseDao;
         this.datasetFieldService = datasetFieldService;
         this.widgetWrapper = widgetWrapper;
         this.solrQueryCreator = solrQueryCreator;
         this.termsOfUseSelectItemsFactory = termsOfUseSelectItemsFactory;
         this.validationService = validationService;
+        this.searchFieldFactory = searchFieldFactory;
+        this.licenseRepository = licenseRepository;
     }
 
     // -------------------- LOGIC --------------------
@@ -114,11 +122,12 @@ public class AdvancedSearchPage implements Serializable {
         allSearchBlocks.add(filesSearchBlock);
         allSearchBlocks.add(dataversesSearchBlock);
 
-        String query = solrQueryCreator.constructQuery(allSearchBlocks);
+        QueryWrapper queryWrapper = solrQueryCreator.constructQueryWrapper(allSearchBlocks);
 
         String returnString = widgetWrapper.wrapURL(String.format("/dataverse.xhtml?q=%s&alias=%s&faces-redirect=true",
-                URLEncoder.encode(query, "UTF-8"), dataverse.getAlias()));
-
+                URLEncoder.encode(queryWrapper.getQuery(), "UTF-8"), dataverse.getAlias()));
+        Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
+        flash.putNow(QueryWrapper.QUERY_WRAPPER_PARAM, queryWrapper);
         logger.fine(returnString);
         return returnString;
     }
@@ -142,7 +151,7 @@ public class AdvancedSearchPage implements Serializable {
         for (MetadataBlock block : metadataBlocks) {
             List<SearchField> searchFields
                     = metadataFieldListByBlock.getOrDefault(block.getId(), Collections.emptyList()).stream()
-                    .map(this::mapDatasetField)
+                    .map(searchFieldFactory::create)
                     .filter(f -> !SearchField.EMPTY.equals(f))
                     .collect(toList());
             searchFieldIndex.putAll(searchFields.stream()
@@ -205,56 +214,6 @@ public class AdvancedSearchPage implements Serializable {
         }
     }
 
-    private SearchField mapDatasetField(DatasetFieldType fieldType) {
-        if (containsControlledVocabularyValues(fieldType)) {
-            return fieldType.isThisOrParentAllowsMultipleValues()
-                    ? mapCheckBoxValues(fieldType) : mapSelectOneValues(fieldType);
-        } else if (isTextField(fieldType)) {
-            return new TextSearchField(fieldType);
-        } else if (isDateField(fieldType)) {
-            return new DateSearchField(fieldType);
-        } else if (isNumberField(fieldType)) {
-            return new NumberSearchField(fieldType);
-        }
-        return SearchField.EMPTY;
-    }
-
-    private CheckboxSearchField mapCheckBoxValues(DatasetFieldType datasetFieldType) {
-        CheckboxSearchField checkboxSearchField = new CheckboxSearchField(datasetFieldType);
-
-        datasetFieldType.getControlledVocabularyValues()
-                .forEach(v -> checkboxSearchField.getCheckboxLabelAndValue()
-                        .add(Tuple.of(v.getLocaleStrValue(), v.getStrValue())));
-        return checkboxSearchField;
-    }
-
-    private SelectOneSearchField mapSelectOneValues(DatasetFieldType datasetFieldType) {
-        SelectOneSearchField selectOneSearchField = new SelectOneSearchField(datasetFieldType);
-
-        datasetFieldType.getControlledVocabularyValues()
-                .forEach(v -> selectOneSearchField.getListLabelAndValue()
-                        .add(Tuple.of(v.getLocaleStrValue(), v.getStrValue())));
-        return selectOneSearchField;
-    }
-
-    private boolean containsControlledVocabularyValues(DatasetFieldType datasetFieldType) {
-        return !datasetFieldType.getControlledVocabularyValues().isEmpty();
-    }
-
-    private boolean isNumberField(DatasetFieldType datasetFieldType) {
-        return datasetFieldType.getFieldType().equals(FieldType.INT) ||
-                datasetFieldType.getFieldType().equals(FieldType.FLOAT);
-    }
-
-    private boolean isTextField(DatasetFieldType datasetFieldType) {
-        return datasetFieldType.getFieldType().equals(FieldType.TEXT) ||
-                datasetFieldType.getFieldType().equals(FieldType.TEXTBOX);
-    }
-
-    private boolean isDateField(DatasetFieldType datasetFieldType) {
-        return datasetFieldType.getFieldType().equals(FieldType.DATE);
-    }
-
     private List<SearchField> constructFilesSearchFields() {
         List<SearchField> fields = new ArrayList<>();
 
@@ -265,9 +224,11 @@ public class AdvancedSearchPage implements Serializable {
         fields.add(textFieldFromBundle(SearchFields.VARIABLE_NAME, "advanced.search.files.variableName", "advanced.search.files.variableName.tip"));
         fields.add(textFieldFromBundle(SearchFields.VARIABLE_LABEL, "advanced.search.files.variableLabel", "advanced.search.files.variableLabel.tip"));
 
-        CheckboxSearchField licenseSearchField = new CheckboxSearchField(SearchFields.LICENSE,
+        Map<Long, String> licenseNames = licenseRepository.findAll().stream()
+                .collect(Collectors.toMap(License::getId, License::getName, (prev, next) -> next));
+        CheckboxSearchField licenseSearchField = new LicenseCheckboxSearchField(SearchFields.LICENSE,
                 BundleUtil.getStringFromBundle("advanced.search.files.license"),
-                BundleUtil.getStringFromBundle("advanced.search.files.license.tip"));
+                BundleUtil.getStringFromBundle("advanced.search.files.license.tip"), licenseNames);
 
         for (SelectItem selectItem : termsOfUseSelectItemsFactory.buildLicenseSelectItems()) {
             licenseSearchField.getCheckboxLabelAndValue().add(Tuple.of(selectItem.getLabel(), selectItem.getValue().toString()));

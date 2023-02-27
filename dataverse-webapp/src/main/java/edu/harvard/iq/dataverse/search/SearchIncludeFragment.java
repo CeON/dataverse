@@ -14,11 +14,15 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.group.AuthenticatedUsers;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryPart;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryPartType;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryWrapper;
 import edu.harvard.iq.dataverse.search.query.SearchForTypes;
 import edu.harvard.iq.dataverse.search.query.SearchObjectType;
 import edu.harvard.iq.dataverse.search.response.DvObjectCounts;
 import edu.harvard.iq.dataverse.search.response.FacetCategory;
 import edu.harvard.iq.dataverse.search.response.FilterQuery;
+import edu.harvard.iq.dataverse.search.response.GeolocalizationFilterQuery;
 import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
 import org.apache.commons.lang.StringUtils;
@@ -27,10 +31,13 @@ import org.omnifaces.cdi.Param;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +62,8 @@ public class SearchIncludeFragment {
      * https://github.com/IQSS/dataverse/issues/84
      */
     private static final int RESULTS_PER_PAGE = 10;
+
+    private static final String ADDONS_INDEX_PARAM = "addonsIndex";
 
     public static final String SEARCH_FIELD_TYPE = SearchFields.TYPE;
     public static final String SEARCH_FIELD_SUBTREE = SearchFields.SUBTREE;
@@ -82,29 +91,11 @@ public class SearchIncludeFragment {
     private PermissionServiceBean permissionService;
     @Inject
     private SolrSearchResultsService solrSearchResultsService;
+    @Inject
+    private HttpServletRequest request;
 
     @Inject @Param(name = "q")
     private String query;
-    @Inject @Param
-    private String fq0;
-    @Inject @Param
-    private String fq1;
-    @Inject @Param
-    private String fq2;
-    @Inject @Param
-    private String fq3;
-    @Inject @Param
-    private String fq4;
-    @Inject @Param
-    private String fq5;
-    @Inject @Param
-    private String fq6;
-    @Inject @Param
-    private String fq7;
-    @Inject @Param
-    private String fq8;
-    @Inject @Param
-    private String fq9;
     @Inject @Param(name = "types")
     private String selectedTypesString;
     @Inject @Param(name = "sort")
@@ -117,6 +108,7 @@ public class SearchIncludeFragment {
     private List<String> filterQueries = new ArrayList<>();
     private List<FacetCategory> facetCategoryList = new ArrayList<>();
     private List<SolrSearchResult> searchResultsList = new ArrayList<>();
+    private Map<String, QueryPart> addonsIndex = new HashMap<>();
     private int searchResultsCount;
 
     private String dataverseAlias;
@@ -165,12 +157,14 @@ public class SearchIncludeFragment {
                 selectedTypesString = "dataverses:datasets:files";
             }
         }
-        filterQueries = new ArrayList<>();
-        for (String fq : Arrays.asList(fq0, fq1, fq2, fq3, fq4, fq5, fq6, fq7, fq8, fq9)) {
-            if (fq != null) {
-                filterQueries.add(fq);
-            }
-        }
+
+        filterQueries = request.getParameterMap().entrySet().stream()
+                .filter(e -> e.getKey().matches("fq[0-9]+"))
+                .map(Map.Entry::getValue)
+                .filter(e -> e != null && e.length > 0)
+                .map(e -> e[0])
+                .sorted()
+                .collect(toList());
 
         selectedTypesMap.put(SearchObjectType.DATAVERSES, selectedTypesString.contains(SearchObjectType.DATAVERSES.getSolrValue()));
         selectedTypesMap.put(SearchObjectType.DATASETS, selectedTypesString.contains(SearchObjectType.DATASETS.getSolrValue()));
@@ -179,26 +173,16 @@ public class SearchIncludeFragment {
 
     /**
      * @todo: better style and icons for facets
-     * <p>
-     * replace * with watermark saying "Search this Dataverse"
-     * <p>
-     * get rid of "_s" et al. (human eyeball friendly)
-     * <p>
-     * pagination (previous/next links)
-     * <p>
-     * test dataset cards
-     * <p>
-     * test files cards
-     * <p>
-     * test dataset cards when Solr is down
-     * <p>
-     * make results sortable: https://redmine.hmdc.harvard.edu/issues/3482
-     * <p>
-     * always show all types, even if zero count:
+     * - replace * with watermark saying "Search this Dataverse"
+     * - get rid of "_s" et al. (human eyeball friendly)
+     * - pagination (previous/next links)
+     * - test dataset cards
+     * - test files cards
+     * - test dataset cards when Solr is down
+     * - make results sortable: https://redmine.hmdc.harvard.edu/issues/3482
+     * - always show all types, even if zero count:
      * https://redmine.hmdc.harvard.edu/issues/3488
-     * <p>
-     * make subtree facet look like amazon widget (i.e. a tree)
-     * <p>
+     * - make subtree facet look like amazon widget (i.e. a tree)
      * see also https://trello.com/c/jmry3BJR/28-browse-dataverses
      */
     public String searchRedirect() {
@@ -248,6 +232,7 @@ public class SearchIncludeFragment {
     public void search(Dataverse dataverse) {
         logger.fine("search called");
 
+
         // wildcard/browse (*) unless user supplies a query
         String queryToPassToSolr = StringUtils.isEmpty(query) ? "*" : query;
 
@@ -257,9 +242,6 @@ public class SearchIncludeFragment {
         List<String> filterQueriesFinal = new ArrayList<>();
         String dataversePath = null;
 
-        /**
-         * @todo centralize this into SearchServiceBean
-         */
         Optional<String> filterDownToSubtree;
         if (!dataverse.isRoot()) {
             dataversePath = dataverseDao.determineDataversePath(dataverse);
@@ -270,6 +252,7 @@ public class SearchIncludeFragment {
 
         filterDownToSubtree.ifPresent(filterQueriesFinal::add);
 
+        readSpecialFilterQueries();
         filterQueriesFinal.addAll(filterQueries);
 
         SearchForTypes searchForTypes = SearchForTypes.byTypes(
@@ -339,6 +322,7 @@ public class SearchIncludeFragment {
         } else {
             responseFilterQueries = solrQueryResponse.getFilterQueries();
         }
+        rewriteSpecialFilterQueries();
         filterQueriesDebug = solrQueryResponse.getFilterQueriesActual();
 
         paginationGuiStart = paginationStart + 1;
@@ -375,6 +359,60 @@ public class SearchIncludeFragment {
         setDisplayCardValues(dataversePath);
     }
 
+    private void readSpecialFilterQueries() {
+        // As for now special query means geospatial query here.
+        // This method behaves differently on different initial conditions:
+        // 1. Page is shown after redirect from advanced search;
+        // 2. Page is shown after adding or deleting filter (other than special);
+        // 3. Page is shown after removing special filter.
+
+        // 1. Flash contains query wrapper object with special filters, which are rewritten into addonsIndex;
+        // 2. Flash doesn't contain query wrapper object, so nothing new is added to addonsIndex (which is empty now);
+        // 3. As 2.
+        Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
+        QueryWrapper queryWrapper = (QueryWrapper) flash.remove(QueryWrapper.QUERY_WRAPPER_PARAM);
+        if (queryWrapper != null) {
+            addonsIndex.putAll(queryWrapper.getAdditions().entrySet().stream()
+                    .filter(e -> e.getKey() == QueryPartType.GEOBOX_FILTER)
+                    .map(Map.Entry::getValue)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toMap(v -> v.solrQueryFragment, v -> v, (prev, next) -> next)));
+        }
+
+        // 1. Special filter queries are added to filterQueries from addonsIndex;
+        // 2. Nothing new is added to filter queries from addonsIndex (which is empty), but special query entry is present
+        //    here, as it was passed in some fqXX param from previous page;
+        // 3. As in 2, but special filter is not present in filterQueries, as it was removed by the user.
+        filterQueries.addAll(addonsIndex.keySet());
+
+        // 1. Flash doesn't contain addonsIndex copy, so nothing is added to current addons. These are put into flash then;
+        // 2. Flash contains addonsIndex from previous page invocation so it can be used to rewrite special filter. It's
+        //    again stored into flash;
+        // 3. As in 2, but special filter is not present anymore in filterQueries.
+        @SuppressWarnings("unchecked")
+        Map<String, QueryPart> indexFromFlash = (Map<String, QueryPart>) flash.get(ADDONS_INDEX_PARAM);
+        if (indexFromFlash != null) {
+            addonsIndex.putAll(indexFromFlash);
+        }
+        flash.putNow(ADDONS_INDEX_PARAM, addonsIndex);
+    }
+
+    private void rewriteSpecialFilterQueries() {
+        List<FilterQuery> rewrittenFilters = new ArrayList<>();
+        for(FilterQuery query : responseFilterQueries) {
+            QueryPart queryPart = addonsIndex.get(query.getQuery());
+            if (queryPart == null) {
+                rewrittenFilters.add(query);
+                continue;
+            }
+            FilterQuery rewrittenFilter = GeolocalizationFilterQuery.of(queryPart.solrQueryFragment, queryPart.searchField);
+            if (rewrittenFilter != null) {
+                rewrittenFilters.add(rewrittenFilter);
+            }
+        }
+        responseFilterQueries = rewrittenFilters;
+    }
+
     public String searchWithSelectedTypesRedirect() {
         StringBuilder searchUrlBuilder = new StringBuilder()
                 .append("dataverse.xhtml?alias=").append(dataverseAlias)
@@ -397,8 +435,6 @@ public class SearchIncludeFragment {
     /**
      * Used for capturing errors that happen during solr query
      * Added to catch exceptions when parsing the solr query string
-     *
-     * @return
      */
     public boolean wasSolrErrorEncountered() {
 

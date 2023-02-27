@@ -44,6 +44,10 @@ public class ValidationEnhancer {
     public static class SimpleDatasetFieldType extends DatasetFieldType {
         private String displayName;
 
+        public SimpleDatasetFieldType() {
+            setControlledVocabularyValues(Collections.emptyList());
+        }
+
         @Override
         public String getDisplayName() {
             return displayName;

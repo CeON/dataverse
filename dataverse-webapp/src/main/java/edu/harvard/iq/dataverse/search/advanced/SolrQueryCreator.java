@@ -1,191 +1,68 @@
 package edu.harvard.iq.dataverse.search.advanced;
 
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
+import edu.harvard.iq.dataverse.persistence.dataset.FieldType;
+import edu.harvard.iq.dataverse.search.advanced.field.SearchField;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryPart;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryPartType;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryWrapper;
+import io.vavr.control.Option;
+
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
-import edu.harvard.iq.dataverse.persistence.datafile.license.License;
-import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseRepository;
-import edu.harvard.iq.dataverse.search.SearchFields;
-import edu.harvard.iq.dataverse.search.query.SearchObjectType;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
-/**
- * Class used for creating solr query used in advanced search.
- */
+/** Class used for creating solr query used in advanced search. */
 @Stateless
 public class SolrQueryCreator {
 
-    @Inject
-    LicenseRepository licenseRepository;
-
     // -------------------- LOGIC --------------------
 
-    /**
-     * Creates solr query for given Search Blocks
-     */
-    public String constructQuery(List<SearchBlock> searchBlocks) {
-        StringBuilder queryBuilder = new StringBuilder();
-
-        searchBlocks.stream()
-                .flatMap(searchBlock -> searchBlock.getSearchFields().stream())
-                .forEach(searchField -> {
-                    String constructedQuery = constructQueryForField(searchField);
-                    queryBuilder
-                            .append(constructedQuery.isEmpty() ? StringUtils.EMPTY : " AND " + constructedQuery);
-                });
-
-        return queryBuilder.toString()
-                .replaceFirst("AND", StringUtils.EMPTY)
-                .trim();
+    /** Creates wrapped solr query for given Search Blocks */
+    public QueryWrapper constructQueryWrapper(List<SearchBlock> searchBlocks) {
+        Map<QueryPartType, List<QueryPart>> collectedQueryParts = groupQueryParts(searchBlocks);
+        String query = collectedQueryParts.getOrDefault(QueryPartType.QUERY, Collections.emptyList()).stream()
+                .map(q -> q.solrQueryFragment)
+                .collect(Collectors.joining(" AND "));
+        QueryWrapper wrapper = new QueryWrapper(query);
+        collectedQueryParts.entrySet().stream()
+                .filter(e -> e.getKey() != QueryPartType.NONE && e.getKey() != QueryPartType.QUERY)
+                .forEach(e -> wrapper.getAdditions().put(e.getKey(), e.getValue()));
+        return wrapper;
     }
 
     // -------------------- PRIVATE --------------------
 
-    private String constructQueryForField(SearchField searchField) {
-
-        if (searchField.getSearchFieldType().equals(SearchFieldType.TEXT)) {
-            return constructQueryForTextField((TextSearchField) searchField);
-        } else if (searchField.getSearchFieldType().equals(SearchFieldType.NUMBER)) {
-            return constructQueryForNumberField((NumberSearchField) searchField);
-        } else if (searchField.getSearchFieldType().equals(SearchFieldType.CHECKBOX) && searchField.getName().equals(SearchFields.LICENSE)) {
-            return constructQueryForLicenseCheckboxField((CheckboxSearchField) searchField);
-        } else if (searchField.getSearchFieldType().equals(SearchFieldType.CHECKBOX)) {
-            return constructQueryForCheckboxField((CheckboxSearchField) searchField);
-        } else if (searchField.getSearchFieldType().equals(SearchFieldType.SELECT_ONE_VALUE)) {
-            return constructQueryForSelectOneField((SelectOneSearchField) searchField);
-        } else if (searchField.getSearchFieldType().equals(SearchFieldType.DATE)) {
-            return constructQueryForDateField((DateSearchField) searchField);
-        }
-
-        return StringUtils.EMPTY;
-    }
-
-    private String constructQueryForTextField(TextSearchField textSearchField) {
-        if (textSearchField.getFieldValue() == null) {
-            return StringUtils.EMPTY;
-        }
-
-        StringBuilder textQueryBuilder = new StringBuilder();
-
-        List<String> fieldValues = textSearchField.getValidatableValues();
-
-        fieldValues.forEach(fieldValue ->
-                                    textQueryBuilder
-                                            .append(textQueryBuilder.length() == 0 ? StringUtils.EMPTY : " AND ")
-                                            .append(textSearchField.getName())
-                                            .append(":")
-                                            .append(fieldValue));
-
-        return textQueryBuilder.toString();
-    }
-
-    private String constructQueryForCheckboxField(CheckboxSearchField checkboxSearchField) {
-        StringBuilder checkboxQueryBuilder = new StringBuilder();
-
-        checkboxSearchField.getCheckedFieldValues()
-                .forEach(value -> checkboxQueryBuilder
-                        .append(checkboxQueryBuilder.length() == 0 ? StringUtils.EMPTY : " AND ")
-                        .append(checkboxSearchField.getName())
-                        .append(":")
-                        .append("\"")
-                        .append(value)
-                        .append("\"")
-                );
-
-        return checkboxQueryBuilder.toString();
-    }
-
-    private String constructQueryForLicenseCheckboxField(CheckboxSearchField checkboxSearchField) {
-        StringBuilder checkboxQueryBuilder = new StringBuilder();
-
-        checkboxSearchField.getCheckedFieldValues()
-                .forEach(value -> {
-                        String licenseId = value.split(":")[1];
-                        License license = licenseRepository.getById(Long.parseLong(licenseId));
-                        if (license != null) {
-                            checkboxQueryBuilder
-                            .append(checkboxQueryBuilder.length() == 0 ? StringUtils.EMPTY : " OR ")
-                            .append(checkboxSearchField.getName())
-                            .append(":")
-                            .append("\"")
-                            .append(license.getName())
-                            .append("\"");
-                        }
+    private Map<QueryPartType, List<QueryPart>> groupQueryParts(List<SearchBlock> searchBlocks) {
+        Map<QueryPartType, List<QueryPart>> collectedQueryParts = new HashMap<>();
+        Set<SearchField> geoboxParents = new HashSet<>();
+        for (SearchBlock block : searchBlocks) {
+            for (SearchField field : block.getSearchFields()) {
+                Option<SearchField> parent = field.getParent();
+                if (parent.map(SearchField::getDatasetFieldType)
+                        .map(DatasetFieldType::getFieldType)
+                        .getOrNull() == FieldType.GEOBOX) {
+                    if (geoboxParents.contains(parent.get())) {
+                        continue;
+                    }
+                    geoboxParents.add(parent.get());
                 }
-                );
-        if (checkboxQueryBuilder.length() > 0) {
-            if (checkboxQueryBuilder.indexOf(" OR ") != -1) {
-                checkboxQueryBuilder.insert(0, "(")
-                                    .append(")");
+                QueryPart queryPart = field.getQueryPart();
+                QueryPartType key = queryPart.queryPartType;
+                if (collectedQueryParts.containsKey(key)) {
+                    collectedQueryParts.get(key).add(queryPart);
+                } else {
+                    collectedQueryParts.put(key, new ArrayList<>(Collections.singletonList(queryPart)));
+                }
             }
-
-            checkboxQueryBuilder.append(" AND ")
-                                .append(SearchFields.TYPE)
-                                .append(":")
-                                .append("\"")
-                                .append(SearchObjectType.FILES.getSolrValue())
-                                .append("\"");
         }
-
-        return checkboxQueryBuilder.toString();
-    }
-
-    private String constructQueryForSelectOneField(SelectOneSearchField selectOneSearchField) {
-        if (selectOneSearchField.getCheckedFieldValue() == null) {
-            return StringUtils.EMPTY;
-        }
-
-        StringBuilder selectOneQueryBuilder = new StringBuilder();
-
-        String fieldValue = selectOneSearchField.getCheckedFieldValue();
-
-        selectOneQueryBuilder
-                .append(selectOneSearchField.getName())
-                .append(":")
-                .append("\"")
-                .append(fieldValue)
-                .append("\"");
-
-        return selectOneQueryBuilder.toString();
-    }
-
-    private String constructQueryForNumberField(NumberSearchField numberSearchField) {
-        StringBuilder intQueryBuilder = new StringBuilder();
-
-        if (isOneNumberPresent(numberSearchField)) {
-            intQueryBuilder
-                    .append(numberSearchField.getName())
-                    .append(":[")
-                    .append(StringUtils.isBlank(numberSearchField.getMinimum()) ? "*" : numberSearchField.getMinimum())
-                    .append(" TO ")
-                    .append(StringUtils.isBlank(numberSearchField.getMaximum()) ? "*" : numberSearchField.getMaximum())
-                    .append("]");
-        }
-
-        return intQueryBuilder.toString();
-    }
-
-    private String constructQueryForDateField(DateSearchField dateSearchField) {
-        StringBuilder dateQueryBuilder = new StringBuilder();
-
-        if (StringUtils.isNotEmpty(dateSearchField.getLowerLimit()) || StringUtils.isNotEmpty(dateSearchField.getUpperLimit())) {
-        	dateQueryBuilder
-                    .append(dateSearchField.getName())
-                    .append(":[")
-                    .append(StringUtils.isEmpty(dateSearchField.getLowerLimit()) ? "*" : dateSearchField.getLowerLimit())
-                    .append(" TO ")
-                    .append(StringUtils.isEmpty(dateSearchField.getUpperLimit()) ? "*" : dateSearchField.getUpperLimit())
-                    .append("]");
-        }
-
-        return dateQueryBuilder.toString();
-    }
-
-    private boolean isOneNumberPresent(NumberSearchField numberField) {
-        return StringUtils.isNotBlank(numberField.getMinimum()) || StringUtils.isNotBlank(numberField.getMaximum());
+        return collectedQueryParts;
     }
 }

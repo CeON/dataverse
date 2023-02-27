@@ -120,7 +120,8 @@
                                         <div class="col-sm-6">
                                             <p:inputText id="stringSearchValue" styleClass="form-control"
                                                          value="#{item.fieldValue}"
-                                                         rendered="#{item.searchFieldType == fieldTypeEnums.TEXT}"/>
+                                                         rendered="#{item.searchFieldType == fieldTypeEnums.TEXT
+                                                         or item.searchFieldType == fieldTypeEnums.GEOBOX_COORD}"/>
                                             <div jsf:rendered="#{item.searchFieldType == fieldTypeEnums.DATE}">
                                                 <div style="display: inline-block; ">
                                                     <p:outputLabel for="daterangeSearchMinimum"
