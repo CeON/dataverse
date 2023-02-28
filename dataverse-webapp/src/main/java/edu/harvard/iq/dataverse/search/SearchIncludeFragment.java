@@ -36,6 +36,8 @@ import javax.faces.context.Flash;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -318,7 +320,7 @@ public class SearchIncludeFragment {
 
         filterDownToSubtree.ifPresent(filterQueriesFinal::add);
 
-        readSpecialFilterQueries();
+        prepareAddonsIndex();
         filterQueriesFinal.addAll(filterQueries);
 
         SearchForTypes searchForTypes = SearchForTypes.byTypes(
@@ -459,7 +461,7 @@ public class SearchIncludeFragment {
         return sortField.equals(SEARCH_FIELD_RELEVANCE) && sortOrder == SortOrder.desc;
     }
 
-    public String searchWithSelectedTypesRedirect() {
+    public String searchWithSelectedTypesRedirect() throws UnsupportedEncodingException {
         StringBuilder searchUrlBuilder = new StringBuilder()
                 .append("dataverse.xhtml?alias=").append(dataverseAlias)
                 .append("&q=").append((query == null) ? "" : query)
@@ -469,7 +471,8 @@ public class SearchIncludeFragment {
                         .collect(Collectors.joining(":")));
 
         for (int i = 0; i < filterQueries.size(); i++) {
-            searchUrlBuilder.append("&fq").append(i).append("=").append(filterQueries.get(i));
+            searchUrlBuilder.append("&fq").append(i).append("=")
+                    .append(URLEncoder.encode(filterQueries.get(i), "UTF-8"));
         }
         searchUrlBuilder.append("&sort=").append(sortField)
                         .append("&order=").append(sortOrder)
@@ -552,18 +555,10 @@ public class SearchIncludeFragment {
     }
 
     // -------------------- PRIVATE --------------------
-    private void readSpecialFilterQueries() {
-        // As for now special query means geospatial query here.
-        // This method behaves differently on different initial conditions:
-        // 1. Page is shown after redirect from advanced search;
-        // 2. Page is shown after adding or deleting filter (other than special);
-        // 3. Page is shown after removing special filter.
 
-        // 1. Flash contains query wrapper object with special filters, which are rewritten into addonsIndex;
-        // 2. Flash doesn't contain query wrapper object, so nothing new is added to addonsIndex (which is empty now);
-        // 3. As 2.
+    private void prepareAddonsIndex() {
         Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
-        QueryWrapper queryWrapper = (QueryWrapper) flash.remove(QueryWrapper.QUERY_WRAPPER_PARAM);
+        QueryWrapper queryWrapper = (QueryWrapper) flash.get(QueryWrapper.QUERY_WRAPPER_PARAM);
         if (queryWrapper != null) {
             addonsIndex.putAll(queryWrapper.getAdditions().entrySet().stream()
                     .filter(e -> e.getKey() == QueryPartType.GEOBOX_FILTER)
@@ -571,23 +566,6 @@ public class SearchIncludeFragment {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toMap(v -> v.solrQueryFragment, v -> v, (prev, next) -> next)));
         }
-
-        // 1. Special filter queries are added to filterQueries from addonsIndex;
-        // 2. Nothing new is added to filter queries from addonsIndex (which is empty), but special query entry is present
-        //    here, as it was passed in some fqXX param from previous page;
-        // 3. As in 2, but special filter is not present in filterQueries, as it was removed by the user.
-        filterQueries.addAll(addonsIndex.keySet());
-
-        // 1. Flash doesn't contain addonsIndex copy, so nothing is added to current addons. These are put into flash then;
-        // 2. Flash contains addonsIndex from previous page invocation so it can be used to rewrite special filter. It's
-        //    again stored into flash;
-        // 3. As in 2, but special filter is not present anymore in filterQueries.
-        @SuppressWarnings("unchecked")
-        Map<String, QueryPart> indexFromFlash = (Map<String, QueryPart>) flash.get(ADDONS_INDEX_PARAM);
-        if (indexFromFlash != null) {
-            addonsIndex.putAll(indexFromFlash);
-        }
-        flash.putNow(ADDONS_INDEX_PARAM, addonsIndex);
     }
 
     private void rewriteSpecialFilterQueries() {
@@ -624,7 +602,7 @@ public class SearchIncludeFragment {
 
         for (FilterQuery fq : responseFilterQueries) {
             if (!fq.hasFriendlyNameAndValue()) {
-                return false;   // not parseable is bad!
+                return false;   // not parsable is bad!
             }
         }
         return true;

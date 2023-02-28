@@ -20,6 +20,8 @@ import edu.harvard.iq.dataverse.search.advanced.field.SearchField;
 import edu.harvard.iq.dataverse.search.advanced.SearchFieldFactory;
 import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.field.TextSearchField;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryPart;
+import edu.harvard.iq.dataverse.search.advanced.query.QueryPartType;
 import edu.harvard.iq.dataverse.search.advanced.query.QueryWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.validation.SearchFormValidationService;
@@ -38,14 +40,17 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -123,9 +128,8 @@ public class AdvancedSearchPage implements Serializable {
         allSearchBlocks.add(dataversesSearchBlock);
 
         QueryWrapper queryWrapper = solrQueryCreator.constructQueryWrapper(allSearchBlocks);
+        String returnString = buildSearchUrl(queryWrapper);
 
-        String returnString = widgetWrapper.wrapURL(String.format("/dataverse.xhtml?q=%s&alias=%s&faces-redirect=true",
-                URLEncoder.encode(queryWrapper.getQuery(), "UTF-8"), dataverse.getAlias()));
         Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
         flash.putNow(QueryWrapper.QUERY_WRAPPER_PARAM, queryWrapper);
         logger.fine(returnString);
@@ -259,6 +263,27 @@ public class AdvancedSearchPage implements Serializable {
 
     private TextSearchField textFieldFromBundle(String name, String displayNameKey, String descriptionKey) {
         return new TextSearchField(name, BundleUtil.getStringFromBundle(displayNameKey), BundleUtil.getStringFromBundle(descriptionKey));
+    }
+
+    private String buildSearchUrl(QueryWrapper queryWrapper) {
+        List<QueryPart> geoboxes = queryWrapper.getAdditions().getOrDefault(QueryPartType.GEOBOX_FILTER, Collections.emptyList());
+        String filters = IntStream.range(0, geoboxes.size())
+                .mapToObj(i -> "&fq" + i + "=" + safeEncode(geoboxes.get(i).solrQueryFragment))
+                .collect(Collectors.joining());
+
+        return widgetWrapper.wrapURL(String.format("/dataverse.xhtml?q=%s&alias=%s",
+                safeEncode(queryWrapper.getQuery()), dataverse.getAlias())
+                + (StringUtils.isNotBlank(filters) ? filters : StringUtils.EMPTY)
+                + "&faces-redirect=true");
+    }
+
+    private String safeEncode(String toEncode) {
+        try {
+            return URLEncoder.encode(toEncode, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            logger.log(Level.WARNING, "Encoding problem: ", uee);
+            throw new RuntimeException(uee);
+        }
     }
 
     // -------------------- GETTERS --------------------
