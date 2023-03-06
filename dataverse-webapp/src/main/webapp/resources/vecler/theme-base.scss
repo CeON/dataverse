@@ -87,6 +87,7 @@ body {
 	font-family: $font-main;
 	font-size: 15px;
 	color: $main-text-color;
+	word-break: break-word;
 }
 
 h1 {
@@ -140,6 +141,10 @@ pre {
 
 .text-muted {
 	color: $gray-text-color;
+}
+
+.text-monospace {
+	font-family: $font-monospace;
 }
 
 .hidden-content {
@@ -573,6 +578,47 @@ a[tabindex="-1"] {
 
 a[id$=advsearchlink] {
 	display: inline-block;
+}
+
+/* Geo map */
+
+.geo-map {
+	max-height: calc(100vh - 160px);
+}
+
+@media screen and (max-width: $screen-xs-max) {
+	.geo-map {
+		max-width: calc((100vw - 90px) * 0.75);
+		height: calc((100vw - 90px) * 0.75);
+	}
+}
+
+@media screen and (min-width: $screen-sm-min) {
+	.geo-map {
+		max-width: 364px;
+		height: 364px;
+	}
+}
+
+@media screen and (min-width: $screen-md-min) {
+	.geo-map {
+		max-width: 487px;
+		height: 487px;
+	}
+}
+
+@media screen and (min-width: $screen-lg-min) {
+	.geo-map {
+		max-width: 600px;
+		height: 600px;
+	}
+}
+
+.leaflet-control-container {
+	.leaflet-top, .leaflet-bottom {
+		z-index: 929;
+	}
+
 }
 
 /* Forms */
@@ -1345,6 +1391,7 @@ input.fancy-checkbox[type=checkbox] {
 }
 
 .ui-autocomplete-panel {
+	word-break: break-word;
 	border: none;
 	border-radius: 9px;
 
@@ -1380,10 +1427,22 @@ input.fancy-checkbox[type=checkbox] {
 	}
 }
 
-// FIXME: This adresses issue with too wide autocomplete suggestion
-// only for widescreen viewport
-.ui-autocomplete-panel.autocomplete-panel-maxwidth {
-    max-width: 800px;
+@media screen and (max-width: $screen-sm-max) {
+	.ui-autocomplete-panel.autocomplete-panel-maxwidth {
+		max-width: 100vw;
+	}
+}
+
+@media screen and (min-width: $screen-md-min) {
+	.ui-autocomplete-panel.autocomplete-panel-maxwidth {
+		max-width: calc(#{$screen-md-min} * 3 / 4);
+	}
+}
+
+@media screen and (min-width: $screen-lg-min) {
+	.ui-autocomplete-panel.autocomplete-panel-maxwidth {
+		max-width: calc(#{$screen-lg-min} * 3 / 4);
+	}
 }
 
 .ui-autocomplete-emptyMessage {
@@ -2089,6 +2148,13 @@ $navbar-height: 102px;
 				&:focus {
 					text-decoration: none;
 				}
+			}
+
+			> form.navbar-highlighted-link a {
+				margin-top: 3px;
+				padding: 7px 20px;
+				background: #2ba7df;
+				color: #fff;
 			}
 		}
 
@@ -5167,6 +5233,11 @@ body.font-size-percent-200 {
 
 			> li > a .caret, .navbar-nav > form > a .caret {
 				color: $contrast-foreground-color;
+			}
+
+			> li > form.navbar-highlighted-link a {
+				color: $contrast-background-color;
+				background: $contrast-foreground-color;
 			}
 		}
 
