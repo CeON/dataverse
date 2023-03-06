@@ -172,6 +172,7 @@ public class AdvancedSearchPage implements Serializable {
      * existing parent fields in order to connect them with search fields.
      */
     private void createParentFieldsForSearchFields() {
+        int i = 0;
         for (SearchField field : searchFieldIndex.values()) {
             DatasetFieldType fieldType = field.getDatasetFieldType();
             if (fieldType == null || fieldType.getParentDatasetFieldType() == null) {
@@ -184,6 +185,7 @@ public class AdvancedSearchPage implements Serializable {
             if (parentField == null) {
                 parentField = new GroupingSearchField(parentKey, parentType.getDisplayName(), parentType.getDescription(),
                         null, parentType);
+                parentField.setDisplayId(parentKey + "_" + (i++));
                 nonSearchFieldIndex.put(parentKey, parentField);
             }
             parentField.getChildren().add(field);

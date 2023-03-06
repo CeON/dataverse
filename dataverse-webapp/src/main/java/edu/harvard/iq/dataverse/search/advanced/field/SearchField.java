@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.search.advanced.field;
 
-import edu.harvard.iq.dataverse.api.Search;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.ValidatableField;
 import edu.harvard.iq.dataverse.search.advanced.SearchFieldType;
@@ -26,6 +25,7 @@ public abstract class SearchField implements Serializable, ValidatableField {
     private String name;
     private String displayName;
     private String description;
+    private String displayId;
     private SearchFieldType searchFieldType;
 
     private DatasetFieldType datasetFieldType;
@@ -83,6 +83,10 @@ public abstract class SearchField implements Serializable, ValidatableField {
         return subfields;
     }
 
+    public String getDisplayId() {
+        return displayId;
+    }
+
     // -------------------- LOGIC --------------------
 
     @Override
@@ -101,6 +105,10 @@ public abstract class SearchField implements Serializable, ValidatableField {
     @Override
     public void setValidationMessage(String message) {
         this.validationMessage = message;
+    }
+
+    public void setDisplayId(String displayId) {
+        this.displayId = displayId;
     }
 
     // -------------------- toString --------------------
