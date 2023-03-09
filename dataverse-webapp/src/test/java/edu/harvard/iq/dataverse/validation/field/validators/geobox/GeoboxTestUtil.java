@@ -49,6 +49,7 @@ public class GeoboxTestUtil {
 
     public SearchField buildGeoboxSearchField(String x1, String y1, String x2, String y2) {
         DatasetFieldType parentType = new DatasetFieldType();
+        parentType.setName("GoespatialBox");
         parentType.setFieldType(FieldType.GEOBOX);
         GroupingSearchField parent = new GroupingSearchField("Geobox", "Geobox Field", "Description", null, parentType);
         List<SearchField> children = parent.getChildren();

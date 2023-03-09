@@ -3,7 +3,7 @@ package edu.harvard.iq.dataverse.search;
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.search.advanced.SearchBlock;
-import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
+import edu.harvard.iq.dataverse.search.advanced.QueryWrapperCreator;
 import edu.harvard.iq.dataverse.search.advanced.field.CheckboxSearchField;
 import edu.harvard.iq.dataverse.search.advanced.field.DateSearchField;
 import edu.harvard.iq.dataverse.search.advanced.field.LicenseCheckboxSearchField;
@@ -32,9 +32,9 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class SolrQueryCreatorTest {
+class QueryWrapperCreatorTest {
 
-    SolrQueryCreator solrQueryCreator = new SolrQueryCreator();
+    QueryWrapperCreator queryWrapperCreator = new QueryWrapperCreator();
 
     static Stream<Arguments> constructQuery() {
         return Stream.of(
@@ -57,7 +57,7 @@ class SolrQueryCreatorTest {
         SearchBlock searchBlock = new SearchBlock("TEST", "TEST", searchFields);
 
         // when
-        String result = solrQueryCreator.constructQueryWrapper(Collections.singletonList(searchBlock)).getQuery();
+        String result = queryWrapperCreator.constructQueryWrapper(Collections.singletonList(searchBlock)).getQuery();
 
         // then
         assertThat(result).isEqualTo(expectedResult);
@@ -75,7 +75,7 @@ class SolrQueryCreatorTest {
         SearchBlock searchBlock = new SearchBlock("TEST", "TEST", searchFields);
 
         // when
-        QueryWrapper result = solrQueryCreator.constructQueryWrapper(Lists.newArrayList((searchBlock)));
+        QueryWrapper result = queryWrapperCreator.constructQueryWrapper(Lists.newArrayList((searchBlock)));
 
         // then
         assertThat(result.getQuery()).isEqualTo("number1:[1 TO 2] AND number2:[3.1 TO 4.1] AND number1:[1 TO *] AND" +
@@ -83,9 +83,8 @@ class SolrQueryCreatorTest {
                                     " text1:testValue1 AND text2:testValue2 AND date1:[2022-01-01 TO *] AND date2:[* TO 2022-02-07] " +
                                     "AND date3:[2022-07-07 TO 2022-12-31] AND selectOneValue1:\"checkedFieldValue1\" " +
                                     "AND selectOneValue2:\"checkedFieldValue2\"");
-        assertThat(result.getAdditions().get(QueryPartType.GEOBOX_FILTER))
-                .extracting(q -> q.solrQueryFragment)
-                .containsExactly("{!field f=dsf_geobox_null}Intersects(POLYGON((7 77,8 77,8 88,7 88,7 77)))");
+        assertThat(result.getFilters())
+                .containsExactly("[GEO[GoespatialBox|7W|77S|8E|88N]]");
     }
 
     // -------------------- PRIVATE --------------------

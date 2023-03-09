@@ -1,14 +1,11 @@
 package edu.harvard.iq.dataverse.search.advanced.query;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class QueryWrapper {
     private String query;
-    private Map<QueryPartType, List<QueryPart>> additions = new HashMap<>();
-
-    public static final String QUERY_WRAPPER_PARAM = "queryWrapper";
+    private List<String> additions = new ArrayList<>();
 
     // -------------------- CONSTRUCTORS --------------------
 
@@ -22,7 +19,7 @@ public class QueryWrapper {
         return query;
     }
 
-    public Map<QueryPartType, List<QueryPart>> getAdditions() {
+    public List<String> getFilters() {
         return additions;
     }
 

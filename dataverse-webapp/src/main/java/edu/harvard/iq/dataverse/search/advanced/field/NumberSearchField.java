@@ -47,7 +47,7 @@ public class NumberSearchField extends SearchField {
                 ? new QueryPart(QueryPartType.QUERY,
                     String.format("%s:[%s TO %s]", getName(),
                         StringUtils.isBlank(minimum) ? "*" : minimum,
-                        StringUtils.isBlank(maximum) ? "*" : maximum), this)
+                        StringUtils.isBlank(maximum) ? "*" : maximum))
                 : QueryPart.EMPTY;
     }
 

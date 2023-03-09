@@ -53,7 +53,7 @@ public class CheckboxSearchField extends SearchField {
         return checkedFieldValues != null && !checkedFieldValues.isEmpty()
                 ? new QueryPart(QueryPartType.QUERY, checkedFieldValues.stream()
                     .map(v -> String.format("%s:\"%s\"", getName(), v))
-                    .collect(Collectors.joining(" AND ")), this)
+                    .collect(Collectors.joining(" AND ")))
                 : QueryPart.EMPTY;
     }
 

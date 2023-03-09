@@ -46,7 +46,7 @@ public class DateSearchField extends SearchField {
                 ? new QueryPart(QueryPartType.QUERY,
                     String.format("%s:[%s TO %s]", getName(),
                         StringUtils.isEmpty(lowerLimit) ? "*" : lowerLimit,
-                        StringUtils.isEmpty(upperLimit) ? "*" : upperLimit), this)
+                        StringUtils.isEmpty(upperLimit) ? "*" : upperLimit))
                 : QueryPart.EMPTY;
     }
 

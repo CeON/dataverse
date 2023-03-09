@@ -36,7 +36,7 @@ public class LicenseCheckboxSearchField extends CheckboxSearchField {
                 ? new QueryPart(QueryPartType.QUERY,
                     String.format("%s AND %s:\"%s\"",
                             licensesQuery.contains(" OR ") ? String.format("(%s)", licensesQuery) : licensesQuery,
-                            SearchFields.TYPE, SearchObjectType.FILES.getSolrValue()), this)
+                            SearchFields.TYPE, SearchObjectType.FILES.getSolrValue()))
                 : QueryPart.EMPTY;
     }
 }

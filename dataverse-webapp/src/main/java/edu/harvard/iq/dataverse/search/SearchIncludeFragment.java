@@ -14,32 +14,27 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.group.AuthenticatedUsers;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.search.SearchServiceBean.SortOrder;
-import edu.harvard.iq.dataverse.search.advanced.query.QueryPart;
-import edu.harvard.iq.dataverse.search.advanced.query.QueryPartType;
-import edu.harvard.iq.dataverse.search.advanced.query.QueryWrapper;
 import edu.harvard.iq.dataverse.search.query.SearchForTypes;
 import edu.harvard.iq.dataverse.search.query.SearchObjectType;
+import edu.harvard.iq.dataverse.search.query.filter.SpecialFilter;
+import edu.harvard.iq.dataverse.search.query.filter.SpecialFilterService;
 import edu.harvard.iq.dataverse.search.response.DvObjectCounts;
 import edu.harvard.iq.dataverse.search.response.FacetCategory;
 import edu.harvard.iq.dataverse.search.response.FilterQuery;
-import edu.harvard.iq.dataverse.search.response.GeolocalizationFilterQuery;
 import edu.harvard.iq.dataverse.search.response.SolrQueryResponse;
 import edu.harvard.iq.dataverse.search.response.SolrSearchResult;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.cdi.Param;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,8 +55,6 @@ public class SearchIncludeFragment {
     private static final Logger logger = Logger.getLogger(SearchIncludeFragment.class.getCanonicalName());
 
     private static final int RESULTS_PER_PAGE = 10;
-
-    private static final String ADDONS_INDEX_PARAM = "addonsIndex";
 
     public static final String SEARCH_FIELD_TYPE = SearchFields.TYPE;
     public static final String SEARCH_FIELD_SUBTREE = SearchFields.SUBTREE;
@@ -91,6 +84,8 @@ public class SearchIncludeFragment {
     private SolrSearchResultsService solrSearchResultsService;
     @Inject
     private HttpServletRequest request;
+    @Inject
+    private SpecialFilterService specialFilterService;
 
     @Inject @Param(name = "q")
     private String query;
@@ -106,7 +101,8 @@ public class SearchIncludeFragment {
     private List<String> filterQueries = new ArrayList<>();
     private List<FacetCategory> facetCategoryList = new ArrayList<>();
     private List<SolrSearchResult> searchResultsList = new ArrayList<>();
-    private Map<String, QueryPart> addonsIndex = new HashMap<>();
+    private Map<String, SpecialFilter> specialFilterIndex = new HashMap<>();
+
     private int searchResultsCount;
 
     private String dataverseAlias;
@@ -241,7 +237,7 @@ public class SearchIncludeFragment {
         }
 
         filterQueries = request.getParameterMap().entrySet().stream()
-                .filter(e -> e.getKey().matches("fq[0-9]+"))
+                .filter(e -> e.getKey().startsWith("fq") && e.getKey().matches("fq[0-9]+"))
                 .map(Map.Entry::getValue)
                 .filter(e -> e != null && e.length > 0)
                 .map(e -> e[0])
@@ -320,8 +316,7 @@ public class SearchIncludeFragment {
 
         filterDownToSubtree.ifPresent(filterQueriesFinal::add);
 
-        prepareAddonsIndex();
-        filterQueriesFinal.addAll(filterQueries);
+        filterQueriesFinal.addAll(prepareFilterQueries(filterQueries));
 
         SearchForTypes searchForTypes = SearchForTypes.byTypes(
                 selectedTypesMap.entrySet().stream()
@@ -385,12 +380,13 @@ public class SearchIncludeFragment {
         searchResultsCount = solrQueryResponse.getNumResultsFound().intValue();
         if (filterDownToSubtree.isPresent()) {
             responseFilterQueries = solrQueryResponse.getFilterQueries().stream()
-                    .filter(filter -> !filterDownToSubtree.get().equals(filter.getQuery()))
+                    .filter(f -> !filterDownToSubtree.get().equals(f.getQuery()))
                     .collect(toList());
         } else {
             responseFilterQueries = solrQueryResponse.getFilterQueries();
         }
-        rewriteSpecialFilterQueries();
+
+        responseFilterQueries = rewriteSpecialFilterQueries(responseFilterQueries);
         filterQueriesDebug = solrQueryResponse.getFilterQueriesActual();
 
         paginationGuiStart = paginationStart + 1;
@@ -556,32 +552,37 @@ public class SearchIncludeFragment {
 
     // -------------------- PRIVATE --------------------
 
-    private void prepareAddonsIndex() {
-        Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
-        QueryWrapper queryWrapper = (QueryWrapper) flash.get(QueryWrapper.QUERY_WRAPPER_PARAM);
-        if (queryWrapper != null) {
-            addonsIndex.putAll(queryWrapper.getAdditions().entrySet().stream()
-                    .filter(e -> e.getKey() == QueryPartType.GEOBOX_FILTER)
-                    .map(Map.Entry::getValue)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toMap(v -> v.solrQueryFragment, v -> v, (prev, next) -> next)));
+    private List<String> prepareFilterQueries(List<String> filterQueries) {
+        for (String filterQuery : filterQueries) {
+            if (!specialFilterService.isSpecialFilter(filterQuery) || specialFilterIndex.containsKey(filterQuery)) {
+                continue;
+            }
+            SpecialFilter specialFilter = specialFilterService.createFromQuery(filterQuery);
+            // We add the same object under two different keys, to simplify further processing
+            specialFilterIndex.put(specialFilter.query, specialFilter);
+            specialFilterIndex.put(specialFilter.solrQuery, specialFilter);
         }
+
+        return filterQueries.stream()
+                .map(q -> specialFilterIndex.containsKey(q) ? specialFilterIndex.get(q).solrQuery : q)
+                .filter(StringUtils::isNotBlank)
+                .collect(toList());
     }
 
-    private void rewriteSpecialFilterQueries() {
+    private List<FilterQuery> rewriteSpecialFilterQueries(List<FilterQuery> responseFilterQueries) {
         List<FilterQuery> rewrittenFilters = new ArrayList<>();
-        for(FilterQuery query : responseFilterQueries) {
-            QueryPart queryPart = addonsIndex.get(query.getQuery());
-            if (queryPart == null) {
+        for (FilterQuery query : responseFilterQueries) {
+            SpecialFilter specialFilter = specialFilterIndex.get(query.getQuery());
+            if (specialFilter == null) {
                 rewrittenFilters.add(query);
                 continue;
             }
-            FilterQuery rewrittenFilter = GeolocalizationFilterQuery.of(queryPart.solrQueryFragment, queryPart.searchField);
+            FilterQuery rewrittenFilter = specialFilter.filterQuery;
             if (rewrittenFilter != null) {
                 rewrittenFilters.add(rewrittenFilter);
             }
         }
-        responseFilterQueries = rewrittenFilters;
+        return rewrittenFilters;
     }
 
     /**

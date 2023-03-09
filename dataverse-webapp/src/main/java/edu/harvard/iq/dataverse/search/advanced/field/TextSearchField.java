@@ -51,7 +51,7 @@ public class TextSearchField extends SearchField {
                 : new QueryPart(QueryPartType.QUERY,
                     getValidatableValues().stream()
                         .map(v -> getName() + ":" + v)
-                        .collect(Collectors.joining(" AND ")), this);
+                        .collect(Collectors.joining(" AND ")));
     }
 
     // -------------------- SETTERS --------------------

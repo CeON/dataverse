@@ -48,8 +48,7 @@ public class SelectOneSearchField extends SearchField {
     public QueryPart getQueryPart() {
         return checkedFieldValue == null
                 ? QueryPart.EMPTY
-                : new QueryPart(QueryPartType.QUERY,
-                    String.format("%s:\"%s\"", getName(), checkedFieldValue), this);
+                : new QueryPart(QueryPartType.QUERY, String.format("%s:\"%s\"", getName(), checkedFieldValue));
     }
 
     // -------------------- SETTERS --------------------

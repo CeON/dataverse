@@ -11,17 +11,15 @@ import edu.harvard.iq.dataverse.persistence.datafile.license.LicenseRepository;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetFieldType;
 import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.search.advanced.QueryWrapperCreator;
+import edu.harvard.iq.dataverse.search.advanced.SearchBlock;
+import edu.harvard.iq.dataverse.search.advanced.SearchFieldFactory;
 import edu.harvard.iq.dataverse.search.advanced.field.CheckboxSearchField;
 import edu.harvard.iq.dataverse.search.advanced.field.DateSearchField;
 import edu.harvard.iq.dataverse.search.advanced.field.GroupingSearchField;
-import edu.harvard.iq.dataverse.search.advanced.SearchBlock;
 import edu.harvard.iq.dataverse.search.advanced.field.LicenseCheckboxSearchField;
 import edu.harvard.iq.dataverse.search.advanced.field.SearchField;
-import edu.harvard.iq.dataverse.search.advanced.SearchFieldFactory;
-import edu.harvard.iq.dataverse.search.advanced.SolrQueryCreator;
 import edu.harvard.iq.dataverse.search.advanced.field.TextSearchField;
-import edu.harvard.iq.dataverse.search.advanced.query.QueryPart;
-import edu.harvard.iq.dataverse.search.advanced.query.QueryPartType;
 import edu.harvard.iq.dataverse.search.advanced.query.QueryWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.validation.SearchFormValidationService;
@@ -33,8 +31,6 @@ import io.vavr.Tuple;
 import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.cdi.ViewScoped;
 
-import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -67,7 +63,7 @@ public class AdvancedSearchPage implements Serializable {
     private DataverseDao dataverseDao;
     private DatasetFieldServiceBean datasetFieldService;
     private WidgetWrapper widgetWrapper;
-    private SolrQueryCreator solrQueryCreator;
+    private QueryWrapperCreator queryWrapperCreator;
     private TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory;
     private SearchFormValidationService validationService;
     private SearchFieldFactory searchFieldFactory;
@@ -89,13 +85,13 @@ public class AdvancedSearchPage implements Serializable {
 
     @Inject
     public AdvancedSearchPage(DataverseDao dataverseDao, DatasetFieldServiceBean datasetFieldService,
-                              WidgetWrapper widgetWrapper, SolrQueryCreator solrQueryCreator,
+                              WidgetWrapper widgetWrapper, QueryWrapperCreator queryWrapperCreator,
                               TermsOfUseSelectItemsFactory termsOfUseSelectItemsFactory, SearchFormValidationService validationService,
                               SearchFieldFactory searchFieldFactory, LicenseRepository licenseRepository) {
         this.dataverseDao = dataverseDao;
         this.datasetFieldService = datasetFieldService;
         this.widgetWrapper = widgetWrapper;
-        this.solrQueryCreator = solrQueryCreator;
+        this.queryWrapperCreator = queryWrapperCreator;
         this.termsOfUseSelectItemsFactory = termsOfUseSelectItemsFactory;
         this.validationService = validationService;
         this.searchFieldFactory = searchFieldFactory;
@@ -127,11 +123,7 @@ public class AdvancedSearchPage implements Serializable {
         allSearchBlocks.add(filesSearchBlock);
         allSearchBlocks.add(dataversesSearchBlock);
 
-        QueryWrapper queryWrapper = solrQueryCreator.constructQueryWrapper(allSearchBlocks);
-        String returnString = buildSearchUrl(queryWrapper);
-
-        Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
-        flash.putNow(QueryWrapper.QUERY_WRAPPER_PARAM, queryWrapper);
+        String returnString = buildSearchUrl(queryWrapperCreator.constructQueryWrapper(allSearchBlocks));
         logger.fine(returnString);
         return returnString;
     }
@@ -268,14 +260,14 @@ public class AdvancedSearchPage implements Serializable {
     }
 
     private String buildSearchUrl(QueryWrapper queryWrapper) {
-        List<QueryPart> geoboxes = queryWrapper.getAdditions().getOrDefault(QueryPartType.GEOBOX_FILTER, Collections.emptyList());
-        String filters = IntStream.range(0, geoboxes.size())
-                .mapToObj(i -> "&fq" + i + "=" + safeEncode(geoboxes.get(i).solrQueryFragment))
+        List<String> filters = queryWrapper.getFilters();
+        String filtersPart = IntStream.range(0, filters.size())
+                .mapToObj(i -> "&fq" + i + "=" + safeEncode(filters.get(i)))
                 .collect(Collectors.joining());
 
         return widgetWrapper.wrapURL(String.format("/dataverse.xhtml?q=%s&alias=%s",
                 safeEncode(queryWrapper.getQuery()), dataverse.getAlias())
-                + (StringUtils.isNotBlank(filters) ? filters : StringUtils.EMPTY)
+                + (StringUtils.isNotBlank(filtersPart) ? filtersPart : StringUtils.EMPTY)
                 + "&faces-redirect=true");
     }
 
