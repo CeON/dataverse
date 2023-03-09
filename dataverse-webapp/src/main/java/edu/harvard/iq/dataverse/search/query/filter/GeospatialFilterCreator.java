@@ -63,7 +63,7 @@ public class GeospatialFilterCreator implements SpecialFilterCreator {
         }
         SolrField solrField = SolrField.of(type);
         String solrQuery = String.format("{!field f=%s}Intersects(%s)", solrField.getNameSearchable(), createSolrQueryPart(params));
-        FilterQuery filterQuery = new FilterQuery(solrQuery, type.getDisplayName(),
+        FilterQuery filterQuery = new FilterQuery(initialQuery, type.getDisplayName(),
                 Arrays.stream(params, 1, params.length).collect(Collectors.joining(", ")));
         return new SpecialFilter(initialQuery, solrQuery, filterQuery);
     }

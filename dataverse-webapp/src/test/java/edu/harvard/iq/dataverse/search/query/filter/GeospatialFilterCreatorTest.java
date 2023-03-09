@@ -53,15 +53,16 @@ class GeospatialFilterCreatorTest {
         // given
         Mockito.when(repository.findByName(Mockito.anyString()))
                 .thenReturn(Optional.of(TEST_TYPE));
+        String initialQuery = "[GEO[TestType|1.4W|2.3E|4.2N|3.1S]]";
 
         // when
-        SpecialFilter result = creator.create("[GEO[TestType|1.4W|2.3E|4.2N|3.1S]]", "TestType", "1.4W", "2.3E", "4.2N", "3.1S");
+        SpecialFilter result = creator.create(initialQuery, "TestType", "1.4W", "2.3E", "4.2N", "3.1S");
 
         // then
         assertThat(result.solrQuery).isEqualTo("{!field f=dsf_geobox_TestType}Intersects(POLYGON((1.4 3.1,2.3 3.1,2.3 4.2,1.4 4.2,1.4 3.1)))");
         assertThat(result.filterQuery)
-                .extracting(FilterQuery::getFriendlyFieldName, FilterQuery::getFriendlyFieldValue)
-                .containsExactly("Test Type", "1.4W, 2.3E, 4.2N, 3.1S");
+                .extracting(FilterQuery::getQuery, FilterQuery::getFriendlyFieldName, FilterQuery::getFriendlyFieldValue)
+                .containsExactly(initialQuery, "Test Type", "1.4W, 2.3E, 4.2N, 3.1S");
     }
 
     @Test
