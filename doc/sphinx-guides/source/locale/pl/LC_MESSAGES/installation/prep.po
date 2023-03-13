@@ -1,45 +1,41 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/installation/prep.rst:3
+#: ../../source/installation/prep.rst:7
 msgid "Preparation"
 msgstr ""
 
-#: ../../source/installation/prep.rst:9
+#: ../../source/installation/prep.rst:13
 msgid ""
 "We'll try to get you up and running as quickly as possible, but we "
 "thought you might like to hear about your options. :)"
 msgstr ""
 
-#: ../../source/installation/prep.rst:12
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/installation/prep.rst:15
+#: ../../source/installation/prep.rst:19
 msgid "Choose Your Own Installation Adventure"
 msgstr ""
 
-#: ../../source/installation/prep.rst:18
+#: ../../source/installation/prep.rst:22
 msgid "NDS Labs Workbench (for Testing Only)"
 msgstr ""
 
-#: ../../source/installation/prep.rst:20
+#: ../../source/installation/prep.rst:24
 msgid ""
 "The National Data Service (NDS) is community-driven effort guided by the "
 "National Data Service Consortium. NDS Labs has packaged Dataverse as `one"
@@ -49,7 +45,7 @@ msgid ""
 " http://www.nationaldataservice.org/projects/labs.html ."
 msgstr ""
 
-#: ../../source/installation/prep.rst:22
+#: ../../source/installation/prep.rst:26
 msgid ""
 "Please note that the version of Dataverse in NDS Labs Workbench may lag "
 "behind the latest release. Craig Willis from NDS Labs did an excellent "
@@ -58,11 +54,11 @@ msgid ""
 "version of Dataverse can be evaluated in the workbench."
 msgstr ""
 
-#: ../../source/installation/prep.rst:25
+#: ../../source/installation/prep.rst:29
 msgid "Vagrant (for Testing Only)"
 msgstr ""
 
-#: ../../source/installation/prep.rst:27
+#: ../../source/installation/prep.rst:31
 msgid ""
 "If you are looking to simply kick the tires on installing Dataverse and "
 "are familiar with Vagrant, you are welcome to read through the "
@@ -71,11 +67,11 @@ msgid ""
 " running ``vagrant up`` on unreleased code."
 msgstr ""
 
-#: ../../source/installation/prep.rst:30
+#: ../../source/installation/prep.rst:34
 msgid "Pilot Installation"
 msgstr ""
 
-#: ../../source/installation/prep.rst:32
+#: ../../source/installation/prep.rst:36
 msgid ""
 "Vagrant is not a bad way for a sysadmin to get a quick sense of how an "
 "application like Dataverse is put together in a sandbox (a virtual "
@@ -83,7 +79,7 @@ msgid ""
 " playing with Dataverse, you'll need to install Dataverse on a server."
 msgstr ""
 
-#: ../../source/installation/prep.rst:34
+#: ../../source/installation/prep.rst:38
 msgid ""
 "Installing Dataverse involves some system configuration followed by "
 "executing an installation script that will guide you through the "
@@ -91,11 +87,11 @@ msgid ""
 "reading about the :ref:`architecture` of Dataverse is recommended first."
 msgstr ""
 
-#: ../../source/installation/prep.rst:39
+#: ../../source/installation/prep.rst:43
 msgid "Advanced Installation"
 msgstr ""
 
-#: ../../source/installation/prep.rst:41
+#: ../../source/installation/prep.rst:45
 msgid ""
 "There are some community-lead projects to use configuration management "
 "tools such as Ansible and Puppet to automate Dataverse installation and "
@@ -103,15 +99,15 @@ msgid ""
 "Dataverse community can offer as described in each project's webpage:"
 msgstr ""
 
-#: ../../source/installation/prep.rst:43
+#: ../../source/installation/prep.rst:47
 msgid "https://github.com/IQSS/dataverse-ansible"
 msgstr ""
 
-#: ../../source/installation/prep.rst:44
+#: ../../source/installation/prep.rst:48
 msgid "https://github.com/IQSS/dataverse-puppet"
 msgstr ""
 
-#: ../../source/installation/prep.rst:46
+#: ../../source/installation/prep.rst:50
 msgid ""
 "(Please note that the \"dataverse-ansible\" repo is used in a script that"
 " allows Dataverse to be installed on Amazon Web Services (AWS) from "
@@ -119,14 +115,14 @@ msgid ""
 ":doc:`/developers/deployment` section of the Developer Guide.)"
 msgstr ""
 
-#: ../../source/installation/prep.rst:48
+#: ../../source/installation/prep.rst:52
 msgid ""
 "The Dataverse development team is happy to \"bless\" additional community"
 " efforts along these lines (i.e. Docker, Chef, Salt, etc.) by creating a "
 "repo under https://github.com/IQSS and managing team access."
 msgstr ""
 
-#: ../../source/installation/prep.rst:50
+#: ../../source/installation/prep.rst:54
 msgid ""
 "Dataverse permits a fair amount of flexibility in where you choose to "
 "install the various components. The diagram :numref:`3webservers` shows a"
@@ -135,17 +131,13 @@ msgid ""
 "separate server."
 msgstr ""
 
-#: ../../source/installation/prep.rst:57
-msgid "Three web servers installation"
-msgstr ""
-
-#: ../../source/installation/prep.rst:57
+#: ../../source/installation/prep.rst:61
 msgid ""
 "Diagram presenting Dataverse installation on three servers behind a load "
 "balancer"
 msgstr ""
 
-#: ../../source/installation/prep.rst:59
+#: ../../source/installation/prep.rst:63
 msgid ""
 "A setup such as this is advanced enough to be considered out of scope for"
 " this guide (apart from a stub in the :doc:`advanced` section) but you "
@@ -153,67 +145,67 @@ msgid ""
 " channels listed in the :doc:`intro`."
 msgstr ""
 
-#: ../../source/installation/prep.rst:64
+#: ../../source/installation/prep.rst:68
 msgid "Architecture and Components"
 msgstr ""
 
-#: ../../source/installation/prep.rst:66
+#: ../../source/installation/prep.rst:70
 msgid ""
 "Dataverse is a Java Enterprise Edition (EE) web application that is "
 "shipped as a war (web archive) file."
 msgstr ""
 
-#: ../../source/installation/prep.rst:69
+#: ../../source/installation/prep.rst:73
 msgid "Required Components"
 msgstr ""
 
-#: ../../source/installation/prep.rst:71
+#: ../../source/installation/prep.rst:75
 msgid ""
 "When planning your installation you should be aware of the following "
 "components of the Dataverse architecture:"
 msgstr ""
 
-#: ../../source/installation/prep.rst:73
+#: ../../source/installation/prep.rst:77
 msgid ""
 "Linux: RHEL/CentOS is highly recommended since all development and QA "
 "happens on this distribution."
 msgstr ""
 
-#: ../../source/installation/prep.rst:74
+#: ../../source/installation/prep.rst:78
 msgid ""
 "Glassfish: a Java EE application server to which the Dataverse "
 "application (war file) is to be deployed."
 msgstr ""
 
-#: ../../source/installation/prep.rst:75
+#: ../../source/installation/prep.rst:79
 msgid "PostgreSQL: a relational database."
 msgstr ""
 
-#: ../../source/installation/prep.rst:76
+#: ../../source/installation/prep.rst:80
 msgid "Solr: a search engine. A Dataverse-specific schema is provided."
 msgstr ""
 
-#: ../../source/installation/prep.rst:77
+#: ../../source/installation/prep.rst:81
 msgid "SMTP server: for sending mail for password resets and other notifications."
 msgstr ""
 
-#: ../../source/installation/prep.rst:78
+#: ../../source/installation/prep.rst:82
 msgid ""
 "Persistent identifier service: DOI and Handle support are provided. "
 "Production use requires a registered DOI or Handle.net authority."
 msgstr ""
 
-#: ../../source/installation/prep.rst:81
+#: ../../source/installation/prep.rst:85
 msgid "Optional Components"
 msgstr ""
 
-#: ../../source/installation/prep.rst:83
+#: ../../source/installation/prep.rst:87
 msgid ""
 "There are a number of optional components you may choose to install or "
 "configure, including:"
 msgstr ""
 
-#: ../../source/installation/prep.rst:85
+#: ../../source/installation/prep.rst:89
 msgid ""
 "R, rApache, Zelig, and TwoRavens: :doc:`/user/data-exploration/tworavens`"
 " describes the feature and :doc:`r-rapache-tworavens` describes how to "
@@ -221,47 +213,47 @@ msgid ""
 "tools like TwoRavens can be added to Dataverse."
 msgstr ""
 
-#: ../../source/installation/prep.rst:86
+#: ../../source/installation/prep.rst:90
 msgid ""
 "Dropbox integration :ref:`dataverse.dropbox.key`: for uploading files "
 "from the Dropbox API."
 msgstr ""
 
-#: ../../source/installation/prep.rst:87
+#: ../../source/installation/prep.rst:91
 msgid ""
 "Apache: a web server that can \"reverse proxy\" Glassfish applications "
 "and rewrite HTTP traffic."
 msgstr ""
 
-#: ../../source/installation/prep.rst:88
+#: ../../source/installation/prep.rst:92
 msgid ""
 "Shibboleth: an authentication system described in :doc:`shibboleth`. Its "
 "use with Dataverse requires Apache."
 msgstr ""
 
-#: ../../source/installation/prep.rst:89
+#: ../../source/installation/prep.rst:93
 msgid "OAuth2: an authentication system described in :doc:`oauth2`."
 msgstr ""
 
-#: ../../source/installation/prep.rst:90
+#: ../../source/installation/prep.rst:94
 msgid ""
 "Geoconnect: a system that allows users to create maps from geospatial "
 "files, described in :doc:`geoconnect`."
 msgstr ""
 
-#: ../../source/installation/prep.rst:92
+#: ../../source/installation/prep.rst:96
 msgid "See also the :doc:`/admin/integrations` section of the Admin Guide."
 msgstr ""
 
-#: ../../source/installation/prep.rst:95
+#: ../../source/installation/prep.rst:99
 msgid "System Requirements"
 msgstr ""
 
-#: ../../source/installation/prep.rst:98
+#: ../../source/installation/prep.rst:102
 msgid "Hardware Requirements"
 msgstr ""
 
-#: ../../source/installation/prep.rst:100
+#: ../../source/installation/prep.rst:104
 msgid ""
 "A basic installation of Dataverse runs fine on modest hardware. For "
 "example, as of this writing the test installation at "
@@ -269,7 +261,7 @@ msgid ""
 "two 2.8 GHz processors, 8 GB of RAM and 50 GB of disk."
 msgstr ""
 
-#: ../../source/installation/prep.rst:102
+#: ../../source/installation/prep.rst:106
 msgid ""
 "In contrast, before we moved it to the Amazon Cloud, the production "
 "installation at https://dataverse.harvard.edu was backed by six servers "
@@ -281,7 +273,7 @@ msgid ""
 "were mounted from a SAN via NFS."
 msgstr ""
 
-#: ../../source/installation/prep.rst:104
+#: ../../source/installation/prep.rst:108
 msgid ""
 "Currently, Harvard Dataverse is served by four AWS server nodes: two "
 "\"m4.4xlarge\" instances (64GB/16 vCPU) as web frontends, one 32GB/8 vCPU"
@@ -291,24 +283,24 @@ msgid ""
 " S3."
 msgstr ""
 
-#: ../../source/installation/prep.rst:106
+#: ../../source/installation/prep.rst:110
 msgid ""
 "The Dataverse installation script will attempt to give Glassfish the "
 "right amount of RAM based on your system."
 msgstr ""
 
-#: ../../source/installation/prep.rst:108
+#: ../../source/installation/prep.rst:112
 msgid ""
 "Experimentation and testing with various hardware configurations is "
 "encouraged, or course, but do reach out as explained in the :doc:`intro` "
 "as needed for assistance."
 msgstr ""
 
-#: ../../source/installation/prep.rst:111
+#: ../../source/installation/prep.rst:115
 msgid "Software Requirements"
 msgstr ""
 
-#: ../../source/installation/prep.rst:113
+#: ../../source/installation/prep.rst:117
 msgid ""
 "See :ref:`architecture` for an overview of required and optional "
 "components. The :doc:`prerequisites` section is oriented toward "
@@ -317,58 +309,58 @@ msgid ""
 "software requirements for each component."
 msgstr ""
 
-#: ../../source/installation/prep.rst:115
+#: ../../source/installation/prep.rst:119
 msgid "Clients are expected to be running a relatively modern browser."
 msgstr ""
 
-#: ../../source/installation/prep.rst:118
+#: ../../source/installation/prep.rst:122
 msgid "Decisions to Make"
 msgstr ""
 
-#: ../../source/installation/prep.rst:120
+#: ../../source/installation/prep.rst:124
 msgid ""
 "Here are some questions to keep in the back of your mind as you test and "
 "move into production:"
 msgstr ""
 
-#: ../../source/installation/prep.rst:122
+#: ../../source/installation/prep.rst:126
 msgid "How much storage do I need?"
 msgstr ""
 
-#: ../../source/installation/prep.rst:123
+#: ../../source/installation/prep.rst:127
 msgid "Which features do I want based on :ref:`architecture`?"
 msgstr ""
 
-#: ../../source/installation/prep.rst:124
+#: ../../source/installation/prep.rst:128
 msgid ""
 "How do I want my users to log in to Dataverse? With local accounts? With "
 "Shibboleth/SAML? With OAuth providers such as ORCID, GitHub, or Google?"
 msgstr ""
 
-#: ../../source/installation/prep.rst:125
+#: ../../source/installation/prep.rst:129
 msgid ""
 "Do I want to to run Glassfish on the standard web ports (80 and 443) or "
 "do I want to \"front\" Glassfish with a proxy such as Apache or nginx? "
 "See \"Network Ports\" in the :doc:`config` section."
 msgstr ""
 
-#: ../../source/installation/prep.rst:126
+#: ../../source/installation/prep.rst:130
 msgid ""
 "How many points of failure am I willing to tolerate? How much complexity "
 "do I want?"
 msgstr ""
 
-#: ../../source/installation/prep.rst:127
+#: ../../source/installation/prep.rst:131
 msgid ""
 "How much does it cost to subscribe to a service to create persistent "
 "identifiers such as DOIs or handles?"
 msgstr ""
 
-#: ../../source/installation/prep.rst:130
+#: ../../source/installation/prep.rst:134
 msgid "Next Steps"
 msgstr ""
 
-#: ../../source/installation/prep.rst:132
+#: ../../source/installation/prep.rst:136
 msgid ""
 "Proceed to the :doc:`prerequisites` section which will help you get ready"
 " to run the Dataverse installation script."

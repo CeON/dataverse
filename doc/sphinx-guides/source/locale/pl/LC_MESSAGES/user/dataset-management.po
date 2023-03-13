@@ -1,84 +1,76 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/user/dataset-management.rst:2
+#: ../../source/user/dataset-management.rst:6
 msgid "Dataset + File Management"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:4
+#: ../../source/user/dataset-management.rst:8
 msgid ""
 "A dataset in Dataverse is a container for your data, documentation, code,"
 " and the metadata describing this Dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:9
-msgid "Schematic Diagram of a Dataset"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:9
+#: ../../source/user/dataset-management.rst:13
 msgid ""
 "Schematic diagram of a Dataset in *Dataverse 4.0*. Dataset is a container"
 " for your data, documentation and code."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:14
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:17
+#: ../../source/user/dataset-management.rst:21
 msgid "Supported Metadata"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:19
+#: ../../source/user/dataset-management.rst:23
 msgid "A dataset contains three levels of metadata:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:21
+#: ../../source/user/dataset-management.rst:25
 msgid ""
 "**Citation Metadata**: any metadata that would be needed for generating a"
 " data citation and other general metadata that could be applied to any "
 "dataset;"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:22
+#: ../../source/user/dataset-management.rst:26
 msgid ""
 "**Domain Specific Metadata**: with specific support currently for Social "
 "Science, Life Science, Geospatial, and Astronomy datasets; and"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:23
+#: ../../source/user/dataset-management.rst:27
 msgid ""
 "**File-level Metadata**: varies depending on the type of data file - for "
 "more details see :ref:`file-handling` section)."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:25
+#: ../../source/user/dataset-management.rst:29
 msgid ""
 "For more details about what Citation and Domain Specific Metadata is "
 "supported please see our :ref:`user-appendix`."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:30
+#: ../../source/user/dataset-management.rst:34
 msgid "Supported Metadata Export Formats"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:32
+#: ../../source/user/dataset-management.rst:36
 msgid ""
 "Once a dataset has been published its metadata is exported in a variety "
 "of formats. A button on the dataset page's metadata tab will allow a user"
@@ -86,56 +78,56 @@ msgid ""
 "dataset. Currently supported export formats are:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:34
+#: ../../source/user/dataset-management.rst:38
 msgid "Dublin Core"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:35
+#: ../../source/user/dataset-management.rst:39
 msgid "DDI (Data Documentation Initiative)"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:36
+#: ../../source/user/dataset-management.rst:40
 msgid "DataCite 4"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:37
+#: ../../source/user/dataset-management.rst:41
 msgid "JSON (native Dataverse format)"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:38
+#: ../../source/user/dataset-management.rst:42
 msgid "OAI_ORE"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:39
+#: ../../source/user/dataset-management.rst:43
 msgid "OpenAIRE"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:40
+#: ../../source/user/dataset-management.rst:44
 msgid "Schema.org JSON-LD"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:43
+#: ../../source/user/dataset-management.rst:47
 msgid "Adding a New Dataset"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:45
+#: ../../source/user/dataset-management.rst:49
 msgid "Navigate to the dataverse in which you want to add a dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:46
+#: ../../source/user/dataset-management.rst:50
 msgid ""
 "Click on the \"Add Data\" button and select \"New Dataset\" in the "
 "dropdown menu."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:47
+#: ../../source/user/dataset-management.rst:51
 msgid ""
 "To quickly get started, enter at minimum all the required fields with an "
 "asterisk (e.g., the Dataset Title, Author, Description, Contact Email and"
 " Subject) to get a Data Citation with a DOI."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:49
+#: ../../source/user/dataset-management.rst:53
 msgid ""
 "Scroll down to the \"Files\" section and click on \"Select Files to Add\""
 " to add all the relevant files to your Dataset. You can also upload your "
@@ -148,23 +140,23 @@ msgid ""
 "Fingerprint (UNF) <unf>` will be added to this file."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:53
+#: ../../source/user/dataset-management.rst:57
 msgid ""
 "Click the \"Save Dataset\" button when you are done. Your unpublished "
 "dataset is now created."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:55
+#: ../../source/user/dataset-management.rst:59
 msgid ""
 "Note: You can add additional metadata once you have completed the initial"
 " dataset creation by going to Edit Dataset > Metadata."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:60
+#: ../../source/user/dataset-management.rst:64
 msgid "Supported HTML Fields"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:62
+#: ../../source/user/dataset-management.rst:66
 msgid ""
 "We currently only support the following HTML tags for any of our textbox "
 "metadata fields (i.e., Description) : <a>, <b>, <blockquote>, <br>, "
@@ -173,11 +165,11 @@ msgid ""
 "<ul>."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:67
+#: ../../source/user/dataset-management.rst:71
 msgid "File Upload"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:69
+#: ../../source/user/dataset-management.rst:73
 msgid ""
 "The Dataverse software offers multiple methods of uploading files to a "
 "dataset. These upload methods are configurable by the administrator of a "
@@ -185,7 +177,7 @@ msgid ""
 " Dataverse site you're using."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:71
+#: ../../source/user/dataset-management.rst:75
 msgid ""
 "If there are multiple upload options available, then you must choose "
 "which one to use for your dataset. A dataset may only use one upload "
@@ -195,7 +187,7 @@ msgid ""
 "Support by clicking on the Support link at the top of the application."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:73
+#: ../../source/user/dataset-management.rst:77
 msgid ""
 "You can upload files to a dataset while first creating that dataset. You "
 "can also upload files after creating a dataset by clicking the \"Edit\" "
@@ -205,7 +197,7 @@ msgid ""
 "brought to the Upload Files page for that dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:75
+#: ../../source/user/dataset-management.rst:79
 msgid ""
 "Certain file types in Dataverse are supported by additional "
 "functionality, which can include downloading in different formats, file-"
@@ -214,11 +206,11 @@ msgid ""
 "handling` section of this page for more information."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:79
+#: ../../source/user/dataset-management.rst:83
 msgid "HTTP Upload"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:81
+#: ../../source/user/dataset-management.rst:85
 msgid ""
 "HTTP Upload is a common browser-based file upload tool you may be "
 "familiar with from other web applications. You can upload files via HTTP "
@@ -226,7 +218,7 @@ msgid ""
 "the upload widget."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:83
+#: ../../source/user/dataset-management.rst:87
 msgid ""
 "Once you have uploaded files, you will be able to edit file metadata, "
 "restrict access to files [#f1]_ , and/or add tags. Click \"Save Changes\""
@@ -235,7 +227,7 @@ msgid ""
 "then clicking the \"Delete\" button above the Files Table."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:85
+#: ../../source/user/dataset-management.rst:89
 msgid ""
 "File upload limit size varies based on Dataverse installation. The file "
 "upload size limit can be found in the text above the HTTP upload widget. "
@@ -244,15 +236,15 @@ msgid ""
 "Dataverse offers it."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:87
+#: ../../source/user/dataset-management.rst:91
 msgid "Some Dataverse installations do not allow this feature."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:90
+#: ../../source/user/dataset-management.rst:94
 msgid "Dropbox Upload"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:92
+#: ../../source/user/dataset-management.rst:96
 msgid ""
 "Some Dataverse installations support the ability to upload files directly"
 " from Dropbox. To do so, click the \"Upload from Dropbox\" button, log in"
@@ -260,11 +252,11 @@ msgid ""
 "transfer over."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:97
+#: ../../source/user/dataset-management.rst:101
 msgid "rsync + SSH Upload"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:99
+#: ../../source/user/dataset-management.rst:103
 msgid ""
 "rsync is typically used for synchronizing files and directories between "
 "two different systems, using SSH to connect rather than HTTP. Some "
@@ -272,11 +264,11 @@ msgid ""
 "file transfers in a reliable and secure manner."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:102
+#: ../../source/user/dataset-management.rst:106
 msgid "File Upload Script"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:104
+#: ../../source/user/dataset-management.rst:108
 msgid ""
 "An rsync-enabled Dataverse installation has a file upload process that "
 "differs from the traditional browser-based upload process you may be used"
@@ -284,7 +276,7 @@ msgid ""
 " to complete the following steps:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:106
+#: ../../source/user/dataset-management.rst:110
 msgid ""
 "Create your dataset. In rsync-enabled Dataverse installations, you cannot"
 " upload files until the dataset creation process is complete. After you "
@@ -292,13 +284,13 @@ msgid ""
 "the page for your dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:108
+#: ../../source/user/dataset-management.rst:112
 msgid ""
 "On the dataset page, click the \"+ Upload Files\" button. This will open "
 "a box with instructions and a link to the file upload script."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:110
+#: ../../source/user/dataset-management.rst:114
 msgid ""
 "Make sure your files are ready for upload. You will need to have one "
 "directory that you can point the upload script to. All files in this "
@@ -309,7 +301,7 @@ msgid ""
 "Be sure that all files you want to include are present before you upload."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:112
+#: ../../source/user/dataset-management.rst:116
 msgid ""
 "Download the rsync file upload script by clicking the \"Download Script\""
 " button in the Upload Files instruction box. There are no requirements "
@@ -324,7 +316,7 @@ msgid ""
 "contact Support about unlocking your dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:114
+#: ../../source/user/dataset-management.rst:118
 msgid ""
 "To begin the upload process, you will need to run the script you "
 "downloaded. For this, you will have to go outside your browser and open a"
@@ -336,7 +328,7 @@ msgid ""
 "simply download the script from Dataverse again."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:116
+#: ../../source/user/dataset-management.rst:120
 msgid ""
 "**Note:** Unlike other operating systems, Windows does not come with "
 "rsync supported by default. We have not optimized this feature for "
@@ -348,7 +340,7 @@ msgid ""
 "document in the root of the source tree.)"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:118
+#: ../../source/user/dataset-management.rst:122
 msgid ""
 "Follow the instructions provided by the upload script running in your "
 "terminal. It will direct you to enter the full path of the directory "
@@ -359,7 +351,7 @@ msgid ""
 "later."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:120
+#: ../../source/user/dataset-management.rst:124
 msgid ""
 "Once the upload script completes its job, Dataverse will begin processing"
 " your data upload and running a checksum validation. This may take some "
@@ -368,84 +360,24 @@ msgid ""
 " in progress...\""
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:122
+#: ../../source/user/dataset-management.rst:126
 msgid ""
 "Once processing is complete, you will be notified. At this point you can "
 "publish your dataset and your data will be available for download on the "
 "dataset page."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:124
+#: ../../source/user/dataset-management.rst:128
 msgid ""
 "**Note:** A dataset can only hold one data package. If you need to "
 "replace the data package in your dataset, contact Support."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:127
-msgid "Command-line DVUploader"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:129
-msgid ""
-"The open-source DVUploader tool is a stand-alone command-line Java "
-"application that uses the Dataverse API to upload files to a specified "
-"Dataset. Since it can be installed by users, and requires no server-side "
-"configuration, it can be used with any Dataverse installation. It is "
-"intended as an alternative to uploading files through the Dataverse web "
-"interface in situations where the web interface is inconvenient due to "
-"the number of files or file locations (spread across multiple "
-"directories, mixed with files that have already been uploaded or file "
-"types that should be excluded) or the need to automate uploads. Since it "
-"uses the Dataverse API, transfers are limited in the same ways as HTTP "
-"uploads through the Dataverse web interface in terms of size and "
-"performance. The DVUploader logs its activity and can be killed and "
-"restarted as desired. If stopped and resumed, it will continue processing"
-" from where it left off."
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:132
-msgid "Usage"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:134
-msgid ""
-"The DVUploader is open source and is available as source, as a Java jar, "
-"and with documentation at https://github.com/IQSS/dataverse-uploader. The"
-" DVUploader requires Java 1.8+. Users will need to install Java if they "
-"don't already have it and then download the DVUploader-v1.0.0.jar file. "
-"Users will need to know the URL of the Dataverse server, the DOI of their"
-" existing Dataverse Dataset, and have generated a Dataverse API Key (an "
-"option in the user's profile menu)."
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:136
-msgid "Basic usage is to run the command: ::"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:140
-msgid ""
-"Additional command line arguments are available to make the DVUploader "
-"list what it would do without uploading, limit the number of files it "
-"uploads, recurse through sub-directories, verify fixity, exclude files "
-"with specific extensions or name patterns, and/or wait longer than 60 "
-"seconds for any Dataverse ingest lock to clear (e.g. while the previously"
-" uploaded file is processed, as discussed in the :ref:`file-handling` "
-"section below)."
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:142
-msgid ""
-"DVUploader is a community-developed tool, and its creation was primarily "
-"supported by the Texas Digital Library. Further information and support "
-"for DVUploader can be sought at `the project's GitHub repository "
-"<https://github.com/IQSS/dataverse-uploader>`_ ."
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:147
+#: ../../source/user/dataset-management.rst:133
 msgid "File Handling"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:149
+#: ../../source/user/dataset-management.rst:135
 msgid ""
 "Certain file types in Dataverse are supported by additional "
 "functionality, which can include downloading in different formats, file-"
@@ -454,11 +386,11 @@ msgid ""
 "information about special functionality for specific file types."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:153
+#: ../../source/user/dataset-management.rst:139
 msgid "Tabular Data Files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:155
+#: ../../source/user/dataset-management.rst:141
 msgid ""
 "Files in certain formats - Stata, SPSS, R, Excel(xlsx) and CSV - may be "
 "ingested as tabular data (see \"Tabular Data Ingest\" section of the User"
@@ -476,45 +408,45 @@ msgid ""
 "exploration/tworavens.html>`_ for more information."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:157
+#: ../../source/user/dataset-management.rst:143
 msgid ""
 "Additional download options available for tabular data (found in the same"
 " drop-down menu under the \"Download\" button):"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:159
+#: ../../source/user/dataset-management.rst:145
 msgid "As tab-delimited data (with the variable names in the first row);"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:160
+#: ../../source/user/dataset-management.rst:146
 msgid "The original file uploaded by the user;"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:161
+#: ../../source/user/dataset-management.rst:147
 msgid "Saved as R data (if the original file was not in R format);"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:162
+#: ../../source/user/dataset-management.rst:148
 msgid ""
 "Variable Metadata (as a `DDI Codebook "
 "<http://www.ddialliance.org/Specification/DDI-Codebook/>`_ XML file);"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:163
+#: ../../source/user/dataset-management.rst:149
 msgid ""
 "Data File Citation (currently in either RIS, EndNote XML, or BibTeX "
 "format);"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:164
+#: ../../source/user/dataset-management.rst:150
 msgid "All of the above, as a zipped bundle."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:168
+#: ../../source/user/dataset-management.rst:154
 msgid "Geospatial"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:170
+#: ../../source/user/dataset-management.rst:156
 msgid ""
 "Geospatial `shapefiles <http://en.wikipedia.org/wiki/Shapefile>`_ can be "
 "further explored and manipulated through our integration with `WorldMap "
@@ -527,81 +459,81 @@ msgid ""
 "required for WorldMap--or any type of meaningful visualization."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:172
+#: ../../source/user/dataset-management.rst:158
 msgid ""
 "For ingest into Dataverse and connecting to WorldMap, these 4 files are "
 "the minimum required:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:174
+#: ../../source/user/dataset-management.rst:160
 msgid ".shp - shape format; the feature geometry itself"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:175
+#: ../../source/user/dataset-management.rst:161
 msgid ""
 ".shx - shape index format; a positional index of the feature geometry to "
 "allow seeking forwards and backwards quickly"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:176
+#: ../../source/user/dataset-management.rst:162
 msgid ""
 ".dbf - attribute format; columnar attributes for each shape, in dBase IV "
 "format"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:177
+#: ../../source/user/dataset-management.rst:163
 msgid ""
 ".prj - projection format; the coordinate system and projection "
 "information, a plain text file describing the projection using well-known"
 " text format"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:179
+#: ../../source/user/dataset-management.rst:165
 msgid ""
 "For a zipped shapefile, we require 4 files with these extensions. Other "
 "files may be included within the zipped shapefile, but they are not "
 "required:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:181
+#: ../../source/user/dataset-management.rst:167
 msgid ".shp"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:182
+#: ../../source/user/dataset-management.rst:168
 msgid ".shx"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:183
+#: ../../source/user/dataset-management.rst:169
 msgid ".prj"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:184
+#: ../../source/user/dataset-management.rst:170
 msgid ".dbf"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:186
+#: ../../source/user/dataset-management.rst:172
 msgid ""
 "For example, if these files were included within a .zip, the “Map Data” "
 "button would appear:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:188
+#: ../../source/user/dataset-management.rst:174
 msgid "subway_line.shp"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:189
+#: ../../source/user/dataset-management.rst:175
 msgid "subway_line.shx"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:190
+#: ../../source/user/dataset-management.rst:176
 msgid "subway_line.prj"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:191
+#: ../../source/user/dataset-management.rst:177
 msgid "subway_line.dbf"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:193
+#: ../../source/user/dataset-management.rst:179
 msgid ""
 "Once you publish your dataset with your shape files, you will be able to "
 "use the \"Map Data\" button using `GeoConnect "
@@ -614,11 +546,11 @@ msgid ""
 " at any time."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:196
+#: ../../source/user/dataset-management.rst:182
 msgid "Astronomy (FITS)"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:198
+#: ../../source/user/dataset-management.rst:184
 msgid ""
 "Metadata found in the header section of `Flexible Image Transport System "
 "(FITS) files <http://fits.gsfc.nasa.gov/fits_primer.html>`_ are "
@@ -628,11 +560,11 @@ msgid ""
 "(facets) at the Dataset-level."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:201
+#: ../../source/user/dataset-management.rst:187
 msgid "Compressed Files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:203
+#: ../../source/user/dataset-management.rst:189
 msgid ""
 "Compressed files in zip format are unpacked automatically. If it fails to"
 " unpack, for whatever reason, it will upload as is. If the number of "
@@ -641,7 +573,7 @@ msgid ""
 "uploads as is."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:205
+#: ../../source/user/dataset-management.rst:191
 msgid ""
 "If the uploaded zip file contains sub-folders, the names of the folders "
 "will be preserved as the ``DirectoryLabel`` attributes in the "
@@ -653,43 +585,43 @@ msgid ""
 "well."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:207
+#: ../../source/user/dataset-management.rst:193
 msgid ""
 "Support for unpacking tar files will be added when this ticket is closed:"
 " https://github.com/IQSS/dataverse/issues/2195."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:210
+#: ../../source/user/dataset-management.rst:196
 msgid "Other File Types"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:212
+#: ../../source/user/dataset-management.rst:198
 msgid "There are several advanced options available for certain file types."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:214
+#: ../../source/user/dataset-management.rst:200
 msgid ""
 "Image files: .jpg, .png, and .tif files are able to be selected as the "
 "default thumbnail for a dataset. The selected thumbnail will appear on "
 "the search result card for that dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:215
+#: ../../source/user/dataset-management.rst:201
 msgid ""
 "SPSS files: SPSS files can be tagged with the language they were "
 "originally coded in. This is found by clicking on Advanced Options and "
 "selecting the language from the list provided."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:218
+#: ../../source/user/dataset-management.rst:204
 msgid "Edit Files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:221
+#: ../../source/user/dataset-management.rst:207
 msgid "Edit File Metadata"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:223
+#: ../../source/user/dataset-management.rst:209
 msgid ""
 "Go to the dataset you would like to edit, where you will see the listing "
 "of files. Select the files you would like to edit by using either the "
@@ -698,27 +630,27 @@ msgid ""
 "select if you would like to:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:225
+#: ../../source/user/dataset-management.rst:211
 msgid "Delete the selected files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:226
+#: ../../source/user/dataset-management.rst:212
 msgid "Edit the file metadata (file name, description) for the selected files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:227
+#: ../../source/user/dataset-management.rst:213
 msgid "Restrict the selected files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:228
+#: ../../source/user/dataset-management.rst:214
 msgid "Unrestrict the selected files (only if the selected files are restricted)"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:229
+#: ../../source/user/dataset-management.rst:215
 msgid "Add tags to the selected files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:231
+#: ../../source/user/dataset-management.rst:217
 msgid ""
 "You will not have to leave the dataset page to complete these action, "
 "except for editing file metadata, which will bring you to the Edit Files "
@@ -726,7 +658,7 @@ msgid ""
 "your edits and return to the dataset page."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:233
+#: ../../source/user/dataset-management.rst:219
 msgid ""
 "If you restrict files, you will also prompted with a popup asking you to "
 "fill out the Terms of Access for the files. If Terms of Access already "
@@ -734,11 +666,11 @@ msgid ""
 "installations do not allow for file restrictions."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:236
+#: ../../source/user/dataset-management.rst:222
 msgid "File Tags"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:238
+#: ../../source/user/dataset-management.rst:224
 msgid ""
 "File tags are comprised of custom, category (i.e. Documentation, Data, "
 "Code) and tabular data tags (i.e. Event, Genomics, Geospatial, Network, "
@@ -748,11 +680,11 @@ msgid ""
 "unused file tags within that dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:241
+#: ../../source/user/dataset-management.rst:227
 msgid "Replace Files"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:243
+#: ../../source/user/dataset-management.rst:229
 msgid ""
 "In cases where you would like to revise an existing file rather than add "
 "a new one, you can do so using our Replace File feature. This will allow "
@@ -768,7 +700,7 @@ msgid ""
 "page."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:245
+#: ../../source/user/dataset-management.rst:231
 msgid ""
 "To replace a file, go to the file page for that file, click on the "
 "\"Edit\" button, and from the dropdown list select \"Replace\". This will"
@@ -779,7 +711,7 @@ msgid ""
 "\"Save Changes\" button."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:247
+#: ../../source/user/dataset-management.rst:233
 msgid ""
 "After successfully replacing a file, a new dataset draft version will be "
 "created. A summary of your actions will be recorded in the \"Versions\" "
@@ -789,11 +721,11 @@ msgid ""
 "you replaced it."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:252
+#: ../../source/user/dataset-management.rst:238
 msgid "Terms"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:254
+#: ../../source/user/dataset-management.rst:240
 msgid ""
 "Dataset terms can be viewed and edited from the Terms tab of the dataset "
 "page, or under the Edit dropdown button of a Dataset. There, you can set "
@@ -804,18 +736,18 @@ msgid ""
 "purposes. These are explained in further detail below:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:257
+#: ../../source/user/dataset-management.rst:243
 msgid "CC0 Public Domain Dedication"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:258
+#: ../../source/user/dataset-management.rst:244
 msgid ""
 "By default, all new datasets created through Dataverse's web UI are given"
 " a `Creative Commons CC0 Public Domain Dedication "
 "<https://creativecommons.org/publicdomain/zero/1.0/>`_."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:260
+#: ../../source/user/dataset-management.rst:246
 msgid ""
 "The `Creative Commons <https://creativecommons.org>`_ organization "
 "defines a number of `licenses <https://creativecommons.org/licenses/>`_ "
@@ -827,7 +759,7 @@ msgid ""
 "it easy to dedicate IP to the public domain."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:262
+#: ../../source/user/dataset-management.rst:248
 msgid ""
 "In the context of Dataverse, their `CC0 Public Domain Dedication "
 "<https://creativecommons.org/share-your-work/public-domain/cc0>`_ allows "
@@ -843,7 +775,7 @@ msgid ""
 "copyright pitfalls."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:264
+#: ../../source/user/dataset-management.rst:250
 msgid ""
 "Though CC0 waives a dataset owner's legal copyright controls over the "
 "data, it does not exempt Dataverse users from following ethical and "
@@ -856,7 +788,7 @@ msgid ""
 "Community and the entire wider scholarly community."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:266
+#: ../../source/user/dataset-management.rst:252
 msgid ""
 "Additionally, users are still expected to respect access restrictions and"
 " other terms applied to CC0 files in Dataverse. Additional restrictions, "
@@ -865,13 +797,13 @@ msgid ""
 " to data."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:268
+#: ../../source/user/dataset-management.rst:254
 msgid ""
 "If a data owner feels that CC0 is not suitable for their data, they are "
 "able to enter custom Terms of Use, as detailed in the following section."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:270
+#: ../../source/user/dataset-management.rst:256
 msgid ""
 "\\* **Legal Disclaimer:** these `Community Norms <https://dataverse.org"
 "/best-practices/dataverse-community-norms>`_ are not a substitute for the"
@@ -881,11 +813,11 @@ msgid ""
 " follow these policies."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:273
+#: ../../source/user/dataset-management.rst:259
 msgid "Custom Terms of Use for Datasets"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:275
+#: ../../source/user/dataset-management.rst:261
 msgid ""
 "If you are unable to use the CC0 Public Domain Dedication for your "
 "datasets, you may specify your own custom Terms of Use. To do so, select "
@@ -896,18 +828,18 @@ msgid ""
 "Requirements, etc."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:277
+#: ../../source/user/dataset-management.rst:263
 msgid ""
 "Here is an `example of a Data Usage Agreement <https://dataverse.org"
 "/best-practices/sample-dua>`_ for datasets that have de-identified human "
 "subject data."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:280
+#: ../../source/user/dataset-management.rst:266
 msgid "Restricted Files + Terms of Access"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:282
+#: ../../source/user/dataset-management.rst:268
 msgid ""
 "If you restrict any files in your dataset, you will be prompted by a pop-"
 "up to enter Terms of Access for the data. This can also be edited in the "
@@ -918,15 +850,15 @@ msgid ""
 "Availability Status, Contact for Access, etc."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:284
+#: ../../source/user/dataset-management.rst:270
 msgid "**Note:** Some Dataverse installations do not allow for file restriction."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:287
+#: ../../source/user/dataset-management.rst:273
 msgid "Guestbook"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:289
+#: ../../source/user/dataset-management.rst:275
 msgid ""
 "This is where you will enable a particular Guestbook for your dataset, "
 "which is setup at the Dataverse-level. For specific instructions please "
@@ -934,11 +866,11 @@ msgid ""
 "Dataverse Management page."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:294
+#: ../../source/user/dataset-management.rst:280
 msgid "Roles & Permissions"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:296
+#: ../../source/user/dataset-management.rst:282
 msgid ""
 "Dataverse user accounts can be granted roles that define which actions "
 "they are allowed to take on specific dataverses, datasets, and/or files. "
@@ -946,7 +878,7 @@ msgid ""
 "actions that users may take."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:298
+#: ../../source/user/dataset-management.rst:284
 msgid ""
 "Roles and permissions may also be granted to groups. Groups can be "
 "defined as a collection of Dataverse user accounts, a collection of IP "
@@ -955,11 +887,11 @@ msgid ""
 "everyone who logs in with a particular university's account credentials)."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:301
+#: ../../source/user/dataset-management.rst:287
 msgid "Dataset-Level"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:303
+#: ../../source/user/dataset-management.rst:289
 msgid ""
 "Admins or curators of a dataset can assign roles and permissions to the "
 "users of that dataset. If you are an admin or curator of a dataset, then "
@@ -968,11 +900,11 @@ msgid ""
 " \"Dataset\"."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:305
+#: ../../source/user/dataset-management.rst:291
 msgid "When you access a dataset's permissions page, you will see two sections:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:307
+#: ../../source/user/dataset-management.rst:293
 msgid ""
 "**Users/Groups:** Here you can assign roles to specific users or groups, "
 "determining which actions they are permitted to take on your dataset. You"
@@ -982,18 +914,18 @@ msgid ""
 "those roles can only be removed from the dataverse permissions page."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:309
+#: ../../source/user/dataset-management.rst:295
 msgid ""
 "**Roles:** Here you can reference a full list of roles that can be "
 "assigned to users of your dataset. Each role lists the permissions that "
 "it offers."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:312
+#: ../../source/user/dataset-management.rst:298
 msgid "File-Level"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:314
+#: ../../source/user/dataset-management.rst:300
 msgid ""
 "If specific files in your dataset are restricted access, then you can "
 "grant specific users or groups access to those files while still keeping "
@@ -1003,13 +935,13 @@ msgid ""
 "dropdown list, and clicking \"File\"."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:316
+#: ../../source/user/dataset-management.rst:302
 msgid ""
 "When you access a dataset's file-level permissions page, you will see two"
 " sections:"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:318
+#: ../../source/user/dataset-management.rst:304
 msgid ""
 "**Users/Groups:** Here you can see which users or groups have been "
 "granted access to which files. You can click the \"Grant Access to "
@@ -1019,7 +951,7 @@ msgid ""
 "their access request here."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:320
+#: ../../source/user/dataset-management.rst:306
 msgid ""
 "**Restricted Files:** In this section, you can see the same information, "
 "but broken down by each individual file in your dataset. For each file, "
@@ -1027,11 +959,11 @@ msgid ""
 "grant access to that file to specific users or groups."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:325
+#: ../../source/user/dataset-management.rst:311
 msgid "Data Provenance"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:327
+#: ../../source/user/dataset-management.rst:313
 msgid ""
 "Data Provenance is a record of where your data came from and how it "
 "reached its current form. It describes the origin of a data file, any "
@@ -1047,7 +979,7 @@ msgid ""
 " repository."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:331
+#: ../../source/user/dataset-management.rst:317
 msgid ""
 "Dataverse accepts provenance information in two forms: a *Provenance "
 "File* or a free-text *Provenance Description*. You can attach this "
@@ -1056,29 +988,21 @@ msgid ""
 "upload-prov-button`)."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:338
-msgid "Edit provenance screenshot"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:338
+#: ../../source/user/dataset-management.rst:324
 msgid "Screenshot of file edit with highlighted entry point for provenance edit"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:340
+#: ../../source/user/dataset-management.rst:326
 msgid ""
 "This will open a window where you can add your Provenance File and/or "
 "Provenance Description (see: :numref:`file-upload-prov-window`)."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:347
-msgid "Edit provenance modal window"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:347
+#: ../../source/user/dataset-management.rst:333
 msgid "Screenshot of provenance editing modal window"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:349
+#: ../../source/user/dataset-management.rst:335
 msgid ""
 "A **Provenance File** is the preferred way of submitting provenance "
 "information to Dataverse because it provides a detailed and trustworthy "
@@ -1087,7 +1011,7 @@ msgid ""
 "NoWorkFlow, recordr, or CamFlow."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:351
+#: ../../source/user/dataset-management.rst:337
 msgid ""
 "Once you upload a provenance file, Dataverse will need some additional "
 "information in order to accurately connect it to your data file. Once "
@@ -1101,14 +1025,14 @@ msgid ""
 "in the provenance file."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:353
+#: ../../source/user/dataset-management.rst:339
 msgid ""
 "For more information on entities and the contents of provenance files, "
 "see `the W3C PROV Model Primer  <https://www.w3.org/TR/prov-primer"
 "/#intuitive-overview-of-prov>`_."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:355
+#: ../../source/user/dataset-management.rst:341
 msgid ""
 "Once you've uploaded your Provenance File and connected the proper "
 "entity, you can hit the Preview button to view the raw JSON of the "
@@ -1127,7 +1051,7 @@ msgid ""
 "the warning popup."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:359
+#: ../../source/user/dataset-management.rst:345
 msgid ""
 "A **Provenance Description** allows you to add more provenance "
 "information in addition to or in place of a provenance file. This is a "
@@ -1142,22 +1066,22 @@ msgid ""
 "made permanent: you can always edit, remove, or replace it at any time."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:361
+#: ../../source/user/dataset-management.rst:347
 msgid ""
 "You can return to attach provenance to your data file later on by "
 "clicking the \"Add + Edit Metadata\" button on the file page, and then "
 "clicking the \"Edit -> Provenance\" button."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:374
+#: ../../source/user/dataset-management.rst:360
 msgid "Thumbnails + Widgets"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:377
+#: ../../source/user/dataset-management.rst:363
 msgid "Thumbnails"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:379
+#: ../../source/user/dataset-management.rst:365
 msgid ""
 "Thumbnail images can be assigned to a dataset manually or automatically. "
 "The thumbnail for a dataset appears on the search result card for that "
@@ -1166,24 +1090,24 @@ msgid ""
 "images is automatically selected as the dataset thumbnail."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:381
+#: ../../source/user/dataset-management.rst:367
 msgid ""
 "If you would like to manually select your dataset's thumbnail, you can do"
 " so by clicking the \"Edit\" button on your dataset, and selecting "
 "\"Thumbnails + Widgets\" from the dropdown menu."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:383
+#: ../../source/user/dataset-management.rst:369
 msgid "On this page, under the Thumbnail tab you will see three possible actions."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:385
+#: ../../source/user/dataset-management.rst:371
 msgid ""
 "**Select Available File:** Click the \"Select Thumbnail\" button to "
 "choose an image from your dataset to use as the dataset thumbnail."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:387
+#: ../../source/user/dataset-management.rst:373
 msgid ""
 "**Upload New File:** Upload an image file from your computer to use as "
 "the dataset thumbnail. While by default your thumbnail image is drawn "
@@ -1193,7 +1117,7 @@ msgid ""
 "data file in your dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:389
+#: ../../source/user/dataset-management.rst:375
 msgid ""
 "**Remove Thumbnail:** If you click the \"Remove\" button under the "
 "thumbnail image, you will remove the dataset's current thumbnail. The "
@@ -1201,24 +1125,24 @@ msgid ""
 "dataset thumbnail."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:391
+#: ../../source/user/dataset-management.rst:377
 msgid ""
 "When you're finished on this page, be sure to click \"Save Changes\" to "
 "save what you've done."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:393
+#: ../../source/user/dataset-management.rst:379
 msgid ""
 "Note: If you prefer, it is also possible to set an image file in your "
 "dataset as your thumbnail by selecting the file, going to Edit Files -> "
 "Metadata, and using the \"Set Thumbnail\" button."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:396
+#: ../../source/user/dataset-management.rst:382
 msgid "Widgets"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:398
+#: ../../source/user/dataset-management.rst:384
 msgid ""
 "The Widgets feature provides you with code for your personal website so "
 "your dataset can be displayed. There are two types of Widgets for a "
@@ -1228,7 +1152,7 @@ msgid ""
 " dropdown menu."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:400
+#: ../../source/user/dataset-management.rst:386
 msgid ""
 "In the Widgets tab, you can copy and paste the code snippets for the "
 "widget you would like to add to your website. If you need to adjust the "
@@ -1236,11 +1160,11 @@ msgid ""
 "`heightPx=500` parameter in the code snippet."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:403
+#: ../../source/user/dataset-management.rst:389
 msgid "Dataset Widget"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:405
+#: ../../source/user/dataset-management.rst:391
 msgid ""
 "The Dataset Widget allows the citation, metadata, files and terms of your"
 " dataset to be displayed on your website. When someone downloads a data "
@@ -1249,7 +1173,7 @@ msgid ""
 " to log in, instead of logging in through the widget on your site."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:407
+#: ../../source/user/dataset-management.rst:393
 msgid ""
 "To edit your dataset, you will need to return to the Dataverse repository"
 " where the dataset is stored. You can easily do this by clicking on the "
@@ -1257,11 +1181,11 @@ msgid ""
 " the widget."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:410
+#: ../../source/user/dataset-management.rst:396
 msgid "Dataset Citation Widget"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:412
+#: ../../source/user/dataset-management.rst:398
 msgid ""
 "The Dataset Citation Widget will provide a citation for your dataset on "
 "your personal or project website. Users can download the citation in "
@@ -1269,25 +1193,25 @@ msgid ""
 "citation will direct users to the dataset in your dataverse."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:415
+#: ../../source/user/dataset-management.rst:401
 msgid "Adding Widgets to an OpenScholar Website"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:417
+#: ../../source/user/dataset-management.rst:403
 msgid "Log in to your OpenScholar website"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:418
+#: ../../source/user/dataset-management.rst:404
 msgid ""
 "Either build a new page or navigate to the page you would like to use to "
 "show the Dataverse widgets."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:419
+#: ../../source/user/dataset-management.rst:405
 msgid "Click on the Settings Cog and select Layout"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:420
+#: ../../source/user/dataset-management.rst:406
 msgid ""
 "At the top right, select Add New Widget and under Misc. you will see the "
 "Dataverse Dataset and the Dataverse Dataset Citation Widgets. Click on "
@@ -1295,11 +1219,11 @@ msgid ""
 "where you would like it to display in the page."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:423
+#: ../../source/user/dataset-management.rst:409
 msgid "Publish Dataset"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:425
+#: ../../source/user/dataset-management.rst:411
 msgid ""
 "When you publish a dataset (available to an Admin, Curator, or any custom"
 " role which has this level of permission assigned), you make it available"
@@ -1310,25 +1234,25 @@ msgid ""
 "dataset is made public it can no longer be unpublished."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:427
+#: ../../source/user/dataset-management.rst:413
 msgid ""
 "Whenever you edit your dataset, you are able to publish a new version of "
 "the dataset. The publish dataset button will reappear whenever you edit "
 "the metadata of the dataset or add a file."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:429
+#: ../../source/user/dataset-management.rst:415
 msgid ""
 "Note: Prior to publishing your dataset the Data Citation will indicate "
 "that this is a draft but the \"DRAFT VERSION\" text will be removed as "
 "soon as you Publish."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:433
+#: ../../source/user/dataset-management.rst:419
 msgid "Submit for Review"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:435
+#: ../../source/user/dataset-management.rst:421
 msgid ""
 "If you have a Contributor role (can edit metadata, upload files, and edit"
 " files, edit Terms, Guestbook, and Submit datasets for review) in a "
@@ -1345,11 +1269,11 @@ msgid ""
 "submitted for review again."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:440
+#: ../../source/user/dataset-management.rst:426
 msgid "Private URL to Review Unpublished Dataset"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:442
+#: ../../source/user/dataset-management.rst:428
 msgid ""
 "Creating a Private URL for your dataset allows you to share your dataset "
 "(for viewing and downloading of files) before it is published to a wide "
@@ -1358,41 +1282,41 @@ msgid ""
 "the dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:444
+#: ../../source/user/dataset-management.rst:430
 msgid "Go to your unpublished dataset"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:445
+#: ../../source/user/dataset-management.rst:431
 msgid "Select the “Edit” button"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:446
+#: ../../source/user/dataset-management.rst:432
 msgid "Select “Private URL” in the dropdown menu"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:447
+#: ../../source/user/dataset-management.rst:433
 msgid "In the pop-up select “Create Private URL”"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:448
+#: ../../source/user/dataset-management.rst:434
 msgid ""
 "Copy the Private URL which has been created for this dataset and it can "
 "now be shared with anyone you wish to have access to view or download "
 "files in your unpublished dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:450
+#: ../../source/user/dataset-management.rst:436
 msgid ""
 "To disable a Private URL and to revoke access, follow the same steps as "
 "above until step #3 when you return to the popup, click the “Disable "
 "Private URL” button."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:453
+#: ../../source/user/dataset-management.rst:439
 msgid "Dataset Versions"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:455
+#: ../../source/user/dataset-management.rst:441
 msgid ""
 "Versioning is important for long-term research data management where "
 "metadata and/or files are updated over time. It is used to track any "
@@ -1401,15 +1325,11 @@ msgid ""
 "dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:460
-msgid "Dataset versioning"
-msgstr ""
-
-#: ../../source/user/dataset-management.rst:460
+#: ../../source/user/dataset-management.rst:446
 msgid "Schematic diagram presenting rules of Dataset versioning"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:462
+#: ../../source/user/dataset-management.rst:448
 msgid ""
 "Once you edit your published dataset a new draft version of this dataset "
 "will be created. To publish this new version of your dataset, select the "
@@ -1419,14 +1339,14 @@ msgid ""
 "version 2.0."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:464
+#: ../../source/user/dataset-management.rst:450
 msgid ""
 "**Important Note:** If you add a file, your dataset will automatically be"
 " bumped up to a major version (e.g., if you were at 1.0 you will go to "
 "2.0)."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:466
+#: ../../source/user/dataset-management.rst:452
 msgid ""
 "On the Versions tab of a dataset page, there is a versions table that "
 "displays the version history of the dataset. You can use the version "
@@ -1435,7 +1355,7 @@ msgid ""
 "permission to access it."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:468
+#: ../../source/user/dataset-management.rst:454
 msgid ""
 "There is also a Versions tab on the file page. The versions table for a "
 "file displays the same information as the dataset, but the summaries are "
@@ -1445,11 +1365,11 @@ msgid ""
 "changes associated with this version\"."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:471
+#: ../../source/user/dataset-management.rst:457
 msgid "Version Details"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:473
+#: ../../source/user/dataset-management.rst:459
 msgid ""
 "To view exactly what has changed, starting from the originally published "
 "version to any subsequent published versions: click the Versions tab on "
@@ -1457,7 +1377,7 @@ msgid ""
 " dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:475
+#: ../../source/user/dataset-management.rst:461
 msgid ""
 "Once you have more than one version (this can simply be version 1 and a "
 "draft), you can click the \"View Details\" link next to each summary to "
@@ -1467,11 +1387,11 @@ msgid ""
 "Differences Details popup and compare the differences between them."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:480
+#: ../../source/user/dataset-management.rst:466
 msgid "Dataset Deaccession"
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:482
+#: ../../source/user/dataset-management.rst:468
 msgid ""
 "It is not recommended that you deaccession a dataset or a version of a "
 "dataset. This is a very serious action that should only occur if there is"
@@ -1480,7 +1400,7 @@ msgid ""
 "version of a dataset or an entire dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:484
+#: ../../source/user/dataset-management.rst:470
 msgid ""
 "To deaccession, go to your published dataset (or add a new one and "
 "publish it), click the \"Edit\" button, and from the dropdown menu select"
@@ -1489,14 +1409,14 @@ msgid ""
 "deaccession the entire dataset."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:486
+#: ../../source/user/dataset-management.rst:472
 msgid ""
 "You must also include a reason as to why this dataset was deaccessioned. "
 "Select the most appropriate reason from the dropdown list of options. If "
 "you select \"Other\", you must also provide additional information."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:488
+#: ../../source/user/dataset-management.rst:474
 msgid ""
 "Add more information as to why this was deaccessioned in the free-text "
 "box. If the dataset has moved to a different repository or site you are "
@@ -1504,7 +1424,7 @@ msgid ""
 " to be able to access this dataset in the future."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:490
+#: ../../source/user/dataset-management.rst:476
 msgid ""
 "If you deaccession the most recently published version of the dataset but"
 " not all versions of the dataset, you may then revisit an earlier version"
@@ -1514,7 +1434,7 @@ msgid ""
 " and a new draft version will be created."
 msgstr ""
 
-#: ../../source/user/dataset-management.rst:492
+#: ../../source/user/dataset-management.rst:478
 msgid ""
 "**Important Note**: A tombstone landing page with the basic citation "
 "metadata will always be accessible to the public if they use the "

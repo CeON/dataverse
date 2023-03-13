@@ -1,42 +1,38 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/metadatacustomization.rst:2
+#: ../../source/admin/metadatacustomization.rst:6
 msgid "Metadata Customization"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:4
+#: ../../source/admin/metadatacustomization.rst:8
 msgid ""
 "Dataverse has a flexible data-driven metadata system powered by "
 "\"metadata blocks\" that are listed in the :doc:`/user/appendix` section "
 "of the User Guide. In this section we explain the customization options."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:7
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/admin/metadatacustomization.rst:12
+#: ../../source/admin/metadatacustomization.rst:16
 msgid "Introduction"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:14
+#: ../../source/admin/metadatacustomization.rst:18
 msgid ""
 "Before you embark on customizing metadata in Dataverse you should make "
 "sure you are aware of the modest amount of customization that is "
@@ -47,39 +43,39 @@ msgid ""
 ":doc:`/user/dataverse-management` section of the User Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:16
+#: ../../source/admin/metadatacustomization.rst:20
 msgid ""
 "Much more customization of metadata is possible, but this is an advanced "
 "topic so feedback on what is written in this document is very welcome. "
 "The possibilities for customization include:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:18
+#: ../../source/admin/metadatacustomization.rst:22
 msgid "Editing and adding metadata fields"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:20
+#: ../../source/admin/metadatacustomization.rst:24
 msgid ""
 "Editing and adding instructional text (field label tooltips and text box "
 "watermarks)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:23
+#: ../../source/admin/metadatacustomization.rst:27
 msgid "Editing and adding controlled vocabularies"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:25
+#: ../../source/admin/metadatacustomization.rst:29
 msgid ""
 "Changing which fields depositors must use in order to save datasets (see "
 "also \"dataset templates\" in the :doc:`/user/dataverse-management` "
 "section of the User Guide.)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:27
+#: ../../source/admin/metadatacustomization.rst:31
 msgid "Changing how saved metadata values are displayed in the UI"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:29
+#: ../../source/admin/metadatacustomization.rst:33
 msgid ""
 "Generally speaking it is safer to create your own custom metadata block "
 "rather than editing metadata blocks that ship with Dataverse, because "
@@ -96,7 +92,7 @@ msgid ""
 ":doc:`/developers/version-control` section of the Developer Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:31
+#: ../../source/admin/metadatacustomization.rst:35
 msgid ""
 "In Dataverse 4, custom metadata are no longer defined as individual "
 "fields, as they were in Dataverse Network (DVN) 3.x, but in metadata "
@@ -106,7 +102,7 @@ msgid ""
 ":doc:`/user/appendix` section of the User Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:38
+#: ../../source/admin/metadatacustomization.rst:42
 msgid ""
 "Definitions of these blocks are loaded into a Dataverse installation in "
 "tab-separated value (TSV). [1]_\\ :sup:`,`\\  [2]_ While it is "
@@ -114,7 +110,7 @@ msgid ""
 "file, it is good organizational practice to define only one in each file."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:43
+#: ../../source/admin/metadatacustomization.rst:47
 msgid ""
 "The metadata block TSVs shipped with Dataverse are in `this folder in the"
 " Dataverse github repo "
@@ -129,157 +125,157 @@ msgid ""
 "not the Google spreadsheet."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:50
+#: ../../source/admin/metadatacustomization.rst:54
 msgid "About the metadata block TSV"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:52
+#: ../../source/admin/metadatacustomization.rst:56
 msgid ""
 "Here we list and describe the purposes of each section and property of "
 "the metadata block TSV."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:55
+#: ../../source/admin/metadatacustomization.rst:59
 msgid "metadataBlock"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:57
+#: ../../source/admin/metadatacustomization.rst:61
 msgid "Purpose: Represents the metadata block being defined."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:59
+#: ../../source/admin/metadatacustomization.rst:63
 msgid "Cardinality:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:61
+#: ../../source/admin/metadatacustomization.rst:65
 msgid "0 or more per Dataverse"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:63
+#: ../../source/admin/metadatacustomization.rst:67
 msgid "1 per Metadata Block definition"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:65
+#: ../../source/admin/metadatacustomization.rst:69
 msgid "datasetField"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:67
+#: ../../source/admin/metadatacustomization.rst:71
 msgid ""
 "Purpose: Each entry represents a metadata field to be defined within a "
 "metadata block."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:70
+#: ../../source/admin/metadatacustomization.rst:74
 msgid "Cardinality: 1 or more per metadataBlock"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:72
+#: ../../source/admin/metadatacustomization.rst:76
 msgid "controlledVocabulary"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:74
+#: ../../source/admin/metadatacustomization.rst:78
 msgid "Purpose: Each entry enumerates an allowed value for a given datasetField."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:77
+#: ../../source/admin/metadatacustomization.rst:81
 msgid "Cardinality: zero or more per datasetField"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:79
+#: ../../source/admin/metadatacustomization.rst:83
 msgid "Each of the three main sections own sets of properties:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:82
-#: ../../source/admin/metadatacustomization.rst:551
+#: ../../source/admin/metadatacustomization.rst:86
+#: ../../source/admin/metadatacustomization.rst:555
 msgid "#metadataBlock properties"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:85
-#: ../../source/admin/metadatacustomization.rst:130
-#: ../../source/admin/metadatacustomization.rst:328
+#: ../../source/admin/metadatacustomization.rst:89
+#: ../../source/admin/metadatacustomization.rst:134
+#: ../../source/admin/metadatacustomization.rst:332
 msgid "Property"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:85
-#: ../../source/admin/metadatacustomization.rst:130
-#: ../../source/admin/metadatacustomization.rst:328
+#: ../../source/admin/metadatacustomization.rst:89
+#: ../../source/admin/metadatacustomization.rst:134
+#: ../../source/admin/metadatacustomization.rst:332
 msgid "Purpose"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:85
-#: ../../source/admin/metadatacustomization.rst:130
-#: ../../source/admin/metadatacustomization.rst:328
+#: ../../source/admin/metadatacustomization.rst:89
+#: ../../source/admin/metadatacustomization.rst:134
+#: ../../source/admin/metadatacustomization.rst:332
 msgid "Allowed values and restrictions"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:88
-#: ../../source/admin/metadatacustomization.rst:133
+#: ../../source/admin/metadatacustomization.rst:92
+#: ../../source/admin/metadatacustomization.rst:137
 msgid "name"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:88
+#: ../../source/admin/metadatacustomization.rst:92
 msgid "A user-definable string used to identify a #metadataBlock"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:88
+#: ../../source/admin/metadatacustomization.rst:92
 msgid "No spaces or punctuation, except underscore."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:92
+#: ../../source/admin/metadatacustomization.rst:96
 msgid "By convention, should start with a letter, and use lower camel case [3]_"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:98
+#: ../../source/admin/metadatacustomization.rst:102
 msgid ""
 "Must not collide with a field of the same name in the same or any other "
 "#datasetField definition, including metadata blocks defined elsewhere. "
 "[4]_"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:109
+#: ../../source/admin/metadatacustomization.rst:113
 msgid "dataverseAlias"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:109
+#: ../../source/admin/metadatacustomization.rst:113
 msgid ""
 "If specified, this metadata block will be available only to the dataverse"
 " designated here by its alias and to children of that dataverse."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:109
+#: ../../source/admin/metadatacustomization.rst:113
 msgid "Free text. For an example, see custom_hbgdki.tsv."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:118
+#: ../../source/admin/metadatacustomization.rst:122
 msgid "displayName"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:118
+#: ../../source/admin/metadatacustomization.rst:122
 msgid "Acts as a brief label for display related to this #metadataBlock."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:118
+#: ../../source/admin/metadatacustomization.rst:122
 msgid ""
 "Should be relatively brief. The limit is 256 character, but very long "
 "names might cause display problems."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:127
-#: ../../source/admin/metadatacustomization.rst:563
+#: ../../source/admin/metadatacustomization.rst:131
+#: ../../source/admin/metadatacustomization.rst:567
 msgid "#datasetField (field) properties"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:133
+#: ../../source/admin/metadatacustomization.rst:137
 msgid ""
 "A user-definable string used to identify a #datasetField. Maps directly "
 "to field name used by Solr."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:133
+#: ../../source/admin/metadatacustomization.rst:137
 msgid "(from DatasetFieldType.java) The internal DDI-like name, no spaces, etc."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:139
+#: ../../source/admin/metadatacustomization.rst:143
 msgid ""
 "(from Solr) Field names should consist of alphanumeric or underscore "
 "characters only and not start with a digit. This is not currently "
@@ -289,125 +285,125 @@ msgid ""
 "reserved."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:163
+#: ../../source/admin/metadatacustomization.rst:167
 msgid ""
 "Must not collide with a field of the same same name in another "
 "#metadataBlock definition or any name already included as a field in the "
 "Solr index."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:174
+#: ../../source/admin/metadatacustomization.rst:178
 msgid "title"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:174
+#: ../../source/admin/metadatacustomization.rst:178
 msgid "Acts as a brief label for display related to this #datasetField."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:174
+#: ../../source/admin/metadatacustomization.rst:178
 msgid "Should be relatively brief."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:179
+#: ../../source/admin/metadatacustomization.rst:183
 msgid "description"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:179
+#: ../../source/admin/metadatacustomization.rst:183
 msgid "Used to provide a description of the field."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:179
 #: ../../source/admin/metadatacustomization.rst:183
-#: ../../source/admin/metadatacustomization.rst:347
-#: ../../source/admin/metadatacustomization.rst:356
+#: ../../source/admin/metadatacustomization.rst:187
+#: ../../source/admin/metadatacustomization.rst:351
+#: ../../source/admin/metadatacustomization.rst:360
 msgid "Free text"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:183
+#: ../../source/admin/metadatacustomization.rst:187
 msgid "watermark"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:183
+#: ../../source/admin/metadatacustomization.rst:187
 msgid ""
 "A string to initially display in a field as a prompt for what the user "
 "should enter."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:188
+#: ../../source/admin/metadatacustomization.rst:192
 msgid "fieldType"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:188
+#: ../../source/admin/metadatacustomization.rst:192
 msgid ""
 "Defines the type of content that the field, if not empty, is meant to "
 "contain."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:188
-#: ../../source/admin/metadatacustomization.rst:379
+#: ../../source/admin/metadatacustomization.rst:192
+#: ../../source/admin/metadatacustomization.rst:383
 msgid "none"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:189
-#: ../../source/admin/metadatacustomization.rst:384
+#: ../../source/admin/metadatacustomization.rst:193
+#: ../../source/admin/metadatacustomization.rst:388
 msgid "date"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:190
-#: ../../source/admin/metadatacustomization.rst:388
+#: ../../source/admin/metadatacustomization.rst:194
+#: ../../source/admin/metadatacustomization.rst:392
 msgid "email"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:191
-#: ../../source/admin/metadatacustomization.rst:391
+#: ../../source/admin/metadatacustomization.rst:195
+#: ../../source/admin/metadatacustomization.rst:395
 msgid "text"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:192
-#: ../../source/admin/metadatacustomization.rst:394
+#: ../../source/admin/metadatacustomization.rst:196
+#: ../../source/admin/metadatacustomization.rst:398
 msgid "textbox"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:193
-#: ../../source/admin/metadatacustomization.rst:405
+#: ../../source/admin/metadatacustomization.rst:197
+#: ../../source/admin/metadatacustomization.rst:409
 msgid "url"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:194
-#: ../../source/admin/metadatacustomization.rst:408
+#: ../../source/admin/metadatacustomization.rst:198
+#: ../../source/admin/metadatacustomization.rst:412
 msgid "int"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:195
-#: ../../source/admin/metadatacustomization.rst:411
+#: ../../source/admin/metadatacustomization.rst:199
+#: ../../source/admin/metadatacustomization.rst:415
 msgid "float"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:197
+#: ../../source/admin/metadatacustomization.rst:201
 msgid "See :ref:`fieldtype_def` for details"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:200
-#: ../../source/admin/metadatacustomization.rst:365
+#: ../../source/admin/metadatacustomization.rst:204
+#: ../../source/admin/metadatacustomization.rst:369
 msgid "displayOrder"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:200
+#: ../../source/admin/metadatacustomization.rst:204
 msgid ""
 "Controls the sequence in which the fields are displayed, both for input "
 "and presentation."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:200
-#: ../../source/admin/metadatacustomization.rst:365
+#: ../../source/admin/metadatacustomization.rst:204
+#: ../../source/admin/metadatacustomization.rst:369
 msgid "Non-negative integer."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:206
+#: ../../source/admin/metadatacustomization.rst:210
 msgid "displayFormat"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:206
+#: ../../source/admin/metadatacustomization.rst:210
 msgid ""
 "Controls how the content is displayed for presentation (not entry). The "
 "value of this field may contain one or more special variables (enumerated"
@@ -416,54 +412,54 @@ msgid ""
 " the web UI."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:206
+#: ../../source/admin/metadatacustomization.rst:210
 msgid "See :ref:`displayformat_def` for displayFormat variables"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:223
+#: ../../source/admin/metadatacustomization.rst:227
 msgid "advancedSearchField"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:223
+#: ../../source/admin/metadatacustomization.rst:227
 msgid "Specify whether this field is available in advanced search."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:223
+#: ../../source/admin/metadatacustomization.rst:227
 msgid "TRUE (available) or FALSE (not available)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:227
+#: ../../source/admin/metadatacustomization.rst:231
 msgid "allowControlledVocabulary"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:227
+#: ../../source/admin/metadatacustomization.rst:231
 msgid ""
 "Specify whether the possible values of this field are determined by "
 "values in the #controlledVocabulary section."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:227
-#: ../../source/admin/metadatacustomization.rst:239
+#: ../../source/admin/metadatacustomization.rst:231
+#: ../../source/admin/metadatacustomization.rst:243
 msgid "TRUE (controlled) or FALSE (not controlled)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:235
+#: ../../source/admin/metadatacustomization.rst:239
 msgid "allowmultiples"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:235
+#: ../../source/admin/metadatacustomization.rst:239
 msgid "Specify whether this field is repeatable."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:235
+#: ../../source/admin/metadatacustomization.rst:239
 msgid "TRUE (repeatable) or FALSE (not repeatable)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:239
+#: ../../source/admin/metadatacustomization.rst:243
 msgid "facetable"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:239
+#: ../../source/admin/metadatacustomization.rst:243
 msgid ""
 "Specify whether the field is facetable (i.e., if the expected values for "
 "this field are themselves useful search terms for this field). If a field"
@@ -477,85 +473,85 @@ msgid ""
 "values that are likely to be unique."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:275
+#: ../../source/admin/metadatacustomization.rst:279
 msgid "displayoncreate [5]_"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:275
+#: ../../source/admin/metadatacustomization.rst:279
 msgid ""
 "Designate fields that should display during the creation of a new "
 "dataset, even before the dataset is saved. Fields not so designated will "
 "not be displayed until the dataset has been saved."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:275
+#: ../../source/admin/metadatacustomization.rst:279
 msgid "TRUE (display during creation) or FALSE (don’t display during creation)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:286
+#: ../../source/admin/metadatacustomization.rst:290
 msgid "required"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:286
+#: ../../source/admin/metadatacustomization.rst:290
 msgid ""
 "Specify whether or not the field is required. This means that at least "
 "one instance of the field must be present. More than one field may be "
 "allowed, depending on the value of allowmultiples."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:286
+#: ../../source/admin/metadatacustomization.rst:290
 msgid "TRUE (required) or FALSE (optional)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:297
+#: ../../source/admin/metadatacustomization.rst:301
 msgid "parent"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:297
+#: ../../source/admin/metadatacustomization.rst:301
 msgid "For subfields, specify the name of the parent or containing field."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:297
+#: ../../source/admin/metadatacustomization.rst:301
 msgid "Must not result in a cyclical reference."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:301
+#: ../../source/admin/metadatacustomization.rst:305
 msgid "Must reference an existing field in the same #metadataBlock."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:306
+#: ../../source/admin/metadatacustomization.rst:310
 msgid "metadatablock_id"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:306
+#: ../../source/admin/metadatacustomization.rst:310
 msgid "Specify the name of the #metadataBlock that contains this field."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:306
+#: ../../source/admin/metadatacustomization.rst:310
 msgid "Must reference an existing #metadataBlock."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:310
+#: ../../source/admin/metadatacustomization.rst:314
 msgid ""
 "As a best practice, the value should reference the #metadataBlock in the "
 "current definition (it is technically possible to reference another "
 "existing metadata block.)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:325
-#: ../../source/admin/metadatacustomization.rst:579
+#: ../../source/admin/metadatacustomization.rst:329
+#: ../../source/admin/metadatacustomization.rst:583
 msgid "#controlledVocabulary (enumerated) properties"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:331
+#: ../../source/admin/metadatacustomization.rst:335
 msgid "DatasetField"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:331
+#: ../../source/admin/metadatacustomization.rst:335
 msgid "Specifies the #datasetField to which this entry applies."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:331
+#: ../../source/admin/metadatacustomization.rst:335
 msgid ""
 "Must reference an existing #datasetField. As a best practice, the value "
 "should reference a #datasetField in the current metadata block "
@@ -563,67 +559,67 @@ msgid ""
 "#datasetField from another metadata block.)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:347
+#: ../../source/admin/metadatacustomization.rst:351
 msgid "Value"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:347
+#: ../../source/admin/metadatacustomization.rst:351
 msgid ""
 "A short display string, representing an enumerated value for this field. "
 "If the identifier property is empty, this value is used as the "
 "identifier."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:356
+#: ../../source/admin/metadatacustomization.rst:360
 msgid "identifier"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:356
+#: ../../source/admin/metadatacustomization.rst:360
 msgid ""
 "A string used to encode the selected enumerated value of a field. If this"
 " property is empty, the value of the “Value” field is used as the "
 "identifier."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:365
+#: ../../source/admin/metadatacustomization.rst:369
 msgid ""
 "Control the order in which the enumerated values are displayed for "
 "selection."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:374
+#: ../../source/admin/metadatacustomization.rst:378
 msgid "FieldType definitions"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:377
+#: ../../source/admin/metadatacustomization.rst:381
 msgid "Fieldtype"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:377
+#: ../../source/admin/metadatacustomization.rst:381
 msgid "Definition"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:379
+#: ../../source/admin/metadatacustomization.rst:383
 msgid ""
 "Used for compound fields, in which case the parent field would have no "
 "value and display no data entry control."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:384
+#: ../../source/admin/metadatacustomization.rst:388
 msgid ""
 "A date, expressed in one of three resolutions of the form YYYY-MM-DD, "
 "YYYY-MM, or YYYY."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:388
+#: ../../source/admin/metadatacustomization.rst:392
 msgid "A valid email address. Not indexed for privacy reasons."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:391
+#: ../../source/admin/metadatacustomization.rst:395
 msgid "Any text other than newlines may be entered into this field."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:394
+#: ../../source/admin/metadatacustomization.rst:398
 msgid ""
 "Any text may be entered. For input, Dataverse presents a multi-line area "
 "that accepts newlines. While any HTML is permitted, only a subset of HTML"
@@ -631,84 +627,84 @@ msgid ""
 " :ref:`dataset_field_supported_html` of the User Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:405
+#: ../../source/admin/metadatacustomization.rst:409
 msgid "If not empty, field must contain a valid URL."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:408
+#: ../../source/admin/metadatacustomization.rst:412
 msgid "An integer value destined for a numeric field."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:411
+#: ../../source/admin/metadatacustomization.rst:415
 msgid "A floating point number destined for a numeric field."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:418
+#: ../../source/admin/metadatacustomization.rst:422
 msgid "displayFormat variables"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:420
+#: ../../source/admin/metadatacustomization.rst:424
 msgid ""
 "These are common ways to use the displayFormat to control how values are "
 "displayed in the UI. This list is not exhaustive."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:423
+#: ../../source/admin/metadatacustomization.rst:427
 msgid "**Variable**"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:423
+#: ../../source/admin/metadatacustomization.rst:427
 msgid "**Description**"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:425
+#: ../../source/admin/metadatacustomization.rst:429
 msgid "(blank)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:425
+#: ../../source/admin/metadatacustomization.rst:429
 msgid ""
 "The displayFormat is left blank for primitive fields (e.g. subtitle) and "
 "fields that do not take values (e.g. author), since displayFormats do not"
 " work for these fields."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:432
+#: ../../source/admin/metadatacustomization.rst:436
 msgid "#VALUE"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:432
+#: ../../source/admin/metadatacustomization.rst:436
 msgid "The value of the field (instance level)."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:435
+#: ../../source/admin/metadatacustomization.rst:439
 msgid "#NAME"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:435
+#: ../../source/admin/metadatacustomization.rst:439
 msgid "The name of the field (class level)."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:438
+#: ../../source/admin/metadatacustomization.rst:442
 msgid "#EMAIL"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:438
+#: ../../source/admin/metadatacustomization.rst:442
 msgid "For displaying emails."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:440
+#: ../../source/admin/metadatacustomization.rst:444
 msgid "<a href=\"#VALUE\">#VALUE</a>"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:440
+#: ../../source/admin/metadatacustomization.rst:444
 msgid "For displaying the value as a link (if the value entered is a link)."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:444
+#: ../../source/admin/metadatacustomization.rst:448
 msgid "<a href='URL/#VALUE'>#VALUE</a>"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:444
+#: ../../source/admin/metadatacustomization.rst:448
 msgid ""
 "For displaying the value as a link, with the value included in the URL "
 "(e.g. if URL is \\http://emsearch.rutgers.edu/atla\\ "
@@ -718,29 +714,29 @@ msgid ""
 "\\http://emsearch.rutgers.edu/atlas /1001_summary.html))."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:457
+#: ../../source/admin/metadatacustomization.rst:461
 msgid "<img src=\"#VALUE\" alt=\"#NAME\" class=\"metadata-logo\"/><br/>"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:457
+#: ../../source/admin/metadatacustomization.rst:461
 msgid ""
 "For displaying the image of an entered image URL (used to display images "
 "in the producer and distributor logos metadata fields)."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:463
+#: ../../source/admin/metadatacustomization.rst:467
 msgid "#VALUE:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:465
+#: ../../source/admin/metadatacustomization.rst:469
 msgid "\\- #VALUE:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:467
+#: ../../source/admin/metadatacustomization.rst:471
 msgid "(#VALUE)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:463
+#: ../../source/admin/metadatacustomization.rst:467
 msgid ""
 "Appends and/or prepends characters to the value of the field. e.g. if the"
 " displayFormat for the distributorAffiliation is (#VALUE) (wrapped with "
@@ -748,19 +744,19 @@ msgid ""
 "is displayed in the UI as (University of North Carolina)."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:474
+#: ../../source/admin/metadatacustomization.rst:478
 msgid ";"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:476
+#: ../../source/admin/metadatacustomization.rst:480
 msgid ":"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:478
+#: ../../source/admin/metadatacustomization.rst:482
 msgid ","
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:474
+#: ../../source/admin/metadatacustomization.rst:478
 msgid ""
 "Displays the character (e.g. semicolon, comma) between the values of "
 "fields within compound fields. For example, if the displayFormat for the "
@@ -770,11 +766,11 @@ msgid ""
 "data."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:491
+#: ../../source/admin/metadatacustomization.rst:495
 msgid "Metadata Block Setup"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:493
+#: ../../source/admin/metadatacustomization.rst:497
 msgid ""
 "Now that you understand the TSV format used for metadata blocks, the next"
 " step is to attempt to make improvements to existing metadata blocks or "
@@ -785,11 +781,11 @@ msgid ""
 "improvement back to the community."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:496
+#: ../../source/admin/metadatacustomization.rst:500
 msgid "Exploring Metadata Blocks"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:498
+#: ../../source/admin/metadatacustomization.rst:502
 msgid ""
 "In addition to studying the TSV files themselves you might find the "
 "following highly experimental and subject-to-change API endpoints useful "
@@ -797,45 +793,45 @@ msgid ""
 " installation of Dataverse:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:500
+#: ../../source/admin/metadatacustomization.rst:504
 msgid ""
 "You can get a dump of metadata fields (yes, the output is odd, please "
 "open a issue) like this::"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:504
+#: ../../source/admin/metadatacustomization.rst:508
 msgid ""
 "To see details about an individual field such as \"title\" execute "
 "command::"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:509
+#: ../../source/admin/metadatacustomization.rst:513
 msgid "Setting Up a Dev Environment for Testing"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:511
+#: ../../source/admin/metadatacustomization.rst:515
 msgid ""
 "You have several options for setting up a dev environment for testing "
 "metadata block changes:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:513
+#: ../../source/admin/metadatacustomization.rst:517
 msgid "Vagrant: See the :doc:`/developers/tools` section of the Dev Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:514
+#: ../../source/admin/metadatacustomization.rst:518
 msgid ""
 "docker-aio: See https://github.com/IQSS/dataverse/tree/develop/conf"
 "/docker-aio"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:515
+#: ../../source/admin/metadatacustomization.rst:519
 msgid ""
 "AWS deployment: See the :doc:`/developers/deployment` section of the Dev "
 "Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:517
+#: ../../source/admin/metadatacustomization.rst:521
 msgid ""
 "To get a clean environment in Vagrant, you'll be running ``vagrant "
 "destroy``. In Docker, you'll use ``docker rm``. For a full dev "
@@ -843,11 +839,11 @@ msgid ""
 "scripts at ``scripts/deploy/phoenix.dataverse.org`` useful."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:520
+#: ../../source/admin/metadatacustomization.rst:524
 msgid "Editing TSV files"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:522
+#: ../../source/admin/metadatacustomization.rst:526
 msgid ""
 "Early in Dataverse 4 development metadata blocks were edited in the "
 "Google spreadsheet mentioned in "
@@ -860,18 +856,18 @@ msgid ""
 "non-TSV formats."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:524
+#: ../../source/admin/metadatacustomization.rst:528
 msgid ""
 "Please note that metadata fields share a common namespace so they must be"
 " unique. The following curl command will print list of metadata fields "
 "already available in the system::"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:531
+#: ../../source/admin/metadatacustomization.rst:535
 msgid "Loading TSV files into Dataverse"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:533
+#: ../../source/admin/metadatacustomization.rst:537
 msgid ""
 "A number of TSV files are loaded into Dataverse on every new "
 "installation, becoming the metadata blocks you see in the UI. For the "
@@ -879,7 +875,7 @@ msgid ""
 "see the :doc:`/user/appendix` section of the User Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:535
+#: ../../source/admin/metadatacustomization.rst:539
 msgid ""
 "Along with TSV file, there are corresponding ResourceBundle property "
 "files with key=value pair `here "
@@ -890,7 +886,7 @@ msgid ""
 "``dataverse.lang.directory`` JVM option, and then restart Glassfish."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:537
+#: ../../source/admin/metadatacustomization.rst:541
 msgid ""
 "If you are improving an existing metadata block, the Dataverse "
 "installation process will load the TSV for you, assuming you edited the "
@@ -901,19 +897,19 @@ msgid ""
 "has to be edited and stored under ``dataverse.lang.directory`` location"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:540
+#: ../../source/admin/metadatacustomization.rst:544
 msgid "name, displayName property under #metadataBlock"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:541
+#: ../../source/admin/metadatacustomization.rst:545
 msgid "name, title, description, watermark properties under #datasetfield"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:542
+#: ../../source/admin/metadatacustomization.rst:546
 msgid "DatasetField, Value property under #controlledVocabulary"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:544
+#: ../../source/admin/metadatacustomization.rst:548
 msgid ""
 "If you are creating a new custom metadata block (hopefully with the idea "
 "of contributing it back to the community if you feel like it would "
@@ -925,71 +921,71 @@ msgid ""
 "in the \"/tmp\" directory::"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:548
+#: ../../source/admin/metadatacustomization.rst:552
 msgid ""
 "To create a new ResourceBundle, here are the steps to generate key=value "
 "pair for the three main sections:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:552
+#: ../../source/admin/metadatacustomization.rst:556
 msgid "metadatablock.name=(the value of **name** property from #metadatablock)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:554
+#: ../../source/admin/metadatacustomization.rst:558
 msgid ""
 "metadatablock.displayName=(the value of **displayName** property from "
 "#metadatablock)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:556
-#: ../../source/admin/metadatacustomization.rst:570
-#: ../../source/admin/metadatacustomization.rst:584
+#: ../../source/admin/metadatacustomization.rst:560
+#: ../../source/admin/metadatacustomization.rst:574
+#: ../../source/admin/metadatacustomization.rst:588
 msgid "example:"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:558
+#: ../../source/admin/metadatacustomization.rst:562
 msgid "metadatablock.name=citation"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:560
+#: ../../source/admin/metadatacustomization.rst:564
 msgid "metadatablock.displayName=Citation Metadata"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:564
+#: ../../source/admin/metadatacustomization.rst:568
 msgid ""
 "datasetfieldtype.(the value of **name** property from "
 "#datasetField).title=(the value of **title** property from #datasetField)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:566
+#: ../../source/admin/metadatacustomization.rst:570
 msgid ""
 "datasetfieldtype.(the value of **name** property from "
 "#datasetField).description=(the value of **description** property from "
 "#datasetField)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:568
+#: ../../source/admin/metadatacustomization.rst:572
 msgid ""
 "datasetfieldtype.(the value of **name** property from "
 "#datasetField).watermark=(the value of **watermark** property from "
 "#datasetField)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:572
+#: ../../source/admin/metadatacustomization.rst:576
 msgid "datasetfieldtype.title.title=Title"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:574
+#: ../../source/admin/metadatacustomization.rst:578
 msgid ""
 "datasetfieldtype.title.description=Full title by which the Dataset is "
 "known."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:576
+#: ../../source/admin/metadatacustomization.rst:580
 msgid "datasetfieldtype.title.watermark=Enter title..."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:580
+#: ../../source/admin/metadatacustomization.rst:584
 msgid ""
 "controlledvocabulary.(the value of **DatasetField** property from "
 "#controlledVocabulary).(the value of **Value** property from "
@@ -997,28 +993,28 @@ msgid ""
 "#controlledVocabulary)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:582
+#: ../../source/admin/metadatacustomization.rst:586
 msgid ""
 "Since the **Value** property from #controlledVocabulary is free text, "
 "while creating the key, it has to be converted to lowercase, replace "
 "space with underscore, and strip accents."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:586
+#: ../../source/admin/metadatacustomization.rst:590
 msgid "controlledvocabulary.subject.agricultural_sciences=Agricultural Sciences"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:588
+#: ../../source/admin/metadatacustomization.rst:592
 msgid ""
 "controlledvocabulary.language.marathi_(marathi)=Marathi "
 "(Mar\\u0101\\u1E6Dh\\u012B)"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:592
+#: ../../source/admin/metadatacustomization.rst:596
 msgid "Enabling a Metadata Block"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:594
+#: ../../source/admin/metadatacustomization.rst:598
 msgid ""
 "Running a curl command like \"load\" example in "
 ":ref:`loading_metadata_fields` should make the new custom metadata block "
@@ -1028,18 +1024,18 @@ msgid ""
 "running a curl command like::"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:598
+#: ../../source/admin/metadatacustomization.rst:602
 msgid ""
 "In this example we are enabling the \"journal\" and \"geospatial\" "
 "metadata blocks for the root dataverse. API token must belong to the "
 "superuser account."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:601
+#: ../../source/admin/metadatacustomization.rst:605
 msgid "Reloading a Metadata Block"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:603
+#: ../../source/admin/metadatacustomization.rst:607
 msgid ""
 "As mentioned in :ref:`metadata_customization_introduction` section, "
 "changes to metadata blocks that ship with Dataverse will be made over "
@@ -1048,7 +1044,7 @@ msgid ""
 "as reloading. Here's an example with the \"citation\" metadata block::"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:607
+#: ../../source/admin/metadatacustomization.rst:611
 msgid ""
 "Great care must be taken when reloading a metadata block. Matching is "
 "done on field names (or identifiers and then names in the case of "
@@ -1056,18 +1052,18 @@ msgid ""
 "duplicate fields."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:609
+#: ../../source/admin/metadatacustomization.rst:613
 msgid ""
 "The ability to reload metadata blocks means that SQL update scripts don't"
 " need to be written for these changes. See also the :doc:`/developers"
 "/sql-upgrade-scripts` section of the Dev Guide."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:612
+#: ../../source/admin/metadatacustomization.rst:616
 msgid "Tips from the Dataverse Community"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:614
+#: ../../source/admin/metadatacustomization.rst:618
 msgid ""
 "If there are tips that you feel are omitted from this document, please "
 "open an issue at https://github.com/IQSS/dataverse/issues and consider "
@@ -1076,7 +1072,7 @@ msgid ""
 "guides/source/admin/metadatacustomization.rst"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:616
+#: ../../source/admin/metadatacustomization.rst:620
 msgid ""
 "Alternatively, you are welcome to request \"edit\" access to this \"Tips "
 "for Dataverse metadata blocks from the community\" Google doc: "
@@ -1084,38 +1080,38 @@ msgid ""
 "Bq6njlN96WyHJ7tqG0WWejqBdl7hE0/edit?usp=sharing"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:618
+#: ../../source/admin/metadatacustomization.rst:622
 msgid ""
 "The thinking is that the tips can become issues and the issues can "
 "eventually be worked on as features to improve the Dataverse metadata "
 "system."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:621
+#: ../../source/admin/metadatacustomization.rst:625
 msgid "Footnotes"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:624
+#: ../../source/admin/metadatacustomization.rst:628
 msgid "https://www.iana.org/assignments/media-types/text/tab-separated-values"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:627
+#: ../../source/admin/metadatacustomization.rst:631
 msgid ""
 "Although the structure of the data can violate the “Each record must have"
 " the same number of fields” tenet of TSV"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:631
+#: ../../source/admin/metadatacustomization.rst:635
 msgid "https://en.wikipedia.org/wiki/CamelCase"
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:634
+#: ../../source/admin/metadatacustomization.rst:638
 msgid ""
 "These field names are added to the Solr schema.xml and cannot be "
 "duplicated. See \"Editing TSV files\" for how to check for duplication."
 msgstr ""
 
-#: ../../source/admin/metadatacustomization.rst:638
+#: ../../source/admin/metadatacustomization.rst:642
 msgid ""
 "\"displayoncreate\" was \"showabovefold\" in Dataverse versions before "
 "4.3.1 (see `#3073 <https://github.com/IQSS/dataverse/issues/3073>`__) but"

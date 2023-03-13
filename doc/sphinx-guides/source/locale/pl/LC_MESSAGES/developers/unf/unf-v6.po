@@ -1,31 +1,31 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/developers/unf/unf-v6.rst:4
+#: ../../source/developers/unf/unf-v6.rst:8
 msgid "UNF Version 6"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:8
+#: ../../source/developers/unf/unf-v6.rst:12
 msgid "*(this document is a draft!)*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:10
+#: ../../source/developers/unf/unf-v6.rst:14
 msgid ""
 "The document is primarily intended for those who are interested in "
 "implementing their own UNF Version 6 calculator. We would like to "
@@ -34,11 +34,11 @@ msgid ""
 "specific sets of data."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:12
+#: ../../source/developers/unf/unf-v6.rst:16
 msgid "**Algorithm Description**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:14
+#: ../../source/developers/unf/unf-v6.rst:18
 msgid ""
 "UNF v5, on which v6 is based, was originally described in Dr. Micah "
 "Altman's paper \"A Fingerprint Method for Verification of Scientific "
@@ -53,93 +53,89 @@ msgid ""
 "the algorithm."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:17
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/developers/unf/unf-v6.rst:20
+#: ../../source/developers/unf/unf-v6.rst:24
 msgid "I. UNF of a Data Vector"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:22
+#: ../../source/developers/unf/unf-v6.rst:26
 msgid ""
 "For each individual vector in a data frame, calculate its UNF signature "
 "as follows:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:24
+#: ../../source/developers/unf/unf-v6.rst:28
 msgid "**Ia. Normalize each vector element as follows:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:26
+#: ../../source/developers/unf/unf-v6.rst:30
 msgid ""
 "**1. For a vector of numeric elements:** Round each vector element to "
 "``N`` significant digits using the ``IEEE 754`` \"round towards nearest, "
 "ties to even\" rounding mode. The default value of ``N`` is 7."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:29
+#: ../../source/developers/unf/unf-v6.rst:33
 msgid ""
 "(See an Important :ref:`Note on the use of default and optional values "
 "and methods<note1>`!)"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:31
+#: ../../source/developers/unf/unf-v6.rst:35
 msgid ""
 "Convert each vector element into a character string in exponential "
 "notation, as follows:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:33
-#: ../../source/developers/unf/unf-v6.rst:38
+#: ../../source/developers/unf/unf-v6.rst:37
+#: ../../source/developers/unf/unf-v6.rst:42
 msgid "A sign character."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:34
+#: ../../source/developers/unf/unf-v6.rst:38
 msgid "A single leading non-zero digit."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:35
+#: ../../source/developers/unf/unf-v6.rst:39
 msgid "A decimal point."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:36
+#: ../../source/developers/unf/unf-v6.rst:40
 msgid "Up to ``N-1`` remaining digits following the decimal, no trailing zeros."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:37
+#: ../../source/developers/unf/unf-v6.rst:41
 msgid "A lowercase letter \"``e``\"."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:39
+#: ../../source/developers/unf/unf-v6.rst:43
 msgid "The digits of the exponent, omitting trailing zeros."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:41
+#: ../../source/developers/unf/unf-v6.rst:45
 msgid "*Special cases:*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:43
+#: ../../source/developers/unf/unf-v6.rst:47
 msgid "Zero representation (an exception to the \"leading non-zero digit\" rule):"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:44
+#: ../../source/developers/unf/unf-v6.rst:48
 msgid "``+0.e+`` for positive zero."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:45
+#: ../../source/developers/unf/unf-v6.rst:49
 msgid "``-0.e+`` for negative zero."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:46
+#: ../../source/developers/unf/unf-v6.rst:50
 msgid "(see the :ref:`Note on negative zero<note2>`)"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:48
+#: ../../source/developers/unf/unf-v6.rst:52
 msgid "``Infinity`` and ``NaN`` (\"Not a Number\") values:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:50
+#: ../../source/developers/unf/unf-v6.rst:54
 msgid ""
 "If an element is an ``IEEE 754``, non-finite, special floating-point "
 "value, represent it as the signed, lowercase, IEEE minimal printable "
@@ -148,68 +144,68 @@ msgid ""
 "754``."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:52
-#: ../../source/developers/unf/unf-v6.rst:93
+#: ../../source/developers/unf/unf-v6.rst:56
+#: ../../source/developers/unf/unf-v6.rst:97
 msgid "*Examples:*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:54
+#: ../../source/developers/unf/unf-v6.rst:58
 msgid "The number ``1`` is normalized as ``+1.e+``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:55
+#: ../../source/developers/unf/unf-v6.rst:59
 msgid "The number ``pi`` at 5 digits is normalized as ``+3.1415e+``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:56
+#: ../../source/developers/unf/unf-v6.rst:60
 msgid "The number ``-300`` is normalized as ``-3.e+2``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:57
+#: ../../source/developers/unf/unf-v6.rst:61
 msgid "The number ``0.00073`` is normalized as ``+7.3e-4``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:58
+#: ../../source/developers/unf/unf-v6.rst:62
 msgid "Positive infinity is normalized as ``+inf``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:59
+#: ../../source/developers/unf/unf-v6.rst:63
 msgid ""
 "The number ``1.23456789``, normalized with the default rounding to 7 "
 "digits of precision, is normalized as ``+1.234568e+``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:61
+#: ../../source/developers/unf/unf-v6.rst:65
 msgid ""
 "An \"official\" list of pre-calculated sample UNFs is supplied with the "
 "source of the Java implementation of UNF v6; see the :ref:`Note <note4>` "
 "at the end of the document."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:63
+#: ../../source/developers/unf/unf-v6.rst:67
 msgid "**2. For a vector of character strings:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:65
+#: ../../source/developers/unf/unf-v6.rst:69
 msgid ""
 "Encode each character string with Unicode bit encoding. In UNF Version 6 "
 "UTF-8 is used. Truncate each string to ``X`` characters; the default "
 "value of ``X`` is 128. No further normalization is performed."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:67
+#: ../../source/developers/unf/unf-v6.rst:71
 msgid "**3. Vectors of Boolean values**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:69
+#: ../../source/developers/unf/unf-v6.rst:73
 msgid "Should be treated as numeric vectors of ``0`` s and ``1`` s."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:71
+#: ../../source/developers/unf/unf-v6.rst:75
 msgid "**4. Bit fields.**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:73
+#: ../../source/developers/unf/unf-v6.rst:77
 msgid ""
 "Normalize bit fields by converting to big-endian form, truncating all "
 "leading empty bits, aligning to a byte boundary by padding with leading "
@@ -217,26 +213,26 @@ msgid ""
 "representation."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:75
+#: ../../source/developers/unf/unf-v6.rst:79
 msgid "**5. Normalize dates, times and intervals as follows:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:77
+#: ../../source/developers/unf/unf-v6.rst:81
 msgid "*5a. Dates.*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:78
+#: ../../source/developers/unf/unf-v6.rst:82
 msgid ""
 "Convert calendar dates to a character string of the form ``YYYY-MM-DD``, "
 "zero padded. Partial dates in the form ``YYYY`` or ``YYYY-MM`` are "
 "permitted"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:80
+#: ../../source/developers/unf/unf-v6.rst:84
 msgid "*5b. Time.*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:81
+#: ../../source/developers/unf/unf-v6.rst:85
 msgid ""
 "Time representation is based on an ``ISO 8601`` format "
 "``hh:mm:ss.fffff``. ``hh``, ``mm`` and ``ss`` are 2 digit, zero-padded "
@@ -249,18 +245,18 @@ msgid ""
 " are allowed in the final normalized representation)."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:83
+#: ../../source/developers/unf/unf-v6.rst:87
 msgid ""
 "(see the :ref:`Note <note3>` at the end of this document for a discussion"
 " on :ref:`potential issues when calculating UNFs of time values "
 "<note3>`)."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:85
+#: ../../source/developers/unf/unf-v6.rst:89
 msgid "*5c. Combined Date and Time values.*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:86
+#: ../../source/developers/unf/unf-v6.rst:90
 msgid ""
 "Format elements that comprise a combined date and time by concatenating "
 "the (full) date representation, a single letter “``T``”, and the time "
@@ -268,47 +264,47 @@ msgid ""
 "combined date and time values."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:88
+#: ../../source/developers/unf/unf-v6.rst:92
 msgid "*5d. Intervals.*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:89
+#: ../../source/developers/unf/unf-v6.rst:93
 msgid ""
 "Represent intervals by using two date-time values, each formatted as "
 "defined previously, and separated by a slash (\"``/``\")."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:91
+#: ../../source/developers/unf/unf-v6.rst:95
 msgid ""
 "*Durations*, that were mentioned in the old UNF v5 document are NOT in "
 "fact implemented and have been dropped from the spec."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:95
+#: ../../source/developers/unf/unf-v6.rst:99
 msgid "``2:29 pm on Jun 10, 2012`` is normalized as \"``2012-06-10T14:29:00``\"."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:97
+#: ../../source/developers/unf/unf-v6.rst:101
 msgid ""
 "``Fri Aug 22 12:51:05 EDT 2014`` is normalized as "
 "\"``2014-08-22T16:51:05Z``\""
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:98
+#: ../../source/developers/unf/unf-v6.rst:102
 msgid "(The UTC offset of Eastern Daylight Time is -4:00)."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:100
+#: ../../source/developers/unf/unf-v6.rst:104
 msgid ""
 "**6. Missing values** Missing values, of all of the types, are encoded as"
 " 3 null bytes: ``\\000\\000\\000``."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:103
+#: ../../source/developers/unf/unf-v6.rst:107
 msgid "**Ib. Calculate the UNF of the vector as follows:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:105
+#: ../../source/developers/unf/unf-v6.rst:109
 msgid ""
 "Terminate each character string representing a NON-MISSING value with a "
 "``POSIX`` end-of-line character and a null byte (\\\\000). Do not "
@@ -322,68 +318,68 @@ msgid ""
 "version)."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:107
-#: ../../source/developers/unf/unf-v6.rst:147
+#: ../../source/developers/unf/unf-v6.rst:111
+#: ../../source/developers/unf/unf-v6.rst:151
 msgid "*Example:*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:109
+#: ../../source/developers/unf/unf-v6.rst:113
 msgid "Vector (numeric): ``{1.23456789, <MISSING VALUE>, 0}``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:110
+#: ../../source/developers/unf/unf-v6.rst:114
 msgid ""
 "Normalized elements (``N`` = ``7``,default): \"``+1.234568e+``\", "
 "\"``\\000\\000\\000``\", \"``+0.e+``\""
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:111
+#: ../../source/developers/unf/unf-v6.rst:115
 msgid "Combined string: \"``+1.234568e+\\n\\000\\000\\000\\000+0.e+\\n\\000``\""
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:112
+#: ../../source/developers/unf/unf-v6.rst:116
 msgid ""
 "``SHA256`` hash. truncated to the default ``128`` bits: "
 "``Do5dfAoOOFt4FSj0JcByEw==``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:113
+#: ../../source/developers/unf/unf-v6.rst:117
 msgid "Printable UNF: ``UNF:6:Do5dfAoOOFt4FSj0JcByEw==``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:116
+#: ../../source/developers/unf/unf-v6.rst:120
 msgid "II. Combining multiple UNFs to create UNFs of higher-level objects."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:118
+#: ../../source/developers/unf/unf-v6.rst:122
 msgid ""
 "**IIa. Combine the UNFs of multiple variables to form the UNF for an "
 "entire data frame as follows:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:120
+#: ../../source/developers/unf/unf-v6.rst:124
 msgid "*UNF of a data frame (datafile) with 1 variable:*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:121
+#: ../../source/developers/unf/unf-v6.rst:125
 msgid "The UNF of the data frame is the same as the UNF of the variable."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:123
+#: ../../source/developers/unf/unf-v6.rst:127
 msgid "*UNF of a data frame with the number of variables > 1:*"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:124
+#: ../../source/developers/unf/unf-v6.rst:128
 msgid ""
 "Sort the printable UTF8 representations of the individual UNFs in the "
 "POSIX locale sort order."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:125
+#: ../../source/developers/unf/unf-v6.rst:129
 msgid "Apply the UNF algorithm to the resulting vector of character strings."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:127
+#: ../../source/developers/unf/unf-v6.rst:131
 msgid ""
 "Do note the **sorting** part is important! In a vector of observations, "
 "the order is important; changing the order of observations changes the "
@@ -394,31 +390,31 @@ msgid ""
 "frame is calculated."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:129
+#: ../../source/developers/unf/unf-v6.rst:133
 msgid ""
 "**IIb. Similarly, combine the UNFs for a set of data frames to form a "
 "single UNF that represents an entire research study (\"dataset\").**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:131
+#: ../../source/developers/unf/unf-v6.rst:135
 msgid ""
 "Again, the UNF of a study (dataset) with a single file = the UNF of the "
 "file; for more than one file, calculate the study UNF in the same way as "
 "for data frame with multiple variables."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:133
+#: ../../source/developers/unf/unf-v6.rst:137
 msgid ""
 "Using a consistent UNF version and level of precision across an entire "
 "dataset is recommended when calculating the UNFs of individual data "
 "objects."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:136
+#: ../../source/developers/unf/unf-v6.rst:140
 msgid "Footnotes:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:140
+#: ../../source/developers/unf/unf-v6.rst:144
 msgid ""
 "**Note: On default and non-default parameter values:** Here and "
 "throughout the rest of this document, phrases like \"The default value of"
@@ -432,19 +428,19 @@ msgid ""
 "parameters used are embedded in the header portion of the UNF!"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:143
+#: ../../source/developers/unf/unf-v6.rst:147
 msgid ""
 "For example, to specify a non-default precision the parameter it is "
 "specified using the parameter ``N``, formatted as follows:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:145
+#: ../../source/developers/unf/unf-v6.rst:149
 msgid ""
 "``Nnnn`` - where ``nnn`` is the number of precision digits, different "
 "from the default ``7``."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:148
+#: ../../source/developers/unf/unf-v6.rst:152
 msgid ""
 "The UNF of a floating point (Double) vector with a single element of "
 "``1.23456789``, calculated with the default 7 digits of precision, is "
@@ -454,43 +450,43 @@ msgid ""
 "in the signature, it can be recalculated and verified unambiguously."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:150
+#: ../../source/developers/unf/unf-v6.rst:154
 msgid "Other optional parameters supported:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:151
+#: ../../source/developers/unf/unf-v6.rst:155
 msgid "(**multiple parameters are added comma-separated, in any order**)"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:153
+#: ../../source/developers/unf/unf-v6.rst:157
 msgid ""
 "``X###`` - where ``###`` is the number of bytes for truncation of "
 "character strings;"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:154
+#: ../../source/developers/unf/unf-v6.rst:158
 msgid "``128`` is the default."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:155
+#: ../../source/developers/unf/unf-v6.rst:159
 msgid ""
 "``H###`` - where ``###`` is the number of bits to which the ``SHA256`` "
 "hash should be truncated."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:156
+#: ../../source/developers/unf/unf-v6.rst:160
 msgid ""
 "Allowed values are {``128`` , ``192`` , ``196`` , ``256``} with ``128`` "
 "being the default."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:157
+#: ../../source/developers/unf/unf-v6.rst:161
 msgid ""
 "``R1`` - **truncate** numeric values to ``N`` digits, **instead of "
 "rounding**, as previously described."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:159
+#: ../../source/developers/unf/unf-v6.rst:163
 msgid ""
 "`Dr. Micah Altman's classic UNF v5 paper "
 "<http://www.researchgate.net/publication/200043172_A_Fingerprint_Method_for_Scientific_Data_Verification>`_"
@@ -503,7 +499,7 @@ msgid ""
 "Dataverse Project)."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:161
+#: ../../source/developers/unf/unf-v6.rst:165
 msgid ""
 "Note: we do not recommend truncating character strings at fewer bytes "
 "than the default ``128`` (the ``X`` parameter). At the very least this "
@@ -512,7 +508,7 @@ msgid ""
 "files or datasets, respectively."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:163
+#: ../../source/developers/unf/unf-v6.rst:167
 msgid ""
 "It should also be noted that the Dataverse application never calculates "
 "UNFs with any non-default parameters. And we are not aware of anyone else"
@@ -522,11 +518,11 @@ msgid ""
 "to independently verify Dataverse-produced UNFs, among other things."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:167
+#: ../../source/developers/unf/unf-v6.rst:171
 msgid "**Note: Negative Zero**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:169
+#: ../../source/developers/unf/unf-v6.rst:173
 msgid ""
 "``IEEE 754`` zero is signed. I.e., there are 2 zeros, positive and "
 "negative. As implemented in most programming languages, floating point "
@@ -537,11 +533,11 @@ msgid ""
 "primitive type ``double``, the following evaluates to ``TRUE``:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:170
+#: ../../source/developers/unf/unf-v6.rst:174
 msgid "``0.0d == -0.0d``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:171
+#: ../../source/developers/unf/unf-v6.rst:175
 msgid ""
 "However, Java also provides a wrapper class ``Double``, with comparison "
 "methods that recognize ``-0.0`` and ``0.0`` as different values, and "
@@ -549,30 +545,30 @@ msgid ""
 "evaluate to ``FALSE``:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:172
+#: ../../source/developers/unf/unf-v6.rst:176
 msgid "``new Double(0.0d).equals(new Double(-0.0d))``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:173
+#: ../../source/developers/unf/unf-v6.rst:177
 msgid "``Double.compare(-0.0d, 0.0d) >= 0``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:174
+#: ../../source/developers/unf/unf-v6.rst:178
 msgid "``new Double(-0.0d).compareTo(new Double(0.0d)) >= 0``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:178
+#: ../../source/developers/unf/unf-v6.rst:182
 msgid "**Note: UNFs of time values in real-life statistical packages**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:180
+#: ../../source/developers/unf/unf-v6.rst:184
 msgid ""
 "The following is not by itself an implementation concern. But it is "
 "something you may need to consider when calculating UNFs of time values "
 "from real-world data."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:182
+#: ../../source/developers/unf/unf-v6.rst:186
 msgid ""
 "The fact that the same time value with and without the time zone "
 "specified produces different UNFs presents an interesting issue when "
@@ -583,14 +579,14 @@ msgid ""
 "example:"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:184
+#: ../../source/developers/unf/unf-v6.rst:188
 #, python-format
 msgid ""
 "``timevar<-as.POSIXct(\"03/19/2013 18:20:00\", format = \"%m/%d/%Y "
 "%H:%M:%OS\");``"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:186
+#: ../../source/developers/unf/unf-v6.rst:190
 msgid ""
 "it still results in R assuming the time is in the **current** time zone, "
 "and storing the UTC equivalent of that time. In fact R always stores its "
@@ -607,7 +603,7 @@ msgid ""
 " to R, or the other way around, and have the same UNF preserved."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:188
+#: ../../source/developers/unf/unf-v6.rst:192
 msgid ""
 "We do not consider this a problem with the algorithm. These differences "
 "between the two approaches to handling time values, in R and STATA, "
@@ -616,7 +612,7 @@ msgid ""
 "Which, in turn, justifies a new UNF."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:190
+#: ../../source/developers/unf/unf-v6.rst:194
 msgid ""
 "If for whatever reason it is important to produce an R version of a STATA"
 " file while preserving the UNF, it can still be done. One way to achieve "
@@ -627,11 +623,11 @@ msgid ""
 " conversion. But the data frame would produce the same UNF."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:194
+#: ../../source/developers/unf/unf-v6.rst:198
 msgid "**More UNF Examples:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v6.rst:196
+#: ../../source/developers/unf/unf-v6.rst:200
 msgid ""
 "An \"official\" `list of sample UNFs "
 "<https://raw.githubusercontent.com/IQSS/UNF/master/doc/unf_examples.txt>`_"

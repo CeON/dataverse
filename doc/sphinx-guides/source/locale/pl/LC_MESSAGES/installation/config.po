@@ -1,41 +1,41 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/installation/config.rst:3
+#: ../../source/installation/config.rst:7
 msgid "Configuration"
 msgstr ""
 
-#: ../../source/installation/config.rst:5
+#: ../../source/installation/config.rst:9
 msgid ""
 "Now that you've successfully logged into Dataverse with a superuser "
 "account after going through a basic :doc:`installation-main`, you'll need"
 " to secure and configure your installation."
 msgstr ""
 
-#: ../../source/installation/config.rst:7
+#: ../../source/installation/config.rst:11
 msgid ""
 "Settings within Dataverse itself are managed via JVM options or by "
 "manipulating values in the ``setting`` table directly or through API "
 "calls."
 msgstr ""
 
-#: ../../source/installation/config.rst:9
+#: ../../source/installation/config.rst:13
 msgid ""
 "Once you have finished securing and configuring your Dataverse "
 "installation, you may proceed to the :doc:`/admin/index` for more "
@@ -44,30 +44,26 @@ msgid ""
 "tworavens`, :doc:`shibboleth` and :doc:`oauth2` sections."
 msgstr ""
 
-#: ../../source/installation/config.rst:12
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/installation/config.rst:17
+#: ../../source/installation/config.rst:21
 msgid "Securing Your Installation"
 msgstr ""
 
-#: ../../source/installation/config.rst:20
+#: ../../source/installation/config.rst:24
 msgid "Changing the Superuser Password"
 msgstr ""
 
-#: ../../source/installation/config.rst:22
+#: ../../source/installation/config.rst:26
 msgid ""
 "The default password for the \"dataverseAdmin\" superuser account is "
 "\"admin\", as mentioned in the :doc:`installation-main` section, and you "
 "should change it, of course."
 msgstr ""
 
-#: ../../source/installation/config.rst:27
+#: ../../source/installation/config.rst:31
 msgid "Blocking API Endpoints"
 msgstr ""
 
-#: ../../source/installation/config.rst:29
+#: ../../source/installation/config.rst:33
 msgid ""
 "The :doc:`/api/native-api` contains a useful but potentially dangerous "
 "API endpoint called \"admin\" that allows you to change system settings, "
@@ -76,7 +72,7 @@ msgid ""
 " ``BuiltinUsers.KEY`` value described in :ref:`builtin_users_key`."
 msgstr ""
 
-#: ../../source/installation/config.rst:31
+#: ../../source/installation/config.rst:35
 msgid ""
 "By default, all APIs can be accessed locally and a number of endpoints do"
 " not require authentication. "
@@ -86,17 +82,17 @@ msgid ""
 ":ref:`blocked_api_policy`."
 msgstr ""
 
-#: ../../source/installation/config.rst:33
+#: ../../source/installation/config.rst:37
 msgid ""
 "It's also possible to prevent file uploads via API by adjusting the "
 "``UploadMethods`` file setting."
 msgstr ""
 
-#: ../../source/installation/config.rst:38
+#: ../../source/installation/config.rst:42
 msgid "Forcing HTTPS"
 msgstr ""
 
-#: ../../source/installation/config.rst:40
+#: ../../source/installation/config.rst:44
 msgid ""
 "To avoid having your users send credentials in the clear, it's strongly "
 "recommended to force all web traffic to go through HTTPS (port 443) "
@@ -108,11 +104,11 @@ msgid ""
 "or in the section on :doc:`shibboleth`."
 msgstr ""
 
-#: ../../source/installation/config.rst:43
+#: ../../source/installation/config.rst:47
 msgid "Privacy Considerations"
 msgstr ""
 
-#: ../../source/installation/config.rst:45
+#: ../../source/installation/config.rst:49
 msgid ""
 "Out of the box, Dataverse will list email addresses of the \"contacts\" "
 "for datasets when users visit a dataset page and click the \"Export "
@@ -121,17 +117,17 @@ msgid ""
 "<ExcludeEmailFromExport>` to true."
 msgstr ""
 
-#: ../../source/installation/config.rst:50
+#: ../../source/installation/config.rst:54
 msgid "Run Glassfish as a User Other Than Root"
 msgstr ""
 
-#: ../../source/installation/config.rst:52
+#: ../../source/installation/config.rst:56
 msgid ""
 "See the Glassfish section of :doc:`prerequisites` for details and init "
 "scripts for running Glassfish as non-root."
 msgstr ""
 
-#: ../../source/installation/config.rst:54
+#: ../../source/installation/config.rst:58
 msgid ""
 "Related to this is that you should remove ``/root/.glassfish/pass`` to "
 "ensure that Glassfish isn't ever accidentally started as root. Without "
@@ -139,11 +135,11 @@ msgid ""
 "thing."
 msgstr ""
 
-#: ../../source/installation/config.rst:57
+#: ../../source/installation/config.rst:61
 msgid "Enforce Strong Passwords for User Accounts"
 msgstr ""
 
-#: ../../source/installation/config.rst:59
+#: ../../source/installation/config.rst:63
 msgid ""
 "Dataverse only stores passwords (as salted hash, and using a strong "
 "hashing algorithm) for \"builtin\" users. You can increase the password "
@@ -155,7 +151,7 @@ msgid ""
 "options."
 msgstr ""
 
-#: ../../source/installation/config.rst:61
+#: ../../source/installation/config.rst:65
 msgid ""
 "Even if you are satisfied with the out-of-the-box password complexity "
 "rules Dataverse ships with, for the \"dataverseAdmin\" account you should"
@@ -163,49 +159,49 @@ msgid ""
 "dictionary attacks."
 msgstr ""
 
-#: ../../source/installation/config.rst:63
+#: ../../source/installation/config.rst:67
 msgid ""
 "Password complexity rules for \"builtin\" accounts can be adjusted with a"
 " variety of settings:"
 msgstr ""
 
-#: ../../source/installation/config.rst:65
+#: ../../source/installation/config.rst:69
 msgid ":ref:`PVMinLength`"
 msgstr ""
 
-#: ../../source/installation/config.rst:66
+#: ../../source/installation/config.rst:70
 msgid ":ref:`PVMaxLength`"
 msgstr ""
 
-#: ../../source/installation/config.rst:67
+#: ../../source/installation/config.rst:71
 msgid ":ref:`PVNumberOfConsecutiveDigitsAllowed`"
 msgstr ""
 
-#: ../../source/installation/config.rst:68
+#: ../../source/installation/config.rst:72
 msgid ":ref:`PVCharacterRules`"
 msgstr ""
 
-#: ../../source/installation/config.rst:69
+#: ../../source/installation/config.rst:73
 msgid ":ref:`PVNumberOfCharacteristics`"
 msgstr ""
 
-#: ../../source/installation/config.rst:70
+#: ../../source/installation/config.rst:74
 msgid ":ref:`PVDictionaries`"
 msgstr ""
 
-#: ../../source/installation/config.rst:71
+#: ../../source/installation/config.rst:75
 msgid ":ref:`PVGoodStrength`"
 msgstr ""
 
-#: ../../source/installation/config.rst:72
+#: ../../source/installation/config.rst:76
 msgid ":ref:`PVCustomPasswordResetAlertMessage`"
 msgstr ""
 
-#: ../../source/installation/config.rst:75
+#: ../../source/installation/config.rst:79
 msgid "Network Ports"
 msgstr ""
 
-#: ../../source/installation/config.rst:77
+#: ../../source/installation/config.rst:81
 msgid ""
 "Remember how under \"Decisions to Make\" in the :doc:`prep` section we "
 "mentioned you'll need to make a decision about whether or not to "
@@ -213,7 +209,7 @@ msgid ""
 " has come to make that decision."
 msgstr ""
 
-#: ../../source/installation/config.rst:79
+#: ../../source/installation/config.rst:83
 msgid ""
 "The need to redirect port HTTP (port 80) to HTTPS (port 443) for security"
 " has already been mentioned in :ref:`forcing_https` and the fact that "
@@ -223,7 +219,7 @@ msgid ""
 "should have them use the standard HTTPS port, which is 443."
 msgstr ""
 
-#: ../../source/installation/config.rst:81
+#: ../../source/installation/config.rst:85
 msgid ""
 "Your decision to proxy or not should primarily be driven by which "
 "features of Dataverse you'd like to use. If you'd like to use Shibboleth,"
@@ -232,7 +228,7 @@ msgid ""
 "section."
 msgstr ""
 
-#: ../../source/installation/config.rst:83
+#: ../../source/installation/config.rst:87
 msgid ""
 "If you'd like to use TwoRavens, you should also consider fronting with "
 "Apache because you will be required to install an Apache anyway to make "
@@ -240,7 +236,7 @@ msgid ""
 "tworavens` section."
 msgstr ""
 
-#: ../../source/installation/config.rst:85
+#: ../../source/installation/config.rst:89
 msgid ""
 "Even if you have no interest in Shibboleth nor TwoRavens, you may want to"
 " front Dataverse with Apache or nginx to simply the process of installing"
@@ -254,7 +250,7 @@ msgid ""
 "-certificate-and-private-key-in-java-keystore-to-use-i>`_ on the web."
 msgstr ""
 
-#: ../../source/installation/config.rst:87
+#: ../../source/installation/config.rst:91
 msgid ""
 "Still not convinced you should put Glassfish behind another web server? "
 "Even if you manage to get your SSL certificate into Glassfish, how are "
@@ -268,33 +264,33 @@ msgid ""
 " require root.)"
 msgstr ""
 
-#: ../../source/installation/config.rst:89
+#: ../../source/installation/config.rst:93
 msgid ""
 "There's also the issue of serving a production-ready version of "
 "robots.txt. By using a proxy such as Apache, this is a one-time \"set it "
 "and forget it\" step as explained in the :ref:`going_live` section."
 msgstr ""
 
-#: ../../source/installation/config.rst:91
+#: ../../source/installation/config.rst:95
 msgid ""
 "If you are convinced you'd like to try fronting Glassfish with Apache, "
 "the :doc:`shibboleth` section should be good resource for you."
 msgstr ""
 
-#: ../../source/installation/config.rst:93
+#: ../../source/installation/config.rst:97
 msgid ""
 "If you really don't want to front Glassfish with any proxy (not "
 "recommended), you can configure Glassfish to run HTTPS on port 443 like "
 "this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:95
+#: ../../source/installation/config.rst:99
 msgid ""
 "``./asadmin set server-config.network-config.network-listeners.network-"
 "listener.http-listener-2.port=443``"
 msgstr ""
 
-#: ../../source/installation/config.rst:97
+#: ../../source/installation/config.rst:101
 msgid ""
 "What about port 80? Even if you don't front Dataverse with Apache, you "
 "may want to let Apache run on port 80 just to rewrite HTTP to HTTPS (see "
@@ -307,7 +303,7 @@ msgid ""
 "unification-error-not-able-to-redirect-http-to"
 msgstr ""
 
-#: ../../source/installation/config.rst:99
+#: ../../source/installation/config.rst:103
 msgid ""
 "If you are running an installation with Apache and Glassfish on the same "
 "server, and would like to restrict Glassfish from responding to any "
@@ -315,24 +311,24 @@ msgid ""
 "Apache), you can restrict the AJP listener to localhost only with:"
 msgstr ""
 
-#: ../../source/installation/config.rst:101
+#: ../../source/installation/config.rst:105
 msgid ""
 "``./asadmin set server-config.network-config.network-listeners.network-"
 "listener.http-listener-1.address=127.0.0.1``"
 msgstr ""
 
-#: ../../source/installation/config.rst:103
+#: ../../source/installation/config.rst:107
 msgid ""
 "You should **NOT** use this configuration option if you are running in a "
 "load-balanced environment, or otherwise have the web server on a "
 "different host than the application server."
 msgstr ""
 
-#: ../../source/installation/config.rst:106
+#: ../../source/installation/config.rst:110
 msgid "Root Dataverse Permissions"
 msgstr ""
 
-#: ../../source/installation/config.rst:108
+#: ../../source/installation/config.rst:112
 msgid ""
 "The user who creates a dataverse is given the \"Admin\" role on that "
 "dataverse. The root dataverse is created automatically for you by the "
@@ -347,7 +343,7 @@ msgid ""
 "dataverse."
 msgstr ""
 
-#: ../../source/installation/config.rst:110
+#: ../../source/installation/config.rst:114
 msgid ""
 "In order for non-superusers to start creating dataverses or datasets, you"
 " need click \"Edit\" then \"Permissions\" and make choices about which "
@@ -358,7 +354,7 @@ msgid ""
 "to to do anything useful until the root dataverse has been published."
 msgstr ""
 
-#: ../../source/installation/config.rst:112
+#: ../../source/installation/config.rst:116
 msgid ""
 "As the person installing Dataverse you may or may not be a local metadata"
 " expert. You may want to have others sign up for accounts and grant them "
@@ -368,11 +364,11 @@ msgid ""
 " Guide."
 msgstr ""
 
-#: ../../source/installation/config.rst:115
+#: ../../source/installation/config.rst:119
 msgid "Persistent Identifiers and Publishing Datasets"
 msgstr ""
 
-#: ../../source/installation/config.rst:117
+#: ../../source/installation/config.rst:121
 msgid ""
 "Persistent identifiers are a required and integral part of the Dataverse "
 "platform. They provide a URL that is guaranteed to resolve to the "
@@ -380,7 +376,7 @@ msgid ""
 "identifiers using DOI and Handle."
 msgstr ""
 
-#: ../../source/installation/config.rst:119
+#: ../../source/installation/config.rst:123
 msgid ""
 "By default, the installer configures a default DOI namespace (10.5072) "
 "with DataCite as the registration provider. Please note that as of the "
@@ -391,17 +387,17 @@ msgid ""
 "credentials in your properties file::"
 msgstr ""
 
-#: ../../source/installation/config.rst:124
+#: ../../source/installation/config.rst:128
 msgid ""
 "and restart Glassfish. The prefix can be also configured via the "
 "properties file (where it is referred to as \"Authority\"):"
 msgstr ""
 
-#: ../../source/installation/config.rst:126
+#: ../../source/installation/config.rst:130
 msgid "``Authority=10.xxxx``"
 msgstr ""
 
-#: ../../source/installation/config.rst:128
+#: ../../source/installation/config.rst:132
 msgid ""
 "Once this is done, you will be able to publish datasets and files, but "
 "the persistent identifiers will not be citable, and they will only "
@@ -412,7 +408,7 @@ msgid ""
 "to be created again once a valid DOI namespace is configured."
 msgstr ""
 
-#: ../../source/installation/config.rst:130
+#: ../../source/installation/config.rst:134
 msgid ""
 "To properly configure persistent identifiers for a production "
 "installation, an account and associated namespace must be acquired for a "
@@ -425,132 +421,132 @@ msgid ""
 "provider."
 msgstr ""
 
-#: ../../source/installation/config.rst:132
+#: ../../source/installation/config.rst:136
 msgid ""
 "Once you have your DOI or Handle account credentials and a namespace, "
 "configure Dataverse to use them using the file options."
 msgstr ""
 
-#: ../../source/installation/config.rst:135
+#: ../../source/installation/config.rst:139
 msgid "Configuring Dataverse for DOIs"
 msgstr ""
 
-#: ../../source/installation/config.rst:137
+#: ../../source/installation/config.rst:141
 msgid ""
 "By default Dataverse attempts to register DOIs for each dataset and file "
 "under a test authority, though you must apply for your own credentials."
 msgstr ""
 
-#: ../../source/installation/config.rst:139
+#: ../../source/installation/config.rst:143
 msgid "Here are the configuration options for DOIs:"
 msgstr ""
 
-#: ../../source/installation/config.rst:141
-#: ../../source/installation/config.rst:159
+#: ../../source/installation/config.rst:145
+#: ../../source/installation/config.rst:163
 msgid "**File Settings:**"
 msgstr ""
 
-#: ../../source/installation/config.rst:143
-#: ../../source/installation/config.rst:846
+#: ../../source/installation/config.rst:147
+#: ../../source/installation/config.rst:850
 msgid ":ref:`DoiBaseUrlString`"
 msgstr ""
 
-#: ../../source/installation/config.rst:144
-#: ../../source/installation/config.rst:847
+#: ../../source/installation/config.rst:148
+#: ../../source/installation/config.rst:851
 msgid ":ref:`DoiUsername`"
 msgstr ""
 
-#: ../../source/installation/config.rst:145
-#: ../../source/installation/config.rst:848
+#: ../../source/installation/config.rst:149
+#: ../../source/installation/config.rst:852
 msgid ":ref:`DoiPassword`"
 msgstr ""
 
-#: ../../source/installation/config.rst:146
+#: ../../source/installation/config.rst:150
 msgid ":ref:`DoiProvider <DoiProvider>`"
 msgstr ""
 
-#: ../../source/installation/config.rst:147
-#: ../../source/installation/config.rst:164
+#: ../../source/installation/config.rst:151
+#: ../../source/installation/config.rst:168
 msgid ":ref:`Protocol <Protocol>`"
 msgstr ""
 
-#: ../../source/installation/config.rst:148
-#: ../../source/installation/config.rst:165
+#: ../../source/installation/config.rst:152
+#: ../../source/installation/config.rst:169
 msgid ":ref:`Authority <Authority>`"
 msgstr ""
 
-#: ../../source/installation/config.rst:149
+#: ../../source/installation/config.rst:153
 msgid ":ref:`Shoulder <Shoulder>`"
 msgstr ""
 
-#: ../../source/installation/config.rst:150
-#: ../../source/installation/config.rst:166
+#: ../../source/installation/config.rst:154
+#: ../../source/installation/config.rst:170
 msgid ":ref:`IdentifierGenerationStyle <IdentifierGenerationStyle>` (optional)"
 msgstr ""
 
-#: ../../source/installation/config.rst:151
-#: ../../source/installation/config.rst:167
+#: ../../source/installation/config.rst:155
+#: ../../source/installation/config.rst:171
 msgid ":ref:`DataFilePIDFormat <DataFilePIDFormat>` (optional)"
 msgstr ""
 
-#: ../../source/installation/config.rst:152
+#: ../../source/installation/config.rst:156
 msgid ":ref:`FilePIDsEnabled <FilePIDsEnabled>` (optional, defaults to true)"
 msgstr ""
 
-#: ../../source/installation/config.rst:155
+#: ../../source/installation/config.rst:159
 msgid "Configuring Dataverse for Handles"
 msgstr ""
 
-#: ../../source/installation/config.rst:157
+#: ../../source/installation/config.rst:161
 msgid "Here are the configuration options for handles:"
 msgstr ""
 
-#: ../../source/installation/config.rst:161
+#: ../../source/installation/config.rst:165
 msgid ":ref:`HandleNetAdmCredFile`"
 msgstr ""
 
-#: ../../source/installation/config.rst:162
+#: ../../source/installation/config.rst:166
 msgid ":ref:`HandleNetAdmPrivPhrase`"
 msgstr ""
 
-#: ../../source/installation/config.rst:163
+#: ../../source/installation/config.rst:167
 msgid ":ref:`HandleNetIndex`"
 msgstr ""
 
-#: ../../source/installation/config.rst:168
+#: ../../source/installation/config.rst:172
 msgid ":ref:`IndependentHandleService <IndependentHandleService>` (optional)"
 msgstr ""
 
-#: ../../source/installation/config.rst:170
+#: ../../source/installation/config.rst:174
 msgid ""
 "Note: If you are **minting your own handles** and plan to set up your own"
 " handle service, please refer to `Handle.Net documentation "
 "<http://handle.net/hnr_documentation.html>`_."
 msgstr ""
 
-#: ../../source/installation/config.rst:175
+#: ../../source/installation/config.rst:179
 msgid "Auth Modes: Local vs. Remote vs. Both"
 msgstr ""
 
-#: ../../source/installation/config.rst:177
+#: ../../source/installation/config.rst:181
 msgid ""
 "There are three valid configurations or modes for authenticating users to"
 " Dataverse:"
 msgstr ""
 
-#: ../../source/installation/config.rst:179
+#: ../../source/installation/config.rst:183
 msgid "Local only (also known as \"builtin\" or \"Username/Email\")."
 msgstr ""
 
-#: ../../source/installation/config.rst:180
+#: ../../source/installation/config.rst:184
 msgid "Both local and remote (Shibboleth and/or OAuth)."
 msgstr ""
 
-#: ../../source/installation/config.rst:181
+#: ../../source/installation/config.rst:185
 msgid "Remote (Shibboleth and/or OAuth) only."
 msgstr ""
 
-#: ../../source/installation/config.rst:183
+#: ../../source/installation/config.rst:187
 msgid ""
 "Out of the box, Dataverse is configured in \"local only\" mode. The "
 "\"dataverseAdmin\" superuser account mentioned in the :doc:`/installation"
@@ -559,13 +555,13 @@ msgid ""
 "Dataverse application itself."
 msgstr ""
 
-#: ../../source/installation/config.rst:185
+#: ../../source/installation/config.rst:189
 msgid ""
 "To configure Shibboleth see the :doc:`shibboleth` section and to "
 "configure OAuth see the :doc:`oauth2` section."
 msgstr ""
 
-#: ../../source/installation/config.rst:187
+#: ../../source/installation/config.rst:191
 msgid ""
 "The ``authenticationproviderrow`` database table controls which "
 "\"authentication providers\" are available within Dataverse. Out of the "
@@ -585,7 +581,7 @@ msgid ""
 "list users and authentication providers as JSON."
 msgstr ""
 
-#: ../../source/installation/config.rst:189
+#: ../../source/installation/config.rst:193
 msgid ""
 "Enabling a second authentication provider will result in the Log In page "
 "showing additional providers for your users to choose from. By default, "
@@ -593,18 +589,18 @@ msgid ""
 "this via the ``:DefaultAuthProvider`` configuration option."
 msgstr ""
 
-#: ../../source/installation/config.rst:191
+#: ../../source/installation/config.rst:195
 msgid ""
 "\"Remote only\" mode should be considered experimental until "
 "https://github.com/IQSS/dataverse/issues/2974 is resolved. For now, "
 "\"remote only\" means:"
 msgstr ""
 
-#: ../../source/installation/config.rst:193
+#: ../../source/installation/config.rst:197
 msgid "Shibboleth or OAuth has been enabled."
 msgstr ""
 
-#: ../../source/installation/config.rst:194
+#: ../../source/installation/config.rst:198
 msgid ""
 "``:AllowSignUp`` is set to \"false\" per the :doc:`config` section to "
 "prevent users from creating local accounts via the web interface. Please "
@@ -614,7 +610,7 @@ msgid ""
 "section."
 msgstr ""
 
-#: ../../source/installation/config.rst:195
+#: ../../source/installation/config.rst:199
 msgid ""
 "The \"builtin\" authentication provider has been disabled. Note that "
 "disabling the builting auth provider means that the API endpoint for "
@@ -633,11 +629,11 @@ msgid ""
 "between remote authentication providers will be necessary."
 msgstr ""
 
-#: ../../source/installation/config.rst:198
+#: ../../source/installation/config.rst:202
 msgid "File Storage: Local Filesystem vs. S3"
 msgstr ""
 
-#: ../../source/installation/config.rst:200
+#: ../../source/installation/config.rst:204
 msgid ""
 "By default, a Dataverse installation stores data files (files uploaded by"
 " end users) on the filesystem at "
@@ -647,11 +643,11 @@ msgid ""
 " reconfiguring the :ref:`dataverse_files_directory` JVM option."
 msgstr ""
 
-#: ../../source/installation/config.rst:203
+#: ../../source/installation/config.rst:207
 msgid "Amazon S3 Storage (or Compatible)"
 msgstr ""
 
-#: ../../source/installation/config.rst:205
+#: ../../source/installation/config.rst:209
 msgid ""
 "For institutions and organizations looking to use some kind of S3-based "
 "object storage for files uploaded to Dataverse, this is entirely "
@@ -660,7 +656,7 @@ msgid ""
 " more)."
 msgstr ""
 
-#: ../../source/installation/config.rst:209
+#: ../../source/installation/config.rst:213
 msgid ""
 "**Note:** The Dataverse Team is most familiar with AWS S3, and can "
 "provide support on its usage with Dataverse. Thanks to community "
@@ -670,11 +666,11 @@ msgid ""
 "community if you have questions."
 msgstr ""
 
-#: ../../source/installation/config.rst:214
+#: ../../source/installation/config.rst:218
 msgid "First: Set Up Accounts and Access Credentials"
 msgstr ""
 
-#: ../../source/installation/config.rst:216
+#: ../../source/installation/config.rst:220
 msgid ""
 "Dataverse and the AWS SDK make use of the \"AWS credentials profile "
 "file\" and \"AWS config profile file\" located in ``~/.aws/`` where ``~``"
@@ -682,19 +678,19 @@ msgid ""
 " generated via either of two methods:"
 msgstr ""
 
-#: ../../source/installation/config.rst:220
+#: ../../source/installation/config.rst:224
 msgid "Manually through creation of the credentials and config files or"
 msgstr ""
 
-#: ../../source/installation/config.rst:221
+#: ../../source/installation/config.rst:225
 msgid "Automatically via the AWS console commands."
 msgstr ""
 
-#: ../../source/installation/config.rst:224
+#: ../../source/installation/config.rst:228
 msgid "Preparation When Using Amazon's S3 Service"
 msgstr ""
 
-#: ../../source/installation/config.rst:226
+#: ../../source/installation/config.rst:230
 msgid ""
 "You'll need an AWS account with an associated S3 bucket for your "
 "installation to use. From the S3 management console (e.g. "
@@ -702,13 +698,13 @@ msgid ""
 "familiar with your bucket."
 msgstr ""
 
-#: ../../source/installation/config.rst:229
+#: ../../source/installation/config.rst:233
 msgid ""
 "**Make note** of the **bucket's name** and the **region** its data is "
 "hosted in."
 msgstr ""
 
-#: ../../source/installation/config.rst:231
+#: ../../source/installation/config.rst:235
 msgid ""
 "To **create a user** with full S3 access and nothing more for security "
 "reasons, we recommend using IAM (Identity and Access Management). See "
@@ -717,13 +713,13 @@ msgid ""
 "more info on this process."
 msgstr ""
 
-#: ../../source/installation/config.rst:235
+#: ../../source/installation/config.rst:239
 msgid ""
 "**Generate the user keys** needed for Dataverse afterwards by clicking on"
 " the created user. (You can skip this step when running on EC2.)"
 msgstr ""
 
-#: ../../source/installation/config.rst:239
+#: ../../source/installation/config.rst:243
 msgid ""
 "If you are hosting Dataverse on an AWS EC2 instance alongside storage in "
 "S3, it is possible to use IAM Roles instead of the credentials file (the "
@@ -735,77 +731,77 @@ msgid ""
 "ec2.html"
 msgstr ""
 
-#: ../../source/installation/config.rst:247
+#: ../../source/installation/config.rst:251
 msgid "Preparation When Using Custom S3-Compatible Service"
 msgstr ""
 
-#: ../../source/installation/config.rst:249
+#: ../../source/installation/config.rst:253
 msgid ""
 "We assume you have your S3-compatible custom storage in place, up and "
 "running, ready for service."
 msgstr ""
 
-#: ../../source/installation/config.rst:251
+#: ../../source/installation/config.rst:255
 msgid "Please make note of the following details:"
 msgstr ""
 
-#: ../../source/installation/config.rst:253
+#: ../../source/installation/config.rst:257
 msgid ""
 "**Endpoint URL** - consult the documentation of your service on how to "
 "find it."
 msgstr ""
 
-#: ../../source/installation/config.rst:255
+#: ../../source/installation/config.rst:259
 msgid "Example: https://play.minio.io:9000"
 msgstr ""
 
-#: ../../source/installation/config.rst:257
+#: ../../source/installation/config.rst:261
 msgid ""
 "**Region:** Optional, but some services might use it. Consult your "
 "service documentation."
 msgstr ""
 
-#: ../../source/installation/config.rst:259
+#: ../../source/installation/config.rst:263
 msgid "Example: *us-east-1*"
 msgstr ""
 
-#: ../../source/installation/config.rst:261
+#: ../../source/installation/config.rst:265
 msgid ""
 "**Access key ID and secret access key:** Usually you can generate access "
 "keys within the user profile of your service."
 msgstr ""
 
-#: ../../source/installation/config.rst:263
+#: ../../source/installation/config.rst:267
 msgid "Example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:265
+#: ../../source/installation/config.rst:269
 msgid "ID: *Q3AM3UQ867SPQQA43P2F*"
 msgstr ""
 
-#: ../../source/installation/config.rst:267
+#: ../../source/installation/config.rst:271
 msgid "Key: *zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG*"
 msgstr ""
 
-#: ../../source/installation/config.rst:269
+#: ../../source/installation/config.rst:273
 msgid ""
 "**Bucket name:** Dataverse will fail opening and uploading files on S3 if"
 " you don't create one."
 msgstr ""
 
-#: ../../source/installation/config.rst:271
+#: ../../source/installation/config.rst:275
 msgid "Example: *dataverse*"
 msgstr ""
 
-#: ../../source/installation/config.rst:275
+#: ../../source/installation/config.rst:279
 msgid "Reported Working S3-Compatible Storage"
 msgstr ""
 
-#: ../../source/installation/config.rst:281
+#: ../../source/installation/config.rst:285
 msgid "`Minio v2018-09-12 <http://minio.io>`_"
 msgstr ""
 
-#: ../../source/installation/config.rst:278
+#: ../../source/installation/config.rst:282
 msgid ""
 "Set ``dataverse.files.s3-path-style-access=true``, as Minio works path-"
 "based. Works pretty smooth, easy to setup. **Can be used for quick "
@@ -814,7 +810,7 @@ msgid ""
 "possibly slow) https://play.minio.io:9000 service."
 msgstr ""
 
-#: ../../source/installation/config.rst:283
+#: ../../source/installation/config.rst:287
 msgid ""
 "**HINT:** If you are successfully using an S3 storage implementation not "
 "yet listed in this document, please feel free to `open an issue at Github"
@@ -822,11 +818,11 @@ msgid ""
 "setup. We will be glad to add it here."
 msgstr ""
 
-#: ../../source/installation/config.rst:291
+#: ../../source/installation/config.rst:295
 msgid "Manually Set Up Credentials File"
 msgstr ""
 
-#: ../../source/installation/config.rst:293
+#: ../../source/installation/config.rst:297
 msgid ""
 "To create the ``~/.aws/credentials`` file manually, you will need to "
 "generate a key/secret key (see :ref:`set_up_s3_account_credentials`). "
@@ -834,13 +830,13 @@ msgid ""
 "``credentials`` file. The format for credentials is as follows:"
 msgstr ""
 
-#: ../../source/installation/config.rst:302
+#: ../../source/installation/config.rst:306
 msgid ""
 "While using Amazon's service, you must also specify the AWS region in the"
 " ``~/.aws/config`` file, for example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:309
+#: ../../source/installation/config.rst:313
 msgid ""
 "Place these two files in a folder named ``.aws`` under the home directory"
 " for the user running your Dataverse Glassfish instance. (From the `AWS "
@@ -851,32 +847,32 @@ msgid ""
 "config in the same folder\")"
 msgstr ""
 
-#: ../../source/installation/config.rst:315
+#: ../../source/installation/config.rst:319
 msgid "Console Commands to Set Up Access Configuration"
 msgstr ""
 
-#: ../../source/installation/config.rst:317
+#: ../../source/installation/config.rst:321
 msgid ""
 "Begin by installing the CLI tool `pip <https://pip.pypa.io//en/latest/>`_"
 " to install the `AWS command line interface "
 "<https://aws.amazon.com/cli/>`_ if you don't have it."
 msgstr ""
 
-#: ../../source/installation/config.rst:320
+#: ../../source/installation/config.rst:324
 msgid ""
 "First, we'll get our access keys set up. If you already have your access "
 "keys configured, skip this step. From the command line, run:"
 msgstr ""
 
-#: ../../source/installation/config.rst:323
+#: ../../source/installation/config.rst:327
 msgid "``pip install awscli``"
 msgstr ""
 
-#: ../../source/installation/config.rst:324
+#: ../../source/installation/config.rst:328
 msgid "``aws configure``"
 msgstr ""
 
-#: ../../source/installation/config.rst:326
+#: ../../source/installation/config.rst:330
 msgid ""
 "You'll be prompted to enter your Access Key ID and secret key, which "
 "should be issued to your AWS account. The subsequent config steps after "
@@ -884,21 +880,21 @@ msgid ""
 "``~/.aws/credentials``, and your AWS access region in ``~/.aws/config``."
 msgstr ""
 
-#: ../../source/installation/config.rst:331
+#: ../../source/installation/config.rst:335
 msgid ""
 "**TIP:** When using a custom S3 URL endpoint, you need to add it to every"
 " ``aws`` call: ``aws --endpoint-url <URL> s3 ...``"
 msgstr ""
 
-#: ../../source/installation/config.rst:331
+#: ../../source/installation/config.rst:335
 msgid "(you may omit it while configuring)."
 msgstr ""
 
-#: ../../source/installation/config.rst:334
+#: ../../source/installation/config.rst:338
 msgid "Second: Configure Dataverse to use S3 Storage"
 msgstr ""
 
-#: ../../source/installation/config.rst:336
+#: ../../source/installation/config.rst:340
 msgid ""
 "With access to your bucket in place, we'll want to navigate to "
 "``/usr/local/glassfish4/glassfish/bin/`` and execute the following "
@@ -907,19 +903,19 @@ msgid ""
 "to delete the existing storage driver before setting the new one."
 msgstr ""
 
-#: ../../source/installation/config.rst:345
+#: ../../source/installation/config.rst:349
 msgid ""
 "Then, we'll need to identify which S3 bucket we're using. Replace "
 "``your_bucket_name`` with, of course, your bucket:"
 msgstr ""
 
-#: ../../source/installation/config.rst:347
+#: ../../source/installation/config.rst:351
 msgid ""
 "``./asadmin create-jvm-options \"-Ddataverse.files.s3-bucket-"
 "name=your_bucket_name\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:349
+#: ../../source/installation/config.rst:353
 msgid ""
 "Optionally, you can have users download files from S3 directly rather "
 "than having files pass from S3 through Glassfish to your users. To "
@@ -927,13 +923,13 @@ msgid ""
 " like this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:351
+#: ../../source/installation/config.rst:355
 msgid ""
 "``./asadmin create-jvm-options \"-Ddataverse.files.s3-download-"
 "redirect=true\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:353
+#: ../../source/installation/config.rst:357
 msgid ""
 "If you enable ``dataverse.files.s3-download-redirect``, note that the S3 "
 "URLs expire after an hour by default but you can configure the expiration"
@@ -941,13 +937,13 @@ msgid ""
 " Here's an example of setting the expiration time to 120 minutes:"
 msgstr ""
 
-#: ../../source/installation/config.rst:355
+#: ../../source/installation/config.rst:359
 msgid ""
 "``./asadmin create-jvm-options \"-Ddataverse.files.s3-url-expiration-"
 "minutes=120\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:357
+#: ../../source/installation/config.rst:361
 msgid ""
 "In case you would like to configure Dataverse to use a custom S3 service "
 "instead of Amazon S3 services, please add the options for the custom URL "
@@ -956,7 +952,7 @@ msgid ""
 " what other options have been set for a successful integration."
 msgstr ""
 
-#: ../../source/installation/config.rst:361
+#: ../../source/installation/config.rst:365
 msgid ""
 "Lastly, go ahead and restart your glassfish server. With Dataverse "
 "deployed and the site online, you should be able to upload datasets and "
@@ -964,125 +960,125 @@ msgid ""
 "bucket, the folder structure emulates that found in local file storage."
 msgstr ""
 
-#: ../../source/installation/config.rst:366
+#: ../../source/installation/config.rst:370
 msgid "S3 Storage Options"
 msgstr ""
 
-#: ../../source/installation/config.rst:369
+#: ../../source/installation/config.rst:373
 msgid "JVM Option"
 msgstr ""
 
-#: ../../source/installation/config.rst:369
+#: ../../source/installation/config.rst:373
 msgid "Value"
 msgstr ""
 
-#: ../../source/installation/config.rst:369
+#: ../../source/installation/config.rst:373
 msgid "Description"
 msgstr ""
 
-#: ../../source/installation/config.rst:369
+#: ../../source/installation/config.rst:373
 msgid "Default value"
 msgstr ""
 
-#: ../../source/installation/config.rst:371
+#: ../../source/installation/config.rst:375
 msgid "dataverse.files.storage-driver-id"
 msgstr ""
 
-#: ../../source/installation/config.rst:371
+#: ../../source/installation/config.rst:375
 msgid "s3"
 msgstr ""
 
-#: ../../source/installation/config.rst:371
+#: ../../source/installation/config.rst:375
 msgid "Enable S3 storage driver."
 msgstr ""
 
-#: ../../source/installation/config.rst:371
+#: ../../source/installation/config.rst:375
 msgid "``file``"
 msgstr ""
 
-#: ../../source/installation/config.rst:372
+#: ../../source/installation/config.rst:376
 msgid "dataverse.files.s3-bucket-name"
 msgstr ""
 
-#: ../../source/installation/config.rst:372
-#: ../../source/installation/config.rst:374
-#: ../../source/installation/config.rst:375
 #: ../../source/installation/config.rst:376
+#: ../../source/installation/config.rst:378
+#: ../../source/installation/config.rst:379
+#: ../../source/installation/config.rst:380
 msgid "<?>"
 msgstr ""
 
-#: ../../source/installation/config.rst:372
+#: ../../source/installation/config.rst:376
 msgid "The bucket name."
 msgstr ""
 
-#: ../../source/installation/config.rst:372
-#: ../../source/installation/config.rst:375
+#: ../../source/installation/config.rst:376
+#: ../../source/installation/config.rst:379
 msgid "(none)"
 msgstr ""
 
-#: ../../source/installation/config.rst:373
+#: ../../source/installation/config.rst:377
 msgid "dataverse.files.s3-download-redirect"
 msgstr ""
 
-#: ../../source/installation/config.rst:373
 #: ../../source/installation/config.rst:377
+#: ../../source/installation/config.rst:381
 msgid "``true``/``false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:373
+#: ../../source/installation/config.rst:377
 msgid "Enable direct download or proxy through Dataverse."
 msgstr ""
 
-#: ../../source/installation/config.rst:373
 #: ../../source/installation/config.rst:377
+#: ../../source/installation/config.rst:381
 msgid "``false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:374
+#: ../../source/installation/config.rst:378
 msgid "dataverse.files.s3-url-expiration-minutes"
 msgstr ""
 
-#: ../../source/installation/config.rst:374
+#: ../../source/installation/config.rst:378
 msgid "If direct downloads: time until links expire. Optional."
 msgstr ""
 
-#: ../../source/installation/config.rst:374
+#: ../../source/installation/config.rst:378
 msgid "60"
 msgstr ""
 
-#: ../../source/installation/config.rst:375
+#: ../../source/installation/config.rst:379
 msgid "dataverse.files.s3-custom-endpoint-url"
 msgstr ""
 
-#: ../../source/installation/config.rst:375
+#: ../../source/installation/config.rst:379
 msgid "Use custom S3 endpoint. Needs URL either with or without protocol."
 msgstr ""
 
-#: ../../source/installation/config.rst:376
+#: ../../source/installation/config.rst:380
 msgid "dataverse.files.s3-custom-endpoint-region"
 msgstr ""
 
-#: ../../source/installation/config.rst:376
+#: ../../source/installation/config.rst:380
 msgid "Only used when using custom endpoint. Optional."
 msgstr ""
 
-#: ../../source/installation/config.rst:376
+#: ../../source/installation/config.rst:380
 msgid "``dataverse``"
 msgstr ""
 
-#: ../../source/installation/config.rst:377
+#: ../../source/installation/config.rst:381
 msgid "dataverse.files.s3-path-style-access"
 msgstr ""
 
-#: ../../source/installation/config.rst:377
+#: ../../source/installation/config.rst:381
 msgid "Use path style buckets instead of subdomains. Optional."
 msgstr ""
 
-#: ../../source/installation/config.rst:383
+#: ../../source/installation/config.rst:387
 msgid "Branding Your Installation"
 msgstr ""
 
-#: ../../source/installation/config.rst:385
+#: ../../source/installation/config.rst:389
 msgid ""
 "The name of your root dataverse is the brand of your installation of "
 "Dataverse and appears in various places such as notifications and support"
@@ -1093,27 +1089,27 @@ msgid ""
 "add:"
 msgstr ""
 
-#: ../../source/installation/config.rst:387
+#: ../../source/installation/config.rst:391
 msgid "Custom welcome/homepage"
 msgstr ""
 
-#: ../../source/installation/config.rst:388
+#: ../../source/installation/config.rst:392
 msgid "Logo image to navbar"
 msgstr ""
 
-#: ../../source/installation/config.rst:389
+#: ../../source/installation/config.rst:393
 msgid "Header"
 msgstr ""
 
-#: ../../source/installation/config.rst:390
+#: ../../source/installation/config.rst:394
 msgid "Footer"
 msgstr ""
 
-#: ../../source/installation/config.rst:391
+#: ../../source/installation/config.rst:395
 msgid "CSS stylesheet"
 msgstr ""
 
-#: ../../source/installation/config.rst:393
+#: ../../source/installation/config.rst:397
 msgid ""
 "Downloadable sample HTML and CSS files are provided in next subsections. "
 "You can edit them as you see fit. It's up to you to create a directory in"
@@ -1121,7 +1117,7 @@ msgid ""
 "examples in following subsections."
 msgstr ""
 
-#: ../../source/installation/config.rst:395
+#: ../../source/installation/config.rst:399
 msgid ""
 "You may also want to look at samples at "
 "https://github.com/shlake/LibraDataHomepage from community member Sherry "
@@ -1130,7 +1126,7 @@ msgid ""
 "https://github.com/IQSS/dataverse/files/2128735/UVaHomePage.pdf"
 msgstr ""
 
-#: ../../source/installation/config.rst:397
+#: ../../source/installation/config.rst:401
 msgid ""
 "A simpler option to brand and customize your installation is to utilize "
 "the dataverse theme, which each dataverse has, that allows you to change "
@@ -1139,18 +1135,18 @@ msgid ""
 "/dataverse-management` section of the User Guide."
 msgstr ""
 
-#: ../../source/installation/config.rst:400
+#: ../../source/installation/config.rst:404
 msgid "Custom Homepage"
 msgstr ""
 
-#: ../../source/installation/config.rst:402
+#: ../../source/installation/config.rst:406
 msgid ""
 "Dataverse allows you to use a custom homepage or welcome page in place of"
 " the default root dataverse page. This allows for complete control over "
 "the look and feel of your installation's homepage."
 msgstr ""
 
-#: ../../source/installation/config.rst:404
+#: ../../source/installation/config.rst:408
 msgid ""
 "Download this sample: :download:`custom-homepage.html "
 "</_static/installation/files/var/www/dataverse/branding/custom-"
@@ -1158,19 +1154,19 @@ msgid ""
 "homepage.html``."
 msgstr ""
 
-#: ../../source/installation/config.rst:406
+#: ../../source/installation/config.rst:410
 msgid ""
 "Once you have the location of your custom homepage HTML file, edit file "
 "setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:408
+#: ../../source/installation/config.rst:412
 msgid ""
 "``HomePageCustomizationFile=/var/www/dataverse/branding/custom-"
 "homepage.html``"
 msgstr ""
 
-#: ../../source/installation/config.rst:410
+#: ../../source/installation/config.rst:414
 msgid ""
 "If you prefer to start with less of a blank slate, you can download the "
 ":download:`custom-homepage-dynamic.html "
@@ -1182,7 +1178,7 @@ msgid ""
 "javascript."
 msgstr ""
 
-#: ../../source/installation/config.rst:412
+#: ../../source/installation/config.rst:416
 msgid ""
 "Note that the ``custom-homepage.html`` and ``custom-homepage-"
 "dynamic.html`` files provided have multiple elements that assume your "
@@ -1192,26 +1188,26 @@ msgid ""
 "code as needed."
 msgstr ""
 
-#: ../../source/installation/config.rst:414
+#: ../../source/installation/config.rst:418
 msgid "If you decide you'd like to remove this setting, just remove the value:"
 msgstr ""
 
-#: ../../source/installation/config.rst:416
+#: ../../source/installation/config.rst:420
 msgid "``HomePageCustomizationFile=``"
 msgstr ""
 
-#: ../../source/installation/config.rst:419
+#: ../../source/installation/config.rst:423
 msgid "Custom Navbar Logo"
 msgstr ""
 
-#: ../../source/installation/config.rst:421
+#: ../../source/installation/config.rst:425
 msgid ""
 "Dataverse allows you to replace the default Dataverse icon and name "
 "branding in the navbar with your own custom logo. Note that this logo is "
 "separate from the *root dataverse theme* logo."
 msgstr ""
 
-#: ../../source/installation/config.rst:423
+#: ../../source/installation/config.rst:427
 msgid ""
 "The custom logo image file is expected to be small enough to fit "
 "comfortably in the navbar, no more than 50 pixels in height and 160 "
@@ -1221,21 +1217,21 @@ msgid ""
 "``/usr/local/glassfish4/glassfish/domains/domain1/docroot/logos/navbar/logo.png``."
 msgstr ""
 
-#: ../../source/installation/config.rst:425
+#: ../../source/installation/config.rst:429
 msgid ""
 "Once you have the location of your custom logo image file, edit this file"
 " setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:427
+#: ../../source/installation/config.rst:431
 msgid "``LogoCustomizationFile=/logos/navbar/logo.png``"
 msgstr ""
 
-#: ../../source/installation/config.rst:430
+#: ../../source/installation/config.rst:434
 msgid "Custom Header"
 msgstr ""
 
-#: ../../source/installation/config.rst:432
+#: ../../source/installation/config.rst:436
 msgid ""
 "Download this sample: :download:`custom-header.html "
 "</_static/installation/files/var/www/dataverse/branding/custom-"
@@ -1243,28 +1239,28 @@ msgid ""
 "header.html``."
 msgstr ""
 
-#: ../../source/installation/config.rst:434
+#: ../../source/installation/config.rst:438
 msgid ""
 "Once you have the location of your custom header HTML file, set this file"
 " setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:436
+#: ../../source/installation/config.rst:440
 msgid "``HeaderCustomizationFile=/var/www/dataverse/branding/custom-header.html``"
 msgstr ""
 
-#: ../../source/installation/config.rst:438
+#: ../../source/installation/config.rst:442
 msgid ""
 "If you have enabled a custom header or navbar logo, you might prefer to "
 "disable the theme of the root dataverse. You can do so by setting "
 "``DisableRootDataverseTheme`` to ``true`` like this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:440
+#: ../../source/installation/config.rst:444
 msgid "``DisableRootDataverseTheme=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:442
+#: ../../source/installation/config.rst:446
 msgid ""
 "Please note: Disabling the display of the root dataverse theme also "
 "disables your ability to edit it. Remember that dataverse owners can set "
@@ -1274,11 +1270,11 @@ msgid ""
 "dataverse theme in the future, you will have to re-enable it first."
 msgstr ""
 
-#: ../../source/installation/config.rst:446
+#: ../../source/installation/config.rst:450
 msgid "Custom Footer"
 msgstr ""
 
-#: ../../source/installation/config.rst:448
+#: ../../source/installation/config.rst:452
 msgid ""
 "Download this sample: :download:`custom-footer.html "
 "</_static/installation/files/var/www/dataverse/branding/custom-"
@@ -1286,21 +1282,21 @@ msgid ""
 "footer.html``."
 msgstr ""
 
-#: ../../source/installation/config.rst:450
+#: ../../source/installation/config.rst:454
 msgid ""
 "Once you have the location of your custom footer HTML file, edit this "
 "file setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:452
+#: ../../source/installation/config.rst:456
 msgid "``FooterCustomizationFile=/var/www/dataverse/branding/custom-footer.html``"
 msgstr ""
 
-#: ../../source/installation/config.rst:455
+#: ../../source/installation/config.rst:459
 msgid "Custom Stylesheet"
 msgstr ""
 
-#: ../../source/installation/config.rst:457
+#: ../../source/installation/config.rst:461
 msgid ""
 "You can style your custom homepage, footer and header content with a "
 "custom CSS file. With advanced CSS know-how, you can achieve custom "
@@ -1308,7 +1304,7 @@ msgid ""
 "``margin`` properties."
 msgstr ""
 
-#: ../../source/installation/config.rst:459
+#: ../../source/installation/config.rst:463
 msgid ""
 "Download this sample: :download:`custom-stylesheet.css "
 "</_static/installation/files/var/www/dataverse/branding/custom-"
@@ -1316,23 +1312,23 @@ msgid ""
 "stylesheet.css``."
 msgstr ""
 
-#: ../../source/installation/config.rst:461
+#: ../../source/installation/config.rst:465
 msgid ""
 "Once you have the location of your custom CSS file, edit this file "
 "setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:463
+#: ../../source/installation/config.rst:467
 msgid ""
 "``StyleCustomizationFile=/var/www/dataverse/branding/custom-"
 "stylesheet.css``"
 msgstr ""
 
-#: ../../source/installation/config.rst:468
+#: ../../source/installation/config.rst:472
 msgid "Web Analytics Code"
 msgstr ""
 
-#: ../../source/installation/config.rst:470
+#: ../../source/installation/config.rst:474
 msgid ""
 "Your analytics code can be added to your Dataverse installation in a "
 "similar fashion to how you brand it, by adding a custom HTML file "
@@ -1340,7 +1336,7 @@ msgid ""
 "your settings."
 msgstr ""
 
-#: ../../source/installation/config.rst:472
+#: ../../source/installation/config.rst:476
 msgid ""
 "Popular analytics providers Google Analytics "
 "(https://www.google.com/analytics/) and Matomo (formerly \"Piwik\"; "
@@ -1350,7 +1346,7 @@ msgid ""
 " customize what you prefer to track."
 msgstr ""
 
-#: ../../source/installation/config.rst:474
+#: ../../source/installation/config.rst:478
 msgid ""
 "Create your own ``analytics-code.html`` file using the analytics code "
 "snippet provided by Google or Matomo and place it at "
@@ -1358,26 +1354,26 @@ msgid ""
 "of what your HTML file should like like:"
 msgstr ""
 
-#: ../../source/installation/config.rst:482
+#: ../../source/installation/config.rst:486
 msgid "Once you have the location of your analytics file, edit this file setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:484
+#: ../../source/installation/config.rst:488
 msgid "``WebAnalyticsCode=/var/www/dataverse/branding/analytics-code.html``"
 msgstr ""
 
-#: ../../source/installation/config.rst:487
+#: ../../source/installation/config.rst:491
 msgid "DuraCloud/Chronopolis Integration"
 msgstr ""
 
-#: ../../source/installation/config.rst:489
+#: ../../source/installation/config.rst:493
 msgid ""
 "It's completely optional to integrate your installation of Dataverse with"
 " DuraCloud/Chronopolis but the details are listed here to keep the "
 ":doc:`/admin/integrations` section of the Admin Guide shorter."
 msgstr ""
 
-#: ../../source/installation/config.rst:491
+#: ../../source/installation/config.rst:495
 #, python-format
 msgid ""
 "Dataverse can be configured to submit a copy of published Datasets, "
@@ -1388,7 +1384,7 @@ msgid ""
 "`DuraCloud <https://duraspace.org/duracloud/>`_"
 msgstr ""
 
-#: ../../source/installation/config.rst:493
+#: ../../source/installation/config.rst:497
 msgid ""
 "This integration is occurs through customization of an internal Dataverse"
 " archiver workflow that can be configured as a PostPublication workflow "
@@ -1402,14 +1398,14 @@ msgid ""
 "as a metadata export format in the Dataverse web interface."
 msgstr ""
 
-#: ../../source/installation/config.rst:495
+#: ../../source/installation/config.rst:499
 msgid ""
 "At present, the DPNSubmitToArchiveCommand is the only implementation "
 "extending the AbstractSubmitToArchiveCommand and using the configurable "
 "mechanisms discussed in this section."
 msgstr ""
 
-#: ../../source/installation/config.rst:497
+#: ../../source/installation/config.rst:501
 msgid ""
 "Also note that while the current Chronopolis implementation generates the"
 " bag and submits it to the archive's DuraCloud interface, the step to "
@@ -1418,7 +1414,7 @@ msgid ""
 "interface."
 msgstr ""
 
-#: ../../source/installation/config.rst:499
+#: ../../source/installation/config.rst:503
 msgid ""
 "The minimal configuration to support an archiver integration involves "
 "adding a minimum of two Dataverse Keys and any required Glassfish jvm "
@@ -1426,20 +1422,20 @@ msgid ""
 "Archiver\\:"
 msgstr ""
 
-#: ../../source/installation/config.rst:501
+#: ../../source/installation/config.rst:505
 msgid ""
 "\\:ArchiverClassName - the fully qualified class to be used for "
 "archiving. For example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:503
+#: ../../source/installation/config.rst:507
 msgid ""
 "``curl http://localhost:8080/api/admin/settings/:ArchiverClassName -X PUT"
 " -d "
 "\"edu.harvard.iq.dataverse.engine.command.impl.DuraCloudSubmitToArchiveCommand\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:505
+#: ../../source/installation/config.rst:509
 msgid ""
 "\\:ArchiverSettings - the archiver class can access required settings "
 "including existing Dataverse settings and dynamically defined ones "
@@ -1447,31 +1443,31 @@ msgid ""
 "settings. For example\\:"
 msgstr ""
 
-#: ../../source/installation/config.rst:507
+#: ../../source/installation/config.rst:511
 msgid ""
 "``curl http://localhost:8080/api/admin/settings/:ArchiverSettings -X PUT "
 "-d \":DuraCloudHost, :DuraCloudPort, :DuraCloudContext\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:509
+#: ../../source/installation/config.rst:513
 msgid ""
 "The DPN archiver defines three custom settings, one of which is required "
 "(the others have defaults):"
 msgstr ""
 
-#: ../../source/installation/config.rst:511
+#: ../../source/installation/config.rst:515
 msgid ""
 "\\:DuraCloudHost - the URL for your organization's Duracloud site. For "
 "example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:513
+#: ../../source/installation/config.rst:517
 msgid ""
 "``curl http://localhost:8080/api/admin/settings/:DuraCloudHost -X PUT -d "
 "\"qdr.duracloud.org\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:515
+#: ../../source/installation/config.rst:519
 msgid ""
 ":DuraCloudPort and :DuraCloudContext are also defined if you are not "
 "using the defaults (\"443\" and \"duracloud\" respectively). (Note\\: "
@@ -1480,53 +1476,53 @@ msgid ""
 "Archiver class.)"
 msgstr ""
 
-#: ../../source/installation/config.rst:517
+#: ../../source/installation/config.rst:521
 msgid ""
 "Archivers may require glassfish settings as well. For the Chronopolis "
 "archiver, the username and password associated with your organization's "
 "Chronopolis/DuraCloud account should be configured in Glassfish:"
 msgstr ""
 
-#: ../../source/installation/config.rst:519
+#: ../../source/installation/config.rst:523
 msgid "``./asadmin create-jvm-options '-Dduracloud.username=YOUR_USERNAME_HERE'``"
 msgstr ""
 
-#: ../../source/installation/config.rst:521
+#: ../../source/installation/config.rst:525
 msgid "``./asadmin create-jvm-options '-Dduracloud.password=YOUR_PASSWORD_HERE'``"
 msgstr ""
 
-#: ../../source/installation/config.rst:523
+#: ../../source/installation/config.rst:527
 msgid "**API Call**"
 msgstr ""
 
-#: ../../source/installation/config.rst:525
+#: ../../source/installation/config.rst:529
 msgid ""
 "Once this configuration is complete, you, as a user with the "
 "*PublishDataset* permission, should be able to use the API call to "
 "manually submit a DatasetVersion for processing:"
 msgstr ""
 
-#: ../../source/installation/config.rst:527
+#: ../../source/installation/config.rst:531
 msgid ""
 "``curl -H \"X-Dataverse-key: <key>\" "
 "http://localhost:8080/api/admin/submitDataVersionToArchive/{id}/{version}``"
 msgstr ""
 
-#: ../../source/installation/config.rst:529
+#: ../../source/installation/config.rst:533
 msgid "where:"
 msgstr ""
 
-#: ../../source/installation/config.rst:531
+#: ../../source/installation/config.rst:535
 msgid ""
 "{id} is the DatasetId (or :persistentId with the "
 "?persistentId=\"\\<DOI\\>\" parameter), and"
 msgstr ""
 
-#: ../../source/installation/config.rst:533
+#: ../../source/installation/config.rst:537
 msgid "{version} is the friendly version number, e.g. \"1.2\"."
 msgstr ""
 
-#: ../../source/installation/config.rst:535
+#: ../../source/installation/config.rst:539
 msgid ""
 "The submitDataVersionToArchive API (and the workflow discussed in this "
 "section also) attempt to archive the dataset version via an archive "
@@ -1539,7 +1535,7 @@ msgid ""
 "entered metadata and is intended as an archival record.)"
 msgstr ""
 
-#: ../../source/installation/config.rst:537
+#: ../../source/installation/config.rst:541
 msgid ""
 "In the Chronopolis case, since the transfer from the DuraCloud front-end "
 "to archival storage in Chronopolis can take significant time, it is "
@@ -1551,11 +1547,11 @@ msgid ""
 "versions correspond to different snapshots of the same DuraCloud space.)."
 msgstr ""
 
-#: ../../source/installation/config.rst:539
+#: ../../source/installation/config.rst:543
 msgid "**PostPublication Workflow**"
 msgstr ""
 
-#: ../../source/installation/config.rst:541
+#: ../../source/installation/config.rst:545
 msgid ""
 "To automate the submission of archival copies to an archive as part of "
 "publication, one can setup a Dataverse Workflow using the \"archiver\" "
@@ -1565,7 +1561,7 @@ msgid ""
 "properties defined in \\:ArchiverSettings in the workflow definition."
 msgstr ""
 
-#: ../../source/installation/config.rst:544
+#: ../../source/installation/config.rst:548
 msgid ""
 "To active this workflow, one must first install a workflow using the "
 "archiver step. A simple workflow that invokes the archiver step "
@@ -1573,33 +1569,33 @@ msgid ""
 "dataverse at /scripts/api/data/workflows/internal-archiver-workflow.json."
 msgstr ""
 
-#: ../../source/installation/config.rst:546
+#: ../../source/installation/config.rst:550
 msgid ""
 "Using the Workflow Native API (see the :doc:`/api/native-api` guide) this"
 " workflow can be installed using:"
 msgstr ""
 
-#: ../../source/installation/config.rst:548
+#: ../../source/installation/config.rst:552
 msgid ""
 "``curl -X POST -H 'Content-type: application/json' --upload-file "
 "internal-archiver-workflow.json "
 "http://localhost:8080/api/admin/workflows``"
 msgstr ""
 
-#: ../../source/installation/config.rst:550
+#: ../../source/installation/config.rst:554
 msgid ""
 "The workflow id returned in this call (or available by doing a GET of "
 "/api/admin/workflows ) can then be submitted as the default "
 "PostPublication workflow:"
 msgstr ""
 
-#: ../../source/installation/config.rst:552
+#: ../../source/installation/config.rst:556
 msgid ""
 "``curl -X PUT -d {id} "
 "http://localhost:8080/api/admin/workflows/default/PostPublishDataset``"
 msgstr ""
 
-#: ../../source/installation/config.rst:554
+#: ../../source/installation/config.rst:558
 msgid ""
 "Once these steps are taken, new publication requests will automatically "
 "trigger submission of an archival copy to the specified archiver, "
@@ -1612,11 +1608,11 @@ msgid ""
 "publication itself."
 msgstr ""
 
-#: ../../source/installation/config.rst:559
+#: ../../source/installation/config.rst:563
 msgid "Going Live: Launching Your Production Deployment"
 msgstr ""
 
-#: ../../source/installation/config.rst:561
+#: ../../source/installation/config.rst:565
 msgid ""
 "This guide has attempted to take you from kicking the tires on Dataverse "
 "to finalizing your installation before letting real users in. In theory, "
@@ -1626,7 +1622,7 @@ msgid ""
 "section is about launching your **production** environment."
 msgstr ""
 
-#: ../../source/installation/config.rst:563
+#: ../../source/installation/config.rst:567
 msgid ""
 "Before going live with your installation of Dataverse, you must take the "
 "steps under :ref:`securing_installation` and you should at least review "
@@ -1635,22 +1631,22 @@ msgid ""
 "list."
 msgstr ""
 
-#: ../../source/installation/config.rst:565
+#: ../../source/installation/config.rst:569
 msgid ""
 "Out of the box, Dataverse attempts to block search engines from crawling "
 "your installation of Dataverse so that test datasets do not appear in "
 "search results until you're ready."
 msgstr ""
 
-#: ../../source/installation/config.rst:568
+#: ../../source/installation/config.rst:572
 msgid "Letting Search Engines Crawl Your Installation"
 msgstr ""
 
-#: ../../source/installation/config.rst:571
+#: ../../source/installation/config.rst:575
 msgid "Ensure robots.txt Is Not Blocking Search Engines"
 msgstr ""
 
-#: ../../source/installation/config.rst:573
+#: ../../source/installation/config.rst:577
 msgid ""
 "For a public production Dataverse installation, it is probably desired "
 "that search agents be able to index published pages (AKA - pages that are"
@@ -1661,7 +1657,7 @@ msgid ""
 "</_static/util/robots.txt>`)."
 msgstr ""
 
-#: ../../source/installation/config.rst:576
+#: ../../source/installation/config.rst:580
 msgid ""
 "You have a couple of options for putting an updated robots.txt file into "
 "production. If you are fronting Glassfish with Apache, you can place "
@@ -1671,13 +1667,13 @@ msgid ""
 "embedded in the Dataverse war file:"
 msgstr ""
 
-#: ../../source/installation/config.rst:583
+#: ../../source/installation/config.rst:587
 msgid ""
 "For more of an explanation of ``ProxyPassMatch`` see the "
 ":doc:`shibboleth` section."
 msgstr ""
 
-#: ../../source/installation/config.rst:585
+#: ../../source/installation/config.rst:589
 msgid ""
 "If you are not fronting Glassfish with Apache you'll need to prevent "
 "Glassfish from serving the robots.txt file embedded in the war file by "
@@ -1693,11 +1689,11 @@ msgid ""
 " with the version number ``4.6.1`` as part of the path."
 msgstr ""
 
-#: ../../source/installation/config.rst:588
+#: ../../source/installation/config.rst:592
 msgid "Creating a Sitemap and Submitting it to Search Engines"
 msgstr ""
 
-#: ../../source/installation/config.rst:590
+#: ../../source/installation/config.rst:594
 msgid ""
 "Search engines have an easier time indexing content when you provide them"
 " a sitemap. The Dataverse sitemap includes URLs to all published "
@@ -1705,27 +1701,27 @@ msgid ""
 "deaccessioned."
 msgstr ""
 
-#: ../../source/installation/config.rst:592
+#: ../../source/installation/config.rst:596
 msgid ""
 "Create or update your sitemap by adding the following curl command to "
 "cron to run nightly or as you see fit:"
 msgstr ""
 
-#: ../../source/installation/config.rst:594
+#: ../../source/installation/config.rst:598
 msgid "``curl -X POST http://localhost:8080/api/admin/sitemap``"
 msgstr ""
 
-#: ../../source/installation/config.rst:596
+#: ../../source/installation/config.rst:600
 msgid ""
 "This will create or update a file in the following location unless you "
 "have customized your installation directory for Glassfish:"
 msgstr ""
 
-#: ../../source/installation/config.rst:598
+#: ../../source/installation/config.rst:602
 msgid "``/usr/local/glassfish4/glassfish/domains/domain1/docroot/sitemap/sitemap.xml``"
 msgstr ""
 
-#: ../../source/installation/config.rst:600
+#: ../../source/installation/config.rst:604
 msgid ""
 "On an installation of Dataverse with many datasets, the creation or "
 "updating of the sitemap can take a while. You can check Glassfish's "
@@ -1734,7 +1730,7 @@ msgid ""
 "between."
 msgstr ""
 
-#: ../../source/installation/config.rst:602
+#: ../../source/installation/config.rst:606
 msgid ""
 "https://demo.dataverse.org/sitemap.xml is the sitemap URL for the "
 "Dataverse Demo site and yours should be similar. Submit your sitemap URL "
@@ -1742,11 +1738,11 @@ msgid ""
 "similar instructions for other search engines."
 msgstr ""
 
-#: ../../source/installation/config.rst:607
+#: ../../source/installation/config.rst:611
 msgid "Putting Your Dataverse Installation on the Map at dataverse.org"
 msgstr ""
 
-#: ../../source/installation/config.rst:609
+#: ../../source/installation/config.rst:613
 msgid ""
 "Congratulations! You've gone live! It's time to announce your new data "
 "repository to the world! You are also welcome to contact "
@@ -1754,39 +1750,39 @@ msgid ""
 " the map at http://dataverse.org . Thank you for installing Dataverse!"
 msgstr ""
 
-#: ../../source/installation/config.rst:612
+#: ../../source/installation/config.rst:616
 msgid "Administration of Your Dataverse Installation"
 msgstr ""
 
-#: ../../source/installation/config.rst:614
+#: ../../source/installation/config.rst:618
 msgid ""
 "Now that you're live you'll want to review the :doc:`/admin/index` for "
 "more information about the ongoing administration of a Dataverse "
 "installation."
 msgstr ""
 
-#: ../../source/installation/config.rst:617
+#: ../../source/installation/config.rst:621
 msgid "Setting Up Integrations"
 msgstr ""
 
-#: ../../source/installation/config.rst:619
+#: ../../source/installation/config.rst:623
 msgid ""
 "Before going live, you might want to consider setting up integrations to "
 "make it easier for your users to deposit or explore data. See the "
 ":doc:`/admin/integrations` section of the Admin Guide for details."
 msgstr ""
 
-#: ../../source/installation/config.rst:622
+#: ../../source/installation/config.rst:626
 msgid "File Settings"
 msgstr ""
 
-#: ../../source/installation/config.rst:623
+#: ../../source/installation/config.rst:627
 msgid ""
 "Database settings and most JVM options were moved to the file based "
 "configuration in order to simplify usage."
 msgstr ""
 
-#: ../../source/installation/config.rst:625
+#: ../../source/installation/config.rst:629
 msgid ""
 "In order to edit the options you should move dataverse.default.properties"
 " file located in {PROJECT_DIR}/dataverse/dataverse-"
@@ -1796,60 +1792,60 @@ msgid ""
 "order to apply them."
 msgstr ""
 
-#: ../../source/installation/config.rst:630
+#: ../../source/installation/config.rst:634
 msgid "SiteUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:632
+#: ../../source/installation/config.rst:636
 msgid "Specify the url you would prefer to be used for your Dataverse."
 msgstr ""
 
-#: ../../source/installation/config.rst:633
+#: ../../source/installation/config.rst:637
 msgid "For example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:634
+#: ../../source/installation/config.rst:638
 msgid "``SiteUrl=http://dataverse.example.edu:8080``"
 msgstr ""
 
-#: ../../source/installation/config.rst:637
+#: ../../source/installation/config.rst:641
 msgid "RserveConfigured"
 msgstr ""
 
-#: ../../source/installation/config.rst:639
-#: ../../source/installation/config.rst:644
-#: ../../source/installation/config.rst:649
-#: ../../source/installation/config.rst:654
+#: ../../source/installation/config.rst:643
+#: ../../source/installation/config.rst:648
+#: ../../source/installation/config.rst:653
 #: ../../source/installation/config.rst:658
-#: ../../source/installation/config.rst:663
+#: ../../source/installation/config.rst:662
+#: ../../source/installation/config.rst:667
 msgid "Configuration for :doc:`r-rapache-tworavens`."
 msgstr ""
 
-#: ../../source/installation/config.rst:642
+#: ../../source/installation/config.rst:646
 msgid "RserveHost"
 msgstr ""
 
-#: ../../source/installation/config.rst:647
+#: ../../source/installation/config.rst:651
 msgid "RservePort"
 msgstr ""
 
-#: ../../source/installation/config.rst:652
+#: ../../source/installation/config.rst:656
 msgid "RserveUser"
 msgstr ""
 
-#: ../../source/installation/config.rst:657
+#: ../../source/installation/config.rst:661
 msgid "RserveTempDir"
 msgstr ""
 
-#: ../../source/installation/config.rst:661
+#: ../../source/installation/config.rst:665
 msgid "RservePassword"
 msgstr ""
 
-#: ../../source/installation/config.rst:668
+#: ../../source/installation/config.rst:672
 msgid "DropboxKey"
 msgstr ""
 
-#: ../../source/installation/config.rst:670
+#: ../../source/installation/config.rst:674
 msgid ""
 "Dropbox provides a Chooser app, which is a Javascript component that "
 "allows you to upload files to Dataverse from Dropbox. It is an optional "
@@ -1859,17 +1855,17 @@ msgid ""
 "https://www.dropbox.com/developers/chooser."
 msgstr ""
 
-#: ../../source/installation/config.rst:675
+#: ../../source/installation/config.rst:679
 msgid "DoiBaseUrlString"
 msgstr ""
 
-#: ../../source/installation/config.rst:677
+#: ../../source/installation/config.rst:681
 msgid ""
 "As of this writing, \"https://mds.datacite.org\" (DataCite) and "
 "\"https://ezid.cdlib.org\" (EZID) are the main valid values."
 msgstr ""
 
-#: ../../source/installation/config.rst:679
+#: ../../source/installation/config.rst:683
 msgid ""
 "While these two options are recommended because they have been tested by "
 "the Dataverse team, it is also possible to use a DataCite Client API as a"
@@ -1880,7 +1876,7 @@ msgid ""
 " to the base endpoint URL."
 msgstr ""
 
-#: ../../source/installation/config.rst:681
+#: ../../source/installation/config.rst:685
 msgid ""
 "For example, the Australian Data Archive (ADA) successfully uses the "
 "Australian National Data Service (ANDS) API (a proxy for DataCite) to "
@@ -1893,77 +1889,77 @@ msgid ""
 "properly."
 msgstr ""
 
-#: ../../source/installation/config.rst:683
+#: ../../source/installation/config.rst:687
 msgid ""
 "Out of the box, Dataverse is configured to use a test MDS DataCite base "
 "URL string."
 msgstr ""
 
-#: ../../source/installation/config.rst:685
+#: ../../source/installation/config.rst:689
 msgid "You can switch to production DataCite with following change:"
 msgstr ""
 
-#: ../../source/installation/config.rst:687
+#: ../../source/installation/config.rst:691
 msgid "``DoiBaseUrlString=https://mds.datacite.org``"
 msgstr ""
 
-#: ../../source/installation/config.rst:689
+#: ../../source/installation/config.rst:693
 msgid "See also these related file settings:"
 msgstr ""
 
-#: ../../source/installation/config.rst:691
+#: ../../source/installation/config.rst:695
 msgid ":ref:`DoiProvider`"
 msgstr ""
 
-#: ../../source/installation/config.rst:692
+#: ../../source/installation/config.rst:696
 msgid ":ref:`Protocol`"
 msgstr ""
 
-#: ../../source/installation/config.rst:693
+#: ../../source/installation/config.rst:697
 msgid ":ref:`Authority`"
 msgstr ""
 
-#: ../../source/installation/config.rst:694
+#: ../../source/installation/config.rst:698
 msgid ":ref:`Shoulder`"
 msgstr ""
 
-#: ../../source/installation/config.rst:699
+#: ../../source/installation/config.rst:703
 msgid "DoiUsername"
 msgstr ""
 
-#: ../../source/installation/config.rst:701
+#: ../../source/installation/config.rst:705
 msgid "Used in conjuction with ``DoiBaseUrlString``."
 msgstr ""
 
-#: ../../source/installation/config.rst:703
+#: ../../source/installation/config.rst:707
 msgid "Once you have a username from your provider, you can edit it like this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:705
+#: ../../source/installation/config.rst:709
 msgid "``DoiUsername=YOUR_USERNAME_HERE``"
 msgstr ""
 
-#: ../../source/installation/config.rst:710
+#: ../../source/installation/config.rst:714
 msgid "DoiPassword"
 msgstr ""
 
-#: ../../source/installation/config.rst:712
+#: ../../source/installation/config.rst:716
 msgid "Used in conjuction with ``DoiBaseUrlString``"
 msgstr ""
 
-#: ../../source/installation/config.rst:714
+#: ../../source/installation/config.rst:718
 msgid "Once you have a password from your provider, you can enter it like this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:716
+#: ../../source/installation/config.rst:720
 msgid "``DoiPassword=YOUR_PASSWORD_HERE``"
 msgstr ""
 
-#: ../../source/installation/config.rst:721
+#: ../../source/installation/config.rst:725
 msgid "HandleNetAdmCredFile"
 msgstr ""
 
-#: ../../source/installation/config.rst:723
+#: ../../source/installation/config.rst:727
 msgid ""
 "If you're using **handles**, this setting configures access credentials "
 "so your dataverse can talk to your Handle.Net server. This is the private"
@@ -1973,11 +1969,11 @@ msgid ""
 "for more info."
 msgstr ""
 
-#: ../../source/installation/config.rst:728
+#: ../../source/installation/config.rst:732
 msgid "HandleNetAdmPrivPhrase"
 msgstr ""
 
-#: ../../source/installation/config.rst:729
+#: ../../source/installation/config.rst:733
 msgid ""
 "This setting is also part of **handles** configuration. The Handle.Net "
 "installer lets you choose whether to encrypt the admcredfile private key "
@@ -1985,19 +1981,19 @@ msgid ""
 " with."
 msgstr ""
 
-#: ../../source/installation/config.rst:734
+#: ../../source/installation/config.rst:738
 msgid "HandleNetIndex"
 msgstr ""
 
-#: ../../source/installation/config.rst:735
+#: ../../source/installation/config.rst:739
 msgid "If you want to use different index than the default 300."
 msgstr ""
 
-#: ../../source/installation/config.rst:740
+#: ../../source/installation/config.rst:744
 msgid "TimerServer"
 msgstr ""
 
-#: ../../source/installation/config.rst:742
+#: ../../source/installation/config.rst:746
 msgid ""
 "This option is only relevant if you plan to run multiple Glassfish "
 "servers for redundancy. Only one Glassfish server can act as the "
@@ -2005,57 +2001,57 @@ msgid ""
 "Glassfish server to handle this responsibility, see :doc:`/admin/timers`."
 msgstr ""
 
-#: ../../source/installation/config.rst:747
+#: ../../source/installation/config.rst:751
 msgid "HideSchemaDotOrgDownloadUrls"
 msgstr ""
 
-#: ../../source/installation/config.rst:749
+#: ../../source/installation/config.rst:753
 msgid "Please note that this setting is experimental."
 msgstr ""
 
-#: ../../source/installation/config.rst:751
+#: ../../source/installation/config.rst:755
 msgid ""
 "By default, download URLs to files will be included in Schema.org JSON-LD"
 " output. To prevent these URLs from being included in the output, set "
 "``HideSchemaDotOrgDownloadUrls`` to true as in the following example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:753
+#: ../../source/installation/config.rst:757
 msgid "``HideSchemaDotOrgDownloadUrls=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:755
+#: ../../source/installation/config.rst:759
 msgid ""
 "Please note that there are other reasons why download URLs may not be "
 "included for certain files such as if a guestbook entry is required or if"
 " the file is restricted."
 msgstr ""
 
-#: ../../source/installation/config.rst:757
+#: ../../source/installation/config.rst:761
 msgid ""
 "For more on Schema.org JSON-LD, see the :doc:`/admin/metadataexport` "
 "section of the Admin Guide."
 msgstr ""
 
-#: ../../source/installation/config.rst:760
+#: ../../source/installation/config.rst:764
 msgid "MinutesUntilPasswordResetTokenExpires"
 msgstr ""
 
-#: ../../source/installation/config.rst:762
+#: ../../source/installation/config.rst:766
 msgid ""
 "Indicates amount of minutes before password reset token expires after "
 "user requested password reset. 60 minutes by default."
 msgstr ""
 
-#: ../../source/installation/config.rst:764
+#: ../../source/installation/config.rst:768
 msgid "``MinutesUntilPasswordResetTokenExpires=60``"
 msgstr ""
 
-#: ../../source/installation/config.rst:769
+#: ../../source/installation/config.rst:773
 msgid "BlockedApiPolicy"
 msgstr ""
 
-#: ../../source/installation/config.rst:771
+#: ../../source/installation/config.rst:775
 msgid ""
 "Out of the box, all API endpoints are completely open, as mentioned in "
 "the section on security :ref:`blocking_api_endpoints`. It is highly "
@@ -2063,38 +2059,38 @@ msgid ""
 "configure ``BlockedApiEndpoints``."
 msgstr ""
 
-#: ../../source/installation/config.rst:773
+#: ../../source/installation/config.rst:777
 msgid "localhost-only: Allow from localhost."
 msgstr ""
 
-#: ../../source/installation/config.rst:774
+#: ../../source/installation/config.rst:778
 msgid "unblock-key: Require a key defined in ``BlockedApiKey``."
 msgstr ""
 
-#: ../../source/installation/config.rst:775
+#: ../../source/installation/config.rst:779
 msgid "drop: Disallow the blocked endpoints completely."
 msgstr ""
 
-#: ../../source/installation/config.rst:778
+#: ../../source/installation/config.rst:782
 msgid "BlockedApiEndpoints"
 msgstr ""
 
-#: ../../source/installation/config.rst:780
+#: ../../source/installation/config.rst:784
 msgid ""
 "A comma separated list of API endpoints to be blocked. For a production "
 "installation, \"admin\" should be blocked (and perhaps \"builtin-users\" "
 "as well), as mentioned in the section on :ref:`blocking_api_endpoints`:"
 msgstr ""
 
-#: ../../source/installation/config.rst:782
+#: ../../source/installation/config.rst:786
 msgid "See the :doc:`/api/index` for a list of API endpoints."
 msgstr ""
 
-#: ../../source/installation/config.rst:785
+#: ../../source/installation/config.rst:789
 msgid "SearchApiRequiresToken"
 msgstr ""
 
-#: ../../source/installation/config.rst:787
+#: ../../source/installation/config.rst:791
 msgid ""
 "In Dataverse 4.7 and lower, the :doc:`/api/search` required an API token,"
 " but as of Dataverse 4.7.1 this is no longer the case. If you prefer the "
@@ -2102,22 +2098,22 @@ msgid ""
 "``:SearchApiRequiresToken`` to ``true``."
 msgstr ""
 
-#: ../../source/installation/config.rst:792
+#: ../../source/installation/config.rst:796
 msgid "SystemEmail"
 msgstr ""
 
-#: ../../source/installation/config.rst:794
+#: ../../source/installation/config.rst:798
 msgid ""
 "This is the email address that \"system\" emails are sent from such as "
 "password reset links. Your Dataverse installation will not send mail "
 "without this setting in place."
 msgstr ""
 
-#: ../../source/installation/config.rst:796
+#: ../../source/installation/config.rst:800
 msgid "``SystemEmail=LibraScholar SWAT Team <support@librascholar.edu>``"
 msgstr ""
 
-#: ../../source/installation/config.rst:798
+#: ../../source/installation/config.rst:802
 msgid ""
 "Note that only the email address is required, which you can supply "
 "without the ``<`` and ``>`` signs, but if you include the text, it's the "
@@ -2125,58 +2121,58 @@ msgid ""
 "\"from\" address in emails as well as in help text in the UI."
 msgstr ""
 
-#: ../../source/installation/config.rst:800
+#: ../../source/installation/config.rst:804
 msgid ""
 "Please note that if you're having any trouble sending email, you can "
 "refer to \"Troubleshooting\" under :doc:`installation-main`."
 msgstr ""
 
-#: ../../source/installation/config.rst:803
+#: ../../source/installation/config.rst:807
 msgid "HomePageCustomizationFile"
 msgstr ""
 
-#: ../../source/installation/config.rst:805
-#: ../../source/installation/config.rst:810
-#: ../../source/installation/config.rst:815
-#: ../../source/installation/config.rst:820
-#: ../../source/installation/config.rst:825
-#: ../../source/installation/config.rst:830
+#: ../../source/installation/config.rst:809
+#: ../../source/installation/config.rst:814
+#: ../../source/installation/config.rst:819
+#: ../../source/installation/config.rst:824
+#: ../../source/installation/config.rst:829
+#: ../../source/installation/config.rst:834
 msgid "See :ref:`Branding Your Installation`."
 msgstr ""
 
-#: ../../source/installation/config.rst:808
+#: ../../source/installation/config.rst:812
 msgid "LogoCustomizationFile"
 msgstr ""
 
-#: ../../source/installation/config.rst:813
+#: ../../source/installation/config.rst:817
 msgid "HeaderCustomizationFile"
 msgstr ""
 
-#: ../../source/installation/config.rst:818
+#: ../../source/installation/config.rst:822
 msgid "DisableRootDataverseTheme"
 msgstr ""
 
-#: ../../source/installation/config.rst:823
+#: ../../source/installation/config.rst:827
 msgid "FooterCustomizationFile"
 msgstr ""
 
-#: ../../source/installation/config.rst:828
+#: ../../source/installation/config.rst:832
 msgid "StyleCustomizationFile"
 msgstr ""
 
-#: ../../source/installation/config.rst:833
+#: ../../source/installation/config.rst:837
 msgid "WebAnalyticsCode"
 msgstr ""
 
-#: ../../source/installation/config.rst:835
+#: ../../source/installation/config.rst:839
 msgid "See :ref:`Web-Analytics-Code`."
 msgstr ""
 
-#: ../../source/installation/config.rst:840
+#: ../../source/installation/config.rst:844
 msgid "DoiProvider"
 msgstr ""
 
-#: ../../source/installation/config.rst:842
+#: ../../source/installation/config.rst:846
 msgid ""
 "As of this writing \"DataCite\" and \"EZID\" are the only valid options "
 "for production installations. Developers using version 4.10 and above are"
@@ -2186,39 +2182,39 @@ msgid ""
 "only needed if you are using DOI."
 msgstr ""
 
-#: ../../source/installation/config.rst:844
+#: ../../source/installation/config.rst:848
 msgid ""
 "This setting relates to the :ref:`Protocol`, :ref:`Authority`, "
 ":ref:`Shoulder`, and :ref:`IdentifierGenerationStyle` file settings."
 msgstr ""
 
-#: ../../source/installation/config.rst:853
+#: ../../source/installation/config.rst:857
 msgid "Protocol"
 msgstr ""
 
-#: ../../source/installation/config.rst:855
+#: ../../source/installation/config.rst:859
 msgid ""
 "As of this writing \"doi\" and \"hdl\" are the only valid option for the "
 "protocol for a persistent ID."
 msgstr ""
 
-#: ../../source/installation/config.rst:860
+#: ../../source/installation/config.rst:864
 msgid "Authority"
 msgstr ""
 
-#: ../../source/installation/config.rst:862
+#: ../../source/installation/config.rst:866
 msgid "Use the authority assigned to you by your DoiProvider or HandleProvider."
 msgstr ""
 
-#: ../../source/installation/config.rst:864
+#: ../../source/installation/config.rst:868
 msgid "Please note that the authority cannot have a slash (\"/\") in it."
 msgstr ""
 
-#: ../../source/installation/config.rst:869
+#: ../../source/installation/config.rst:873
 msgid "Shoulder"
 msgstr ""
 
-#: ../../source/installation/config.rst:871
+#: ../../source/installation/config.rst:875
 msgid ""
 "Out of the box, the DOI shoulder is set to \"FK2/\" but this is for "
 "testing only! When you apply for your DOI namespace, you may have "
@@ -2226,15 +2222,15 @@ msgid ""
 "slash is optional."
 msgstr ""
 
-#: ../../source/installation/config.rst:873
+#: ../../source/installation/config.rst:877
 msgid "``Shoulder=MyShoulder/``"
 msgstr ""
 
-#: ../../source/installation/config.rst:878
+#: ../../source/installation/config.rst:882
 msgid "IdentifierGenerationStyle"
 msgstr ""
 
-#: ../../source/installation/config.rst:880
+#: ../../source/installation/config.rst:884
 msgid ""
 "By default, Dataverse generates a random 6 character string, pre-pended "
 "by the Shoulder if set, to use as the identifier for a Dataset. Set this "
@@ -2247,7 +2243,7 @@ msgid ""
 "see the comments for more information:"
 msgstr ""
 
-#: ../../source/installation/config.rst:890
+#: ../../source/installation/config.rst:894
 msgid ""
 "Note that this SQL is Postgres-specific. If necessary, it can be "
 "reimplemented in any other SQL flavor - the standard JPA code in the "
@@ -2256,32 +2252,32 @@ msgid ""
 "with the single return argument ``identifier``."
 msgstr ""
 
-#: ../../source/installation/config.rst:895
+#: ../../source/installation/config.rst:899
 msgid ""
 "For systems using Postgresql 8.4 or older, the procedural language "
 "`plpgsql` should be enabled first. We have provided an example "
 ":download:`here </_static/util/pg8-createsequence-prep.sql>`."
 msgstr ""
 
-#: ../../source/installation/config.rst:898
+#: ../../source/installation/config.rst:902
 msgid ""
 "Please note that ``IdentifierGenerationStyle`` also plays a role for the "
 "\"identifier\" for files. See the section on :ref:`DataFilePIDFormat` for"
 " more details."
 msgstr ""
 
-#: ../../source/installation/config.rst:903
+#: ../../source/installation/config.rst:907
 msgid "DataFilePIDFormat"
 msgstr ""
 
-#: ../../source/installation/config.rst:905
+#: ../../source/installation/config.rst:909
 msgid ""
 "This setting controls the way that the \"identifier\" component of a "
 "file's persistent identifier (PID) relates to the PID of its \"parent\" "
 "dataset."
 msgstr ""
 
-#: ../../source/installation/config.rst:907
+#: ../../source/installation/config.rst:911
 msgid ""
 "By default the identifier for a file is dependent on its parent dataset. "
 "For example, if the identifier of a dataset is \"TJCLKP\", the identifier"
@@ -2293,7 +2289,7 @@ msgid ""
 "setting from its default."
 msgstr ""
 
-#: ../../source/installation/config.rst:909
+#: ../../source/installation/config.rst:913
 msgid ""
 "Alternatively, the identifier for File PIDs can be configured to be "
 "independent of Dataset PIDs using the setting \"``INDEPENDENT``\". In "
@@ -2303,7 +2299,7 @@ msgid ""
 "character strings or sequential numbers, pre-pended by any shoulder)."
 msgstr ""
 
-#: ../../source/installation/config.rst:911
+#: ../../source/installation/config.rst:915
 msgid ""
 "The following table shows examples from each possible combination of "
 "parameters from the two settings. ``IdentifierGenerationStyle`` can be "
@@ -2314,39 +2310,39 @@ msgid ""
 "\"100001\" for \"sequentialNumber\"."
 msgstr ""
 
-#: ../../source/installation/config.rst:914
+#: ../../source/installation/config.rst:918
 msgid "randomString"
 msgstr ""
 
-#: ../../source/installation/config.rst:914
+#: ../../source/installation/config.rst:918
 msgid "sequentialNumber"
 msgstr ""
 
-#: ../../source/installation/config.rst:917
+#: ../../source/installation/config.rst:921
 msgid "**DEPENDENT**"
 msgstr ""
 
-#: ../../source/installation/config.rst:917
+#: ../../source/installation/config.rst:921
 msgid "TJCLKP/MLGWJO"
 msgstr ""
 
-#: ../../source/installation/config.rst:917
+#: ../../source/installation/config.rst:921
 msgid "100001/1"
 msgstr ""
 
-#: ../../source/installation/config.rst:919
+#: ../../source/installation/config.rst:923
 msgid "**INDEPENDENT**"
 msgstr ""
 
-#: ../../source/installation/config.rst:919
+#: ../../source/installation/config.rst:923
 msgid "MLGWJO"
 msgstr ""
 
-#: ../../source/installation/config.rst:919
+#: ../../source/installation/config.rst:923
 msgid "100002"
 msgstr ""
 
-#: ../../source/installation/config.rst:922
+#: ../../source/installation/config.rst:926
 msgid ""
 "In cases where ``IdentifierGenerationStyle`` is set to *sequentialNumber*"
 " and ``DataFilePIDFormat`` is set to *DEPENDENT*, each file within a "
@@ -2354,7 +2350,7 @@ msgid ""
 "\"1\"."
 msgstr ""
 
-#: ../../source/installation/config.rst:924
+#: ../../source/installation/config.rst:928
 msgid ""
 "Otherwise, if ``DataFilePIDFormat`` is set to *INDEPENDENT*, then each "
 "file will be assigned a PID with the next number in the overall sequence,"
@@ -2363,78 +2359,78 @@ msgid ""
 "100002. This option is functional, but it is not a recommended use case."
 msgstr ""
 
-#: ../../source/installation/config.rst:926
+#: ../../source/installation/config.rst:930
 msgid ""
 "Note that in either case, when using the ``sequentialNumber`` option, "
 "datasets and files share the same database sequence that was created as "
 "part of the setup described in ref:`IdentifierGenerationStyle`."
 msgstr ""
 
-#: ../../source/installation/config.rst:931
+#: ../../source/installation/config.rst:935
 msgid "FilePIDsEnabled"
 msgstr ""
 
-#: ../../source/installation/config.rst:933
+#: ../../source/installation/config.rst:937
 msgid ""
 "Toggles publishing of file-based PIDs for the entire installation. By "
 "default this setting assumes it to be true."
 msgstr ""
 
-#: ../../source/installation/config.rst:935
+#: ../../source/installation/config.rst:939
 msgid ""
 "If you don't want to register file-based PIDs for your installation, set "
 "it to false."
 msgstr ""
 
-#: ../../source/installation/config.rst:937
+#: ../../source/installation/config.rst:941
 msgid ""
 "Note: File-level PID registration was added in 4.9 and is required until "
 "version 4.9.3."
 msgstr ""
 
-#: ../../source/installation/config.rst:942
+#: ../../source/installation/config.rst:946
 msgid "IndependentHandleService"
 msgstr ""
 
-#: ../../source/installation/config.rst:944
+#: ../../source/installation/config.rst:948
 msgid ""
 "Specific for Handle PIDs. Set this setting to true if you want to use a "
 "Handle service which is setup to work 'independently' (No communication "
 "with the Global Handle Registry). By default this setting is false."
 msgstr ""
 
-#: ../../source/installation/config.rst:948
+#: ../../source/installation/config.rst:952
 msgid "ApplicationTermsOfUse"
 msgstr ""
 
-#: ../../source/installation/config.rst:950
+#: ../../source/installation/config.rst:954
 msgid "Set a Terms of Use text to be displayed at sign up."
 msgstr ""
 
-#: ../../source/installation/config.rst:952
+#: ../../source/installation/config.rst:956
 msgid "``ApplicationTermsOfUse=Terms of Use``"
 msgstr ""
 
-#: ../../source/installation/config.rst:955
+#: ../../source/installation/config.rst:959
 msgid "ApiTermsOfUse"
 msgstr ""
 
-#: ../../source/installation/config.rst:957
+#: ../../source/installation/config.rst:961
 msgid ""
 "Specify a URL where users can read your API Terms of Use. API users can "
 "retrieve this URL from the SWORD Service Document or the \"info\" section"
 " of our :doc:`/api/native-api` documentation."
 msgstr ""
 
-#: ../../source/installation/config.rst:960
+#: ../../source/installation/config.rst:964
 msgid "``ApiTermsOfUse=https://dataverse.org/best-practices/harvard-api-tou``"
 msgstr ""
 
-#: ../../source/installation/config.rst:965
+#: ../../source/installation/config.rst:969
 msgid "ExcludeEmailFromExport"
 msgstr ""
 
-#: ../../source/installation/config.rst:967
+#: ../../source/installation/config.rst:971
 msgid ""
 "Set ``ExcludeEmailFromExport`` to prevent email addresses for dataset "
 "contacts from being exposed in XML or JSON representations of dataset "
@@ -2442,11 +2438,11 @@ msgid ""
 ":doc:`/admin/metadataexport` section of the Admin Guide."
 msgstr ""
 
-#: ../../source/installation/config.rst:970
+#: ../../source/installation/config.rst:974
 msgid "GuidesBaseUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:972
+#: ../../source/installation/config.rst:976
 msgid ""
 "Set ``GuidesBaseUrl`` to override the default value "
 "\"http://guides.dataverse.org\". If you are interested in writing your "
@@ -2454,26 +2450,26 @@ msgid ""
 ":doc:`/developers/documentation` section of the Developer Guide helpful."
 msgstr ""
 
-#: ../../source/installation/config.rst:975
+#: ../../source/installation/config.rst:979
 msgid "IP_WHITELIST_KEY"
 msgstr ""
 
-#: ../../source/installation/config.rst:977
+#: ../../source/installation/config.rst:981
 msgid ""
 "Sets ip addresses that are allowed to resume "
 ":doc:`../developers/workflows`. Use ``;`` as seperator. By default it is "
 "local ip."
 msgstr ""
 
-#: ../../source/installation/config.rst:979
+#: ../../source/installation/config.rst:983
 msgid "``IP_WHITELIST_KEY=127.0.0.1;::1``"
 msgstr ""
 
-#: ../../source/installation/config.rst:982
+#: ../../source/installation/config.rst:986
 msgid "GuidesVersion"
 msgstr ""
 
-#: ../../source/installation/config.rst:984
+#: ../../source/installation/config.rst:988
 msgid ""
 "Set ``GuidesVersion`` to override the version number in the URL of "
 "guides. For example, rather than "
@@ -2482,15 +2478,15 @@ msgid ""
 "feature/user/account.html in the following example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:986
+#: ../../source/installation/config.rst:990
 msgid "``GuidesVersion=1234-new-feature``"
 msgstr ""
 
-#: ../../source/installation/config.rst:989
+#: ../../source/installation/config.rst:993
 msgid "MetricsUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:991
+#: ../../source/installation/config.rst:995
 msgid ""
 "Make the metrics component on the root dataverse a clickable link to a "
 "website where you present metrics on your Dataverse installation. This "
@@ -2498,37 +2494,37 @@ msgid ""
 "any site."
 msgstr ""
 
-#: ../../source/installation/config.rst:993
+#: ../../source/installation/config.rst:997
 msgid "``MetricsUrl=http://metrics.dataverse.example.edu``"
 msgstr ""
 
-#: ../../source/installation/config.rst:997
+#: ../../source/installation/config.rst:1001
 msgid "MaxFileUploadSizeInBytes"
 msgstr ""
 
-#: ../../source/installation/config.rst:999
+#: ../../source/installation/config.rst:1003
 msgid ""
 "Set `MaxFileUploadSizeInBytes` to \"2147483648\", for example, to limit "
 "the size of files uploaded to 2 GB."
 msgstr ""
 
-#: ../../source/installation/config.rst:1001
+#: ../../source/installation/config.rst:1005
 msgid "Notes:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1003
+#: ../../source/installation/config.rst:1007
 msgid ""
 "For SWORD, this size is limited by the Java Integer.MAX_VALUE of "
 "2,147,483,647. (see: https://github.com/IQSS/dataverse/issues/2169)"
 msgstr ""
 
-#: ../../source/installation/config.rst:1005
+#: ../../source/installation/config.rst:1009
 msgid ""
 "If the MaxFileUploadSizeInBytes is NOT set, uploads, including SWORD may "
 "be of unlimited size."
 msgstr ""
 
-#: ../../source/installation/config.rst:1007
+#: ../../source/installation/config.rst:1011
 msgid ""
 "For larger file upload sizes, you may need to configure your reverse "
 "proxy timeout. If using apache2 (httpd) with Shibboleth, add a timeout to"
@@ -2536,30 +2532,30 @@ msgid ""
 "in the :doc:`/installation/shibboleth` setup)."
 msgstr ""
 
-#: ../../source/installation/config.rst:1009
+#: ../../source/installation/config.rst:1013
 msgid "``MaxFileUploadSizeInBytes=2147483648``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1012
+#: ../../source/installation/config.rst:1016
 msgid "ZipDownloadLimit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1014
+#: ../../source/installation/config.rst:1018
 msgid ""
 "For performance reasons, Dataverse will only create zip files on the fly "
 "up to 100 MB but the limit can be increased. Here's an example of raising"
 " the limit to 1 GB:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1016
+#: ../../source/installation/config.rst:1020
 msgid "``ZipDownloadLimit=1000000000``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1019
+#: ../../source/installation/config.rst:1023
 msgid "TabularIngestSizeLimit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1021
+#: ../../source/installation/config.rst:1025
 msgid ""
 "Threshold in bytes for limiting whether or not \"ingest\" it attempted "
 "for tabular files (which can be resource intensive). In the following "
@@ -2567,179 +2563,179 @@ msgid ""
 "process:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1023
+#: ../../source/installation/config.rst:1027
 msgid "``TabularIngestSizeLimit=2000000000``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1025
+#: ../../source/installation/config.rst:1029
 msgid "(You can set this value to 0 to prevent files from being ingested at all.)"
 msgstr ""
 
-#: ../../source/installation/config.rst:1027
+#: ../../source/installation/config.rst:1031
 msgid ""
 "You can override this global setting on a per-format basis for the "
 "following formats:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1029
+#: ../../source/installation/config.rst:1033
 msgid "DTA"
 msgstr ""
 
-#: ../../source/installation/config.rst:1030
+#: ../../source/installation/config.rst:1034
 msgid "POR"
 msgstr ""
 
-#: ../../source/installation/config.rst:1031
+#: ../../source/installation/config.rst:1035
 msgid "SAV"
 msgstr ""
 
-#: ../../source/installation/config.rst:1032
+#: ../../source/installation/config.rst:1036
 msgid "Rdata"
 msgstr ""
 
-#: ../../source/installation/config.rst:1033
+#: ../../source/installation/config.rst:1037
 msgid "CSV"
 msgstr ""
 
-#: ../../source/installation/config.rst:1034
+#: ../../source/installation/config.rst:1038
 msgid "XLSX"
 msgstr ""
 
-#: ../../source/installation/config.rst:1037
+#: ../../source/installation/config.rst:1041
 msgid "ZipUploadFilesLimit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1039
+#: ../../source/installation/config.rst:1043
 msgid "Limit the number of files in a zip that Dataverse will accept."
 msgstr ""
 
-#: ../../source/installation/config.rst:1042
+#: ../../source/installation/config.rst:1046
 msgid "SolrHostColonPort"
 msgstr ""
 
-#: ../../source/installation/config.rst:1044
+#: ../../source/installation/config.rst:1048
 msgid ""
 "By default Dataverse will attempt to connect to Solr on port 8983 on "
 "localhost. Use this setting to change the hostname or port. You must "
 "restart Glassfish after making this change."
 msgstr ""
 
-#: ../../source/installation/config.rst:1046
+#: ../../source/installation/config.rst:1050
 msgid "``SolrHostColonPort=localhost:8983``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1049
+#: ../../source/installation/config.rst:1053
 msgid "SolrFullTextIndexing"
 msgstr ""
 
-#: ../../source/installation/config.rst:1051
+#: ../../source/installation/config.rst:1055
 msgid ""
 "Whether or not to index the content of files such as PDFs. The default is"
 " false."
 msgstr ""
 
-#: ../../source/installation/config.rst:1053
+#: ../../source/installation/config.rst:1057
 msgid "``SolrFullTextIndexing=false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1056
+#: ../../source/installation/config.rst:1060
 msgid "SolrMaxFileSizeForFullTextIndexing"
 msgstr ""
 
-#: ../../source/installation/config.rst:1058
+#: ../../source/installation/config.rst:1062
 msgid ""
 "If ``SolrFullTextIndexing`` is set to true, the content of files of any "
 "size will be indexed. To set a limit in bytes for which files to index in"
 " this way:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1060
+#: ../../source/installation/config.rst:1064
 msgid "``SolrMaxFileSizeForFullTextIndexing=314572800``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1063
+#: ../../source/installation/config.rst:1067
 msgid "SignUpUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:1065
+#: ../../source/installation/config.rst:1069
 msgid ""
 "The relative path URL to which users will be sent for signup. The default"
 " setting value is:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1067
+#: ../../source/installation/config.rst:1071
 msgid "``SignUpUrl=/dataverseuser.xhtml?editMode=CREATE``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1071
+#: ../../source/installation/config.rst:1075
 msgid "GeoconnectCreateEditMaps"
 msgstr ""
 
-#: ../../source/installation/config.rst:1073
+#: ../../source/installation/config.rst:1077
 msgid ""
 "Set ``GeoconnectCreateEditMaps`` to true to allow the user to create "
 "GeoConnect Maps. This boolean effects whether the user sees the map "
 "button on the dataset page and if the ingest will create a shape file."
 msgstr ""
 
-#: ../../source/installation/config.rst:1075
+#: ../../source/installation/config.rst:1079
 msgid "``GeoconnectCreateEditMaps=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1078
+#: ../../source/installation/config.rst:1082
 msgid "GeoconnectViewMaps"
 msgstr ""
 
-#: ../../source/installation/config.rst:1080
+#: ../../source/installation/config.rst:1084
 msgid ""
 "Set ``GeoconnectViewMaps`` to true to allow a user to view existing maps."
 " This boolean effects whether a user will see the \"Explore\" button."
 msgstr ""
 
-#: ../../source/installation/config.rst:1082
+#: ../../source/installation/config.rst:1086
 msgid "``GeoconnectViewMaps=false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1085
+#: ../../source/installation/config.rst:1089
 msgid "DatasetPublishPopupCustomTextOnAllVersions"
 msgstr ""
 
-#: ../../source/installation/config.rst:1087
+#: ../../source/installation/config.rst:1091
 msgid ""
 "Set whether a user will see the custom text when publishing all versions "
 "of a dataset"
 msgstr ""
 
-#: ../../source/installation/config.rst:1089
+#: ../../source/installation/config.rst:1093
 msgid "``DatasetPublishPopupCustomTextOnAllVersions=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1092
+#: ../../source/installation/config.rst:1096
 msgid "ScrubMigrationData"
 msgstr ""
 
-#: ../../source/installation/config.rst:1094
+#: ../../source/installation/config.rst:1098
 msgid ""
 "Allow for migration of non-conformant data (especially dates) from DVN "
 "3.x to Dataverse 4."
 msgstr ""
 
-#: ../../source/installation/config.rst:1097
+#: ../../source/installation/config.rst:1101
 msgid "MinutesUntilConfirmEmailTokenExpires"
 msgstr ""
 
-#: ../../source/installation/config.rst:1099
+#: ../../source/installation/config.rst:1103
 msgid ""
 "The duration in minutes before \"Confirm Email\" URLs expire. The default"
 " is 1440 minutes (24 hours).  See also the :doc:`/admin/user-"
 "administration` section of our Admin Guide."
 msgstr ""
 
-#: ../../source/installation/config.rst:1102
+#: ../../source/installation/config.rst:1106
 msgid "DefaultAuthProvider"
 msgstr ""
 
-#: ../../source/installation/config.rst:1104
+#: ../../source/installation/config.rst:1108
 msgid ""
 "If you have enabled Shibboleth and/or one or more OAuth providers, you "
 "may wish to make one of these authentication providers the default when "
@@ -2748,41 +2744,41 @@ msgid ""
 "the :doc:`shibboleth` or :doc:`oauth2` sections) are:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1106
+#: ../../source/installation/config.rst:1110
 msgid "``builtin``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1107
+#: ../../source/installation/config.rst:1111
 msgid "``shib``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1108
+#: ../../source/installation/config.rst:1112
 msgid "``orcid``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1109
+#: ../../source/installation/config.rst:1113
 msgid "``github``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1110
+#: ../../source/installation/config.rst:1114
 msgid "``google``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1113
+#: ../../source/installation/config.rst:1117
 msgid "AllowSignUp"
 msgstr ""
 
-#: ../../source/installation/config.rst:1115
+#: ../../source/installation/config.rst:1119
 msgid ""
 "Set to false to disallow local accounts to be created. See also the "
 "sections on :doc:`shibboleth` and :doc:`oauth2`."
 msgstr ""
 
-#: ../../source/installation/config.rst:1118
+#: ../../source/installation/config.rst:1122
 msgid "FileFixityChecksumAlgorithm"
 msgstr ""
 
-#: ../../source/installation/config.rst:1120
+#: ../../source/installation/config.rst:1124
 msgid ""
 "Dataverse calculates checksums for uploaded files so that users can "
 "determine if their file was corrupted via upload or download. This is "
@@ -2790,18 +2786,18 @@ msgid ""
 "https://en.wikipedia.org/wiki/File_Fixity"
 msgstr ""
 
-#: ../../source/installation/config.rst:1122
+#: ../../source/installation/config.rst:1126
 msgid ""
 "The default checksum algorithm used is MD5 and should be sufficient for "
 "establishing file fixity. \"SHA-1\", \"SHA-256\" and \"SHA-512\" are "
 "alternate values for this setting. For example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1124
+#: ../../source/installation/config.rst:1128
 msgid "``FileFixityChecksumAlgorithm=SHA-512``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1126
+#: ../../source/installation/config.rst:1130
 msgid ""
 "The fixity algorithm used on existing files can be changed by a superuser"
 " using the API. An optional query parameter (num) can be used to limit "
@@ -2811,45 +2807,45 @@ msgid ""
 "returned in the response to the API call with details in the log."
 msgstr ""
 
-#: ../../source/installation/config.rst:1130
+#: ../../source/installation/config.rst:1134
 msgid ""
 "``curl http://localhost:8080/api/admin/updateHashValues/{alg}`` ``curl "
 "http://localhost:8080/api/admin/updateHashValues/{alg}?num=1``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1136
+#: ../../source/installation/config.rst:1140
 msgid "PVMinLength"
 msgstr ""
 
-#: ../../source/installation/config.rst:1138
+#: ../../source/installation/config.rst:1142
 msgid ""
 "Password policy setting for builtin user accounts: a password's minimum "
 "valid character length. The default is 6."
 msgstr ""
 
-#: ../../source/installation/config.rst:1140
+#: ../../source/installation/config.rst:1144
 msgid "``PVMinLength=6``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1145
+#: ../../source/installation/config.rst:1149
 msgid "PVMaxLength"
 msgstr ""
 
-#: ../../source/installation/config.rst:1147
+#: ../../source/installation/config.rst:1151
 msgid ""
 "Password policy setting for builtin user accounts: a password's maximum "
 "valid character length."
 msgstr ""
 
-#: ../../source/installation/config.rst:1149
+#: ../../source/installation/config.rst:1153
 msgid "``PVMaxLength=0``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1155
+#: ../../source/installation/config.rst:1159
 msgid "PVNumberOfConsecutiveDigitsAllowed"
 msgstr ""
 
-#: ../../source/installation/config.rst:1157
+#: ../../source/installation/config.rst:1161
 msgid ""
 "By default, passwords can contain an unlimited number of digits in a row."
 " However, if your password policy specifies otherwise (e.g. only four "
@@ -2858,15 +2854,15 @@ msgid ""
 "uses 4):"
 msgstr ""
 
-#: ../../source/installation/config.rst:1159
+#: ../../source/installation/config.rst:1163
 msgid "``PVNumberOfConsecutiveDigitsAllowed=4``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1164
+#: ../../source/installation/config.rst:1168
 msgid "PVCharacterRules"
 msgstr ""
 
-#: ../../source/installation/config.rst:1166
+#: ../../source/installation/config.rst:1170
 msgid ""
 "Password policy setting for builtinuser accounts: dictates which types of"
 " characters can be required in a password. This setting goes hand-in-hand"
@@ -2874,40 +2870,40 @@ msgid ""
 "rules:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1168
+#: ../../source/installation/config.rst:1172
 msgid "one letter"
 msgstr ""
 
-#: ../../source/installation/config.rst:1169
-#: ../../source/installation/config.rst:1177
+#: ../../source/installation/config.rst:1173
+#: ../../source/installation/config.rst:1181
 msgid "one digit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1171
+#: ../../source/installation/config.rst:1175
 msgid ""
 "The default setting is equivalent to specifying "
 "\"Alphabetical:1,Digit:1\"."
 msgstr ""
 
-#: ../../source/installation/config.rst:1173
+#: ../../source/installation/config.rst:1177
 msgid ""
 "By specifying \"UpperCase:1,LowerCase:1,Digit:1,Special:1\", for example,"
 " you can put the following four rules in place instead:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1175
+#: ../../source/installation/config.rst:1179
 msgid "one uppercase letter"
 msgstr ""
 
-#: ../../source/installation/config.rst:1176
+#: ../../source/installation/config.rst:1180
 msgid "one lowercase letter"
 msgstr ""
 
-#: ../../source/installation/config.rst:1178
+#: ../../source/installation/config.rst:1182
 msgid "one special character"
 msgstr ""
 
-#: ../../source/installation/config.rst:1180
+#: ../../source/installation/config.rst:1184
 msgid ""
 "If you have implemented 4 different character rules in this way, you can "
 "also optionally increase ``PVNumberOfCharacteristics`` to as high as 4. "
@@ -2916,7 +2912,7 @@ msgid ""
 "error, \"Number of characteristics must be <= to the number of rules\"."
 msgstr ""
 
-#: ../../source/installation/config.rst:1182
+#: ../../source/installation/config.rst:1186
 msgid ""
 "Also note that the Alphabetical setting should not be used in tandem with"
 " the UpperCase or LowerCase settings. The Alphabetical setting "
@@ -2925,19 +2921,19 @@ msgid ""
 "potentially easier to bypass."
 msgstr ""
 
-#: ../../source/installation/config.rst:1184
+#: ../../source/installation/config.rst:1188
 msgid "``PVCharacterRules=UpperCase:1,LowerCase:1,Digit:1,Special:1``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1186
+#: ../../source/installation/config.rst:1190
 msgid "``PVNumberOfCharacteristics=3``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1191
+#: ../../source/installation/config.rst:1195
 msgid "PVNumberOfCharacteristics"
 msgstr ""
 
-#: ../../source/installation/config.rst:1193
+#: ../../source/installation/config.rst:1197
 msgid ""
 "Password policy setting for builtin user accounts: the number indicates "
 "how many of the character rules defined by ``PVCharacterRules`` are "
@@ -2947,34 +2943,34 @@ msgid ""
 "must be <= to the number of rules\"."
 msgstr ""
 
-#: ../../source/installation/config.rst:1195
+#: ../../source/installation/config.rst:1199
 msgid "``PVNumberOfCharacteristics=2``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1200
+#: ../../source/installation/config.rst:1204
 msgid "PVGoodStrength"
 msgstr ""
 
-#: ../../source/installation/config.rst:1202
+#: ../../source/installation/config.rst:1206
 msgid ""
 "Password policy setting for builtin user accounts: passwords of equal or "
 "greater character length than the :PVGoodStrength setting are always "
 "valid, regardless of other password constraints."
 msgstr ""
 
-#: ../../source/installation/config.rst:1204
+#: ../../source/installation/config.rst:1208
 msgid "``PVGoodStrength=20``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1206
+#: ../../source/installation/config.rst:1210
 msgid "Recommended setting: 20."
 msgstr ""
 
-#: ../../source/installation/config.rst:1212
+#: ../../source/installation/config.rst:1216
 msgid "ShibPassiveLoginEnabled"
 msgstr ""
 
-#: ../../source/installation/config.rst:1214
+#: ../../source/installation/config.rst:1218
 msgid ""
 "Set ``ShibPassiveLoginEnabled`` to true to enable passive login for "
 "Shibboleth. When this feature is enabled, an additional Javascript file "
@@ -2985,42 +2981,42 @@ msgid ""
 "for the user."
 msgstr ""
 
-#: ../../source/installation/config.rst:1216
+#: ../../source/installation/config.rst:1220
 msgid ""
 "This implementation follows the example on the Shibboleth wiki "
 "documentation page for the isPassive feature: "
 "https://wiki.shibboleth.net/confluence/display/SHIB2/isPassive"
 msgstr ""
 
-#: ../../source/installation/config.rst:1218
+#: ../../source/installation/config.rst:1222
 msgid ""
 "It is recommended that you configure additional error handling for your "
 "Service Provider if you enable passive login. A good way of doing this is"
 " described in the Shibboleth wiki documentation:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1220
+#: ../../source/installation/config.rst:1224
 msgid ""
 "*In your Service Provider 2.x shibboleth2.xml file, add "
 "redirectErrors=\"#THIS PAGE#\" to the Errors element.*"
 msgstr ""
 
-#: ../../source/installation/config.rst:1222
+#: ../../source/installation/config.rst:1226
 msgid ""
 "You can set the value of \"#THIS PAGE#\" to the URL of your Dataverse "
 "homepage, or any other page on your site that is accessible to anonymous "
 "users and will have the isPassive.js file loaded."
 msgstr ""
 
-#: ../../source/installation/config.rst:1224
+#: ../../source/installation/config.rst:1228
 msgid "``ShibPassiveLoginEnabled=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1227
+#: ../../source/installation/config.rst:1231
 msgid "ShibAttributeCharacterSetConversionEnabled"
 msgstr ""
 
-#: ../../source/installation/config.rst:1229
+#: ../../source/installation/config.rst:1233
 msgid ""
 "It seems that the Glassfish application server will interpret all "
 "Shibboleth attributes that come through AJP as ISO-8859-1, even if they "
@@ -3031,22 +3027,22 @@ msgid ""
 "``ShibAttributeCharacterSetConversionEnabled`` to false:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1233
+#: ../../source/installation/config.rst:1237
 msgid "``ShibAttributeCharacterSetConversionEnabled=false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1238
+#: ../../source/installation/config.rst:1242
 msgid "PublicInstall"
 msgstr ""
 
-#: ../../source/installation/config.rst:1240
+#: ../../source/installation/config.rst:1244
 msgid ""
 "Setting an installation to public will remove the ability to restrict "
 "data files or datasets. This functionality of Dataverse will be disabled "
 "from your installation."
 msgstr ""
 
-#: ../../source/installation/config.rst:1242
+#: ../../source/installation/config.rst:1246
 msgid ""
 "This is useful for specific cases where an installation's files are "
 "stored in public access. Because files stored this way do not obey "
@@ -3055,73 +3051,73 @@ msgid ""
 ":PublicInstall to disable the feature altogether."
 msgstr ""
 
-#: ../../source/installation/config.rst:1244
+#: ../../source/installation/config.rst:1248
 msgid "``PublicInstall=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1247
+#: ../../source/installation/config.rst:1251
 msgid "UploadMethods"
 msgstr ""
 
-#: ../../source/installation/config.rst:1249
+#: ../../source/installation/config.rst:1253
 msgid ""
 "This setting controls which upload methods are available to users of your"
 " installation of Dataverse. The following upload methods are available:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1251
+#: ../../source/installation/config.rst:1255
 msgid ""
 "``native/http``: Corresponds to \"Upload with HTTP via your browser\" and"
 " APIs that use HTTP (SWORD and native)."
 msgstr ""
 
-#: ../../source/installation/config.rst:1252
+#: ../../source/installation/config.rst:1256
 msgid ""
 "``dcm/rsync+ssh``: Corresponds to \"Upload with rsync+ssh via Data "
 "Capture Module (DCM)\". A lot of setup is required, as explained in the "
 ":doc:`/developers/big-data-support` section of the Dev Guide."
 msgstr ""
 
-#: ../../source/installation/config.rst:1254
+#: ../../source/installation/config.rst:1258
 msgid ""
 "Out of the box only ``native/http`` is enabled and will work without "
 "further configuration. To add multiple upload method, separate them using"
 " a comma like this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1256
+#: ../../source/installation/config.rst:1260
 msgid "``UploadMethods=native/http,dcm/rsync+ssh``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1258
+#: ../../source/installation/config.rst:1262
 msgid ""
 "You'll always want at least one upload method, so the easiest way to "
 "remove one of them remove them from setting:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1260
+#: ../../source/installation/config.rst:1264
 msgid "``UploadMethods=native/http``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1263
+#: ../../source/installation/config.rst:1267
 msgid "DownloadMethods"
 msgstr ""
 
-#: ../../source/installation/config.rst:1265
+#: ../../source/installation/config.rst:1269
 msgid ""
 "This setting is experimental and related to Repository Storage "
 "Abstraction Layer (RSAL)."
 msgstr ""
 
-#: ../../source/installation/config.rst:1267
+#: ../../source/installation/config.rst:1271
 msgid "``DownloadMethods=rsal/rsync``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1270
+#: ../../source/installation/config.rst:1274
 msgid "GuestbookResponsesPageDisplayLimit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1272
+#: ../../source/installation/config.rst:1276
 msgid ""
 "Limit on how many guestbook entries to display on the guestbook-responses"
 " page. By default, only the 5000 most recent entries will be shown. Use "
@@ -3129,15 +3125,15 @@ msgid ""
 "set it to 10,000, make the following change:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1274
+#: ../../source/installation/config.rst:1278
 msgid "``GuestbookResponsesPageDisplayLimit=10000``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1277
+#: ../../source/installation/config.rst:1281
 msgid "CustomDatasetSummaryFields"
 msgstr ""
 
-#: ../../source/installation/config.rst:1279
+#: ../../source/installation/config.rst:1283
 msgid ""
 "You can replace the default dataset metadata fields that are displayed in"
 " dataset summary (summary is displayed after the citation and before "
@@ -3145,50 +3141,50 @@ msgid ""
 "as shown in the following example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1281
+#: ../../source/installation/config.rst:1285
 msgid "``CustomDatasetSummaryFields=producer,subtitle,alternativeTitle``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1283
+#: ../../source/installation/config.rst:1287
 msgid ""
 "You have to put the datasetFieldType name attribute in the "
 ":CustomDatasetSummaryFields setting for this to work."
 msgstr ""
 
-#: ../../source/installation/config.rst:1286
+#: ../../source/installation/config.rst:1290
 msgid "AllowApiTokenLookupViaApi"
 msgstr ""
 
-#: ../../source/installation/config.rst:1288
+#: ../../source/installation/config.rst:1292
 msgid ""
 "Dataverse 4.8.1 and below allowed API Token lookup via API but for better"
 " security this has been disabled by default. Set this to true if you "
 "really want the old behavior."
 msgstr ""
 
-#: ../../source/installation/config.rst:1290
+#: ../../source/installation/config.rst:1294
 msgid "``AllowApiTokenLookupViaApi=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1293
+#: ../../source/installation/config.rst:1297
 msgid "ProvCollectionEnabled"
 msgstr ""
 
-#: ../../source/installation/config.rst:1295
+#: ../../source/installation/config.rst:1299
 msgid ""
 "Enable the collection of provenance metadata on Dataverse via the "
 "provenance popup."
 msgstr ""
 
-#: ../../source/installation/config.rst:1297
+#: ../../source/installation/config.rst:1301
 msgid "``ProvCollectionEnabled=true``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1300
+#: ../../source/installation/config.rst:1304
 msgid "MetricsCacheTimeoutMinutes"
 msgstr ""
 
-#: ../../source/installation/config.rst:1302
+#: ../../source/installation/config.rst:1306
 msgid ""
 "Sets how long a cached metrics result is used before re-running the query"
 " for a request. This timeout is only applied to some of the metrics that "
@@ -3197,32 +3193,32 @@ msgid ""
 " value is 7 days (10080 minutes)."
 msgstr ""
 
-#: ../../source/installation/config.rst:1304
+#: ../../source/installation/config.rst:1308
 msgid "``MetricsCacheTimeoutMinutes=10080``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1307
+#: ../../source/installation/config.rst:1311
 msgid "Languages"
 msgstr ""
 
-#: ../../source/installation/config.rst:1309
+#: ../../source/installation/config.rst:1313
 msgid ""
 "Sets which languages should be available. If there is more than one, a "
 "dropdown is displayed in the header. This should be formated as a JSON "
 "array as shown in the example."
 msgstr ""
 
-#: ../../source/installation/config.rst:1312
+#: ../../source/installation/config.rst:1316
 msgid ""
 "``Languages=[{  \"locale\":\"en\", \"title\":\"English\"},  {  "
 "\"locale\":\"fr\", \"title\":\"Français\"}]``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1315
+#: ../../source/installation/config.rst:1319
 msgid "InheritParentRoleAssignments"
 msgstr ""
 
-#: ../../source/installation/config.rst:1317
+#: ../../source/installation/config.rst:1321
 msgid ""
 "``InheritParentRoleAssignments`` can be set to a comma-separated list of "
 "role aliases or '*' (all) to cause newly created Dataverses to inherit "
@@ -3235,267 +3231,267 @@ msgid ""
 "creator of the new Dataverse to be the only one assigned a role."
 msgstr ""
 
-#: ../../source/installation/config.rst:1320
+#: ../../source/installation/config.rst:1324
 msgid ""
 "``InheritParentRoleAssignments=admin,curator`` or "
 "``InheritParentRoleAssignments=*``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1325
+#: ../../source/installation/config.rst:1329
 msgid "DefaultDateFormat"
 msgstr ""
 
-#: ../../source/installation/config.rst:1327
+#: ../../source/installation/config.rst:1331
 msgid "Sets the default format of date that is going to be used in the system."
 msgstr ""
 
-#: ../../source/installation/config.rst:1329
+#: ../../source/installation/config.rst:1333
 msgid "``DefaultDateFormat=yyyy-MM-dd``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1332
+#: ../../source/installation/config.rst:1336
 msgid "AllRightsReservedTermsOfUseActive"
 msgstr ""
 
-#: ../../source/installation/config.rst:1334
+#: ../../source/installation/config.rst:1338
 msgid "Indicates if All Right Reserved can be selected as file license."
 msgstr ""
 
-#: ../../source/installation/config.rst:1337
+#: ../../source/installation/config.rst:1341
 msgid "RestrictedAccessTermsOfUseActive"
 msgstr ""
 
-#: ../../source/installation/config.rst:1339
+#: ../../source/installation/config.rst:1343
 msgid "Indicates if Restricted Access can be selected as file license."
 msgstr ""
 
-#: ../../source/installation/config.rst:1342
+#: ../../source/installation/config.rst:1346
 msgid "OAIServerEnabled"
 msgstr ""
 
-#: ../../source/installation/config.rst:1344
+#: ../../source/installation/config.rst:1348
 msgid ""
 "Enables the option to become OAI-PMH server. For more information about "
 "OAI visit https://www.openarchives.org/pmh/"
 msgstr ""
 
-#: ../../source/installation/config.rst:1347
+#: ../../source/installation/config.rst:1351
 msgid "Debug"
 msgstr ""
 
-#: ../../source/installation/config.rst:1349
+#: ../../source/installation/config.rst:1353
 msgid "Shows information about the search query for developers on 'My Data' page."
 msgstr ""
 
-#: ../../source/installation/config.rst:1352
+#: ../../source/installation/config.rst:1356
 msgid "SearchApiNonPublicAllowed"
 msgstr ""
 
-#: ../../source/installation/config.rst:1354
+#: ../../source/installation/config.rst:1358
 msgid ""
 "Enables experimental non-public search with a key/token using the Search "
 "API. See also https://github.com/IQSS/dataverse/issues/1299"
 msgstr ""
 
-#: ../../source/installation/config.rst:1357
+#: ../../source/installation/config.rst:1361
 msgid "PIDAsynchRegFileCount"
 msgstr ""
 
-#: ../../source/installation/config.rst:1359
+#: ../../source/installation/config.rst:1363
 msgid ""
 "Indicated number for the minimum number of files to send PID registration"
 " to asynchronous workflow. It is 10 by default."
 msgstr ""
 
-#: ../../source/installation/config.rst:1361
+#: ../../source/installation/config.rst:1365
 msgid "``PIDAsynchRegFileCount=10``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1364
+#: ../../source/installation/config.rst:1368
 msgid "SiteName"
 msgstr ""
 
-#: ../../source/installation/config.rst:1366
+#: ../../source/installation/config.rst:1370
 msgid "Indicates name of the site that will be presented in the header."
 msgstr ""
 
-#: ../../source/installation/config.rst:1368
+#: ../../source/installation/config.rst:1372
 msgid "``SiteName=RepOD``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1370
-#: ../../source/installation/config.rst:1381
+#: ../../source/installation/config.rst:1374
+#: ../../source/installation/config.rst:1385
 msgid "Setting can be postfixed with language code to obtain translated versions."
 msgstr ""
 
-#: ../../source/installation/config.rst:1372
+#: ../../source/installation/config.rst:1376
 msgid "``SiteName.pl=RepOD``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1375
+#: ../../source/installation/config.rst:1379
 msgid "SiteFullName"
 msgstr ""
 
-#: ../../source/installation/config.rst:1377
+#: ../../source/installation/config.rst:1381
 msgid ""
 "Indicates full name of the site that will be presented in the header "
 "right after (below) SiteName."
 msgstr ""
 
-#: ../../source/installation/config.rst:1379
+#: ../../source/installation/config.rst:1383
 msgid "``SiteFullName=Repository for Open Data``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1383
+#: ../../source/installation/config.rst:1387
 msgid "``SiteFullName.pl=Repozytorium Otwartych Danych``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1386
+#: ../../source/installation/config.rst:1390
 msgid "MaximumEmbargoLength"
 msgstr ""
 
-#: ../../source/installation/config.rst:1388
+#: ../../source/installation/config.rst:1392
 msgid ""
 "Sets maximum embargo length in months. By default it is disabled (set to "
 "0)."
 msgstr ""
 
-#: ../../source/installation/config.rst:1390
+#: ../../source/installation/config.rst:1394
 msgid "``MaximumEmbargoLength=0``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1393
+#: ../../source/installation/config.rst:1397
 msgid "ShowPrivacyPolicyFooterLink"
 msgstr ""
 
-#: ../../source/installation/config.rst:1395
+#: ../../source/installation/config.rst:1399
 msgid ""
 "Enables showing link to Privacy Policy page in the footer. By default is "
 "set to 'false', so link won't be shown."
 msgstr ""
 
-#: ../../source/installation/config.rst:1397
+#: ../../source/installation/config.rst:1401
 msgid "``ShowPrivacyPolicyFooterLink=false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1400
+#: ../../source/installation/config.rst:1404
 msgid "ShowTermsOfUseFooterLink"
 msgstr ""
 
-#: ../../source/installation/config.rst:1402
+#: ../../source/installation/config.rst:1406
 msgid ""
 "Enables showing link to Terms of Use page in the footer. By default is "
 "set to 'false', so link won't be shown."
 msgstr ""
 
-#: ../../source/installation/config.rst:1404
+#: ../../source/installation/config.rst:1408
 msgid "``ShowTermsOfUseFooterLink=false``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1407
+#: ../../source/installation/config.rst:1411
 msgid "BlockedApiKey"
 msgstr ""
 
-#: ../../source/installation/config.rst:1409
+#: ../../source/installation/config.rst:1413
 msgid ""
 "Used in conjunction with the ``BlockedApiPolicy`` being set to ``unblock-"
 "key``. When calling blocked APIs, add a query parameter of ``unblock-"
 "key=theKeyYouChose`` to use the key."
 msgstr ""
 
-#: ../../source/installation/config.rst:1411
+#: ../../source/installation/config.rst:1415
 msgid "``BlockedApiKey=localhost-only``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1416
+#: ../../source/installation/config.rst:1420
 msgid "BuiltinUsers.KEY"
 msgstr ""
 
-#: ../../source/installation/config.rst:1418
+#: ../../source/installation/config.rst:1422
 msgid ""
 "The key required to create users via API as documented at :doc:`/api"
 "/native-api`."
 msgstr ""
 
-#: ../../source/installation/config.rst:1420
+#: ../../source/installation/config.rst:1424
 msgid "``BuiltinUsers.KEY=builtInS3kretKey``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1423
+#: ../../source/installation/config.rst:1427
 msgid "FooterCopyright"
 msgstr ""
 
-#: ../../source/installation/config.rst:1425
+#: ../../source/installation/config.rst:1429
 msgid ""
 "By default the footer says \"Copyright © [YYYY]\" but you can add text "
 "after the year, as in the example:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1427
+#: ../../source/installation/config.rst:1431
 msgid "``FooterCopyright=, Your Institution``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1430
+#: ../../source/installation/config.rst:1434
 msgid "ApplicationPrivacyPolicyUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:1432
+#: ../../source/installation/config.rst:1436
 msgid ""
 "Specify a URL where users can read your Privacy Policy, linked from the "
 "bottom of the page."
 msgstr ""
 
-#: ../../source/installation/config.rst:1434
+#: ../../source/installation/config.rst:1438
 msgid ""
 "``ApplicationPrivacyPolicyUrl=https://dataverse.org/best-practices"
 "/harvard-dataverse-privacy-policy``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1437
+#: ../../source/installation/config.rst:1441
 msgid "NavbarAboutUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:1439
+#: ../../source/installation/config.rst:1443
 msgid ""
 "Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for "
 "the \"About\" link in the navbar."
 msgstr ""
 
-#: ../../source/installation/config.rst:1441
+#: ../../source/installation/config.rst:1445
 msgid ""
 "Note: The \"About\" link will not appear in the navbar until this option "
 "is set."
 msgstr ""
 
-#: ../../source/installation/config.rst:1443
+#: ../../source/installation/config.rst:1447
 msgid "``NavbarAboutUrl=http://dataverse.example.edu``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1447
+#: ../../source/installation/config.rst:1451
 msgid "NavbarSupportUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:1448
+#: ../../source/installation/config.rst:1452
 msgid ""
 "Set ``NavbarSupportUrl`` to a fully-qualified URL which will be used for "
 "the \"Support\" link in the navbar."
 msgstr ""
 
-#: ../../source/installation/config.rst:1450
+#: ../../source/installation/config.rst:1454
 msgid ""
 "Note that this will override the default behaviour for the \"Support\" "
 "menu option, which is to display the dataverse 'feedback' dialog."
 msgstr ""
 
-#: ../../source/installation/config.rst:1452
+#: ../../source/installation/config.rst:1456
 msgid "``NavbarSupportUrl=http://dataverse.example.edu/supportpage.html``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1455
+#: ../../source/installation/config.rst:1459
 msgid "StatusMessageHeader"
 msgstr ""
 
-#: ../../source/installation/config.rst:1457
+#: ../../source/installation/config.rst:1461
 msgid ""
 "For dynamically adding an informational header to the top of every page. "
 "StatusMessageText must also be set for a message to show. For example, "
@@ -3503,50 +3499,50 @@ msgid ""
 "with this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1459
+#: ../../source/installation/config.rst:1463
 msgid "``StatusMessageHeader=For testing only...``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1461
+#: ../../source/installation/config.rst:1465
 msgid ""
 "You can make the text clickable and include an additional message in a "
 "pop up by setting ``StatusMessageText``."
 msgstr ""
 
-#: ../../source/installation/config.rst:1464
+#: ../../source/installation/config.rst:1468
 msgid "StatusMessageText"
 msgstr ""
 
-#: ../../source/installation/config.rst:1466
+#: ../../source/installation/config.rst:1470
 msgid ""
 "Alongside the ``StatusMessageHeader`` you need to add StatusMessageText "
 "for the message to show.:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1468
+#: ../../source/installation/config.rst:1472
 msgid "``StatusMessageText=This appears in a popup.``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1471
+#: ../../source/installation/config.rst:1475
 msgid "DatasetPublishPopupCustomText"
 msgstr ""
 
-#: ../../source/installation/config.rst:1473
+#: ../../source/installation/config.rst:1477
 msgid ""
 "Set custom text a user will view when publishing a dataset. Note that "
 "this text is exposed via the \"Info\" endpoint of the :doc:`/api/native-"
 "api`."
 msgstr ""
 
-#: ../../source/installation/config.rst:1475
+#: ../../source/installation/config.rst:1479
 msgid "``DatasetPublishPopupCustomText=Deposit License Requirements``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1478
+#: ../../source/installation/config.rst:1482
 msgid "SearchHighlightFragmentSize"
 msgstr ""
 
-#: ../../source/installation/config.rst:1480
+#: ../../source/installation/config.rst:1484
 msgid ""
 "Set ``SearchHighlightFragmentSize`` to override the default value of 100 "
 "from https://wiki.apache.org/solr/HighlightingParameters#hl.fragsize . In"
@@ -3554,15 +3550,15 @@ msgid ""
 "https://github.com/IQSS/dataverse/issues/2191"
 msgstr ""
 
-#: ../../source/installation/config.rst:1482
+#: ../../source/installation/config.rst:1486
 msgid "``SearchHighlightFragmentSize=320``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1487
+#: ../../source/installation/config.rst:1491
 msgid "PVDictionaries"
 msgstr ""
 
-#: ../../source/installation/config.rst:1489
+#: ../../source/installation/config.rst:1493
 msgid ""
 "Password policy setting for builtin user accounts: set a comma separated "
 "list of dictionaries containing words that cannot be used in a user "
@@ -3571,23 +3567,23 @@ msgid ""
 "is checked."
 msgstr ""
 
-#: ../../source/installation/config.rst:1494
+#: ../../source/installation/config.rst:1498
 msgid "PVCustomPasswordResetAlertMessage"
 msgstr ""
 
-#: ../../source/installation/config.rst:1496
+#: ../../source/installation/config.rst:1500
 msgid ""
 "Changes the default info message displayed when a user is required to "
 "change their password on login. The default is:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1498
+#: ../../source/installation/config.rst:1502
 msgid ""
 "``{0} Reset Password{1} – Our password requirements have changed. Please "
 "pick a strong password that matches the criteria below.``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1500
+#: ../../source/installation/config.rst:1504
 msgid ""
 "Where the {0} and {1} denote surrounding HTML **bold** tags. It's "
 "recommended to put a single space before your custom message for better "
@@ -3595,52 +3591,52 @@ msgid ""
 "bolden part of your message is optional."
 msgstr ""
 
-#: ../../source/installation/config.rst:1502
+#: ../../source/installation/config.rst:1506
 msgid "Customize the message using the following curl command's syntax:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1504
+#: ../../source/installation/config.rst:1508
 msgid ""
 "``PVCustomPasswordResetAlertMessage={0} Action Required:{1} Your current "
 "password does not meet all requirements. Please enter a new password "
 "meeting the criteria below.``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1507
+#: ../../source/installation/config.rst:1511
 msgid "DataCaptureModuleUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:1509
+#: ../../source/installation/config.rst:1513
 msgid ""
 "The URL for your Data Capture Module (DCM) installation. This component "
 "is experimental and can be downloaded from https://github.com/sbgrid"
 "/data-capture-module ."
 msgstr ""
 
-#: ../../source/installation/config.rst:1511
+#: ../../source/installation/config.rst:1515
 msgid "``DataCaptureModuleUrl=https://dcm.example.edu``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1514
+#: ../../source/installation/config.rst:1518
 msgid "RepositoryStorageAbstractionLayerUrl"
 msgstr ""
 
-#: ../../source/installation/config.rst:1516
+#: ../../source/installation/config.rst:1520
 msgid ""
 "The URL for your Repository Storage Abstraction Layer (RSAL) "
 "installation. This component is experimental and can be downloaded from "
 "https://github.com/sbgrid/rsal ."
 msgstr ""
 
-#: ../../source/installation/config.rst:1518
+#: ../../source/installation/config.rst:1522
 msgid "``RepositoryStorageAbstractionLayerUrl=https://rsal.example.edu``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1521
+#: ../../source/installation/config.rst:1525
 msgid "JVM Options"
 msgstr ""
 
-#: ../../source/installation/config.rst:1523
+#: ../../source/installation/config.rst:1527
 msgid ""
 "JVM stands Java Virtual Machine and as a Java application, Glassfish can "
 "read JVM options when it is started. A number of JVM options are "
@@ -3649,83 +3645,83 @@ msgid ""
 "options by running:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1525
+#: ../../source/installation/config.rst:1529
 msgid "``./asadmin list-jvm-options | egrep 'dataverse|doi'``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1527
+#: ../../source/installation/config.rst:1531
 msgid ""
 "When changing values these values with ``asadmin``, you'll need to delete"
 " the old value before adding a new one, like this:"
 msgstr ""
 
-#: ../../source/installation/config.rst:1529
+#: ../../source/installation/config.rst:1533
 msgid ""
 "``./asadmin delete-jvm-options \"-Ddataverse.auth.password-reset-timeout-"
 "in-minutes=10``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1531
+#: ../../source/installation/config.rst:1535
 msgid ""
 "``./asadmin create-jvm-options \"-Ddataverse.auth.password-reset-timeout-"
 "in-minutes=30\"``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1533
+#: ../../source/installation/config.rst:1537
 msgid ""
 "It's also possible to change these values by stopping Glassfish, editing "
 "``glassfish4.1.2/glassfish/domains/domain1/config/domain.xml``, and "
 "restarting Glassfish."
 msgstr ""
 
-#: ../../source/installation/config.rst:1536
+#: ../../source/installation/config.rst:1540
 msgid "dataverse.auth.password-reset-timeout-in-minutes"
 msgstr ""
 
-#: ../../source/installation/config.rst:1538
+#: ../../source/installation/config.rst:1542
 msgid ""
 "Users have 60 minutes to change their passwords by default. You can "
 "adjust this value here."
 msgstr ""
 
-#: ../../source/installation/config.rst:1543
+#: ../../source/installation/config.rst:1547
 msgid "dataverse.files.directory"
 msgstr ""
 
-#: ../../source/installation/config.rst:1545
+#: ../../source/installation/config.rst:1549
 msgid ""
 "This is how you configure the path to which files uploaded by users are "
 "stored."
 msgstr ""
 
-#: ../../source/installation/config.rst:1548
+#: ../../source/installation/config.rst:1552
 msgid "dataverse.path.imagemagick.convert"
 msgstr ""
 
-#: ../../source/installation/config.rst:1550
+#: ../../source/installation/config.rst:1554
 msgid ""
 "For overriding the default path to the ``convert`` binary from "
 "ImageMagick (``/usr/bin/convert``)."
 msgstr ""
 
-#: ../../source/installation/config.rst:1553
+#: ../../source/installation/config.rst:1557
 msgid "dataverse.dataAccess.thumbnail.image.limit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1555
-#: ../../source/installation/config.rst:1560
+#: ../../source/installation/config.rst:1559
+#: ../../source/installation/config.rst:1564
 msgid "For limiting the size (in bytes) of thumbnail images generated from files."
 msgstr ""
 
-#: ../../source/installation/config.rst:1558
+#: ../../source/installation/config.rst:1562
 msgid "dataverse.dataAccess.thumbnail.pdf.limit"
 msgstr ""
 
-#: ../../source/installation/config.rst:1563
+#: ../../source/installation/config.rst:1567
 msgid "dataverse.lang.directory"
 msgstr ""
 
-#: ../../source/installation/config.rst:1565
+#: ../../source/installation/config.rst:1569
 msgid ""
 "This JVM option is used to configure the path where all the language "
 "specific property files are to be stored.  If this option is set then the"
@@ -3733,13 +3729,13 @@ msgid ""
 "language property file."
 msgstr ""
 
-#: ../../source/installation/config.rst:1567
+#: ../../source/installation/config.rst:1571
 msgid ""
 "``./asadmin create-jvm-options "
 "'-Ddataverse.lang.directory=PATH_LOCATION_HERE'``"
 msgstr ""
 
-#: ../../source/installation/config.rst:1569
+#: ../../source/installation/config.rst:1573
 msgid ""
 "If this value is not set, by default, a Dataverse installation will read "
 "the English language property files from the Java Application."

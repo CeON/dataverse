@@ -1,27 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/integrations.rst:2
+#: ../../source/admin/integrations.rst:6
 msgid "Integrations"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:4
+#: ../../source/admin/integrations.rst:8
 msgid ""
 "Now that you've installed Dataverse, you might want to set up some "
 "integrations with other systems. Many of these integrations are open "
@@ -29,25 +29,21 @@ msgid ""
 "Guide."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:7
-msgid "Contents:"
-msgstr ""
-
-#: ../../source/admin/integrations.rst:10
+#: ../../source/admin/integrations.rst:14
 msgid "Getting Data In"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:12
+#: ../../source/admin/integrations.rst:16
 msgid ""
 "A variety of integrations are oriented toward making it easier for your "
 "researchers to deposit data into your installation of Dataverse."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:15
+#: ../../source/admin/integrations.rst:19
 msgid "Dropbox"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:17
+#: ../../source/admin/integrations.rst:21
 msgid ""
 "If your researchers have data on Dropbox, you can make it easier for them"
 " to get it into Dataverse by setting the :ref:`dataverse.dropbox.key` JVM"
@@ -55,121 +51,121 @@ msgid ""
 "Installation Guide."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:20
+#: ../../source/admin/integrations.rst:24
 msgid "Open Science Framework (OSF)"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:22
+#: ../../source/admin/integrations.rst:26
 msgid ""
 "The Center for Open Science's Open Science Framework (OSF) is an open "
 "source software project that facilitates open collaboration in science "
 "research across the lifespan of a scientific project."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:24
+#: ../../source/admin/integrations.rst:28
 msgid ""
 "For instructions on depositing data from OSF to your installation of "
 "Dataverse, your researchers can visit "
 "http://help.osf.io/m/addons/l/863978-connect-dataverse-to-a-project"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:27
+#: ../../source/admin/integrations.rst:31
 msgid "RSpace"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:29
+#: ../../source/admin/integrations.rst:33
 msgid ""
 "RSpace is an affordable and secure enterprise grade electronic lab "
 "notebook (ELN) for researchers to capture and organize data."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:31
+#: ../../source/admin/integrations.rst:35
 msgid ""
 "For instructions on depositing data from RSpace to your installation of "
 "Dataverse, your researchers can visit https://www.researchspace.com/help-"
 "and-support-resources/dataverse-integration/"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:34
+#: ../../source/admin/integrations.rst:38
 msgid "Open Journal Systems (OJS)"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:36
+#: ../../source/admin/integrations.rst:40
 msgid ""
 "Open Journal Systems (OJS) is a journal management and publishing system "
 "that has been developed by the Public Knowledge Project to expand and "
 "improve access to research."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:38
+#: ../../source/admin/integrations.rst:42
 msgid ""
 "The OJS Dataverse Plugin adds data sharing and preservation to the OJS "
 "publication process."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:40
+#: ../../source/admin/integrations.rst:44
 msgid ""
 "As of this writing only OJS 2.x is supported and instructions for getting"
 " started can be found at https://github.com/pkp/ojs/tree/ojs-"
 "stable-2_4_8/plugins/generic/dataverse"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:42
+#: ../../source/admin/integrations.rst:46
 msgid ""
 "If you are interested in OJS 3.x supporting deposit from Dataverse, "
 "please leave a comment on https://github.com/pkp/pkp-lib/issues/1822"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:45
+#: ../../source/admin/integrations.rst:49
 msgid "Analysis and Computation"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:48
+#: ../../source/admin/integrations.rst:52
 msgid "Data Explorer"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:50
+#: ../../source/admin/integrations.rst:54
 msgid ""
 "Data Explorer is a GUI which lists the variables in a tabular data file "
 "allowing searching, charting and cross tabulation analysis."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:52
-#: ../../source/admin/integrations.rst:59
+#: ../../source/admin/integrations.rst:56
+#: ../../source/admin/integrations.rst:63
 msgid ""
 "For installation instructions, see the :doc:`/installation/external-"
 "tools` section of the Installation Guide."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:55
+#: ../../source/admin/integrations.rst:59
 msgid "TwoRavens/Zelig"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:57
+#: ../../source/admin/integrations.rst:61
 msgid ""
 "TwoRavens is a web application for tabular data exploration and "
 "statistical analysis with Zelig."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:62
+#: ../../source/admin/integrations.rst:66
 msgid "WorldMap"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:64
+#: ../../source/admin/integrations.rst:68
 msgid ""
 "WorldMap helps researchers visualize and explore geospatial data by "
 "creating maps."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:66
+#: ../../source/admin/integrations.rst:70
 msgid "For installation instructions, see :doc:`geoconnect-worldmap`."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:69
+#: ../../source/admin/integrations.rst:73
 msgid "Whole Tale"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:71
+#: ../../source/admin/integrations.rst:75
 msgid ""
 "`Whole Tale <https://wholetale.org>`_  enables researchers to analyze "
 "data using popular tools including Jupyter and RStudio with the ultimate "
@@ -183,11 +179,11 @@ msgid ""
 "#dataverse-external-tools>`_ section of the Whole Tale User Guide."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:76
+#: ../../source/admin/integrations.rst:80
 msgid "Discoverability"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:78
+#: ../../source/admin/integrations.rst:82
 msgid ""
 "Integration with `DataCite <https://datacite.org>`_ is built in to "
 "Dataverse. When datasets are published, metadata is sent to DataCite. You"
@@ -195,22 +191,22 @@ msgid ""
 "additional integrations."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:81
+#: ../../source/admin/integrations.rst:85
 msgid "OAI-PMH (Harvesting)"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:83
+#: ../../source/admin/integrations.rst:87
 msgid ""
 "Dataverse supports a protocol called OAI-PMH that facilitates harvesting "
 "datasets from one system into another. For details on harvesting, see the"
 " :doc:`harvestserver` section."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:86
+#: ../../source/admin/integrations.rst:90
 msgid "SHARE"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:88
+#: ../../source/admin/integrations.rst:92
 msgid ""
 "`SHARE <http://www.share-research.org>`_ is building a free, open, data "
 "set about research and scholarly activities across their life cycle. It's"
@@ -219,15 +215,15 @@ msgid ""
 "team."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:91
+#: ../../source/admin/integrations.rst:95
 msgid "Research Data Preservation"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:94
+#: ../../source/admin/integrations.rst:98
 msgid "Archivematica"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:96
+#: ../../source/admin/integrations.rst:100
 msgid ""
 "`Archivematica <https://www.archivematica.org>`_ is an integrated suite "
 "of open-source tools for processing digital objects for long-term "
@@ -237,7 +233,7 @@ msgid ""
 "term storage and management."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:98
+#: ../../source/admin/integrations.rst:102
 msgid ""
 "Sponsored by the `Ontario Council of University Libraries (OCUL) "
 "<https://ocul.on.ca/>`_, this technical integration enables users of "
@@ -252,11 +248,11 @@ msgid ""
 "<https://wiki.archivematica.org/Dataverse>`_."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:101
+#: ../../source/admin/integrations.rst:105
 msgid "DuraCloud/Chronopolis"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:103
+#: ../../source/admin/integrations.rst:107
 #, python-format
 msgid ""
 "Dataverse can be configured to submit a copy of published Datasets, "
@@ -267,25 +263,25 @@ msgid ""
 "`DuraCloud <https://duraspace.org/duracloud/>`_"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:105
+#: ../../source/admin/integrations.rst:109
 msgid ""
 "For details on how to configure this integration, look for "
 "\"DuraCloud/Chronopolis\" in the :doc:`/installation/config` section of "
 "the Installation Guide."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:108
+#: ../../source/admin/integrations.rst:112
 msgid "Future Integrations"
 msgstr ""
 
-#: ../../source/admin/integrations.rst:110
+#: ../../source/admin/integrations.rst:114
 msgid ""
 "The `Dataverse roadmap <https://dataverse.org/goals-roadmap-and-"
 "releases>`_ is a good place to see integrations that the core Dataverse "
 "team is working on."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:112
+#: ../../source/admin/integrations.rst:116
 msgid ""
 "The `Dev Efforts by the Dataverse Community "
 "<https://docs.google.com/spreadsheets/d/1pl9U0_CtWQ3oz6ZllvSHeyB0EG1M_vZEC_aZ7hREnhE/edit?usp=sharing>`_"
@@ -293,7 +289,7 @@ msgid ""
 "on by the Dataverse community."
 msgstr ""
 
-#: ../../source/admin/integrations.rst:114
+#: ../../source/admin/integrations.rst:118
 msgid ""
 "Please help us keep this page up to date making a pull request! To get "
 "started, see the :doc:`/developers/documentation` section of the "

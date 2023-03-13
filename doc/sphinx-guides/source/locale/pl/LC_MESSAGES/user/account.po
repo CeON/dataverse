@@ -1,101 +1,97 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/user/account.rst:3
+#: ../../source/user/account.rst:7
 msgid "Account Creation + Management"
 msgstr ""
 
-#: ../../source/user/account.rst:6
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/user/account.rst:9
+#: ../../source/user/account.rst:13
 msgid "Account Information"
 msgstr ""
 
-#: ../../source/user/account.rst:11
+#: ../../source/user/account.rst:15
 msgid "As a registered user, you can:"
 msgstr ""
 
-#: ../../source/user/account.rst:13
+#: ../../source/user/account.rst:17
 msgid "Create your own dataverse, if permitted, and customize it."
 msgstr ""
 
-#: ../../source/user/account.rst:14
+#: ../../source/user/account.rst:18
 msgid "Add datasets to dataverses, if permitted."
 msgstr ""
 
-#: ../../source/user/account.rst:15
+#: ../../source/user/account.rst:19
 msgid "Contribute to existing datasets, if permitted."
 msgstr ""
 
-#: ../../source/user/account.rst:16
+#: ../../source/user/account.rst:20
 msgid "Request access to restricted files, if permitted."
 msgstr ""
 
-#: ../../source/user/account.rst:19
+#: ../../source/user/account.rst:23
 msgid "Account Log In Options"
 msgstr ""
 
-#: ../../source/user/account.rst:21
+#: ../../source/user/account.rst:25
 msgid ""
 "Dataverse has been configured for one or more of the following log in "
 "options:"
 msgstr ""
 
-#: ../../source/user/account.rst:23
+#: ../../source/user/account.rst:27
 msgid "Username/Email and Password"
 msgstr ""
 
-#: ../../source/user/account.rst:24 ../../source/user/account.rst:73
+#: ../../source/user/account.rst:28 ../../source/user/account.rst:77
 msgid "Institutional Log In"
 msgstr ""
 
-#: ../../source/user/account.rst:25
+#: ../../source/user/account.rst:29
 msgid "ORCID"
 msgstr ""
 
-#: ../../source/user/account.rst:26
+#: ../../source/user/account.rst:30
 msgid "GitHub"
 msgstr ""
 
-#: ../../source/user/account.rst:27
+#: ../../source/user/account.rst:31
 msgid "Google"
 msgstr ""
 
-#: ../../source/user/account.rst:29
+#: ../../source/user/account.rst:33
 msgid ""
 "Please note that once you create your Dataverse account, it will be "
 "associated with only one of the log in options above."
 msgstr ""
 
-#: ../../source/user/account.rst:31
+#: ../../source/user/account.rst:35
 msgid ""
 "The Institutional Log In, ORCID, GitHub, and Google options are described"
 " in :ref:`remote-auth-label` section."
 msgstr ""
 
-#: ../../source/user/account.rst:34
+#: ../../source/user/account.rst:38
 msgid "Create Account"
 msgstr ""
 
-#: ../../source/user/account.rst:36
+#: ../../source/user/account.rst:40
 msgid ""
 "To create a Dataverse account with the Username/Email log in option, use "
 "the \"Sign Up\" page. Fill out the fields, and then click the 'Create "
@@ -104,7 +100,7 @@ msgid ""
 "(underscores), - (hyphens), and . (periods)."
 msgstr ""
 
-#: ../../source/user/account.rst:38
+#: ../../source/user/account.rst:42
 msgid ""
 "To create a Dataverse account associated with the log in option for your "
 "institution, ORCID, GitHub, or Google, use the \"Log In\" page and select"
@@ -112,28 +108,28 @@ msgid ""
 "section for details."
 msgstr ""
 
-#: ../../source/user/account.rst:41
+#: ../../source/user/account.rst:45
 msgid "Edit Account"
 msgstr ""
 
-#: ../../source/user/account.rst:43
+#: ../../source/user/account.rst:47
 msgid ""
 "To edit your account after you have logged in, click on your account name"
 " in the header on the right hand side and click on Account Information."
 msgstr ""
 
-#: ../../source/user/account.rst:44
+#: ../../source/user/account.rst:48
 msgid ""
 "On the top right of your account page, click on the \"Edit Account\" "
 "button and from there you can select to edit either your Account "
 "Information or your Account Password."
 msgstr ""
 
-#: ../../source/user/account.rst:45
+#: ../../source/user/account.rst:49
 msgid "Select \"Save Changes\" when you are done."
 msgstr ""
 
-#: ../../source/user/account.rst:47
+#: ../../source/user/account.rst:51
 msgid ""
 "Please note that you cannot edit your account information within "
 "Dataverse if you use the Institutional Log In option. Instead, you should"
@@ -144,17 +140,17 @@ msgid ""
 "the email address is trusted."
 msgstr ""
 
-#: ../../source/user/account.rst:50
+#: ../../source/user/account.rst:54
 msgid "Convert Account"
 msgstr ""
 
-#: ../../source/user/account.rst:52
+#: ../../source/user/account.rst:56
 msgid ""
 "If more than one log in option is available, you can convert from one to "
 "another and use the new option from now on."
 msgstr ""
 
-#: ../../source/user/account.rst:54
+#: ../../source/user/account.rst:58
 msgid ""
 "If you are converting from the Email/Username log in option you will need"
 " to have your password ready to complete the conversion process. Click "
@@ -165,17 +161,17 @@ msgid ""
 "Institutional Log In, ORCID, GitHub, and Google."
 msgstr ""
 
-#: ../../source/user/account.rst:56
+#: ../../source/user/account.rst:60
 msgid ""
 "If you need to perform any other conversion (i.e. from Google to GitHub),"
 " use the Support link at the top of the page for assistance."
 msgstr ""
 
-#: ../../source/user/account.rst:59
+#: ../../source/user/account.rst:63
 msgid "Reset Account Password"
 msgstr ""
 
-#: ../../source/user/account.rst:61
+#: ../../source/user/account.rst:65
 msgid ""
 "Only Dataverse accounts using the Username/Email log in option have an "
 "associated password stored (securely!) in Dataverse. If you cannot "
@@ -186,17 +182,17 @@ msgid ""
 " password."
 msgstr ""
 
-#: ../../source/user/account.rst:63
+#: ../../source/user/account.rst:67
 msgid ""
 "Please note that if you have forgotten your username, you can use this "
 "same process to receive your username in an email."
 msgstr ""
 
-#: ../../source/user/account.rst:68
+#: ../../source/user/account.rst:72
 msgid "Remote Authentication"
 msgstr ""
 
-#: ../../source/user/account.rst:70
+#: ../../source/user/account.rst:74
 msgid ""
 "Too many passwords? You can set up your Dataverse account to use log in "
 "credentials from one of the following remote authentication providers. "
@@ -204,40 +200,40 @@ msgid ""
 "service."
 msgstr ""
 
-#: ../../source/user/account.rst:75
+#: ../../source/user/account.rst:79
 msgid ""
 "Institutional log in allows you to use your log in information for your "
 "university (e.g. HarvardKey at Harvard) to log in to your Dataverse "
 "account."
 msgstr ""
 
-#: ../../source/user/account.rst:78
+#: ../../source/user/account.rst:82
 msgid "Create a Dataverse account using Institutional Log In"
 msgstr ""
 
-#: ../../source/user/account.rst:80 ../../source/user/account.rst:95
-#: ../../source/user/account.rst:115
+#: ../../source/user/account.rst:84 ../../source/user/account.rst:99
+#: ../../source/user/account.rst:119
 msgid "Go to “Log In” in the upper right corner of Dataverse."
 msgstr ""
 
-#: ../../source/user/account.rst:81
+#: ../../source/user/account.rst:85
 msgid "Select the \"Your Institution\" button under the \"Other options\" header"
 msgstr ""
 
-#: ../../source/user/account.rst:82 ../../source/user/account.rst:97
+#: ../../source/user/account.rst:86 ../../source/user/account.rst:101
 msgid ""
 "Using the dropdown menu, select your institution then click the Continue "
 "button to go to your institution's log in page."
 msgstr ""
 
-#: ../../source/user/account.rst:83
+#: ../../source/user/account.rst:87
 msgid ""
 "After you put in your institutional credentials successfully, you will be"
 " brought back to Dataverse to confirm your account information, and click"
 " \"Create Account\"."
 msgstr ""
 
-#: ../../source/user/account.rst:84
+#: ../../source/user/account.rst:88
 msgid ""
 "A username has been selected for you. You won't use this username to log "
 "in but it will appear next to your name when other users search for you "
@@ -245,7 +241,7 @@ msgid ""
 "click on your name in the top right corner and click Account Information."
 msgstr ""
 
-#: ../../source/user/account.rst:86
+#: ../../source/user/account.rst:90
 msgid ""
 "If you do not find your institution listed, you will need to request that"
 " it is added to the Research & Scholarship category of InCommon. Contact "
@@ -253,11 +249,11 @@ msgid ""
 "identity provider support team at your institution."
 msgstr ""
 
-#: ../../source/user/account.rst:89
+#: ../../source/user/account.rst:93
 msgid "Convert your Dataverse account to use your Institutional Log In"
 msgstr ""
 
-#: ../../source/user/account.rst:91
+#: ../../source/user/account.rst:95
 msgid ""
 "If you already have a Dataverse account associated with the "
 "Username/Email log in option, but you want to convert it to use your "
@@ -265,44 +261,44 @@ msgid ""
 "an email address from that institution."
 msgstr ""
 
-#: ../../source/user/account.rst:93
+#: ../../source/user/account.rst:97
 msgid ""
 "Go to the Account Information page to confirm that your account email "
 "address is the same as your institutional email address. If not, you will"
 " need to update your Dataverse account to make them match."
 msgstr ""
 
-#: ../../source/user/account.rst:94 ../../source/user/account.rst:126
+#: ../../source/user/account.rst:98 ../../source/user/account.rst:130
 msgid "Log out of Dataverse."
 msgstr ""
 
-#: ../../source/user/account.rst:96
+#: ../../source/user/account.rst:100
 msgid "Select the \"Your Institution\" button under the \"Other options\" header."
 msgstr ""
 
-#: ../../source/user/account.rst:98
+#: ../../source/user/account.rst:102
 msgid ""
 "After you put in your institutional credentials successfully, you will be"
 " brought back to Dataverse to confirm your account information."
 msgstr ""
 
-#: ../../source/user/account.rst:99
+#: ../../source/user/account.rst:103
 msgid ""
 "Enter your current password for your Dataverse account and click "
 "\"Convert Account\"."
 msgstr ""
 
-#: ../../source/user/account.rst:100
+#: ../../source/user/account.rst:104
 msgid ""
 "Now you have finished converting your Dataverse account to use your "
 "institutional log in."
 msgstr ""
 
-#: ../../source/user/account.rst:103
+#: ../../source/user/account.rst:107
 msgid "Convert your Dataverse account away from your Institutional Log In"
 msgstr ""
 
-#: ../../source/user/account.rst:105
+#: ../../source/user/account.rst:109
 msgid ""
 "If you are leaving your institution and need to convert your Dataverse "
 "account to the Dataverse Username/Email log in option, you will need to "
@@ -311,11 +307,11 @@ msgid ""
 "support for assistance."
 msgstr ""
 
-#: ../../source/user/account.rst:108
+#: ../../source/user/account.rst:112
 msgid "ORCID Log In"
 msgstr ""
 
-#: ../../source/user/account.rst:110
+#: ../../source/user/account.rst:114
 msgid ""
 "You can set up your Dataverse account to allow you to log in using your "
 "ORCID credentials. ORCID® is an independent non-profit effort to provide "
@@ -324,26 +320,26 @@ msgid ""
 "more at `orcid.org <http://orcid.org>`_."
 msgstr ""
 
-#: ../../source/user/account.rst:113
+#: ../../source/user/account.rst:117
 msgid "Create a Dataverse account using ORCID"
 msgstr ""
 
-#: ../../source/user/account.rst:116 ../../source/user/account.rst:128
+#: ../../source/user/account.rst:120 ../../source/user/account.rst:132
 msgid "Click the \"ORCID\" button under the \"Other options\" header."
 msgstr ""
 
-#: ../../source/user/account.rst:117 ../../source/user/account.rst:129
+#: ../../source/user/account.rst:121 ../../source/user/account.rst:133
 msgid "Click the \"Log In with ORCID\" button to go to the ORCID website."
 msgstr ""
 
-#: ../../source/user/account.rst:118 ../../source/user/account.rst:130
+#: ../../source/user/account.rst:122 ../../source/user/account.rst:134
 msgid ""
 "If you do not already have an ORCID account, you can create one on this "
 "page. If you already have an ORCID account, click on \"Sign in\" and then"
 " enter your login under the \"Personal account\" tab."
 msgstr ""
 
-#: ../../source/user/account.rst:119
+#: ../../source/user/account.rst:123
 msgid ""
 "After you put in your ORCID credentials successfully, you will be brought"
 " back to Dataverse to confirm the creation of your Dataverse account. If "
@@ -355,44 +351,44 @@ msgid ""
 "\"Affiliation\" field."
 msgstr ""
 
-#: ../../source/user/account.rst:122
+#: ../../source/user/account.rst:126
 msgid "Convert your Dataverse account to use ORCID for log in"
 msgstr ""
 
-#: ../../source/user/account.rst:124
+#: ../../source/user/account.rst:128
 msgid ""
 "If you already have a Dataverse account associated with the "
 "Username/Email log in option, but you want to convert it to use ORCID for"
 " log in, follow these steps:"
 msgstr ""
 
-#: ../../source/user/account.rst:127
+#: ../../source/user/account.rst:131
 msgid "Go to \"Log In\" in the upper right corner of Dataverse."
 msgstr ""
 
-#: ../../source/user/account.rst:131
+#: ../../source/user/account.rst:135
 msgid ""
 "After you put in your ORCID credentials successfully, you will be brought"
 " back to Dataverse. Click the \"convert your account\" link."
 msgstr ""
 
-#: ../../source/user/account.rst:132
+#: ../../source/user/account.rst:136
 msgid ""
 "Enter your username and password for your Dataverse account and click "
 "\"Convert Account\"."
 msgstr ""
 
-#: ../../source/user/account.rst:133
+#: ../../source/user/account.rst:137
 msgid ""
 "Now you have finished converting your Dataverse account to use ORCID for "
 "log in."
 msgstr ""
 
-#: ../../source/user/account.rst:136
+#: ../../source/user/account.rst:140
 msgid "Convert your Dataverse account away from ORCID for log in"
 msgstr ""
 
-#: ../../source/user/account.rst:138
+#: ../../source/user/account.rst:142
 msgid ""
 "If you don't want to log in to Dataverse using ORCID any more, you will "
 "want to convert your Dataverse account to the Dataverse Username/Email "
@@ -401,11 +397,11 @@ msgid ""
 "link that will open a popup form to contact support for assistance."
 msgstr ""
 
-#: ../../source/user/account.rst:141
+#: ../../source/user/account.rst:145
 msgid "GitHub and Google Log In"
 msgstr ""
 
-#: ../../source/user/account.rst:143
+#: ../../source/user/account.rst:147
 msgid ""
 "You can also convert your Dataverse account to use authentication "
 "provided by GitHub or Google. These options may be found in the \"Other "
@@ -415,11 +411,11 @@ msgid ""
 "steps as listed above for converting away from the ORCID log in."
 msgstr ""
 
-#: ../../source/user/account.rst:146
+#: ../../source/user/account.rst:150
 msgid "My Data"
 msgstr ""
 
-#: ../../source/user/account.rst:148
+#: ../../source/user/account.rst:152
 msgid ""
 "The My Data section of your account page displays a listing of all the "
 "dataverses, datasets, and files you have either created, uploaded or that"
@@ -429,51 +425,51 @@ msgid ""
 "Publication Status or Role."
 msgstr ""
 
-#: ../../source/user/account.rst:151
+#: ../../source/user/account.rst:155
 msgid "Notifications"
 msgstr ""
 
-#: ../../source/user/account.rst:153
+#: ../../source/user/account.rst:157
 msgid ""
 "Notifications appear in the notifications tab on your account page and "
 "are also displayed as a number next to your account name."
 msgstr ""
 
-#: ../../source/user/account.rst:155
+#: ../../source/user/account.rst:159
 msgid "You will receive a notification when:"
 msgstr ""
 
-#: ../../source/user/account.rst:157
+#: ../../source/user/account.rst:161
 msgid "You've created your account"
 msgstr ""
 
-#: ../../source/user/account.rst:158
+#: ../../source/user/account.rst:162
 msgid "You've created a dataverse or added a dataset"
 msgstr ""
 
-#: ../../source/user/account.rst:159
+#: ../../source/user/account.rst:163
 msgid ""
 "Another Dataverse user has requested access to a restricted file in one "
 "of your datasets"
 msgstr ""
 
-#: ../../source/user/account.rst:161
+#: ../../source/user/account.rst:165
 msgid ""
 "Notifications will only be emailed one time even if you haven't read the "
 "notification on the Dataverse site."
 msgstr ""
 
-#: ../../source/user/account.rst:164
+#: ../../source/user/account.rst:168
 msgid "API Token"
 msgstr ""
 
-#: ../../source/user/account.rst:166
+#: ../../source/user/account.rst:170
 msgid ""
 "To create your API token, click on your name in the header on the right "
 "hand side and then click on API Token."
 msgstr ""
 
-#: ../../source/user/account.rst:167
+#: ../../source/user/account.rst:171
 msgid ""
 "In this tab, you can create your API Token for the first time as well as "
 "recreate it if you need a new API Token or if your API Token becomes "

@@ -1,41 +1,37 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/installation/oauth2.rst:2
+#: ../../source/installation/oauth2.rst:6
 msgid "OAuth Login: ORCID, GitHub, Google"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:5
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/installation/oauth2.rst:8
+#: ../../source/installation/oauth2.rst:12
 msgid "Introduction"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:10
+#: ../../source/installation/oauth2.rst:14
 msgid ""
 "As explained under \"Auth Modes\" in the :doc:`config` section, OAuth2 is"
 " one of the ways that you can have end users log in to Dataverse."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:12
+#: ../../source/installation/oauth2.rst:16
 msgid ""
 "`OAuth2 <https://oauth.net/2/>`_ is an authentication protocol that "
 "allows systems to share user data, while letting the users control what "
@@ -45,32 +41,32 @@ msgid ""
 "OAuth can be compared and contrasted with :doc:`shibboleth`."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:14
+#: ../../source/installation/oauth2.rst:18
 msgid ""
 "Dataverse supports three OAuth providers: `ORCID <http://orcid.org>`_, "
 "`GitHub <https://github.com>`_, and `Google "
 "<https://console.developers.google.com>`_."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:17
+#: ../../source/installation/oauth2.rst:21
 msgid "Setup"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:19
+#: ../../source/installation/oauth2.rst:23
 msgid ""
 "Setting up an OAuth identity provider to work with Dataverse requires "
 "setup in two places: the provider, and the Dataverse installation."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:22
+#: ../../source/installation/oauth2.rst:26
 msgid "Identity Provider Side"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:25
+#: ../../source/installation/oauth2.rst:29
 msgid "Obtain Client ID and Client Secret"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:27
+#: ../../source/installation/oauth2.rst:31
 msgid ""
 "Before OAuth providers will release information about their users (first "
 "name, last name, etc.) to your Dataverse installation, you must request a"
@@ -81,25 +77,25 @@ msgid ""
 " and it is not free to use the ORCID authentication service."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:29
+#: ../../source/installation/oauth2.rst:33
 msgid ""
 "Use the following links to help you request a Client ID and Client Secret"
 " from the providers supported by Dataverse:"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:31
+#: ../../source/installation/oauth2.rst:35
 msgid ""
 "ORCID: https://orcid.org/content/register-client-application-production-"
 "trusted-party"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:32
+#: ../../source/installation/oauth2.rst:36
 msgid ""
 "GitHub: https://github.com/settings/applications/new via "
 "https://developer.github.com/v3/oauth/"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:33
+#: ../../source/installation/oauth2.rst:37
 msgid ""
 "Google: "
 "https://console.developers.google.com/projectselector/apis/credentials "
@@ -107,7 +103,7 @@ msgid ""
 "(pick \"OAuth client ID\")"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:35
+#: ../../source/installation/oauth2.rst:39
 msgid ""
 "For all of these providers, it's a good idea to request the Client ID and"
 " Client secret using a generic account, perhaps the one that's associated"
@@ -115,17 +111,17 @@ msgid ""
 "your own personal ORCID, GitHub, or Google account."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:37
+#: ../../source/installation/oauth2.rst:41
 msgid "Each of these providers will require the following information from you:"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:39
+#: ../../source/installation/oauth2.rst:43
 msgid ""
 "Basic information about your Dataverse installation such as a name, "
 "description, URL, logo, privacy policy, etc."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:40
+#: ../../source/installation/oauth2.rst:44
 msgid ""
 "OAuth2 Redirect URI (ORCID) or Authorization Callback URL (GitHub) or "
 "Authorized Redirect URIs (Google): This is the URL on the Dataverse side "
@@ -137,24 +133,24 @@ msgid ""
 "``https://dataverse.example.edu/oauth2/callback.xhtml``."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:42
+#: ../../source/installation/oauth2.rst:46
 msgid ""
 "When you are finished you should have a Client ID and Client Secret from "
 "the provider. Keep them safe and secret."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:45
+#: ../../source/installation/oauth2.rst:49
 msgid "Dataverse Side"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:47
+#: ../../source/installation/oauth2.rst:51
 msgid ""
 "As explained under \"Auth Modes\" in the :doc:`config` section, available"
 " authentication providers are stored in the ``authenticationproviderrow``"
 " database table and can be listed with this command::"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:51
+#: ../../source/installation/oauth2.rst:55
 msgid ""
 "We will ``POST`` a JSON file containing the Client ID and Client Secret "
 "to this ``authenticationProviders`` API endpoint to add another "
@@ -162,54 +158,54 @@ msgid ""
 " JSON template file matching the provider you're setting up:"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:53
+#: ../../source/installation/oauth2.rst:57
 msgid ""
 ":download:`orcid.json <../_static/installation/files/root/auth-"
 "providers/orcid.json>`"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:54
+#: ../../source/installation/oauth2.rst:58
 msgid ""
 ":download:`github.json <../_static/installation/files/root/auth-"
 "providers/github.json>`"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:55
+#: ../../source/installation/oauth2.rst:59
 msgid ""
 ":download:`google.json <../_static/installation/files/root/auth-"
 "providers/google.json>`"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:57
+#: ../../source/installation/oauth2.rst:61
 msgid "Here's how the JSON template for GitHub looks, for example:"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:62
+#: ../../source/installation/oauth2.rst:66
 msgid ""
 "Edit the JSON template and replace the two \"FIXME\" values with the "
 "Client ID and Client Secret you obtained earlier. Then use curl to "
 "``POST`` the JSON to Dataverse::"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:66
+#: ../../source/installation/oauth2.rst:70
 msgid ""
 "After restarting Glassfish you should see the new provider under \"Other "
 "options\" on the Log In page, as described in the :doc:`/user/account` "
 "section of the User Guide."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:68
+#: ../../source/installation/oauth2.rst:72
 msgid ""
 "By default, the Log In page will show the \"builtin\" provider, but you "
 "can adjust this via the ``DefaultAuthProvider`` configuration option. For"
 " details, see :doc:`config`."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:71
+#: ../../source/installation/oauth2.rst:75
 msgid "ORCID Sandbox"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:73
+#: ../../source/installation/oauth2.rst:77
 msgid ""
 "ORCID provides a sandbox registry, which may be useful for staging, or "
 "for development installations. This template can be used for configuring "
@@ -217,24 +213,24 @@ msgid ""
 "environment**):"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:76
+#: ../../source/installation/oauth2.rst:80
 msgid ""
 ":download:`orcid-sandbox.json <../_static/installation/files/root/auth-"
 "providers/orcid-sandbox.json>`"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:78
+#: ../../source/installation/oauth2.rst:82
 msgid ""
 "Please note that the :doc:`prerequisites` section contains an step "
 "regarding CA certs in Glassfish that must be followed to get ORCID login "
 "to work."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:83
+#: ../../source/installation/oauth2.rst:87
 msgid "Converting Local Users to OAuth"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:85
+#: ../../source/installation/oauth2.rst:89
 msgid ""
 "Once you have enabled at least one OAuth provider, existing users might "
 "want to change their login method from local to OAuth to avoid having a "
@@ -244,43 +240,43 @@ msgid ""
 "existing local account after confirming their password."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:88
+#: ../../source/installation/oauth2.rst:92
 msgid "Converting OAuth Users to Local"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:90
+#: ../../source/installation/oauth2.rst:94
 msgid ""
 "Whereas users convert their own accounts from local to OAuth as described"
 " in :ref:`local_user_to_oauth`, conversion in the opposite direction is "
 "performed by a sysadmin. A common scenario may be as follows:"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:92
+#: ../../source/installation/oauth2.rst:96
 msgid ""
 "A user emails Support saying, \"Rather than logging in with Google, I "
 "want to log in with ORCID (or a local password). What should I do?\""
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:93
+#: ../../source/installation/oauth2.rst:97
 msgid ""
 "Support replies asking the user for a new email address to associate with"
 " their Dataverse account."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:94
+#: ../../source/installation/oauth2.rst:98
 msgid ""
 "The user replies with a new email address to associate with their "
 "Dataverse account."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:95
+#: ../../source/installation/oauth2.rst:99
 msgid ""
 "Support runs the :ref:`convertRemoteToBuiltIn_API`, supplying the "
 "database id of the user to convert and the new email address and notes "
 "the username returned."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:96
+#: ../../source/installation/oauth2.rst:100
 msgid ""
 "Support emails the user and indicates that they should use the password "
 "reset feature to set a new password and to make sure to take note of "
@@ -288,7 +284,7 @@ msgid ""
 "confirmation email) since the user never had a username before."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:97
+#: ../../source/installation/oauth2.rst:101
 msgid ""
 "The user resets password and is able to log in with their local account. "
 "All permissions have been preserved. The user can continue to log in with"
@@ -296,11 +292,11 @@ msgid ""
 "provider, if available."
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:102
+#: ../../source/installation/oauth2.rst:106
 msgid "``convertRemoteToBuiltIn`` API endpoint"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:103
+#: ../../source/installation/oauth2.rst:107
 msgid ""
 "In the following example, the user has indicated that the new email "
 "address they'd like to have associated with their account is "
@@ -309,11 +305,11 @@ msgid ""
 " to a superuser (probably the sysadmin executing the command)::"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:107
+#: ../../source/installation/oauth2.rst:111
 msgid "The expected output is something like this::"
 msgstr ""
 
-#: ../../source/installation/oauth2.rst:117
+#: ../../source/installation/oauth2.rst:121
 msgid ""
 "Rather than looking up the user's id in the ``authenticateduser`` "
 "database table, you can issue this command to get a listing of all "
