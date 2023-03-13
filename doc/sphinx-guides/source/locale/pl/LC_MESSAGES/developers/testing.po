@@ -1,27 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/developers/testing.rst:7
+#: ../../source/developers/testing.rst:3
 msgid "Testing"
 msgstr ""
 
-#: ../../source/developers/testing.rst:9
+#: ../../source/developers/testing.rst:5
 msgid ""
 "In order to keep our codebase healthy, the Dataverse project encourages "
 "developers to write automated tests in the form of unit tests and "
@@ -29,11 +29,15 @@ msgid ""
 " testing."
 msgstr ""
 
-#: ../../source/developers/testing.rst:15
+#: ../../source/developers/testing.rst:8
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/developers/testing.rst:11
 msgid "The Health of a Codebase"
 msgstr ""
 
-#: ../../source/developers/testing.rst:17
+#: ../../source/developers/testing.rst:13
 msgid ""
 "Before we dive into the nut and bolts of testing, let's back up for a "
 "moment and think about why we write automated tests in the first place. "
@@ -43,7 +47,7 @@ msgid ""
 "talking about the health of a codebase:"
 msgstr ""
 
-#: ../../source/developers/testing.rst:19
+#: ../../source/developers/testing.rst:15
 msgid ""
 "\"This is an economic judgment. Several times, many times, I run into "
 "teams that say something like, 'Oh well. Management isn't allowing us to "
@@ -54,7 +58,7 @@ msgid ""
 "you've lost. Because the whole point of refactoring is to go faster."
 msgstr ""
 
-#: ../../source/developers/testing.rst:21
+#: ../../source/developers/testing.rst:17
 msgid ""
 "\"And this is why I quite like playing a bit more with the metaphor as "
 "the health of a codebase. If you keep yourself healthy then you'll be "
@@ -69,17 +73,17 @@ msgid ""
 "fast.**\""
 msgstr ""
 
-#: ../../source/developers/testing.rst:28
+#: ../../source/developers/testing.rst:24
 msgid ""
 "Martin Fowler at https://devchat.tv/ruby-rogues/178-rr-book-club-"
 "refactoring-ruby-with-martin-fowler"
 msgstr ""
 
-#: ../../source/developers/testing.rst:26
+#: ../../source/developers/testing.rst:22
 msgid "Testing in Depth"
 msgstr ""
 
-#: ../../source/developers/testing.rst:28
+#: ../../source/developers/testing.rst:24
 msgid ""
 "`Security in depth "
 "<https://en.wikipedia.org/wiki/Defense_in_depth_(computing)>`_ might mean"
@@ -88,18 +92,18 @@ msgid ""
 "both unit tests and integration tests."
 msgstr ""
 
-#: ../../source/developers/testing.rst:30
+#: ../../source/developers/testing.rst:26
 msgid ""
 "When writing tests, you may find it helpful to first map out which "
 "functions of your code you want to test, and then write a functional unit"
 " test for each which can later comprise a larger integration test."
 msgstr ""
 
-#: ../../source/developers/testing.rst:33
+#: ../../source/developers/testing.rst:29
 msgid "Locale"
 msgstr ""
 
-#: ../../source/developers/testing.rst:34
+#: ../../source/developers/testing.rst:30
 msgid ""
 "Do you use a locale different than ``en_US.UTF-8`` on your development "
 "machine? Are you in a different timezone than Harvard (Eastern Time)? You"
@@ -110,17 +114,17 @@ msgid ""
 "shadows."
 msgstr ""
 
-#: ../../source/developers/testing.rst:40
+#: ../../source/developers/testing.rst:36
 msgid "Unit Tests"
 msgstr ""
 
-#: ../../source/developers/testing.rst:42
+#: ../../source/developers/testing.rst:38
 msgid ""
 "Creating unit tests for your code is a helpful way to test what you've "
 "built piece by piece."
 msgstr ""
 
-#: ../../source/developers/testing.rst:44
+#: ../../source/developers/testing.rst:40
 msgid ""
 "Unit tests can be executed without runtime dependencies on PostgreSQL, "
 "Solr, or any other external system. They are the lowest level of testing "
@@ -128,7 +132,7 @@ msgid ""
 "process and via continous integration services in the cloud."
 msgstr ""
 
-#: ../../source/developers/testing.rst:46
+#: ../../source/developers/testing.rst:42
 msgid ""
 "A unit test should execute an operation of your code in a controlled "
 "fashion. You must make an assertion of what the expected response gives "
@@ -138,18 +142,18 @@ msgid ""
 "errors/exceptions and confirm with your test(s) that it does so properly."
 msgstr ""
 
-#: ../../source/developers/testing.rst:49
+#: ../../source/developers/testing.rst:45
 msgid "Unit Test Automation Overview"
 msgstr ""
 
-#: ../../source/developers/testing.rst:51
+#: ../../source/developers/testing.rst:47
 msgid ""
 "We use a variety of tools to write, execute, and measure the code "
 "coverage of unit tests, including Maven, JUnit, Jacoco, GitHub, Travis, "
 "and Coveralls."
 msgstr ""
 
-#: ../../source/developers/testing.rst:53
+#: ../../source/developers/testing.rst:49
 msgid ""
 "As you prepare to make a pull request, as described in the :doc:`version-"
 "control` section, you will be working on a new branch you create from the"
@@ -164,14 +168,14 @@ msgid ""
 "which is a web service that tracks changes to code coverage over time."
 msgstr ""
 
-#: ../../source/developers/testing.rst:55
+#: ../../source/developers/testing.rst:51
 msgid ""
 "To make this more concrete, observe "
 "https://coveralls.io/github/CeON/dataverse you can see the coverage "
 "changes as new pull request is merged."
 msgstr ""
 
-#: ../../source/developers/testing.rst:57
+#: ../../source/developers/testing.rst:53
 msgid ""
 "The main takeaway should be that we care about unit testing enough to "
 "measure the changes to code coverage over time using automation. Now "
@@ -179,17 +183,17 @@ msgid ""
 "unit tests with JUnit."
 msgstr ""
 
-#: ../../source/developers/testing.rst:60
+#: ../../source/developers/testing.rst:56
 msgid "Writing Unit Tests with JUnit"
 msgstr ""
 
-#: ../../source/developers/testing.rst:62
+#: ../../source/developers/testing.rst:58
 msgid ""
 "We are aware that there are newer testing tools such as TestNG, but we "
 "use `JUnit <http://junit.org>`_ because it's tried and true."
 msgstr ""
 
-#: ../../source/developers/testing.rst:64
+#: ../../source/developers/testing.rst:60
 msgid ""
 "If writing tests is new to you, poke around existing unit tests which all"
 " end in ``Test.java`` and live under ``src/test``. Each test is annotated"
@@ -202,23 +206,23 @@ msgid ""
 " to the tests."
 msgstr ""
 
-#: ../../source/developers/testing.rst:66
+#: ../../source/developers/testing.rst:62
 msgid ""
 "We are also using BDD which you can read more about for example here - "
 "https://en.wikipedia.org/wiki/Behavior-driven_development"
 msgstr ""
 
-#: ../../source/developers/testing.rst:68
+#: ../../source/developers/testing.rst:64
 msgid ""
 "NOTE: Please remember when writing tests checking possibly localized "
 "outputs to check against ``en_US.UTF-8`` and ``UTC`` l10n strings!"
 msgstr ""
 
-#: ../../source/developers/testing.rst:72
+#: ../../source/developers/testing.rst:68
 msgid "Parameterized Tests and JUnit Theories"
 msgstr ""
 
-#: ../../source/developers/testing.rst:73
+#: ../../source/developers/testing.rst:69
 msgid ""
 "Often times you will want to test a method multiple times with similar "
 "values. In order to avoid test bloat (writing a test for every data "
@@ -228,11 +232,11 @@ msgid ""
 "issue https://github.com/IQSS/dataverse/issues/5619 ."
 msgstr ""
 
-#: ../../source/developers/testing.rst:76
+#: ../../source/developers/testing.rst:72
 msgid "Observing Changes to Code Coverage"
 msgstr ""
 
-#: ../../source/developers/testing.rst:78
+#: ../../source/developers/testing.rst:74
 msgid ""
 "Once you've written some tests, you're probably wondering how much you've"
 " helped to increase the code coverage. In Netbeans, do a \"clean and "
@@ -244,47 +248,47 @@ msgid ""
 "indicates that it is not."
 msgstr ""
 
-#: ../../source/developers/testing.rst:80
+#: ../../source/developers/testing.rst:76
 msgid ""
 "In addition to seeing code coverage in Netbeans, you can also see code "
 "coverage reports by opening ``target/site/jacoco/index.html`` in your "
 "browser."
 msgstr ""
 
-#: ../../source/developers/testing.rst:83
+#: ../../source/developers/testing.rst:79
 msgid "Testing Commands"
 msgstr ""
 
-#: ../../source/developers/testing.rst:85
+#: ../../source/developers/testing.rst:81
 msgid ""
 "You might find studying the following test classes helpful in writing "
 "tests for commands:"
 msgstr ""
 
-#: ../../source/developers/testing.rst:87
+#: ../../source/developers/testing.rst:83
 msgid "CreatePrivateUrlCommandTest.java"
 msgstr ""
 
-#: ../../source/developers/testing.rst:88
+#: ../../source/developers/testing.rst:84
 msgid "DeletePrivateUrlCommandTest.java"
 msgstr ""
 
-#: ../../source/developers/testing.rst:89
+#: ../../source/developers/testing.rst:85
 msgid "GetPrivateUrlCommandTest.java"
 msgstr ""
 
-#: ../../source/developers/testing.rst:91
+#: ../../source/developers/testing.rst:87
 msgid ""
 "In addition, there is a writeup on \"The Testable Command\" at "
 "https://github.com/IQSS/dataverse/blob/develop/doc/theTestableCommand/TheTestableCommand.md"
 " ."
 msgstr ""
 
-#: ../../source/developers/testing.rst:94
+#: ../../source/developers/testing.rst:90
 msgid "Running Non-Essential (Excluded) Unit Tests"
 msgstr ""
 
-#: ../../source/developers/testing.rst:96
+#: ../../source/developers/testing.rst:92
 msgid ""
 "You should be aware that some unit tests have been deemed \"non-"
 "essential\" and have been annotated with "
@@ -295,11 +299,11 @@ msgid ""
 "the following ``mvn`` command that invokes a non-default profile:"
 msgstr ""
 
-#: ../../source/developers/testing.rst:98
+#: ../../source/developers/testing.rst:94
 msgid "``mvn test -P all-unit-tests``"
 msgstr ""
 
-#: ../../source/developers/testing.rst:100
+#: ../../source/developers/testing.rst:96
 msgid ""
 "Generally speaking, unit tests have been flagged as non-essential because"
 " they are slow or because they require an Internet connection. You should"
@@ -309,55 +313,55 @@ msgid ""
 "the annotation flagging the test as non-essential."
 msgstr ""
 
-#: ../../source/developers/testing.rst:103
+#: ../../source/developers/testing.rst:99
 msgid "Integration Tests"
 msgstr ""
 
-#: ../../source/developers/testing.rst:105
+#: ../../source/developers/testing.rst:101
 msgid ""
 "For integration testing we are using Arquillian, the example test you can"
 " look at is called ``ArquillianExampleTest``."
 msgstr ""
 
-#: ../../source/developers/testing.rst:108
+#: ../../source/developers/testing.rst:104
 msgid "Database"
 msgstr ""
 
-#: ../../source/developers/testing.rst:110
+#: ../../source/developers/testing.rst:106
 msgid ""
 "In order to configure the database for tests you need to create user and "
 "database that matches the info from ``glassfish.properties`` file."
 msgstr ""
 
-#: ../../source/developers/testing.rst:112
+#: ../../source/developers/testing.rst:108
 msgid ""
 "If you want to edit information contained in the file you need to move it"
 " to ~/.dataverse and then you can configure desired values."
 msgstr ""
 
-#: ../../source/developers/testing.rst:115
+#: ../../source/developers/testing.rst:111
 msgid "Docker"
 msgstr ""
 
-#: ../../source/developers/testing.rst:117
+#: ../../source/developers/testing.rst:113
 msgid ""
 "We are also using \"Test containers\" so there is no need for Solr manual"
 " setup in tests."
 msgstr ""
 
-#: ../../source/developers/testing.rst:119
+#: ../../source/developers/testing.rst:115
 msgid ""
 "In order to make it run you need to have docker installed. Then user must"
 " be added to docker group which can be done with following command::"
 msgstr ""
 
-#: ../../source/developers/testing.rst:123
+#: ../../source/developers/testing.rst:119
 msgid ""
 "First test run downloads docker images so it can take some time for test "
 "to be completed."
 msgstr ""
 
-#: ../../source/developers/testing.rst:127
+#: ../../source/developers/testing.rst:123
 msgid "Previous: :doc:`sql-upgrade-scripts` | Next: :doc:`documentation`"
 msgstr ""
 

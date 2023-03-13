@@ -1,27 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/user/data-exploration/tworavens.rst:8
+#: ../../source/user/data-exploration/tworavens.rst:4
 msgid "TwoRavens: Tabular Data Exploration"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:10
+#: ../../source/user/data-exploration/tworavens.rst:6
 msgid ""
 "**Please note:** This document is a bit old and may need an update. The "
 "TwoRavens project has a more recently published user guide on their site:"
@@ -29,31 +29,35 @@ msgid ""
 "/tworavens-guide.pdf>`_."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:18
+#: ../../source/user/data-exploration/tworavens.rst:11
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/user/data-exploration/tworavens.rst:14
 msgid "Exploring and Analyzing Tabular files in Dataverse"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:20
+#: ../../source/user/data-exploration/tworavens.rst:16
 msgid ""
 "On the files tab, click on the “Explore” button to initiate TwoRavens "
 "Data Exploration and Analysis Tool."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:23
+#: ../../source/user/data-exploration/tworavens.rst:19
 msgid "Selection/Left Panel"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:25
+#: ../../source/user/data-exploration/tworavens.rst:21
 msgid ""
 "The left panel contains two sets of buttons: (1) Original Data and Subset"
 " Data; and (2) Variables, Models, and Summary."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:28
+#: ../../source/user/data-exploration/tworavens.rst:24
 msgid "Original Data and Subset Data"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:30
+#: ../../source/user/data-exploration/tworavens.rst:26
 msgid ""
 "When TwoRavens is initiated, you begin with the original dataset, and "
 "thus the Original Data button is selected.  You will not be able to "
@@ -64,11 +68,11 @@ msgid ""
 "that only one subset is supported at a time."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:33
+#: ../../source/user/data-exploration/tworavens.rst:29
 msgid "Variables, Models, and Summary"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:35
+#: ../../source/user/data-exploration/tworavens.rst:31
 msgid ""
 "Each of these tabs displays something different in the left panel when "
 "selected.  The Variables tab shows a list of all the variables.  When a "
@@ -78,7 +82,7 @@ msgid ""
 "clicking on their name in the Variables tab."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:37
+#: ../../source/user/data-exploration/tworavens.rst:33
 msgid ""
 "The Models tab displays a list of Zelig models that are supported by "
 "TwoRavens. A brief model description is visible when hovering on the "
@@ -87,7 +91,7 @@ msgid ""
 "or may not be appropriate."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:39
+#: ../../source/user/data-exploration/tworavens.rst:35
 msgid ""
 "Note that to estimate a model, you must select one from the list. "
 "Currently, please use only Ordinary Least Squares (ls) as we are working "
@@ -95,7 +99,7 @@ msgid ""
 "the ones the other ones for the time being)"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:42
+#: ../../source/user/data-exploration/tworavens.rst:38
 msgid ""
 "The Summary tab shows summary statistics when a pebble is hovered over. "
 "If one removes the pointer from hovering over a pebble, the previous tab "
@@ -106,11 +110,11 @@ msgid ""
 " will return to Variables or Models."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:45
+#: ../../source/user/data-exploration/tworavens.rst:41
 msgid "Modeling/Center Panel"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:47
+#: ../../source/user/data-exploration/tworavens.rst:43
 msgid ""
 "The center panel displays a graphical representation of variable "
 "relations and denotes variables that have been tagged with certain "
@@ -124,7 +128,7 @@ msgid ""
 " must be selected."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:49
+#: ../../source/user/data-exploration/tworavens.rst:45
 msgid ""
 "Variable relations are specified by point-click-drag from one pebble to "
 "the other.  When a path between pebbles has been specified, it is "
@@ -132,11 +136,11 @@ msgid ""
 " the delete key on your keyboard."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:52
+#: ../../source/user/data-exploration/tworavens.rst:48
 msgid "Results/Right Panel"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:54
+#: ../../source/user/data-exploration/tworavens.rst:50
 msgid ""
 "This section allows you to specify a subset of the data that you wish to "
 "estimate the model on, or that you wish to select and see updated summary"
@@ -144,11 +148,11 @@ msgid ""
 "simulations (this is Zelig’s setx function)."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:57
+#: ../../source/user/data-exploration/tworavens.rst:53
 msgid "Subset"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:59
+#: ../../source/user/data-exploration/tworavens.rst:55
 msgid ""
 "To subset the data, click on the subset button and highlight (or brush) "
 "the portion of the distribution that you wish to use. You may remove the "
@@ -163,7 +167,7 @@ msgid ""
 "displayed below."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:61
+#: ../../source/user/data-exploration/tworavens.rst:57
 msgid ""
 "With a region selected, you have two options. First, you may click the "
 "Estimate button to estimate a model on using only the specified subset. "
@@ -176,11 +180,11 @@ msgid ""
 "left panel."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:64
+#: ../../source/user/data-exploration/tworavens.rst:60
 msgid "Set Covariates"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:66
+#: ../../source/user/data-exploration/tworavens.rst:62
 msgid ""
 "The Set Covariates button plots the distributions of each of the pebbles "
 "with an additional axis that contains two sliders, each of which default "
@@ -190,7 +194,7 @@ msgid ""
 " appear below each plot."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:68
+#: ../../source/user/data-exploration/tworavens.rst:64
 msgid ""
 "After clicking the Estimate button, the model will be estimated and, upon"
 " completion, results appear in the Results tab. The results include "
@@ -198,15 +202,15 @@ msgid ""
 "estimated, the R code used to estimate the model, and a results table)."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:71
+#: ../../source/user/data-exploration/tworavens.rst:67
 msgid "Additional Buttons"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:74
+#: ../../source/user/data-exploration/tworavens.rst:70
 msgid "Estimate"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:76
+#: ../../source/user/data-exploration/tworavens.rst:72
 msgid ""
 "This executes the specified statistical model. Notice the presence of "
 "blue highlight on the “Estimate” button while process is running, turning"
@@ -214,11 +218,11 @@ msgid ""
 "selecting a dependent variable and a model."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:79
+#: ../../source/user/data-exploration/tworavens.rst:75
 msgid "Force"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:81
+#: ../../source/user/data-exploration/tworavens.rst:77
 msgid ""
 "The Force button allows you to control the way layout of the pebbles. To "
 "use this feature, first make sure none of the pebbles are highlighted.  "
@@ -229,11 +233,11 @@ msgid ""
 "pebble and drag it around on your screen."
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:84
+#: ../../source/user/data-exploration/tworavens.rst:80
 msgid "Reset"
 msgstr ""
 
-#: ../../source/user/data-exploration/tworavens.rst:86
+#: ../../source/user/data-exploration/tworavens.rst:82
 msgid ""
 "This is your start over button. Clicking this is equivalent to reloading "
 "the Web page or re-initiating TwoRavens."

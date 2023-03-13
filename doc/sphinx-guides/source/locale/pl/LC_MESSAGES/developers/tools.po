@@ -1,31 +1,35 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/developers/tools.rst:7
+#: ../../source/developers/tools.rst:3
 msgid "Tools"
 msgstr ""
 
-#: ../../source/developers/tools.rst:13
+#: ../../source/developers/tools.rst:6
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/developers/tools.rst:9
 msgid "Netbeans Connector Chrome Extension"
 msgstr ""
 
-#: ../../source/developers/tools.rst:15
+#: ../../source/developers/tools.rst:11
 msgid ""
 "The `Netbeans Connector <https://chrome.google.com/webstore/detail"
 "/netbeans-connector/hafdlehgocfcodbgjnpecfajgkeejnaa?hl=en>`_ extension "
@@ -34,44 +38,44 @@ msgid ""
 "http://wiki.netbeans.org/ChromeExtensionInstallation"
 msgstr ""
 
-#: ../../source/developers/tools.rst:19
+#: ../../source/developers/tools.rst:15
 msgid "pgAdmin"
 msgstr ""
 
-#: ../../source/developers/tools.rst:21
+#: ../../source/developers/tools.rst:17
 msgid ""
 "pgAdmin is a graphical tool to manage your database. You can download it "
 "from https://www.pgadmin.org"
 msgstr ""
 
-#: ../../source/developers/tools.rst:24
+#: ../../source/developers/tools.rst:20
 msgid "Maven"
 msgstr ""
 
-#: ../../source/developers/tools.rst:26
+#: ../../source/developers/tools.rst:22
 msgid ""
 "With Maven installed you can run ``mvn package`` and ``mvn test`` from "
 "the command line. It can be downloaded from https://maven.apache.org"
 msgstr ""
 
-#: ../../source/developers/tools.rst:29
+#: ../../source/developers/tools.rst:25
 msgid "Vagrant"
 msgstr ""
 
-#: ../../source/developers/tools.rst:31
+#: ../../source/developers/tools.rst:27
 msgid ""
 "Vagrant allows you to spin up a virtual machine running Dataverse on your"
 " development workstation. You'll need to install Vagrant from "
 "https://www.vagrantup.com and VirtualBox from https://www.virtualbox.org."
 msgstr ""
 
-#: ../../source/developers/tools.rst:33
+#: ../../source/developers/tools.rst:29
 msgid ""
 "We assume you have already cloned the repo from "
 "https://github.com/CeON/dataverse."
 msgstr ""
 
-#: ../../source/developers/tools.rst:35
+#: ../../source/developers/tools.rst:31
 msgid ""
 "From the root of the git repo (where the ``Vagrantfile`` is), run "
 "``vagrant up`` and eventually you should be able to reach an installation"
@@ -79,7 +83,7 @@ msgid ""
 "in the ``Vagrantfile``)."
 msgstr ""
 
-#: ../../source/developers/tools.rst:37
+#: ../../source/developers/tools.rst:33
 msgid ""
 "Please note that running ``vagrant up`` for the first time should run the"
 " ``downloads/download.sh`` script for you to download required software "
@@ -88,17 +92,17 @@ msgid ""
 "but later fails."
 msgstr ""
 
-#: ../../source/developers/tools.rst:39
+#: ../../source/developers/tools.rst:35
 msgid ""
 "On Windows if you see an error like ``/usr/bin/perl^M: bad interpreter`` "
 "you might need to run ``dos2unix`` on the installation scripts."
 msgstr ""
 
-#: ../../source/developers/tools.rst:42
+#: ../../source/developers/tools.rst:38
 msgid "PlantUML"
 msgstr ""
 
-#: ../../source/developers/tools.rst:44
+#: ../../source/developers/tools.rst:40
 msgid ""
 "PlantUML is used to create diagrams in the guides and other places. "
 "Download it from http://plantuml.com and check out an example script at "
@@ -107,22 +111,22 @@ msgid ""
 "which can be installed on Mac with ``brew install graphviz``."
 msgstr ""
 
-#: ../../source/developers/tools.rst:47
+#: ../../source/developers/tools.rst:43
 msgid "Eclipse Memory Analyzer Tool (MAT)"
 msgstr ""
 
-#: ../../source/developers/tools.rst:49
+#: ../../source/developers/tools.rst:45
 msgid ""
 "The Memory Analyzer Tool (MAT) from Eclipse can help you analyze heap "
 "dumps, showing you \"leak suspects\" such as seen at "
 "https://github.com/payara/Payara/issues/350#issuecomment-115262625"
 msgstr ""
 
-#: ../../source/developers/tools.rst:51
+#: ../../source/developers/tools.rst:47
 msgid "It can be downloaded from http://www.eclipse.org/mat"
 msgstr ""
 
-#: ../../source/developers/tools.rst:53
+#: ../../source/developers/tools.rst:49
 msgid ""
 "If the heap dump provided to you was created with ``gcore`` (such as with"
 " ``gcore -o /tmp/gf.core $glassfish_pid``) rather than ``jmap``, you will"
@@ -132,13 +136,13 @@ msgid ""
 "that this operation took almost 90 minutes:"
 msgstr ""
 
-#: ../../source/developers/tools.rst:55
+#: ../../source/developers/tools.rst:51
 msgid ""
 "``/usr/java7/bin/jmap -dump:format=b,file=gf.core.13849.hprof "
 "/usr/java7/bin/java gf.core.13849``"
 msgstr ""
 
-#: ../../source/developers/tools.rst:57
+#: ../../source/developers/tools.rst:53
 msgid ""
 "A file of this size may not \"just work\" in MAT. When you attempt to "
 "open it you may see something like \"An internal error occurred during: "
@@ -151,29 +155,29 @@ msgid ""
 "http://wiki.eclipse.org/index.php/MemoryAnalyzer/FAQ#Out_of_Memory_Error_while_Running_the_Memory_Analyzer"
 msgstr ""
 
-#: ../../source/developers/tools.rst:60
+#: ../../source/developers/tools.rst:56
 msgid "PageKite"
 msgstr ""
 
-#: ../../source/developers/tools.rst:62
+#: ../../source/developers/tools.rst:58
 msgid ""
 "PageKite is a fantastic service that can be used to share your local "
 "development environment over the Internet on a public IP address."
 msgstr ""
 
-#: ../../source/developers/tools.rst:65
+#: ../../source/developers/tools.rst:61
 msgid ""
 "With PageKite running on your laptop, the world can access a URL such as "
 "http://pdurbin.pagekite.me to see what you see at http://localhost:8080"
 msgstr ""
 
-#: ../../source/developers/tools.rst:68
+#: ../../source/developers/tools.rst:64
 msgid ""
 "Sign up at https://pagekite.net and follow the installation instructions "
 "or simply download https://pagekite.net/pk/pagekite.py"
 msgstr ""
 
-#: ../../source/developers/tools.rst:70
+#: ../../source/developers/tools.rst:66
 msgid ""
 "The first time you run ``./pagekite.py`` a file at ``~/.pagekite.rc`` "
 "will be created. You can edit this file to configure PageKite to serve up"
@@ -181,18 +185,18 @@ msgid ""
 "choosing."
 msgstr ""
 
-#: ../../source/developers/tools.rst:74
+#: ../../source/developers/tools.rst:70
 msgid ""
 "According to https://pagekite.net/support/free-for-foss/ PageKite (very "
 "generously!) offers free accounts to developers writing software the "
 "meets http://opensource.org/docs/definition.php such as Dataverse."
 msgstr ""
 
-#: ../../source/developers/tools.rst:77
+#: ../../source/developers/tools.rst:73
 msgid "MSV"
 msgstr ""
 
-#: ../../source/developers/tools.rst:79
+#: ../../source/developers/tools.rst:75
 msgid ""
 "`MSV (Multi Schema Validator) <http://msv.java.net>`_ can be used from "
 "the command line to validate an XML document against a schema. Download "
@@ -200,11 +204,11 @@ msgid ""
 "(msv.20090415.zip as of this writing), extract it, and run it like this:"
 msgstr ""
 
-#: ../../source/developers/tools.rst:89
+#: ../../source/developers/tools.rst:85
 msgid "FontCustom"
 msgstr ""
 
-#: ../../source/developers/tools.rst:91
+#: ../../source/developers/tools.rst:87
 msgid ""
 "The custom file type icons were created with the help of `FontCustom "
 "<https://github.com/FontCustom/fontcustom>`. Their README provides "
@@ -212,17 +216,17 @@ msgid ""
 "vector-based icon font."
 msgstr ""
 
-#: ../../source/developers/tools.rst:93
+#: ../../source/developers/tools.rst:89
 msgid ""
 "Here is a vector-based SVG file to start with as a template: :download"
 ":`icon-template.svg <../_static/icon-template.svg>`"
 msgstr ""
 
-#: ../../source/developers/tools.rst:96
+#: ../../source/developers/tools.rst:92
 msgid "SonarQube"
 msgstr ""
 
-#: ../../source/developers/tools.rst:98
+#: ../../source/developers/tools.rst:94
 msgid ""
 "SonarQube is a static analysis tool that can be used to identify possible"
 " problems in the codebase, or with new code. It may report false "
@@ -231,7 +235,7 @@ msgid ""
 "problems reported in production."
 msgstr ""
 
-#: ../../source/developers/tools.rst:100
+#: ../../source/developers/tools.rst:96
 msgid ""
 "Download SonarQube from https://www.sonarqube.org and start look in the "
 "`bin` directory for a `sonar.sh` script for your architecture. Once the "
@@ -239,7 +243,7 @@ msgid ""
 "this example script to run sonar:"
 msgstr ""
 
-#: ../../source/developers/tools.rst:114
+#: ../../source/developers/tools.rst:110
 msgid ""
 "Once the analysis is complete, you should be able to access "
 "http://localhost:9000/dashboard?id=edu.harvard.iq%3Adataverse to see the "
@@ -248,29 +252,29 @@ msgid ""
 "closed\"."
 msgstr ""
 
-#: ../../source/developers/tools.rst:117
+#: ../../source/developers/tools.rst:113
 msgid "Infer"
 msgstr ""
 
-#: ../../source/developers/tools.rst:119
+#: ../../source/developers/tools.rst:115
 msgid ""
 "Infer is another static analysis tool that can be downloaded from "
 "https://github.com/facebook/infer"
 msgstr ""
 
-#: ../../source/developers/tools.rst:121
+#: ../../source/developers/tools.rst:117
 msgid "Example command to run infer:"
 msgstr ""
 
-#: ../../source/developers/tools.rst:127
+#: ../../source/developers/tools.rst:123
 msgid "Look for \"RESOURCE_LEAK\", for example."
 msgstr ""
 
-#: ../../source/developers/tools.rst:130
+#: ../../source/developers/tools.rst:126
 msgid "lsof"
 msgstr ""
 
-#: ../../source/developers/tools.rst:132
+#: ../../source/developers/tools.rst:128
 msgid ""
 "If file descriptors are not closed, eventually the open but unused "
 "resources can cause problems with system (glassfish in particular) "
@@ -280,15 +284,15 @@ msgid ""
 " after a request has finished processing."
 msgstr ""
 
-#: ../../source/developers/tools.rst:136
+#: ../../source/developers/tools.rst:132
 msgid "For example..."
 msgstr ""
 
-#: ../../source/developers/tools.rst:146
+#: ../../source/developers/tools.rst:142
 msgid "would be consistent with a file descriptor leak on the dataset page."
 msgstr ""
 
-#: ../../source/developers/tools.rst:150
+#: ../../source/developers/tools.rst:146
 msgid "Previous: :doc:`making-releases` | Next: :doc:`unf/index`"
 msgstr ""
 
