@@ -1,93 +1,89 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/ror.rst:2
+#: ../../source/admin/ror.rst:6
 msgid "ROR"
 msgstr ""
 
-#: ../../source/admin/ror.rst:5
-msgid "Contents:"
-msgstr ""
-
-#: ../../source/admin/ror.rst:8
+#: ../../source/admin/ror.rst:12
 msgid "About ROR"
 msgstr ""
 
-#: ../../source/admin/ror.rst:10
+#: ../../source/admin/ror.rst:14
 msgid ""
 "ROR (Research Organization Registry) is a registry of identifiers for "
 "research organizations. ROR identifiers help with matching affiliation "
 "data with institutions."
 msgstr ""
 
-#: ../../source/admin/ror.rst:13
+#: ../../source/admin/ror.rst:17
 msgid "For more informations visit `official ROR homepage <https://ror.org/>`_"
 msgstr ""
 
-#: ../../source/admin/ror.rst:17
+#: ../../source/admin/ror.rst:21
 msgid "ROR in Dataverse"
 msgstr ""
 
-#: ../../source/admin/ror.rst:19
+#: ../../source/admin/ror.rst:23
 msgid ""
 "Dataverse uses ROR identifiers to enrich DataCite metadata format. In "
 "dataset metadata fields configuration there is an option for suggesting "
 "ROR identifiers based on organization name (turned on by default)."
 msgstr ""
 
-#: ../../source/admin/ror.rst:24
+#: ../../source/admin/ror.rst:28
 msgid "Uploading ROR data"
 msgstr ""
 
-#: ../../source/admin/ror.rst:26
+#: ../../source/admin/ror.rst:30
 msgid ""
 "To fully profit from ROR integration in Dataverse you will need to feed "
 "your Dataverse installation with ROR data. You can either use full ROR "
 "data dump with all available ROR identifiers or a subset of it."
 msgstr ""
 
-#: ../../source/admin/ror.rst:30
+#: ../../source/admin/ror.rst:34
 msgid "Full dump"
 msgstr ""
 
-#: ../../source/admin/ror.rst:32
+#: ../../source/admin/ror.rst:36
 msgid ""
 "First you will need to obtain ROR dump by following instructions "
 "presented in `ROR data dump documentation <https://ror.readme.io/docs"
 "/data-dump>`_."
 msgstr ""
 
-#: ../../source/admin/ror.rst:34
+#: ../../source/admin/ror.rst:38
 msgid ""
 "The next step is to upload obtained ROR dump into your Dataverse "
 "installation. It can be done using the following REST api endpoint::"
 msgstr ""
 
-#: ../../source/admin/ror.rst:39
+#: ../../source/admin/ror.rst:43
 msgid "Note that you will need superuser permissions to upload ROR data."
 msgstr ""
 
-#: ../../source/admin/ror.rst:42
+#: ../../source/admin/ror.rst:46
 msgid "Partial dump"
 msgstr ""
 
-#: ../../source/admin/ror.rst:44
+#: ../../source/admin/ror.rst:48
 msgid ""
 "It is possible to use the same REST api enpoint as in full dump case to "
 "upload only selected ROR identifiers. In such cases you will need to "
@@ -95,22 +91,22 @@ msgid ""
 "achieved."
 msgstr ""
 
-#: ../../source/admin/ror.rst:47
+#: ../../source/admin/ror.rst:51
 msgid "Dump can be prepared using ROR api:"
 msgstr ""
 
-#: ../../source/admin/ror.rst:51
+#: ../../source/admin/ror.rst:55
 msgid ""
 "In example we include ROR identifiers for institutions from `Great "
 "Britain` with type `Education`. You can modify ``ROR_FILTER`` variable in"
 " the script to obtain the data you want."
 msgstr ""
 
-#: ../../source/admin/ror.rst:54
+#: ../../source/admin/ror.rst:58
 msgid "Next you need to execute the same api endpoint as in full dump::"
 msgstr ""
 
-#: ../../source/admin/ror.rst:58
+#: ../../source/admin/ror.rst:62
 msgid ""
 "Note that endpoint can work with zipped dump and single file json. So you"
 " don't need to prepare zip yourself"

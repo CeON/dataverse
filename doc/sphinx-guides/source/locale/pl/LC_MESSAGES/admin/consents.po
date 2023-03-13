@@ -1,74 +1,70 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/consents.rst:2
+#: ../../source/admin/consents.rst:6
 msgid "Consents"
 msgstr ""
 
-#: ../../source/admin/consents.rst:3
+#: ../../source/admin/consents.rst:7
 msgid ""
 "Consents are used for user registration where you can define what user "
 "has to (or can) accept in order to successfully register account."
 msgstr ""
 
-#: ../../source/admin/consents.rst:5
+#: ../../source/admin/consents.rst:9
 msgid ""
 "Dataverse offers a possibility of adding/editing consents that are for "
 "superusers only. If you are a logged-in superuser, you can access it by "
 "REST api."
 msgstr ""
 
-#: ../../source/admin/consents.rst:9
-msgid "Contents:"
-msgstr ""
-
-#: ../../source/admin/consents.rst:12
+#: ../../source/admin/consents.rst:16
 msgid "Listing consents"
 msgstr ""
 
-#: ../../source/admin/consents.rst:13
+#: ../../source/admin/consents.rst:17
 msgid "If you already have added consents you can list all of them by using::"
 msgstr ""
 
-#: ../../source/admin/consents.rst:17
+#: ../../source/admin/consents.rst:21
 msgid ""
 "If you just want to see single consent you need to know the name of this "
 "consent and use::"
 msgstr ""
 
-#: ../../source/admin/consents.rst:23
+#: ../../source/admin/consents.rst:27
 msgid "Creating consents"
 msgstr ""
 
-#: ../../source/admin/consents.rst:24
+#: ../../source/admin/consents.rst:28
 msgid ""
 "In order to create consent you need to follow the following json "
 "structure:"
 msgstr ""
 
-#: ../../source/admin/consents.rst:51
+#: ../../source/admin/consents.rst:55
 msgid ""
 "Next curl command assumes you have kept the name “consent.json” and that "
 "this file is in your current working directory."
 msgstr ""
 
-#: ../../source/admin/consents.rst:57
+#: ../../source/admin/consents.rst:61
 msgid ""
 "Consent needs to have English version since it is the default one and it "
 "will be shown when no consent in user language will be available. Consent"
@@ -76,134 +72,134 @@ msgid ""
 "value."
 msgstr ""
 
-#: ../../source/admin/consents.rst:61
+#: ../../source/admin/consents.rst:65
 msgid "**name** - unique name for consent."
 msgstr ""
 
-#: ../../source/admin/consents.rst:62
+#: ../../source/admin/consents.rst:66
 msgid "**displayOrder** - order of consent."
 msgstr ""
 
-#: ../../source/admin/consents.rst:63
+#: ../../source/admin/consents.rst:67
 msgid "**required** - is the consent required to be accepted."
 msgstr ""
 
-#: ../../source/admin/consents.rst:64
+#: ../../source/admin/consents.rst:68
 msgid ""
 "**hidden** - is the consent hidden from all users. (Used mainly to get "
 "rid of unused consent since they are by definition non-removable)."
 msgstr ""
 
-#: ../../source/admin/consents.rst:65
+#: ../../source/admin/consents.rst:69
 msgid "**consentDetails** - list that holds the details about consent."
 msgstr ""
 
-#: ../../source/admin/consents.rst:67
+#: ../../source/admin/consents.rst:71
 msgid "**language** - language that is associated with the displayed text."
 msgstr ""
 
-#: ../../source/admin/consents.rst:68
+#: ../../source/admin/consents.rst:72
 msgid "**text** - text that is shown to the user in given language."
 msgstr ""
 
-#: ../../source/admin/consents.rst:70
+#: ../../source/admin/consents.rst:74
 msgid ""
 "**consentActions** - generic structure that allows to execute certain "
 "actions after user accepts the consent."
 msgstr ""
 
-#: ../../source/admin/consents.rst:72
+#: ../../source/admin/consents.rst:76
 msgid "**consentActionType** - type of action."
 msgstr ""
 
-#: ../../source/admin/consents.rst:73
+#: ../../source/admin/consents.rst:77
 msgid "**actionOptions** - configuration specific to action type."
 msgstr ""
 
-#: ../../source/admin/consents.rst:76
+#: ../../source/admin/consents.rst:80
 msgid "Action Types"
 msgstr ""
 
-#: ../../source/admin/consents.rst:77
+#: ../../source/admin/consents.rst:81
 msgid "Action types"
 msgstr ""
 
-#: ../../source/admin/consents.rst:81
+#: ../../source/admin/consents.rst:85
 msgid "Action type"
 msgstr ""
 
-#: ../../source/admin/consents.rst:82
+#: ../../source/admin/consents.rst:86
 msgid "Description"
 msgstr ""
 
-#: ../../source/admin/consents.rst:83
+#: ../../source/admin/consents.rst:87
 msgid "SEND_NEWSLETTER_EMAIL"
 msgstr ""
 
-#: ../../source/admin/consents.rst:84
+#: ../../source/admin/consents.rst:88
 msgid ""
 "Sends a request for newsletter subscription at provided email address. "
 "Email will contain information about the user that accepted subscription "
 "consent."
 msgstr ""
 
-#: ../../source/admin/consents.rst:86
+#: ../../source/admin/consents.rst:90
 msgid "Available options for SEND_NEWSLETTER_EMAIL action type"
 msgstr ""
 
-#: ../../source/admin/consents.rst:90
+#: ../../source/admin/consents.rst:94
 msgid "KEY"
 msgstr ""
 
-#: ../../source/admin/consents.rst:91
+#: ../../source/admin/consents.rst:95
 msgid "VALUE"
 msgstr ""
 
-#: ../../source/admin/consents.rst:92
+#: ../../source/admin/consents.rst:96
 msgid "email"
 msgstr ""
 
-#: ../../source/admin/consents.rst:93
+#: ../../source/admin/consents.rst:97
 msgid "Email address to the person that manages subscriptions for the newsletter"
 msgstr ""
 
-#: ../../source/admin/consents.rst:96
+#: ../../source/admin/consents.rst:100
 msgid "Editing consents"
 msgstr ""
 
-#: ../../source/admin/consents.rst:97
+#: ../../source/admin/consents.rst:101
 msgid "Easiest way to edit the consent is to first retrieve it::"
 msgstr ""
 
-#: ../../source/admin/consents.rst:101
+#: ../../source/admin/consents.rst:105
 msgid ""
 "Copy the result, then edit the desired fields, there are few restrictions"
 " though what are you allowed to edit:"
 msgstr ""
 
-#: ../../source/admin/consents.rst:103
+#: ../../source/admin/consents.rst:107
 msgid "displayOrder"
 msgstr ""
 
-#: ../../source/admin/consents.rst:104
+#: ../../source/admin/consents.rst:108
 msgid "required"
 msgstr ""
 
-#: ../../source/admin/consents.rst:105
+#: ../../source/admin/consents.rst:109
 msgid "hidden"
 msgstr ""
 
-#: ../../source/admin/consents.rst:106
+#: ../../source/admin/consents.rst:110
 msgid "consent actions"
 msgstr ""
 
-#: ../../source/admin/consents.rst:107
+#: ../../source/admin/consents.rst:111
 msgid ""
 "consent details are \"append only\", you can only add consent in new "
 "language but you cannot modify them."
 msgstr ""
 
-#: ../../source/admin/consents.rst:109
+#: ../../source/admin/consents.rst:113
 msgid "Then you can send edited consent::"
 msgstr ""
 

@@ -1,35 +1,31 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/developers/tips.rst:3
+#: ../../source/developers/tips.rst:7
 msgid "Tips"
 msgstr ""
 
-#: ../../source/developers/tips.rst:7
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/developers/tips.rst:10
+#: ../../source/developers/tips.rst:14
 msgid "Iterating on Code and Redeploying"
 msgstr ""
 
-#: ../../source/developers/tips.rst:12
+#: ../../source/developers/tips.rst:16
 msgid ""
 "When you followed the steps in the :doc:`../installation/installation-"
 "main` section, the war file was deployed to Glassfish by the ``install`` "
@@ -38,7 +34,7 @@ msgid ""
 " war file) to Glassfish."
 msgstr ""
 
-#: ../../source/developers/tips.rst:14
+#: ../../source/developers/tips.rst:18
 msgid ""
 "It's certainly possible to manage deployment and undeployment of the war "
 "file via the command line using the ``asadmin`` command that ships with "
@@ -47,48 +43,48 @@ msgid ""
 "Netbeans to manage deployment for you."
 msgstr ""
 
-#: ../../source/developers/tips.rst:17
+#: ../../source/developers/tips.rst:21
 msgid "Undeploy the war File from the ``install`` Script"
 msgstr ""
 
-#: ../../source/developers/tips.rst:19
+#: ../../source/developers/tips.rst:23
 msgid ""
 "Because the initial deployment of the war file was done outside of "
 "Netbeans by the ``install`` script, it's a good idea to undeploy that war"
 " file to give Netbeans a clean slate to work with."
 msgstr ""
 
-#: ../../source/developers/tips.rst:21
+#: ../../source/developers/tips.rst:25
 msgid ""
 "Assuming you installed Glassfish in ``/usr/local/glassfish4.1.2``, run "
 "the following ``asadmin`` command to see the version of Dataverse that "
 "the ``install`` script deployed::"
 msgstr ""
 
-#: ../../source/developers/tips.rst:25
+#: ../../source/developers/tips.rst:29
 msgid ""
 "You will probably see something like ``dataverse-webapp-4.11 <ejb, web>``"
 " as the output. To undeploy, use whichever version you see like this::"
 msgstr ""
 
-#: ../../source/developers/tips.rst:29
+#: ../../source/developers/tips.rst:33
 msgid ""
 "Now that Glassfish doesn't have anything deployed, we can proceed with "
 "getting Netbeans set up to deploy the code."
 msgstr ""
 
-#: ../../source/developers/tips.rst:32
+#: ../../source/developers/tips.rst:36
 msgid "Add Glassfish 4.1.2 as a Server in Netbeans"
 msgstr ""
 
-#: ../../source/developers/tips.rst:34
+#: ../../source/developers/tips.rst:38
 msgid ""
 "Dataverse only works with Glassfish 4.1.2 so you need to make sure "
 "Netbeans is deploying to that version rather than a newer version of "
 "Glassfish that may have come bundled with Netbeans."
 msgstr ""
 
-#: ../../source/developers/tips.rst:36
+#: ../../source/developers/tips.rst:40
 msgid ""
 "Launch Netbeans and click \"Tools\" and then \"Servers\". Click \"Add "
 "Server\" and select \"Glassfish Server\" and set the installation "
@@ -98,7 +94,7 @@ msgid ""
 "Glassfish."
 msgstr ""
 
-#: ../../source/developers/tips.rst:38
+#: ../../source/developers/tips.rst:42
 msgid ""
 "Please note that if you are on a Mac, Netbeans may be unable to start "
 "Glassfish due to proxy settings in Netbeans. Go to the \"General\" tab in"
@@ -112,7 +108,7 @@ msgid ""
 "https://netbeans.org/bugzilla/show_bug.cgi?id=268076"
 msgstr ""
 
-#: ../../source/developers/tips.rst:40
+#: ../../source/developers/tips.rst:44
 msgid ""
 "At this point you can manage Glassfish using Netbeans. Click \"Window\" "
 "and then \"Services\". Expand \"Servers\" and right-click Glassfish to "
@@ -121,68 +117,68 @@ msgid ""
 "applications are deployed."
 msgstr ""
 
-#: ../../source/developers/tips.rst:43
+#: ../../source/developers/tips.rst:47
 msgid "Ensure that Dataverse Will Be Deployed to Glassfish 4.1.2"
 msgstr ""
 
-#: ../../source/developers/tips.rst:45
+#: ../../source/developers/tips.rst:49
 msgid ""
 "Click \"Window\" and then \"Projects\". Click \"File\" and then \"Project"
 " Properties (dataverse)\". Click \"Run\" and change \"Server\" from \"No "
 "Server Selected\" to your installation of Glassfish 4.1.2 Click OK."
 msgstr ""
 
-#: ../../source/developers/tips.rst:48
+#: ../../source/developers/tips.rst:52
 msgid "Make a Small Change to the Code"
 msgstr ""
 
-#: ../../source/developers/tips.rst:50
+#: ../../source/developers/tips.rst:54
 msgid ""
 "Let's make a tiny change to the code, compile the war file, deploy it, "
 "and verify that that we can see the change."
 msgstr ""
 
-#: ../../source/developers/tips.rst:52
+#: ../../source/developers/tips.rst:56
 msgid ""
 "Then, from Netbeans, click \"Run\" and then \"Clean and Build Project "
 "(dataverse)\". After this completes successfully, click \"Run\" and then "
 "\"Run Project (dataverse)\""
 msgstr ""
 
-#: ../../source/developers/tips.rst:55
+#: ../../source/developers/tips.rst:59
 msgid "Confirm the Change Was Deployed"
 msgstr ""
 
-#: ../../source/developers/tips.rst:57
+#: ../../source/developers/tips.rst:61
 msgid ""
 "After deployment, check the build number in the lower right to make sure "
 "it has been customized. You can also check the build number by running "
 "the following command::"
 msgstr ""
 
-#: ../../source/developers/tips.rst:61
+#: ../../source/developers/tips.rst:65
 msgid ""
 "If you can see the change, great! Please go fix a bug or work on a "
 "feature! :)"
 msgstr ""
 
-#: ../../source/developers/tips.rst:63
+#: ../../source/developers/tips.rst:67
 msgid ""
 "Actually, before you start changing any code, you should create a branch "
 "as explained in the :doc:`version-control` section."
 msgstr ""
 
-#: ../../source/developers/tips.rst:65
+#: ../../source/developers/tips.rst:69
 msgid ""
 "While it's fresh in your mind, if you have any suggestions on how to make"
 " the setup of a development environment easier, please get in touch!"
 msgstr ""
 
-#: ../../source/developers/tips.rst:68
+#: ../../source/developers/tips.rst:72
 msgid "Netbeans Connector Chrome Extension"
 msgstr ""
 
-#: ../../source/developers/tips.rst:70
+#: ../../source/developers/tips.rst:74
 msgid ""
 "For faster iteration while working on JSF pages, it is highly recommended"
 " that you install the Netbeans Connector Chrome Extension listed in the "
@@ -190,39 +186,39 @@ msgid ""
 "changes immediately. Hipsters call this \"hot reloading\". :)"
 msgstr ""
 
-#: ../../source/developers/tips.rst:73
+#: ../../source/developers/tips.rst:77
 msgid "Database Schema Exploration"
 msgstr ""
 
-#: ../../source/developers/tips.rst:75
+#: ../../source/developers/tips.rst:79
 msgid ""
 "With over 100 tables, the Dataverse PostgreSQL database (\"dvndb\") can "
 "be somewhat daunting for newcomers. Here are some tips for coming up to "
 "speed. (See also the :doc:`sql-upgrade-scripts` section.)"
 msgstr ""
 
-#: ../../source/developers/tips.rst:78
+#: ../../source/developers/tips.rst:82
 msgid "pgAdmin"
 msgstr ""
 
-#: ../../source/developers/tips.rst:80
+#: ../../source/developers/tips.rst:84
 msgid ""
 "Back in the :doc:`../installation/installation-main` section, we had you "
 "install pgAdmin, which can help you explore the tables and execute SQL "
 "commands. It's also listed in the :doc:`tools` section."
 msgstr ""
 
-#: ../../source/developers/tips.rst:83
+#: ../../source/developers/tips.rst:87
 msgid "SchemaSpy"
 msgstr ""
 
-#: ../../source/developers/tips.rst:85
+#: ../../source/developers/tips.rst:89
 msgid ""
 "SchemaSpy is a tool that creates a website of entity-relationship "
 "diagrams based on your database."
 msgstr ""
 
-#: ../../source/developers/tips.rst:87
+#: ../../source/developers/tips.rst:91
 msgid ""
 "As part of our build process for running integration tests against the "
 "latest code in the \"develop\" branch, we drop the database on the "
@@ -231,76 +227,76 @@ msgid ""
 "http://phoenix.dataverse.org/schemaspy/latest/relationships.html"
 msgstr ""
 
-#: ../../source/developers/tips.rst:89
+#: ../../source/developers/tips.rst:93
 msgid ""
 "To run this command on your laptop, download SchemaSpy and take a look at"
 " the syntax in ``scripts/deploy/phoenix.dataverse.org/post``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:91
+#: ../../source/developers/tips.rst:95
 msgid "To read more about the phoenix server, see the :doc:`testing` section."
 msgstr ""
 
-#: ../../source/developers/tips.rst:96
+#: ../../source/developers/tips.rst:100
 msgid "Deploying With ``asadmin``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:98
+#: ../../source/developers/tips.rst:102
 msgid ""
 "Sometimes you want to deploy code without using Netbeans or from the "
 "command line on a server you have ssh'ed into."
 msgstr ""
 
-#: ../../source/developers/tips.rst:100
+#: ../../source/developers/tips.rst:104
 msgid "There are six steps to this process:"
 msgstr ""
 
-#: ../../source/developers/tips.rst:102
+#: ../../source/developers/tips.rst:106
 msgid "Build the war file: ``mvn package``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:103
+#: ../../source/developers/tips.rst:107
 msgid ""
 "Change current directory to the place where you have installed Glassfish,"
 " for example: ``cd /usr/local/glassfish4.1.2/glassfish/bin``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:104
+#: ../../source/developers/tips.rst:108
 msgid ""
 "Check which version of Dataverse is deployed: ``./asadmin list-"
 "applications``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:105
+#: ../../source/developers/tips.rst:109
 msgid ""
 "Undeploy the Dataverse application (if necessary): ``./asadmin undeploy "
 "dataverse-VERSION``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:106
+#: ../../source/developers/tips.rst:110
 msgid "Copy the war file to the server (if necessary)"
 msgstr ""
 
-#: ../../source/developers/tips.rst:107
+#: ../../source/developers/tips.rst:111
 msgid "Deploy the new code: ``./asadmin deploy /path/to/dataverse-VERSION.war``"
 msgstr ""
 
-#: ../../source/developers/tips.rst:110
+#: ../../source/developers/tips.rst:114
 msgid "Running the Dataverse ``install`` Script in Non-Interactive Mode"
 msgstr ""
 
-#: ../../source/developers/tips.rst:112
+#: ../../source/developers/tips.rst:116
 msgid ""
 "Rather than running the installer in \"interactive\" mode, it's possible "
 "to put the values in a file. See \"non-interactive mode\" in the "
 ":doc:`/installation/installation-main` section of the Installation Guide."
 msgstr ""
 
-#: ../../source/developers/tips.rst:115
+#: ../../source/developers/tips.rst:119
 msgid "Preventing Glassfish from Phoning Home"
 msgstr ""
 
-#: ../../source/developers/tips.rst:117
+#: ../../source/developers/tips.rst:121
 msgid ""
 "By default, Glassfish reports analytics information. The administration "
 "guide suggests this can be disabled with ``./asadmin create-jvm-options "
@@ -308,11 +304,11 @@ msgid ""
 "found to be undesirable for development purposes."
 msgstr ""
 
-#: ../../source/developers/tips.rst:120
+#: ../../source/developers/tips.rst:124
 msgid "Solr"
 msgstr ""
 
-#: ../../source/developers/tips.rst:122
+#: ../../source/developers/tips.rst:126
 msgid ""
 "Once some dataverses, datasets, and files have been created and indexed, "
 "you can experiment with searches directly from Solr at "
@@ -323,22 +319,22 @@ msgid ""
 "http://localhost:8983/solr/collection1/schema/fields"
 msgstr ""
 
-#: ../../source/developers/tips.rst:124
+#: ../../source/developers/tips.rst:128
 msgid ""
 "You can simply double-click \"start.jar\" rather that running ``java -jar"
 " start.jar`` from the command line. Figuring out how to stop Solr after "
 "double-clicking it is an exercise for the reader."
 msgstr ""
 
-#: ../../source/developers/tips.rst:127
+#: ../../source/developers/tips.rst:131
 msgid "Git"
 msgstr ""
 
-#: ../../source/developers/tips.rst:130
+#: ../../source/developers/tips.rst:134
 msgid "Set Up SSH Keys"
 msgstr ""
 
-#: ../../source/developers/tips.rst:132
+#: ../../source/developers/tips.rst:136
 msgid ""
 "You can use git with passwords over HTTPS, but it's much nicer to set up "
 "SSH keys. https://github.com/settings/ssh is the place to manage the ssh "
@@ -346,11 +342,11 @@ msgid ""
 "https://help.github.com/articles/generating-ssh-keys"
 msgstr ""
 
-#: ../../source/developers/tips.rst:134
+#: ../../source/developers/tips.rst:138
 msgid "From the terminal, ``ssh-keygen`` will create new ssh keys for you:"
 msgstr ""
 
-#: ../../source/developers/tips.rst:136
+#: ../../source/developers/tips.rst:140
 msgid ""
 "private key: ``~/.ssh/id_rsa`` - It is very important to protect your "
 "private key. If someone else acquires it, they can access private "
@@ -361,24 +357,24 @@ msgid ""
 "keys"
 msgstr ""
 
-#: ../../source/developers/tips.rst:138
+#: ../../source/developers/tips.rst:142
 msgid ""
 "public key: ``~/.ssh/id_rsa.pub`` - After you've created your ssh keys, "
 "add the public key to your GitHub account."
 msgstr ""
 
-#: ../../source/developers/tips.rst:141
+#: ../../source/developers/tips.rst:145
 msgid "Git on Mac"
 msgstr ""
 
-#: ../../source/developers/tips.rst:143
+#: ../../source/developers/tips.rst:147
 msgid ""
 "On a Mac, you won't have git installed unless you have \"Command Line "
 "Developer Tools\" installed but running ``git clone`` for the first time "
 "will prompt you to install them."
 msgstr ""
 
-#: ../../source/developers/tips.rst:147
+#: ../../source/developers/tips.rst:151
 msgid "Previous: :doc:`windows` | Next: :doc:`troubleshooting`"
 msgstr ""
 

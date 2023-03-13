@@ -1,27 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/dashboard.rst:2
+#: ../../source/admin/dashboard.rst:6
 msgid "Dashboard"
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:4
+#: ../../source/admin/dashboard.rst:8
 msgid ""
 "Dataverse offers a dashboard of administrative tools for superusers only."
 " If you are a logged-in superuser, you can access it by clicking your "
@@ -32,19 +32,15 @@ msgid ""
 "superuser status via :doc:`user-administration`."
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:7
-msgid "Contents:"
-msgstr ""
-
-#: ../../source/admin/dashboard.rst:10
+#: ../../source/admin/dashboard.rst:14
 msgid "Harvesting"
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:13
+#: ../../source/admin/dashboard.rst:17
 msgid "Harvesting Clients"
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:15
+#: ../../source/admin/dashboard.rst:19
 msgid ""
 "This dashboard tool allows you to set up which other repositories your "
 "Dataverse installation harvests metadata records from. You can see a list"
@@ -52,11 +48,11 @@ msgid ""
 ":doc:`harvestclients` section for more details."
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:18
+#: ../../source/admin/dashboard.rst:22
 msgid "Harvesting Servers"
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:20
+#: ../../source/admin/dashboard.rst:24
 msgid ""
 "This dashboard tool allows you to define sets of local datasets to make "
 "available to remote harvesting clients. You can see a list of sets and "
@@ -64,11 +60,11 @@ msgid ""
 "details."
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:23
+#: ../../source/admin/dashboard.rst:27
 msgid "Metadata Export"
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:25
+#: ../../source/admin/dashboard.rst:29
 msgid ""
 "This part of the Dashboard is simply a reminder message that metadata "
 "export happens through the Harvard Dataverse API. See the "
@@ -76,11 +72,11 @@ msgid ""
 "the API Guide for more details."
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:28
+#: ../../source/admin/dashboard.rst:32
 msgid "Users"
 msgstr ""
 
-#: ../../source/admin/dashboard.rst:30
+#: ../../source/admin/dashboard.rst:34
 msgid ""
 "This dashboard tool allows you to search a list of all users of your "
 "Dataverse installation. You can remove roles from user accounts and "

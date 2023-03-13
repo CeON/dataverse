@@ -1,35 +1,31 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/user/find-use-data.rst:2
+#: ../../source/user/find-use-data.rst:6
 msgid "Finding and Using Data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:5
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/user/find-use-data.rst:8
+#: ../../source/user/find-use-data.rst:12
 msgid "Finding Data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:10
+#: ../../source/user/find-use-data.rst:14
 msgid ""
 "Without logging in to Dataverse, users can browse Dataverse, search for "
 "dataverses, datasets, and files, view dataset descriptions and files for "
@@ -39,18 +35,18 @@ msgid ""
 " that dataverse's administrator to access it."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:13
+#: ../../source/user/find-use-data.rst:17
 msgid ""
 "A user can search within a specific dataverse for the dataverses, "
 "datasets, and files it contains by using the search bar and facets "
 "displayed on that dataverse's page."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:16
+#: ../../source/user/find-use-data.rst:20
 msgid "Basic Search"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:17
+#: ../../source/user/find-use-data.rst:21
 msgid ""
 "You can search the entire contents of the Dataverse installation, "
 "including dataverses, datasets, and files. You can access the search "
@@ -59,29 +55,29 @@ msgid ""
 "terms, queries, or exact phrases (in quotations)."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:20
+#: ../../source/user/find-use-data.rst:24
 msgid "Sorting and Viewing Search Results"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:25
+#: ../../source/user/find-use-data.rst:29
 msgid ""
 "Facets: to the left of the search results, there are several facets a "
 "user can click on to narrow the number of results displayed."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:23
+#: ../../source/user/find-use-data.rst:27
 msgid ""
 "Choosing a facet: to choose a facet to narrow your results by, click on "
 "that facet."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:24
+#: ../../source/user/find-use-data.rst:28
 msgid ""
 "Removing a facet: A chosen facet can be removed by clicking on the X on "
 "it, either in the facets panel to the left, or above the results."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:25
+#: ../../source/user/find-use-data.rst:29
 msgid ""
 "Viewing more or fewer facets: Each category in the facets panel lists the"
 " top 5 most common facets from that category. To view more, click on "
@@ -90,14 +86,14 @@ msgid ""
 "facet."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:28
+#: ../../source/user/find-use-data.rst:32
 msgid ""
 "Result cards: after entering a search term or query, result cards that "
 "match your term or query appear underneath the search bar and to the "
 "right of the facets."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:28
+#: ../../source/user/find-use-data.rst:32
 msgid ""
 "Relevancy of results: each result card shows which metadata fields match "
 "the search query or term you entered into the search bar, with the "
@@ -106,28 +102,28 @@ msgid ""
 "query will be bolded within it."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:32
+#: ../../source/user/find-use-data.rst:36
 msgid "Other basic search features:"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:31
+#: ../../source/user/find-use-data.rst:35
 msgid ""
 "Sorting results: search results can be sorted by name (A-Z or Z-A), by "
 "date (newest or oldest), or by relevancy of results. The sort button can "
 "be found above the search results, in the top right."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:32
+#: ../../source/user/find-use-data.rst:36
 msgid ""
 "Bookmarkable URLs: search URLs can be copied and sent to a fellow "
 "researcher, or can be bookmarked for future sessions."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:35
+#: ../../source/user/find-use-data.rst:39
 msgid "Advanced Search"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:37
+#: ../../source/user/find-use-data.rst:41
 msgid ""
 "To perform an advanced search, click the \"Advanced Search\" link next to"
 " the search bar. There you will have the ability to enter search terms "
@@ -138,11 +134,11 @@ msgid ""
 "description of the field."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:43
+#: ../../source/user/find-use-data.rst:47
 msgid "Browsing Dataverse"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:45
+#: ../../source/user/find-use-data.rst:49
 msgid ""
 "In Dataverse, browsing is the default view when a user hasn't begun a "
 "search on the homepage or on a specific dataverse's page.  When browsing,"
@@ -150,26 +146,26 @@ msgid ""
 "can be sorted by Name (A-Z or Z-A) and by Newest or Oldest."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:48
+#: ../../source/user/find-use-data.rst:52
 msgid "Saved Search"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:50
+#: ../../source/user/find-use-data.rst:54
 msgid ""
 "Saved Search is currently an experimental feature only available to "
 "superusers. Please see the :doc:`/api/native-api` section of the API "
 "Guide for more information."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:53
+#: ../../source/user/find-use-data.rst:57
 msgid "Using Data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:56
+#: ../../source/user/find-use-data.rst:60
 msgid "View Dataverses + Datasets"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:58
+#: ../../source/user/find-use-data.rst:62
 msgid ""
 "After performing a search and finding the dataverse or dataset you are "
 "looking for, click on the name of the dataverse or dataset or on the "
@@ -178,7 +174,7 @@ msgid ""
 "files within that dataverse."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:60
+#: ../../source/user/find-use-data.rst:64
 msgid ""
 "Once on a dataset page, you will see the title, citation, description, "
 "and several other fields, as well as a button to email the dataset "
@@ -187,11 +183,11 @@ msgid ""
 "for the dataset are available."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:63
+#: ../../source/user/find-use-data.rst:67
 msgid "View Files"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:65
+#: ../../source/user/find-use-data.rst:69
 msgid ""
 "Files in Dataverse each have their own page that can be reached through "
 "the search results or through the Files table on their parent dataset's "
@@ -203,11 +199,11 @@ msgid ""
 "file rather than the dataset as a whole."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:68
+#: ../../source/user/find-use-data.rst:72
 msgid "Cite Data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:70
+#: ../../source/user/find-use-data.rst:74
 msgid ""
 "You can find the citation for the dataset at the top of the dataset page "
 "in a blue box. Additionally, there is a Cite Data button that offers the "
@@ -215,11 +211,11 @@ msgid ""
 "Format."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:75
+#: ../../source/user/find-use-data.rst:79
 msgid "Download Files"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:77
+#: ../../source/user/find-use-data.rst:81
 msgid ""
 "Within the Files tab on a dataset page, you can download the files in "
 "that dataset. To download more than one file at a time, select the files "
@@ -227,14 +223,14 @@ msgid ""
 "files. The selected files will download in zip format."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:79
+#: ../../source/user/find-use-data.rst:83
 msgid ""
 "You may also download a file from its file page by clicking the Download "
 "button in the upper right corner of the page, or by :ref:`url_download` "
 "under the Metadata tab on the lower half of the page."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:81
+#: ../../source/user/find-use-data.rst:85
 msgid ""
 "Tabular data files offer additional options: You can explore using any "
 "data exploration or visualization :doc:`/installation/external-tools` (if"
@@ -243,43 +239,43 @@ msgid ""
 " under the Download button."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:84
+#: ../../source/user/find-use-data.rst:88
 msgid "Tabular Data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:86
+#: ../../source/user/find-use-data.rst:90
 msgid "Ingested files can be downloaded in several different ways."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:88
+#: ../../source/user/find-use-data.rst:92
 msgid ""
 "The default option is to download a tab-separated-value file which is an "
 "easy and free standard to use."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:90
+#: ../../source/user/find-use-data.rst:94
 msgid ""
 "The original file, which may be in a proprietary format which requires "
 "special software"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:92
+#: ../../source/user/find-use-data.rst:96
 msgid "Rdata format if the instalation has configured this"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:94
+#: ../../source/user/find-use-data.rst:98
 msgid "The variable metadata for the file in DDI format"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:96
+#: ../../source/user/find-use-data.rst:100
 msgid "A subset of the columns of the data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:102
+#: ../../source/user/find-use-data.rst:106
 msgid "Downloading via URL"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:104
+#: ../../source/user/find-use-data.rst:108
 msgid ""
 "Dataverse displays a plaintext URL for the location of the file under the"
 " Metadata tab on the dataset page. This Download URL can be used to "
@@ -290,18 +286,18 @@ msgid ""
 "using a download manager software of your choice."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:106
+#: ../../source/user/find-use-data.rst:110
 msgid ""
 "Certain files do not provide Download URLs for technical reasons: those "
 "that are restricted, have terms of use associated with them, or are part "
 "of a dataverse with a guestbook enabled."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:111
+#: ../../source/user/find-use-data.rst:115
 msgid "Downloading a Dataverse Package via URL"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:113
+#: ../../source/user/find-use-data.rst:117
 msgid ""
 "Dataverse Packages are typically used to represent extremely large files "
 "or bundles containing a large number of files. Dataverse Packages are "
@@ -317,11 +313,11 @@ msgid ""
 "download."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:118
+#: ../../source/user/find-use-data.rst:122
 msgid "Downloading a Dataverse Package via rsync"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:120
+#: ../../source/user/find-use-data.rst:124
 msgid ""
 "rsync is typically used for synchronizing files and directories between "
 "two different systems. Some Dataverse installations allow downloads using"
@@ -329,7 +325,7 @@ msgid ""
 "manner."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:122
+#: ../../source/user/find-use-data.rst:126
 msgid ""
 "rsync-enabled Dataverse installations offer a new file download process "
 "that differs from traditional browser-based downloading. Instead of "
@@ -339,7 +335,7 @@ msgid ""
 "folder structure in which they were originally uploaded."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:124
+#: ../../source/user/find-use-data.rst:128
 msgid ""
 "In a dataset containing a Dataverse Package, at the bottom of the dataset"
 " page, under the **Data Access** tab, instead of a download button you "
@@ -356,7 +352,7 @@ msgid ""
 "Running this command will initiate the download process."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:126
+#: ../../source/user/find-use-data.rst:130
 msgid ""
 "After you've downloaded the Dataverse Package, you may want to double-"
 "check that your download went perfectly. Under **Verify Data**, you'll "
@@ -366,11 +362,11 @@ msgid ""
 "you're working with."
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:129
+#: ../../source/user/find-use-data.rst:133
 msgid "Explore Data"
 msgstr ""
 
-#: ../../source/user/find-use-data.rst:131
+#: ../../source/user/find-use-data.rst:135
 msgid "Please see the :doc:`/user/data-exploration/index`."
 msgstr ""
 

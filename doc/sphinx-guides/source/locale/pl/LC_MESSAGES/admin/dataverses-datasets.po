@@ -1,39 +1,35 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/dataverses-datasets.rst:2
+#: ../../source/admin/dataverses-datasets.rst:6
 msgid "Managing Datasets and Dataverses"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:5
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/admin/dataverses-datasets.rst:8
+#: ../../source/admin/dataverses-datasets.rst:12
 msgid "Dataverses"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:11
+#: ../../source/admin/dataverses-datasets.rst:15
 msgid "Move a Dataverse"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:13
+#: ../../source/admin/dataverses-datasets.rst:17
 msgid ""
 "Moves a dataverse whose id is passed to a new dataverse whose id is "
 "passed. The dataverse alias also may be used instead of the id. If the "
@@ -43,11 +39,11 @@ msgid ""
 "the association. Only accessible to superusers. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:18
+#: ../../source/admin/dataverses-datasets.rst:22
 msgid "Link a Dataverse"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:20
+#: ../../source/admin/dataverses-datasets.rst:24
 msgid ""
 "Creates a link between a dataverse and another dataverse (see the Linked "
 "Dataverses + Linked Datasets section of the :doc:`/user/dataverse-"
@@ -55,21 +51,21 @@ msgid ""
 "::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:25
+#: ../../source/admin/dataverses-datasets.rst:29
 msgid "Unlink a Dataverse"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:27
+#: ../../source/admin/dataverses-datasets.rst:31
 msgid ""
 "Removes a link between a dataverse and another dataverse. Only accessible"
 " to superusers. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:32
+#: ../../source/admin/dataverses-datasets.rst:36
 msgid "Add Dataverse RoleAssignments to Child Dataverses"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:34
+#: ../../source/admin/dataverses-datasets.rst:38
 msgid ""
 "Recursively assigns the users and groups having a role(s),that are in the"
 " set configured to be inheritable via the :InheritParentRoleAssignments "
@@ -79,15 +75,15 @@ msgid ""
 "dataverses involved in the update. Only accessible to superusers. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:39
+#: ../../source/admin/dataverses-datasets.rst:43
 msgid "Datasets"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:42
+#: ../../source/admin/dataverses-datasets.rst:46
 msgid "Move a Dataset"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:44
+#: ../../source/admin/dataverses-datasets.rst:48
 msgid ""
 "Moves a dataset whose id is passed to a dataverse whose alias is passed. "
 "If the moved dataset has a guestbook or a dataverse link that is not "
@@ -97,52 +93,52 @@ msgid ""
 "original and destination dataverse. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:49
+#: ../../source/admin/dataverses-datasets.rst:53
 msgid "Link a Dataset"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:51
+#: ../../source/admin/dataverses-datasets.rst:55
 msgid ""
 "Creates a link between a dataset and a dataverse (see the Linked "
 "Dataverses + Linked Datasets section of the :doc:`/user/dataverse-"
 "management` guide for more information). ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:56
+#: ../../source/admin/dataverses-datasets.rst:60
 msgid "Unlink a Dataset"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:58
+#: ../../source/admin/dataverses-datasets.rst:62
 msgid ""
 "Removes a link between a dataset and a dataverse. Only accessible to "
 "superusers. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:63
+#: ../../source/admin/dataverses-datasets.rst:67
 msgid "Mint new PID for a Dataset"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:65
+#: ../../source/admin/dataverses-datasets.rst:69
 msgid ""
 "Mints a new identifier for a dataset previously registered with a handle."
 " Only accessible to superusers. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:70
+#: ../../source/admin/dataverses-datasets.rst:74
 msgid "Send Dataset metadata to PID provider"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:72
+#: ../../source/admin/dataverses-datasets.rst:76
 msgid ""
 "Forces update to metadata provided to the PID provider of a published "
 "dataset. Only accessible to superusers. ::"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:77
+#: ../../source/admin/dataverses-datasets.rst:81
 msgid "Make Metadata Updates Without Changing Dataset Version"
 msgstr ""
 
-#: ../../source/admin/dataverses-datasets.rst:79
+#: ../../source/admin/dataverses-datasets.rst:83
 msgid ""
 "As a superuser, click \"Update Current Version\" when publishing. (This "
 "option is only available when a 'Minor' update would be allowed.)"

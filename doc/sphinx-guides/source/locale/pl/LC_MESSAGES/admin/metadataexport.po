@@ -1,35 +1,31 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2022, The President & Fellows of Harvard College
+# Copyright (C) 2023, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-20 18:16+0200\n"
+"POT-Creation-Date: 2023-03-13 16:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.4.0\n"
 
-#: ../../source/admin/metadataexport.rst:2
+#: ../../source/admin/metadataexport.rst:6
 msgid "Metadata Export"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:5
-msgid "|toctitle|"
-msgstr ""
-
-#: ../../source/admin/metadataexport.rst:8
+#: ../../source/admin/metadataexport.rst:12
 msgid "Automatic Exports"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:10
+#: ../../source/admin/metadataexport.rst:14
 msgid ""
 "Publishing a dataset automatically starts a metadata export job, that "
 "will run in the background, asynchronously. Once completed, it will make "
@@ -39,7 +35,7 @@ msgid ""
 "Guide."
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:12
+#: ../../source/admin/metadataexport.rst:16
 msgid ""
 "A scheduled timer job that runs nightly will attempt to export any "
 "published datasets that for whatever reason haven't been exported yet. "
@@ -49,25 +45,25 @@ msgid ""
 "information)"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:15
+#: ../../source/admin/metadataexport.rst:19
 msgid "Batch exports through the API"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:17
+#: ../../source/admin/metadataexport.rst:21
 msgid ""
 "In addition to the automated exports, a Dataverse admin can start a batch"
 " job through the API. The following 2 API calls are provided:"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:19
+#: ../../source/admin/metadataexport.rst:23
 msgid "/api/admin/metadata/exportAll"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:21
+#: ../../source/admin/metadataexport.rst:25
 msgid "/api/admin/metadata/reExportAll"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:23
+#: ../../source/admin/metadataexport.rst:27
 msgid ""
 "The former will attempt to export all the published, local (non-"
 "harvested) datasets that haven't been exported yet. The latter will "
@@ -75,17 +71,17 @@ msgid ""
 "whether it has already been exported or not."
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:26
+#: ../../source/admin/metadataexport.rst:30
 msgid ""
 "Note, that creating, modifying, or re-exporting an OAI set will also "
 "attempt to export all the unexported datasets found in the set."
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:29
+#: ../../source/admin/metadataexport.rst:33
 msgid "Export Failures"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:31
+#: ../../source/admin/metadataexport.rst:35
 msgid ""
 "An export batch job, whether started via the API, or by the application "
 "timer, will leave a detailed log in your configured logs directory. This "
@@ -98,21 +94,21 @@ msgid ""
 "export problems."
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:34
+#: ../../source/admin/metadataexport.rst:38
 msgid "Downloading Metadata via GUI"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:36
+#: ../../source/admin/metadataexport.rst:40
 msgid ""
 "The :doc:`/user/dataset-management` section of the User Guide explains "
 "how end users can download the metadata formats from the Dataverse GUI."
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:39
+#: ../../source/admin/metadataexport.rst:43
 msgid "Downloading Metadata via API"
 msgstr ""
 
-#: ../../source/admin/metadataexport.rst:41
+#: ../../source/admin/metadataexport.rst:45
 msgid ""
 "The :doc:`/api/native-api` section of the API Guide explains how end "
 "users can download the metadata formats via API."
