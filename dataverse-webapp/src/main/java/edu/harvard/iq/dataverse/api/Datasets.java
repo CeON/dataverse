@@ -49,7 +49,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.DeleteDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeletePrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DestroyDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.GetDatasetCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.GetDraftDatasetVersionCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.GetDraftVersionIfExists;
 import edu.harvard.iq.dataverse.engine.command.impl.GetLatestAccessibleDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.GetLatestPublishedDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.GetPrivateUrlCommand;
@@ -511,13 +511,24 @@ public class Datasets extends AbstractApiBean {
                                .onFailure(throwable -> logger.log(Level.FINE, "Failed finding user for apiToken: ", throwable))
                                .get();
 
+        String finalVersionId = versionId;
+        if (!versionId.matches("[0-9]+")) {
+            DataverseRequest dataverseRequest = createDataverseRequest(apiTokenUser);
+            try {
+                Dataset dataset = findDatasetOrDie(datasetId);
+                DatasetVersion datasetVersion = getDatasetVersionOrDie(dataverseRequest, versionId, dataset);
+                finalVersionId = datasetVersion.getId().toString();
+            } catch (WrappedResponse wr) {
+                return wr.getResponse();
+            }
+        }
+
         boolean originalFormatRequested = isOriginalFormatRequested(uriInfo.getQueryParameters());
 
         response.setHeader("Content-disposition", "attachment; filename=\"dataverse_files.zip\"");
         response.setHeader("Content-Type", "application/zip; name=\"dataverse_files.zip\"");
 
-        StreamingOutput fileStream = fileDownloadAPIHandler.downloadFiles(apiTokenUser, versionId,
-                                                                          originalFormatRequested, gbrecs);
+        StreamingOutput fileStream = fileDownloadAPIHandler.downloadFiles(apiTokenUser, finalVersionId, originalFormatRequested, gbrecs);
         return Response.ok(fileStream).build();
     }
 
@@ -1841,7 +1852,7 @@ public class Datasets extends AbstractApiBean {
 
             @Override
             public Command<DatasetVersion> handleDraft() {
-                return new GetDraftDatasetVersionCommand(req, ds);
+                return new GetDraftVersionIfExists(req, ds);
             }
 
             @Override
