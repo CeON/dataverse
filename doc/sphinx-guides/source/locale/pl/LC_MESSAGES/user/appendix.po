@@ -1,35 +1,39 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/user/appendix.rst:8
+#: ../../source/user/appendix.rst:4
 msgid "Appendix"
 msgstr ""
 
-#: ../../source/user/appendix.rst:10
+#: ../../source/user/appendix.rst:6
 msgid "Additional documentation complementary to the User Guide."
 msgstr ""
 
-#: ../../source/user/appendix.rst:16
+#: ../../source/user/appendix.rst:9
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/user/appendix.rst:12
 msgid "Metadata References"
 msgstr ""
 
-#: ../../source/user/appendix.rst:18
+#: ../../source/user/appendix.rst:14
 msgid ""
 "Dataverse is committed to using standard-compliant metadata to ensure "
 "that Dataverse metadata can be mapped easily to standard metadata schemas"
@@ -37,13 +41,13 @@ msgid ""
 "preservation and interoperability."
 msgstr ""
 
-#: ../../source/user/appendix.rst:22
+#: ../../source/user/appendix.rst:18
 msgid ""
 "Detailed below are what metadata schemas we support for Citation and "
 "Domain Specific Metadata in Dataverse:"
 msgstr ""
 
-#: ../../source/user/appendix.rst:24
+#: ../../source/user/appendix.rst:20
 msgid ""
 "`Citation Metadata "
 "<https://docs.google.com/spreadsheet/ccc?key=0AjeLxEN77UZodHFEWGpoa19ia3pldEFyVFR0aFVGa0E#gid=0>`__:"
@@ -59,7 +63,7 @@ msgid ""
 "controlled vocabulary."
 msgstr ""
 
-#: ../../source/user/appendix.rst:25
+#: ../../source/user/appendix.rst:21
 msgid ""
 "`Geospatial Metadata "
 "<https://docs.google.com/spreadsheet/ccc?key=0AjeLxEN77UZodHFEWGpoa19ia3pldEFyVFR0aFVGa0E#gid=4>`__:"
@@ -70,7 +74,7 @@ msgid ""
 "<http://en.wikipedia.org/wiki/ISO_3166-1>`_ controlled vocabulary."
 msgstr ""
 
-#: ../../source/user/appendix.rst:26
+#: ../../source/user/appendix.rst:22
 msgid ""
 "`Social Science & Humanities Metadata "
 "<https://docs.google.com/spreadsheet/ccc?key=0AjeLxEN77UZodHFEWGpoa19ia3pldEFyVFR0aFVGa0E#gid=1>`__:"
@@ -79,7 +83,7 @@ msgid ""
 "<https://github.com/IQSS/dataverse/blob/master/scripts/api/data/metadatablocks/social_science.tsv>`__)."
 msgstr ""
 
-#: ../../source/user/appendix.rst:27
+#: ../../source/user/appendix.rst:23
 msgid ""
 "`Astronomy and Astrophysics Metadata "
 "<https://docs.google.com/spreadsheet/ccc?key=0AjeLxEN77UZodHFEWGpoa19ia3pldEFyVFR0aFVGa0E#gid=3>`__"
@@ -91,7 +95,7 @@ msgid ""
 "<https://github.com/IQSS/dataverse/blob/master/scripts/api/data/metadatablocks/astrophysics.tsv>`__)."
 msgstr ""
 
-#: ../../source/user/appendix.rst:31
+#: ../../source/user/appendix.rst:27
 msgid ""
 "`Life Sciences Metadata "
 "<https://docs.google.com/spreadsheet/ccc?key=0AjeLxEN77UZodHFEWGpoa19ia3pldEFyVFR0aFVGa0E#gid=2>`__:"
@@ -105,7 +109,7 @@ msgid ""
 "<https://github.com/IQSS/dataverse/blob/master/scripts/api/data/metadatablocks/biomedical.tsv>`__)."
 msgstr ""
 
-#: ../../source/user/appendix.rst:33
+#: ../../source/user/appendix.rst:29
 msgid ""
 "See also the `Dataverse 4.0 Metadata Crosswalk: DDI, DataCite, DC, "
 "DCTerms, VO, ISA-Tab <https://docs.google.com/spreadsheets/d"

@@ -1,37 +1,41 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/developers/containers.rst:7
+#: ../../source/developers/containers.rst:3
 msgid "Docker, Kubernetes, and OpenShift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:9
+#: ../../source/developers/containers.rst:5
 msgid ""
 "Dataverse is exploring the use of Docker, Kubernetes, OpenShift and other"
 " container-related technologies."
 msgstr ""
 
-#: ../../source/developers/containers.rst:18
+#: ../../source/developers/containers.rst:9
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/developers/containers.rst:14
 msgid "OpenShift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:20
+#: ../../source/developers/containers.rst:16
 msgid ""
 "From the Dataverse perspective, we are in the business of providing a "
 "\"template\" for OpenShift that describes how the various components we "
@@ -41,7 +45,7 @@ msgid ""
 "template."
 msgstr ""
 
-#: ../../source/developers/containers.rst:22
+#: ../../source/developers/containers.rst:18
 msgid ""
 "Dataverse's (light) use of Docker is documented in :ref:`docker` section."
 " We actually started with Docker in the context of OpenShift, which is "
@@ -49,7 +53,7 @@ msgid ""
 "future."
 msgstr ""
 
-#: ../../source/developers/containers.rst:24
+#: ../../source/developers/containers.rst:20
 msgid ""
 "The OpenShift template for Dataverse can be found at "
 "``conf/openshift/openshift.json`` and if you need to hack on the template"
@@ -57,7 +61,7 @@ msgid ""
 "iterate on them using Minishift."
 msgstr ""
 
-#: ../../source/developers/containers.rst:26
+#: ../../source/developers/containers.rst:22
 msgid ""
 "The instructions in this section will walk you through spinning up "
 "Dataverse within Minishift. It is recommended that you do this on the "
@@ -65,17 +69,17 @@ msgid ""
 "anything."
 msgstr ""
 
-#: ../../source/developers/containers.rst:29
+#: ../../source/developers/containers.rst:25
 msgid "Install Minishift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:31
+#: ../../source/developers/containers.rst:27
 msgid ""
 "Minishift requires a hypervisor and since we already use VirtualBox for "
 "Vagrant, you should install VirtualBox from http://virtualbox.org ."
 msgstr ""
 
-#: ../../source/developers/containers.rst:33
+#: ../../source/developers/containers.rst:29
 msgid ""
 "Download the Minishift tarball from "
 "https://docs.openshift.org/latest/minishift/getting-"
@@ -85,56 +89,56 @@ msgid ""
 " of Minishift."
 msgstr ""
 
-#: ../../source/developers/containers.rst:35
+#: ../../source/developers/containers.rst:31
 msgid ""
 "At this point, you might want to consider going through the Minishift "
 "quickstart to get oriented: https://docs.openshift.org/latest/minishift"
 "/getting-started/quickstart.html"
 msgstr ""
 
-#: ../../source/developers/containers.rst:38
+#: ../../source/developers/containers.rst:34
 msgid "Start Minishift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:45
+#: ../../source/developers/containers.rst:41
 msgid "Make the OpenShift Client Binary (oc) Executable"
 msgstr ""
 
-#: ../../source/developers/containers.rst:52
+#: ../../source/developers/containers.rst:48
 msgid "Log in to Minishift from the Command Line"
 msgstr ""
 
-#: ../../source/developers/containers.rst:54
+#: ../../source/developers/containers.rst:50
 msgid ""
 "Note that if you just installed and started Minishift, you are probably "
 "logged in already. This ``oc login`` step is included in case you aren't "
 "logged in anymore::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:58
+#: ../../source/developers/containers.rst:54
 msgid "Use \"developer\" as the username and a couple characters as the password."
 msgstr ""
 
-#: ../../source/developers/containers.rst:61
+#: ../../source/developers/containers.rst:57
 msgid "Create a Minishift Project"
 msgstr ""
 
-#: ../../source/developers/containers.rst:63
+#: ../../source/developers/containers.rst:59
 msgid ""
 "Calling the project \"project1\" is fairly arbitrary. We'll probably want"
 " to revisit this name in the future. A project is necessary in order to "
 "create an OpenShift app::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:67
+#: ../../source/developers/containers.rst:63
 msgid "Note that ``oc projects`` will return a list of projects."
 msgstr ""
 
-#: ../../source/developers/containers.rst:72
+#: ../../source/developers/containers.rst:68
 msgid "Create a Dataverse App within the Minishift Project"
 msgstr ""
 
-#: ../../source/developers/containers.rst:74
+#: ../../source/developers/containers.rst:70
 msgid ""
 "The following command operates on the ``conf/openshift/openshift.json`` "
 "file that resides in the main Dataverse git repo. It will download images"
@@ -142,15 +146,15 @@ msgid ""
 "Minishift/OpenShift::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:78
+#: ../../source/developers/containers.rst:74
 msgid "Later we will cover how to make changes to the images on Docker Hub."
 msgstr ""
 
-#: ../../source/developers/containers.rst:81
+#: ../../source/developers/containers.rst:77
 msgid "Log into Minishift and Visit Dataverse in your Browser"
 msgstr ""
 
-#: ../../source/developers/containers.rst:83
+#: ../../source/developers/containers.rst:79
 msgid ""
 "After running the ``oc new-app`` command described in "
 ":ref:`create_dataverse_app_within_minishift_project`, deployment of "
@@ -162,26 +166,26 @@ msgid ""
 "takes a while."
 msgstr ""
 
-#: ../../source/developers/containers.rst:85
+#: ../../source/developers/containers.rst:81
 msgid ""
 "Typing ``minishift console`` should open the OpenShift web interface in "
 "your browser. The IP address might not be \"192.168.99.100\" but it's "
 "used as an example:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:87
+#: ../../source/developers/containers.rst:83
 msgid "https://192.168.99.100:8443 (or URL from ``minishift console``)"
 msgstr ""
 
-#: ../../source/developers/containers.rst:88
+#: ../../source/developers/containers.rst:84
 msgid "username: developer"
 msgstr ""
 
-#: ../../source/developers/containers.rst:89
+#: ../../source/developers/containers.rst:85
 msgid "password: <any password>"
 msgstr ""
 
-#: ../../source/developers/containers.rst:91
+#: ../../source/developers/containers.rst:87
 msgid ""
 "In the OpenShift web interface you should see a link that looks something"
 " like http://dataverse-project1.192.168.99.100.nip.io but the IP address "
@@ -191,49 +195,49 @@ msgid ""
 "\"dataverseAdmin\" and the password \"admin\"."
 msgstr ""
 
-#: ../../source/developers/containers.rst:93
+#: ../../source/developers/containers.rst:89
 msgid ""
 "Another way to verify that Dataverse has been succesfully deployed is to "
 "make sure that the Dataverse \"info\" API endpoint returns a version "
 "(note that ``minishift ip`` is used because the IP address will vary)::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:97
+#: ../../source/developers/containers.rst:93
 msgid ""
 "From the perspective of OpenShift and the ``openshift.json`` config file,"
 " the HTTP link to Dataverse in called a route. See also documentation for"
 " ``oc expose``."
 msgstr ""
 
-#: ../../source/developers/containers.rst:100
+#: ../../source/developers/containers.rst:96
 msgid "Troubleshooting"
 msgstr ""
 
-#: ../../source/developers/containers.rst:102
+#: ../../source/developers/containers.rst:98
 msgid ""
 "Here are some tips on troubleshooting your deployment of Dataverse to "
 "Minishift."
 msgstr ""
 
-#: ../../source/developers/containers.rst:105
+#: ../../source/developers/containers.rst:101
 msgid "Check Status of Dataverse Deployment to Minishift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:110
+#: ../../source/developers/containers.rst:106
 msgid ""
 "Once images have been downloaded from Docker Hub, the output from the "
 "following command will change from ``Pulling`` to ``Pulled``::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:114
+#: ../../source/developers/containers.rst:110
 msgid "This is a deep dive::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:119
+#: ../../source/developers/containers.rst:115
 msgid "Review Logs of Dataverse Deployment to Minishift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:121
+#: ../../source/developers/containers.rst:117
 msgid ""
 "Logs are provided in the web interface to each of the deployment "
 "configurations. The URLs should be something like this (but the IP "
@@ -241,54 +245,54 @@ msgid ""
 " Dataverse is done within the one Glassfish deployment configuration:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:123
+#: ../../source/developers/containers.rst:119
 msgid ""
 "https://192.168.99.100:8443/console/project/project1/browse/dc/dataverse-"
 "glassfish"
 msgstr ""
 
-#: ../../source/developers/containers.rst:124
+#: ../../source/developers/containers.rst:120
 msgid ""
 "https://192.168.99.100:8443/console/project/project1/browse/dc/dataverse-"
 "postgresql"
 msgstr ""
 
-#: ../../source/developers/containers.rst:125
+#: ../../source/developers/containers.rst:121
 msgid ""
 "https://192.168.99.100:8443/console/project/project1/browse/dc/dataverse-"
 "solr"
 msgstr ""
 
-#: ../../source/developers/containers.rst:127
+#: ../../source/developers/containers.rst:123
 msgid ""
 "You can also see logs from each of the components (Glassfish, PostgreSQL,"
 " and Solr) from the command line with ``oc logs`` like this (just change "
 "the ``grep`` at the end)::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:132
+#: ../../source/developers/containers.rst:128
 msgid "Get a Shell (ssh/rsh) on Containers Deployed to Minishift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:134
+#: ../../source/developers/containers.rst:130
 msgid ""
 "You can get a shell on any of the containers for each of the components "
 "(Glassfish, PostgreSQL, and Solr) with ``oc rc`` (just change the "
 "``grep`` at the end)::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:138
+#: ../../source/developers/containers.rst:134
 msgid ""
 "From the ``rsh`` prompt of the Glassfish container you could run "
 "something like the following to make sure that Dataverse is running on "
 "port 8080::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:143
+#: ../../source/developers/containers.rst:139
 msgid "Cleaning up"
 msgstr ""
 
-#: ../../source/developers/containers.rst:145
+#: ../../source/developers/containers.rst:141
 msgid ""
 "If you simply wanted to try out Dataverse on Minishift and want to clean "
 "up, you can run ``oc delete project project1`` to delete the project or "
@@ -296,22 +300,22 @@ msgid ""
 "Minishift VM and all the Docker containers inside it."
 msgstr ""
 
-#: ../../source/developers/containers.rst:148
+#: ../../source/developers/containers.rst:144
 msgid "Making Changes"
 msgstr ""
 
-#: ../../source/developers/containers.rst:151
+#: ../../source/developers/containers.rst:147
 msgid "Making Changes to Docker Images"
 msgstr ""
 
-#: ../../source/developers/containers.rst:153
+#: ../../source/developers/containers.rst:149
 msgid ""
 "If you're interested in using Minishift for development and want to "
 "change the Dataverse code, you will need to get set up to create Docker "
 "images based on your changes and make them available within Minishift."
 msgstr ""
 
-#: ../../source/developers/containers.rst:155
+#: ../../source/developers/containers.rst:151
 msgid ""
 "It is recommended to add experimental images to Minishift's internal "
 "registry. Note that despite what "
@@ -323,22 +327,22 @@ msgid ""
 "newly build images are listed in Minishift's internal registry."
 msgstr ""
 
-#: ../../source/developers/containers.rst:157
+#: ../../source/developers/containers.rst:153
 msgid ""
 "First, set the Docker environment variables so that ``docker build`` and "
 "``docker images`` refer to the internal Minishift registry rather than "
 "your normal Docker setup::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:161
+#: ../../source/developers/containers.rst:157
 msgid "When you're ready to build, change to the right directory::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:165
+#: ../../source/developers/containers.rst:161
 msgid "And then run the build script in \"internal\" mode::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:169
+#: ../../source/developers/containers.rst:165
 msgid ""
 "Note that ``conf/openshift/openshift.json`` must not have "
 "``imagePullPolicy`` set to ``Always`` or it will pull from \"iqss\" on "
@@ -346,30 +350,30 @@ msgid ""
 "images shown from ``docker images`` rather than the ones on Docker Hub."
 msgstr ""
 
-#: ../../source/developers/containers.rst:171
+#: ../../source/developers/containers.rst:167
 msgid ""
 "Using Minishift for day to day Dataverse development might be something "
 "we want to investigate in the future. These blog posts talk about "
 "developing Java applications using Minishift/OpenShift:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:173
+#: ../../source/developers/containers.rst:169
 msgid ""
 "https://blog.openshift.com/fast-iterative-java-development-on-openshift-"
 "kubernetes-using-rsync/"
 msgstr ""
 
-#: ../../source/developers/containers.rst:174
+#: ../../source/developers/containers.rst:170
 msgid ""
 "https://blog.openshift.com/debugging-java-applications-on-openshift-"
 "kubernetes/"
 msgstr ""
 
-#: ../../source/developers/containers.rst:177
+#: ../../source/developers/containers.rst:173
 msgid "Making Changes to the OpenShift Config"
 msgstr ""
 
-#: ../../source/developers/containers.rst:179
+#: ../../source/developers/containers.rst:175
 msgid ""
 "If you are interested in changing the OpenShift config file for Dataverse"
 " at ``conf/openshift/openshift.json`` note that in many cases once you "
@@ -378,51 +382,51 @@ msgid ""
 "expected)::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:183
+#: ../../source/developers/containers.rst:179
 msgid ""
 "The slower way to iterate on the ``openshift.json`` file is to delete the"
 " project and re-create it."
 msgstr ""
 
-#: ../../source/developers/containers.rst:186
+#: ../../source/developers/containers.rst:182
 msgid "Making Changes to the PostgreSQL Database from the Glassfish Pod"
 msgstr ""
 
-#: ../../source/developers/containers.rst:188
+#: ../../source/developers/containers.rst:184
 msgid ""
 "You can access and modify the PostgreSQL database via an interactive "
 "terminal called psql."
 msgstr ""
 
-#: ../../source/developers/containers.rst:190
+#: ../../source/developers/containers.rst:186
 msgid ""
 "To log in to psql from the command line of the Glassfish pod, type the "
 "following command::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:194
+#: ../../source/developers/containers.rst:190
 msgid "To log in as an admin, type this command instead::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:199
+#: ../../source/developers/containers.rst:195
 msgid "Scaling Dataverse by Increasing Replicas in a StatefulSet"
 msgstr ""
 
-#: ../../source/developers/containers.rst:201
+#: ../../source/developers/containers.rst:197
 msgid ""
 "Glassfish, Solr and PostgreSQL Pods are in a \"StatefulSet\" which is a "
 "concept from OpenShift and Kubernetes that you can read about at "
 "https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/"
 msgstr ""
 
-#: ../../source/developers/containers.rst:203
+#: ../../source/developers/containers.rst:199
 msgid ""
 "As of this writing, the ``openshift.json`` file has a single \"replica\" "
 "for each of these two stateful sets. It's possible to increase the number"
 " of replicas from 1 to 3, for example, with this command::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:207
+#: ../../source/developers/containers.rst:203
 msgid ""
 "This command should result in two additional Glassfish pods being spun "
 "up. The name of the pods is significant and there is special logic in the"
@@ -433,7 +437,7 @@ msgid ""
 "pods will not be configured as a timer server."
 msgstr ""
 
-#: ../../source/developers/containers.rst:209
+#: ../../source/developers/containers.rst:205
 msgid ""
 "Once you have multiple Glassfish servers you may notice bugs that will "
 "require additional configuration to fix. One such bug has to do with "
@@ -452,7 +456,7 @@ msgid ""
 "bugs."
 msgstr ""
 
-#: ../../source/developers/containers.rst:211
+#: ../../source/developers/containers.rst:207
 msgid ""
 "Multiple PostgreSQL servers are possible within the OpenShift environment"
 " as well and have been set up with some amount of replication. "
@@ -464,7 +468,7 @@ msgid ""
 " used with a single PostgreSQL server and that it's the master."
 msgstr ""
 
-#: ../../source/developers/containers.rst:213
+#: ../../source/developers/containers.rst:209
 msgid ""
 "Solr supports index distribution and replication for scaling. For "
 "OpenShift use, we choose replication. It's possible to scale up Solr "
@@ -473,11 +477,11 @@ msgid ""
 "slave nodes"
 msgstr ""
 
-#: ../../source/developers/containers.rst:218
+#: ../../source/developers/containers.rst:214
 msgid "Configuring Persistent Volumes and Solr master node recovery"
 msgstr ""
 
-#: ../../source/developers/containers.rst:220
+#: ../../source/developers/containers.rst:216
 msgid ""
 "Solr requires backing up the search index to persistent storage. For our "
 "proof of concept, we configure a hostPath, which allows Solr containers "
@@ -486,14 +490,14 @@ msgid ""
 "https://kubernetes.io/docs/concepts/storage/persistent-volumes"
 msgstr ""
 
-#: ../../source/developers/containers.rst:222
+#: ../../source/developers/containers.rst:218
 msgid ""
 "To allow containers to use a host's storage, we need to allow access to "
 "that directory first. In this example, we expose /tmp/share to the "
 "containers::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:231
+#: ../../source/developers/containers.rst:227
 msgid ""
 "To add a persistent volume and persistent volume claim, in "
 "conf/docker/openshift/openshift.json, add the following to objects in "
@@ -504,17 +508,17 @@ msgid ""
 "Storage::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:282
+#: ../../source/developers/containers.rst:278
 msgid ""
 "To make solr container mount the hostPath, add the following part under "
 ".spec.spec (for Solr StatefulSet)::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:316
+#: ../../source/developers/containers.rst:312
 msgid "Solr is now ready for backup and recovery. In order to backup::"
 msgstr ""
 
-#: ../../source/developers/containers.rst:322
+#: ../../source/developers/containers.rst:318
 msgid ""
 "In solr entrypoint.sh, it's configured so that if dataverse-solr-0 "
 "failed, it will get the latest version of the index in the backup and "
@@ -522,11 +526,11 @@ msgid ""
 " in solr containers."
 msgstr ""
 
-#: ../../source/developers/containers.rst:325
+#: ../../source/developers/containers.rst:321
 msgid "Running Containers to Run as Root in Minishift"
 msgstr ""
 
-#: ../../source/developers/containers.rst:327
+#: ../../source/developers/containers.rst:323
 msgid ""
 "It is **not** recommended to run containers as root in Minishift because "
 "for security reasons OpenShift doesn't support running containers as "
@@ -534,7 +538,7 @@ msgid ""
 "in case you need to work on a Docker image to make it run as non-root."
 msgstr ""
 
-#: ../../source/developers/containers.rst:329
+#: ../../source/developers/containers.rst:325
 msgid ""
 "For more information on improving Docker images to run as non-root, see "
 "\"Support Arbitrary User IDs\" at "
@@ -542,7 +546,7 @@ msgid ""
 "#openshift-origin-specific-guidelines"
 msgstr ""
 
-#: ../../source/developers/containers.rst:331
+#: ../../source/developers/containers.rst:327
 msgid ""
 "Let's say you have a container that you suspect works fine when it runs "
 "as root. You want to see it working as-is before you start hacking on the"
@@ -550,53 +554,53 @@ msgid ""
 "containers to run as root with this command:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:333
+#: ../../source/developers/containers.rst:329
 msgid "``oc adm policy add-scc-to-user anyuid -z default --as system:admin``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:335
+#: ../../source/developers/containers.rst:331
 msgid ""
 "Once you are done testing you can revert Minishift back to not allowing "
 "containers to run as root with this command:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:337
+#: ../../source/developers/containers.rst:333
 msgid "``oc adm policy remove-scc-from-user anyuid -z default --as system:admin``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:340
+#: ../../source/developers/containers.rst:336
 msgid "Minishift Resources"
 msgstr ""
 
-#: ../../source/developers/containers.rst:342
+#: ../../source/developers/containers.rst:338
 msgid "The following resources might be helpful."
 msgstr ""
 
-#: ../../source/developers/containers.rst:344
+#: ../../source/developers/containers.rst:340
 msgid ""
 "https://blog.openshift.com/part-1-from-app-to-openshift-runtimes-and-"
 "templates/"
 msgstr ""
 
-#: ../../source/developers/containers.rst:345
+#: ../../source/developers/containers.rst:341
 msgid ""
 "https://blog.openshift.com/part-2-creating-a-template-a-technical-"
 "walkthrough/"
 msgstr ""
 
-#: ../../source/developers/containers.rst:346
+#: ../../source/developers/containers.rst:342
 msgid "https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/templates.html"
 msgstr ""
 
-#: ../../source/developers/containers.rst:351
+#: ../../source/developers/containers.rst:347
 msgid "Docker"
 msgstr ""
 
-#: ../../source/developers/containers.rst:353
+#: ../../source/developers/containers.rst:349
 msgid "From the Dataverse perspective, Docker is important for a few reasons:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:355
+#: ../../source/developers/containers.rst:351
 msgid ""
 "We are thankful that NDS Labs did the initial work to containerize "
 "Dataverse and include it in the \"workbench\" we mention in the "
@@ -604,7 +608,7 @@ msgid ""
 "workbench allows people to kick the tires on Dataverse."
 msgstr ""
 
-#: ../../source/developers/containers.rst:356
+#: ../../source/developers/containers.rst:352
 msgid ""
 "There is interest from the community in running Dataverse on OpenShift "
 "and some initial work has been done to get Dataverse running on Minishift"
@@ -614,7 +618,7 @@ msgid ""
 "https://github.com/IQSS/dataverse/issues/4040 ."
 msgstr ""
 
-#: ../../source/developers/containers.rst:357
+#: ../../source/developers/containers.rst:353
 msgid ""
 "Docker may aid in testing efforts if we can easily spin up Docker images "
 "based on code in pull requests and run the full integration suite against"
@@ -622,21 +626,21 @@ msgid ""
 "integration tests."
 msgstr ""
 
-#: ../../source/developers/containers.rst:360
+#: ../../source/developers/containers.rst:356
 msgid "Installing Docker"
 msgstr ""
 
-#: ../../source/developers/containers.rst:362
+#: ../../source/developers/containers.rst:358
 msgid "On Linux, you can probably get Docker from your package manager."
 msgstr ""
 
-#: ../../source/developers/containers.rst:364
+#: ../../source/developers/containers.rst:360
 msgid ""
 "On Mac, download the ``.dmg`` from https://www.docker.com and install it."
 " As of this writing is it known as Docker Community Edition for Mac."
 msgstr ""
 
-#: ../../source/developers/containers.rst:366
+#: ../../source/developers/containers.rst:362
 msgid ""
 "On Windows, we have heard reports of success using Docker on a Linux VM "
 "running in VirtualBox or similar. There's something called \"Docker "
@@ -644,49 +648,49 @@ msgid ""
 ":doc:`windows` section."
 msgstr ""
 
-#: ../../source/developers/containers.rst:368
+#: ../../source/developers/containers.rst:364
 msgid "We use Docker images in two different contexts:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:370
+#: ../../source/developers/containers.rst:366
 msgid "Testing using an \"all in one\" Docker image (ephemeral, unpublished)"
 msgstr ""
 
-#: ../../source/developers/containers.rst:371
+#: ../../source/developers/containers.rst:367
 msgid ""
 "Future production use on Minishift/OpenShift/Kubernetes (published to "
 "Docker Hub)"
 msgstr ""
 
-#: ../../source/developers/containers.rst:374
+#: ../../source/developers/containers.rst:370
 msgid "All In One Docker Images for Testing"
 msgstr ""
 
-#: ../../source/developers/containers.rst:376
+#: ../../source/developers/containers.rst:372
 msgid ""
 "The \"all in one\" Docker files are in ``conf/docker-aio`` and you should"
 " follow the readme in that directory for more information on how to use "
 "them."
 msgstr ""
 
-#: ../../source/developers/containers.rst:379
+#: ../../source/developers/containers.rst:375
 msgid "Future production use on Minishift/OpenShift/Kubernetes"
 msgstr ""
 
-#: ../../source/developers/containers.rst:381
+#: ../../source/developers/containers.rst:377
 msgid ""
 "FIXME: rewrite this section to talk about only pushing stable images to "
 "Docker Hub."
 msgstr ""
 
-#: ../../source/developers/containers.rst:383
+#: ../../source/developers/containers.rst:379
 msgid ""
 "When working with Docker in the context of Minishift, follow the "
 "instructions in :ref:`openshift` and make sure you get the Dataverse "
 "Docker images running in Minishift before you start messing with them."
 msgstr ""
 
-#: ../../source/developers/containers.rst:385
+#: ../../source/developers/containers.rst:381
 msgid ""
 "As of this writing, the Dataverse Docker images we publish under "
 "https://hub.docker.com/u/iqss/ are highly experimental. They were "
@@ -697,54 +701,54 @@ msgid ""
 "please reach out if you'd like to help!"
 msgstr ""
 
-#: ../../source/developers/containers.rst:387
+#: ../../source/developers/containers.rst:383
 msgid "Change to the docker directory:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:389
+#: ../../source/developers/containers.rst:385
 msgid "``cd conf/docker``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:391
+#: ../../source/developers/containers.rst:387
 msgid "Edit one of the files:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:393
+#: ../../source/developers/containers.rst:389
 msgid "``vim dataverse-glassfish/Dockerfile``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:395
+#: ../../source/developers/containers.rst:391
 msgid ""
 "At this point you want to build the image and run it. We are assuming you"
 " want to run it in your Minishift environment. We will be building your "
 "image and pushing it to Docker Hub."
 msgstr ""
 
-#: ../../source/developers/containers.rst:397
+#: ../../source/developers/containers.rst:393
 msgid ""
 "Log in to Docker Hub with an account that has access to push to the "
 "``iqss`` organization:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:399
+#: ../../source/developers/containers.rst:395
 msgid "``docker login``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:401
+#: ../../source/developers/containers.rst:397
 msgid ""
 "(If you don't have access to push to the ``iqss`` organization, you can "
 "push elsewhere and adjust your ``openshift.json`` file accordingly.)"
 msgstr ""
 
-#: ../../source/developers/containers.rst:403
+#: ../../source/developers/containers.rst:399
 msgid "Build and push the images to Docker Hub:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:405
+#: ../../source/developers/containers.rst:401
 msgid "``./build.sh``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:407
+#: ../../source/developers/containers.rst:403
 msgid ""
 "Note that you will see output such as ``digest: "
 "sha256:213b6380e6ee92607db5d02c9e88d7591d81f4b6d713224d47003d5807b93d4b``"
@@ -752,34 +756,34 @@ msgid ""
 "using the latest image you just pushed to Docker Hub."
 msgstr ""
 
-#: ../../source/developers/containers.rst:409
+#: ../../source/developers/containers.rst:405
 msgid "You can get a list of all repos under the ``iqss`` organization with this:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:411
+#: ../../source/developers/containers.rst:407
 msgid "``curl https://hub.docker.com/v2/repositories/iqss/``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:413
+#: ../../source/developers/containers.rst:409
 msgid "To see a specific repo:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:415
+#: ../../source/developers/containers.rst:411
 msgid "``curl https://hub.docker.com/v2/repositories/iqss/dataverse-glassfish/``"
 msgstr ""
 
-#: ../../source/developers/containers.rst:418
+#: ../../source/developers/containers.rst:414
 msgid "Known Issues with Dataverse Images on Docker Hub"
 msgstr ""
 
-#: ../../source/developers/containers.rst:420
+#: ../../source/developers/containers.rst:416
 msgid ""
 "Again, Dataverse Docker images on Docker Hub are highly experimental at "
 "this point. As of this writing, their purpose is primarily for kicking "
 "the tires on Dataverse. Here are some known issues:"
 msgstr ""
 
-#: ../../source/developers/containers.rst:422
+#: ../../source/developers/containers.rst:418
 msgid ""
 "The Dataverse installer is run in the entrypoint script every time you "
 "run the image. Ideally, Dataverse would be installed in the Dockerfile "
@@ -788,35 +792,35 @@ msgid ""
 "when the war file is deployed."
 msgstr ""
 
-#: ../../source/developers/containers.rst:423
+#: ../../source/developers/containers.rst:419
 msgid ""
 "The storage should be abstracted. Storage of data files and PostgreSQL "
 "data. Probably Solr data."
 msgstr ""
 
-#: ../../source/developers/containers.rst:424
+#: ../../source/developers/containers.rst:420
 msgid ""
 "Better tuning of memory by examining "
 "``/sys/fs/cgroup/memory/memory.limit_in_bytes`` and incorporating this "
 "into the Dataverse installation script."
 msgstr ""
 
-#: ../../source/developers/containers.rst:425
+#: ../../source/developers/containers.rst:421
 msgid ""
 "Only a single Glassfish server can be used. See \"Dedicated timer server "
 "in a Dataverse server cluster\" in the :doc:`/admin/timers` section of "
 "the Installation Guide."
 msgstr ""
 
-#: ../../source/developers/containers.rst:426
+#: ../../source/developers/containers.rst:422
 msgid "Only a single PostgreSQL server can be used."
 msgstr ""
 
-#: ../../source/developers/containers.rst:427
+#: ../../source/developers/containers.rst:423
 msgid "Only a single Solr server can be used."
 msgstr ""
 
-#: ../../source/developers/containers.rst:431
+#: ../../source/developers/containers.rst:427
 msgid "Previous: :doc:`deployment` | Next: :doc:`making-releases`"
 msgstr ""
 

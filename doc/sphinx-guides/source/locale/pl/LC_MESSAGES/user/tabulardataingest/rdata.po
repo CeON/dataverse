@@ -1,35 +1,39 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/user/tabulardataingest/rdata.rst:6
+#: ../../source/user/tabulardataingest/rdata.rst:2
 msgid "R Data Format"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:8
+#: ../../source/user/tabulardataingest/rdata.rst:4
 msgid "Support for R (.RData) files has been introduced in DVN 3.5."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:14
+#: ../../source/user/tabulardataingest/rdata.rst:7
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/user/tabulardataingest/rdata.rst:10
 msgid "Overview."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:17
+#: ../../source/user/tabulardataingest/rdata.rst:13
 msgid ""
 "R has been increasingly popular in the research/academic community, owing"
 " to the fact that it is free and open-source (unlike SPSS and STATA). "
@@ -37,26 +41,26 @@ msgid ""
 " in R format."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:23
+#: ../../source/user/tabulardataingest/rdata.rst:19
 msgid "Data Formatting Requirements."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:25
+#: ../../source/user/tabulardataingest/rdata.rst:21
 msgid ""
 "The data must be formatted as an R dataframe (data.frame()). If an .RData"
 " file contains multiple dataframes, only the 1st one will be ingested "
 "(this may change in the future)."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:30
+#: ../../source/user/tabulardataingest/rdata.rst:26
 msgid "Data Types, compared to other supported formats (Stat, SPSS)"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:33
+#: ../../source/user/tabulardataingest/rdata.rst:29
 msgid "Integers, Doubles, Character strings"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:35
+#: ../../source/user/tabulardataingest/rdata.rst:31
 msgid ""
 "The handling of these types is intuitive and straightforward. The "
 "resulting tab file columns, summary statistics and UNF signatures should "
@@ -64,11 +68,11 @@ msgid ""
 "and Stata."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:40
+#: ../../source/user/tabulardataingest/rdata.rst:36
 msgid "**Things that are unique to R:**"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:42
+#: ../../source/user/tabulardataingest/rdata.rst:38
 msgid ""
 "R explicitly supports Missing Values for all of the types above; Missing "
 "Values encoded in R vectors will be recognized and preserved in TAB "
@@ -77,29 +81,29 @@ msgid ""
 "stored in a TAB file, is an empty string, an not \"NA\" as in R."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:48
+#: ../../source/user/tabulardataingest/rdata.rst:44
 msgid ""
 "In addition to Missing Values, R recognizes \"Not a Value\" (NaN) and "
 "positive and negative infinity for floating point variables. These are "
 "now properly supported by the Dataverse."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:52
+#: ../../source/user/tabulardataingest/rdata.rst:48
 msgid ""
 "Also note, that unlike Stata, that does recognize \"float\" and "
 "\"double\" as distinct data types, all floating point values in R are in "
 "fact doubles."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:57
+#: ../../source/user/tabulardataingest/rdata.rst:53
 msgid "R Factors"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:59
+#: ../../source/user/tabulardataingest/rdata.rst:55
 msgid "These are ingested as \"Categorical Values\" in the Dataverse."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:61
+#: ../../source/user/tabulardataingest/rdata.rst:57
 msgid ""
 "One thing to keep in mind: in both Stata and SPSS, the actual value of a "
 "categorical variable can be both character and numeric. In R, all factor "
@@ -108,7 +112,7 @@ msgid ""
 "be of string type too."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:67
+#: ../../source/user/tabulardataingest/rdata.rst:63
 msgid ""
 "Another thing to note is that R factors have no builtin support for SPSS "
 "or STATA-like descriptive labels. This is in fact potentially confusing, "
@@ -126,7 +130,7 @@ msgid ""
 " human-readable text text note)."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:83
+#: ../../source/user/tabulardataingest/rdata.rst:79
 msgid ""
 "To properly handle R vectors that are *ordered factors* Dataverse "
 "(starting with DVN 3.6) supports the concept of an \"Ordered "
@@ -134,19 +138,19 @@ msgid ""
 "to the list of value labels."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:86
+#: ../../source/user/tabulardataingest/rdata.rst:82
 msgid "Boolean values"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:88
+#: ../../source/user/tabulardataingest/rdata.rst:84
 msgid "R Boolean (logical) values are supported."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:92
+#: ../../source/user/tabulardataingest/rdata.rst:88
 msgid "Limitations of R, as compared to SPSS and STATA."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:94
+#: ../../source/user/tabulardataingest/rdata.rst:90
 msgid ""
 "Most noticeably, R lacks a standard mechanism for defining descriptive "
 "labels for the data frame variables.  In the Dataverse, similarly to both"
@@ -156,7 +160,7 @@ msgid ""
 "and the \"label\"."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:101
+#: ../../source/user/tabulardataingest/rdata.rst:97
 msgid ""
 "*Optional R packages exist for providing descriptive variable labels; in "
 "one of the future versions support may be added for such a mechanism. It "
@@ -164,7 +168,7 @@ msgid ""
 "optional packages*."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:106
+#: ../../source/user/tabulardataingest/rdata.rst:102
 msgid ""
 "Similarly, R categorical values (factors) lack descriptive labels too. "
 "**Note:** This is potentially confusing, since R factors do actually have"
@@ -175,24 +179,24 @@ msgid ""
 "readable text, such as the case with the SPSS/Stata \"label\"."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:115
+#: ../../source/user/tabulardataingest/rdata.rst:111
 msgid ""
 "Ingesting an R factor with the level labels \"MALE\" and \"FEMALE\" will "
 "produce a categorical variable with \"MALE\" and \"FEMALE\" in the values"
 " and labels both."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:121
+#: ../../source/user/tabulardataingest/rdata.rst:117
 msgid "Time values in R"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:123
+#: ../../source/user/tabulardataingest/rdata.rst:119
 msgid ""
 "This warrants a dedicated section of its own, because of some unique ways"
 " in which time values are handled in R."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:126
+#: ../../source/user/tabulardataingest/rdata.rst:122
 msgid ""
 "R makes an effort to treat a time value as a real time instance. This is "
 "in contrast with either SPSS or Stata, where time value representations "
@@ -204,7 +208,7 @@ msgid ""
 " zone adjustments are made in real time as needed."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:136
+#: ../../source/user/tabulardataingest/rdata.rst:132
 msgid ""
 "Things still get ambiguous and confusing when R **displays** this time "
 "value: unless the time zone was explicitly defined, R will adjust the "
@@ -212,14 +216,14 @@ msgid ""
 "intuitive: if you create a time value, for example:"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:141
+#: ../../source/user/tabulardataingest/rdata.rst:137
 #, python-format
 msgid ""
 "``timevalue<-as.POSIXct(\"03/19/2013 12:57:00\", format = \"%m/%d/%Y "
 "%H:%M:%OS\");``"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:143
+#: ../../source/user/tabulardataingest/rdata.rst:139
 msgid ""
 "on a computer configured for the San Francisco time zone, the value will "
 "be differently displayed on computers in different time zones; for "
@@ -227,29 +231,29 @@ msgid ""
 "EST\" in Boston."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:148
+#: ../../source/user/tabulardataingest/rdata.rst:144
 msgid ""
 "If it is important that the values are always displayed the same way, "
 "regardless of the current time zones, it is recommended that the time "
 "zone is explicitly defined. For example:"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:152
+#: ../../source/user/tabulardataingest/rdata.rst:148
 msgid "``attr(timevalue,\"tzone\")<-\"PST\"``"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:154
+#: ../../source/user/tabulardataingest/rdata.rst:150
 msgid "or"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:156
+#: ../../source/user/tabulardataingest/rdata.rst:152
 #, python-format
 msgid ""
 "``timevalue<-as.POSIXct(\"03/19/2013 12:57:00\", format = \"%m/%d/%Y "
 "%H:%M:%OS\", tz=\"PST\");``"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:158
+#: ../../source/user/tabulardataingest/rdata.rst:154
 msgid ""
 "Now the value will always be displayed as \"15:57 PST\", regardless of "
 "the time zone that is current for the OS ... **BUT ONLY** if the OS where"
@@ -262,7 +266,7 @@ msgid ""
 "displayed in any way that is predictable or intuitive."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:168
+#: ../../source/user/tabulardataingest/rdata.rst:164
 msgid ""
 "In practical terms, it is recommended to use the long/descriptive forms "
 "of time zones, as they are more likely to be properly recognized on most "
@@ -278,7 +282,7 @@ msgid ""
 " made you aware of this being a potentially complex issue!)"
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:181
+#: ../../source/user/tabulardataingest/rdata.rst:177
 msgid ""
 "An important thing to keep in mind, in connection with the Dataverse "
 "ingest of R files, is that it will **reject** an R data file with any "
@@ -286,7 +290,7 @@ msgid ""
 " order to avoid (some) of the potential issues outlined above."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:186
+#: ../../source/user/tabulardataingest/rdata.rst:182
 msgid ""
 "It is also recommended that any vectors containing time values ingested "
 "into the Dataverse are reviewed, and the resulting entries in the TAB "
@@ -294,7 +298,7 @@ msgid ""
 "make sure they have been ingested as expected."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:191
+#: ../../source/user/tabulardataingest/rdata.rst:187
 msgid ""
 "Another **potential issue** here is the **UNF**. The way the UNF "
 "algorithm works, the same date/time values with and without the timezone "
@@ -306,7 +310,7 @@ msgid ""
 "vectors, in Stata/SPSS and R, that produce the same UNF."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:200
+#: ../../source/user/tabulardataingest/rdata.rst:196
 msgid ""
 "**A pro tip:** if it is important to produce SPSS/Stata and R versions of"
 " the same data set that result in the same UNF when ingested, you may "
@@ -316,7 +320,7 @@ msgid ""
 "result in the same UNF as the vector of the same time values in Stata."
 msgstr ""
 
-#: ../../source/user/tabulardataingest/rdata.rst:207
+#: ../../source/user/tabulardataingest/rdata.rst:203
 msgid ""
 "Note: date values (dates only, without time) should be handled the exact "
 "same way as those in SPSS and Stata, and should produce the same UNFs."

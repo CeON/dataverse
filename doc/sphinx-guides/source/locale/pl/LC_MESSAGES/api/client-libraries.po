@@ -1,27 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/api/client-libraries.rst:6
+#: ../../source/api/client-libraries.rst:2
 msgid "Client Libraries"
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:8
+#: ../../source/api/client-libraries.rst:4
 msgid ""
 "Currently there are client libraries for Python, R, and Java that can be "
 "used to develop against Dataverse APIs. We use the term \"client "
@@ -32,23 +32,27 @@ msgid ""
 "consult each project's README."
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:10
+#: ../../source/api/client-libraries.rst:6
 msgid ""
 "Because Dataverse is a SWORD server, additional client libraries exist "
 "for Java, Ruby, and PHP per the :doc:`/api/sword` page."
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:16
+#: ../../source/api/client-libraries.rst:9
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/api/client-libraries.rst:12
 msgid "Python"
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:18
+#: ../../source/api/client-libraries.rst:14
 msgid ""
 "https://github.com/IQSS/dataverse-client-python is the offical Python "
 "package for Dataverse APIs."
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:20
+#: ../../source/api/client-libraries.rst:16
 msgid ""
 "`Robert Liebowitz <https://github.com/rliebz>`_ created this library "
 "while at the `Center for Open Science (COS) "
@@ -58,34 +62,34 @@ msgid ""
 "page."
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:23
+#: ../../source/api/client-libraries.rst:19
 msgid "R"
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:25
+#: ../../source/api/client-libraries.rst:21
 msgid ""
 "https://github.com/IQSS/dataverse-client-r is the official R package for "
 "Dataverse APIs. The latest release can be installed from `CRAN "
 "<https://cran.r-project.org/package=dataverse>`_."
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:27
+#: ../../source/api/client-libraries.rst:23
 msgid ""
 "It was created by `Thomas Leeper <http://thomasleeper.com>`_ whose "
 "dataverse can be found at https://dataverse.harvard.edu/dataverse/leeper"
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:30
+#: ../../source/api/client-libraries.rst:26
 msgid "Java"
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:32
+#: ../../source/api/client-libraries.rst:28
 msgid ""
 "https://github.com/IQSS/dataverse-client-java is the official Java "
 "library for Dataverse APIs."
 msgstr ""
 
-#: ../../source/api/client-libraries.rst:34
+#: ../../source/api/client-libraries.rst:30
 msgid ""
 "`Richard Adams <http://www.researchspace.com/electronic-lab-"
 "notebook/about_us_team.html>`_ from `ResearchSpace "

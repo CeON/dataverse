@@ -1,27 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/api/sword.rst:6
+#: ../../source/api/sword.rst:2
 msgid "SWORD API"
 msgstr ""
 
-#: ../../source/api/sword.rst:8
+#: ../../source/api/sword.rst:4
 msgid ""
 "SWORD_ stands for \"Simple Web-service Offering Repository Deposit\" and "
 "is a \"profile\" of AtomPub (`RFC 5023`_) which is a RESTful API that "
@@ -30,11 +30,15 @@ msgid ""
 "Java, R, Ruby, and PHP."
 msgstr ""
 
-#: ../../source/api/sword.rst:14
+#: ../../source/api/sword.rst:7
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/api/sword.rst:10
 msgid "About"
 msgstr ""
 
-#: ../../source/api/sword.rst:16
+#: ../../source/api/sword.rst:12
 msgid ""
 "Introduced in Dataverse Network (DVN) `3.6 "
 "<http://guides.dataverse.org/en/3.6.2/dataverse-api-main.html#data-"
@@ -47,7 +51,7 @@ msgid ""
 "been increased to ``v1.1``. For details, see :ref:`incompatible`."
 msgstr ""
 
-#: ../../source/api/sword.rst:18
+#: ../../source/api/sword.rst:14
 msgid ""
 "Dataverse implements most of SWORDv2_, which is specified at "
 "http://swordapp.github.io/SWORDv2-Profile/SWORDProfile.html . Please "
@@ -55,7 +59,7 @@ msgid ""
 "(i.e. 201, 204, 404, etc.), headers (i.e. \"Location\"), etc."
 msgstr ""
 
-#: ../../source/api/sword.rst:20
+#: ../../source/api/sword.rst:16
 msgid ""
 "As a profile of AtomPub, XML is used throughout SWORD. As of Dataverse "
 "4.0 datasets can also be created via JSON using the \"native\" API. SWORD"
@@ -64,17 +68,17 @@ msgid ""
 "populate all metadata fields available in Dataverse."
 msgstr ""
 
-#: ../../source/api/sword.rst:33
+#: ../../source/api/sword.rst:29
 msgid "Backward incompatible changes"
 msgstr ""
 
-#: ../../source/api/sword.rst:35
+#: ../../source/api/sword.rst:31
 msgid ""
 "For better security than in DVN 3.x, usernames and passwords are no "
 "longer accepted. The use of an API token is required."
 msgstr ""
 
-#: ../../source/api/sword.rst:37
+#: ../../source/api/sword.rst:33
 msgid ""
 "Differences in Dataverse 4 from DVN 3.x lead to a few minor backward "
 "incompatible changes in the Dataverse implementation of SWORD. Old ``v1``"
@@ -83,7 +87,7 @@ msgid ""
 ":ref:`known-issues`. Differences in SWORD for Dataverse 4 includes:"
 msgstr ""
 
-#: ../../source/api/sword.rst:40
+#: ../../source/api/sword.rst:36
 msgid ""
 "Newly required fields when creating/editing datasets for compliance with "
 "the `Joint Declaration for Data Citation principles "
@@ -91,31 +95,31 @@ msgid ""
 "dataverse>`_."
 msgstr ""
 
-#: ../../source/api/sword.rst:42
+#: ../../source/api/sword.rst:38
 msgid "dcterms:creator (maps to authorName)"
 msgstr ""
 
-#: ../../source/api/sword.rst:44 ../../source/api/sword.rst:109
+#: ../../source/api/sword.rst:40 ../../source/api/sword.rst:105
 msgid "dcterms:description"
 msgstr ""
 
-#: ../../source/api/sword.rst:46
+#: ../../source/api/sword.rst:42
 msgid ""
 "Deaccessioning is no longer supported. An alternative will be developed "
 "at https://github.com/IQSS/dataverse/issues/778"
 msgstr ""
 
-#: ../../source/api/sword.rst:48
+#: ../../source/api/sword.rst:44
 msgid ""
 "The Service Document will show a single API Terms of Use rather than root"
 " level and dataverse level Deposit Terms of Use."
 msgstr ""
 
-#: ../../source/api/sword.rst:51
+#: ../../source/api/sword.rst:47
 msgid "New features as of v1.1"
 msgstr ""
 
-#: ../../source/api/sword.rst:53
+#: ../../source/api/sword.rst:49
 msgid ""
 "Dataverse 4 supports API tokens and requires them to be used for APIs "
 "instead of a username and password. In :ref:`sword_curl_examples` "
@@ -124,7 +128,7 @@ msgid ""
 "example, ``curl -u 54b143b5-d001-4254-afc0-a1c0f6a5b5a7:``."
 msgstr ""
 
-#: ../../source/api/sword.rst:55
+#: ../../source/api/sword.rst:51
 msgid ""
 "SWORD operations no longer require \"admin\" permission. In order to use "
 "any SWORD operation in DVN 3.x, you had to be an \"admin\" on a dataverse"
@@ -139,11 +143,11 @@ msgid ""
 " datasets via any mechanism, GUI or API."
 msgstr ""
 
-#: ../../source/api/sword.rst:57
+#: ../../source/api/sword.rst:53
 msgid "Dataverses can be published via SWORD."
 msgstr ""
 
-#: ../../source/api/sword.rst:59
+#: ../../source/api/sword.rst:55
 msgid ""
 "Datasets versions will only be increased to the next minor version (i.e. "
 "1.1) rather than a major version (2.0) if possible. This depends on the "
@@ -151,25 +155,25 @@ msgid ""
 "major version bump."
 msgstr ""
 
-#: ../../source/api/sword.rst:61
+#: ../../source/api/sword.rst:57
 msgid ""
 "\"Author Affiliation\" can now be populated with an XML attribute. For "
 "example: <dcterms:creator affiliation=\"Coffee Bean State "
 "University\">Stumptown, Jane</dcterms:creator>"
 msgstr ""
 
-#: ../../source/api/sword.rst:63
+#: ../../source/api/sword.rst:59
 msgid ""
 "\"Contributor\" can now be populated and the \"Type\" (Editor, Funder, "
 "Researcher, etc.) can be specified with an XML attribute. For example: "
 "<dcterms:contributor type=\"Funder\">CaffeineForAll</dcterms:contributor>"
 msgstr ""
 
-#: ../../source/api/sword.rst:65
+#: ../../source/api/sword.rst:61
 msgid "\"Contact E-mail\" is automatically populated from dataset owner's email."
 msgstr ""
 
-#: ../../source/api/sword.rst:67
+#: ../../source/api/sword.rst:63
 msgid ""
 "\"Subject\" uses our controlled vocabulary list of subjects. This list is"
 " in the Citation Metadata of our User Guide > `Metadata References "
@@ -179,23 +183,23 @@ msgid ""
 " is empty it is automatically populated with \"N/A\"."
 msgstr ""
 
-#: ../../source/api/sword.rst:69
+#: ../../source/api/sword.rst:65
 msgid "Zero-length files are now allowed (but not necessarily encouraged)."
 msgstr ""
 
-#: ../../source/api/sword.rst:71
+#: ../../source/api/sword.rst:67
 msgid "\"Depositor\" and \"Deposit Date\" are auto-populated."
 msgstr ""
 
-#: ../../source/api/sword.rst:76
+#: ../../source/api/sword.rst:72
 msgid "curl examples"
 msgstr ""
 
-#: ../../source/api/sword.rst:79
+#: ../../source/api/sword.rst:75
 msgid "Retrieve SWORD service document"
 msgstr ""
 
-#: ../../source/api/sword.rst:81
+#: ../../source/api/sword.rst:77
 msgid ""
 "The service document enumerates the dataverses (\"collections\" from a "
 "SWORD perspective) the user can deposit data into. The "
@@ -205,17 +209,17 @@ msgid ""
 "group can only be set via a browser."
 msgstr ""
 
-#: ../../source/api/sword.rst:83
+#: ../../source/api/sword.rst:79
 msgid ""
 "``curl -u $API_TOKEN: https://$HOSTNAME/dvn/api/data-deposit/v1.1/swordv2"
 "/service-document``"
 msgstr ""
 
-#: ../../source/api/sword.rst:86
+#: ../../source/api/sword.rst:82
 msgid "Create a dataset with an Atom entry"
 msgstr ""
 
-#: ../../source/api/sword.rst:88
+#: ../../source/api/sword.rst:84
 msgid ""
 "To create a dataset, you must have the \"Dataset Creator\" role (the "
 "``AddDataset`` permission) on a dataverse. Practically speaking, you "
@@ -223,209 +227,209 @@ msgid ""
 "which you are authorized to deposit data."
 msgstr ""
 
-#: ../../source/api/sword.rst:90
+#: ../../source/api/sword.rst:86
 msgid ""
 "``curl -u $API_TOKEN: --data-binary \"@path/to/atom-entry-study.xml\" -H "
 "\"Content-Type: application/atom+xml\" https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/collection/dataverse/$DATAVERSE_ALIAS``"
 msgstr ""
 
-#: ../../source/api/sword.rst:92
+#: ../../source/api/sword.rst:88
 msgid "Example Atom entry (XML)"
 msgstr ""
 
-#: ../../source/api/sword.rst:99
+#: ../../source/api/sword.rst:95
 msgid ""
 "Dublin Core Terms (DC Terms) Qualified Mapping - Dataverse DB Element "
 "Crosswalk"
 msgstr ""
 
-#: ../../source/api/sword.rst:101
+#: ../../source/api/sword.rst:97
 msgid "DC (terms: namespace)"
 msgstr ""
 
-#: ../../source/api/sword.rst:101
+#: ../../source/api/sword.rst:97
 msgid "Dataverse DB Element"
 msgstr ""
 
-#: ../../source/api/sword.rst:101
+#: ../../source/api/sword.rst:97
 msgid "Required"
 msgstr ""
 
-#: ../../source/api/sword.rst:101
+#: ../../source/api/sword.rst:97
 msgid "Note"
 msgstr ""
 
-#: ../../source/api/sword.rst:103
+#: ../../source/api/sword.rst:99
 msgid "dcterms:title"
 msgstr ""
 
-#: ../../source/api/sword.rst:103
+#: ../../source/api/sword.rst:99
 msgid "title"
 msgstr ""
 
+#: ../../source/api/sword.rst:99 ../../source/api/sword.rst:101
 #: ../../source/api/sword.rst:103 ../../source/api/sword.rst:105
-#: ../../source/api/sword.rst:107 ../../source/api/sword.rst:109
-#: ../../source/api/sword.rst:113
+#: ../../source/api/sword.rst:109
 msgid "Y"
 msgstr ""
 
-#: ../../source/api/sword.rst:103
+#: ../../source/api/sword.rst:99
 msgid "Title of the Dataset."
 msgstr ""
 
-#: ../../source/api/sword.rst:105
+#: ../../source/api/sword.rst:101
 msgid "dcterms:creator"
 msgstr ""
 
-#: ../../source/api/sword.rst:105
+#: ../../source/api/sword.rst:101
 msgid "authorName (LastName, FirstName)"
 msgstr ""
 
-#: ../../source/api/sword.rst:105
+#: ../../source/api/sword.rst:101
 msgid "Author(s) for the Dataset."
 msgstr ""
 
-#: ../../source/api/sword.rst:107
+#: ../../source/api/sword.rst:103
 msgid "dcterms:subject"
 msgstr ""
 
-#: ../../source/api/sword.rst:107
+#: ../../source/api/sword.rst:103
 msgid "subject (Controlled Vocabulary) OR keyword"
 msgstr ""
 
-#: ../../source/api/sword.rst:107
+#: ../../source/api/sword.rst:103
 msgid ""
 "Controlled Vocabulary list is in our User Guide > `Metadata References "
 "<http://guides.dataverse.org/en/latest/user/appendix.html#metadata-"
 "references>`_."
 msgstr ""
 
-#: ../../source/api/sword.rst:109
+#: ../../source/api/sword.rst:105
 msgid "dsDescriptionValue"
 msgstr ""
 
-#: ../../source/api/sword.rst:109
+#: ../../source/api/sword.rst:105
 msgid ""
 "Describing the purpose, scope or nature of the Dataset. Can also use "
 "dcterms:abstract."
 msgstr ""
 
-#: ../../source/api/sword.rst:111
+#: ../../source/api/sword.rst:107
 msgid "dcterms:publisher"
 msgstr ""
 
-#: ../../source/api/sword.rst:111
+#: ../../source/api/sword.rst:107
 msgid "producerName"
 msgstr ""
 
-#: ../../source/api/sword.rst:111
+#: ../../source/api/sword.rst:107
 msgid ""
 "Person or agency financially or administratively responsible for the "
 "Dataset"
 msgstr ""
 
-#: ../../source/api/sword.rst:113
+#: ../../source/api/sword.rst:109
 msgid "dcterms:contributor"
 msgstr ""
 
-#: ../../source/api/sword.rst:113
+#: ../../source/api/sword.rst:109
 msgid "datasetContactEmail"
 msgstr ""
 
-#: ../../source/api/sword.rst:113
+#: ../../source/api/sword.rst:109
 msgid ""
 "Contact Email is required so will need to add an attribute "
 "type=\"Contact\". Also used for Funder: add attribute type=\"Funder\" "
 "which maps to contributorName."
 msgstr ""
 
-#: ../../source/api/sword.rst:115
+#: ../../source/api/sword.rst:111
 msgid "dcterms:date"
 msgstr ""
 
-#: ../../source/api/sword.rst:115
+#: ../../source/api/sword.rst:111
 msgid "productionDate (YYYY-MM-DD or YYYY-MM or YYYY)"
 msgstr ""
 
-#: ../../source/api/sword.rst:115
+#: ../../source/api/sword.rst:111
 msgid "Production date of Dataset."
 msgstr ""
 
-#: ../../source/api/sword.rst:117
+#: ../../source/api/sword.rst:113
 msgid "dcterms:type"
 msgstr ""
 
-#: ../../source/api/sword.rst:117
+#: ../../source/api/sword.rst:113
 msgid "kindOfData"
 msgstr ""
 
-#: ../../source/api/sword.rst:117
+#: ../../source/api/sword.rst:113
 msgid ""
 "Type of data included in the file: Numeric, Text, StillImage, Geospatial,"
 " Audio, Video, Software, InteractiveResource, ThreeD, Other."
 msgstr ""
 
-#: ../../source/api/sword.rst:119
+#: ../../source/api/sword.rst:115
 msgid "dcterms:source"
 msgstr ""
 
-#: ../../source/api/sword.rst:119
+#: ../../source/api/sword.rst:115
 msgid "dataSources"
 msgstr ""
 
-#: ../../source/api/sword.rst:119
+#: ../../source/api/sword.rst:115
 msgid ""
 "List of books, articles, data files if any that served as the sources for"
 " the Dataset."
 msgstr ""
 
-#: ../../source/api/sword.rst:121
+#: ../../source/api/sword.rst:117
 msgid "dcterms:relation"
 msgstr ""
 
-#: ../../source/api/sword.rst:121
+#: ../../source/api/sword.rst:117
 msgid "relatedMaterial"
 msgstr ""
 
-#: ../../source/api/sword.rst:121
+#: ../../source/api/sword.rst:117
 msgid ""
 "Any related material (journal article citation is not included here but "
 "in dcterms:isReferencedBy element)."
 msgstr ""
 
-#: ../../source/api/sword.rst:123
+#: ../../source/api/sword.rst:119
 msgid "dcterms:coverage"
 msgstr ""
 
-#: ../../source/api/sword.rst:123
+#: ../../source/api/sword.rst:119
 msgid "otherGeographicCoverage"
 msgstr ""
 
-#: ../../source/api/sword.rst:123
+#: ../../source/api/sword.rst:119
 msgid "General information on the geographic coverage of the Dataset."
 msgstr ""
 
-#: ../../source/api/sword.rst:125
+#: ../../source/api/sword.rst:121
 msgid "dcterms:isReferencedBy"
 msgstr ""
 
-#: ../../source/api/sword.rst:125
+#: ../../source/api/sword.rst:121
 msgid "publicationCitation"
 msgstr ""
 
-#: ../../source/api/sword.rst:125
+#: ../../source/api/sword.rst:121
 msgid ""
 "The publication (journal article, book, other work) that uses this "
 "dataset (include citation, permanent identifier (DOI), and permanent "
 "URL)."
 msgstr ""
 
-#: ../../source/api/sword.rst:131
+#: ../../source/api/sword.rst:127
 msgid "List datasets in a dataverse"
 msgstr ""
 
-#: ../../source/api/sword.rst:133
+#: ../../source/api/sword.rst:129
 msgid ""
 "You must have permission to add datasets in a dataverse (the dataverse "
 "should appear in the service document) to list the datasets inside. "
@@ -433,23 +437,23 @@ msgid ""
 "in such a group can only be set via a browser."
 msgstr ""
 
-#: ../../source/api/sword.rst:135 ../../source/api/sword.rst:186
+#: ../../source/api/sword.rst:131 ../../source/api/sword.rst:182
 msgid ""
 "``curl -u $API_TOKEN: https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/collection/dataverse/$DATAVERSE_ALIAS``"
 msgstr ""
 
-#: ../../source/api/sword.rst:138
+#: ../../source/api/sword.rst:134
 msgid "Add files to a dataset with a zip file"
 msgstr ""
 
-#: ../../source/api/sword.rst:140
+#: ../../source/api/sword.rst:136
 msgid ""
 "You must have ``EditDataset`` permission (Contributor role or above such "
 "as Curator or Admin) on the dataset to add files."
 msgstr ""
 
-#: ../../source/api/sword.rst:142
+#: ../../source/api/sword.rst:138
 msgid ""
 "``curl -u $API_TOKEN: --data-binary @path/to/example.zip -H \"Content-"
 "Disposition: filename=example.zip\" -H \"Content-Type: application/zip\" "
@@ -458,33 +462,33 @@ msgid ""
 "media/study/doi:TEST/12345``"
 msgstr ""
 
-#: ../../source/api/sword.rst:145
+#: ../../source/api/sword.rst:141
 msgid "Display a dataset atom entry"
 msgstr ""
 
-#: ../../source/api/sword.rst:147
+#: ../../source/api/sword.rst:143
 msgid ""
 "You must have ``ViewUnpublishedDataset`` permission (Contributor role or "
 "above such as Curator or Admin) on the dataset to view its Atom entry."
 msgstr ""
 
-#: ../../source/api/sword.rst:149
+#: ../../source/api/sword.rst:145
 msgid ""
 "Contains data citation (bibliographicCitation), alternate URI (persistent"
 " URI of study), edit URI, edit media URI, statement URI."
 msgstr ""
 
-#: ../../source/api/sword.rst:151
+#: ../../source/api/sword.rst:147
 msgid ""
 "``curl -u $API_TOKEN: https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/edit/study/doi:TEST/12345``"
 msgstr ""
 
-#: ../../source/api/sword.rst:154
+#: ../../source/api/sword.rst:150
 msgid "Display a dataset statement"
 msgstr ""
 
-#: ../../source/api/sword.rst:156
+#: ../../source/api/sword.rst:152
 msgid ""
 "Contains title, author, feed of file entries, latestVersionState, locked "
 "boolean, updated timestamp. You must have ``ViewUnpublishedDataset`` "
@@ -492,33 +496,33 @@ msgid ""
 "dataset to display the statement."
 msgstr ""
 
-#: ../../source/api/sword.rst:158
+#: ../../source/api/sword.rst:154
 msgid ""
 "``curl -u $API_TOKEN: https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/statement/study/doi:TEST/12345``"
 msgstr ""
 
-#: ../../source/api/sword.rst:161
+#: ../../source/api/sword.rst:157
 msgid "Delete a file by database id"
 msgstr ""
 
-#: ../../source/api/sword.rst:163
+#: ../../source/api/sword.rst:159
 msgid ""
 "You must have ``EditDataset`` permission (Contributor role or above such "
 "as Curator or Admin) on the dataset to delete files."
 msgstr ""
 
-#: ../../source/api/sword.rst:165
+#: ../../source/api/sword.rst:161
 msgid ""
 "``curl -u $API_TOKEN: -X DELETE https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/edit-media/file/123``"
 msgstr ""
 
-#: ../../source/api/sword.rst:168
+#: ../../source/api/sword.rst:164
 msgid "Replacing metadata for a dataset"
 msgstr ""
 
-#: ../../source/api/sword.rst:170
+#: ../../source/api/sword.rst:166
 msgid ""
 "Please note that **ALL** metadata (title, author, etc.) will be replaced,"
 " including fields that can not be expressed with \"dcterms\" fields. You "
@@ -526,18 +530,18 @@ msgid ""
 "Curator or Admin) on the dataset to replace metadata."
 msgstr ""
 
-#: ../../source/api/sword.rst:172
+#: ../../source/api/sword.rst:168
 msgid ""
 "``curl -u $API_TOKEN: --upload-file \"path/to/atom-entry-study2.xml\" -H "
 "\"Content-Type: application/atom+xml\" https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/edit/study/doi:TEST/12345``"
 msgstr ""
 
-#: ../../source/api/sword.rst:175
+#: ../../source/api/sword.rst:171
 msgid "Delete a dataset"
 msgstr ""
 
-#: ../../source/api/sword.rst:177
+#: ../../source/api/sword.rst:173
 msgid ""
 "You must have the ``DeleteDatasetDraft`` permission (Contributor role or "
 "above such as Curator or Admin) on the dataset to delete it. Please note "
@@ -546,17 +550,17 @@ msgid ""
 " be able to delete post-publication drafts, never a published version."
 msgstr ""
 
-#: ../../source/api/sword.rst:179
+#: ../../source/api/sword.rst:175
 msgid ""
 "``curl -u $API_TOKEN: -i -X DELETE https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/edit/study/doi:TEST/12345``"
 msgstr ""
 
-#: ../../source/api/sword.rst:182
+#: ../../source/api/sword.rst:178
 msgid "Determine if a dataverse has been published"
 msgstr ""
 
-#: ../../source/api/sword.rst:184
+#: ../../source/api/sword.rst:180
 msgid ""
 "This API endpoint is the same as the endpoint documented in "
 ":ref:`sword_list_datasets_in_dataverse` and the same permissions apply "
@@ -565,11 +569,11 @@ msgid ""
 "been released, which is required for publishing a dataset."
 msgstr ""
 
-#: ../../source/api/sword.rst:189
+#: ../../source/api/sword.rst:185
 msgid "Publish a dataverse"
 msgstr ""
 
-#: ../../source/api/sword.rst:191
+#: ../../source/api/sword.rst:187
 msgid ""
 "The ``cat /dev/null`` and ``--data-binary @-`` arguments are used to send"
 " zero-length content to the API, which is required by the upstream "
@@ -578,18 +582,18 @@ msgid ""
 "it."
 msgstr ""
 
-#: ../../source/api/sword.rst:193
+#: ../../source/api/sword.rst:189
 msgid ""
 "``cat /dev/null | curl -u $API_TOKEN: -X POST -H \"In-Progress: false\" "
 "--data-binary @- https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/edit/dataverse/$DATAVERSE_ALIAS``"
 msgstr ""
 
-#: ../../source/api/sword.rst:196
+#: ../../source/api/sword.rst:192
 msgid "Publish a dataset"
 msgstr ""
 
-#: ../../source/api/sword.rst:198
+#: ../../source/api/sword.rst:194
 msgid ""
 "The ``cat /dev/null`` and ``--data-binary @-`` arguments are used to send"
 " zero-length content to the API, which is required by the upstream "
@@ -598,98 +602,98 @@ msgid ""
 "publish it."
 msgstr ""
 
-#: ../../source/api/sword.rst:200
+#: ../../source/api/sword.rst:196
 msgid ""
 "``cat /dev/null | curl -u $API_TOKEN: -X POST -H \"In-Progress: false\" "
 "--data-binary @- https://$HOSTNAME/dvn/api/data-"
 "deposit/v1.1/swordv2/edit/study/doi:TEST/12345``"
 msgstr ""
 
-#: ../../source/api/sword.rst:205
+#: ../../source/api/sword.rst:201
 msgid "Known issues"
 msgstr ""
 
-#: ../../source/api/sword.rst:207
+#: ../../source/api/sword.rst:203
 msgid ""
 "Deleting a file from a published version (not a draft) creates a draft "
 "but doesn't delete the file: "
 "https://github.com/IQSS/dataverse/issues/2464"
 msgstr ""
 
-#: ../../source/api/sword.rst:209
+#: ../../source/api/sword.rst:205
 msgid ""
 "The Service Document does not honor groups within groups: "
 "https://github.com/IQSS/dataverse/issues/3056"
 msgstr ""
 
-#: ../../source/api/sword.rst:211
+#: ../../source/api/sword.rst:207
 msgid ""
 "Should see all the fields filled in for a dataset regardless of what the "
 "parent dataverse specifies: https://github.com/IQSS/dataverse/issues/756"
 msgstr ""
 
-#: ../../source/api/sword.rst:213
+#: ../../source/api/sword.rst:209
 msgid ""
 "SWORD 2.0 Profile 6.4 \"Retrieving the content\" has not been "
 "implemented: https://github.com/IQSS/dataverse/issues/183"
 msgstr ""
 
-#: ../../source/api/sword.rst:215
+#: ../../source/api/sword.rst:211
 msgid ""
 "Deaccessioning via API is not supported (it was in DVN 3.x): "
 "https://github.com/IQSS/dataverse/issues/778"
 msgstr ""
 
-#: ../../source/api/sword.rst:217
+#: ../../source/api/sword.rst:213
 msgid ""
 "Let file metadata (i.e. description) be specified during zip upload: "
 "https://github.com/IQSS/dataverse/issues/723"
 msgstr ""
 
-#: ../../source/api/sword.rst:219
+#: ../../source/api/sword.rst:215
 msgid ""
 "SWORD: Display of actual dcterms xml element for equivalent of required "
 "field not found: https://github.com/IQSS/dataverse/issues/1019"
 msgstr ""
 
-#: ../../source/api/sword.rst:222
+#: ../../source/api/sword.rst:218
 msgid "Bug fixes in v1.1"
 msgstr ""
 
-#: ../../source/api/sword.rst:224
+#: ../../source/api/sword.rst:220
 msgid ""
 "Fix Abdera ArrayIndexOutOfBoundsException with non-existent atom-entry-"
 "study.xml in SWORD jar (upstream ideally) "
 "https://github.com/IQSS/dataverse/issues/893"
 msgstr ""
 
-#: ../../source/api/sword.rst:226
+#: ../../source/api/sword.rst:222
 msgid ""
 "Sword API: Can't create study when hidden characters are introduced in "
 "atom.xml https://github.com/IQSS/dataverse/issues/894"
 msgstr ""
 
-#: ../../source/api/sword.rst:231
+#: ../../source/api/sword.rst:227
 msgid "Client libraries"
 msgstr ""
 
-#: ../../source/api/sword.rst:233
+#: ../../source/api/sword.rst:229
 msgid "Python: https://github.com/swordapp/python-client-sword2"
 msgstr ""
 
-#: ../../source/api/sword.rst:234
+#: ../../source/api/sword.rst:230
 msgid "Java: https://github.com/swordapp/JavaClient2.0"
 msgstr ""
 
-#: ../../source/api/sword.rst:235
+#: ../../source/api/sword.rst:231
 msgid "R: https://github.com/IQSS/dataverse-client-r"
 msgstr ""
 
-#: ../../source/api/sword.rst:236
+#: ../../source/api/sword.rst:232
 msgid "Ruby: https://github.com/swordapp/sword2ruby"
 msgstr ""
 
-#: ../../source/api/sword.rst:237
+#: ../../source/api/sword.rst:233
 msgid "PHP: https://github.com/swordapp/swordappv2-php-library"
 msgstr ""
 

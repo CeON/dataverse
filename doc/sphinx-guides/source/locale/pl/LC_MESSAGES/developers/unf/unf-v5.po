@@ -1,31 +1,31 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/developers/unf/unf-v5.rst:8
+#: ../../source/developers/unf/unf-v5.rst:4
 msgid "UNF Version 5"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v5.rst:13
+#: ../../source/developers/unf/unf-v5.rst:9
 msgid "**Important Update:**"
 msgstr ""
 
-#: ../../source/developers/unf/unf-v5.rst:15
+#: ../../source/developers/unf/unf-v5.rst:11
 msgid ""
 "UNF Version 5 has been in use by the Dataverse project since 2009. It was"
 " built into every version of the DVN, starting with 2.0 and up to 3.6.2. "
@@ -39,7 +39,7 @@ msgid ""
 " course they implement it with the exact same bugs as ours."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v5.rst:17
+#: ../../source/developers/unf/unf-v5.rst:13
 msgid ""
 "To address this, the Project is about to release UNF Version 6. The "
 "release date is still being discussed. It may coincide with the release "
@@ -53,7 +53,7 @@ msgid ""
 "Version 6 documentation."
 msgstr ""
 
-#: ../../source/developers/unf/unf-v5.rst:19
+#: ../../source/developers/unf/unf-v5.rst:15
 msgid ""
 "Going forward, we are going to offer a preserved version of the Version 5"
 " library and, possibly, an online UNF v5 calculator, for the purposes of "

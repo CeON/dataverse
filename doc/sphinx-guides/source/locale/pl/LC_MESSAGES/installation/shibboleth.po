@@ -1,31 +1,35 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2023, The President & Fellows of Harvard College
+# Copyright (C) 2022, The President & Fellows of Harvard College
 # This file is distributed under the same license as the Dataverse package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Dataverse 4.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-13 16:40+0100\n"
+"POT-Creation-Date: 2022-10-20 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ../../source/installation/shibboleth.rst:6
+#: ../../source/installation/shibboleth.rst:2
 msgid "Shibboleth"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:12
+#: ../../source/installation/shibboleth.rst:5
+msgid "|toctitle|"
+msgstr ""
+
+#: ../../source/installation/shibboleth.rst:8
 msgid "Introduction"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:14
+#: ../../source/installation/shibboleth.rst:10
 msgid ""
 "By configuring and enabling Shibboleth support in Dataverse, your users "
 "will be able to log in using the identity system managed by their "
@@ -38,7 +42,7 @@ msgid ""
 ":doc:`/user/account` section of the User Guide."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:16
+#: ../../source/installation/shibboleth.rst:12
 msgid ""
 "Shibboleth is an implementation of the `Security Assertion Markup "
 "Language (SAML) "
@@ -47,17 +51,17 @@ msgid ""
 "allow you to log in via Google, Facebook, or Twitter."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:18
+#: ../../source/installation/shibboleth.rst:14
 msgid ""
 "Shibboleth can be compared and contrasted with OAuth2, which you can read"
 " about in the :doc:`oauth2` section."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:21
+#: ../../source/installation/shibboleth.rst:17
 msgid "Installation"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:23
+#: ../../source/installation/shibboleth.rst:19
 msgid ""
 "We assume you've already gone through a basic installation as described "
 "in the :doc:`/installation/installation-main` section and that you've "
@@ -66,11 +70,11 @@ msgid ""
 "going to give Shibboleth a whirl. Let's get started."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:26
+#: ../../source/installation/shibboleth.rst:22
 msgid "System Requirements"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:28
+#: ../../source/installation/shibboleth.rst:24
 msgid ""
 "Support for Shibboleth in Dataverse is built on the popular `\"mod_shib\""
 " Apache module, \"shibd\" daemon <https://shibboleth.net/products"
@@ -81,7 +85,7 @@ msgid ""
 " ``mod_shib`` and ``shibd`` must be installed and configured."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:30
+#: ../../source/installation/shibboleth.rst:26
 msgid ""
 "Only Red Hat Enterprise Linux (RHEL) and derivatives such as CentOS have "
 "been tested (x86_64 versions) by the Dataverse team. See "
@@ -90,62 +94,62 @@ msgid ""
 "Ubuntu and Debian are not offically supported by the Shibboleth project."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:33
+#: ../../source/installation/shibboleth.rst:29
 msgid "Install Apache"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:35
+#: ../../source/installation/shibboleth.rst:31
 msgid ""
 "We will be \"fronting\" Glassfish with Apache so that we can make use of "
 "the ``mod_shib`` Apache module. We will also make use of the "
 "``mod_proxy_ajp`` module built in to Apache."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:37
+#: ../../source/installation/shibboleth.rst:33
 msgid "We include the ``mod_ssl`` package to enforce HTTPS::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:42
+#: ../../source/installation/shibboleth.rst:38
 msgid "Install Shibboleth"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:44
+#: ../../source/installation/shibboleth.rst:40
 msgid ""
 "Installing Shibboleth will give us both the ``shibd`` service and the "
 "``mod_shib`` Apache module."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:47
+#: ../../source/installation/shibboleth.rst:43
 msgid "Enable Shibboleth Yum Repo"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:49
+#: ../../source/installation/shibboleth.rst:45
 msgid ""
 "This yum repo is recommended at "
 "https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPLinuxRPMInstall::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:53
+#: ../../source/installation/shibboleth.rst:49
 msgid "If you are running el7 (RHEL/CentOS 7)::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:57
+#: ../../source/installation/shibboleth.rst:53
 msgid "If you are running el6 (RHEL/CentOS 6)::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:62
+#: ../../source/installation/shibboleth.rst:58
 msgid "Install Shibboleth Via Yum"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:69
+#: ../../source/installation/shibboleth.rst:65
 msgid "Configure Glassfish"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:72
+#: ../../source/installation/shibboleth.rst:68
 msgid "Apply GRIZZLY-1787 Patch"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:74
+#: ../../source/installation/shibboleth.rst:70
 msgid ""
 "In order for the Dataverse \"download as zip\" feature to work well with "
 "large files without causing ``OutOfMemoryError`` problems on Glassfish "
@@ -159,7 +163,7 @@ msgid ""
 "and start Glassfish again with ``./asadmin start-domain domain1``."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:76
+#: ../../source/installation/shibboleth.rst:72
 msgid ""
 "For more background on the patch, please see "
 "https://java.net/jira/browse/GRIZZLY-1787 and "
@@ -167,7 +171,7 @@ msgid ""
 "https://github.com/payara/Payara/issues/350"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:78
+#: ../../source/installation/shibboleth.rst:74
 msgid ""
 "This problem has been reported to Glassfish at "
 "https://java.net/projects/glassfish/lists/users/archive/2015-07/message/1"
@@ -177,11 +181,11 @@ msgid ""
 "why it is not recommended)."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:81
+#: ../../source/installation/shibboleth.rst:77
 msgid "Glassfish HTTP and HTTPS ports"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:83
+#: ../../source/installation/shibboleth.rst:79
 msgid ""
 "Apache will be listening on ports 80 and 443 so we need to make sure "
 "Glassfish isn't using them. If you've been changing the default ports "
@@ -189,39 +193,39 @@ msgid ""
 "HTTP service to listen on 8080, the default port::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:87
+#: ../../source/installation/shibboleth.rst:83
 msgid ""
 "Likewise, if necessary, revert the Glassfish HTTPS service to listen on "
 "port 8181::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:92
+#: ../../source/installation/shibboleth.rst:88
 msgid "AJP"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:94
+#: ../../source/installation/shibboleth.rst:90
 msgid ""
 "A ``jk-connector`` network listener should have already been set up when "
 "you ran the installer mentioned in the :doc:`installation-main` section, "
 "but for reference, here is the command that is used::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:98
+#: ../../source/installation/shibboleth.rst:94
 msgid "You can verify this with ``./asadmin list-network-listeners``."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:100
+#: ../../source/installation/shibboleth.rst:96
 msgid ""
 "This enables the `AJP protocol "
 "<http://en.wikipedia.org/wiki/Apache_JServ_Protocol>`_ used in Apache "
 "configuration files (see: :ref:`shib_configure_apache`)"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:103
+#: ../../source/installation/shibboleth.rst:99
 msgid "SSLEngine Warning Workaround"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:105
+#: ../../source/installation/shibboleth.rst:101
 msgid ""
 "When fronting Glassfish with Apache and using the jk-connector (AJP, "
 "mod_proxy_ajp), in your Glassfish server.log you can expect to see "
@@ -230,7 +234,7 @@ msgid ""
 "java.lang.IllegalStateException: SSLEngine is null\"."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:107
+#: ../../source/installation/shibboleth.rst:103
 msgid ""
 "To hide these warnings, run ``./asadmin set-log-levels "
 "org.glassfish.grizzly.http.server.util.RequestUtils=SEVERE`` so that the "
@@ -239,15 +243,15 @@ msgid ""
 "https://github.com/IQSS/dataverse/issues/643#issuecomment-49654847"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:112
+#: ../../source/installation/shibboleth.rst:108
 msgid "Configure Apache"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:115
+#: ../../source/installation/shibboleth.rst:111
 msgid "Enforce HTTPS"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:117
+#: ../../source/installation/shibboleth.rst:113
 msgid ""
 "To prevent attacks such as `FireSheep "
 "<http://en.wikipedia.org/wiki/Firesheep>`_, HTTPS should be enforced. "
@@ -259,7 +263,7 @@ msgid ""
 "place."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:119
+#: ../../source/installation/shibboleth.rst:115
 msgid ""
 "Following example shows how \"rewrite rule\" lines look within a "
 "``VirtualHost`` block. Download a :download:`sample file "
@@ -271,51 +275,51 @@ msgid ""
 "Apache's configuration."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:124
+#: ../../source/installation/shibboleth.rst:120
 msgid "Edit Apache ssl.conf File"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:126
+#: ../../source/installation/shibboleth.rst:122
 msgid ""
 "``/etc/httpd/conf.d/ssl.conf`` should be edited to contain the FQDN of "
 "your hostname like this: ``ServerName dataverse.example.edu:443`` "
 "(substituting your hostname)."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:128
+#: ../../source/installation/shibboleth.rst:124
 msgid ""
 "Near the bottom of ``/etc/httpd/conf.d/ssl.conf`` but before the closing "
 "``</VirtualHost>`` directive, add the following:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:148
+#: ../../source/installation/shibboleth.rst:144
 msgid ""
 "You can download a :download:`sample ssl.conf file "
 "<../_static/installation/files/etc/httpd/conf.d/ssl.conf>` to compare it "
 "against the file you edited."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:150
+#: ../../source/installation/shibboleth.rst:146
 msgid ""
 "Note that ``/etc/httpd/conf.d/shib.conf`` and ``/etc/httpd/conf.d"
 "/shibboleth-ds.conf`` are expected to be present from installing "
 "Shibboleth via yum."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:152
+#: ../../source/installation/shibboleth.rst:148
 msgid ""
 "You may wish to also add a timeout directive to the ProxyPass line within"
 " ssl.conf. This is especially useful for larger file uploads as apache "
 "may prematurely kill the connection before the upload is processed."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:154
+#: ../../source/installation/shibboleth.rst:150
 msgid ""
 "e.g. ``ProxyPass / ajp://localhost:8009/ timeout=600`` defines a timeout "
 "of 600 seconds."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:156
+#: ../../source/installation/shibboleth.rst:152
 msgid ""
 "Try to strike a balance with the timeout setting. Again a timeout too low"
 " will impact file uploads. A timeout too high may cause additional stress"
@@ -323,22 +327,22 @@ msgid ""
 "period of time."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:159
+#: ../../source/installation/shibboleth.rst:155
 msgid "Configure Shibboleth"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:164
+#: ../../source/installation/shibboleth.rst:160
 msgid "shibboleth2.xml"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:166
+#: ../../source/installation/shibboleth.rst:162
 msgid ""
 "``/etc/shibboleth/shibboleth2.xml`` should look something like (available"
 " also for download: :download:`sample shibboleth2.xml file "
 "<../_static/installation/files/etc/shibboleth/shibboleth2.xml>`):"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:171
+#: ../../source/installation/shibboleth.rst:167
 msgid ""
 "But you must substitute your hostname in the ``entityID`` value. If your "
 "starting point is a ``shibboleth2.xml`` file provided by someone else, "
@@ -349,18 +353,18 @@ msgid ""
 ":`shibboleth-attributes` will be null and users will be unable to log in."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:174
+#: ../../source/installation/shibboleth.rst:170
 msgid "Specific Identity Provider(s)"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:176
+#: ../../source/installation/shibboleth.rst:172
 msgid ""
 "When configuring the ``MetadataProvider`` section of ``shibboleth2.xml`` "
 "you should consider if your users will all come from the same Identity "
 "Provider (IdP) or not."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:178
+#: ../../source/installation/shibboleth.rst:174
 msgid ""
 "Most Dataverse installations will probably only want to authenticate "
 "users via Shibboleth using their home institution's Identity Provider "
@@ -377,11 +381,11 @@ msgid ""
 "requires, which are listed at :ref:`shibboleth-attributes`."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:181
+#: ../../source/installation/shibboleth.rst:177
 msgid "Identity Federation"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:183
+#: ../../source/installation/shibboleth.rst:179
 msgid ""
 "Rather than or in addition to specifying individual Identity Provider(s) "
 "you may wish to broaden the number of users who can log into your "
@@ -399,7 +403,7 @@ msgid ""
 "categories.html#SPs>`_."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:185
+#: ../../source/installation/shibboleth.rst:181
 msgid ""
 "The details of how to register with an identity federation are out of "
 "scope for this document, but a good starting point may be this list of "
@@ -407,7 +411,7 @@ msgid ""
 "http://www.protectnetwork.org/support/faq/identity-federations"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:187
+#: ../../source/installation/shibboleth.rst:183
 msgid ""
 "One of the benefits of using ``shibd`` is that it can be configured to "
 "periodically poll your identity federation for updates as new Identity "
@@ -420,7 +424,7 @@ msgid ""
 "section of the ``shibboleth2.xml`` file (:ref:`shibboleth2_xml`)."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:189
+#: ../../source/installation/shibboleth.rst:185
 msgid ""
 "Once you've joined a federation the list of IdPs in the dropdown can be "
 "quite long! If you're curious how many are in the list you could try "
@@ -429,45 +433,45 @@ msgid ""
 "'.[].entityID' | wc -l``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:194
+#: ../../source/installation/shibboleth.rst:190
 msgid "Shibboleth Attributes"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:196
+#: ../../source/installation/shibboleth.rst:192
 msgid "The following attributes are required for a successful Shibboleth login:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:198
+#: ../../source/installation/shibboleth.rst:194
 msgid "Shib-Identity-Provider"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:199
+#: ../../source/installation/shibboleth.rst:195
 msgid "eppn"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:200
+#: ../../source/installation/shibboleth.rst:196
 msgid "givenName"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:201
+#: ../../source/installation/shibboleth.rst:197
 msgid "sn"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:202
+#: ../../source/installation/shibboleth.rst:198
 msgid "email"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:204
+#: ../../source/installation/shibboleth.rst:200
 msgid ""
 "See also https://www.incommon.org/federation/attributesummary.html and "
 "https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAttributeAccess"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:207
+#: ../../source/installation/shibboleth.rst:203
 msgid "attribute-map.xml"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:209
+#: ../../source/installation/shibboleth.rst:205
 msgid ""
 "By default, some attributes ``/etc/shibboleth/attribute-map.xml`` are "
 "commented out. Edit the file to enable them so that all the require "
@@ -476,11 +480,11 @@ msgid ""
 "map.xml>`."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:212
+#: ../../source/installation/shibboleth.rst:208
 msgid "Shibboleth and ADFS"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:213
+#: ../../source/installation/shibboleth.rst:209
 msgid ""
 "With appropriate configuration, Dataverse and Shibboleth can make use of "
 "\"single sign on\" using Active Directory. This requires configuring "
@@ -494,11 +498,11 @@ msgid ""
 "referenced under \"MetadataProvider\" in your shibboleth2.xml file."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:219
+#: ../../source/installation/shibboleth.rst:215
 msgid "Disable or Reconfigure SELinux"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:221
+#: ../../source/installation/shibboleth.rst:217
 msgid ""
 "SELinux is set to \"enforcing\" by default on RHEL/CentOS, but "
 "unfortunately Shibboleth does not \"just work\" with SELinux. You have "
@@ -506,11 +510,11 @@ msgid ""
 "accommodate Shibboleth."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:224
+#: ../../source/installation/shibboleth.rst:220
 msgid "Disable SELinux"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:226
+#: ../../source/installation/shibboleth.rst:222
 msgid ""
 "The first and easiest option is to set ``SELINUX=permisive`` in "
 "``/etc/selinux/config`` and run ``setenforce permissive`` or otherwise "
@@ -523,22 +527,22 @@ msgid ""
 "occur.\""
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:229
+#: ../../source/installation/shibboleth.rst:225
 msgid "Reconfigure SELinux to Accommodate Shibboleth"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:231
+#: ../../source/installation/shibboleth.rst:227
 msgid ""
 "The second (more involved) option is to use the ``checkmodule``, "
 "``semodule_package``, and ``semodule`` tools to apply a local policy to "
 "make Shibboleth work with SELinux. Let's get started."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:234
+#: ../../source/installation/shibboleth.rst:230
 msgid "Put Type Enforcement (TE) File in misc directory"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:236
+#: ../../source/installation/shibboleth.rst:232
 msgid ""
 "Copy and paste or download the :download:`shibboleth.te "
 "<../_static/installation/files/etc/selinux/targeted/src/policy/domains/misc/shibboleth.te>`"
@@ -546,50 +550,50 @@ msgid ""
 "``/etc/selinux/targeted/src/policy/domains/misc/shibboleth.te``."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:241
+#: ../../source/installation/shibboleth.rst:237
 msgid ""
 "(If you would like to know where the ``shibboleth.te`` came from and how "
 "to hack on it, please see the :doc:`/developers/selinux` section of the "
 "Developer Guide. Pull requests are welcome!)"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:244
+#: ../../source/installation/shibboleth.rst:240
 msgid "Navigate to misc directory"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:246
+#: ../../source/installation/shibboleth.rst:242
 msgid "``cd /etc/selinux/targeted/src/policy/domains/misc``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:249
+#: ../../source/installation/shibboleth.rst:245
 msgid "Run checkmodule"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:251
+#: ../../source/installation/shibboleth.rst:247
 msgid "``checkmodule -M -m -o shibboleth.mod shibboleth.te``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:254
+#: ../../source/installation/shibboleth.rst:250
 msgid "Run semodule_package"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:256
+#: ../../source/installation/shibboleth.rst:252
 msgid "``semodule_package -o shibboleth.pp -m shibboleth.mod``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:258
+#: ../../source/installation/shibboleth.rst:254
 msgid "Silent is golden. No output is expected."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:261
+#: ../../source/installation/shibboleth.rst:257
 msgid "Run semodule"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:263
+#: ../../source/installation/shibboleth.rst:259
 msgid "``semodule -i shibboleth.pp``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:265
+#: ../../source/installation/shibboleth.rst:261
 msgid ""
 "Silent is golden. No output is expected. This will place a file in "
 "``/etc/selinux/targeted/modules/active/modules/shibboleth.pp`` and "
@@ -598,62 +602,62 @@ msgid ""
 "you just added."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:267
+#: ../../source/installation/shibboleth.rst:263
 msgid ""
 "Congrats! You've made the creator of http://stopdisablingselinux.com "
 "proud. :)"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:270
+#: ../../source/installation/shibboleth.rst:266
 msgid "Restart Apache and Shibboleth"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:272
+#: ../../source/installation/shibboleth.rst:268
 msgid "After configuration is complete::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:279
+#: ../../source/installation/shibboleth.rst:275
 msgid "Configure Apache and shibd to Start at Boot"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:281
+#: ../../source/installation/shibboleth.rst:277
 msgid "``chkconfig httpd on``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:283
+#: ../../source/installation/shibboleth.rst:279
 msgid "``chkconfig shibd on``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:288
+#: ../../source/installation/shibboleth.rst:284
 msgid "Verify DiscoFeed and Metadata URLs"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:290
+#: ../../source/installation/shibboleth.rst:286
 msgid ""
 "As a sanity check, visit the following URLs (substituting your hostname) "
 "to make sure you see JSON and XML:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:292
+#: ../../source/installation/shibboleth.rst:288
 msgid "https://dataverse.example.edu/Shibboleth.sso/DiscoFeed"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:293
+#: ../../source/installation/shibboleth.rst:289
 msgid "https://dataverse.example.edu/Shibboleth.sso/Metadata"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:295
+#: ../../source/installation/shibboleth.rst:291
 msgid ""
 "The JSON in ``DiscoFeed`` comes from the list of IdPs you configured in "
 "the ``MetadataProvider`` section of ``shibboleth2.xml`` and will form a "
 "dropdown list on the Login Page."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:300
+#: ../../source/installation/shibboleth.rst:296
 msgid "Add the Shibboleth Authentication Provider to Dataverse"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:302
+#: ../../source/installation/shibboleth.rst:298
 msgid ""
 "Now that you've configured Glassfish, Apache, and ``shibd``, you are "
 "ready to turn your attention back to Dataverse to enable Shibboleth as an"
@@ -663,14 +667,14 @@ msgid ""
 " the ``authenticationProviders`` endpoint of the :doc:`/api/native-api`."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:307
+#: ../../source/installation/shibboleth.rst:303
 msgid ""
 "``curl -X POST -H 'Content-type: application/json' --upload-file "
 "shibAuthProvider.json "
 "http://localhost:8080/api/admin/authenticationProviders``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:309
+#: ../../source/installation/shibboleth.rst:305
 msgid ""
 "Now that you've added the Shibboleth authentication provider to "
 "Dataverse, as described in the :doc:`/user/account` section of the User "
@@ -684,11 +688,11 @@ msgid ""
 "authentication providers Dataverse knows about:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:311
+#: ../../source/installation/shibboleth.rst:307
 msgid "``curl http://localhost:8080/api/admin/authenticationProviders``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:313
+#: ../../source/installation/shibboleth.rst:309
 msgid ""
 "Once you have confirmed that the Dataverse web interface is listing the "
 "institutions you expect, you'll want to temporarily remove the Shibboleth"
@@ -700,24 +704,24 @@ msgid ""
 " provider by passing its ``id``:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:315
+#: ../../source/installation/shibboleth.rst:311
 msgid ""
 "``curl -X DELETE "
 "http://localhost:8080/api/admin/authenticationProviders/shib``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:317
+#: ../../source/installation/shibboleth.rst:313
 msgid ""
 "Before contacting your actual Identity Provider, we recommend testing "
 "first with the \"TestShib\" Identity Provider (IdP) to ensure that you "
 "have configured everything correctly."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:322
+#: ../../source/installation/shibboleth.rst:318
 msgid "Exchange Metadata with Your Identity Provider"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:324
+#: ../../source/installation/shibboleth.rst:320
 msgid ""
 "http://testshib.org (TestShib) is a fantastic resource for testing "
 "Shibboleth configurations. Depending on your relationship with your "
@@ -726,18 +730,18 @@ msgid ""
 "(IdP)."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:326
+#: ../../source/installation/shibboleth.rst:322
 msgid ""
 "If you've temporarily configured your ``MetadataProvider`` to use the "
 "TestShib Identity Provider (IdP), you can download your metadata like "
 "this (substituting your hostname in both places)::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:330
+#: ../../source/installation/shibboleth.rst:326
 msgid "Then upload your metadata to http://testshib.org/register.html"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:332
+#: ../../source/installation/shibboleth.rst:328
 msgid ""
 "Then try to log in to Dataverse using the TestShib IdP. After logging in,"
 " you can visit the https://dataverse.example.edu/Shibboleth.sso/Session "
@@ -745,39 +749,39 @@ msgid ""
 "received. You should see something like the following:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:357
+#: ../../source/installation/shibboleth.rst:353
 msgid ""
 "(As of this writing the TestShib IdP does not send the \"mail\" "
 "attribute, a required attribute, but for testing purposes, Dataverse "
 "compensates for this for the TestShib IdP and permits login anyway.)"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:359
+#: ../../source/installation/shibboleth.rst:355
 msgid ""
 "When you are done testing, you can delete the TestShib users you created "
 "like this (after you have deleted any data and permisions associated with"
 " the users)::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:363
+#: ../../source/installation/shibboleth.rst:359
 msgid ""
 "(Of course, you are also welcome to do a fresh reinstall per the :doc"
 ":`installation-main` section.)"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:365
+#: ../../source/installation/shibboleth.rst:361
 msgid ""
 "If your Dataverse installation is working with TestShib it **should** "
 "work with your institution's Identity Provider (IdP). Next, you should:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:367
+#: ../../source/installation/shibboleth.rst:363
 msgid ""
 "Send your identity people your metadata file (or a link to download it "
 "themselves). From their perspective you are a Service Provider (SP)."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:368
+#: ../../source/installation/shibboleth.rst:364
 msgid ""
 "Ask your identity people to send you the metadata for the Identity "
 "Provider (IdP) they operate. See the section :ref:`shibboleth2_xml` for "
@@ -785,43 +789,43 @@ msgid ""
 "necessary."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:369
+#: ../../source/installation/shibboleth.rst:365
 msgid ""
 "Re-add Shibboleth as an authentication provider to Dataverse as described"
 " in :ref:`add_shibboleth_auth_provider`."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:370
+#: ../../source/installation/shibboleth.rst:366
 msgid "Test login to Dataverse via your institution's Identity Provider (IdP)."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:373
+#: ../../source/installation/shibboleth.rst:369
 msgid "Backup sp-cert.pem and sp-key.pem Files"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:375
+#: ../../source/installation/shibboleth.rst:371
 msgid ""
 "Especially if you have gotten authentication working with your "
 "institution's Identity Provider (IdP), now is the time to make sure you "
 "have backups."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:377
+#: ../../source/installation/shibboleth.rst:373
 msgid ""
 "The installation and configuration of Shibboleth will result in the "
 "following cert and key files being created and it's important to back "
 "them up. The cert is in the metadata you shared with your IdP:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:379
+#: ../../source/installation/shibboleth.rst:375
 msgid "``/etc/shibboleth/sp-cert.pem``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:380
+#: ../../source/installation/shibboleth.rst:376
 msgid "``/etc/shibboleth/sp-key.pem``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:382
+#: ../../source/installation/shibboleth.rst:378
 msgid ""
 "If you have more than one Glassfish server, you should use the same ``sp-"
 "cert.pem`` and ``sp-key.pem`` files on all of them. If these files are "
@@ -830,44 +834,44 @@ msgid ""
 "hostname)::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:387
+#: ../../source/installation/shibboleth.rst:383
 msgid "Debugging"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:389
+#: ../../source/installation/shibboleth.rst:385
 msgid ""
 "The :doc:`/admin/troubleshooting` section of the Admin Guide explains how"
 " to increase Glassfish logging levels. The relevant classes and packages "
 "are:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:391
+#: ../../source/installation/shibboleth.rst:387
 msgid "edu.harvard.iq.dataverse.Shib"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:392
+#: ../../source/installation/shibboleth.rst:388
 msgid "edu.harvard.iq.dataverse.authorization.providers.shib"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:393
+#: ../../source/installation/shibboleth.rst:389
 msgid "edu.harvard.iq.dataverse.authorization.groups.impl.shib"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:396
+#: ../../source/installation/shibboleth.rst:392
 msgid "Converting Accounts"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:398
+#: ../../source/installation/shibboleth.rst:394
 msgid ""
 "As explained in the :doc:`/user/account` section of the User Guide, users"
 " can convert from one login option to another."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:403
+#: ../../source/installation/shibboleth.rst:399
 msgid "Converting Local Users to Shibboleth"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:405
+#: ../../source/installation/shibboleth.rst:401
 msgid ""
 "If you are running in \"remote and local\" mode and have existing local "
 "users that you'd like to convert to Shibboleth users, give them the "
@@ -875,21 +879,21 @@ msgid ""
 ":doc:`/user/account` section of the User Guide:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:407
+#: ../../source/installation/shibboleth.rst:403
 msgid ""
 "Log in with your local account to make sure you know your password, which"
 " will be needed for the account conversion process."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:408
+#: ../../source/installation/shibboleth.rst:404
 msgid "Log out of your local account."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:409
+#: ../../source/installation/shibboleth.rst:405
 msgid "Log in with your Shibboleth account."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:410
+#: ../../source/installation/shibboleth.rst:406
 msgid ""
 "If the email address associated with your local account matches the email"
 " address asserted by the Identity Provider (IdP), you will be prompted "
@@ -898,7 +902,7 @@ msgid ""
 "all the data you expect to see. Permissions have been preserved."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:411
+#: ../../source/installation/shibboleth.rst:407
 msgid ""
 "If the email address asserted by the Identity Provider (IdP) does not "
 "match the email address of any local user, you will be prompted to create"
@@ -910,11 +914,11 @@ msgid ""
 "access to the Glassfish logs will see this email address there."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:414
+#: ../../source/installation/shibboleth.rst:410
 msgid "Converting Shibboleth Users to Local"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:416
+#: ../../source/installation/shibboleth.rst:412
 msgid ""
 "Whereas users convert their own accounts from local to Shibboleth as "
 "described in :ref:`local_uset_to_shib`, conversion in the opposite "
@@ -922,32 +926,32 @@ msgid ""
 "follows:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:418
+#: ../../source/installation/shibboleth.rst:414
 msgid ""
 "A user emails Support saying, \"I left the university (or wherever) and "
 "can't log in to Dataverse anymore. What should I do?\""
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:419
+#: ../../source/installation/shibboleth.rst:415
 msgid ""
 "Support replies asking the user for a new email address (Gmail, new "
 "institution email, etc.) to associate with their Dataverse account."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:420
+#: ../../source/installation/shibboleth.rst:416
 msgid ""
 "The user replies with a new email address to associate with their "
 "Dataverse account."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:421
+#: ../../source/installation/shibboleth.rst:417
 msgid ""
 "Support runs the :ref:`shib_convertRemoteToBuiltIn_API`, supplying the "
 "database id of the user to convert and the new email address and notes "
 "the username returned."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:422
+#: ../../source/installation/shibboleth.rst:418
 msgid ""
 "Support emails the user and indicates that that they should use the "
 "password reset feature to set a new password and to make sure to take "
@@ -955,7 +959,7 @@ msgid ""
 "confirmation email) since the user never had a username before."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:423
+#: ../../source/installation/shibboleth.rst:419
 msgid ""
 "The user resets password and is able to log in with their local account. "
 "All permissions have been preserved with the exception of any permissions"
@@ -963,11 +967,11 @@ msgid ""
 "formerly belonged."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:428
+#: ../../source/installation/shibboleth.rst:424
 msgid "``convertRemoteToBuiltIn`` API endpoint"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:430
+#: ../../source/installation/shibboleth.rst:426
 msgid ""
 "In the following example, the user has indicated that the new email "
 "address they'd like to have associated with their account is "
@@ -978,18 +982,18 @@ msgid ""
 "will be deleted in a future release::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:434
+#: ../../source/installation/shibboleth.rst:430
 msgid ""
 "Rather than looking up the user's id in the ``authenticateduser`` "
 "database table, you can issue this command to get a listing of all "
 "users::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:440
+#: ../../source/installation/shibboleth.rst:436
 msgid "Institution-Wide Shibboleth Groups"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:442
+#: ../../source/installation/shibboleth.rst:438
 msgid ""
 "Dataverse allows you to optionally define \"institution-wide Shibboleth "
 "groups\" based on the the entityID of the Identity Provider (IdP) used to"
@@ -998,19 +1002,19 @@ msgid ""
 "everyone who logs in via the TestShib IdP."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:444
+#: ../../source/installation/shibboleth.rst:440
 msgid "To create an institution-wide Shibboleth groups:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:446
+#: ../../source/installation/shibboleth.rst:442
 msgid "Create a JSON file:"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:450
+#: ../../source/installation/shibboleth.rst:446
 msgid "Issue curl command::"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:454
+#: ../../source/installation/shibboleth.rst:450
 msgid ""
 "Institution-wide Shibboleth groups are based on the \"Shib-Identity-"
 "Provider\" SAML attribute asserted at runtime after successful "
@@ -1021,19 +1025,19 @@ msgid ""
 "interactions, such as through the SWORD API."
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:456
+#: ../../source/installation/shibboleth.rst:452
 msgid ""
 "To list institution-wide Shibboleth groups: ``curl "
 "http://localhost:8080/api/admin/groups/shib``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:458
+#: ../../source/installation/shibboleth.rst:454
 msgid ""
 "To delete an institution-wide Shibboleth group (assuming id 1): ``curl -X"
 " DELETE http://localhost:8080/api/admin/groups/shib/1``"
 msgstr ""
 
-#: ../../source/installation/shibboleth.rst:460
+#: ../../source/installation/shibboleth.rst:456
 msgid ""
 "Support for arbitrary attributes beyond \"Shib-Identity-Provider\" such "
 "as \"eduPersonScopedAffiliation\", etc. is being tracked at "
