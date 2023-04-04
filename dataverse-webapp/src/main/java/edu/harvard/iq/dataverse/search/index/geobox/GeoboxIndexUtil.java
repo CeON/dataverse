@@ -27,7 +27,7 @@ public class GeoboxIndexUtil {
     public List<String> geoboxFieldToSolr(DatasetField field) {
         Map<String, String> values = new HashMap<>();
         for (DatasetField subfield : field.getDatasetFieldsChildren()) {
-             String label = subfield.getDatasetFieldType().getMetadata("geoboxCoord");
+             String label = (String) subfield.getDatasetFieldType().getMetadata("geoboxCoord");
              values.put(label, subfield.getValue());
         }
         Rectangle rectangle = new Rectangle(
@@ -45,11 +45,11 @@ public class GeoboxIndexUtil {
             return false;
         }
         Set<String> availableCoords = field.getDatasetFieldsChildren().stream()
-                .map(f -> f.getDatasetFieldType().getMetadata("geoboxCoord"))
+                .map(f -> (String) f.getDatasetFieldType().getMetadata("geoboxCoord"))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         return availableCoords.containsAll(COORD_FIELDS)
-                && componentValidator.isValid(field, Collections.emptyMap(), Collections.emptyMap()).isOk();
+                && componentValidator.validate(field, Collections.emptyMap(), Collections.emptyMap()).isOk();
     }
 
     // -------------------- INNER CLASSES --------------------

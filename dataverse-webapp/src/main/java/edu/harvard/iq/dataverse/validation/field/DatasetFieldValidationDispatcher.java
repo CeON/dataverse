@@ -33,7 +33,7 @@ public class DatasetFieldValidationDispatcher {
 
     DatasetFieldValidationDispatcher init(List<DatasetField> parentAndChildrenFields) {
         fieldIndex = parentAndChildrenFields.stream()
-                .collect(Collectors.groupingBy(f -> f.getDatasetFieldType().getName()));
+                .collect(Collectors.groupingBy(DatasetField::getTypeName));
         return this;
     }
 
@@ -68,7 +68,7 @@ public class DatasetFieldValidationDispatcher {
                 continue;
             }
             FieldValidator validator = registry.getOrThrow(descriptor.getName());
-            ValidationResult result = validator.isValid(field, parameters, fieldIndex);
+            ValidationResult result = validator.validate(field, parameters, fieldIndex);
             if (!result.isOk()) {
                 return result;
             }
