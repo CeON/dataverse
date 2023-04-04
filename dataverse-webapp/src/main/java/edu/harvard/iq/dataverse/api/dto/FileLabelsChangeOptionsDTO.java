@@ -30,6 +30,7 @@ public class FileLabelsChangeOptionsDTO {
     /** Replacement for fragments matching 'from' pattern */
     private String to = StringUtils.EMPTY;
 
+    /** When set to true result of the replace won't be saved */
     private boolean preview = false;
 
     // -------------------- GETTERS --------------------
