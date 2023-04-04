@@ -192,11 +192,3 @@ msgstr ""
 msgid "Next: :doc:`windows`"
 msgstr ""
 
-#~ msgid ""
-#~ "DVUploader - a stand-alone command-"
-#~ "line Java application that uses the "
-#~ "Dataverse API to support upload of "
-#~ "files from local disk to a "
-#~ "Dataset: https://github.com/IQSS/dataverse-uploader"
-#~ msgstr ""
-
