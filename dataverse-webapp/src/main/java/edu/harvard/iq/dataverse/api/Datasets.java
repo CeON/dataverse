@@ -1481,15 +1481,9 @@ public class Datasets extends AbstractApiBean {
     @GET
     @Path("{id}/filelabels")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listLabels(@PathParam("id") String datasetId) {
-        try {
-            Dataset dataset = findDatasetOrDie(datasetId);
-            return ok(fileLabelsService.prepareFileLabels(dataset, new FileLabelsChangeOptionsDTO()));
-        } catch (WrappedResponse wr) {
-            return wr.getResponse();
-        } catch (PermissionException pe) {
-            return forbidden("You are not permitted to execute that operation.");
-        }
+    public Response listLabels(@PathParam("id") String datasetId) throws WrappedResponse {
+        Dataset dataset = findDatasetOrDie(datasetId);
+        return ok(fileLabelsService.prepareFileLabels(dataset, new FileLabelsChangeOptionsDTO()));
     }
 
     @POST
@@ -1497,28 +1491,19 @@ public class Datasets extends AbstractApiBean {
     @Path("{id}/filelabels")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response changeLabels(@PathParam("id") String datasetId, FileLabelsChangeOptionsDTO options) {
+    public Response changeLabels(@PathParam("id") String datasetId, FileLabelsChangeOptionsDTO options) throws WrappedResponse {
+        Dataset dataset = findDatasetOrDie(datasetId);
+        List<FileLabelInfo> changedLabels;
         try {
-            Dataset dataset = findDatasetOrDie(datasetId);
-            AuthenticatedUser user = findAuthenticatedUserOrDie();
-            List<FileLabelInfo> changedLabels
-                    = fileLabelsService.changeLabels(fileLabelsService.prepareFileLabels(dataset, options), options);
-            List<FileLabelInfo> result;
-            boolean shouldProcess = changedLabels.stream().anyMatch(FileLabelInfo::isAffected);
-            if (options.isPreview() || !shouldProcess) {
-                result = changedLabels;
-            } else {
-                if (!dataset.getLatestVersion().isWorkingCopy()) {
-                    dataset.getEditVersion();
-                    execCommand(new UpdateDatasetVersionCommand(dataset, createDataverseRequest(user)));
-                }
-                result = fileLabelsService.updateDataset(dataset, changedLabels);
-            }
+            changedLabels = fileLabelsService.changeLabels(fileLabelsService.prepareFileLabels(dataset, options), options);
+            List<FileLabelInfo> result = fileLabelsService.updateDataset(dataset, changedLabels, options);
             return ok(result.stream().filter(FileLabelInfo::isAffected).collect(Collectors.toList()));
-        } catch (WrappedResponse wr) {
-            return wr.getResponse();
-        } catch (PermissionException pe) {
-            return forbidden("You are not permitted to execute that operation.");
+        } catch (EJBException ee) {
+            if (ee.getCause() instanceof IllegalStateException) {
+                throw new WrappedResponse(badRequest("Error occurred – probably input contained duplicated filenames"));
+            } else {
+                throw ee;
+            }
         }
     }
 

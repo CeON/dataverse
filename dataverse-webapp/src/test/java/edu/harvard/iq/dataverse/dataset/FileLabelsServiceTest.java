@@ -106,7 +106,7 @@ class FileLabelsServiceTest {
                 .collect(Collectors.toList());
 
         // when
-        service.updateDataset(dataset, input);
+        service.updateDataset(dataset, input, new FileLabelsChangeOptionsDTO());
 
         // then
         List<FileMetadata> resultFileMetadatas = dataset.getLatestVersion().getFileMetadatas();
