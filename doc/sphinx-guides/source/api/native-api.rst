@@ -735,7 +735,7 @@ Name                 Type           Description
 ===================  =============  ===========
 pattern              string         Pattern describing which labels should be affected by the replace operation. Label matching works in two modes. When wildcard (*) is used, the pattern is matched against the whole label and the wildcard stands for any number (including zero) of any characters. When the wildcard is not present, there is a check whether the label contains the given pattern.
 filesToExcludeIds    array<number>  List of datafile ids, which should be excluded from the replace operation.
-filesToIncludeIds    array<number>  List of datafile ids, which should be included into the replace operation.
+filesToIncludeIds    array<number>  List of datafile ids, which should be included into the replace operation (even if the datafile label does not match the pattern).
 from                 string         Java-type regex pattern describing the fragment of label that should be replaced (see `documentation <https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum>`_)
 to                   string         String used as a replacement for the matching fragments of label
 preview              boolean        If set to true, the results of replacement are showed, but not persisted in any way
