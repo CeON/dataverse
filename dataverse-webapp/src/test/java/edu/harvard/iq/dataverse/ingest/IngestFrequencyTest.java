@@ -1,7 +1,6 @@
 package edu.harvard.iq.dataverse.ingest;
 
 import edu.harvard.iq.dataverse.UnitTestUtils;
-import edu.harvard.iq.dataverse.dataaccess.TabularSubsetGenerator;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -92,8 +91,7 @@ public class IngestFrequencyTest {
 
             dataFile.setDataTable(dataTable);
             dataTable.setDataFile(dataFile);
-            String[][] table = TabularSubsetGenerator.readFileIntoTable(dataTable, tabFile);
-            IngestServiceBean.produceFrequencyStatistics(table, dataFile);
+            ingestService.produceFrequencyStatistics(ingestService.createIngestDataProvider(dataTable, tabFile), dataFile);
             return dataFile;
         }
     }
