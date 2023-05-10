@@ -15,6 +15,8 @@ public class InMemoryIngestDataProvider implements IngestDataProvider {
     private int totalCases = 0;
     private boolean initialized = false;
 
+    // -------------------- LOGIC --------------------
+
     @Override
     public void initialize(DataTable dataTable, File generatedTabularFile) {
         try (BufferedReader reader = new BufferedReader(new FileReader(generatedTabularFile))) {
@@ -52,6 +54,8 @@ public class InMemoryIngestDataProvider implements IngestDataProvider {
     public int getCasesNumber() {
         return totalCases;
     }
+
+    // -------------------- INNER CLASSES --------------------
 
     private static class ArrayIterable implements CloseableIterable<String> {
 

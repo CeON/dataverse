@@ -17,6 +17,8 @@ public class FileIngestDataProvider implements IngestDataProvider {
     private File generatedTabularFile;
     private DataTable dataTable;
 
+    // -------------------- LOGIC --------------------
+
     @Override
     public void initialize(DataTable dataTable, File generatedTabularFile) {
         this.generatedTabularFile = generatedTabularFile;
@@ -33,6 +35,8 @@ public class FileIngestDataProvider implements IngestDataProvider {
     public int getCasesNumber() {
         return totalCases;
     }
+
+    // -------------------- INNER CLASSES --------------------
 
     private static class FileIterable implements IngestDataProvider.CloseableIterable<String> {
         private FileIterator iterator;
@@ -59,6 +63,8 @@ public class FileIngestDataProvider implements IngestDataProvider {
             return iterator;
         }
 
+        // -------------------- INNSER CLASSES --------------------
+
         private static class FileIterator implements Iterator<String> {
             private static final Logger logger = LoggerFactory.getLogger(FileIterator.class);
 
@@ -69,11 +75,15 @@ public class FileIngestDataProvider implements IngestDataProvider {
 
             private BufferedReader reader = null;
 
+            // -------------------- CONSTRUCTORS --------------------
+
             public FileIterator(int currentColumn, DataTable dataTable, File generatedTabFile) {
                 this.currentColumn = currentColumn;
                 this.totalCases = dataTable.getCaseQuantity().intValue();
                 this.generatedTabFile = generatedTabFile;
             }
+
+            // -------------------- LOGIC --------------------
 
             public void open() {
                 if (reader != null) {
