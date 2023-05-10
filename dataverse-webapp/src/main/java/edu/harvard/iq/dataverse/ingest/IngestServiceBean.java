@@ -126,26 +126,33 @@ public class IngestServiceBean {
     private static String dateTimeFormat_ymdhmsS = "yyyy-MM-dd HH:mm:ss.SSS";
     private static String dateFormat_ymd = "yyyy-MM-dd";
 
-    @EJB
     private DatasetDao datasetDao;
-    @EJB
     private DataFileServiceBean fileService;
-    @EJB
     private SystemConfig systemConfig;
-
-    @Inject
     private SettingsServiceBean settingsService;
-
-    @Inject
     private FileTypeDetector fileTypeDetector;
-
-    @Inject
     private Event<IngestMessageSendEvent> ingestMessageSendEventEvent;
-
-    @Inject
     private FinalizeIngestService finalizeIngestService;
 
     private DataAccess dataAccess = DataAccess.dataAccess();
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public IngestServiceBean() { }
+
+    @Inject
+    public IngestServiceBean(DatasetDao datasetDao, DataFileServiceBean fileService,
+                             SystemConfig systemConfig, SettingsServiceBean settingsService,
+                             FileTypeDetector fileTypeDetector, Event<IngestMessageSendEvent> ingestMessageSendEventEvent,
+                             FinalizeIngestService finalizeIngestService) {
+        this.datasetDao = datasetDao;
+        this.fileService = fileService;
+        this.systemConfig = systemConfig;
+        this.settingsService = settingsService;
+        this.fileTypeDetector = fileTypeDetector;
+        this.ingestMessageSendEventEvent = ingestMessageSendEventEvent;
+        this.finalizeIngestService = finalizeIngestService;
+    }
 
     // -------------------- LOGIC --------------------
 
