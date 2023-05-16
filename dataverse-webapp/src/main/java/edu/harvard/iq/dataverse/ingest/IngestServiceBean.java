@@ -72,16 +72,14 @@ import edu.harvard.iq.dataverse.persistence.dataset.MetadataBlock;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import edu.harvard.iq.dataverse.util.SumStatCalculator;
+import edu.harvard.iq.dataverse.util.OptimizedSumStatCalculator;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import io.vavr.Tuple;
 import io.vavr.control.Option;
 import org.apache.commons.lang3.StringUtils;
-import org.dataverse.unf.UNFUtil;
 import org.dataverse.unf.UnfException;
 
 import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -97,8 +95,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,9 +118,6 @@ import java.util.logging.Logger;
 @ManagedBean
 public class IngestServiceBean {
     private static final Logger logger = Logger.getLogger(IngestServiceBean.class.getCanonicalName());
-
-    private static String dateTimeFormat_ymdhmsS = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static String dateFormat_ymd = "yyyy-MM-dd";
 
     private DatasetDao datasetDao;
     private DataFileServiceBean fileService;
@@ -1040,7 +1033,6 @@ public class IngestServiceBean {
         }
     }
 
-
     private void processFileLevelMetadata(FileMetadataIngest fileLevelMetadata, FileMetadata fileMetadata) {
         // The only type of metadata that ingest plugins can extract from ingested
         // files (as of 4.0 beta) that *stay* on the file-level is the automatically
@@ -1061,8 +1053,8 @@ public class IngestServiceBean {
         }
     }
 
-    private void calculateContinuousSummaryStatistics(DataFile dataFile, int varnum, Number[] dataVector) throws IOException {
-        double[] sumStats = SumStatCalculator.calculateSummaryStatistics(dataVector);
+    private void calculateContinuousSummaryStatistics(DataFile dataFile, int varnum, Double[] dataVector) throws IOException {
+        double[] sumStats = OptimizedSumStatCalculator.calculateSummaryStatisticsDestructively(dataVector);
         assignContinuousSummaryStatistics(dataFile.getDataTable().getDataVariables().get(varnum), sumStats);
     }
 
@@ -1084,13 +1076,11 @@ public class IngestServiceBean {
     private void calculateUNF(DataFile dataFile, int varnum, Double[] dataVector) {
         String unf = null;
         try {
-            unf = UNFUtil.calculateUNF(dataVector);
+            unf = OptimizedUNFUtil.calculateUNF(dataVector);
         } catch (IOException iex) {
-            logger.warning(
-                    "exception thrown when attempted to calculate UNF signature for (numeric, continuous) variable " + varnum);
+            logger.warning("exception thrown when attempted to calculate UNF signature for numeric variable " + varnum);
         } catch (Exception uex) {
-            logger.warning(
-                    "UNF Exception: thrown when attempted to calculate UNF signature for (numeric, continuous) variable " + varnum);
+            logger.warning("UNF Exception: thrown when attempted to calculate UNF signature for numeric variable " + varnum);
         }
 
         if (unf != null) {
@@ -1100,137 +1090,23 @@ public class IngestServiceBean {
         }
     }
 
-    private void calculateUNF(DataFile dataFile, int varnum, Long[] dataVector) {
+    private void calculateUNF(DataFile dataFile, int varnum, String[] dataVector) {
         String unf = null;
         try {
-            unf = UNFUtil.calculateUNF(dataVector);
-        } catch (IOException iex) {
-            logger.warning(
-                    "exception thrown when attempted to calculate UNF signature for (numeric, discrete) variable " + varnum);
-        } catch (UnfException uex) {
-            logger.warning(
-                    "UNF Exception: thrown when attempted to calculate UNF signature for (numeric, discrete) variable " + varnum);
-        }
-
-        if (unf != null) {
-            dataFile.getDataTable().getDataVariables().get(varnum).setUnf(unf);
-        } else {
-            logger.warning("failed to calculate UNF signature for variable " + varnum);
-        }
-    }
-
-    private void calculateUNF(DataFile dataFile, int varnum, String[] dataVector) throws IOException {
-        String unf = null;
-
-        String[] dateFormats = null;
-
-        // Special handling for Character strings that encode dates and times:
-
-        if ("time".equals(dataFile.getDataTable().getDataVariables().get(varnum).getFormatCategory())) {
-            dateFormats = new String[dataVector.length];
-            String savedDateTimeFormat = dataFile.getDataTable().getDataVariables().get(varnum).getFormat();
-            String timeFormat = StringUtils.isNotEmpty(savedDateTimeFormat)
-                    ? savedDateTimeFormat : dateTimeFormat_ymdhmsS;
-
-            /* What follows is special handling of a special case of time values
-             * non-uniform precision; specifically, when some have if some have
-             * milliseconds, and some don't. (and that in turn is only
-             * n issue when the timezone is present... without the timezone
-             * the time string would still evaluate to the end, even if the
-             * format has the .SSS part and the string does not.
-             * This case will be properly handled internally, once we permanently
-             * switch to UNF6.
-             * -- L.A. 4.0 beta 8
-             */
-            String simplifiedFormat = null;
-            SimpleDateFormat fullFormatParser = null;
-            SimpleDateFormat simplifiedFormatParser = null;
-
-            if (timeFormat.matches(".*\\.SSS z$")) {
-                simplifiedFormat = timeFormat.replace(".SSS", "");
-
-                fullFormatParser = new SimpleDateFormat(timeFormat);
-                simplifiedFormatParser = new SimpleDateFormat(simplifiedFormat);
-            }
-
-            for (int i = 0; i < dataVector.length; i++) {
-                if (dataVector[i] == null) {
-                    continue;
-                }
-
-                if (simplifiedFormatParser != null) {
-                    // first, try to parse the value against the "full"
-                    // format (with the milliseconds part):
-                    fullFormatParser.setLenient(false);
-
-                    try {
-                        logger.fine("trying the \"full\" time format, with milliseconds: " + timeFormat + ", " + dataVector[i]);
-                        fullFormatParser.parse(dataVector[i]);
-                    } catch (ParseException ex) {
-                        // try the simplified (no time zone) format instead:
-                        logger.fine("trying the simplified format: " + simplifiedFormat + ", " + dataVector[i]);
-                        simplifiedFormatParser.setLenient(false);
-                        try {
-                            simplifiedFormatParser.parse(dataVector[i]);
-                            timeFormat = simplifiedFormat;
-                        } catch (ParseException ex1) {
-                            logger.warning("no parseable format found for time value " + i + " - " + dataVector[i]);
-                            throw new IOException("no parseable format found for time value " + i + " - " + dataVector[i]);
-                        }
-                    }
-
-                }
-                dateFormats[i] = timeFormat;
-            }
-        } else if ("date".equals(dataFile.getDataTable().getDataVariables().get(varnum).getFormatCategory())) {
-            dateFormats = new String[dataVector.length];
-            String savedDateFormat = dataFile.getDataTable().getDataVariables().get(varnum).getFormat();
-            for (int i = 0; i < dataVector.length; i++) {
-                if (dataVector[i] != null) {
-                    dateFormats[i] = StringUtils.isNotEmpty(savedDateFormat)
-                            ? savedDateFormat : dateFormat_ymd;
-                }
-            }
-        }
-
-        try {
-            if (dateFormats == null) {
-                logger.fine("calculating the UNF value for string vector; first value: " + dataVector[0]);
-                unf = UNFUtil.calculateUNF(dataVector);
+            String formatCategory = dataFile.getDataTable().getDataVariables().get(varnum).getFormatCategory();
+            String savedFormat = dataFile.getDataTable().getDataVariables().get(varnum).getFormat();
+            if ("time".equals(formatCategory)) {
+                unf = OptimizedUNFUtil.calculateTimeUNF(dataVector, savedFormat, true);
+            } else if ("date".equals(formatCategory)) {
+                unf = OptimizedUNFUtil.calculateDateUNF(dataVector, savedFormat);
             } else {
-                unf = UNFUtil.calculateUNF(dataVector, dateFormats);
+                logger.fine("calculating the UNF value for string vector; first value: " + dataVector[0]);
+                unf = OptimizedUNFUtil.calculateUNF(dataVector);
             }
         } catch (IOException iex) {
             logger.warning("IO exception thrown when attempted to calculate UNF signature for (character) variable " + varnum);
         } catch (UnfException uex) {
             logger.warning("UNF Exception: thrown when attempted to calculate UNF signature for (character) variable " + varnum);
-        }
-
-        if (unf != null) {
-            dataFile.getDataTable().getDataVariables().get(varnum).setUnf(unf);
-        } else {
-            logger.warning("failed to calculate UNF signature for variable " + varnum);
-        }
-    }
-
-    // Calculating UNFs from *floats*, not *doubles* - this is to test dataverse
-    // 4.0 Ingest against DVN 3.*; because of the nature of the UNF bug, reading
-    // the tab file entry with 7+ digits of precision as a Double will result
-    // in a UNF signature *different* from what was produced by the v. 3.* ingest,
-    // from a STATA float value directly.
-    // TODO: remove this from the final production 4.0!
-    // -- L.A., Jul 2014
-
-    private void calculateUNF(DataFile dataFile, int varnum, Float[] dataVector) {
-        String unf = null;
-        try {
-            unf = UNFUtil.calculateUNF(dataVector);
-        } catch (IOException iex) {
-            logger.warning("exception thrown when attempted to calculate UNF signature for numeric, \"continuous\" " +
-                    "(float) variable " + varnum);
-        } catch (UnfException uex) {
-            logger.warning("UNF Exception: thrown when attempted to calculate UNF signature for numeric, \"continuous\" " +
-                    "(float) variable" + varnum);
         }
 
         if (unf != null) {
@@ -1249,6 +1125,10 @@ public class IngestServiceBean {
         recalculateDatasetVersionUNF(dataFile.getFileMetadata().getDatasetVersion());
     }
 
+    /**
+     * As the statistics that are calculated require to convert the input vector to Double,
+     * this method is virtually the same as for "continuous" vector.
+     */
     private void produceDiscreteNumericSummaryStatistics(IngestDataProvider dataProvider, DataFile dataFile) throws IOException {
         DataTable dataTable = dataFile.getDataTable();
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
@@ -1256,9 +1136,9 @@ public class IngestServiceBean {
             if (!dataVariable.isIntervalDiscrete() || !dataVariable.isTypeNumeric()) {
                 continue;
             }
-            Long[] vector = dataProvider.getLongColumn(i);
-            calculateContinuousSummaryStatistics(dataFile, i, vector);
+            Double[] vector = dataProvider.getDoubleColumn(i);
             calculateUNF(dataFile, i, vector);
+            calculateContinuousSummaryStatistics(dataFile, i, vector); // this method alters the input vector, so must be called last
         }
     }
 
@@ -1266,15 +1146,9 @@ public class IngestServiceBean {
         DataTable dataTable = dataFile.getDataTable();
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
             if (dataTable.getDataVariables().get(i).isIntervalContinuous()) {
-                if ("float".equals(dataTable.getDataVariables().get(i).getFormat())) {
-                    Float[] variableVector = dataProvider.getFloatColumn(i);
-                    calculateContinuousSummaryStatistics(dataFile, i, variableVector);
-                    calculateUNF(dataFile, i, variableVector);
-                } else {
-                    Double[] variableVector = dataProvider.getDoubleColumn(i);
-                    calculateContinuousSummaryStatistics(dataFile, i, variableVector);
-                    calculateUNF(dataFile, i, variableVector);
-                }
+                Double[] variableVector = dataProvider.getDoubleColumn(i);
+                calculateUNF(dataFile, i, variableVector);
+                calculateContinuousSummaryStatistics(dataFile, i, variableVector); // this method alters the input vector, so must be called last
             }
         }
     }
@@ -1295,7 +1169,7 @@ public class IngestServiceBean {
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
             if (dataTable.getDataVariables().get(i).isTypeCharacter()) {
                 String[] variableVector = dataProvider.getStringColumn(i);
-                calculateUNF(dataFile, i, variableVector);
+                calculateUNF(dataFile, i, variableVector); // this method alters the input vector (for date/time), so must be called last
             }
         }
     }
@@ -1310,7 +1184,7 @@ public class IngestServiceBean {
         }
 
         try {
-            fileUnfValue = UNFUtil.calculateUNF(unfValues);
+            fileUnfValue = OptimizedUNFUtil.calculateUNF(unfValues);
         } catch (IOException ex) {
             logger.warning("Failed to recalculate the UNF for the datafile id=" + dataFile.getId());
         } catch (UnfException uex) {
