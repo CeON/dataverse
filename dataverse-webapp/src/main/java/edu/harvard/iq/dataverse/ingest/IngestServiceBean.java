@@ -1141,7 +1141,11 @@ public class IngestServiceBean {
     private void produceContinuousSummaryStatistics(IngestDataProvider dataProvider, DataFile dataFile) throws IOException {
         DataTable dataTable = dataFile.getDataTable();
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
-            if ("float".equals(dataTable.getDataVariables().get(i).getFormat())) {
+            DataVariable currentVariable = dataTable.getDataVariables().get(i);
+            if (!currentVariable.isIntervalContinuous()) {
+                continue;
+            }
+            if ("float".equals(currentVariable.getFormat())) {
                 Float[] variableVector = dataProvider.getFloatColumn(i);
                 calculateUNF(dataFile, i, variableVector);
                 Double[] convertedVector = Arrays.stream(variableVector).map(Double::new).toArray(Double[]::new);

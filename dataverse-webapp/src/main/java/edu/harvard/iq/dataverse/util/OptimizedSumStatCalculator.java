@@ -29,7 +29,7 @@ public class OptimizedSumStatCalculator {
         stats[2] = 0.0; // OMITTED
 
         stats[5] = vector[0]; // Min: as array is sorted, it's the first element
-        stats[6] = vector[toProcessLength - 1]; // Max: as array is sorted, it's the last valid element
+        stats[6] = toProcessLength > 0 ? vector[toProcessLength - 1] : Double.NaN; // Max: as array is sorted, it's the last valid element
         stats[7] = Math.sqrt(variance(vector, stats[0], toProcessLength));
         return stats;
     }
