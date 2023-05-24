@@ -1073,7 +1073,7 @@ public class IngestServiceBean {
         }
     }
 
-    private void calculateUNF(DataFile dataFile, int varnum, Double[] dataVector) {
+    private void calculateUNF(DataFile dataFile, int varnum, Number[] dataVector) {
         String unf = null;
         try {
             unf = OptimizedUNFUtil.calculateUNF(dataVector);
@@ -1125,10 +1125,6 @@ public class IngestServiceBean {
         recalculateDatasetVersionUNF(dataFile.getFileMetadata().getDatasetVersion());
     }
 
-    /**
-     * As the statistics that are calculated require to convert the input vector to Double,
-     * this method is virtually the same as for "continuous" vector.
-     */
     private void produceDiscreteNumericSummaryStatistics(IngestDataProvider dataProvider, DataFile dataFile) throws IOException {
         DataTable dataTable = dataFile.getDataTable();
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
@@ -1145,10 +1141,15 @@ public class IngestServiceBean {
     private void produceContinuousSummaryStatistics(IngestDataProvider dataProvider, DataFile dataFile) throws IOException {
         DataTable dataTable = dataFile.getDataTable();
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
-            if (dataTable.getDataVariables().get(i).isIntervalContinuous()) {
+            if ("float".equals(dataTable.getDataVariables().get(i).getFormat())) {
+                Float[] variableVector = dataProvider.getFloatColumn(i);
+                calculateUNF(dataFile, i, variableVector);
+                Double[] convertedVector = Arrays.stream(variableVector).map(Double::new).toArray(Double[]::new);
+                calculateContinuousSummaryStatistics(dataFile, i, convertedVector); // this method alters the input vector, so must be called last
+            } else {
                 Double[] variableVector = dataProvider.getDoubleColumn(i);
                 calculateUNF(dataFile, i, variableVector);
-                calculateContinuousSummaryStatistics(dataFile, i, variableVector); // this method alters the input vector, so must be called last
+                calculateContinuousSummaryStatistics(dataFile, i, variableVector); // (as above)
             }
         }
     }
