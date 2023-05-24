@@ -6,9 +6,7 @@ import edu.harvard.iq.dataverse.persistence.datafile.datavariable.DataVariable;
 import org.apache.commons.lang3.StringUtils;
 import org.dataverse.unf.UNFUtil;
 import org.dataverse.unf.UnfException;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.Preconditions;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +27,7 @@ class OptimizedUNFUtilTest {
     // -------------------- TESTS --------------------
 
     @Test
-    public void compareForNumericVector() throws IOException, UnfException {
+    void compareForNumericVector() throws IOException, UnfException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -46,7 +44,7 @@ class OptimizedUNFUtilTest {
     }
 
     @Test
-    public void compareForNumericVector2() throws IOException, UnfException {
+    void compareForNumericVector2() throws IOException, UnfException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -63,7 +61,7 @@ class OptimizedUNFUtilTest {
     }
 
     @Test
-    public void compareForStringVector() throws IOException, UnfException {
+    void compareForStringVector() throws IOException, UnfException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -86,7 +84,7 @@ class OptimizedUNFUtilTest {
     }
 
     @Test
-    public void testEquivalence__longAndDouble() throws IOException, UnfException {
+    void testEquivalence__longAndDouble() throws IOException, UnfException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -107,7 +105,7 @@ class OptimizedUNFUtilTest {
     }
 
     @Test
-    public void testEquivalence__floatAndDouble() throws IOException, UnfException {
+    void testEquivalence__floatAndDouble() throws IOException, UnfException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -135,7 +133,7 @@ class OptimizedUNFUtilTest {
     }
 
     @Test
-    public void compareTimes() throws IOException, UnfException {
+    void compareTimes() throws IOException, UnfException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -164,7 +162,7 @@ class OptimizedUNFUtilTest {
     }
 
     @Test
-    public void compareDates() throws IOException, UnfException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void compareDates() throws IOException, UnfException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         // given
         long seed = System.nanoTime();
         Random random = new Random(seed);
@@ -187,6 +185,7 @@ class OptimizedUNFUtilTest {
                 .withFailMessage("Failed for seed: " + seed)
                 .isEqualTo(oldMethodResult);
     }
+
 
     // -------------------- PRIVATE --------------------
 
