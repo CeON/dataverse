@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datafile.DataFileCreator;
@@ -377,6 +378,10 @@ public class EditDatafilesPage implements java.io.Serializable {
         return batchSize == null || batchSize.equals(0L)
                 ? StringUtils.EMPTY
                 : bytesToHumanReadable(batchSize);
+    }
+
+    public String getUploadBatchTooBigMessage() {
+        return getStringFromBundle("dataset.file.uploadBatchTooBig", getHumanMaxBatchUploadSize());
     }
 
     public void reset() { }
@@ -864,7 +869,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         long fileSize = uploadedFile.getSize();
         if (getMaxBatchSize() > 0 && (currentBatchSize + fileSize) > getMaxBatchSize()) {
-            uploadWarningMessage = getStringFromBundle("dataset.file.uploadBatchTooBig");
+            uploadWarningMessage = getUploadBatchTooBigMessage();
             uploadComponentId = event.getComponent().getClientId();
             return;
         }
