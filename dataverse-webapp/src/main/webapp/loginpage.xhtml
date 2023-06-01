@@ -251,17 +251,19 @@
                                     </p>
                                 </div>
                             </div>
-                            <h2><span class="glyphicon glyphicon-user" /> #{bundle['login.signUp.header']}</h2>
-                            <div id="signUp" class="form-group">
-                                <h:outputText value="#{bundle['login.signUp']}"/>
-                            </div>
-                            <div id="signUpButton" class="form-group">
-                                <h:form id="signUpLinkForm">
-                                    <p:commandLink id="signUpButton" styleClass="btn btn-default"
-                                                   action="#{LoginPage.getSignUpRedirect()}">
-                                        #{bundle['login.signUp.button']}
-                                    </p:commandLink>
-                                </h:form>
+                            <div jsf:rendered="#{systemConfig.signupAllowed}">
+                                <h2><span class="glyphicon glyphicon-user" /> #{bundle['login.signUp.header']}</h2>
+                                <div id="signUp" class="form-group">
+                                    <h:outputText value="#{bundle['login.signUp']}"/>
+                                </div>
+                                <div id="signUpButton" class="form-group" >
+                                    <h:form id="signUpLinkForm">
+                                        <p:commandLink id="signUpButton" styleClass="btn btn-default"
+                                                       action="#{LoginPage.getSignUpRedirect()}">
+                                            #{bundle['login.signUp.button']}
+                                        </p:commandLink>
+                                    </h:form>
+                                </div>
                             </div>
                         </div>
                     </div>
