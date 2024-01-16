@@ -19,71 +19,77 @@ msgstr ""
 
 #: ../../source/user/account.rst:3
 msgid "Account Creation + Management"
-msgstr ""
+msgstr "Tworzenie i zarządzanie kontem"
 
 #: ../../source/user/account.rst:6
 msgid "|toctitle|"
-msgstr ""
+msgstr "|toctitle|"
 
 #: ../../source/user/account.rst:9
 msgid "Account Information"
-msgstr ""
+msgstr "Informacje o koncie"
 
 #: ../../source/user/account.rst:11
 msgid "As a registered user, you can:"
 msgstr ""
+"W zależności od posiadanych uprawnień, jako zarejestrowany użytkowni"
+"k możesz:"
 
 #: ../../source/user/account.rst:13
 msgid "Create your own dataverse, if permitted, and customize it."
-msgstr ""
+msgstr "Stworzyć swoją własną kolekcję i dostosować ją do swoich potrzeb."
 
 #: ../../source/user/account.rst:14
 msgid "Add datasets to dataverses, if permitted."
-msgstr ""
+msgstr "Dodawać zbiory danych do repozytorium."
 
 #: ../../source/user/account.rst:15
 msgid "Contribute to existing datasets, if permitted."
-msgstr ""
+msgstr "Rozwijać już istniejące zbiory danych."
 
 #: ../../source/user/account.rst:16
 msgid "Request access to restricted files, if permitted."
-msgstr ""
+msgstr "Poprosić o dostęp do plików w ograniczonym dostępie."
 
 #: ../../source/user/account.rst:19
 msgid "Account Log In Options"
-msgstr ""
+msgstr "Opcje logowania"
 
 #: ../../source/user/account.rst:21
 msgid ""
 "Dataverse has been configured for one or more of the following log in "
 "options:"
 msgstr ""
+"W zależności od konfiguracji, do repozytorium można zalogować się pr"
+"zy użyciu co najmniej jednej z poniższych opcji logowania:"
 
 #: ../../source/user/account.rst:23
 msgid "Username/Email and Password"
-msgstr ""
+msgstr "Nazwa użytkownika/Email i hasło"
 
 #: ../../source/user/account.rst:24 ../../source/user/account.rst:73
 msgid "Institutional Log In"
-msgstr ""
+msgstr "Logowanie instytucjonalne"
 
 #: ../../source/user/account.rst:25
 msgid "ORCID"
-msgstr ""
+msgstr "ORCID"
 
 #: ../../source/user/account.rst:26
 msgid "GitHub"
-msgstr ""
+msgstr "GitHub"
 
 #: ../../source/user/account.rst:27
 msgid "Google"
-msgstr ""
+msgstr "Google"
 
 #: ../../source/user/account.rst:29
 msgid ""
 "Please note that once you create your Dataverse account, it will be "
 "associated with only one of the log in options above."
 msgstr ""
+"Należy pamiętać, że po utworzeniu konta w repozytorium, będzie ono s"
+"kojarzone tylko z jedną z powyższych opcji logowania."
 
 #: ../../source/user/account.rst:31
 msgid ""
@@ -93,7 +99,7 @@ msgstr ""
 
 #: ../../source/user/account.rst:34
 msgid "Create Account"
-msgstr ""
+msgstr "Tworzenie konta"
 
 #: ../../source/user/account.rst:36
 msgid ""
@@ -103,6 +109,11 @@ msgid ""
 "email addresses but will allow the following characters: a-Z, 0-9, _ "
 "(underscores), - (hyphens), and . (periods)."
 msgstr ""
+"Aby utworzyć konto z opcją logowania za pomocą nazwy użytkownika/adr"
+"esu  e-mail, użyj strony \"Zarejestruj się\". Wypełnij pola, a nastę"
+"pnie kliknij przycisk \"Utwórz konto\". Pamiętaj, że pole \"Nazwa uż"
+"ytkownika\" nie obsługuje adresów e-mail, ale dopuszcza użycie nastę"
+"pujących znaków: a-Z, 0-9, _ (podkreślnik), - (myślnik) i . (kropka)."
 
 #: ../../source/user/account.rst:38
 msgid ""
@@ -111,16 +122,23 @@ msgid ""
 " one of the authentication providers. See :ref:`remote-auth-label` "
 "section for details."
 msgstr ""
+"Aby utworzyć konto w repozytorium skojarzone z opcją logowania insty"
+"tucjonalnego, ORCID, GitHub lub Google, wejdź na stronę \"Zaloguj\" "
+"i wybierz jednego z dostawców uwierzytelnienia. Szczegółowe informac"
+"je można znaleźć poniżej w sekcji :ref:`remote-auth-label`."
 
 #: ../../source/user/account.rst:41
 msgid "Edit Account"
-msgstr ""
+msgstr "Edycja konta"
 
 #: ../../source/user/account.rst:43
 msgid ""
 "To edit your account after you have logged in, click on your account name"
 " in the header on the right hand side and click on Account Information."
 msgstr ""
+"Aby edytować swoje konto, po zalogowaniu kliknij na nazwę konta po p"
+"rawej stronie nagłówka, a następnie kliknij \"Informacje o koncie\"."
+
 
 #: ../../source/user/account.rst:44
 msgid ""
@@ -128,10 +146,13 @@ msgid ""
 "button and from there you can select to edit either your Account "
 "Information or your Account Password."
 msgstr ""
+"W prawym górnym rogu strony konta kliknij na przycisk \"Edytuj konto"
+"\", skąd możesz przejść do edycji informacji o koncie lub do zmiany "
+"hasła."
 
 #: ../../source/user/account.rst:45
 msgid "Select \"Save Changes\" when you are done."
-msgstr ""
+msgstr "Po zakończeniu edycji kliknij przycisk  \"Zapisz zmiany\"."
 
 #: ../../source/user/account.rst:47
 msgid ""
@@ -143,16 +164,26 @@ msgid ""
 "required to verify their email address because the institution providing "
 "the email address is trusted."
 msgstr ""
+"Zwróć uwagę, że nie możesz edytować informacji o koncie w repozytori"
+"um, jeśli korzystasz z opcji logowania instytucjonalnego. W tym wypa"
+"dku skontaktuj się ze swoją instytucją w celu dokonania zmiany nazwi"
+"ska, adresu e-mail itp. Zmiana wykonana przez Twoją instytucję zosta"
+"nie uwzględniona w repozytorium przy następnym logowaniu. Użytkownic"
+"y korzystający z opcji logowania instytucjonalnego nie muszą weryfik"
+"ować swojego adresu e-mail, ponieważ zapewniająca go instytucja jest"
+" zaufana."
 
 #: ../../source/user/account.rst:50
 msgid "Convert Account"
-msgstr ""
+msgstr "Przekształcanie konta"
 
 #: ../../source/user/account.rst:52
 msgid ""
 "If more than one log in option is available, you can convert from one to "
 "another and use the new option from now on."
 msgstr ""
+"Jeśli repozytorium oferuje kilka sposobów  logowania, możesz dokonać"
+" przekształcenia z jednej opcji na inną i używać odtąd tej drugiej"
 
 #: ../../source/user/account.rst:54
 msgid ""
@@ -164,16 +195,27 @@ msgid ""
 ":`remote-auth-label` has more specific information on converting to "
 "Institutional Log In, ORCID, GitHub, and Google."
 msgstr ""
+"Jeśli dokonujesz przekształcenia z opcji \"Nazwa użytkownika/Email i"
+" hasło\",  kliknij przycisk \"Zaloguj\" i przygotuj swoje hasło, aby"
+" dokończyć proces konwersji. Kliknij \"Zaloguj\", wybierz nową opcję"
+" logowania i przejdź przez proces logowania. Po powrocie do repozyto"
+"rium, poszukaj opcji pozwalającej na przekształcenie i wprowadź hasł"
+"o aby zakończyć przekształcanie. Sekcja :ref:`remote-auth-label` z"
+"awiera szczegółowe informacje na temat przekształcenia na logowanie "
+"instytucjonalne, ORCID, GitHub i Google."
 
 #: ../../source/user/account.rst:56
 msgid ""
 "If you need to perform any other conversion (i.e. from Google to GitHub),"
 " use the Support link at the top of the page for assistance."
 msgstr ""
+"W przypadku konieczności przeprowadzenia jakiejkolwiek innej konwers"
+"ji (np. z Google na GitHub), należy skorzystać z opcji \"Pomoc / Kon"
+"takt z pomocą repozytorium\" na górze strony w celu uzyskania pomocy."
 
 #: ../../source/user/account.rst:59
 msgid "Reset Account Password"
-msgstr ""
+msgstr "Resetowanie hasła do konta"
 
 #: ../../source/user/account.rst:61
 msgid ""
@@ -185,16 +227,24 @@ msgid ""
 "\"Submit Password Request\" to receive an email with a link to reset your"
 " password."
 msgstr ""
+"Jeśli nie pamiętasz  hasła, kliknij \"Zaloguj\" w prawym górnym rogu"
+" dowolnej strony, a następnie kliknij link \"Nie pamiętam hasła\". W"
+"pisz swój adres e-mail i kliknij przycisk \"Prześlij żądanie resetu "
+"hasła\", aby otrzymać e-mail z linkiem do zresetowania hasła."
 
 #: ../../source/user/account.rst:63
 msgid ""
 "Please note that if you have forgotten your username, you can use this "
 "same process to receive your username in an email."
 msgstr ""
+"Jeśli nie pamiętasz swojej nazwy użytkownika, możesz ją odzyskać w t"
+"en sam sposób. Tylko te konta w repozytorium, które korzystają z opc"
+"ji logowania za pomocą nazwy użytkownika/e-maila mają przypisane has"
+"ło bezpiecznie przechowywane w repozytorium."
 
 #: ../../source/user/account.rst:68
 msgid "Remote Authentication"
-msgstr ""
+msgstr "Zewnętrzne uwierzytelnianie"
 
 #: ../../source/user/account.rst:70
 msgid ""
@@ -203,6 +253,12 @@ msgid ""
 "This way, you can log in using your existing credentials from another "
 "service."
 msgstr ""
+"Masz za dużo haseł do zapamiętania? O ile pozwala na to konfiguracja"
+" konkretnego repozytorium, konto w nim można skonfigurować w taki sp"
+"osób, by korzystało  z danych uwierzytelniających od jednego z wybra"
+"nych dostawców zewnętrznego uwierzytelniania. Dzięki temu możesz log"
+"ować się przy użyciu danych uwierzytelniających istniejących już  w "
+"innym serwisie."
 
 #: ../../source/user/account.rst:75
 msgid ""
@@ -210,25 +266,31 @@ msgid ""
 "university (e.g. HarvardKey at Harvard) to log in to your Dataverse "
 "account."
 msgstr ""
+"O ile pozwala na to konfiguracja konkretnego repozytorium, logowanie"
+" instytucjonalne umożliwia logowanie do konta w repozytorium z wykor"
+"zystaniem informacji uwierzytelniających, z których korzystasz na sw"
+"ojej uczelni."
 
 #: ../../source/user/account.rst:78
 msgid "Create a Dataverse account using Institutional Log In"
-msgstr ""
+msgstr "Tworzenie konta wykorzystującego logowanie instytucjonalne"
 
 #: ../../source/user/account.rst:80 ../../source/user/account.rst:95
 #: ../../source/user/account.rst:115
-msgid "Go to “Log In” in the upper right corner of Dataverse."
-msgstr ""
+msgid "Go to \"Log In\" in the upper right corner of Dataverse."
+msgstr "Kliknij \"Zaloguj\" w prawym górnym rogu strony repozytorium."
 
 #: ../../source/user/account.rst:81
 msgid "Select the \"Your Institution\" button under the \"Other options\" header"
-msgstr ""
+msgstr "Wybierz przycisk \"Twoja instytucja\" pod nagłówkiem \"Inne opcje\"."
 
 #: ../../source/user/account.rst:82 ../../source/user/account.rst:97
 msgid ""
 "Using the dropdown menu, select your institution then click the Continue "
 "button to go to your institution's log in page."
 msgstr ""
+"Aby przejść do strony logowania swojej instytucji, wybierz ją w menu"
+" rozwijanym, a następnie kliknij przycisk \"Dalej\"."
 
 #: ../../source/user/account.rst:83
 msgid ""
@@ -236,6 +298,9 @@ msgid ""
 " brought back to Dataverse to confirm your account information, and click"
 " \"Create Account\"."
 msgstr ""
+"Po pomyślnym wprowadzeniu instytucjonalnych danych uwierzytelniający"
+"ch nastąpi przeniesienie z powrotem do repozytorium w celu potwierdz"
+"enia danych konta. Następnie kliknij przycisk \"Utwórz konto\"."
 
 #: ../../source/user/account.rst:84
 msgid ""
@@ -244,6 +309,12 @@ msgid ""
 "to assign permissions within the system. To see what you username is, "
 "click on your name in the top right corner and click Account Information."
 msgstr ""
+"Zostanie dla ciebie wybrana nazwa użytkownika. Nie będziesz jej używ"
+"ał do logowania się, ale pojawi się ona obok Twojego nazwiska, gdy i"
+"nni użytkownicy będą Cię szukać, aby przypisać Ci uprawnienia w repo"
+"zytorium. Aby zobaczyć swoją nazwę użytkownika, kliknij na swoje imi"
+"ę i nazwisko w prawym górnym rogu, a następnie wybierz opcję \"Infor"
+"macje o koncie\"."
 
 #: ../../source/user/account.rst:86
 msgid ""
@@ -255,7 +326,7 @@ msgstr ""
 
 #: ../../source/user/account.rst:89
 msgid "Convert your Dataverse account to use your Institutional Log In"
-msgstr ""
+msgstr "Przekształcanie konta na opcję logowania instytucjonalnego"
 
 #: ../../source/user/account.rst:91
 msgid ""
@@ -264,6 +335,12 @@ msgid ""
 "institutional log in, you can easily do so as long as your account uses "
 "an email address from that institution."
 msgstr ""
+"Jeśli posiadasz już konto w repozytorium wykorzystujące opcję logowa"
+"nia przy użyciu nazwy użytkownika/emaila oraz hasła, ale chcesz prze"
+"kształcić je tak, aby wykorzystywało Twój login instytucjonalny, moż"
+"esz to łatwo zrobić, pod warunkiem, że adres e-mail przypisany do Tw"
+"ojego konta jest zarazem adresem wykorzystywanym przez Twój system i"
+"nstytucjonalny."
 
 #: ../../source/user/account.rst:93
 msgid ""
@@ -271,36 +348,47 @@ msgid ""
 "address is the same as your institutional email address. If not, you will"
 " need to update your Dataverse account to make them match."
 msgstr ""
+"Przejdź do strony \"Informacje o koncie\", aby potwierdzić, że adres"
+" e-mail przypisany do Twojego konta jest tożsamy z Twoim adresem ins"
+"tytucjonalnym. Jeśli nie, konieczna będzie aktualizacja konta w repo"
+"zytorium w taki sposób, aby oba adresy były zgodne."
 
 #: ../../source/user/account.rst:94 ../../source/user/account.rst:126
 msgid "Log out of Dataverse."
-msgstr ""
+msgstr "Wyloguj się z repozytorium."
 
 #: ../../source/user/account.rst:96
 msgid "Select the \"Your Institution\" button under the \"Other options\" header."
-msgstr ""
+msgstr "Wybierz przycisk \"Twoja instytucja\" pod nagłówkiem \"Inne opcje\"."
 
 #: ../../source/user/account.rst:98
 msgid ""
 "After you put in your institutional credentials successfully, you will be"
 " brought back to Dataverse to confirm your account information."
 msgstr ""
+"Po pomyślnym wprowadzeniu instytucjonalnych danych uwierzytelniający"
+"ch nastąpi przeniesienie z powrotem do repozytorium w celu potwierdz"
+"enia informacji o Twoim koncie."
 
 #: ../../source/user/account.rst:99
 msgid ""
 "Enter your current password for your Dataverse account and click "
 "\"Convert Account\"."
 msgstr ""
+"Wprowadź swoje aktualne hasło do konta i kliknij \"Przekształć konto"
+"\"."
 
 #: ../../source/user/account.rst:100
 msgid ""
 "Now you have finished converting your Dataverse account to use your "
 "institutional log in."
 msgstr ""
+"Proces przekształcania konta w repozytorium został zakończony. Od te"
+"go momentu możesz korzystać z logowania instytucjonalnego."
 
 #: ../../source/user/account.rst:103
 msgid "Convert your Dataverse account away from your Institutional Log In"
-msgstr ""
+msgstr "Przekształcenie konta wykorzystującego logowanie instytucjonalne"
 
 #: ../../source/user/account.rst:105
 msgid ""
@@ -310,10 +398,17 @@ msgid ""
 "account page, there is a link that will open a popup form to contact "
 "support for assistance."
 msgstr ""
+"Jeśli rozstajesz się ze swoją instytucją, musisz przekształcić swoje"
+" konto w repozytorium w taki sposób, by odtąd wykorzystywało do logo"
+"wania  nazwę użytkownika/email oraz hasło. W tym celu skontaktuj się"
+" z obsługą techniczną repozytorium. Na górze dowolnej strony repozyt"
+"orium kliknij \"Pomoc\", a następnie z menu rozwijanego wybierz opcj"
+"ę \"Kontakt z pomocą repozytorium\".  Otworzy się formularz umożliwi"
+"ający kontakt z pomocą techniczną repozytorium."
 
 #: ../../source/user/account.rst:108
 msgid "ORCID Log In"
-msgstr ""
+msgstr "Logowanie poprzez ORCID"
 
 #: ../../source/user/account.rst:110
 msgid ""
@@ -323,18 +418,25 @@ msgid ""
 "link research activities and organizations to these identifiers. Learn "
 "more at `orcid.org <http://orcid.org>`_."
 msgstr ""
+"O ile pozwala na to konfiguracja konkretnego repozytorium, możesz sk"
+"onfigurować swoje konto tak, aby logować się przy użyciu danych uwie"
+"rzytelniających serwisu ORCID. ORCID® jest niezależnym, niekomercyjn"
+"ym przedsięwzięciem mającym na celu zapewnienie otwartego rejestru u"
+"nikalnych identyfikatorów badaczy oraz otwartych usług łączących te "
+"identyfikatory z działalnością badawczą i organizacjami. Więcej info"
+"rmacji znajdziesz na stronie `orcid.org <http://orcid.org>`_."
 
 #: ../../source/user/account.rst:113
 msgid "Create a Dataverse account using ORCID"
-msgstr ""
+msgstr "Tworzenie konta wykorzystującego dane uwierzytelniające ORCID"
 
 #: ../../source/user/account.rst:116 ../../source/user/account.rst:128
 msgid "Click the \"ORCID\" button under the \"Other options\" header."
-msgstr ""
+msgstr "Kliknij przycisk \"ORCID\" znajdujący się pod nagłówkiem \"Inne opcje\"."
 
 #: ../../source/user/account.rst:117 ../../source/user/account.rst:129
 msgid "Click the \"Log In with ORCID\" button to go to the ORCID website."
-msgstr ""
+msgstr "Kliknij przycisk \"Zaloguj się z ORCID\", aby przejść na stronę serwisu ORCID."
 
 #: ../../source/user/account.rst:118 ../../source/user/account.rst:130
 msgid ""
@@ -342,6 +444,9 @@ msgid ""
 "page. If you already have an ORCID account, click on \"Sign in\" and then"
 " enter your login under the \"Personal account\" tab."
 msgstr ""
+"Jeśli nie posiadasz jeszcze konta ORCID, możesz je założyć na tej st"
+"ronie. Jeśli posiadasz już konto ORCID, kliknij \"Sign in\", a nastę"
+"pnie wprowadź swój login w zakładce \"Personal account\"."
 
 #: ../../source/user/account.rst:119
 msgid ""
@@ -354,10 +459,20 @@ msgid ""
 "account, the name of your employer will be suggested for the "
 "\"Affiliation\" field."
 msgstr ""
+"Po pomyślnym wprowadzeniu danych uwierzytelniających w serwisie ORCI"
+"D nastąpi przekierowanie z powrotem do repozytorium w celu potwierdz"
+"enia założenia konta. Jeśli ustawienia prywatności Twojego konta ORC"
+"ID na to pozwalają, zostanie Ci zasugerowany jako opcja adres e-mail"
+" powiązany z kontem ORCID. Możesz użyć tego adresu poczty elektronic"
+"znej lub dowolnego innego adresu e-mail. Jeśli Twoje konto ORCID zaw"
+"iera informacje dotyczące zatrudnienia, nazwa Twojego pracodawcy zos"
+"tanie zasugerowana w polu \"Afiliacja\"."
 
 #: ../../source/user/account.rst:122
 msgid "Convert your Dataverse account to use ORCID for log in"
 msgstr ""
+"Przekształcanie konta w celu logowania się przy użyciu danych uwierz"
+"ytelniających ORCID "
 
 #: ../../source/user/account.rst:124
 msgid ""
@@ -365,32 +480,42 @@ msgid ""
 "Username/Email log in option, but you want to convert it to use ORCID for"
 " log in, follow these steps:"
 msgstr ""
+"Jeśli posiadasz już konto w repozytorium powiązane z opcją logowania"
+" za pomocą nazwy użytkownika/e-maila i hasła, ale chcesz korzystać z"
+" opcji logowania poprzez ORCID, wykonaj poniższe kroki:"
 
 #: ../../source/user/account.rst:127
 msgid "Go to \"Log In\" in the upper right corner of Dataverse."
-msgstr ""
+msgstr "Kliknij \"Zaloguj\" w prawym górnym rogu strony repozytorium."
 
 #: ../../source/user/account.rst:131
 msgid ""
 "After you put in your ORCID credentials successfully, you will be brought"
 " back to Dataverse. Click the \"convert your account\" link."
 msgstr ""
+"Po pomyślnym wprowadzeniu danych uwierzytelniających na stronie ORCI"
+"D nastąpi przekierowanie z powrotem do repozytorium. Kliknij link \""
+"Przekształć swoje konto\"."
 
 #: ../../source/user/account.rst:132
 msgid ""
 "Enter your username and password for your Dataverse account and click "
 "\"Convert Account\"."
 msgstr ""
+"Wprowadź nazwę użytkownika i hasło do swojego konta w repozytorium i"
+" kliknij \"Przekształć konto\"."
 
 #: ../../source/user/account.rst:133
 msgid ""
 "Now you have finished converting your Dataverse account to use ORCID for "
 "log in."
 msgstr ""
+"Proces przekształcania zostanie zakończony. Od tej chwili możliwe bę"
+"dzie logowanie się do konta w repozytorium przez serwis ORCID"
 
 #: ../../source/user/account.rst:136
 msgid "Convert your Dataverse account away from ORCID for log in"
-msgstr ""
+msgstr "Przekształcenie swojego konta z logowania się za pomocą ORCID"
 
 #: ../../source/user/account.rst:138
 msgid ""
@@ -400,10 +525,18 @@ msgid ""
 "Dataverse installation you are using. On your account page, there is a "
 "link that will open a popup form to contact support for assistance."
 msgstr ""
+"Jeśli nie chcesz już logować się do repozytorium za pomocą serwisu O"
+"RCID i chcesz przekształcić swoje konto na logowanie poprzez nazwę u"
+"żytkownika/e-mail i hasło, skontaktuj się z obsługą techniczną repoz"
+"ytorium. Na górze dowolnej strony repozytorium kliknij \"Pomoc\", a "
+"następnie z menu rozwijanego wybierz opcję \"Kontakt z pomocą repozy"
+"torium\".  stronie \"Moje konto\" znajduje się link. Otworzy on form"
+"ularz umożliwiający kontakt z pomocą z pomocą techniczną repozytoriu"
+"m."
 
 #: ../../source/user/account.rst:141
 msgid "GitHub and Google Log In"
-msgstr ""
+msgstr "Logowanie przez GitHub i Google"
 
 #: ../../source/user/account.rst:143
 msgid ""
@@ -414,10 +547,18 @@ msgid ""
 "using one of these services for log in, then you can follow the same "
 "steps as listed above for converting away from the ORCID log in."
 msgstr ""
+"O ile pozwala na to konfiguracja konkretnego repozytorium, możesz ró"
+"wnież przekształcić swoje konto w repozytorium tak, by korzystało on"
+"o z logowania przez GitHub lub Google. Opcje te można znaleźć w sekc"
+"ji \"Inne opcje\" na stronie logowania. Działają one podobnie jak op"
+"isane powyżej logowanie przez ORCID. Jeśli chcesz przekształcić swoj"
+"e konto na logowanie za pomocą nazwy użytkownika/e-maila i hasła, wy"
+"konaj te same kroki, które zostały opisane powyżej dla przypadku kon"
+"ta wykorzystującego logowanie przez ORCID."
 
 #: ../../source/user/account.rst:146
 msgid "My Data"
-msgstr ""
+msgstr "Moje dane"
 
 #: ../../source/user/account.rst:148
 msgid ""
@@ -428,50 +569,67 @@ msgid ""
 "may also use the facets on the left side to only view a specific "
 "Publication Status or Role."
 msgstr ""
+"Zakładka \"Moje dane\" na stronie Twojego konta wyświetla listę wszyst"
+"kich zapisanych kolekcji, zbiorów danych i plików, które zostały prz"
+"ez Ciebie utworzone, przesłane lub które możesz edytować. Za pomocą "
+"pola \"Szukaj w moich danych\" możesz przeszukać wszystkie zapisane "
+"tam kolekcje, zbiory danych i pliki. Możesz również użyć filtrów zna"
+"jdujących się po lewej stronie, aby ograniczyć wyniki w zależności o"
+"d statusu opublikowania lub posiadanej przez Ciebie roli."
 
 #: ../../source/user/account.rst:151
 msgid "Notifications"
-msgstr ""
+msgstr "Powiadomienia"
 
 #: ../../source/user/account.rst:153
 msgid ""
 "Notifications appear in the notifications tab on your account page and "
 "are also displayed as a number next to your account name."
 msgstr ""
+"Powiadomienia są widoczne w zakładce \"Powiadomienia\" na stronie Twoj"
+"ego konta. Ich liczba jest również wyświetlana obok Twojego imienia "
+"i nazwiska."
 
 #: ../../source/user/account.rst:155
 msgid "You will receive a notification when:"
-msgstr ""
+msgstr "Otrzymasz powiadomienie, jeśli:"
 
 #: ../../source/user/account.rst:157
 msgid "You've created your account"
-msgstr ""
+msgstr "Utworzysz konto."
 
 #: ../../source/user/account.rst:158
 msgid "You've created a dataverse or added a dataset"
-msgstr ""
+msgstr "Utworzysz kolekcję lub dodasz zbiór danych."
 
 #: ../../source/user/account.rst:159
 msgid ""
 "Another Dataverse user has requested access to a restricted file in one "
 "of your datasets"
 msgstr ""
+"Inny użytkownik repozytorium poprosi o dostęp do zastrzeżonego pliku"
+" w jednym z Twoich zbiorów danych."
 
 #: ../../source/user/account.rst:161
 msgid ""
 "Notifications will only be emailed one time even if you haven't read the "
 "notification on the Dataverse site."
 msgstr ""
+"Powiadomienia będą też wysyłane na Twój adres e-mail. Każde powiadom"
+"ienie zostanie wysłane w ten sposób tylko raz, nawet jeśli nie przec"
+"zytasz powiadomienia na stronie repozytorium."
 
 #: ../../source/user/account.rst:164
 msgid "API Token"
-msgstr ""
+msgstr "Token API"
 
 #: ../../source/user/account.rst:166
 msgid ""
 "To create your API token, click on your name in the header on the right "
 "hand side and then click on API Token."
 msgstr ""
+"Aby utworzyć token API, kliknij swoje imię i nazwisko w prawym górny"
+"m rogu strony repozytorium, a następnie wybierz opcję \"Token API\"."
 
 #: ../../source/user/account.rst:167
 msgid ""
@@ -479,4 +637,6 @@ msgid ""
 "recreate it if you need a new API Token or if your API Token becomes "
 "compromised."
 msgstr ""
-
+"W tej zakładce możesz utworzyć swój token API, jak również utworzyć "
+" go ponownie, jeśli potrzebujesz nowego tokena API lub jeśli Twój ob"
+"ecny token API dostał się w niepowołane ręce."
