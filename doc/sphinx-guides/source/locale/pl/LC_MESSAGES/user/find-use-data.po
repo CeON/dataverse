@@ -19,15 +19,15 @@ msgstr ""
 
 #: ../../source/user/find-use-data.rst:2
 msgid "Finding and Using Data"
-msgstr ""
+msgstr "Wyszukiwanie i korzystanie z danych"
 
 #: ../../source/user/find-use-data.rst:5
 msgid "|toctitle|"
-msgstr ""
+msgstr "|toctitle|"
 
 #: ../../source/user/find-use-data.rst:8
 msgid "Finding Data"
-msgstr ""
+msgstr "Wyszukiwanie Danych"
 
 #: ../../source/user/find-use-data.rst:10
 msgid ""
@@ -38,6 +38,7 @@ msgid ""
 "dataverse, dataset, or file, a user will need to be given permission from"
 " that dataverse's administrator to access it."
 msgstr ""
+"Nie musisz logować się do repozytorium,aby przeglądać kolekcje, zbiory danych i pliki, przeglądać opisy opublikowanych zbiorów danych i plików oraz wizualizować dane. Aby wyświetlić nieopublikowaną kolekcję, zbiór danych lub plik, użytkownik musi otrzymać od pozwolenie na dostęp do niego od osoby posiadającej do tego odpowiednie uprawnienia."
 
 #: ../../source/user/find-use-data.rst:13
 msgid ""
@@ -45,10 +46,11 @@ msgid ""
 "datasets, and files it contains by using the search bar and facets "
 "displayed on that dataverse's page."
 msgstr ""
+"Użytkownik może wyszukiwać w określonej kolekcji jej kolekcje podrzędne, zbiory danych i pliki, korzystając z paska wyszukiwania i filtrów wyświetlanych na stronie tej kolekcji."
 
 #: ../../source/user/find-use-data.rst:16
 msgid "Basic Search"
-msgstr ""
+msgstr "Wyszukiwanie podstawowe"
 
 #: ../../source/user/find-use-data.rst:17
 msgid ""
@@ -58,28 +60,32 @@ msgid ""
 "glass icon in the header of every page. The search bar accepts search "
 "terms, queries, or exact phrases (in quotations)."
 msgstr ""
+"Można przeszukiwać całą zawartość repozytorium, w tym kolekcje, zbiory danych i pliki. Dostęp do tej funkcjonalności można uzyskać za pomocą paska wyszukiwania na stronie głównej lub klikając ikonę lupy w nagłówku dowolnej strony. Pasek wyszukiwania akceptuje słowa kluczowe, zapytania lub dokładne frazy (wyrażenia ujęte w cudzysłów)."
 
 #: ../../source/user/find-use-data.rst:20
 msgid "Sorting and Viewing Search Results"
-msgstr ""
+msgstr "Sortowanie i przeglądanie wyników wyszukiwania"
 
 #: ../../source/user/find-use-data.rst:25
 msgid ""
 "Facets: to the left of the search results, there are several facets a "
 "user can click on to narrow the number of results displayed."
 msgstr ""
+"Filtry: po lewej stronie wyników wyszukiwania znajduje się filtry, na które użytkownik może kliknąć, aby zawęzić liczbę wyświetlanych wyników."
 
 #: ../../source/user/find-use-data.rst:23
 msgid ""
 "Choosing a facet: to choose a facet to narrow your results by, click on "
 "that facet."
 msgstr ""
+"Wybór filtra: Jeśli chcesz zawęzić wyniki wyszukiwania, kliknięciem wybierz jeden z widocznych filtrów."
 
 #: ../../source/user/find-use-data.rst:24
 msgid ""
 "Removing a facet: A chosen facet can be removed by clicking on the X on "
 "it, either in the facets panel to the left, or above the results."
 msgstr ""
+"Usuwanie filtra: Wybrany filtr można usunąć klikając na znak \"x\" znajdujący się obok niego w panelu filtrów nad wynikami wyszukiwania."
 
 #: ../../source/user/find-use-data.rst:25
 msgid ""
@@ -89,6 +95,7 @@ msgid ""
 "see more, an option to view less will appear in the bottom left of the "
 "facet."
 msgstr ""
+"Zmiana liczby filtrów: Każda kategorii w panelu filtrów zawiera listę 5 najczęściej występujących wartości. Aby zwiększyć liczbę wyświetlanych wartości, wybierz opcję \"Więcej...\" w prawym dolnym rogu kategorii. Jeśli chcesz zmniejszyć liczbę wyświetlanych wartości, skorzystaj z opcji \"Mniej...\" w lewym dolnym rogu tej kategorii."
 
 #: ../../source/user/find-use-data.rst:28
 msgid ""
@@ -96,6 +103,7 @@ msgid ""
 "match your term or query appear underneath the search bar and to the "
 "right of the facets."
 msgstr ""
+"Karty wyników wyszukiwania: po wpisaniu wyszukiwanego słowa lub zapytania, karty wyników, które pasują do danego słowa lub zapytania, pojawiają się pod paskiem wyszukiwania po prawej stronie filtrów."
 
 #: ../../source/user/find-use-data.rst:28
 msgid ""
@@ -105,10 +113,11 @@ msgid ""
 "the title or name of the dataverse, dataset, or file, the search term or "
 "query will be bolded within it."
 msgstr ""
+"Trafność wyników: każda karta wyników pokazuje, które pola metadanych pasują do zapytania lub terminu wpisanego na pasku wyszukiwania, z pogrubionym pasującym zapytaniem lub słowem. Jeżeli wyszukiwane hasło lub zapytanie zostało znalezione w tytule lub nazwie kolekcji, zbioru danych lub pliku, wyszukiwane hasło lub zapytanie zostanie pogrubione w jego obrębie."
 
 #: ../../source/user/find-use-data.rst:32
 msgid "Other basic search features:"
-msgstr ""
+msgstr "Inne podstawowe funkcje wyszukiwania:"
 
 #: ../../source/user/find-use-data.rst:31
 msgid ""
@@ -116,16 +125,17 @@ msgid ""
 "date (newest or oldest), or by relevancy of results. The sort button can "
 "be found above the search results, in the top right."
 msgstr ""
-
+"Sortowanie wyników: wyniki wyszukiwania mogą być sortowane według nazwy (A-Z lub Z-A), według daty (najnowsze lub najstarsze) lub według trafności. Przycisk sortowania znajduje się nad wynikami wyszukiwania, w prawym górnym rogu."
 #: ../../source/user/find-use-data.rst:32
 msgid ""
 "Bookmarkable URLs: search URLs can be copied and sent to a fellow "
 "researcher, or can be bookmarked for future sessions."
 msgstr ""
+"Adresy URL a możliwość dodawania zakładek: adresy URL stron z wynikami danego wyszukiwania można kopiować i przechowywać. przesłać do innego badacza. Adresy te można następnie przesłać do innego badacza, jak również dodać je do zakładek przeglądarki internetowej do późniejszego wykorzystania."
 
 #: ../../source/user/find-use-data.rst:35
 msgid "Advanced Search"
-msgstr ""
+msgstr "Wyszukiwanie zaawansowane"
 
 #: ../../source/user/find-use-data.rst:37
 msgid ""
@@ -137,10 +147,11 @@ msgid ""
 "about what each field searches, hover over the field name for a detailed "
 "description of the field."
 msgstr ""
+"Aby dokonać wyszukiwania zaawansowanego kliknij link \"Wyszukiwanie zaawansowane\" znajdujący się obok paska wyszukiwania. Wyszukiwanie zaawansowane daje możliwość wprowadzania wyszukiwanych terminów dla kolekcji, metadanych zbiorów danych (schematu cytowania oraz schematów dziedzinowych) oraz metadanych pliku. Jeśli szukasz tabelarycznych plików z danymi, możesz również wykonać wyszukiwania na poziomie nazwy i etykiety zmiennej. Aby poznać więcej szczegółów dotyczących znaczenia konkretnego pola należy najechać kursorem na nazwę pola, co pozwoli uzyskać jego szczegółowy opis."
 
 #: ../../source/user/find-use-data.rst:43
 msgid "Browsing Dataverse"
-msgstr ""
+msgstr "Przeglądanie zawartości repozytorium"
 
 #: ../../source/user/find-use-data.rst:45
 msgid ""
@@ -149,10 +160,11 @@ msgid ""
 " only dataverses and datasets appear in the results list and the results "
 "can be sorted by Name (A-Z or Z-A) and by Newest or Oldest."
 msgstr ""
+"W repozytorium przeglądanie jest domyślnym widokiem jeśli użytkownik nie rozpoczął jeszcze wyszukiwania na stronie głównej lub na stronie określonej kolekcji. Podczas przeglądania, na liście wyników pojawiają się wyłącznie kolekcje i zbiory danych, a wyniki mogą być sortowane według nazwy (A-Z lub Z-A) oraz od najnowszych lub od najstarszych."
 
 #: ../../source/user/find-use-data.rst:48
 msgid "Saved Search"
-msgstr ""
+msgstr "Zapisywanie wyników wyszukiwania"
 
 #: ../../source/user/find-use-data.rst:50
 msgid ""
@@ -160,14 +172,15 @@ msgid ""
 "superusers. Please see the :doc:`/api/native-api` section of the API "
 "Guide for more information."
 msgstr ""
+"Zapisywanie wyników wyszukiwania jest obecnie funkcją eksperymentalną, dostępną wyłącznie dla superużytkowników. Więcej informacji można znaleźć w sekcji :doc:`/api/native-api` w przewodniku API."
 
 #: ../../source/user/find-use-data.rst:53
 msgid "Using Data"
-msgstr ""
+msgstr "Korzystanie z danych"
 
 #: ../../source/user/find-use-data.rst:56
 msgid "View Dataverses + Datasets"
-msgstr ""
+msgstr "Wyświetlanie kolekcji i zbiorów danych"
 
 #: ../../source/user/find-use-data.rst:58
 msgid ""
@@ -177,6 +190,7 @@ msgid ""
 "Once on a dataverse page, you can view the dataverses, datasets, and "
 "files within that dataverse."
 msgstr ""
+"Po przeprowadzeniu wyszukiwania i znalezieniu poszukiwanej kolekcji lub zbioru danych, kliknij nazwę kolekcji lub zbioru danych albo miniaturkę obrazu, dzięki czemu przeniesiesz się na stronę danej kolekcji lub zbioru danych. Po wejściu na stronę kolekcji można zobaczyć znajdujące się w niej podkolekcje, zbiory danych i pliki."
 
 #: ../../source/user/find-use-data.rst:60
 msgid ""
@@ -186,6 +200,7 @@ msgid ""
 "information, the files, metadata, terms of use, and version information "
 "for the dataset are available."
 msgstr ""
+"Po wejściu na stronę zbioru danych, zobaczysz tytuł, cytowanie, opis i kilka innych pól metadanych, przycisk umożliwiający kontakt z osobą do kontaktu dla tego zbioru danych oraz przycisk pozwalający udostępnić zbiór danych w serwisach społecznościowych. Poniżej tych informacji dostępne są informacje dotyczące plików  metadanych, ksiąg gości oraz wersji danego zbioru."
 
 #: ../../source/user/find-use-data.rst:63
 msgid "View Files"
