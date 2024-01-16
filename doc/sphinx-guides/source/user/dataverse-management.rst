@@ -23,7 +23,7 @@ Creating a dataverse is easy but first you must be a registered user (see :doc:`
 #. Once you are logged in click on the "Add Data" button and in the dropdown menu select "New Dataverse".
 #. Once on the "New Dataverse" page fill in the following fields:
     * **Name**: Enter the name of your dataverse.
-    * **Identifier**: This is an abbreviation, usually lower-case, that becomes part of the URL for the new dataverse. Special characters (~,\`, !, @, #, $, %, ^, &, and \*) and spaces are not allowed. **Note**: if you change the Dataverse URL field, the URL for your Dataverse changes (http//.../'url'), which affects links to this page.
+    * **Identifier**: This is an abbreviation, usually lower-case, that becomes part of the URL for the new dataverse. Special characters (~,\`, !, @, #, $, %, ^, &, and \*) and spaces are not allowed. **Note**: if you change the Dataverse Identifier field, the URL for your Dataverse changes (http//.../'url'), which affects links to this page.
     * **Email**: This is the email address that will be used as the contact for this particular dataverse. You can have more than one contact email address for your dataverse.
     * **Affiliation**: Add any Affiliation that can be associated to this particular dataverse (e.g., project name, institute name, department name, journal name, etc). This is automatically filled out if you have added an affiliation for your user account.
     * **Description**: Provide a description of this dataverse. This will display on the home page of your dataverse and in the search result list.
@@ -126,7 +126,7 @@ Please note that even on a newly created dataverse, you may see user and groups 
 
 Setting Access Configurations
 ---------------------------------------------
-Under the Permissions tab, you can click the "Edit Access" button to open a box where you can add to your dataverse and what permissions are granted to those who add to your dataverse.
+Under the Permissions tab, you can click the "Edit Access" button to open a box where you can specify who can add dataverses and datasets to your dataverse and what permissions are granted to those users.
 
 .. _dvperms3:
 .. figure:: ./img/dv3.png
@@ -136,7 +136,7 @@ Under the Permissions tab, you can click the "Edit Access" button to open a box 
 
 The first question on this page allows you to determine how open your dataverse is to new additions - you can set whether or not the entire userbase (all logged in users) has the ability to add datasets or sub dataverses to your dataverse. 
 
-The second question on this page allows you to choose the role (and thus the permissions) granted to users who add a dataset to your dataverse. The role you select will be automatically granted to any user who creates a dataset on your dataverse, on that dataset, at the moment that he or she creates it. The role the user is given determines his or her permissions for the dataset they've created. The key difference between the two roles is that curators can publish their own datasets, while contributors must submit the dataset to be reviewed before publication. Additionally, curators can manage dataset permissions. Note that this setting does not retroactively apply roles to users who have previously added datasets to your dataverse; it only applies to users adding new datasets going forward.
+The second question on this page allows you to choose the role (and thus the permissions) granted to users who add a dataset to your dataverse. The role you select will be automatically granted to any user who creates a dataset on your dataverse, on that dataset, at the moment that he or she creates it. The role the user is given determines his or her permissions for the dataset they've created. The key difference between the three roles is that curators can publish their own datasets, while contributors and depositors must submit the dataset to be reviewed before publication. Additionally, curators and depositors can manage dataset permissions. Note that this setting does not retroactively apply roles to users who have previously added datasets to your dataverse; it only applies to users adding new datasets going forward.
 
 Both of these settings can be changed at any time.
 
@@ -171,9 +171,8 @@ How do you create a template?
 #. Navigate to your dataverse, click on the Edit Dataverse button and select Dataset Templates. 
 #. Once you have clicked on Dataset Templates, you will be brought to the Dataset Templates page. On this page, you can 1) decide to use the dataset templates from your parent dataverse 2) create a new dataset template or 3) do both.
 #. Click on the Create Dataset Template to get started. You will see that the template is the same as the create dataset page with an additional field at the top of the page to add a name for the template.
-#. After adding information into the metadata fields you have information for and clicking Save and Add Terms, you will be brought to the page where you can add custom Terms of Use and Access. If you do not need custom Terms of Use and Access, click the Save Dataset Template, and only the metadata fields will be saved.
 #. After clicking Save Dataset Template, you will be brought back to the Manage Dataset Templates page and should see your template listed there now with the make default, edit, view, or delete options. 
-#. A dataverse does not have to have a default template and users can select which template they would like to use while on the Create Dataset page. 
+#. A dataverse does not have to have a default template and users can select which template they would like to use while on the Add New Dataset page. 
 #. You can also click on the View button on the Manage Dataset Templates page to see what metadata fields have information filled in.
 
 \* Please note that the ability to choose which metadata fields are hidden, required, or optional is done on the General Information page for the dataverse.
@@ -182,7 +181,7 @@ How do you create a template?
 
 Dataset Guestbooks
 ===========================================================
-Guestbooks allow you to collect data about who is downloading the files from your datasets. You can decide to collect account information (username, given name & last name, affiliation, etc.) as well as create custom questions (e.g., What do you plan to use this data for?). You are also able to download the data collected from the enabled guestbooks as Excel files to store and use outside of Dataverse.
+Guestbooks allow you to collect data about who is downloading the files from your datasets. You can decide to collect account information (username, given name & last name, affiliation, etc.) as well as create custom questions. You are also able to download the data collected from the enabled guestbooks as Excel files to store and use outside of Dataverse.
 
 How do you create a guestbook?
 

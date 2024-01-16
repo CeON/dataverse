@@ -10,10 +10,10 @@ Account Information
 
 As a registered user, you can:
 
--  Create your own dataverse, if permitted, and customize it.
+-  Create your own dataverse, if permitted, and customize it (if the configuration of the parent collection allows it).
 -  Add datasets to dataverses, if permitted.
 -  Contribute to existing datasets, if permitted.
--  Request access to restricted files, if permitted.
+-  Request access to restricted files.
 
 Account Log In Options
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -44,7 +44,7 @@ Edit Account
 #. On the top right of your account page, click on the "Edit Account" button and from there you can select to edit either your Account Information or your Account Password.
 #. Select "Save Changes" when you are done.
 
-Please note that you cannot edit your account information within Dataverse if you use the Institutional Log In option. Instead, you should contact your institution to change your name, email, etc. Once the change is made by your institution, it will be reflected in Dataverse the next time you log in. Users of the Institutional Log In option are not required to verify their email address because the institution providing the email address is trusted.
+Please note that you cannot edit some of your account information within Dataverse if you use the Institutional Log In option. Instead, you should contact your institution to make the necessary changes. Once the change is made by your institution, it will be reflected in Dataverse the next time you log in. Users of the Institutional Log In option are not required to verify their email address because the institution providing the email address is trusted.
 
 Convert Account
 ~~~~~~~~~~~~~~~
@@ -77,7 +77,7 @@ Institutional log in allows you to use your log in information for your universi
 Create a Dataverse account using Institutional Log In
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#. Go to “Log In” in the upper right corner of Dataverse.
+#. Go to "Log In" in the upper right corner of Dataverse.
 #. Select the "Your Institution" button under the "Other options" header
 #. Using the dropdown menu, select your institution then click the Continue button to go to your institution's log in page.
 #. After you put in your institutional credentials successfully, you will be brought back to Dataverse to confirm your account information, and click "Create Account".
@@ -92,7 +92,7 @@ If you already have a Dataverse account associated with the Username/Email log i
 
 #. Go to the Account Information page to confirm that your account email address is the same as your institutional email address. If not, you will need to update your Dataverse account to make them match.
 #. Log out of Dataverse.
-#. Go to “Log In” in the upper right corner of Dataverse.
+#. Go to "Log In" in the upper right corner of Dataverse.
 #. Select the "Your Institution" button under the "Other options" header.
 #. Using the dropdown menu, select your institution then click the Continue button to go to your institution's log in page.
 #. After you put in your institutional credentials successfully, you will be brought back to Dataverse to confirm your account information.
@@ -102,17 +102,17 @@ If you already have a Dataverse account associated with the Username/Email log i
 Convert your Dataverse account away from your Institutional Log In
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you are leaving your institution and need to convert your Dataverse account to the Dataverse Username/Email log in option, you will need to contact support for the Dataverse installation you are using. On your account page, there is a link that will open a popup form to contact support for assistance.
+If you are leaving your institution and need to convert your Dataverse account to the Dataverse Username/Email log in option, you will need to contact support for the Dataverse installation you are using. In the header menu click “Support” and then “Contact Support”. That will open a popup form to contact support for assistance.
 
 ORCID Log In
 ~~~~~~~~~~~~~
 
-You can set up your Dataverse account to allow you to log in using your ORCID credentials. ORCID® is an independent non-profit effort to provide an open registry of unique researcher identifiers and open services to link research activities and organizations to these identifiers. Learn more at `orcid.org <http://orcid.org>`_. 
+If the configuration of a particular repository allows it, you can set up your Dataverse account to allow you to log in using your ORCID credentials. ORCID® is an independent non-profit effort to provide an open registry of unique researcher identifiers and open services to link research activities and organizations to these identifiers. Learn more at `orcid.org <http://orcid.org>`_. 
 
 Create a Dataverse account using ORCID
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#. Go to “Log In” in the upper right corner of Dataverse.
+#. Go to "Sign In/Sign Up" in the upper right corner of Dataverse.
 #. Click the "ORCID" button under the "Other options" header.
 #. Click the "Log In with ORCID" button to go to the ORCID website.
 #. If you do not already have an ORCID account, you can create one on this page. If you already have an ORCID account, click on "Sign in" and then enter your login under the "Personal account" tab.
@@ -135,7 +135,7 @@ If you already have a Dataverse account associated with the Username/Email log i
 Convert your Dataverse account away from ORCID for log in
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you don't want to log in to Dataverse using ORCID any more, you will want to convert your Dataverse account to the Dataverse Username/Email log in option. To do this, you will need to contact support for the Dataverse installation you are using. On your account page, there is a link that will open a popup form to contact support for assistance.
+If you don't want to log in to Dataverse using ORCID any more, you will want to convert your Dataverse account to the Dataverse Username/Email log in option. To do this, you will need to contact support for the Dataverse installation you are using. In the header menu click “Support” and then “Contact Support”. This will open a popup form to contact support for assistance.
 
 GitHub and Google Log In
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,7 +150,7 @@ The My Data section of your account page displays a listing of all the dataverse
 Notifications
 -------------
 
-Notifications appear in the notifications tab on your account page and are also displayed as a number next to your account name.
+Notifications appear in the notifications tab on your account page and are also displayed as a number next to your name.
 
 You will receive a notification when:
 
