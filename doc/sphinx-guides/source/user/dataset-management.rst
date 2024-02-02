@@ -47,7 +47,7 @@ Adding a New Dataset
 #. To quickly get started, enter at minimum all the required fields with an asterisk (e.g., the Dataset Title, Author,
    Description, Contact Email and Subject) to get a Data Citation with a DOI.
 #. Scroll down to the "Files" section and click on "Select Files to Add" to add all the relevant files to your Dataset.
-   You can also upload your files directly from your Dropbox. **Tip:** You can drag and drop or select multiple files at a time from your desktop
+   In some repositories you can also upload your files directly from your Dropbox. **Tip:** You can drag and drop or select multiple files at a time from your desktop
    directly into the upload widget. Your files will appear below the "Select Files to Add" button where you can add a
    description and tags (via the "Edit Tag" button) for each file. Additionally, an MD5 checksum will be added for each file. If you upload a tabular file a :ref:`Universal Numerical Fingerprint (UNF) <unf>` will be added to this file.
 #. Click the "Save Dataset" button when you are done. Your unpublished dataset is now created.
@@ -184,9 +184,7 @@ Compressed Files
 
 Compressed files in zip format are unpacked automatically. If it fails to unpack, for whatever reason, it will upload as is. If the number of files inside are more than a set limit (1,000 by default, configurable by the Administrator), you will get an error message and the zip file will uploads as is.
 
-.. note:: If the uploaded zip file contains sub-folders, the names of the folders will be preserved as the ``DirectoryLabel`` attributes in the ``FileMetadata`` objects of the corresponding individual datafiles. As of writing this - v.4.11 - these labels are only used to restore the folder structure in multi-file, zipped download bundles (see :doc:`/api/dataaccess` for more information). In the future folder structure will be supported for organizing files on the dataset page as well.
-
-Support for unpacking tar files will be added when this ticket is closed: https://github.com/IQSS/dataverse/issues/2195.
+.. note:: If the uploaded zip file contains sub-folders, the names of the folders will be preserved as the ``DirectoryLabel`` attributes in the ``FileMetadata`` objects of the corresponding individual datafiles. As of writing this - v.4.11 - these labels are only used to restore the folder structure in multi-file, zipped download bundles (see :doc:`/api/dataaccess` for more information).
 
 Other File Types
 ----------------
@@ -414,7 +412,7 @@ will be removed as soon as you Publish.
 Submit for Review
 =================
 
-If you have a Contributor role (can edit metadata, upload files, and edit files, edit Terms, Guestbook, and Submit datasets for review) in a Dataverse you can submit your dataset for review when you have finished uploading your files and filling in all of the relevant metadata fields. To Submit for Review, go to your dataset and click on the "Submit for Review" button, which is located next to the "Edit" button on the upper-right. Once Submitted for Review: the Admin or Curator for this Dataverse will be notified to review this dataset before they decide to either "Publish" the dataset or "Return to Author". If the dataset is published the contributor will be notified that it is now published. If the dataset is returned to the author, the contributor of this dataset will be notified that they need to make modifications before it can be submitted for review again.
+If you have a Contributor or Depositor role in a Dataverse, you can submit your dataset for review when you have finished uploading your files and filling in all of the relevant metadata fields. To Submit for Review, go to your dataset and click on the "Submit for Review" button, which is located next to the "Edit" button on the upper-right. Once Submitted for Review: the Admin or Curator for this Dataverse will be notified to review this dataset before they decide to either "Publish" the dataset or "Return to Author". If the dataset is published the user making the deposit will be notified that it is now published. If the dataset is returned, the user making the deposit will be notified that they need to make modifications before it can be submitted for review again.
 
 .. _privateurl:
 
@@ -430,6 +428,8 @@ Creating a Private URL for your dataset allows you to share your dataset (for vi
 #. Copy the Private URL which has been created for this dataset and it can now be shared with anyone you wish to have access to view or download files in your unpublished dataset.
 
 To disable a Private URL and to revoke access, follow the same steps as above until step #3 when you return to the popup, click the “Disable Private URL” button.
+
+Private URL also allows accessing a dataset that is under embargo.
 
 Dataset Versions
 ================
