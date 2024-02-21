@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../../source/user/tabulardataingest/rdata.rst:2
 msgid "R Data Format"
-msgstr ""
+msgstr "Dane w formacie R"
 
 #: ../../source/user/tabulardataingest/rdata.rst:4
 msgid "Support for R (.RData) files has been introduced in DVN 3.5."
@@ -31,7 +31,7 @@ msgstr ""
 
 #: ../../source/user/tabulardataingest/rdata.rst:10
 msgid "Overview."
-msgstr ""
+msgstr "Uwagi ogólne"
 
 #: ../../source/user/tabulardataingest/rdata.rst:13
 msgid ""
@@ -40,6 +40,10 @@ msgid ""
 "Consequently, there is an increasing amount of data available exclusively"
 " in R format."
 msgstr ""
+"R cieszy się coraz większą popularnością w środowisku badaczy i świecie a"
+"kademickim. Jest to bezpłatne oprogramowanie o otwartym kodzie źródłowym("
+"w przeciwieństwie do pakietów SPSS i STATA). W związku z tym rośnie ilość"
+" danych dostępnych wyłącznie w formacie R"
 
 #: ../../source/user/tabulardataingest/rdata.rst:19
 msgid "Data Formatting Requirements."

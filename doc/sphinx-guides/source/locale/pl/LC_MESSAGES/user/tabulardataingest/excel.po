@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../../source/user/tabulardataingest/excel.rst:2
 msgid "Excel"
-msgstr ""
+msgstr "Excel"
 
 #: ../../source/user/tabulardataingest/excel.rst:7
 msgid "Excel files (**New** in Dataverse 4.0!)"
@@ -30,4 +30,7 @@ msgid ""
 "Note: only the \"new\", XLSX Excel files are supported. We are not "
 "planning to add support for the old-style, binary XLS files."
 msgstr ""
+"Uwaga: obsługiwane są tylko \"nowe\" pliki programu Excel mające rozszerz"
+"enie XLSX. Nie planujemy dodawać obsługi binarnych plików starego typu ma"
+"jących rozszerzenie XLS."
 

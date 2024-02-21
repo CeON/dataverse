@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../../source/user/tabulardataingest/stata.rst:2
 msgid "Stata"
-msgstr ""
+msgstr "Stata"
 
 #: ../../source/user/tabulardataingest/stata.rst:7
 msgid ""
@@ -29,8 +29,13 @@ msgid ""
 "(yes, we are looking at you, SPSS). Because of that, Stata is the best "
 "supported format for tabular data ingest."
 msgstr ""
+"Spośród wszystkich zewnętrznych dostawców oprogramowania do obliczeń stat"
+"ystycznych, Stata przoduje jak dotąd w dziedzinie dokumentacji własnościo"
+"wego formatu swoich plików. W jego przypadku dokumentacja jest łatwo dost"
+"ępna bez żadnych ograniczeń. Z tego powodu Stata jest najlepszym obsługiw"
+"anym formatem do przetwarzania danych tabelarycznych"
 
 #: ../../source/user/tabulardataingest/stata.rst:10
 msgid "**New in Dataverse 4.0:** support for Stata v.13 has been added."
-msgstr ""
+msgstr "**Nowość w Dataverse 4.0:** dodano obsługę Stata v.13."
 
