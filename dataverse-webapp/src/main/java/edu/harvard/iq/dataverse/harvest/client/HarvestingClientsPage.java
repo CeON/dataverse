@@ -488,7 +488,7 @@ public class HarvestingClientsPage implements java.io.Serializable {
             // First, we'll try to obtain the list of supported metadata formats:
             try {
                 List<MetadataFormat> formats = oaiHandler.runListMetadataFormats();
-                if (formats != null && !formats.isEmpty()) {
+                if (!formats.isEmpty()) {
                     List<MetadataFormat> supportedFormats = harvestImporterTypeResolver.filterSupportedFormats(formats);
                     if (!supportedFormats.isEmpty()) {
                         createOaiMetadataFormatSelectItems(supportedFormats);

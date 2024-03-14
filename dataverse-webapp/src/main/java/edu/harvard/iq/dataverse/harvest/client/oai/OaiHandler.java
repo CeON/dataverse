@@ -215,10 +215,6 @@ public class OaiHandler implements Serializable {
             }
         }
 
-        if (formats.isEmpty()) {
-            return null;
-        }
-
         return formats;
     }
 
