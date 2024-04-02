@@ -15,26 +15,26 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipFileBuilder implements Closeable {
 
-    private final ZipOutputStream zip_output_stream;
+    private final ZipOutputStream zipOutputStream;
 
     // -------------------- CONSTRUCTOR --------------------
 
     public ZipFileBuilder(Path outputZipFilename) throws IOException {
-        zip_output_stream = new ZipOutputStream(Files.newOutputStream(outputZipFilename));
+        zipOutputStream = new ZipOutputStream(Files.newOutputStream(outputZipFilename));
     }
 
     // -------------------- LOGIC --------------------
 
     public void addToZipFile(Path filePath) throws IOException {
         try(InputStream inputStream = Files.newInputStream(filePath)) {
-            zip_output_stream.putNextEntry(new ZipEntry(filePath.getFileName().toString()));
-            IOUtils.copy(inputStream, zip_output_stream);
-            zip_output_stream.closeEntry();
+            zipOutputStream.putNextEntry(new ZipEntry(filePath.getFileName().toString()));
+            IOUtils.copy(inputStream, zipOutputStream);
+            zipOutputStream.closeEntry();
         }
     }
 
     @Override
     public void close() throws IOException {
-        zip_output_stream.close();
+        zipOutputStream.close();
     }
 }
