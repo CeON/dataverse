@@ -16,6 +16,8 @@ import edu.harvard.iq.dataverse.authorization.providers.saml.SamlAuthenticationS
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.consent.ConsentDto;
 import edu.harvard.iq.dataverse.consent.ConsentService;
+import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.Suggestion;
+import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.suggestion.SuggestionHandler;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
@@ -28,7 +30,10 @@ import edu.harvard.iq.dataverse.settings.InstallationConfigService;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import edu.harvard.iq.dataverse.validation.OrcIdValidator;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
+import edu.harvard.iq.dataverse.validation.RorValidator;
+import edu.harvard.iq.dataverse.validation.field.ValidationResult;
 import io.vavr.control.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -89,6 +94,15 @@ public class ExternalIdpFirstLoginPage implements Serializable {
 
     @EJB
     InstallationConfigService installationConfigService;
+
+    @EJB
+    RorValidator rorValidator;
+
+    @EJB
+    OrcIdValidator orcIdValidator;
+
+    @EJB(beanName = "RorSuggestionHandler")
+    SuggestionHandler suggestionHandler;
 
     @Inject
     DataverseSession session;
@@ -235,7 +249,8 @@ public class ExternalIdpFirstLoginPage implements Serializable {
     public String createNewAccount() {
         AuthenticatedUserDisplayInfo displayInfo = newUser.getDisplayInfo();
         AuthenticatedUserDisplayInfo newAuthenticatedUserDisplayInfo = new AuthenticatedUserDisplayInfo(
-                displayInfo.getFirstName(), displayInfo.getLastName(), getSelectedEmail(), displayInfo.getAffiliation(),
+                displayInfo.getFirstName(), displayInfo.getLastName(), getSelectedEmail(), displayInfo.getOrcId(),
+                displayInfo.getAffiliation(), displayInfo.getAffiliationROR(),
                 displayInfo.getPosition());
 
         final AuthenticatedUser user = authenticationSvc.createAuthenticatedUser(newUser.toUserRecordIdentifier(),
@@ -313,6 +328,37 @@ public class ExternalIdpFirstLoginPage implements Serializable {
                     BundleUtil.getStringFromBundle("user.email.taken"), null);
             context.addMessage(toValidate.getClientId(context), message);
         }
+    }
+
+    public void validateOrcId(FacesContext context, UIComponent toValidate, Object value) {
+        String orcid = (String) value;
+        if (org.apache.commons.lang.StringUtils.isEmpty(orcid)) {
+            return;
+        }
+        ValidationResult result = orcIdValidator.validate(orcid);
+        if (!result.isOk()) {
+            ((UIInput) toValidate).setValid(false);
+            context.addMessage(toValidate.getClientId(context), new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("user." + result.getErrorCode()), null));
+        }
+    }
+
+    public void validateAffiliationRor(FacesContext context, UIComponent toValidate, Object value) {
+        String ror = (String) value;
+        if (org.apache.commons.lang.StringUtils.isEmpty(ror)) {
+            return;
+        }
+
+        ValidationResult result = rorValidator.validate(ror);
+        if (!result.isOk()) {
+            ((UIInput) toValidate).setValid(false);
+            context.addMessage(toValidate.getClientId(context), new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("user.affiliationror." + result.getErrorCode()), null));
+        }
+    }
+
+    public List<Suggestion> processAffiliationRorSuggestions(String query) {
+        return suggestionHandler.generateSuggestions(Collections.emptyMap(), query);
     }
 
     public String getWelcomeMessage() {

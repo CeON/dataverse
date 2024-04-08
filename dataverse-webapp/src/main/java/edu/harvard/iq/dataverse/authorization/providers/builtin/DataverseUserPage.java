@@ -12,6 +12,8 @@ import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationP
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.consent.ConsentDto;
 import edu.harvard.iq.dataverse.consent.ConsentService;
+import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.Suggestion;
+import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.suggestion.SuggestionHandler;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.mail.confirmemail.ConfirmEmailUtil;
@@ -32,7 +34,10 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsWrapper;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import edu.harvard.iq.dataverse.validation.OrcIdValidator;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
+import edu.harvard.iq.dataverse.validation.RorValidator;
+import edu.harvard.iq.dataverse.validation.field.ValidationResult;
 import io.vavr.control.Option;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -51,6 +56,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -90,6 +96,12 @@ public class DataverseUserPage implements java.io.Serializable {
     SystemConfig systemConfig;
     @EJB
     PasswordValidatorServiceBean passwordValidatorService;
+    @EJB
+    RorValidator rorValidator;
+    @EJB
+    OrcIdValidator orcIdValidator;
+    @EJB(beanName = "RorSuggestionHandler")
+    SuggestionHandler suggestionHandler;
     @Inject
     SettingsWrapper settingsWrapper;
     @Inject
@@ -335,6 +347,37 @@ public class DataverseUserPage implements java.io.Serializable {
         if (!errors.isEmpty()) {
             ((UIInput) toValidate).setValid(false);
         }
+    }
+
+    public void validateOrcId(FacesContext context, UIComponent toValidate, Object value) {
+        String orcid = (String) value;
+        if (StringUtils.isEmpty(orcid)) {
+            return;
+        }
+        ValidationResult result = orcIdValidator.validate(orcid);
+        if (!result.isOk()) {
+            ((UIInput) toValidate).setValid(false);
+            context.addMessage(toValidate.getClientId(context), new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("user." + result.getErrorCode()), null));
+        }
+    }
+
+    public void validateAffiliationRor(FacesContext context, UIComponent toValidate, Object value) {
+        String ror = (String) value;
+        if (StringUtils.isEmpty(ror)) {
+            return;
+        }
+
+        ValidationResult result = rorValidator.validate(ror);
+        if (!result.isOk()) {
+            ((UIInput) toValidate).setValid(false);
+            context.addMessage(toValidate.getClientId(context), new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    BundleUtil.getStringFromBundle("user.affiliationror." + result.getErrorCode()), null));
+        }
+    }
+
+    public List<Suggestion> processAffiliationRorSuggestions(String query) {
+        return suggestionHandler.generateSuggestions(Collections.emptyMap(), query);
     }
 
     public String save() {
