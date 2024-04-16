@@ -38,7 +38,7 @@ public class UserDataFieldFiller {
         String userAffiliation = user.getAffiliation();
         String userAffiliationROR = user.getAffiliationROR();
         String userEmail = user.getEmail();
-        String userOrcidId = user.getOrcId();
+        String userOrcidId = user.getOrcid();
         String todayDate = LocalDate.now(clock).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         for (DatasetField dsf : datasetFields) {

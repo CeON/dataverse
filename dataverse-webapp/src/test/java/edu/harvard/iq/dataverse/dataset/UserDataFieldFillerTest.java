@@ -191,7 +191,7 @@ public class UserDataFieldFillerTest {
     @Test
     public void fillUserDataInDatasetFields__FILL_AUTHOR_WITH_ORCID_AND_ROR() {
         // given
-        user.setOrcId("0000-0001-2345-6789");
+        user.setOrcid("0000-0001-2345-6789");
         user.setAffiliationROR("https://ror.org/04k0tth05");
 
         DatasetFieldType authorIdTypeDatasetFieldType = new DatasetFieldType(DatasetFieldConstant.authorIdType, FieldType.TEXT, false);
