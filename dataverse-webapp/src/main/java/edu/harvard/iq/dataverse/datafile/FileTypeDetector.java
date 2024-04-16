@@ -44,8 +44,17 @@ public class FileTypeDetector {
 
     private static final MimetypesFileTypeMap MIME_TYPE_MAP = new MimetypesFileTypeMap();
 
-    @Inject
     protected SettingsServiceBean settingsService;
+
+    protected FileTypeDetector() {
+    }
+
+    @Inject
+    public FileTypeDetector(SettingsServiceBean settingsService) {
+        this.settingsService = settingsService;
+    }
+
+    // -------------------- CONSTRUCTOR --------------------
 
     /**
      * Detects file type based on file content and filename
@@ -206,11 +215,5 @@ public class FileTypeDetector {
         }
         logger.debug("end isGraphML()");
         return isGraphML;
-    }
-
-    // For tests
-    FileTypeDetector withSettingsService(SettingsServiceBean settingsService) {
-        this.settingsService = settingsService;
-        return this;
     }
 }

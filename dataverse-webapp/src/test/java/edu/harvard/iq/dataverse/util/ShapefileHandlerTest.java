@@ -1,9 +1,7 @@
 package edu.harvard.iq.dataverse.util;
 
 import com.google.common.collect.ImmutableMap;
-import edu.harvard.iq.dataverse.datasetutility.FileExceedsMaxSizeException;
 import edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestException;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -157,8 +155,8 @@ public class ShapefileHandlerTest {
         File zipfile_obj = createAndZipFiles(files, "shape-plus.zip");
 
         assertThatThrownBy(() -> new ShapefileHandler(zipfile_obj, 1024L, 100L))
-                .isInstanceOf(FileExceedsMaxSizeException.class)
-                .hasMessage("This file size exceeds the size limit of 1.0 KB.");
+                .isInstanceOf(IngestException.class)
+                .hasMessage("There was a problem during ingest. Passing error key UNZIP_SIZE_FAIL to report.");
     }
 
     @Test
@@ -210,7 +208,7 @@ public class ShapefileHandlerTest {
         zipOutputStream.closeEntry();
     }
 
-    private @NotNull ShapefileHandler newShapeFileHandler(File zipfile_obj) {
+    private ShapefileHandler newShapeFileHandler(File zipfile_obj) {
         return new ShapefileHandler(zipfile_obj, 1024L, 100L);
     }
 }

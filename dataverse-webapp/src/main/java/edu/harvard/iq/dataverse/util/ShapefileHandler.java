@@ -374,9 +374,7 @@ public class ShapefileHandler {
                 }
 
                 if (fileSizeLimit != null && zipFileEntry.getSize() >= fileSizeLimit) {
-                    throw new FileExceedsMaxSizeException(fileSizeLimit,
-                            MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"),
-                            bytesToHumanReadable(fileSizeLimit)));
+                    throw new IngestException(IngestError.UNZIP_SIZE_FAIL);
                 }
 
                 fileNamesInZip.add(unzipFileName);

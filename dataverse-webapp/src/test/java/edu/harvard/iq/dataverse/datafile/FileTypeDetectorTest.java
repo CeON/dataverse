@@ -15,8 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileTypeDetectorTest {
 
-    private FileTypeDetector fileTypeDetector = new FileTypeDetector()
-            .withSettingsService(new TestSettingsServiceBean());
+    private FileTypeDetector fileTypeDetector = new FileTypeDetector(new TestSettingsServiceBean());
 
     @TempDir
     File tempDir;
