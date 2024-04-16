@@ -476,14 +476,14 @@
                                     </div>
                                 </div>
                                 <!-- ORCID -->
-                                <div class="form-group" jsf:rendered="#{!empty DataverseUserPage.currentUser.orcId}">
+                                <div class="form-group" jsf:rendered="#{!empty DataverseUserPage.currentUser.orcid}">
                                     <label for="affiliation" class="col-sm-3 control-label">
                                         #{bundle['user.orcid']}
                                     </label>
                                     <div class="col-sm-9">
                                         <p class="form-control-static">
-                                            <h:outputLink value="https://orcid.org/#{DataverseUserPage.currentUser.orcId}" target="_blank">
-                                                <h:outputText value="#{DataverseUserPage.currentUser.orcId}"/>
+                                            <h:outputLink value="https://orcid.org/#{DataverseUserPage.currentUser.orcid}" target="_blank">
+                                                <h:outputText value="#{DataverseUserPage.currentUser.orcid}"/>
                                             </h:outputLink>
                                         </p>
                                     </div>
@@ -505,7 +505,7 @@
                                     <div class="col-sm-9">
                                         <p class="form-control-static">
                                             <h:outputLink value="#{DataverseUserPage.currentUser.affiliationROR}" target="_blank">
-                                                <h:outputText value="https://orcid.org/#{DataverseUserPage.currentUser.orcId}"/>
+                                                <h:outputText value="#{DataverseUserPage.currentUser.affiliationROR}"/>
                                             </h:outputLink>
                                         </p>
                                     </div>
@@ -705,8 +705,8 @@
                                     </label>
                                     <div class="col-sm-4">
                                         <p:inputText id="orcid" styleClass="form-control"
-                                                     value="#{DataverseUserPage.userDisplayInfo.orcId}"
-                                                     validator="#{DataverseUserPage.validateOrcId}"
+                                                     value="#{DataverseUserPage.userDisplayInfo.orcid}"
+                                                     validator="#{DataverseUserPage.validateOrcid}"
                                                      disabled="#{DataverseUserPage.editMode == 'EDIT' and DataverseUserPage.isDisabledForEdit(editableField.ORCID)}"/>
                                         <p:message for="orcid" display="text" />
                                     </div>

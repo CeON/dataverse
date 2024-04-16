@@ -3,9 +3,10 @@ package edu.harvard.iq.dataverse.authorization.providers.common;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.Suggestion;
 import edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.suggestion.SuggestionHandler;
-import edu.harvard.iq.dataverse.validation.OrcIdValidator;
+import edu.harvard.iq.dataverse.validation.OrcidValidator;
 import edu.harvard.iq.dataverse.validation.RorValidator;
 import edu.harvard.iq.dataverse.validation.field.ValidationResult;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -25,17 +26,17 @@ public abstract class BaseUserPage  implements Serializable  {
     RorValidator rorValidator;
 
     @EJB
-    OrcIdValidator orcIdValidator;
+    OrcidValidator orcidValidator;
 
     @EJB(beanName = "RorSuggestionHandler")
     SuggestionHandler suggestionHandler;
 
-    public void validateOrcId(FacesContext context, UIComponent toValidate, Object value) {
+    public void validateOrcid(FacesContext context, UIComponent toValidate, Object value) {
         String orcid = (String) value;
-        if (org.apache.commons.lang.StringUtils.isEmpty(orcid)) {
+        if (StringUtils.isEmpty(orcid)) {
             return;
         }
-        ValidationResult result = orcIdValidator.validate(orcid);
+        ValidationResult result = orcidValidator.validate(orcid);
         if (!result.isOk()) {
             ((UIInput) toValidate).setValid(false);
             context.addMessage(toValidate.getClientId(context), new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -45,7 +46,7 @@ public abstract class BaseUserPage  implements Serializable  {
 
     public void validateAffiliationRor(FacesContext context, UIComponent toValidate, Object value) {
         String ror = (String) value;
-        if (org.apache.commons.lang.StringUtils.isEmpty(ror)) {
+        if (StringUtils.isEmpty(ror)) {
             return;
         }
 

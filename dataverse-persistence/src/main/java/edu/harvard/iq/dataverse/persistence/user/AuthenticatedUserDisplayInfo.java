@@ -14,7 +14,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
     @NotBlank(message = "{user.firstName}")
     private String firstName;
     private String position;
-    private String orcId;
+    private String orcid;
 
     /*
      * @todo Shouldn't we persist the displayName too? It still exists on the
@@ -28,13 +28,13 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         this.position = position;
     }
 
-    public AuthenticatedUserDisplayInfo(String firstName, String lastName, String emailAddress, String orcId,
+    public AuthenticatedUserDisplayInfo(String firstName, String lastName, String emailAddress, String orcid,
                                         String affiliation, String affiliationROR, String position) {
         super(firstName + " " + lastName, emailAddress, affiliation, affiliationROR);
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
-        this.orcId = orcId;
+        this.orcid = orcid;
     }
 
     public AuthenticatedUserDisplayInfo() {
@@ -42,7 +42,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         firstName = "";
         lastName = "";
         position = "";
-        orcId = "";
+        orcid = "";
     }
 
 
@@ -52,7 +52,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
      * @param src the display info {@code this} will be a copy of.
      */
     public AuthenticatedUserDisplayInfo(AuthenticatedUserDisplayInfo src) {
-        this(src.getFirstName(), src.getLastName(), src.getEmailAddress(), src.getOrcId(), src.getAffiliation(),
+        this(src.getFirstName(), src.getLastName(), src.getEmailAddress(), src.getOrcid(), src.getAffiliation(),
                 src.getAffiliationROR(), src.getPosition());
     }
 
@@ -80,18 +80,18 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         this.position = position;
     }
 
-    public String getOrcId() {
-        return orcId;
+    public String getOrcid() {
+        return orcid;
     }
 
-    public void setOrcId(String orcId) {
-        this.orcId = orcId;
+    public void setOrcid(String orcid) {
+        this.orcid = orcid;
     }
 
     @Override
     public String toString() {
         return "AuthenticatedUserDisplayInfo{firstName=" + firstName + ", lastName=" + lastName +
-                ", position=" + position + ", email=" + getEmailAddress() + ", orcid=" + getOrcId() + '}';
+                ", position=" + position + ", email=" + getEmailAddress() + ", orcid=" + getOrcid() + '}';
     }
 
     @Override
@@ -119,7 +119,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         if (!Objects.equals(this.firstName, other.firstName)) {
             return false;
         }
-        return Objects.equals(this.position, other.position) && Objects.equals(this.orcId, other.orcId) && super.equals(obj);
+        return Objects.equals(this.position, other.position) && Objects.equals(this.orcid, other.orcid) && super.equals(obj);
     }
 
 }

@@ -55,7 +55,7 @@ public class AuthenticatedUserTest {
     public void testGetDisplayInfo() {
         System.out.println("getDisplayInfo");
         // given
-        testUser.setOrcId("0000-0001-2345-6789");
+        testUser.setOrcid("0000-0001-2345-6789");
         testUser.setAffiliationROR("https://ror.org/04k0tth05");
         AuthenticatedUserDisplayInfo expResult = new AuthenticatedUserDisplayInfo("Homer", "Simpson", "Homer.Simpson@someU.edu",
                 "0000-0001-2345-6789", "UnitTester", "https://ror.org/04k0tth05", "In-Memory user");

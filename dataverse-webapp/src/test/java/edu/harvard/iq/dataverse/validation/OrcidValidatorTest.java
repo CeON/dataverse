@@ -6,9 +6,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OrcIdValidatorTest {
+public class OrcidValidatorTest {
 
-    private final OrcIdValidator validator = new OrcIdValidator();
+    private final OrcidValidator validator = new OrcidValidator();
 
     @ParameterizedTest
     @CsvSource({

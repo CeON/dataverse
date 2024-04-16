@@ -234,7 +234,7 @@ public class ExternalIdpFirstLoginPage extends BaseUserPage {
     public String createNewAccount() {
         AuthenticatedUserDisplayInfo displayInfo = newUser.getDisplayInfo();
         AuthenticatedUserDisplayInfo newAuthenticatedUserDisplayInfo = new AuthenticatedUserDisplayInfo(
-                displayInfo.getFirstName(), displayInfo.getLastName(), getSelectedEmail(), displayInfo.getOrcId(),
+                displayInfo.getFirstName(), displayInfo.getLastName(), getSelectedEmail(), displayInfo.getOrcid(),
                 displayInfo.getAffiliation(), displayInfo.getAffiliationROR(),
                 displayInfo.getPosition());
 

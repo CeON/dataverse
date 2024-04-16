@@ -9,12 +9,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Stateless
-public class OrcIdValidator {
+public class OrcidValidator {
 
     public static final String INVALID_FORMAT_ERROR_CODE = "orcid.invalid.format";
     public static final String INVALID_CHECKSUM_ERROR_CODE = "orcid.invalid.checksum";
 
-    private static final Pattern ORCI_FORMAT_PATTERN = Pattern.compile("([0-9]{4})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X])");
+    private static final Pattern ORCID_FORMAT_PATTERN = Pattern.compile("([0-9]{4})-([0-9]{4})-([0-9]{4})-([0-9]{3})([0-9X])");
 
     // -------------------- LOGIC --------------------
 
@@ -23,7 +23,7 @@ public class OrcIdValidator {
             return ValidationResult.invalid(INVALID_FORMAT_ERROR_CODE);
         }
 
-        Matcher matcher = ORCI_FORMAT_PATTERN.matcher(orcid);
+        Matcher matcher = ORCID_FORMAT_PATTERN.matcher(orcid);
         if (StringUtils.isBlank(orcid) || !matcher.matches()) {
             return ValidationResult.invalid(INVALID_FORMAT_ERROR_CODE);
         }
