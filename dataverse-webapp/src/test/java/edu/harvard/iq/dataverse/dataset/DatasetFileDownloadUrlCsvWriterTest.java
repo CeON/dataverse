@@ -27,6 +27,8 @@ public class DatasetFileDownloadUrlCsvWriterTest {
     @InjectMocks
     private DatasetFileDownloadUrlCsvWriter csvWriter;
 
+    // -------------------- TESTS --------------------
+
     @Test
     public void write() throws IOException {
         // given
@@ -54,6 +56,8 @@ public class DatasetFileDownloadUrlCsvWriterTest {
         assertEquals("\"special,char.txt\",true,http://test.org/api/access/datafile/4", csv[4]);
         assertEquals("\"special\"\",\"\"char.txt\",true,http://test.org/api/access/datafile/5", csv[5]);
     }
+
+    // -------------------- PRIVATE --------------------
 
     private static FileMetadata newFileMetadata(String fileName, boolean restricted, int dataFileId) {
         FileMetadata file = MocksFactory.makeFileMetadata(123l, fileName, 0);

@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Writes a CSV file with file names and download URL's.
+ */
 @Stateless
 public class DatasetFileDownloadUrlCsvWriter {
 
@@ -28,6 +31,8 @@ public class DatasetFileDownloadUrlCsvWriter {
 
     @EJB
     protected SystemConfig systemConfig;
+
+    // -------------------- LOGIC --------------------
 
     public void write(OutputStream outputStream, List<FileMetadata> fileMetadataList) throws IOException {
         try (Writer writer = new OutputStreamWriter(outputStream);
@@ -44,6 +49,8 @@ public class DatasetFileDownloadUrlCsvWriter {
         }
     }
 
+    // -------------------- PRIVATE --------------------
+
     private FileCSVRecord buildRecord(FileMetadata fileMetadata) {
         FileCSVRecord record = new FileCSVRecord();
         record.setFileName(fileMetadata.getLabel());
@@ -56,6 +63,8 @@ public class DatasetFileDownloadUrlCsvWriter {
         }
         return record;
     }
+
+    // -------------------- INNER CLASSES --------------------
 
     enum FileDownloadCsvColumn {
         FILE_NAME("Filename"),
