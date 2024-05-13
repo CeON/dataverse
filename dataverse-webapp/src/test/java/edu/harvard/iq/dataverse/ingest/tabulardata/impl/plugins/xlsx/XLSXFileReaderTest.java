@@ -62,6 +62,30 @@ public class XLSXFileReaderTest {
                         "\"Row5\"\t5.1\t5.2\t5.3\t5.4\t6.5\t5.6\t5.7");
     }
 
+    @ParameterizedTest
+    @CsvSource({ "xslx/value-types-libre.xlsx", "xslx/value-types-excel.xlsx" })
+    void read__value_types(String xlsxFile) throws Exception {
+        // when
+        TabularDataIngest result = read(xlsxFile);
+
+        // then
+        assertThat(result.getDataTable().getVarQuantity()).isEqualTo(4);
+        assertThat(result.getDataTable().getDataVariables().stream().map(DataVariable::getName).collect(Collectors.toList()))
+                .containsExactly("A", "B", "Total", "Div");
+        assertThat(result.getDataTable().getDataVariables().stream().map(DataVariable::getType).collect(Collectors.toList()))
+                .containsExactly(
+                        DataVariable.VariableType.CHARACTER,
+                        DataVariable.VariableType.NUMERIC,
+                        DataVariable.VariableType.CHARACTER,
+                        DataVariable.VariableType.CHARACTER);
+        assertThat(Files.readAllLines(result.getTabDelimitedFile().toPath()))
+                .containsExactly(
+                        "\"1\"\t1.0\t\"1\"\t\"1\"",
+                        "\"2\"\t4.0\t\"8\"\t\"0.5\"",
+                        "\"A\"\t4.0\t\"#VALUE!\"\t\"#VALUE!\"",
+                        "\"1\"\t0.0\t\"0\"\t\"#DIV/0!\"");
+    }
+
     private TabularDataIngest read(String xlsxFile) throws IOException {
         try {
             File file = Paths.get(CSVFileReaderTest.class.getClassLoader().getResource(xlsxFile).toURI()).toFile();
