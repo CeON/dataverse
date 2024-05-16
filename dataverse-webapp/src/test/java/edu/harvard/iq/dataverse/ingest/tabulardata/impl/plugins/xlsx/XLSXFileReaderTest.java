@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +28,7 @@ public class XLSXFileReaderTest {
 
         // then
         assertThat(result.getDataTable().getVarQuantity()).isEqualTo(5);
-        assertThat(result.getDataTable().getDataVariables().stream().map(DataVariable::getName).collect(Collectors.toList()))
+        assertThat(result.getDataTable().getDataVariables()).extracting(DataVariable::getName)
                 .containsExactly(
                         "Id", "Item", "cost", "count", "total");
         assertThat(Files.readAllLines(result.getTabDelimitedFile().toPath()))
@@ -51,7 +50,7 @@ public class XLSXFileReaderTest {
 
         // then
         assertThat(result.getDataTable().getVarQuantity()).isEqualTo(8);
-        assertThat(result.getDataTable().getDataVariables().stream().map(DataVariable::getName).collect(Collectors.toList()))
+        assertThat(result.getDataTable().getDataVariables()).extracting(DataVariable::getName)
                 .containsExactly("A", "Col1", "Col2", "D", "Col4", "Col5", "G", "Col7");
         assertThat(Files.readAllLines(result.getTabDelimitedFile().toPath()))
                 .containsExactly(
@@ -70,9 +69,9 @@ public class XLSXFileReaderTest {
 
         // then
         assertThat(result.getDataTable().getVarQuantity()).isEqualTo(4);
-        assertThat(result.getDataTable().getDataVariables().stream().map(DataVariable::getName).collect(Collectors.toList()))
+        assertThat(result.getDataTable().getDataVariables()).extracting(DataVariable::getName)
                 .containsExactly("A", "B", "Total", "Div");
-        assertThat(result.getDataTable().getDataVariables().stream().map(DataVariable::getType).collect(Collectors.toList()))
+        assertThat(result.getDataTable().getDataVariables()).extracting(DataVariable::getType)
                 .containsExactly(
                         DataVariable.VariableType.CHARACTER,
                         DataVariable.VariableType.NUMERIC,
