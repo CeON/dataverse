@@ -34,15 +34,8 @@ public class Users extends AbstractApiBean {
 
     @GET
     @Produces({"text/csv"})
-    public Response listUsersCSV() {
-        try {
-            AuthenticatedUser user = findAuthenticatedUserOrDie();
-            if (!user.isSuperuser()) {
-                return error(Response.Status.FORBIDDEN, "Superusers only.");
-            }
-        } catch (WrappedResponse ex) {
-            return error(Response.Status.FORBIDDEN, "Superusers only.");
-        }
+    public Response listUsersCSV() throws WrappedResponse {
+        findSuperuserOrDie();
 
         StreamingOutput csvContent = output -> authenticatedUserCsvWriter.write(output, authSvc.findAllAuthenticatedUsers());
 
