@@ -44,6 +44,10 @@ public class FeaturedDataversesDialog implements java.io.Serializable {
         return featuredDataverses;
     }
 
+    public Dataverse.FeaturedDataversesSorting getFeaturedDataversesSorting() {
+        return dataverse.getFeaturedDataversesSorting();
+    }
+
     // -------------------- LOGIC --------------------
 
     public void init(Dataverse dataverse) {
@@ -75,9 +79,18 @@ public class FeaturedDataversesDialog implements java.io.Serializable {
         return JsfRedirectHelper.redirectToDataverse(dataverse.getAlias());
     }
 
+    public void updateSort() {
+        List<Dataverse> target = featuredDataverses.getTarget();
+        featuredDataverses.setTarget(featuredDataverseService.sortFeaturedDataverses(target, dataverse.getFeaturedDataversesSorting()));
+    }
+
     // -------------------- SETTERS --------------------
 
     public void setFeaturedDataverses(DualListModel<Dataverse> featuredDataverses) {
         this.featuredDataverses = featuredDataverses;
+    }
+
+    public void setFeaturedDataversesSorting(Dataverse.FeaturedDataversesSorting featuredDataversesSorting) {
+        this.dataverse.setFeaturedDataversesSorting(featuredDataversesSorting);
     }
 }

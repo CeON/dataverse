@@ -6,8 +6,11 @@
 
 package edu.harvard.iq.dataverse;
 
+import com.beust.jcommander.internal.Lists;
 import edu.harvard.iq.dataverse.dataverse.DataverseLinkingService;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse.FeaturedDataversesSorting;
+import edu.harvard.iq.dataverse.persistence.dataverse.DataverseDatasetCount;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverseRepository;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseRepository;
@@ -19,8 +22,10 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -44,10 +49,28 @@ public class FeaturedDataverseServiceBean {
     @EJB
     DataverseDao dataverseDao;
 
+    private final List<FeaturedDataversesSorting> automaticSorting = Lists.newArrayList(
+            FeaturedDataversesSorting.BY_NAME_ASC,
+            FeaturedDataversesSorting.BY_NAME_DESC,
+            FeaturedDataversesSorting.BY_DATASET_COUNT
+    );
+
+    // -------------------- LOGIC --------------------
+
     public List<Dataverse> findByDataverseId(Long dataverseId) {
-        return dataverseFeaturedDataverseRepository.findByDataverseId(dataverseId).stream()
-                .map(DataverseFeaturedDataverse::getFeaturedDataverse)
-                .collect(toList());
+        return dataverseFeaturedDataverseRepository.findByDataverseIdOrderByDisplayOrder(dataverseId);
+    }
+
+    public List<Dataverse> sortFeaturedDataverses(List<Dataverse> featuredDataverses, FeaturedDataversesSorting sorting) {
+        if (sorting == FeaturedDataversesSorting.BY_NAME_ASC) {
+            return featuredDataverses.stream().sorted(Comparator.comparing(Dataverse::getName)).collect(Collectors.toList());
+        } else if (sorting == FeaturedDataversesSorting.BY_NAME_DESC) {
+            return featuredDataverses.stream().sorted(Comparator.comparing(Dataverse::getName).reversed()).collect(Collectors.toList());
+        } else if (sorting == FeaturedDataversesSorting.BY_DATASET_COUNT) {
+            return orderByDatasetCount(featuredDataverses);
+        } else {
+            return featuredDataverses;
+        }
     }
 
     public List<Dataverse> findByDataverseIdQuick(Long dataverseId) {
@@ -101,6 +124,10 @@ public class FeaturedDataverseServiceBean {
     }
 
     public void create(int diplayOrder, Long featuredDataverseId, Long dataverseId) {
+        create(diplayOrder, dataverseRepository.getById(featuredDataverseId), dataverseId);
+    }
+
+    public void create(int diplayOrder, Dataverse featuredDataverse, Long dataverseId) {
         DataverseFeaturedDataverse dataverseFeaturedDataverse = new DataverseFeaturedDataverse();
 
         dataverseFeaturedDataverse.setDisplayOrder(diplayOrder);
@@ -108,11 +135,46 @@ public class FeaturedDataverseServiceBean {
         Dataverse dataverse = dataverseRepository.getById(dataverseId);
         dataverseFeaturedDataverse.setDataverse(dataverse);
 
-        Dataverse featuredDataverse = dataverseRepository.getById(featuredDataverseId);
         dataverseFeaturedDataverse.setFeaturedDataverse(featuredDataverse);
 
         dataverseFeaturedDataverseRepository.save(dataverseFeaturedDataverse);
     }
 
+    public void refreshFeaturedDataversesAutomaticSorting() {
+        dataverseFeaturedDataverseRepository.findByDataversesBySorting(automaticSorting)
+                .forEach(dataverse -> {
+                    List<Dataverse> currentOrder = findByDataverseId(dataverse.getId());
+                    List<Dataverse> newOrder = findFeaturedDataversesSortedBy(dataverse.getId(), dataverse.getFeaturedDataversesSorting());
 
+                    if (currentOrder.equals(newOrder)) {
+                        return;
+                    }
+
+                    deleteFeaturedDataversesFor(dataverse);
+
+                    for (int idx = 0; idx < newOrder.size(); idx++) {
+                        create(idx, newOrder.get(idx), dataverse.getId());
+                    }
+                });
+    }
+
+    // -------------------- PRIVATE --------------------
+
+    private List<Dataverse> findFeaturedDataversesSortedBy(Long dataverseId, FeaturedDataversesSorting sorting) {
+        if (sorting == FeaturedDataversesSorting.BY_NAME_ASC) {
+            return dataverseFeaturedDataverseRepository.findByDataverseIdOrderByNameAsc(dataverseId);
+        } else if (sorting == FeaturedDataversesSorting.BY_NAME_DESC) {
+            return dataverseFeaturedDataverseRepository.findByDataverseIdOrderByNameDesc(dataverseId);
+        } else if (sorting == FeaturedDataversesSorting.BY_DATASET_COUNT) {
+            return orderByDatasetCount(findByDataverseId(dataverseId));
+        } else {
+            return dataverseFeaturedDataverseRepository.findByDataverseIdOrderByDisplayOrder(dataverseId);
+        }
+    }
+
+    private List<Dataverse> orderByDatasetCount(List<Dataverse> featuredDataverses) {
+        List<DataverseDatasetCount> datasetCount = dataverseRepository.getDatasetCountFor(featuredDataverses);
+        datasetCount.sort(Comparator.comparing(DataverseDatasetCount::getDatasetCount).reversed());
+        return datasetCount.stream().map(DataverseDatasetCount::getDataverse).collect(toList());
+    }
 }
