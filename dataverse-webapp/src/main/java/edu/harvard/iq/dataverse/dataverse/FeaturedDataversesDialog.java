@@ -1,6 +1,6 @@
 package edu.harvard.iq.dataverse.dataverse;
 
-import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
+import edu.harvard.iq.dataverse.featured.FeaturedDataverseServiceBean;
 import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -82,6 +82,10 @@ public class FeaturedDataversesDialog implements java.io.Serializable {
     public void updateSort() {
         List<Dataverse> target = featuredDataverses.getTarget();
         featuredDataverses.setTarget(featuredDataverseService.sortFeaturedDataverses(target, dataverse.getFeaturedDataversesSorting()));
+    }
+
+    public void manualReorder() {
+        dataverse.setFeaturedDataversesSorting(Dataverse.FeaturedDataversesSorting.BY_HAND);
     }
 
     // -------------------- SETTERS --------------------

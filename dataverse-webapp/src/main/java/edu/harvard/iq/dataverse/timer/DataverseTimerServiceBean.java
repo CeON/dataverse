@@ -2,7 +2,7 @@ package edu.harvard.iq.dataverse.timer;
 
 import com.google.api.client.util.Preconditions;
 import edu.harvard.iq.dataverse.DatasetDao;
-import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
+import edu.harvard.iq.dataverse.featured.FeaturedDataverseServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.datafile.FileIntegrityChecker;
 import edu.harvard.iq.dataverse.datafile.pojo.FilesIntegrityReport;

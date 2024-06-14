@@ -4,37 +4,38 @@
  * and open the template in the editor.
  */
 
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.featured;
 
 import com.beust.jcommander.internal.Lists;
 import edu.harvard.iq.dataverse.dataverse.DataverseLinkingService;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse.FeaturedDataversesSorting;
-import edu.harvard.iq.dataverse.persistence.dataverse.DataverseDatasetCount;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFeaturedDataverseRepository;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseRepository;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Stream;
 
 /**
  * @author skraffmiller
  */
 @Stateless
 public class FeaturedDataverseServiceBean {
-    private static final Logger logger = Logger.getLogger(FeaturedDataverseServiceBean.class.getCanonicalName());
+    private static final Logger logger = LoggerFactory.getLogger(FeaturedDataverseServiceBean.class);
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -45,9 +46,8 @@ public class FeaturedDataverseServiceBean {
     private DataverseFeaturedDataverseRepository dataverseFeaturedDataverseRepository;
     @Inject
     private DataverseLinkingService linkingService;
-    
-    @EJB
-    DataverseDao dataverseDao;
+    @Inject
+    private DataverseDatasetCountService datasetCountService;
 
     private final List<FeaturedDataversesSorting> automaticSorting = Lists.newArrayList(
             FeaturedDataversesSorting.BY_NAME_ASC,
@@ -173,8 +173,18 @@ public class FeaturedDataverseServiceBean {
     }
 
     private List<Dataverse> orderByDatasetCount(List<Dataverse> featuredDataverses) {
-        List<DataverseDatasetCount> datasetCount = dataverseRepository.getDatasetCountFor(featuredDataverses);
-        datasetCount.sort(Comparator.comparing(DataverseDatasetCount::getDatasetCount).reversed());
-        return datasetCount.stream().map(DataverseDatasetCount::getDataverse).collect(toList());
+        Map<Long, Dataverse> dataversesLookup = featuredDataverses.stream().collect(Collectors
+                .toMap(Dataverse::getId, Function.identity()));
+
+        List<Dataverse> orderedDv = featuredDataverses.stream().findFirst()
+                .map(Dataverse::getOwner)
+                .map(parent -> datasetCountService.countDatasetsInChildrenOf(parent).stream()
+                        .filter(c -> dataversesLookup.containsKey(c.getDataverseId()))
+                        .sorted(Comparator.comparing(DataverseDatasetCount::getDatasetCount).reversed())
+                        .map(c -> dataversesLookup.remove(c.getDataverseId()))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        return Stream.concat(orderedDv.stream(), dataversesLookup.values().stream()).collect(Collectors.toList());
     }
 }

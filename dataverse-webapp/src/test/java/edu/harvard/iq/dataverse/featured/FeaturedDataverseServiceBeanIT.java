@@ -1,16 +1,24 @@
-package edu.harvard.iq.dataverse;
+package edu.harvard.iq.dataverse.featured;
 
 import edu.harvard.iq.dataverse.arquillian.arquillianexamples.WebappArquillianDeployment;
+import edu.harvard.iq.dataverse.arquillian.facesmock.FacesContextMocker;
+import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseRepository;
+import edu.harvard.iq.dataverse.persistence.group.IpAddress;
+import edu.harvard.iq.dataverse.persistence.user.GuestUser;
+import edu.harvard.iq.dataverse.search.SolrIndexCleaner;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.assertj.core.util.Lists;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,6 +32,14 @@ public class FeaturedDataverseServiceBeanIT extends WebappArquillianDeployment {
 
     @Inject
     private DataverseRepository dataverseRepository;
+
+    @Inject
+    private SolrIndexCleaner solrIndexCleaner;
+
+    @Before
+    public void init() throws SolrServerException, IOException {
+        solrIndexCleaner.cleanupSolrIndex();
+    }
 
     // -------------------- TESTS --------------------
 
@@ -40,7 +56,7 @@ public class FeaturedDataverseServiceBeanIT extends WebappArquillianDeployment {
         service.refreshFeaturedDataversesAutomaticSorting();
 
         // then
-        assertThat(service.findByDataverseId(1L).stream().map(Dataverse::getId)).containsExactly(21L, 19L, 23L, 20L);
+        assertThat(service.findByDataverseId(1L).stream().map(Dataverse::getId)).containsExactly(21L, 19L, 20L, 23L);
     }
 
     @Test

@@ -341,7 +341,7 @@
                                     <f:facet name="targetCaption">#{bundle['dataverse.featuredDataverse.edit.targetLabel']}</f:facet>
 
                                     <p:ajax event="transfer" update="featuredDataverseList" listener="#{FeaturedDataversesDialog.updateSort}" />
-                                    <p:ajax event="reorder" update="featuredDataverseList" listener="#{FeaturedDataversesDialog.updateSort}" />
+                                    <p:ajax event="reorder" update="sortOptions" listener="#{FeaturedDataversesDialog.manualReorder}" />
                                 </p:pickList>
                             </div>
 
