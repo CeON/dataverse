@@ -123,15 +123,13 @@ public class DatasetServiceTest {
         lock.setId(1L);
         dataset.addLock(lock);
         Date embargoDate = Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(2, ChronoUnit.DAYS));
+        when(datasetDao.mergeAndFlush(dataset)).thenReturn(dataset);
 
-        // when & then
-        Exception exception = Assertions.assertThrows(IllegalStateException.class, () -> {
-            datasetService.setDatasetEmbargoDate(dataset, embargoDate);
-        });
+        // when
+        Dataset result = datasetService.setDatasetEmbargoDate(dataset, embargoDate);
 
-        String message = datasetService.getDatasetLockedMessage(dataset);
-        Assertions.assertEquals(message, exception.getMessage());
-        Assertions.assertTrue(dataset.getEmbargoDate().isEmpty());
+        // then
+        Assertions.assertEquals(embargoDate, result.getEmbargoDate().getOrNull());
     }
 
     @Test
