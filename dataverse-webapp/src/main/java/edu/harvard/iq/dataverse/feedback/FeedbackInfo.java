@@ -5,6 +5,10 @@ import edu.harvard.iq.dataverse.persistence.DvObject;
 
 import javax.mail.internet.InternetAddress;
 
+/**
+ * Context information for feedback provided by user.
+ * @param <T> type of the resource getting the feedback
+ */
 public class FeedbackInfo<T extends DvObject> {
     private T feedbackTarget;
     private FeedbackRecipient recipient;

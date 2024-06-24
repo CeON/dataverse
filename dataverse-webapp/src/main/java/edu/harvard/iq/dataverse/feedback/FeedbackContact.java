@@ -12,12 +12,17 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contact information of a feedback recipient.
+ */
 public class FeedbackContact {
 
     private static final Logger logger = LoggerFactory.getLogger(FeedbackContact.class);
 
     private final String name;
     private final String email;
+
+    // -------------------- CONSTRUCTORS --------------------
 
     public FeedbackContact(String email) {
         this.name = null;
@@ -28,6 +33,18 @@ public class FeedbackContact {
         this.name = name;
         this.email = email;
     }
+
+    // -------------------- GETTERS --------------------
+
+    public Option<String> getName() {
+        return Option.of(name);
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    // -------------------- LOGIC --------------------
 
     public static List<FeedbackContact> fromDataverse(Dataverse dataverse) {
         List<FeedbackContact> dataverseContacts = new ArrayList<>();
@@ -66,13 +83,4 @@ public class FeedbackContact {
         }
         return datasetContacts;
     }
-
-    public Option<String> getName() {
-        return Option.of(name);
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
 }
