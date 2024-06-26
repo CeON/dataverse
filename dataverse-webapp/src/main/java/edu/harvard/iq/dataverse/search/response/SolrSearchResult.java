@@ -627,8 +627,7 @@ public class SolrSearchResult {
     }
 
     public boolean isUnderEmbargo() {
-        return embargoUntil != null && Instant.now().atZone(ZoneId.systemDefault())
-                .isBefore(embargoUntil.toInstant().atZone(ZoneId.systemDefault()));
+        return embargoUntil != null && Instant.now().isBefore(embargoUntil.toInstant());
     }
 
     // -------------------- toString --------------------
