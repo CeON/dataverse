@@ -761,6 +761,9 @@
                                 <!-- https://github.com/arquillian/arquillian-container-glassfish/issues/24 -->
                                 <reuseForks>false</reuseForks>
                                 <groups>edu.harvard.iq.dataverse.test.arquillian.ArquillianIntegrationTests</groups>
+                                <systemProperties>
+                                    <test.solr.port>${test.solr.port}</test.solr.port>
+                                </systemProperties>
                             </configuration>
                         </execution>
                     </executions>
@@ -802,7 +805,7 @@
                                 </build>
                                 <run>
                                     <ports>
-                                        <port>8983:8983</port>
+                                        <port>test.solr.port:8983</port>
                                     </ports>
                                     <wait>
                                         <log>Opening new SolrCore</log>
