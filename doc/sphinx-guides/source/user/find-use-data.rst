@@ -85,15 +85,15 @@ Tabular Data
 
 Ingested files can be downloaded in several different ways. 
 
-- The default option is to download a tab-separated-value file which is an easy and free standard to use.
+- The default option is to download a tab-separated-value file which is an easy and free standard to use,
 
-- The original file, which may be in a proprietary format which requires special software
+- The original file, which may be in a proprietary format which requires special software,
 
-- Rdata format if the instalation has configured this
+- Rdata format if the installation has configured this,
 
-- The variable metadata for the file in DDI format
+- The variable metadata for the file in DDI format,
 
-- A subset of the columns of the data
+- A subset of the columns of the data.
 
 
 .. _url_download:
@@ -103,27 +103,3 @@ Downloading via URL
 
 Dataverse displays a plaintext URL for the location of the file under the Metadata tab on the dataset page. This Download URL can be used to directly access the file via API (or in a web browser, if needed). When downloading larger files, in order to ensure a reliable, resumable download, we recommend using `GNU Wget <https://www.gnu.org/software/wget/>`_ in a command line terminal or using a download manager software of your choice.
 
-.. _package_download_url:
-
-Downloading a Dataverse Package via URL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Dataverse Packages are typically used to represent extremely large files or bundles containing a large number of files. Dataverse Packages are often too large to be reliably downloaded using a web browser. When you click to download a Dataverse Package, instead of automatically initiating the download in your web browser, Dataverse displays a plaintext URL for the location of the file. To ensure a reliable, resumable download, we recommend using `GNU Wget <https://www.gnu.org/software/wget/>`_ in a command line terminal or using a download manager software of your choice. If you try to simply paste the URL into your web browser then the download may overwhelm your browser, resulting in an interrupted, timed out, or otherwise failed download.
-
-.. _rsync_download:
-
-Downloading a Dataverse Package via rsync
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-rsync is typically used for synchronizing files and directories between two different systems. Some Dataverse installations allow downloads using rsync, to facilitate large file transfers in a reliable and secure manner.
-
-rsync-enabled Dataverse installations offer a new file download process that differs from traditional browser-based downloading. Instead of multiple files, each dataset uploaded via rsync contains a single "Dataverse Package". When you download this package you will receive a folder that contains all files from the dataset, arranged in the exact folder structure in which they were originally uploaded.
-
-In a dataset containing a Dataverse Package, at the bottom of the dataset page, under the **Data Access** tab, instead of a download button you will find the information you need in order to download the Dataverse Package using rsync. If the data is locally available to you (on a shared drive, for example) then you can find it at the folder path under **Local Access**. Otherwise, to download the Dataverse Package you will have to use one of the rsync commands under **Download Access**. There may be multiple commands listed, each corresponding to a different mirror that hosts the Dataverse Package. Go outside your browser and open a terminal (AKA command line) window on your computer. Use the terminal to run the command that corresponds with the mirror of your choice. It's usually best to choose the mirror that is geographically closest to you. Running this command will initiate the download process.
-
-After you've downloaded the Dataverse Package, you may want to double-check that your download went perfectly. Under **Verify Data**, you'll find a command that you can run in your terminal that will initiate a checksum to ensure that the data you downloaded matches the data in Dataverse precisely. This way, you can ensure the integrity of the data you're working with. 
-
-Explore Data
-------------
-
-Please see the :doc:`/user/data-exploration/index`.

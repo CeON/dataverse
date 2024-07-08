@@ -1,5 +1,6 @@
 Tabular Data, Representation, Storage and Ingest
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+.. _tabular-data-ingest:
 
 This section explains the basics of how tabular data is handled in
 the application and what happens during the ingest process, as the

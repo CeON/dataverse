@@ -21,7 +21,7 @@ Create a Dataverse (Within the "Root" Dataverse)
 Creating a dataverse is easy but first you must be a registered user (see :doc:`/user/account`).
 
 #. Once you are logged in click on the "Add Data" button and in the dropdown menu select "New Dataverse".
-#. Once on the "New Dataverse" page fill in the following fields:
+#. Once on the "New Dataverse" page fill in the following fields [#f1]_ :
     * **Name**: Enter the name of your dataverse.
     * **Identifier**: This is an abbreviation, usually lower-case, that becomes part of the URL for the new dataverse. Special characters (~,\`, !, @, #, $, %, ^, &, and \*) and spaces are not allowed. **Note**: if you change the Dataverse Identifier field, the URL for your Dataverse changes (http//.../'url'), which affects links to this page.
     * **Email**: This is the email address that will be used as the contact for this particular dataverse. You can have more than one contact email address for your dataverse.
@@ -33,6 +33,7 @@ Creating a dataverse is easy but first you must be a registered user (see :doc:`
 #. Selected metadata elements are also used to pick which metadata fields you would like to use for creating templates for your datasets. Metadata fields can be hidden, or selected as required or optional. Once you have selected all the fields you would like to use, you can create your template(s) after you finish creating your dataverse.
 #. Click "Create Dataverse" button and you're done! 
 
+.. [#f1] Required fields are denoted by a red asterisk.
 
 Edit Dataverse 
 =================
@@ -70,7 +71,7 @@ The Theme feature provides you with a way to customize the look of your datavers
 Widgets
 =================================================
 
-The Widgets feature provides you with code for you to put on your personal website to have your dataverse displayed there. There are two types of Widgets for a dataverse, a Dataverse Search Box widget and a Dataverse Listing widget. From the Widgets tab on the Theme + Widgets page, you can copy and paste the code snippets for the widget you would like to add to your website. If you need to adjust the height of the widget on your website, you may do so by editing the `heightPx=500` parameter in the code snippet.
+The Widgets feature provides you with code for you to put on your personal website to have your dataverse displayed there. There are two types of Widgets for a dataverse, a Dataverse Search Box widget and a Dataverse Listing widget. From the "Widgets" tab on the "Theme + Widgets" page, you can copy and paste the code snippets for the widget you would like to add to your website. If you need to adjust the height of the widget on your website, you may do so by editing the ``heightPx=500`` parameter in the code snippet.
 
 Dataverse Search Box Widget
 --------------------------------
@@ -81,14 +82,6 @@ Dataverse Listing Widget
 -------------------------------
 
 The Dataverse Listing Widget provides a listing of all your dataverses and datasets for users to browse, sort, filter and search. When someone clicks on a dataverse or dataset in the widget, it displays the content in the widget on your website. They can download data files directly from the datasets within the widget. If a file is restricted, they will be directed to your dataverse to log in, instead of logging in through the widget on your website.
-
-
-Adding Widgets to an OpenScholar Website
-----------------------------------------------
-#. Log in to your OpenScholar website
-#. Either build a new page or navigate to the page you would like to use to show the Dataverse widgets.
-#. Click on the Settings Cog and select Layout
-#. At the top right, select Add New Widget and under Misc. you will see the Dataverse Search Box and the Dataverse Listing Widgets. Click on the widget you would like to add, fill out the form, and then drag it to where you would like it to display in the page.
 
 .. _dataverse-permissions:
 
@@ -158,7 +151,7 @@ Note that the Dataset Creator role and Contributor role are sometimes confused. 
     
     Screenshot of Assign Role modal window.
 
-Note: If you need to assign a role to ALL Dataverse user accounts, you can assign the role to the ":authenticated-users" group.
+.. note:: If you need to assign a role to ALL Dataverse user accounts, you can assign the role to the ``:authenticated-users`` group.
 
 .. _dataset-templates: 
 
@@ -210,7 +203,7 @@ Featured Dataverses is a way to display sub dataverses in your dataverse that yo
 
 Click on Featured Dataverses and a pop up will appear. Select which sub dataverses you would like to have appear. 
 
-Note: Featured Dataverses can only be used with published dataverses.
+.. note:: Featured Dataverses can only be used with published dataverses.
 
 Dataset Linking
 ===============
@@ -239,5 +232,4 @@ Publish Your Dataverse
 Once your dataverse is ready to go public, go to your dataverse page, click on the "Publish" button on the right 
 hand side of the page. A pop-up will appear to confirm that you are ready to actually Publish, since once a dataverse
 is made public, it can no longer be unpublished.
-
 
