@@ -18,10 +18,12 @@ import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
 import edu.harvard.iq.dataverse.persistence.group.IpAddress;
 import edu.harvard.iq.dataverse.persistence.group.IpAddressRange;
 import edu.harvard.iq.dataverse.persistence.group.IpGroup;
+import edu.harvard.iq.dataverse.persistence.harvest.HarvestType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowStepData;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import io.vavr.control.Option;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -698,7 +700,7 @@ public class JsonParser {
         String dataverseAlias = obj.getString("dataverseAlias", null);
 
         harvestingClient.setName(obj.getString("nickName", null));
-        harvestingClient.setHarvestType(obj.getString("type", null));
+        harvestingClient.setHarvestType(Option.of(obj.getString("type", null)).map(HarvestType::valueOf).getOrNull());
         harvestingClient.setHarvestingUrl(obj.getString("harvestUrl", null));
         harvestingClient.setArchiveUrl(obj.getString("archiveUrl", null));
         harvestingClient.setMetadataPrefix(obj.getString("metadataFormat", null));
