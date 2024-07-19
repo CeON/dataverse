@@ -217,7 +217,8 @@ public class CitationDataExtractor {
         return !dsv.getDataset().isHarvested()
                 || HarvestStyle.VDC.equals(harvestStyle)
                 || HarvestStyle.ICPSR.equals(harvestStyle)
-                || HarvestStyle.DATAVERSE.equals(harvestStyle);
+                || HarvestStyle.DATAVERSE.equals(harvestStyle)
+                || HarvestStyle.DOI.equals(harvestStyle);
     }
 
     private Date extractCitationDate(DatasetVersion dsv) {

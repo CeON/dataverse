@@ -9,12 +9,14 @@ import edu.harvard.iq.dataverse.api.dto.MetadataBlockWithFieldsDTO;
 import edu.harvard.iq.dataverse.common.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.globalid.DataCiteFindDoiResponse;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
+import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import io.vavr.control.Option;
 import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +46,11 @@ public class DataciteDatasetMapper {
 
         MetadataBlockWithFieldsDTO citationBlock = new MetadataBlockWithFieldsDTO();
         citationBlock.setFields(new ArrayList<>());
-        datasetVersion.getMetadataBlocks().put("citation", citationBlock);
+        HashMap<String, MetadataBlockWithFieldsDTO> metadataBlocks = new HashMap<>();
+        datasetVersion.setMetadataBlocks(metadataBlocks);
+        datasetVersion.setVersionState(DatasetVersion.VersionState.RELEASED.name());
+
+        metadataBlocks.put("citation", citationBlock);
 
         addPrimitiveToBlock(citationBlock, DatasetFieldConstant.title, extractFirstTitle(getTitlesWithoutType(attributes)));
         addPrimitiveToBlock(citationBlock, DatasetFieldConstant.alternativeTitle, extractFirstTitle(getTitlesByType(attributes, DataCiteFindDoiResponse.TitleType.AlternativeTitle)));

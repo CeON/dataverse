@@ -8,12 +8,14 @@ import edu.harvard.iq.dataverse.globalid.DataCiteRestApiClient;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Stateless
+@LocalBean
 public class DataciteDOIHarvester implements Harvester<DataciteHarvesterParams> {
 
 

@@ -1,7 +1,10 @@
 package edu.harvard.iq.dataverse.harvest.client;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import io.vavr.control.Option;
+
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Parameters used by the datacite DOI harvester.
@@ -10,24 +13,18 @@ public class DataciteHarvesterParams extends HarvesterParams {
 
     private final static String DOI_PART_SEPARATOR = "/";
 
-    private final List<DOIValue> doiImport;
-
-    // -------------------- CONSTRUCTORS --------------------
-
-    public DataciteHarvesterParams(List<DOIValue> doi) {
-        this.doiImport = doi;
-    }
+    private List<DOIValue> doiImport;
 
     // -------------------- GETTERS --------------------
 
     public List<DOIValue> getDoiImport() {
-        return doiImport;
+        return Option.of(doiImport).getOrElse(Collections.emptyList());
     }
 
-    // -------------------- LOGIC --------------------
+    // -------------------- SETTERS --------------------
 
-    public static DataciteHarvesterParams fromFullDOIList(List<String> fullDOI) {
-        return new DataciteHarvesterParams(fullDOI.stream().map(DOIValue::parseFullDOI).collect(Collectors.toList()));
+    public void setDoiImport(List<DOIValue> doiImport) {
+        this.doiImport = doiImport;
     }
 
     // -------------------- INNER CLASSES --------------------
@@ -43,6 +40,15 @@ public class DataciteHarvesterParams extends HarvesterParams {
             this.id = id;
         }
 
+        public DOIValue(String fullDoi) {
+            String[] doiParts = fullDoi.split(DOI_PART_SEPARATOR);
+            if (doiParts.length != 2) {
+                throw new IllegalArgumentException("Invalid DOI: " + fullDoi);
+            }
+            this.authority = doiParts[0];
+            this.id = doiParts[1];
+        }
+
         // -------------------- GETTERS --------------------
 
         public String getAuthority() {
@@ -56,16 +62,5 @@ public class DataciteHarvesterParams extends HarvesterParams {
         public String getFull() {
             return authority + DOI_PART_SEPARATOR + id;
         }
-
-        // -------------------- LOGIC --------------------
-
-        public static DOIValue parseFullDOI(String fullDOI) {
-            String[] doiParts = fullDOI.split(DOI_PART_SEPARATOR);
-            if (doiParts.length != 2) {
-                throw new IllegalArgumentException("Invalid DOI: " + fullDOI);
-            }
-            return new DOIValue(doiParts[0], doiParts[1]);
-        }
-
     }
 }

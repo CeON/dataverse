@@ -24,6 +24,7 @@ import org.dspace.xoai.serviceprovider.exceptions.HarvestException;
 import org.dspace.xoai.serviceprovider.exceptions.IdDoesNotExistException;
 
 import javax.ejb.EJB;
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -39,6 +40,7 @@ import java.util.logging.Logger;
  * Harvester for OAI clients.
  */
 @Stateless
+@LocalBean
 public class OAIHarvester implements Harvester<HarvesterParams.EmptyHarvesterParams> {
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")

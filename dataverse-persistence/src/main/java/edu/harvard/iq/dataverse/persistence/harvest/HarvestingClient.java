@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.persistence.harvest;
 import edu.harvard.iq.dataverse.persistence.JpaEntity;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
+import io.vavr.control.Option;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.CascadeType;
@@ -132,7 +133,7 @@ public class HarvestingClient implements Serializable, JpaEntity<Long> {
     }
 
     public void setHarvestingUrl(String harvestingUrl) {
-        this.harvestingUrl = harvestingUrl.trim();
+        this.harvestingUrl = Option.of(harvestingUrl).map(String::trim).getOrNull();
     }
 
     private String archiveUrl;
