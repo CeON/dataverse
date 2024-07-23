@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.globalid.GlobalIdServiceBean;
+import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
@@ -51,13 +52,23 @@ public class DeaccessionDatasetVersionCommand extends AbstractCommand<DatasetVer
         ctxt.index().indexDataset(dataset, true);
         ctxt.em().merge(dataset);
 
-        if (dataset.isDeaccessioned() && dataset.isIdentifierRegistered()) {
-            Option.of(GlobalIdServiceBean.getBean(dataset.getProtocol(), ctxt))
-                    .toTry()
-                    .andThenTry(service -> service.deleteIdentifier(dataset))
-                    .onFailure(e -> log.warn("Failed to unregister identifier {}", dataset.getGlobalId(), e));
+        dataset.getFiles().stream()
+                .filter(df -> df.getFileMetadatas().stream()
+                        .allMatch(fm -> fm.getDatasetVersion().isDeaccessioned()))
+                .forEach(df -> unregisterGlobalId(ctxt, df));
+
+        if (dataset.isDeaccessioned()) {
+            unregisterGlobalId(ctxt, dataset);
         }
 
         return merged;
+    }
+
+    private void unregisterGlobalId(CommandContext ctxt, DvObject object) {
+        if (object.isIdentifierRegistered()) {
+            Option.of(GlobalIdServiceBean.getBean(object.getProtocol(), ctxt)).toTry()
+                    .andThenTry(service -> service.deleteIdentifier(object))
+                    .onFailure(e -> log.warn("Failed to unregister identifier {}", object.getGlobalId(), e));
+        }
     }
 }
