@@ -1,10 +1,12 @@
 package edu.harvard.iq.dataverse.dataset.deaccession;
 
+import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
+import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.annotations.PermissionNeeded;
 import edu.harvard.iq.dataverse.annotations.processors.permissions.extractors.DatasetFromVersion;
+import edu.harvard.iq.dataverse.engine.command.impl.DeaccessionDatasetVersionCommand;
 import edu.harvard.iq.dataverse.interceptors.LoggedCall;
 import edu.harvard.iq.dataverse.interceptors.Restricted;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
@@ -13,7 +15,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,12 @@ public class DatasetDeaccessionService {
 
     @Inject
     private IndexServiceBean indexService;
+
+    @Inject
+    private EjbDataverseEngine commandEngine;
+
+    @Inject
+    private DataverseRequestServiceBean dvRequestService;
 
     // -------------------- LOGIC --------------------
 
@@ -51,17 +58,8 @@ public class DatasetDeaccessionService {
 
     // -------------------- PRIVATE --------------------
 
-    private DatasetVersion deaccessDatasetVersion(DatasetVersion deaccessionVersion,
-                                                 String deaccessionReason, String deaccessionForwardURLFor)  {
-        deaccessionVersion.setVersionNote(deaccessionReason);
-        deaccessionVersion.setArchiveNote(deaccessionForwardURLFor);
-        deaccessionVersion.setVersionState(DatasetVersion.VersionState.DEACCESSIONED);
-        deaccessionVersion.setLastUpdateTime(new Date());
-        DatasetVersion merged = em.merge(deaccessionVersion);
-
-        Dataset dataset = merged.getDataset();
-        indexService.indexDataset(dataset, true);
-        em.merge(dataset);
-        return merged;
+    private DatasetVersion deaccessDatasetVersion(DatasetVersion version, String deaccessionReason, String deaccessionForwardURLFor) {
+        return commandEngine.submit(new DeaccessionDatasetVersionCommand(
+                dvRequestService.getDataverseRequest(), version, deaccessionReason, deaccessionForwardURLFor));
     }
 }

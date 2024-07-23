@@ -10,8 +10,15 @@ import edu.harvard.iq.dataverse.engine.command.AbstractCommand;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
+import edu.harvard.iq.dataverse.globalid.GlobalIdServiceBean;
+import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataset.DatasetVersion;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
+import io.vavr.control.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * @author skraffmiller
@@ -19,26 +26,38 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 @RequiredPermissions(Permission.PublishDataset)
 public class DeaccessionDatasetVersionCommand extends AbstractCommand<DatasetVersion> {
 
-    final DatasetVersion theVersion;
+    private static final Logger log = LoggerFactory.getLogger(DeaccessionDatasetVersionCommand.class);
+    private final DatasetVersion theVersion;
+    private final String deaccessionReason;
+    private final String deaccessionForwardURLFor;
 
-    public DeaccessionDatasetVersionCommand(DataverseRequest aRequest, DatasetVersion deaccessionVersion) {
+    public DeaccessionDatasetVersionCommand(DataverseRequest aRequest, DatasetVersion deaccessionVersion, String deaccessionReason, String deaccessionForwardURLFor) {
         super(aRequest, deaccessionVersion.getDataset());
-        theVersion = deaccessionVersion;
+        this.theVersion = deaccessionVersion;
+        this.deaccessionReason = deaccessionReason;
+        this.deaccessionForwardURLFor = deaccessionForwardURLFor;
     }
-
 
     @Override
     public DatasetVersion execute(CommandContext ctxt)  {
 
+        theVersion.setVersionNote(deaccessionReason);
+        theVersion.setArchiveNote(deaccessionForwardURLFor);
         theVersion.setVersionState(DatasetVersion.VersionState.DEACCESSIONED);
-        DatasetVersion managed = ctxt.em().merge(theVersion);
+        theVersion.setLastUpdateTime(new Date());
+        DatasetVersion merged = ctxt.em().merge(theVersion);
 
-        boolean doNormalSolrDocCleanUp = true;
-        ctxt.index().indexDataset(managed.getDataset(), doNormalSolrDocCleanUp);
+        Dataset dataset = merged.getDataset();
+        ctxt.index().indexDataset(dataset, true);
+        ctxt.em().merge(dataset);
 
-        ctxt.em().merge(managed.getDataset());
+        if (dataset.isDeaccessioned() && dataset.isIdentifierRegistered()) {
+            Option.of(GlobalIdServiceBean.getBean(dataset.getProtocol(), ctxt))
+                    .toTry()
+                    .andThenTry(service -> service.deleteIdentifier(dataset))
+                    .onFailure(e -> log.warn("Failed to unregister identifier {}", dataset.getGlobalId(), e));
+        }
 
-        return managed;
+        return merged;
     }
-
 }
