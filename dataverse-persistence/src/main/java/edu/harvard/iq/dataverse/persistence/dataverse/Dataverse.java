@@ -60,7 +60,7 @@ import java.util.Set;
         @NamedQuery(name = "Dataverse.findByOwnerId", query = "select object(o) from Dataverse as o where o.owner.id =:ownerId order by o.name"),
         @NamedQuery(name = "Dataverse.filterByAlias", query = "SELECT dv FROM Dataverse dv WHERE LOWER(dv.alias) LIKE :alias order by dv.alias"),
         @NamedQuery(name = "Dataverse.filterByAliasNameAffiliation", query = "SELECT dv FROM Dataverse dv WHERE (LOWER(dv.alias) LIKE :alias) OR (LOWER(dv.name) LIKE :name) OR (LOWER(dv.affiliation) LIKE :affiliation) order by dv.alias"),
-        @NamedQuery(name = "Dataverse.filterByName", query = "SELECT dv FROM Dataverse dv WHERE LOWER(dv.name) LIKE :name  order by dv.alias")
+        @NamedQuery(name = "Dataverse.filterByAliasName", query = "SELECT dv FROM Dataverse dv WHERE (LOWER(dv.alias) LIKE :alias) OR (LOWER(dv.name) LIKE :name) order by dv.alias")
 })
 @NamedNativeQueries({
         @NamedNativeQuery(name = "Dataverse.findDataForSolrResults2", query =
@@ -92,6 +92,10 @@ public class Dataverse extends DvObjectContainer {
 
     public enum DataverseType {
         RESEARCHERS, RESEARCH_PROJECTS, JOURNALS, ORGANIZATIONS_INSTITUTIONS, TEACHING_COURSES, UNCATEGORIZED, LABORATORY, RESEARCH_GROUP, DEPARTMENT
+    }
+
+    public enum FeaturedDataversesSorting {
+        BY_HAND, BY_NAME_ASC, BY_NAME_DESC, BY_DATASET_COUNT
     }
 
     private static final long serialVersionUID = 1L;
@@ -221,6 +225,9 @@ public class Dataverse extends DvObjectContainer {
     private boolean templateRoot;
 
     private boolean allowMessagesBanners;
+
+    @Enumerated(EnumType.STRING)
+    private FeaturedDataversesSorting featuredDataversesSorting;
 
     @OneToOne(mappedBy = "dataverse", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private DataverseTheme dataverseTheme;
@@ -811,5 +818,16 @@ public class Dataverse extends DvObjectContainer {
 
     public void setAllowMessagesBanners(boolean allowMessagesBanners) {
         this.allowMessagesBanners = allowMessagesBanners;
+    }
+
+    public FeaturedDataversesSorting getFeaturedDataversesSorting() {
+        if (featuredDataversesSorting == null) {
+            featuredDataversesSorting = FeaturedDataversesSorting.BY_HAND;
+        }
+        return featuredDataversesSorting;
+    }
+
+    public void setFeaturedDataversesSorting(FeaturedDataversesSorting featuredDataversesSorting) {
+        this.featuredDataversesSorting = featuredDataversesSorting;
     }
 }

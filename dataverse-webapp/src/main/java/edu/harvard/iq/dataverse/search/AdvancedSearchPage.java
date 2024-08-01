@@ -25,12 +25,13 @@ import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.validation.SearchFormValidationService;
 import edu.harvard.iq.dataverse.validation.ValidationEnhancer;
 import edu.harvard.iq.dataverse.validation.field.ValidationDescriptor;
-import edu.harvard.iq.dataverse.validation.field.ValidationResult;
+import edu.harvard.iq.dataverse.validation.field.FieldValidationResult;
 import edu.harvard.iq.dataverse.validation.field.validators.DateRangeValidator;
 import io.vavr.Tuple;
 import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.cdi.ViewScoped;
 
+import javax.annotation.PostConstruct;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -100,6 +101,7 @@ public class AdvancedSearchPage implements Serializable {
 
     // -------------------- LOGIC --------------------
 
+    @PostConstruct
     public void init() {
         if (dataverseIdentifier != null) {
             dataverse = dataverseDao.findByAlias(dataverseIdentifier);
@@ -112,9 +114,9 @@ public class AdvancedSearchPage implements Serializable {
 
     /** Composes query and redirects to the page with results. */
     public String find() throws IOException {
-        List<ValidationResult> validationResults
+        List<FieldValidationResult> fieldValidationResults
                 = validationService.validateSearchForm(searchFieldIndex, nonSearchFieldIndex);
-        if (!validationResults.isEmpty()) {
+        if (!fieldValidationResults.isEmpty()) {
             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("advanced.search.validation"), StringUtils.EMPTY);
             return StringUtils.EMPTY;
         }
