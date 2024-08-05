@@ -1,7 +1,9 @@
 package edu.harvard.iq.dataverse.workflow.step;
 
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowArtifactSource;
+import edu.harvard.iq.dataverse.persistence.workflow.WorkflowExecutionStep;
 import edu.harvard.iq.dataverse.workflow.execution.WorkflowExecutionContext;
+import edu.harvard.iq.dataverse.workflow.execution.WorkflowExecutionStepContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,7 @@ public abstract class FilesystemAccessingWorkflowStep implements WorkflowStep {
     // -------------------- LOGIC --------------------
 
     @Override
-    public final WorkflowStepResult run(WorkflowExecutionContext context) {
+    public final WorkflowStepResult run(WorkflowExecutionStepContext context) {
         try {
             workDir = createWorkDir(context);
 
@@ -79,7 +81,7 @@ public abstract class FilesystemAccessingWorkflowStep implements WorkflowStep {
         }
     }
 
-    protected abstract WorkflowStepResult.Source runInternal(WorkflowExecutionContext context, Path workDir) throws Exception;
+    protected abstract WorkflowStepResult.Source runInternal(WorkflowExecutionStepContext context, Path workDir) throws Exception;
 
     protected WorkflowStepResult handleError(Exception e) {
         log.error("Failed workflow step", e);
@@ -128,7 +130,15 @@ public abstract class FilesystemAccessingWorkflowStep implements WorkflowStep {
             return Paths.get(workDirParam);
         }
     }
-    
+
+    public Optional<Path> getBaseWorkDir() {
+        return Optional.ofNullable(baseWorkDirParam).map(Paths::get);
+    }
+
+    protected Optional<Path> resolveWorkDirFromOutputParams(WorkflowExecutionStep step) {
+        return Optional.ofNullable(step.getOutputParams().get(WORK_DIR_PARAM_NAME)).map(Paths::get);
+    }
+
     // -------------------- PRIVATE --------------------
 
     private Path createWorkDir(WorkflowExecutionContext context) throws IOException {
@@ -138,6 +148,9 @@ public abstract class FilesystemAccessingWorkflowStep implements WorkflowStep {
     private HashMap<String, String> defaultOutputParams() {
         HashMap<String, String> outputParams = new HashMap<>();
         outputParams.put(WORK_DIR_PARAM_NAME, workDir.toAbsolutePath().toString());
+        if (baseWorkDirParam != null) {
+            outputParams.put(BASE_WORK_DIR_PARAM_NAME, Paths.get(baseWorkDirParam).toAbsolutePath().toString());
+        }
         return outputParams;
     }
 }

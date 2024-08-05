@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.ShapefileHandler;
 import io.vavr.Tuple2;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static edu.harvard.iq.dataverse.persistence.datafile.ingest.IngestReport.createIngestFailureReport;
 import static edu.harvard.iq.dataverse.util.FileUtil.calculateChecksum;
@@ -147,7 +147,7 @@ public class DataFileCreator {
 
         } else if (finalType.equals(ShapefileHandler.SHAPEFILE_FILE_TYPE)) {
             try {
-                return createDataFilesFromReshapedShapeFile(tempFile, fileSizeLimit);
+                return createDataFilesFromReshapedShapeFile(tempFile, fileSizeLimit, zipFileUnpackFilesLimit);
             } catch (FileExceedsMaxSizeException femsx) {
                 logger.error("One of the unzipped shape files exceeded the size limit; giving up. " + femsx.getMessage());
                 throw new IOException("One of the unzipped shape files exceeded the size limit", femsx);
@@ -246,7 +246,7 @@ public class DataFileCreator {
     private List<DataFile> unpackZipAndCreateDataFiles(Path tempFile, Long fileSizeLimit, Long zipFileUnpackFilesLimit) throws IOException {
         List<DataFile> datafiles = new ArrayList<>();
 
-        try (ZipInputStream unZippedIn = new ZipInputStream(Files.newInputStream(tempFile))) {
+        try (ZipArchiveInputStream unZippedIn = new ZipArchiveInputStream(Files.newInputStream(tempFile))) {
 
             ZipEntry zipEntry = unZippedIn.getNextEntry();
             while (zipEntry != null) {
@@ -313,24 +313,24 @@ public class DataFileCreator {
      * Shape files may have to be split into multiple files,
      * one zip archive per each complete set of shape files.
      */
-    private List<DataFile> createDataFilesFromReshapedShapeFile(Path tempFile, Long fileSizeLimit) throws IOException {
+    private List<DataFile> createDataFilesFromReshapedShapeFile(Path tempFile, Long fileSizeLimit, Long zipFileUnpackFilesLimit) throws IOException {
+        try (IngestServiceShapefileHelper shpHelper = new IngestServiceShapefileHelper(tempFile.toFile(), Paths.get(getFilesTempDirectory()).toFile(),
+                fileSizeLimit, zipFileUnpackFilesLimit)) {
+            List<DataFile> datafiles = new ArrayList<>();
 
-        IngestServiceShapefileHelper shpIngestHelper = new IngestServiceShapefileHelper(tempFile.toFile(), Paths.get(getFilesTempDirectory()).toFile());
+            for (File finalFile : shpHelper.processFile()) {
+                String finalType = fileTypeDetector.determineFileType(finalFile, finalFile.getName());
 
-        List<DataFile> datafiles = new ArrayList<>();
+                try (FileInputStream finalFileInputStream = new FileInputStream(finalFile)) {
+                    Path unZippedShapeTempFile = FileUtil.limitedInputStreamToTempFile(finalFileInputStream, fileSizeLimit);
+                    DataFile newDatafile = createSingleDataFile(unZippedShapeTempFile, finalFile.getName(), finalType, 0L);
+                    datafiles.add(newDatafile);
 
-        for (File finalFile : shpIngestHelper.processFile()) {
-            String finalType = fileTypeDetector.determineFileType(finalFile, finalFile.getName());
-
-            try (FileInputStream finalFileInputStream = new FileInputStream(finalFile)) {
-                Path unZippedShapeTempFile = FileUtil.limitedInputStreamToTempFile(finalFileInputStream, fileSizeLimit);
-                DataFile newDatafile = createSingleDataFile(unZippedShapeTempFile, finalFile.getName(), finalType, 0L);
-                datafiles.add(newDatafile);
-
+                }
             }
-        }
 
-        return datafiles;
+            return datafiles;
+        }
     }
 
     /**

@@ -688,6 +688,15 @@ public class SettingsServiceBean {
         CitationCountUpdateTimerExpression,
 
         /**
+         * Cron expression that indicates how often
+         * updating of featured dataverses automatic sorting
+         * should take place.
+         * If empty then updating of sorting will be skipped.
+         * Default value: empty.
+         */
+        FeaturedDataversesSortingUpdateTimerExpression,
+
+        /**
          * If true then instance will run in readonly mode.
          * Installation in readonly mode will have functionality
          * limited to operations that will not modify database and
@@ -722,7 +731,13 @@ public class SettingsServiceBean {
          * Additional (localized) text to show at the top
          * of the login page.
          */
-        LoginInfo
+        LoginInfo,
+
+        /**
+         * Additional (localized) text to show at the top
+         * of the "Add dataset" modal window.
+         */
+        SelectDataverseInfo
         ;
 
 
