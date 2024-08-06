@@ -21,7 +21,6 @@ import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.notification.dto.UserNotificationDTO;
 import edu.harvard.iq.dataverse.notification.dto.UserNotificationMapper;
 import edu.harvard.iq.dataverse.persistence.config.EMailValidator;
-import edu.harvard.iq.dataverse.persistence.datafile.FileMetadata;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.persistence.user.BuiltinUser;
@@ -44,7 +43,6 @@ import org.primefaces.event.TabChangeEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -74,7 +72,6 @@ import static java.util.stream.Collectors.toList;
 public class DataverseUserPage extends BaseUserPage {
 
     private static final Logger logger = Logger.getLogger(DataverseUserPage.class.getCanonicalName());
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(DataverseUserPage.class);
 
     public enum EditMode {
         CREATE, EDIT, CHANGE_PASSWORD
@@ -476,10 +473,13 @@ public class DataverseUserPage extends BaseUserPage {
         return !systemConfig.isReadonlyMode();
     }
 
-    public String remove(Long notificationId) {
-        userNotificationRepository.deleteById(notificationId);
-        //notificationsList.removeIf(notification -> notification.getId().equals(notificationId));
-        return null;
+    public void deleteSelectedNotifications() {
+        if (selectedAllNotifications) {
+            userNotificationRepository.deleteByUser(currentUser.getId());
+        } else {
+            userNotificationRepository.deleteByIds(selectedNotificationIds);
+            selectedNotificationIds.clear();
+        }
     }
 
     public void onNotificationSelect(SelectEvent event) {
@@ -511,10 +511,6 @@ public class DataverseUserPage extends BaseUserPage {
     public void clearSelection() {
         selectedAllNotifications = false;
         selectedNotificationIds.clear();
-    }
-
-    public void deleteNotifications() {
-        log.info("deleteNotifications: selected:" + selectedNotificationIds.size() + " selectAll:" + selectedAllNotifications);
     }
 
     public int getNumberOfSelectedNotifications() {

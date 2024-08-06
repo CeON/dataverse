@@ -1,22 +1,21 @@
 package edu.harvard.iq.dataverse.persistence.user;
 
 
+import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.persistence.JpaRepository;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author xyang
  */
 @Stateless
 public class UserNotificationRepository extends JpaRepository<Long, UserNotification> {
+    private final static int DELETE_BATCH_SIZE = 100;
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -57,6 +56,21 @@ public class UserNotificationRepository extends JpaRepository<Long, UserNotifica
         return em.createNativeQuery(String.format("update usernotification " +
                 "set parameters = jsonb_set(parameters::jsonb, '{requestorId}', '\"%s\"')::json " +
                 "where parameters ->> 'requestorId' = '%s'", newId.toString(), oldId.toString()))
+                .executeUpdate();
+    }
+
+    public int deleteByIds(Set<Long> ids) {
+        return Lists.partition(Lists.newArrayList(ids), DELETE_BATCH_SIZE).stream()
+                .mapToInt(idBatch ->
+                        em.createQuery("delete from UserNotification where id in :ids", UserNotification.class)
+                                .setParameter("ids", idBatch)
+                                .executeUpdate())
+                .sum();
+    }
+
+    public int deleteByUser(Long userId) {
+        return em.createQuery("delete from UserNotification where user.id = :userId", UserNotification.class)
+                .setParameter("userId", userId)
                 .executeUpdate();
     }
 

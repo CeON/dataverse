@@ -114,15 +114,12 @@
                         </p:tab>
                         <p:tab id="notifications" title="#{bundle['header.user.selectTab.notifications']}">
 
-                            <p:dataTable id="userNotificationsTable"
-                                         widgetVar="userNotificationsTable"
-                                         var="item"
-                                         value="#{DataverseUserPage.notificationsList}"
-                                         emptyMessage="#{bundle['dashboard.list_users.emptyList.message']}"
+                            <p:dataTable id="userNotificationsTable" widgetVar="userNotificationsTable"
+                                         var="item" value="#{DataverseUserPage.notificationsList}"
+                                         emptyMessage="#{bundle['notification.table.empty.message']}"
                                          paginator="true" paginatorAlwaysVisible="false" paginatorPosition="top"
-                                         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} #{bundle['dashboard.list_users.usersPerPage.title']} {RowsPerPageDropdown}"
-                                         rowsPerPageTemplate="10, 25, 50, 100"
-                                         rows="10"
+                                         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} #{bundle['notification.table.recordsPerPage.title']} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="10, 25, 50, 100" rows="10"
                                          styleClass="notification-table"
                                          sortMode="single" sortBy="#{item.sendDate}" sortOrder="DESCENDING"
                                          selection="#{DataverseUserPage.selectedNotifications}"
@@ -146,7 +143,7 @@
                                                                  onkeypress="if (event.keyCode == 13) { PF('searchButton').getJQ().click(); return false; }"
                                                     />
                                                     <p:watermark for="globalFilter"
-                                                                 value="#{bundle['dashboard.list_users.searchTerm.watermark']}"/>
+                                                                 value="#{bundle['notification.table.searchTerm.watermark']}"/>
 
                                                     <span class="input-group-btn">
                                                         <p:commandButton id="searchButton" styleClass="btn btn-default"
@@ -162,9 +159,10 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <p:outputPanel id="notificationButtons">
-                                                    <div class="button-block pull-right no-margin-top">
+                                                    <div class="button-block pull-right no-margin-top" jsf:rendered="#{DataverseUserPage.canRemoveNotifications()}">
                                                         <h:commandLink id="deleteNotificationBtn"
                                                                        onclick="primeFacesShowModal('deleteSelectedNotificationsConfirmation', this); return false;"
+                                                                       disabled="#{DataverseUserPage.getNumberOfSelectedNotifications() == 0}"
                                                                        styleClass="btn btn-default">
                                                             <span class="glyphicon glyphicon-download-alt"/> <h:outputText value=" #{bundle['notification.deleteSelected.btn']}"/>
                                                         </h:commandLink>
@@ -177,7 +175,7 @@
                                     <div class="row" style="margin-bottom:15px;">
                                     </div>
 
-                                    <div class="row" jsf:rendered="#{DataverseUserPage.getPageCount() gt 1}">
+                                    <div class="row" jsf:rendered="#{DataverseUserPage.canRemoveNotifications() and DataverseUserPage.getPageCount() gt 1}">
                                         <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;" >
                                             <!-- SELECTION MESSAGE -->
                                             <p>
@@ -207,7 +205,7 @@
 
                                 </f:facet>
 
-                                <p:column selectionMode="multiple" class="text-center" styleClass="notification-col-select" />
+                                <p:column selectionMode="multiple" class="text-center" styleClass="notification-col-select" rendered="#{DataverseUserPage.canRemoveNotifications()}" />
 
                                 <p:column headerText="#{bundle['notification.table.column.detail']}" styleClass="notification-col-detail">
                                     <i class="icon-dataverse text-icon-inline text-muted" jsf:rendered="#{item.theObjectType eq 'DATAVERSE' or item.theObjectType eq 'AUTHENTICATED_USER'}"></i>
@@ -924,23 +922,23 @@
                             </div>
                         </p:tab>
                     </p:tabView>
+
+                    <p:dialog styleClass="smallPopUp" header="#{bundle['notification.deleteSelected']}"
+                              widgetVar="deleteSelectedNotificationsConfirmation" modal="true">
+                        <p class="text-warning">
+                            <span class="glyphicon glyphicon-warning-sign"/> #{bundle['notification.deleteSelected.info']}
+                        </p>
+                        <div class="button-block">
+                            <p:commandButton value="#{bundle.delete}"
+                                             onclick="PF('deleteSelectedNotificationsConfirmation').hide()"
+                                             update="@form"
+                                             action="#{DataverseUserPage.deleteSelectedNotifications()}"/>
+                            <p:commandButton value="#{bundle.cancel}"
+                                             onclick="PF('deleteSelectedNotificationsConfirmation').hide();"
+                                             type="button"/>
+                        </div>
+                    </p:dialog>
                 </h:form>
-
-                <p:dialog styleClass="smallPopUp" header="#{bundle['notification.deleteSelected']}"
-                          widgetVar="deleteSelectedNotificationsConfirmation" modal="true">
-                    <p class="text-warning">
-                        <span class="glyphicon glyphicon-warning-sign"/> #{bundle['notification.deleteSelected.info']}
-                    </p>
-                    <div class="button-block">
-                        <p:commandButton value="#{bundle.delete}"
-                                         onclick="PF('deleteSelectedNotificationsConfirmation').hide()"
-                                         action="#{DataverseUserPage.deleteNotifications()}"/>
-                        <p:commandButton value="#{bundle.cancel}"
-                                         onclick="PF('deleteSelectedNotificationsConfirmation').hide();"
-                                         type="button"/>
-                    </div>
-                </p:dialog>
-
             </ui:define>
         </ui:composition>
     </h:body>
