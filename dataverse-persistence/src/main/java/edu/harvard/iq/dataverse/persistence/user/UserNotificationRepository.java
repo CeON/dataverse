@@ -6,6 +6,10 @@ import edu.harvard.iq.dataverse.persistence.JpaRepository;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
@@ -29,6 +33,21 @@ public class UserNotificationRepository extends JpaRepository<Long, UserNotifica
         return em.createQuery("select un from UserNotification un where un.user.id =:userId order by un.sendDate desc", UserNotification.class)
                 .setParameter("userId", userId)
                 .getResultList();
+    }
+
+    public List<UserNotification> findByUser(Long userId, String searchTerm, int offset, int resultLimit, boolean isAscending) {
+        return em.createQuery("select un from UserNotification un where un.user.id =:userId order by un.sendDate "
+                        + getOrderByDirection(isAscending), UserNotification.class)
+                .setParameter("userId", userId)
+                .setFirstResult(offset)
+                .setMaxResults(resultLimit)
+                .getResultList();
+    }
+
+    public Long countByUser(Long userId) {
+        return em.createQuery("select count(un) from UserNotification as un where un.user.id = :userId", Long.class)
+                .setParameter("userId", userId)
+                .getSingleResult();
     }
 
     public int updateRequestor(Long oldId, Long newId) {
@@ -64,5 +83,12 @@ public class UserNotificationRepository extends JpaRepository<Long, UserNotifica
                 .setParameter("type", NotificationType.SUBMITTEDDS)
                 .getResultList();
         return notifications.isEmpty() ? null : notifications.get(0);
+    }
+
+    private String getOrderByDirection(boolean isAscending) {
+        if (isAscending) {
+            return "asc";
+        }
+        return "desc";
     }
 }
