@@ -3,10 +3,16 @@ package edu.harvard.iq.dataverse.persistence.user;
 
 import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.persistence.JpaRepository;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -28,25 +34,43 @@ public class UserNotificationRepository extends JpaRepository<Long, UserNotifica
 
     // -------------------- LOGIC --------------------
 
+    public UserNotificationQueryResult query(UserNotificationQuery queryParam) {
+
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<UserNotification> query = criteriaBuilder.createQuery(UserNotification.class);
+        Root<UserNotification> root = query.from(UserNotification.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (StringUtils.isNotBlank(queryParam.getSearchLabel())) {
+            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("searchLabel")), "%" + queryParam.getSearchLabel().toLowerCase() + "%"));
+        }
+
+        if (queryParam.getUserId() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("user").get("id"), queryParam.getUserId()));
+        }
+
+        query.select(root)
+                .where(predicates.toArray(new Predicate[]{}))
+                .orderBy(queryParam.isAscending() ? criteriaBuilder.asc(root.get("sendDate")) : criteriaBuilder.desc(root.get("sendDate")));
+
+        List<UserNotification> resultList = em.createQuery(query)
+                .setFirstResult(queryParam.getOffset())
+                .setMaxResults(queryParam.getResultLimit())
+                .getResultList();
+
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        countQuery.select(criteriaBuilder.count(root))
+                .where(predicates.toArray(new Predicate[]{}));
+
+        Long totalCount = em.createQuery(countQuery).getSingleResult();
+
+        return new UserNotificationQueryResult(resultList, totalCount);
+    }
+
     public List<UserNotification> findByUser(Long userId) {
         return em.createQuery("select un from UserNotification un where un.user.id =:userId order by un.sendDate desc", UserNotification.class)
                 .setParameter("userId", userId)
                 .getResultList();
-    }
-
-    public List<UserNotification> findByUser(Long userId, String searchTerm, int offset, int resultLimit, boolean isAscending) {
-        return em.createQuery("select un from UserNotification un where un.user.id =:userId order by un.sendDate "
-                        + getOrderByDirection(isAscending), UserNotification.class)
-                .setParameter("userId", userId)
-                .setFirstResult(offset)
-                .setMaxResults(resultLimit)
-                .getResultList();
-    }
-
-    public Long countByUser(Long userId) {
-        return em.createQuery("select count(un) from UserNotification as un where un.user.id = :userId", Long.class)
-                .setParameter("userId", userId)
-                .getSingleResult();
     }
 
     public int updateRequestor(Long oldId, Long newId) {
@@ -99,10 +123,4 @@ public class UserNotificationRepository extends JpaRepository<Long, UserNotifica
         return notifications.isEmpty() ? null : notifications.get(0);
     }
 
-    private String getOrderByDirection(boolean isAscending) {
-        if (isAscending) {
-            return "asc";
-        }
-        return "desc";
-    }
 }

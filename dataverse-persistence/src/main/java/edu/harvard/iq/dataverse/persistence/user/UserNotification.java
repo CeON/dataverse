@@ -54,6 +54,8 @@ public class UserNotification implements Serializable, JpaEntity<Long> {
     @Convert(converter = PostgresJsonConverter.class)
     private String parameters;
 
+    private String searchLabel;
+
     // -------------------- GETTERS --------------------
 
     public Long getId() {
@@ -104,6 +106,10 @@ public class UserNotification implements Serializable, JpaEntity<Long> {
         return parameters;
     }
 
+    public String getSearchLabel() {
+        return searchLabel;
+    }
+
     // -------------------- SETTERS --------------------
 
     public void setId(Long id) {
@@ -144,5 +150,9 @@ public class UserNotification implements Serializable, JpaEntity<Long> {
 
     public void setParameters(String parameters) {
         this.parameters = parameters;
+    }
+
+    public void setSearchLabel(String searchLabel) {
+        this.searchLabel = searchLabel;
     }
 }

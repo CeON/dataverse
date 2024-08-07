@@ -4,6 +4,8 @@ import edu.harvard.iq.dataverse.notification.dto.UserNotificationDTO;
 import edu.harvard.iq.dataverse.notification.dto.UserNotificationMapper;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
+import edu.harvard.iq.dataverse.persistence.user.UserNotificationQuery;
+import edu.harvard.iq.dataverse.persistence.user.UserNotificationQueryResult;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationRepository;
 import edu.harvard.iq.dataverse.util.PrimefacesUtil;
 import org.apache.commons.lang.StringUtils;
@@ -42,20 +44,25 @@ public class LazyUserNotificationsDataModel extends LazyDataModel<UserNotificati
     }
 
     @Override
-    public Object getRowKey(UserNotificationDTO dashboardUserInfo) {
-        return dashboardUserInfo.getId().toString();
+    public Object getRowKey(UserNotificationDTO notification) {
+        return notification.getId().toString();
     }
 
     @Override
     public List<UserNotificationDTO> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, FilterMeta> filterMeta) {
-        // TODO: filter
         String filterValue = getGlobalFilterValue(filterMeta);
 
         notifications = new HashMap<>();
         List<UserNotificationDTO> notificationDTOList = new ArrayList<>();
 
-        List<UserNotification> notificationsPage = userNotificationRepository.findByUser(authenticatedUser.getId(), filterValue, first, pageSize, sortOrder == SortOrder.ASCENDING);
-        for (UserNotification notification : notificationsPage) {
+        UserNotificationQueryResult result = userNotificationRepository.query(UserNotificationQuery.newQuery()
+                .withUserId(authenticatedUser.getId())
+                .withSearchLabel(filterValue)
+                .withOffset(first)
+                .withResultLimit(pageSize)
+                .withAscending(sortOrder == SortOrder.ASCENDING));
+
+        for (UserNotification notification : result.getResult()) {
             UserNotificationDTO dto = userNotificationMapper.toDTO(notification);
             notifications.put(notification.getId().toString(), dto);
             notificationDTOList.add(dto);
@@ -66,7 +73,7 @@ public class LazyUserNotificationsDataModel extends LazyDataModel<UserNotificati
             }
         }
 
-        this.setRowCount(userNotificationRepository.countByUser(authenticatedUser.getId()).intValue());
+        this.setRowCount(result.getTotalCount().intValue());
 
         return notificationDTOList;
     }
