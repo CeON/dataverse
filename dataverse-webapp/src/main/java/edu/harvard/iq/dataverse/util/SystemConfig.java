@@ -278,6 +278,18 @@ public class SystemConfig {
         return getLocalizedProperty(SettingsServiceBean.Key.SelectDataverseInfo, locale);
     }
 
+    public String getCookieName() {
+        return getLocalizedProperty(Key.CookieName, Locale.ENGLISH);
+    }
+
+    public String getCookieDomain() {
+        return getLocalizedProperty(Key.CookieDomain, Locale.ENGLISH);
+    }
+
+    public Boolean getCookieSecure() {
+        return Boolean.parseBoolean(getLocalizedProperty(Key.CookieSecure, Locale.ENGLISH));
+    }
+
     public long getTabularIngestSizeLimit() {
         // This method will return the blanket ingestable size limit, if
         // set on the system. I.e., the universal limit that applies to all

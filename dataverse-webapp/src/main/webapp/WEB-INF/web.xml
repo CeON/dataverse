@@ -175,7 +175,7 @@
         <!-- Uncomment the line below to disble `;jsessionid=` in URLs -->
 	    <tracking-mode>COOKIE</tracking-mode>
     </session-config>
-    <!-- Listener to override defaults with environment variables -->
+    <!-- Listener to override defaults values -->
     <listener>
         <listener-class>edu.harvard.iq.dataverse.DataverseSessionConfigListener</listener-class>
     </listener>
