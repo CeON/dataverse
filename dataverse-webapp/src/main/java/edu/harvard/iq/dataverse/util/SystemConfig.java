@@ -279,15 +279,15 @@ public class SystemConfig {
     }
 
     public String getCookieName() {
-        return getLocalizedProperty(Key.CookieName, Locale.ENGLISH);
+        return settingsService.getValueForKey(Key.CookieName);
     }
 
     public String getCookieDomain() {
-        return getLocalizedProperty(Key.CookieDomain, Locale.ENGLISH);
+        return settingsService.getValueForKey(Key.CookieDomain);
     }
 
     public Boolean getCookieSecure() {
-        return Boolean.parseBoolean(getLocalizedProperty(Key.CookieSecure, Locale.ENGLISH));
+        return Boolean.parseBoolean(settingsService.getValueForKey(Key.CookieSecure));
     }
 
     public long getTabularIngestSizeLimit() {
