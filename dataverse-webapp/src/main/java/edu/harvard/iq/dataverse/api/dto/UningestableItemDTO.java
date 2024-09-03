@@ -51,7 +51,7 @@ public class UningestableItemDTO implements Serializable {
 
     // -------------------- PRIVATE --------------------
 
-    public static String extractAndFormatExtension(DataFile file) {
+    private static String extractAndFormatExtension(DataFile file) {
         String extension = FileUtil.generateOriginalExtension(file.isTabularData()
                 ? file.getDataTable().getOriginalFileFormat()
                 : file.getContentType());
