@@ -82,7 +82,6 @@ import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.ExporterType;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.UningestInfoService;
-import edu.harvard.iq.dataverse.ingest.UningestService;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.NotificationParameter;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
@@ -484,19 +483,30 @@ public class Datasets extends AbstractApiBean {
     @GET
     @Path("{id}/uningest")
     public Response listUningestableFiles(@PathParam("id") String datasetId) {
-        return allowCors(response(req -> ok(uningestInfoService.listUningestableFiles(findDatasetOrDie(datasetId)).stream()
-                .map(UningestableItemDTO::fromDatafile)
-                .collect(Collectors.toList()))));
+        return response(req -> {
+            Dataset dataset = findDatasetOrDie(datasetId);
+
+            if (!permissionSvc.requestOn(req, dataset).has(Permission.ViewUnpublishedDataset)) {
+                return forbidden("You are not permitted to view unpublished dataset.");
+            }
+
+            return ok(uningestInfoService.listUningestableFiles(dataset).stream()
+                    .map(UningestableItemDTO::fromDatafile)
+                    .collect(Collectors.toList()));
+        });
     }
 
     @POST
     @ApiWriteOperation
     @Path("{id}/uningest")
     public Response uningestFiles(@PathParam("id") String datasetId, JsonObject json) {
-        return allowCors(response(req -> {
-            UningestRequestDTO rq = jsonParser().parseUningestRequest(json);
+        return response(req -> {
+            findSuperuserOrDie();
 
-            List<DataFile> dataFiles = uningestInfoService.listUningestableFiles(findDatasetOrDie(datasetId)).stream()
+            UningestRequestDTO rq = jsonParser().parseUningestRequest(json);
+            Dataset dataset = findDatasetOrDie(datasetId);
+
+            List<DataFile> dataFiles = uningestInfoService.listUningestableFiles(dataset).stream()
                     .filter(df -> rq.getDataFileIds().isEmpty() || rq.getDataFileIds().contains(df.getId()))
                     .collect(Collectors.toList());
 
@@ -505,6 +515,7 @@ public class Datasets extends AbstractApiBean {
                 try {
                     execCommand(new UningestFileCommand(req, df));
                 } catch (Exception e) {
+                    logger.log(Level.WARNING, "Error occurred during the uningest of data file: " + df.getId(), e);
                     uningestFailedFileIds.add(df.getId().toString());
                 }
             }
@@ -515,7 +526,7 @@ public class Datasets extends AbstractApiBean {
                 return ok("Uningest failed on " + uningestFailedFileIds.size() + " of " + dataFiles.size() +
                         " files. Failed ids: " + String.join(", ", uningestFailedFileIds));
             }
-        }));
+        });
     }
 
     @GET
