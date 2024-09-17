@@ -32,7 +32,8 @@ public class SettingsWrapper implements java.io.Serializable {
     SystemConfig systemConfig;
 
     private final LazyLoaded<Map<String, String>> configuredLocales = new LazyLoaded<>(this::languagesLoader);
-    private final LazyLoaded<Map<String, String>> configuredAboutUrls = new LazyLoaded<>(this::aboutUrlsLoader);
+    private final LazyLoaded<Map<String, String>> configuredAboutUrls = new LazyLoaded<>(() -> urlsLoader(SettingsServiceBean.Key.NavbarAboutUrl));
+    private final LazyLoaded<Map<String, String>> configuredFooterUrls = new LazyLoaded<>(() -> urlsLoader(SettingsServiceBean.Key.FooterAdditionalUrl));
 
     // -------------------- GETTERS --------------------
 
@@ -122,6 +123,10 @@ public class SettingsWrapper implements java.io.Serializable {
         return configuredAboutUrls.get();
     }
 
+    public Map<String, String> getConfiguredFooterUrls() {
+        return configuredFooterUrls.get();
+    }
+
     public boolean isDataCiteInstallation() {
         String protocol = getEnumSettingValue(SettingsServiceBean.Key.DoiProvider);
         return "DataCite".equals(protocol);
@@ -134,15 +139,27 @@ public class SettingsWrapper implements java.io.Serializable {
                 .collect(toMap(getKey("locale"), getKey("title"), throwingMerger(), LinkedHashMap::new));
     }
 
-    private Map<String, String> aboutUrlsLoader() {
+    private Map<String, String> urlsLoader(SettingsServiceBean.Key key) {
         String lang = FacesContext.getCurrentInstance().getViewRoot().getLocale().getLanguage();
-        return settingService.getValueForKeyAsListOfMaps(SettingsServiceBean.Key.NavbarAboutUrl).stream()
-                .collect(toMap(getKey("url"), getKey("title." + lang), throwingMerger(), LinkedHashMap::new));
+        return settingService.getValueForKeyAsListOfMaps(key).stream()
+                .collect(toMap(getKeyWithLang("url", lang), getKeyWithLang("title", lang), throwingMerger(), LinkedHashMap::new));
     }
 
     private static Function<Map<String, String>, String> getKey(String key) {
         return map -> map.get(key);
     }
+
+    private static Function<Map<String, String>, String> getKeyWithLang(String key, String lang) {
+        String langKey = key + "." + lang;
+        return map -> {
+            if (map.containsKey(langKey)) {
+                return map.get(langKey);
+            } else {
+                return map.get(key);
+            }
+        };
+    }
+
     private static BinaryOperator<String> throwingMerger() {
         return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
     }
