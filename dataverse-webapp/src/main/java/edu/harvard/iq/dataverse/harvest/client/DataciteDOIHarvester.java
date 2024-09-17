@@ -65,7 +65,7 @@ public class DataciteDOIHarvester implements Harvester<DataciteHarvesterParams> 
 
     // -------------------- PRIVATE --------------------
 
-    private void importDOI(HarvesterResult rs, DataverseRequest dataverseRequest, HarvestingClient harvestingClient, Logger hdLogger, DataciteHarvesterParams.DOIValue doi) {
+    private void importDOI(HarvesterResult rs, DataverseRequest dataverseRequest, HarvestingClient harvestingClient, Logger hdLogger, DataciteHarvesterParams.DOIValue doi) throws ImportException {
         try {
             DatasetDTO dto = dataciteDatasetMapper.toDataset(dataCiteRestApiClient.findDoi(doi.getAuthority(), doi.getId()));
             importService.doImportHarvestedDataset(dataverseRequest, harvestingClient, doi.getFull(), dto);
@@ -77,6 +77,7 @@ public class DataciteDOIHarvester implements Harvester<DataciteHarvesterParams> 
                     + "; "
                     + e.getMessage();
             hdLogger.log(Level.SEVERE, errorMessage);
+            throw new ImportException(errorMessage, e);
         }
     }
 

@@ -323,6 +323,10 @@ public class SettingsServiceBean {
          */
         FooterCustomizationFile,
         /**
+         * Additional links to be shown in the footer.
+         */
+        FooterAdditionalUrl,
+        /**
          * Location and name of CSS customization file (it will be used as an inline style)
          */
         StyleCustomizationFile,
@@ -737,7 +741,13 @@ public class SettingsServiceBean {
          * Additional (localized) text to show at the top
          * of the "Add dataset" modal window.
          */
-        SelectDataverseInfo
+        SelectDataverseInfo,
+
+        CookieDomain,
+        CookieName,
+        CookieSecure,
+
+        AllowedExternalRedirectionUrlAfterLogin
         ;
 
 
