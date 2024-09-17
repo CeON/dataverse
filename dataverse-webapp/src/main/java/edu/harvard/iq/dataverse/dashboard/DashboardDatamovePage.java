@@ -132,7 +132,7 @@ public class DashboardDatamovePage implements Serializable {
             try {
                 summary.addParameter(source.getDisplayName())
                         .addParameter(extractSourcePersistentId(source))
-                        .addParameter(targetDataverse.getName());
+                        .addParameter(targetDataverse.getDisplayName());
 
                 DataverseRequest dataverseRequest = requestService.getDataverseRequest();
                 String previousSourceAlias = extractSourceAlias(source);
@@ -150,7 +150,7 @@ public class DashboardDatamovePage implements Serializable {
             }
         }
 
-        showDatasetsMovedMessage(successfulIds, failureMessages, targetDataverse.getName());
+        showDatasetsMovedMessage(successfulIds, failureMessages, targetDataverse.getDisplayName());
     }
 
     public void moveDataverse() {
