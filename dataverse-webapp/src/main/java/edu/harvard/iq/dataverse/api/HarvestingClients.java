@@ -156,7 +156,7 @@ public class HarvestingClients extends AbstractApiBean {
         findSuperuserOrDie();
 
         HarvestingClient harvestingClient = Try.of(() -> harvestingClientDao.findByNickname(nickName))
-                .getOrElseThrow(() -> new WrappedResponse(error(Response.Status.NOT_FOUND, "Harvesting client " + nickName + " not found.")));
+                .getOrElseThrow(() -> new WrappedResponse(notFound("Harvesting client " + nickName + " not found.")));
 
         harvestingClientDao.setDeleteInProgress(harvestingClient.getId());
         harvestingClientsService.deleteClient(harvestingClient);
