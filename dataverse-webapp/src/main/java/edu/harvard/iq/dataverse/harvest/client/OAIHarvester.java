@@ -1,23 +1,14 @@
 package edu.harvard.iq.dataverse.harvest.client;
 
-import edu.harvard.iq.dataverse.DatasetDao;
-import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.api.imports.HarvestImporterType;
 import edu.harvard.iq.dataverse.api.imports.HarvestImporterTypeResolver;
 import edu.harvard.iq.dataverse.api.imports.ImportException;
 import edu.harvard.iq.dataverse.api.imports.ImportServiceBean;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
-import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
-import edu.harvard.iq.dataverse.engine.command.impl.DeleteDatasetCommand;
 import edu.harvard.iq.dataverse.harvest.client.oai.OaiHandler;
 import edu.harvard.iq.dataverse.harvest.client.oai.OaiHandlerException;
-import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
-import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
 import org.apache.commons.io.FileUtils;
 import org.dspace.xoai.model.oaipmh.Header;
 import org.dspace.xoai.serviceprovider.exceptions.HarvestException;
@@ -47,19 +38,10 @@ public class OAIHarvester implements Harvester<HarvesterParams.EmptyHarvesterPar
     private EntityManager em;
 
     @EJB
-    DatasetDao datasetDao;
-
-    @EJB
     ImportServiceBean importService;
 
     @EJB
-    IndexServiceBean indexService;
-
-    @EJB
     private HarvestImporterTypeResolver harvestImporterTypeResolver;
-
-    @EJB
-    EjbDataverseEngine engineService;
 
     // -------------------- LOGIC --------------------
 
