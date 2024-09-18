@@ -168,35 +168,6 @@ public class OAIHarvester implements Harvester<HarvesterParams.EmptyHarvesterPar
         }
     }
 
-    private void deleteHarvestedDataset(Dataset dataset, DataverseRequest request, Logger hdLogger) {
-        // Purge all the SOLR documents associated with this client from the
-        // index server:
-        indexService.deleteHarvestedDocuments(dataset);
-
-        try {
-            // files from harvested datasets are removed unceremoniously,
-            // directly in the database. no need to bother calling the
-            // DeleteFileCommand on them.
-            for (DataFile harvestedFile : dataset.getFiles()) {
-                DataFile merged = em.merge(harvestedFile);
-                em.remove(merged);
-                harvestedFile = null;
-            }
-            dataset.setFiles(null);
-            Dataset merged = em.merge(dataset);
-            engineService.submit(new DeleteDatasetCommand(request, merged));
-        } catch (IllegalCommandException ex) {
-            // TODO: log the result
-        } catch (PermissionException ex) {
-            // TODO: log the result
-        } catch (CommandException ex) {
-            // TODO: log the result
-        }
-
-        // TODO: log the success result
-    }
-
-
     private void logBeginOaiHarvest(Logger hdLogger, HarvestingClient harvestingClient) {
         hdLogger.log(Level.INFO, "BEGIN HARVEST, oaiUrl="
                 + harvestingClient.getHarvestingUrl()
