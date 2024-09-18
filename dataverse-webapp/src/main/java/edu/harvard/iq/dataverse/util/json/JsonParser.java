@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.util.json;
 
 import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.MetadataBlockDao;
+import edu.harvard.iq.dataverse.api.dto.UningestRequestDTO;
 import edu.harvard.iq.dataverse.common.Util;
 import edu.harvard.iq.dataverse.datasetutility.OptionalFileParams;
 import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
@@ -18,12 +19,16 @@ import edu.harvard.iq.dataverse.persistence.dataverse.DataverseTheme;
 import edu.harvard.iq.dataverse.persistence.group.IpAddress;
 import edu.harvard.iq.dataverse.persistence.group.IpAddressRange;
 import edu.harvard.iq.dataverse.persistence.group.IpGroup;
+import edu.harvard.iq.dataverse.persistence.harvest.HarvestStyle;
+import edu.harvard.iq.dataverse.persistence.harvest.HarvestType;
 import edu.harvard.iq.dataverse.persistence.harvest.HarvestingClient;
 import edu.harvard.iq.dataverse.persistence.workflow.Workflow;
 import edu.harvard.iq.dataverse.persistence.workflow.WorkflowStepData;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import io.vavr.control.Option;
 
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
@@ -37,6 +42,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -426,6 +432,17 @@ public class JsonParser {
         return dataFile;
     }
 
+    public UningestRequestDTO parseUningestRequest(JsonObject json) {
+        UningestRequestDTO rq = new UningestRequestDTO();
+
+        Option.of(json.getJsonArray("dataFileIds"))
+                .map(ar -> ar.getValuesAs(JsonNumber.class))
+                .forEach(ids -> ids.stream().map(JsonNumber::longValue)
+                        .forEach(rq::addDataFileId));
+
+        return rq;
+    }
+
     public DatasetField parseFieldForDelete(JsonObject json) throws JsonParseException {
         DatasetField ret = new DatasetField();
         DatasetFieldType type = datasetFieldSvc.findByNameOpt(json.getString("typeName", ""));
@@ -698,7 +715,8 @@ public class JsonParser {
         String dataverseAlias = obj.getString("dataverseAlias", null);
 
         harvestingClient.setName(obj.getString("nickName", null));
-        harvestingClient.setHarvestType(obj.getString("type", null));
+        harvestingClient.setHarvestType(Option.of(obj.getString("type", null)).map(HarvestType::valueOf).getOrNull());
+        harvestingClient.setHarvestStyle(Option.of(obj.getString("style", null)).map(HarvestStyle::valueOf).getOrNull());
         harvestingClient.setHarvestingUrl(obj.getString("harvestUrl", null));
         harvestingClient.setArchiveUrl(obj.getString("archiveUrl", null));
         harvestingClient.setMetadataPrefix(obj.getString("metadataFormat", null));
