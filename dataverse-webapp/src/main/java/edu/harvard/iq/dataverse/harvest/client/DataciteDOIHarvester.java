@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.harvest.client;
 
-import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
 import edu.harvard.iq.dataverse.api.imports.ImportException;
 import edu.harvard.iq.dataverse.api.imports.ImportServiceBean;
@@ -19,7 +18,6 @@ import java.util.logging.Logger;
 @LocalBean
 public class DataciteDOIHarvester implements Harvester<DataciteHarvesterParams> {
 
-
     @Inject
     private DataCiteRestApiClient dataCiteRestApiClient;
 
@@ -28,9 +26,6 @@ public class DataciteDOIHarvester implements Harvester<DataciteHarvesterParams> 
 
     @Inject
     private DataciteDatasetMapper dataciteDatasetMapper;
-
-    @Inject
-    private DatasetDao datasetDao;
 
     // -------------------- LOGIC --------------------
 
@@ -65,19 +60,17 @@ public class DataciteDOIHarvester implements Harvester<DataciteHarvesterParams> 
 
     // -------------------- PRIVATE --------------------
 
-    private void importDOI(HarvesterResult rs, DataverseRequest dataverseRequest, HarvestingClient harvestingClient, Logger hdLogger, DataciteHarvesterParams.DOIValue doi) throws ImportException {
+    private void importDOI(HarvesterResult rs, DataverseRequest dataverseRequest, HarvestingClient harvestingClient, Logger hdLogger, DataciteHarvesterParams.DOIValue doi) {
         try {
             DatasetDTO dto = dataciteDatasetMapper.toDataset(dataCiteRestApiClient.findDoi(doi.getAuthority(), doi.getId()));
             importService.doImportHarvestedDataset(dataverseRequest, harvestingClient, doi.getFull(), dto);
             rs.incrementHarvested();
         } catch (Exception e) {
             rs.incrementFailed();
-            String errorMessage = "Failed to import DOI "
+            hdLogger.log(Level.SEVERE, "Failed to import DOI (" + doi.getFull() + ") "
                     + harvestingClient.getName()
                     + "; "
-                    + e.getMessage();
-            hdLogger.log(Level.SEVERE, errorMessage);
-            throw new ImportException(errorMessage, e);
+                    + e.getMessage());
         }
     }
 
