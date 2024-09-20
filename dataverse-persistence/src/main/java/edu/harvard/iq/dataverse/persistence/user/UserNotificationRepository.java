@@ -42,7 +42,7 @@ public class UserNotificationRepository extends JpaRepository<Long, UserNotifica
 
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(queryParam.getSearchLabel())) {
-            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("searchLabel")), "%" + queryParam.getSearchLabel().toLowerCase() + "%"));
+            predicates.add(criteriaBuilder.like(root.get("searchLabel"), "%" + queryParam.getSearchLabel().toLowerCase() + "%"));
         }
 
         if (queryParam.getUserId() != null) {

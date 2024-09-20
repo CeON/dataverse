@@ -369,11 +369,11 @@ VALUES ('{"email": "test@gmail.com"}', 'SEND_NEWSLETTER_EMAIL', 1);
 INSERT INTO usernotification(id, user_id, type, objectid, emailed, readnotification, senddate, searchlabel)
 VALUES (1, 2, 'CREATEACC', NULL, true, true, '2020-09-24 13:01:00', 'joe@champion.de');
 INSERT INTO usernotification(id, user_id, type, objectid, emailed, readnotification, senddate, searchlabel)
-VALUES (2, 2, 'CREATEDV', 19, false, true, '2020-09-25 14:00:00', 'Datauniverse');
+VALUES (2, 2, 'CREATEDV', 19, false, true, '2020-09-25 14:00:00', 'datauniverse');
 INSERT INTO usernotification(id, user_id, type, objectid, emailed, readnotification, senddate, parameters, searchlabel)
-VALUES (3, 2, 'SUBMITTEDDS', 44, false, false, '2020-09-26 10:00:00', '{"message":"message to curator", "requestorId":"4"}', 'Monkeys dataset');
+VALUES (3, 2, 'SUBMITTEDDS', 44, false, false, '2020-09-26 10:00:00', '{"message":"message to curator", "requestorId":"4"}', 'monkeys dataset');
 INSERT INTO usernotification(id, user_id, type, objectid, emailed, readnotification, senddate, parameters, searchlabel)
-VALUES (4, 4, 'RETURNEDDS', 44, false, false, '2020-09-26 10:10:00', '{"message":"send back to author", "requestorId":"2"}', 'Monkeys dataset');
+VALUES (4, 4, 'RETURNEDDS', 44, false, false, '2020-09-26 10:10:00', '{"message":"send back to author", "requestorId":"2"}', 'monkeys dataset');
 INSERT INTO usernotification(id, user_id, type, objectid, emailed, readnotification, senddate, parameters)
 VALUES (5, 4, 'RETURNEDDS', 44, false, false, '2020-09-26 10:10:00', '{"message":"send back to author", "requestorId":"3"}');
 -------------------- SUGGESTIONS ---------------------

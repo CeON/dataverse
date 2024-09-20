@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.persistence.user;
 
 import edu.harvard.iq.dataverse.persistence.JpaEntity;
 import edu.harvard.iq.dataverse.persistence.config.PostgresJsonConverter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -153,6 +154,6 @@ public class UserNotification implements Serializable, JpaEntity<Long> {
     }
 
     public void setSearchLabel(String searchLabel) {
-        this.searchLabel = searchLabel;
+        this.searchLabel = StringUtils.lowerCase(searchLabel);
     }
 }

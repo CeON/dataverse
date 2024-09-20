@@ -13,9 +13,14 @@ public class UserNotificationQuery {
 
     private int offset;
 
-    int resultLimit = DEFAULT_RESULT_LIMIT;
+    private int resultLimit = DEFAULT_RESULT_LIMIT;
 
-    boolean ascending;
+    private boolean ascending;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    private UserNotificationQuery() {
+    }
 
     // -------------------- GETTERS --------------------
 
