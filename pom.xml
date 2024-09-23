@@ -85,6 +85,18 @@
             <name>Local repository for hosting jars not available from network repositories.</name>
             <url>file://${project.basedir}/local_lib</url>
         </repository>
+        <repository>
+            <id>drodb-releases</id>
+            <url>https://maven.ceon.pl/repository/drodb-releases</url>
+            <snapshots><enabled>false</enabled></snapshots>
+            <releases><enabled>true</enabled></releases>
+        </repository>
+        <repository>
+            <id>drodb-snapshots</id>
+            <url>https://maven.ceon.pl/repository/drodb-snapshots</url>
+            <snapshots><enabled>true</enabled></snapshots>
+            <releases><enabled>false</enabled></releases>
+        </repository>
     </repositories>
 
     <modules>
@@ -965,4 +977,15 @@
         <developerConnection>scm:git:git@github.com:CeON/dataverse.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>drodb-releases</id>
+            <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>dataverse-snapshots</id>
+            <url>https://maven.ceon.pl/artifactory/drodb-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

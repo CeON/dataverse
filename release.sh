@@ -39,11 +39,8 @@ fi
 
 echo "Version to be released: ${RELEASE_FULL_VERSION}. Next development version will be set to: ${DEVELOPMENT_FULL_VERSION}."
 
-./mvnw --batch-mode release:prepare \
+./mvnw --batch-mode release:prepare release:perform \
     -Darguments="-DskipTests -Ddocker.skip" \
     -DignoreSnapshots=true -DautoVersionSubmodules=true \
     -DreleaseVersion=${RELEASE_FULL_VERSION} \
     -DdevelopmentVersion=${DEVELOPMENT_FULL_VERSION}
-
-# Once ready, replace with release:perform to publish to artifactory
-./mvnw release:clean
