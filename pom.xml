@@ -793,6 +793,7 @@
                     <configuration>
                         <verbose>true</verbose>
                         <startParallel>false</startParallel>
+                        <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
                         <images>
                             <image>
                                 <name>postgres:12-alpine</name>
@@ -802,7 +803,8 @@
                                         <port>5432:5432</port>
                                     </ports>
                                     <network>
-                                        <mode>host</mode>
+                                        <mode>custom</mode>
+                                        <name>dataverse-it</name>
                                     </network>
                                     <env>
                                         <POSTGRES_DB>dvndb-test</POSTGRES_DB>
@@ -829,7 +831,8 @@
                                         <port>test.solr.port:8983</port>
                                     </ports>
                                     <network>
-                                        <mode>host</mode>
+                                        <mode>custom</mode>
+                                        <name>dataverse-it</name>
                                     </network>
                                     <wait>
                                         <log>Opening new SolrCore</log>
