@@ -23,14 +23,14 @@ public class TestSolrClientFactory extends SolrClientFactory {
 
     private static final Logger LOGGER = Logger.getLogger(TestSolrClientFactory.class.getCanonicalName());
 
-    private static final String DEFAULT_SOLR_TEST_PORT = "8984";
+    private static final String DEFAULT_SOLR_TEST_PORT = "8983";
 
     // -------------------- LOGIC --------------------
     
     @Produces
     @Specializes
     public SolrClient produceSolrClient() throws IOException {
-        String urlString = "http://localhost:" + resolveSolrPort() + "/solr/collection1";
+        String urlString = "http://solr:" + resolveSolrPort() + "/solr/collection1";
         LOGGER.fine("Creating test SolrClient at url: " + urlString);
         
         return new HttpSolrClient.Builder(urlString).build();
@@ -40,7 +40,7 @@ public class TestSolrClientFactory extends SolrClientFactory {
     @Specializes
     @RorSolrClient
     public SolrClient produceRorSolrClient() {
-        String urlString = "http://localhost:" + resolveSolrPort() + "/solr/rorSuggestions";
+        String urlString = "http://solr:" + resolveSolrPort() + "/solr/rorSuggestions";
         LOGGER.fine("Creating test SolrClient at url: " + urlString);
 
         return new HttpSolrClient.Builder(urlString).build();
