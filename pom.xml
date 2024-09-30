@@ -802,8 +802,7 @@
                                         <port>5432:5432</port>
                                     </ports>
                                     <network>
-                                        <mode>container</mode>
-                                        <name>${parentContainerName}</name>
+                                        <mode>host</mode>
                                     </network>
                                     <env>
                                         <POSTGRES_DB>dvndb-test</POSTGRES_DB>
@@ -830,8 +829,7 @@
                                         <port>test.solr.port:8983</port>
                                     </ports>
                                     <network>
-                                        <mode>container</mode>
-                                        <name>${parentContainerName}</name>
+                                        <mode>host</mode>
                                     </network>
                                     <wait>
                                         <log>Opening new SolrCore</log>
