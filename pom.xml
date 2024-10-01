@@ -837,7 +837,7 @@
                                     </ports>
                                     <network>
                                         <mode>${test.network.mode}</mode>
-                                        <name>dataverse-it</name>
+                                        <name>${test.network.name}</name>
                                         <alias>solr</alias>
                                     </network>
                                     <wait>
