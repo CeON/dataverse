@@ -26,12 +26,10 @@ pipeline {
         stage('Checkout') {
             when { expression { params.skipCheckout != true } }
             steps {
-                /*
                 checkout scmGit(
                     branches: [[name: "*/${params.branch}"]],
                     extensions: [cleanAfterCheckout()],
                     userRemoteConfigs: [[refspec: "+refs/heads/${params.branch}:refs/remotes/origin/${params.branch}", url: 'https://github.com/CeON/dataverse']])
-                */
             }
         }
 
