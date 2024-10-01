@@ -993,17 +993,7 @@
             <id>all-unit-tests</id>
         </profile>
         <profile>
-            <id>ci-jenkins</id>
-            <properties>
-                <!-- for CI configure a custom network for the containers with random exposed ports  -->
-                <test.network.mode>custom</test.network.mode>
-                <test.postgres.host>postgres</test.postgres.host>
-                <test.solr.host>solr</test.solr.host>
-                <test.solr.port>8983</test.solr.port>
-            </properties>
-        </profile>
-        <profile>
-            <id>all-integration-tests</id>
+            <id>integration-tests-only</id>
             <build>
                 <plugins>
                     <plugin>
@@ -1014,6 +1004,16 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>ci-jenkins</id>
+            <properties>
+                <!-- for CI configure a custom network for the containers with random exposed ports  -->
+                <test.network.mode>custom</test.network.mode>
+                <test.postgres.host>postgres</test.postgres.host>
+                <test.solr.host>solr</test.solr.host>
+                <test.solr.port>8983</test.solr.port>
+            </properties>
         </profile>
         <!-- TODO: Add a profile to run API tests (integration tests that end in IT.java. See conf/docker-aio/run-test-suite.sh -->
     </profiles>
