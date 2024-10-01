@@ -53,6 +53,14 @@
         -->
         <jacoco.version>0.8.1</jacoco.version>
         <imageIo.version>3.7.0</imageIo.version>
+
+        <test.network.mode>bridge</test.network.mode>
+        <test.postgres.port>5432</test.postgres.port>
+        <test.postgres.docker.port>test.postgres.port:5432</test.postgres.docker.port>
+        <test.postgres.host>localhost</test.postgres.host>
+        <test.solr.port>8984</test.solr.port>
+        <test.solr.docker.port>test.solr.port:8983</test.solr.docker.port>
+        <test.solr.host>localhost</test.solr.host>
     </properties>
 
     <!--Maven checks for dependendies from these repos in the order shown in the pom.xml
@@ -781,6 +789,8 @@
                                 <groups>edu.harvard.iq.dataverse.test.arquillian.ArquillianIntegrationTests</groups>
                                 <systemProperties>
                                     <test.solr.port>${test.solr.port}</test.solr.port>
+                                    <test.solr.host>${test.solr.host}</test.solr.host>
+                                    <test.postgres.host>${test.postgres.host}</test.postgres.host>
                                 </systemProperties>
                             </configuration>
                         </execution>
@@ -793,18 +803,18 @@
                     <configuration>
                         <verbose>true</verbose>
                         <startParallel>false</startParallel>
-                        <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
                         <images>
                             <image>
                                 <name>postgres:12-alpine</name>
-                                <alias>postgres-it</alias>
+                                <alias>postgres</alias>
                                 <run>
                                     <ports>
-                                        <port>5432:5432</port>
+                                        <port>${test.postgres.docker.port}</port>
                                     </ports>
                                     <network>
-                                        <mode>custom</mode>
+                                        <mode>${test.network.mode}</mode>
                                         <name>dataverse-it</name>
+                                        <alias>postgres</alias>
                                     </network>
                                     <env>
                                         <POSTGRES_DB>dvndb-test</POSTGRES_DB>
@@ -822,17 +832,18 @@
                             </image>
                             <image>
                                 <name>solr:7.3.1</name>
-                                <alias>solr-it</alias>
+                                <alias>solr</alias>
                                 <build>
                                     <dockerFile>${dataverse.repo.dir}/dataverse-webapp/src/test/resources/docker/test_solr/Dockerfile</dockerFile>
                                 </build>
                                 <run>
                                     <ports>
-                                        <port>test.solr.port:8983</port>
+                                        <port>${test.solr.docker.port}</port>
                                     </ports>
                                     <network>
-                                        <mode>custom</mode>
+                                        <mode>${test.network.mode}</mode>
                                         <name>dataverse-it</name>
+                                        <alias>solr</alias>
                                     </network>
                                     <wait>
                                         <log>Opening new SolrCore</log>
@@ -976,6 +987,17 @@
         </profile>
         <profile>
             <id>all-unit-tests</id>
+        </profile>
+        <profile>
+            <id>ci-jenkins</id>
+            <properties>
+                <!-- for CI configure a custom network for the containers with random exposed ports  -->
+                <test.network.mode>custom</test.network.mode>
+                <test.postgres.port/>
+                <test.postgres.host>postgres</test.postgres.host>
+                <test.solr.port/>
+                <test.solr.host>solr</test.solr.host>
+            </properties>
         </profile>
         <profile>
             <id>all-integration-tests</id>

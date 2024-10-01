@@ -23,14 +23,15 @@ public class TestSolrClientFactory extends SolrClientFactory {
 
     private static final Logger LOGGER = Logger.getLogger(TestSolrClientFactory.class.getCanonicalName());
 
-    private static final String DEFAULT_SOLR_TEST_PORT = "8983";
+    private static final String DEFAULT_SOLR_TEST_PORT = "8984";
+    private static final String DEFAULT_SOLR_TEST_HOST = "localhost";
 
     // -------------------- LOGIC --------------------
     
     @Produces
     @Specializes
     public SolrClient produceSolrClient() throws IOException {
-        String urlString = "http://solr:" + resolveSolrPort() + "/solr/collection1";
+        String urlString = resolveSolrURL() + "/solr/collection1";
         LOGGER.fine("Creating test SolrClient at url: " + urlString);
         
         return new HttpSolrClient.Builder(urlString).build();
@@ -40,22 +41,28 @@ public class TestSolrClientFactory extends SolrClientFactory {
     @Specializes
     @RorSolrClient
     public SolrClient produceRorSolrClient() {
-        String urlString = "http://solr:" + resolveSolrPort() + "/solr/rorSuggestions";
+        String urlString = resolveSolrURL() + "/solr/rorSuggestions";
         LOGGER.fine("Creating test SolrClient at url: " + urlString);
 
         return new HttpSolrClient.Builder(urlString).build();
     }
-    
+
+
     public void disposeSolrClient(@Disposes SolrClient solrClient) throws IOException {
         solrClient.close();
     }
 
     // -------------------- PRIVATE --------------------
 
-    private static String resolveSolrPort() {
-        String port = System.getProperty("test.solr.port");
+    private static String resolveSolrURL() {
+        return "http://" + getPropertyOrDefault("test.solr.host", DEFAULT_SOLR_TEST_HOST) + ":" +
+                getPropertyOrDefault("test.solr.port", DEFAULT_SOLR_TEST_PORT);
+    }
+
+    private static String getPropertyOrDefault(String property, String defaultValue) {
+        String port = System.getProperty(property);
         if (port == null) {
-            return DEFAULT_SOLR_TEST_PORT;
+            return defaultValue;
         }
         return port;
     }
