@@ -807,7 +807,7 @@
                                     </ports>
                                     <network>
                                         <mode>${test.network.mode}</mode>
-                                        <name>dataverse-it</name>
+                                        <name>${test.network.name}</name>
                                         <alias>postgres</alias>
                                     </network>
                                     <env>
@@ -986,6 +986,7 @@
                 <test.solr.docker.port>8984</test.solr.docker.port>
                 <test.solr.port>${test.solr.docker.port}</test.solr.port>
                 <test.solr.host>localhost</test.solr.host>
+                <test.network.name>dataverse-local</test.network.name>
             </properties>
         </profile>
         <profile>
