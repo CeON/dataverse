@@ -796,13 +796,14 @@
                     <configuration>
                         <verbose>true</verbose>
                         <startParallel>false</startParallel>
+                        <executeStopOnVMShutdown>true</executeStopOnVMShutdown>
                         <images>
                             <image>
                                 <name>postgres:12-alpine</name>
                                 <alias>postgres</alias>
                                 <run>
                                     <ports>
-                                        <port>test.postgres.port:5432</port>
+                                        <port>test.postgres.docker.port:5432</port>
                                     </ports>
                                     <network>
                                         <mode>${test.network.mode}</mode>
@@ -821,6 +822,7 @@
                                     <log>
                                         <enabled>true</enabled>
                                     </log>
+                                    <stopMode>kill</stopMode>
                                 </run>
                             </image>
                             <image>
@@ -831,7 +833,7 @@
                                 </build>
                                 <run>
                                     <ports>
-                                        <port>test.solr.port:8983</port>
+                                        <port>test.solr.docker.port:8983</port>
                                     </ports>
                                     <network>
                                         <mode>${test.network.mode}</mode>
@@ -845,6 +847,7 @@
                                     <log>
                                         <enabled>true</enabled>
                                     </log>
+                                    <stopMode>kill</stopMode>
                                 </run>
                             </image>
                         </images>
@@ -978,9 +981,10 @@
                 <testsToExclude>edu.harvard.iq.dataverse.test.NonEssentialTests</testsToExclude>
 
                 <test.network.mode>bridge</test.network.mode>
-                <test.postgres.port>5432</test.postgres.port>
+                <test.postgres.docker.port>5432</test.postgres.docker.port>
                 <test.postgres.host>localhost</test.postgres.host>
-                <test.solr.port>8984</test.solr.port>
+                <test.solr.docker.port>8984</test.solr.docker.port>
+                <test.solr.port>${test.solr.docker.port}</test.solr.port>
                 <test.solr.host>localhost</test.solr.host>
             </properties>
         </profile>
@@ -994,6 +998,7 @@
                 <test.network.mode>custom</test.network.mode>
                 <test.postgres.host>postgres</test.postgres.host>
                 <test.solr.host>solr</test.solr.host>
+                <test.solr.port>8983</test.solr.port>
             </properties>
         </profile>
         <profile>
