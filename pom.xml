@@ -54,13 +54,6 @@
         <jacoco.version>0.8.1</jacoco.version>
         <imageIo.version>3.7.0</imageIo.version>
 
-        <test.network.mode>bridge</test.network.mode>
-        <test.postgres.port>5432</test.postgres.port>
-        <test.postgres.docker.port>test.postgres.port:5432</test.postgres.docker.port>
-        <test.postgres.host>localhost</test.postgres.host>
-        <test.solr.port>8984</test.solr.port>
-        <test.solr.docker.port>test.solr.port:8983</test.solr.docker.port>
-        <test.solr.host>localhost</test.solr.host>
     </properties>
 
     <!--Maven checks for dependendies from these repos in the order shown in the pom.xml
@@ -809,7 +802,7 @@
                                 <alias>postgres</alias>
                                 <run>
                                     <ports>
-                                        <port>${test.postgres.docker.port}</port>
+                                        <port>test.postgres.port:5432</port>
                                     </ports>
                                     <network>
                                         <mode>${test.network.mode}</mode>
@@ -838,7 +831,7 @@
                                 </build>
                                 <run>
                                     <ports>
-                                        <port>${test.solr.docker.port}</port>
+                                        <port>test.solr.port:8983</port>
                                     </ports>
                                     <network>
                                         <mode>${test.network.mode}</mode>
@@ -983,6 +976,12 @@
             </activation>
             <properties>
                 <testsToExclude>edu.harvard.iq.dataverse.test.NonEssentialTests</testsToExclude>
+
+                <test.network.mode>bridge</test.network.mode>
+                <test.postgres.port>5432</test.postgres.port>
+                <test.postgres.host>localhost</test.postgres.host>
+                <test.solr.port>8984</test.solr.port>
+                <test.solr.host>localhost</test.solr.host>
             </properties>
         </profile>
         <profile>
@@ -993,9 +992,7 @@
             <properties>
                 <!-- for CI configure a custom network for the containers with random exposed ports  -->
                 <test.network.mode>custom</test.network.mode>
-                <test.postgres.port/>
                 <test.postgres.host>postgres</test.postgres.host>
-                <test.solr.port/>
                 <test.solr.host>solr</test.solr.host>
             </properties>
         </profile>

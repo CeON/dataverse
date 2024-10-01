@@ -54,7 +54,7 @@ Single test:
 Integration test dependencies can be started manually in order to execute integration tests through the IDE:
 
 ```bash
-./mvnw docker:start -Dtest.solr.port=8984 -pl dataverse-webapp
+./mvnw docker:start -pl dataverse-webapp
 ```
 
 Once started, all the integration tests can be run through the IDE. When finished, containers can be stopped with:

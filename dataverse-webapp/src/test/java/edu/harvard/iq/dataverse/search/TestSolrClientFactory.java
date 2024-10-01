@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.search;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
@@ -61,7 +62,7 @@ public class TestSolrClientFactory extends SolrClientFactory {
 
     private static String getPropertyOrDefault(String property, String defaultValue) {
         String port = System.getProperty(property);
-        if (port == null) {
+        if (StringUtils.isBlank(port)) {
             return defaultValue;
         }
         return port;
