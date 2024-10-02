@@ -109,7 +109,7 @@ pipeline {
             }
             steps {
                echo 'Deploying artifacts.'
-               sh './mvnw deploy:deploy'
+               sh './mvnw deploy:deploy -s settings.xml'
             }
         }
     }

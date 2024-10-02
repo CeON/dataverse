@@ -1031,7 +1031,7 @@
             <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
         </repository>
         <snapshotRepository>
-            <id>dataverse-snapshots</id>
+            <id>drodb-snapshots</id>
             <url>https://maven.ceon.pl/artifactory/drodb-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
