@@ -54,6 +54,7 @@
         <jacoco.version>0.8.1</jacoco.version>
         <imageIo.version>3.7.0</imageIo.version>
 
+        <test.docker.executeStopOnVMShutdown>false</test.docker.executeStopOnVMShutdown>
     </properties>
 
     <!--Maven checks for dependendies from these repos in the order shown in the pom.xml
@@ -796,7 +797,7 @@
                     <configuration>
                         <verbose>true</verbose>
                         <startParallel>false</startParallel>
-                        <executeStopOnVMShutdown>true</executeStopOnVMShutdown>
+                        <executeStopOnVMShutdown>${test.docker.executeStopOnVMShutdown}</executeStopOnVMShutdown>
                         <images>
                             <image>
                                 <name>postgres:12-alpine</name>
@@ -1013,6 +1014,7 @@
                 <test.postgres.host>postgres</test.postgres.host>
                 <test.solr.host>solr</test.solr.host>
                 <test.solr.port>8983</test.solr.port>
+                <test.docker.executeStopOnVMShutdown>true</test.docker.executeStopOnVMShutdown>
             </properties>
         </profile>
         <!-- TODO: Add a profile to run API tests (integration tests that end in IT.java. See conf/docker-aio/run-test-suite.sh -->
