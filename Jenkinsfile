@@ -8,10 +8,20 @@ pipeline {
 
     parameters {
         string(name: 'branch', defaultValue: 'develop', description: 'Branch to build', trim: true)
-        booleanParam(name: 'skipCheckout', defaultValue: true, description: 'Set to true to skip checkout stage')
         booleanParam(name: 'skipBuild', defaultValue: true, description: 'Set to true to skip build stage')
         booleanParam(name: 'skipUnitTests', defaultValue: true, description: 'Set to true to skip the unit tests')
         booleanParam(name: 'skipIntegrationTests', defaultValue: true, description: 'Set to true to skip the integration tests')
+    }
+
+    triggers {
+    	pollSCM('H/10 8-20 * * 1-5')
+    }
+
+    options {
+        buildDiscarder logRotator(artifactDaysToKeepStr: '3', artifactNumToKeepStr: '3', daysToKeepStr: '3', numToKeepStr: '3')
+        disableConcurrentBuilds()
+        timeout(activity: true, time: 10)
+        timestamps
     }
 
     environment {
@@ -22,16 +32,6 @@ pipeline {
     }
 
     stages {
-
-        stage('Checkout') {
-            when { expression { params.skipCheckout != true } }
-            steps {
-                checkout scmGit(
-                    branches: [[name: "*/${params.branch}"]],
-                    extensions: [cleanAfterCheckout()],
-                    userRemoteConfigs: [[refspec: "+refs/heads/${params.branch}:refs/remotes/origin/${params.branch}", url: 'https://github.com/CeON/dataverse']])
-            }
-        }
 
         stage('Build') {
             when { expression { params.skipBuild != true } }
@@ -44,6 +44,12 @@ pipeline {
             steps {
                echo 'Building dataverse.'
                sh './mvnw package -DskipTests'
+            }
+
+            post {
+                always {
+                    recordIssues(tools: [mavenConsole(), java()])
+            	}
             }
         }
 
@@ -58,6 +64,13 @@ pipeline {
             steps {
                echo 'Executing unit tests.'
                sh './mvnw test'
+            }
+
+            post {
+                always {
+                    junit skipPublishingChecks: true, testResults: '**/target/surefire-reports/*.xml'
+            		jacoco()
+            	}
             }
         }
 
@@ -78,6 +91,12 @@ pipeline {
                         sh "docker network rm ${networkId}"
                     }
                 }
+            }
+
+            post {
+                always {
+                    junit skipPublishingChecks: true, testResults: '**/target/failsafe-reports/*.xml'
+            	}
             }
         }
 
