@@ -46,22 +46,24 @@ public class JhoveConfigurationInitializer {
 	public void initializeJhoveConfig() {
 
 		try {
-			final Path xsd = pathOf("jhoveConfig.xsd");
-			copyXsd(xsd);
-			copyConfig(xsd);
+			final Path xsdPath = copyXsd();
+			copyConfigWith(xsdPath);
 		} catch (final IOException e) {
 			throw new RuntimeException("Unable to prepare jhove configuration files", e);
 		}
 	}
 
-	private void copyXsd(final Path path) throws IOException {
+	private Path copyXsd() throws IOException {
 
+		final Path target = pathOf("jhoveConfig.xsd");
+		
 		try(final InputStream in = getResourceAsStream("jhove/jhoveConfig.xsd")) {
-			copy(in, path, REPLACE_EXISTING);
+			copy(in, target, REPLACE_EXISTING);
 		}
+		return target;
 	}
 	
-	private void copyConfig(final Path xsd) throws IOException {
+	private void copyConfigWith(final Path xsd) throws IOException {
 		
 		String jhoveConf = resourceToString("jhove/jhove.conf", UTF_8,
 				currentThread().getContextClassLoader());
