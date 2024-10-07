@@ -27,7 +27,9 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import edu.harvard.iq.dataverse.DatasetDao;
@@ -74,14 +76,16 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
     @EJB
     private DatasetDao datasetDao;
+    
+    @Rule
+    public TemporaryFolder tempFiles= new TemporaryFolder();
 
     
     @Before
     public void setUp() {
         
-        if(isWindows()) {
-            System.setProperty(SystemConfig.FILES_DIRECTORY, "c:/tmp/files");
-        }
+        
+        System.setProperty(SystemConfig.FILES_DIRECTORY, tempFiles.getRoot().toString());
     }
     
     private static boolean isWindows() {
