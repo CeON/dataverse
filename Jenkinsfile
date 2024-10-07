@@ -11,6 +11,7 @@ pipeline {
         booleanParam(name: 'skipBuild', defaultValue: true, description: 'Set to true to skip build stage')
         booleanParam(name: 'skipUnitTests', defaultValue: true, description: 'Set to true to skip the unit tests')
         booleanParam(name: 'skipIntegrationTests', defaultValue: true, description: 'Set to true to skip the integration tests')
+        booleanParam(name: 'deployOverride', defaultValue: false, description: 'Set to true to perform the deployment')
     }
 
     triggers {
@@ -24,6 +25,7 @@ pipeline {
     }
 
     environment {
+        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')
         DOCKER_HOST_EXT = sh(script: 'docker context ls --format "{{- if .Current -}} {{- .DockerEndpoint -}} {{- end -}}"', returnStdout: true)
                             .trim().replaceAll('tcp', 'https')
         DOCKER_CERT_EXT = '/home/jenkins/.docker'
@@ -100,7 +102,12 @@ pipeline {
         }
 
         stage('Deploy') {
-            when { expression { params.branch == 'develop' } }
+            when {
+                anyOf {
+                    expression { params.branch == 'develop' }
+                    expression { params.deployOverride == true }
+                }
+            }
             agent {
                 docker {
                     image 'openjdk:8u342-jdk'
@@ -109,7 +116,8 @@ pipeline {
             }
             steps {
                echo 'Deploying artifacts.'
-               sh './mvnw deploy:deploy -s settings.xml'
+               sh 'env'
+               sh './mvnw -X deploy:deploy -s settings.xml'
             }
         }
     }
