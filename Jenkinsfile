@@ -106,7 +106,7 @@ pipeline {
         stage('Deploy') {
             when {
                 anyOf {
-                    expression { params.branch 'develop' }
+                    expression { params.branch == 'develop' }
                     expression { params.deployOverride == true }
                 }
             }
