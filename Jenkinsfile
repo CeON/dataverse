@@ -11,6 +11,7 @@ pipeline {
         booleanParam(name: 'skipBuild', defaultValue: true, description: 'Set to true to skip build stage')
         booleanParam(name: 'skipUnitTests', defaultValue: true, description: 'Set to true to skip the unit tests')
         booleanParam(name: 'skipIntegrationTests', defaultValue: true, description: 'Set to true to skip the integration tests')
+        choice(name: 'doRelease', choices: ['skip', 'patch', 'minor', 'major'], description: 'Perform a release of new version')
         booleanParam(name: 'deployOverride', defaultValue: false, description: 'Set to true to perform the deployment')
     }
 
@@ -26,6 +27,7 @@ pipeline {
 
     environment {
         ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')
+        GITHUB_DEPLOY=credentials('DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY')
         DOCKER_HOST_EXT = sh(script: 'docker context ls --format "{{- if .Current -}} {{- .DockerEndpoint -}} {{- end -}}"', returnStdout: true)
                             .trim().replaceAll('tcp', 'https')
         DOCKER_CERT_EXT = '/home/jenkins/.docker'
@@ -102,12 +104,7 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                anyOf {
-                    expression { params.branch == 'develop' }
-                    expression { params.deployOverride == true }
-                }
-            }
+            when { anyOf { params.branch 'develop'; params.deployOverride == true } }
             agent {
                 docker {
                     image 'openjdk:8u342-jdk'
@@ -120,6 +117,22 @@ pipeline {
                sh './mvnw -X deploy:deploy -s settings.xml'
             }
         }
+
+        stage('Release') {
+            when { allOf {triggeredBy 'UserIdCause'; params.doRelease != 'skip'} }
+            agent {
+                docker {
+                    image 'openjdk:8u342-jdk'
+                    reuseNode true
+                }
+            }
+            steps {
+               echo 'Creating release artifacts.'
+               sh 'env'
+               sh 'releash.sh'
+            }
+        }
+
     }
 }
 
