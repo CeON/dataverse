@@ -139,7 +139,7 @@ pipeline {
                     sshagent(['DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY']) {
                         echo "Creating release artifacts: ${params.doRelease}"
                         sh 'env'
-                        sh "releash.sh ${params.doRelease}"
+                        sh "release.sh ${params.doRelease}"
                     }
                 }
             }
