@@ -11,6 +11,7 @@ pipeline {
         booleanParam(name: 'skipBuild', defaultValue: true, description: 'Set to true to skip build stage')
         booleanParam(name: 'skipUnitTests', defaultValue: true, description: 'Set to true to skip the unit tests')
         booleanParam(name: 'skipIntegrationTests', defaultValue: true, description: 'Set to true to skip the integration tests')
+        booleanParam(name: 'deployOverride', defaultValue: false, description: 'Set to true to perform the deployment')
     }
 
     triggers {
@@ -101,7 +102,12 @@ pipeline {
         }
 
         stage('Deploy') {
-            when { expression { params.branch == 'develop' } }
+            when {
+                anyOf {
+                    expression { params.branch == 'develop' }
+                    expression { params.deployOverride == true }
+                }
+            }
             agent {
                 docker {
                     image 'openjdk:8u342-jdk'
