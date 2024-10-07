@@ -18,18 +18,15 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import org.apache.commons.io.IOUtils;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -43,9 +40,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
 
@@ -124,26 +120,26 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
         Dataset dbDataset = datasetDao.find(dataset.getId());
 
         List<DatasetVersion> dbDatasetVersions = dbDataset.getVersions();
-        Assert.assertEquals(2, dbDatasetVersions.size());
+        Assertions.assertEquals(2, dbDatasetVersions.size());
 
         DatasetVersion dbOldVersion = dbDatasetVersions.get(1);
-        Assert.assertEquals(1, dbOldVersion.getFileMetadatas().size());
-        Assert.assertEquals("banner", dbOldVersion.getFileMetadatas().get(0).getLabel());
+        Assertions.assertEquals(1, dbOldVersion.getFileMetadatas().size());
+        Assertions.assertEquals("banner", dbOldVersion.getFileMetadatas().get(0).getLabel());
 
         DatasetVersion dbNewVersion = dbDatasetVersions.get(0);
-        Assert.assertEquals(1, dbNewVersion.getFileMetadatas().size());
-        Assert.assertEquals("coffeeshop", dbNewVersion.getFileMetadatas().get(0).getLabel());
+        Assertions.assertEquals(1, dbNewVersion.getFileMetadatas().size());
+        Assertions.assertEquals("coffeeshop", dbNewVersion.getFileMetadatas().get(0).getLabel());
 
-        Assert.assertEquals(2, dbDataset.getFiles().size());
-        Assert.assertEquals(dbOldVersion.getFileMetadatas().get(0).getDataFile(), dbDataset.getFiles().get(0));
-        Assert.assertEquals(dbNewVersion.getFileMetadatas().get(0).getDataFile(), dbDataset.getFiles().get(1));
+        Assertions.assertEquals(2, dbDataset.getFiles().size());
+        Assertions.assertEquals(dbOldVersion.getFileMetadatas().get(0).getDataFile(), dbDataset.getFiles().get(0));
+        Assertions.assertEquals(dbNewVersion.getFileMetadatas().get(0).getDataFile(), dbDataset.getFiles().get(1));
 
-        Assert.assertEquals(dbDataset.getFiles().get(0).getId(), dbDataset.getFiles().get(0).getRootDataFileId());
+        Assertions.assertEquals(dbDataset.getFiles().get(0).getId(), dbDataset.getFiles().get(0).getRootDataFileId());
 
         StorageIO<DataFile> newFileStorageIO = DataAccess.dataAccess().getStorageIO(dbDataset.getFiles().get(1));
         newFileStorageIO.open();
         byte[] newFileContent = IOUtils.toByteArray(newFileStorageIO.getInputStream());
-        Assert.assertArrayEquals(bytes, newFileContent);
+        Assertions.assertArrayEquals(bytes, newFileContent);
 
     }
     private DataFile createTestDataFile(String filename, String fileContentType2) {

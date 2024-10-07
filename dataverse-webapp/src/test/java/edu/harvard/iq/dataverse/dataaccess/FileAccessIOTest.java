@@ -10,9 +10,9 @@ import edu.harvard.iq.dataverse.persistence.datafile.DataFile;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author oscardssmith
@@ -44,7 +44,7 @@ public class FileAccessIOTest {
     private File fileToBeSaved = new File("/tmp/files/fileToBeSaved");
 
 
-    @Before
+    @BeforeEach
     public void setUpClass() throws IOException {
         dataverse = MocksFactory.makeDataverse();
         dataset = MocksFactory.makeDataset();
@@ -64,7 +64,7 @@ public class FileAccessIOTest {
         FileUtils.writeByteArrayToFile(new File("/tmp/files/fileToBeSaved"), dataToBeSaved);
     }
 
-    @After
+    @AfterEach
     public void tearDownClass() throws IOException {
         FileUtils.deleteDirectory(new File("/tmp/files/"));
     }
