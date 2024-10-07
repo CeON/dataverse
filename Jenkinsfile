@@ -104,7 +104,12 @@ pipeline {
         }
 
         stage('Deploy') {
-            when { anyOf { params.branch 'develop'; params.deployOverride == true } }
+            when {
+                anyOf {
+                    expression { params.branch 'develop' }
+                    expression { params.deployOverride == true }
+                }
+            }
             agent {
                 docker {
                     image 'openjdk:8u342-jdk'
@@ -119,7 +124,10 @@ pipeline {
         }
 
         stage('Release') {
-            when { allOf {triggeredBy 'UserIdCause'; params.doRelease != 'skip'} }
+            when {
+                triggeredBy 'UserIdCause'
+                expression { params.doRelease != 'skip' }
+            }
             agent {
                 docker {
                     image 'openjdk:8u342-jdk'
