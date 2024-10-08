@@ -115,7 +115,6 @@ pipeline {
 
             steps {
                echo 'Deploying artifacts.'
-               sh 'env'
                sh './mvnw deploy -Pdeploy -s settings.xml'
             }
         }
