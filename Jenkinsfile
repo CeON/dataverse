@@ -1,7 +1,7 @@
 pipeline {
     agent {
         dockerfile {
-            dir 'conf/docker/jenkins-build-image'
+            dir 'conf/docker/jenkins-build-dockercli-image'
             additionalBuildArgs '-t drodb-jenkins-build'
         }
     }
@@ -38,6 +38,10 @@ pipeline {
 
         stage('Build') {
             when { expression { params.skipBuild != true } }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
             steps {
                echo 'Building dataverse.'
                sh './mvnw package -DskipTests'
@@ -52,6 +56,11 @@ pipeline {
 
         stage('Unit tests') {
             when { expression { params.skipUnitTests != true } }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
+
             steps {
                echo 'Executing unit tests.'
                sh './mvnw test'
@@ -98,6 +107,11 @@ pipeline {
                     expression { params.deployOverride == true }
                 }
             }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
+
             steps {
                echo 'Deploying artifacts.'
                sh 'env'
@@ -110,6 +124,11 @@ pipeline {
                 triggeredBy 'UserIdCause'
                 expression { params.doRelease != 'skip' }
             }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
+
             environment {
                 GIT_SSH_COMMAND = "ssh -o StrictHostKeyChecking=no"
             }
