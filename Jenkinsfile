@@ -36,28 +36,8 @@ pipeline {
 
     stages {
 
-        stage('Clean') {
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                    args '-u root:root'
-                }
-            }
-            steps {
-               echo 'Cleaning working directory.'
-               sh './mvnw clean'
-            }
-        }
-
         stage('Build') {
             when { expression { params.skipBuild != true } }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                }
-            }
             steps {
                echo 'Building dataverse.'
                sh './mvnw package -DskipTests'
@@ -72,12 +52,6 @@ pipeline {
 
         stage('Unit tests') {
             when { expression { params.skipUnitTests != true } }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                }
-            }
             steps {
                echo 'Executing unit tests.'
                sh './mvnw test'
@@ -124,12 +98,6 @@ pipeline {
                     expression { params.deployOverride == true }
                 }
             }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                }
-            }
             steps {
                echo 'Deploying artifacts.'
                sh 'env'
@@ -141,13 +109,6 @@ pipeline {
             when {
                 triggeredBy 'UserIdCause'
                 expression { params.doRelease != 'skip' }
-            }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                    args '-v /etc/passwd:/etc/passwd'
-                }
             }
             environment {
                 GIT_SSH_COMMAND = "ssh -o StrictHostKeyChecking=no"
