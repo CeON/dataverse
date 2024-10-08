@@ -46,6 +46,7 @@ pipeline {
             }
             steps {
                echo 'Building dataverse.'
+               sh 'git symbolic-ref HEAD'
                sh './mvnw package -DskipTests'
             }
 
