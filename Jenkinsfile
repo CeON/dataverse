@@ -46,7 +46,8 @@ pipeline {
             }
             steps {
                echo 'Building dataverse.'
-               sh 'git symbolic-ref HEAD'
+               sh 'ls -la'
+               sh 'id'
                sh './mvnw package -DskipTests'
             }
 
@@ -133,13 +134,13 @@ pipeline {
                 docker {
                     image 'openjdk:8u342-jdk'
                     reuseNode true
+                    args '-u root:root'
                 }
             }
             steps {
                 script {
                     sshagent(['DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY']) {
                         echo "Creating release artifacts: ${params.doRelease}"
-                        sh 'env'
                         sh 'git config user.email "jenkinsci@icm.edu.pl"'
                         sh 'git config user.name "jenkinsci"'
                         sh "./release.sh ${params.doRelease}"
