@@ -1,7 +1,7 @@
 pipeline {
     agent {
         dockerfile {
-            dir 'conf/docker/jenkins-build-image'
+            dir 'conf/docker/jenkins-build-dockercli-image'
             additionalBuildArgs '-t drodb-jenkins-build'
         }
     }
@@ -12,6 +12,7 @@ pipeline {
         booleanParam(name: 'skipUnitTests', defaultValue: true, description: 'Set to true to skip the unit tests')
         booleanParam(name: 'skipIntegrationTests', defaultValue: true, description: 'Set to true to skip the integration tests')
         booleanParam(name: 'deployOverride', defaultValue: false, description: 'Set to true to perform the deployment')
+        choice(name: 'doRelease', choices: ['skip', 'patch', 'minor', 'major'], description: 'Perform a release of new version')
     }
 
     triggers {
@@ -25,7 +26,9 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')
+        /*ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')*/
+        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_USER')
+        GITHUB_DEPLOY=credentials('DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY')
         DOCKER_HOST_EXT = sh(script: 'docker context ls --format "{{- if .Current -}} {{- .DockerEndpoint -}} {{- end -}}"', returnStdout: true)
                             .trim().replaceAll('tcp', 'https')
         DOCKER_CERT_EXT = '/home/jenkins/.docker'
@@ -36,12 +39,10 @@ pipeline {
 
         stage('Build') {
             when { expression { params.skipBuild != true } }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                }
-            }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
             steps {
                echo 'Building dataverse.'
                sh './mvnw package -DskipTests'
@@ -56,12 +57,11 @@ pipeline {
 
         stage('Unit tests') {
             when { expression { params.skipUnitTests != true } }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                }
-            }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
+
             steps {
                echo 'Executing unit tests.'
                sh './mvnw test'
@@ -108,18 +108,42 @@ pipeline {
                     expression { params.deployOverride == true }
                 }
             }
-            agent {
-                docker {
-                    image 'openjdk:8u342-jdk'
-                    reuseNode true
-                }
-            }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
+
             steps {
                echo 'Deploying artifacts.'
-               sh 'env'
-               sh './mvnw -X deploy:deploy -s settings.xml'
+               sh './mvnw deploy -Pdeploy -s settings.xml'
             }
         }
+
+        stage('Release') {
+            when {
+                triggeredBy 'UserIdCause'
+                expression { params.doRelease != 'skip' }
+            }
+            agent { dockerfile {
+                dir 'conf/docker/jenkins-build-image'
+                reuseNode true
+            } }
+
+            environment {
+                GIT_SSH_COMMAND = "ssh -o StrictHostKeyChecking=no"
+            }
+            steps {
+                script {
+                    sshagent(['DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY']) {
+                        echo "Creating release artifacts: ${params.doRelease}"
+                        sh 'git config user.email "jenkinsci@icm.edu.pl"'
+                        sh 'git config user.name "jenkinsci"'
+                        sh "./release.sh ${params.doRelease}"
+                    }
+                }
+            }
+        }
+
     }
 }
 
