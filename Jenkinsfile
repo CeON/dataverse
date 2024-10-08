@@ -36,6 +36,20 @@ pipeline {
 
     stages {
 
+        stage('Clean') {
+            agent {
+                docker {
+                    image 'openjdk:8u342-jdk'
+                    reuseNode true
+                    args '-u root:root'
+                }
+            }
+            steps {
+               echo 'Cleaning working directory.'
+               sh './mvnw clean'
+            }
+        }
+
         stage('Build') {
             when { expression { params.skipBuild != true } }
             agent {
@@ -46,8 +60,6 @@ pipeline {
             }
             steps {
                echo 'Building dataverse.'
-               sh 'ls -la'
-               sh 'id'
                sh './mvnw package -DskipTests'
             }
 
