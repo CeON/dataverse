@@ -134,8 +134,11 @@ pipeline {
                 docker {
                     image 'openjdk:8u342-jdk'
                     reuseNode true
-                    args '-u root:root'
+                    args '-v /etc/passwd:/etc/passwd'
                 }
+            }
+            environment {
+                GIT_SSH_COMMAND = "ssh -o StrictHostKeyChecking=no"
             }
             steps {
                 script {
