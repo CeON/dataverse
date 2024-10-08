@@ -26,7 +26,8 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')
+        /*ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')*/
+        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_USER')
         GITHUB_DEPLOY=credentials('DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY')
         DOCKER_HOST_EXT = sh(script: 'docker context ls --format "{{- if .Current -}} {{- .DockerEndpoint -}} {{- end -}}"', returnStdout: true)
                             .trim().replaceAll('tcp', 'https')

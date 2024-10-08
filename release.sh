@@ -39,7 +39,7 @@ fi
 
 echo "Version to be released: ${RELEASE_FULL_VERSION}. Next development version will be set to: ${DEVELOPMENT_FULL_VERSION}."
 
-./mvnw --batch-mode release:prepare release:perform \
+./mvnw --batch-mode release:prepare release:perform -s settings.xml \
     -Darguments="-DskipTests -Ddocker.skip" \
     -DignoreSnapshots=true -DautoVersionSubmodules=true \
     -DreleaseVersion=${RELEASE_FULL_VERSION} \
