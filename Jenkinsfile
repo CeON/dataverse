@@ -1,3 +1,5 @@
+releaseChoices = ['skip', 'patch', 'minor', 'major']
+
 pipeline {
     agent {
         dockerfile {
@@ -7,12 +9,16 @@ pipeline {
     }
 
     parameters {
-        string(name: 'branch', defaultValue: 'develop', description: 'Branch to build', trim: true)
-        booleanParam(name: 'skipBuild', defaultValue: false, description: 'Set to true to skip build stage')
-        booleanParam(name: 'skipUnitTests', defaultValue: false, description: 'Set to true to skip the unit tests')
-        booleanParam(name: 'skipIntegrationTests', defaultValue: true, description: 'Set to true to skip the integration tests')
-        booleanParam(name: 'deployOverride', defaultValue: false, description: 'Set to true to perform the deployment')
-        choice(name: 'doRelease', choices: ['skip', 'patch', 'minor', 'major'], description: 'Perform a release of new version')
+        string(name: 'branch', defaultValue: params.branch ?: 'develop', description: 'Branch to build', trim: true)
+        booleanParam(name: 'skipBuild', defaultValue: params.skipBuild ?: false, description: 'Set to true to skip build stage')
+        booleanParam(name: 'skipUnitTests', defaultValue: params.skipUnitTests ?: false, description: 'Set to true to skip the unit tests')
+        booleanParam(name: 'skipIntegrationTests', defaultValue: params.skipIntegrationTests ?: true, description: 'Set to true to skip the integration tests')
+        booleanParam(name: 'deployOverride', defaultValue: params.deployOverride ?: false, description: 'Set to true to perform the deployment')
+        choice(
+            name: 'doRelease',
+            choices: (params.doRelease ? [params.doRelease] : []) +
+                        (releaseChoices - (params.doRelease ? [params.doRelease] : [])),
+            description: 'Perform a release of new version')
     }
 
     triggers {
