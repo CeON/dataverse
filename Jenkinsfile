@@ -6,7 +6,7 @@ pipeline {
     agent {
         dockerfile {
             dir 'conf/docker/jenkins-build-dockercli-image'
-            additionalBuildArgs '-t drodb-jenkins-build'
+            additionalBuildArgs '-t drodb-dockercli'
         }
     }
 
@@ -41,9 +41,28 @@ pipeline {
 
     stages {
 
+        stage('Prepare') {
+            agent {
+                dockerfile {
+                    dir 'conf/docker/jenkins-build-image'
+                    additionalBuildArgs '-t drodb-build'
+                    reuseNode true
+                }
+            }
+
+            steps {
+               echo 'Preparing build.'
+            }
+        }
+
         stage('Build') {
             when { expression { params.skipBuild != true } }
-            agent { dockerfile { dir 'conf/docker/jenkins-build-image' reuseNode true } }
+            agent {
+                docker {
+                    image 'drodb-build:latest'
+                    reuseNode true
+                }
+            }
 
             steps {
                echo 'Building dataverse.'
@@ -59,7 +78,12 @@ pipeline {
 
         stage('Unit tests') {
             when { expression { params.skipUnitTests != true } }
-            agent { dockerfile { dir 'conf/docker/jenkins-build-image' reuseNode true } }
+            agent {
+                docker {
+                    image 'drodb-build:latest'
+                    reuseNode true
+                }
+            }
 
             steps {
                echo 'Executing unit tests.'
@@ -83,7 +107,7 @@ pipeline {
                         sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
                         env.DOCKER_NETWORK_NAME = "${networkId}"
 
-                        docker.image('openjdk:8u342-jdk').inside("--network ${networkId}") { c ->
+                        docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
                             echo 'Executing integration tests.'
                             sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
                         }
@@ -108,7 +132,12 @@ pipeline {
                 }
             }
 
-            agent { dockerfile { dir 'conf/docker/jenkins-build-image' reuseNode true } }
+            agent {
+                docker {
+                    image 'drodb-build:latest'
+                    reuseNode true
+                }
+            }
 
             steps {
                echo 'Deploying artifacts.'
@@ -122,7 +151,12 @@ pipeline {
                 expression { params.doRelease != 'skip' }
             }
 
-            agent { dockerfile { dir 'conf/docker/jenkins-build-image' reuseNode true } }
+            agent {
+                docker {
+                    image 'drodb-build:latest'
+                    reuseNode true
+                }
+            }
 
             steps {
                 script {
