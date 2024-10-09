@@ -1,6 +1,6 @@
 GIT_USER_NAME = "jenkinsci"
 GIT_USER_EMAIL = "jenkinsci@icm.edu.pl"
-RELEASE_CHOICES = ['skip', 'patch', 'minor', 'major']
+NEXT_DEVELOPMENT_VERSION_CHOICES = ['patch', 'minor', 'major']
 
 pipeline {
     agent {
@@ -15,12 +15,13 @@ pipeline {
         booleanParam(name: 'skipBuild', defaultValue: params.skipBuild ?: false, description: 'Set to true to skip build stage')
         booleanParam(name: 'skipUnitTests', defaultValue: params.skipUnitTests ?: false, description: 'Set to true to skip the unit tests')
         booleanParam(name: 'skipIntegrationTests', defaultValue: params.skipIntegrationTests ?: true, description: 'Set to true to skip the integration tests')
-        booleanParam(name: 'deployOverride', defaultValue: params.deployOverride ?: false, description: 'Set to true to perform the deployment')
+        booleanParam(name: 'doDeployOverride', defaultValue: params.doDeployOverride ?: false, description: 'Set to true to perform the deployment')
+        booleanParam(name: 'doRelease', defaultValue: params.doRelease ?: false, description: 'Set to true to perform a release of the current SNAPSHOT version')
         choice(
-            name: 'doRelease',
-            choices: (params.doRelease ? [params.doRelease] : []) +
-                        (RELEASE_CHOICES - (params.doRelease ? [params.doRelease] : [])),
-            description: 'Perform a release of new version')
+            name: 'nextDevVersion',
+            choices: (params.nextDevVersion ? [params.nextDevVersion] : []) +
+                        (NEXT_DEVELOPMENT_VERSION_CHOICES - (params.nextDevVersion ? [params.nextDevVersion] : [])),
+            description: 'Set the next development (SNAPSHOT) version after release.')
     }
 
     options {
@@ -31,7 +32,6 @@ pipeline {
 
     environment {
         ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_USER')
-        GITHUB_DEPLOY=credentials('DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY')
         DOCKER_HOST_EXT = sh(script: 'docker context ls --format "{{- if .Current -}} {{- .DockerEndpoint -}} {{- end -}}"', returnStdout: true)
                             .trim().replaceAll('tcp', 'https')
         DOCKER_CERT_EXT = '/home/jenkins/.docker'
@@ -128,7 +128,7 @@ pipeline {
             when {
                 anyOf {
                     expression { params.branch == 'develop' }
-                    expression { params.deployOverride == true }
+                    expression { params.doDeployOverride == true }
                 }
             }
 
@@ -148,7 +148,7 @@ pipeline {
         stage('Release') {
             when {
                 triggeredBy 'UserIdCause'
-                expression { params.doRelease != 'skip' }
+                expression { params.doRelease == true }
             }
 
             agent {
@@ -161,10 +161,10 @@ pipeline {
             steps {
                 script {
                     sshagent(['DATAVERSE_GORGONA_GITHUB_DEPLOY_KEY']) {
-                        echo "Creating release artifacts: ${params.doRelease}"
+                        echo "Performing the release of current SNAPSHOT version."
                         sh "git config user.email ${GIT_USER_EMAIL}"
                         sh "git config user.name ${GIT_USER_NAME}"
-                        sh "./release.sh ${params.doRelease}"
+                        sh "./release.sh ${params.nextDevVersion}"
                     }
                 }
             }
