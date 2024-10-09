@@ -3,9 +3,9 @@
 # Script to perform a release of dataverse. The next development version depends on the script argument.
 # For instance, if the current version in pom.xml is 1.0.1-SNAPSHOT a git tag will be created with version 1.0.1 and
 # development version will be set to:
-#  - Without any argument => 1.0.2-SNAPSHOT
-#  - major                => 2.0.0-SNAPSHOT
-#  - minor                => 1.1.0-SNAPSHOT
+# - Without any argument => 1.0.2-SNAPSHOT
+# - major                => 2.0.0-SNAPSHOT
+# - minor                => 1.1.0-SNAPSHOT
 
 set -e
 
