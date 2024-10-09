@@ -7,7 +7,7 @@
     -->
     <groupId>edu.harvard.iq</groupId>
     <artifactId>dataverse-parent</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
 
     <name>dataverse-parent</name>
@@ -1030,7 +1030,7 @@
         <url>https://github.com/CeON/dataverse.git</url>
         <connection>scm:git:git@github.com:CeON/dataverse.git</connection>
         <developerConnection>scm:git:git@github.com:CeON/dataverse.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v1.0.3</tag>
     </scm>
 
     <distributionManagement>
