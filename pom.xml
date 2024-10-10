@@ -5,9 +5,9 @@
     If you are doing more than bumping the version number, please read
     doc/sphinx-guides/source/developers/dependencies.rst
     -->
-    <groupId>edu.harvard.iq</groupId>
+    <groupId>pl.edu.icm.dataverse</groupId>
     <artifactId>dataverse-parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>dataverse-parent</name>
@@ -87,13 +87,13 @@
             <url>file://${project.basedir}/local_lib</url>
         </repository>
         <repository>
-            <id>drodb-releases</id>
+            <id>dataverse-releases</id>
             <url>https://maven.ceon.pl/repository/drodb-releases</url>
             <snapshots><enabled>false</enabled></snapshots>
             <releases><enabled>true</enabled></releases>
         </repository>
         <repository>
-            <id>drodb-snapshots</id>
+            <id>dataverse-snapshots</id>
             <url>https://maven.ceon.pl/repository/drodb-snapshots</url>
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>false</enabled></releases>
@@ -1036,11 +1036,11 @@
 
     <distributionManagement>
         <repository>
-            <id>drodb-releases</id>
+            <id>dataverse-releases</id>
             <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
         </repository>
         <snapshotRepository>
-            <id>drodb-snapshots</id>
+            <id>dataverse-snapshots</id>
             <url>https://maven.ceon.pl/artifactory/drodb-snapshots</url>
         </snapshotRepository>
     </distributionManagement>

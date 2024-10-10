@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import edu.harvard.iq.dataverse.bannersandmessages.banners.BannerLimits;
 import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseBanner;
 import edu.harvard.iq.dataverse.persistence.dataverse.bannersandmessages.DataverseLocalizedBanner;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,11 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,9 +31,11 @@ public class BannerErrorHandlerTest {
     @Captor
     private ArgumentCaptor<FacesMessage> facesMesssage;
 
-    private static final Path BANNER_PATH = Paths.get(BannerErrorHandlerTest.class.getClassLoader()
-                                                              .getResource("images/banner.png").getPath());
 
+    private byte[] loadImage() throws Exception {
+
+        return IOUtils.toByteArray(getClass().getClassLoader().getResource("images/banner.png"));
+    }
 
     @Test
     public void shouldAddErrorMessageImageMissing() {
@@ -60,12 +58,12 @@ public class BannerErrorHandlerTest {
     }
 
     @Test
-    public void shouldAddErrorMessageResolutionTooHigh() throws IOException {
+    public void shouldAddErrorMessageResolutionTooHigh() throws Exception {
         //given
         BannerErrorHandler bannerErrorHandler = new BannerErrorHandler(new BannerLimits(1, 1, Integer.MAX_VALUE));
         DataverseBanner banner = new DataverseBanner();
         DataverseLocalizedBanner dataverseLocalizedBanner = new DataverseLocalizedBanner();
-        dataverseLocalizedBanner.setImage(Files.readAllBytes(BANNER_PATH));
+        dataverseLocalizedBanner.setImage(loadImage());
         banner.setDataverseLocalizedBanner(Lists.newArrayList(dataverseLocalizedBanner));
 
         //when

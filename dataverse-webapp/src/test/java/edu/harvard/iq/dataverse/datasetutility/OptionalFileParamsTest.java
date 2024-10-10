@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author rmp553
@@ -132,11 +132,9 @@ public class OptionalFileParamsTest {
 
         try {
             OptionalFileParams instance = new OptionalFileParams().create(jsonParams);
+            fail();
         } catch (DataFileTagException ex) {
-            // msgt("ex: " + ex.getMessage());
-            String errMsg = ResourceBundle.getBundle("Bundle").getString("file.addreplace.error.invalid_datafile_tag");
-            msgt("errMsg: " + errMsg);
-            assertTrue(ex.getMessage().startsWith(errMsg));
+            assertTrue(ex.getMessage().startsWith("Not a valid Tabular Data Tag"));
         }
     }
 
