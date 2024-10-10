@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channel;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,13 +47,13 @@ public class FileAccessIOTest {
     private File fileToBeSaved;
 
     @TempDir
-    public Path tempFiles;
+    public File tempFiles;
 
 
     @BeforeEach
     public void setUpClass() throws IOException {
 
-    	fileToBeSaved = this.tempFiles.resolve("fileToBeSaved").toFile();
+    	fileToBeSaved = new File(tempFiles, "fileToBeSaved");
         fileToBeSaved.createNewFile();
 
         dataverse = MocksFactory.makeDataverse();
@@ -66,11 +65,11 @@ public class FileAccessIOTest {
         dataFile.setOwner(dataset);
         dataFile.setStorageIdentifier("DataFile");
 
-        datasetAccess = new FileAccessIO<>(dataset, tempFiles.getRoot().toString());
-        dataFileAccess = new FileAccessIO<>(dataFile, tempFiles.getRoot().toString());
+        datasetAccess = new FileAccessIO<>(dataset, tempFiles.getAbsolutePath());
+        dataFileAccess = new FileAccessIO<>(dataFile, tempFiles.getAbsolutePath());
 
-        FileUtils.writeByteArrayToFile(new File(tempFiles.getRoot().toString() + "/10.1010/FK2/DATASET/Dataset"), datasetAuxFileBytes);
-        FileUtils.writeByteArrayToFile(new File(tempFiles.getRoot().toString() + "/10.1010/FK2/DATASET/DataFile"), datafileBytes);
+        FileUtils.writeByteArrayToFile(new File(tempFiles.getAbsolutePath() + "/10.1010/FK2/DATASET/Dataset"), datasetAuxFileBytes);
+        FileUtils.writeByteArrayToFile(new File(tempFiles.getAbsolutePath() + "/10.1010/FK2/DATASET/DataFile"), datafileBytes);
         
         FileUtils.writeByteArrayToFile(fileToBeSaved, dataToBeSaved);
     }
@@ -133,14 +132,14 @@ public class FileAccessIOTest {
     @Test
     public void testGetAuxObjectAsPath() throws IOException {
         assertThat(datasetAccess.getAuxObjectAsPath(datasetAuxObjectName))
-            .isEqualTo(new File(tempFiles.getRoot().toString() + "/10.1010/FK2/DATASET/" + datasetAuxObjectName).toPath());
+            .isEqualTo(new File(tempFiles.getAbsolutePath() + "/10.1010/FK2/DATASET/" + datasetAuxObjectName).toPath());
     }
 
     @Test
     public void testBackupAsAux() throws IOException {
         dataFileAccess.backupAsAux("auxFileBackup");
         
-        assertThat(new File(tempFiles.getRoot().toString() + "/10.1010/FK2/DATASET/DataFile.auxFileBackup")).
+        assertThat(new File(tempFiles.getAbsolutePath() + "/10.1010/FK2/DATASET/DataFile.auxFileBackup")).
         	hasBinaryContent(datafileBytes);
     }
 
@@ -175,14 +174,14 @@ public class FileAccessIOTest {
     	String location  = dataFileAccess.getStorageLocation();
     	location = location.replace('\\', '/'); // so that is works on both Linux & Windows
 
-    	String expected = "file://" + tempFiles.getRoot().toString() + "/10.1010/FK2/DATASET/DataFile";
+    	String expected = "file://" + tempFiles.getAbsolutePath() + "/10.1010/FK2/DATASET/DataFile";
     	expected = expected.replace('\\', '/'); // so that is works on both Linux & Windows
         assertThat(location).isEqualTo(expected);
     }
 
     @Test
     public void testGetFileSystemPath() throws IOException {
-        assertThat(dataFileAccess.getFileSystemPath()).isEqualTo(new File(tempFiles.getRoot().toString() + "/10.1010/FK2/DATASET/DataFile").toPath());
+        assertThat(dataFileAccess.getFileSystemPath()).isEqualTo(new File(tempFiles.getAbsolutePath() + "/10.1010/FK2/DATASET/DataFile").toPath());
     }
 
     @Test
