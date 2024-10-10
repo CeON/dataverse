@@ -34,7 +34,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -72,14 +71,14 @@ public class ReplaceFileHandlerIT extends WebappArquillianDeployment {
     private DatasetDao datasetDao;
 
     @TempDir
-    public Path tempFiles;
+    public File tempFiles;
 
 
     @BeforeEach
     public void setUp() {
 
 
-        System.setProperty(SystemConfig.FILES_DIRECTORY, tempFiles.getRoot().toString());
+        System.setProperty(SystemConfig.FILES_DIRECTORY, tempFiles.getAbsolutePath());
     }
 
     private static boolean isWindows() {
