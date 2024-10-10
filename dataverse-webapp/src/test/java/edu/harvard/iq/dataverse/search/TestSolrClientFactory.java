@@ -26,26 +26,34 @@ public class TestSolrClientFactory extends SolrClientFactory {
 
     private static final String DEFAULT_SOLR_TEST_PORT = "8984";
     private static final String DEFAULT_SOLR_TEST_HOST = "localhost";
+    private static final String DOCUMENT_INDEX_ENDPOINT = "/solr/collection1";
+    private static final String ROR_INDEX_ENDPOINT = "/solr/rorSuggestions";
+
+    private final String solrClientUrl;
+    private final String rorSolrClientUrl;
+
+    // -------------------- CONSTRUCTORS --------------------
+
+    public TestSolrClientFactory() {
+        solrClientUrl = resolveSolrURL() + DOCUMENT_INDEX_ENDPOINT;
+        rorSolrClientUrl = resolveSolrURL() + ROR_INDEX_ENDPOINT;
+    }
 
     // -------------------- LOGIC --------------------
     
     @Produces
     @Specializes
     public SolrClient produceSolrClient() throws IOException {
-        String urlString = resolveSolrURL() + "/solr/collection1";
-        LOGGER.fine("Creating test SolrClient at url: " + urlString);
-        
-        return new HttpSolrClient.Builder(urlString).build();
+        LOGGER.fine("Creating test SolrClient at url: " + solrClientUrl);
+        return new HttpSolrClient.Builder(solrClientUrl).build();
     }
 
     @Produces
     @Specializes
     @RorSolrClient
     public SolrClient produceRorSolrClient() {
-        String urlString = resolveSolrURL() + "/solr/rorSuggestions";
-        LOGGER.fine("Creating test SolrClient at url: " + urlString);
-
-        return new HttpSolrClient.Builder(urlString).build();
+        LOGGER.fine("Creating test SolrClient at url: " + rorSolrClientUrl);
+        return new HttpSolrClient.Builder(rorSolrClientUrl).build();
     }
 
 
