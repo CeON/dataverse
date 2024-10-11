@@ -44,7 +44,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <spring.version>4.1.9.RELEASE</spring.version>
 
-        <junit.version>5.5.2</junit.version>
+        <junit.version>5.7.0</junit.version>
         <mockito.version>3.12.4</mockito.version>
         <!--
         Jacoco 0.8.2 seems to break Netbeans code coverage integration so we'll use 0.8.1 instead.
@@ -420,7 +420,14 @@
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
-                <version>1.4.1.Final</version>
+                <version>1.7.0.Final</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.extension</groupId>
+                <artifactId>arquillian-transaction-bom</artifactId>
+                <version>1.0.6</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -709,12 +716,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
@@ -777,9 +778,9 @@
                                 <goal>verify</goal>
                             </goals>
                             <configuration>
-                                <!-- https://github.com/arquillian/arquillian-container-glassfish/issues/24 -->
-                                <reuseForks>false</reuseForks>
-                                <groups>edu.harvard.iq.dataverse.test.arquillian.ArquillianIntegrationTests</groups>
+                                <reuseForks>true</reuseForks>
+                                <forkCount>1</forkCount>
+                                <groups>ArquillianIntegrationTests</groups>
                                 <systemProperties>
                                     <test.solr.port>${test.solr.port}</test.solr.port>
                                     <test.solr.host>${test.solr.host}</test.solr.host>
@@ -978,7 +979,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <testsToExclude>edu.harvard.iq.dataverse.test.NonEssentialTests</testsToExclude>
+                <testsToExclude>NonEssentialTests</testsToExclude>
 
                 <test.network.mode>bridge</test.network.mode>
                 <test.postgres.docker.port>5432</test.postgres.docker.port>
