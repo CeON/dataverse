@@ -59,7 +59,7 @@ public class SolrIndexCleaner {
         SolrQuery query = new SolrQuery("*:*");
         query.setRows(0);
         Awaitility.await()
-                .atMost(5, TimeUnit.MINUTES)
+                .atMost(1, TimeUnit.MINUTES)
                 .pollInterval(2, TimeUnit.SECONDS)
                 .until(() -> {
                     long numFound = solrClient.query(query).getResults().getNumFound();
