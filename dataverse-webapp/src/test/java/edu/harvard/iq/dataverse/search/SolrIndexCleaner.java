@@ -7,11 +7,13 @@ import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.awaitility.Awaitility;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class SolrIndexCleaner {
@@ -53,7 +55,13 @@ public class SolrIndexCleaner {
 
         solrClient.commit();
 
-        System.out.println("Number of solr documents: " + countSolrDocuments());
+        Awaitility.await()
+                .pollInterval(5, TimeUnit.SECONDS)
+                .atMost(10, TimeUnit.MINUTES).until(() -> {
+            long numSolr = countSolrDocuments();
+            System.out.println("Number of solr documents: " + numSolr);
+            return numSolr == 44;
+        });
     }
 
     private long countSolrDocuments() throws SolrServerException, IOException {

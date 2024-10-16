@@ -19,6 +19,7 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.UserNotification;
 import edu.harvard.iq.dataverse.persistence.user.UserNotificationRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.awaitility.Awaitility;
 import org.hamcrest.MatcherAssert;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.function.Executable;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -107,8 +109,12 @@ public class FilePermissionsServiceIT extends WebappArquillianDeployment {
         EmailModel userEmail = FakeSmtpServerUtil.waitForEmailSentTo(smtpServer, "superuser@mailinator.com");
         assertEquals("Root: You have been granted access to a restricted file", userEmail.getSubject());
 
-        List<UserNotification> userNotifications = userNotificationRepository.findByUser(user.getId());
-        assertEquals(1 + userNotificationsCountBefore, userNotifications.size());
+        List<UserNotification> userNotifications = Awaitility.await()
+                .atMost(1, TimeUnit.MINUTES)
+                .until(() -> userNotificationRepository.findByUser(user.getId()), notifications -> {
+                    assertEquals(1 + userNotificationsCountBefore, notifications.size());
+                    return notifications.get(0).isEmailed();
+                });
         assertUserNotification(userNotifications.get(0), NotificationType.GRANTFILEACCESS, 52L, true);
 
         EmailModel groupMemberEmail = FakeSmtpServerUtil.waitForEmailSentTo(smtpServer, "groupmember@mailinator.com");
