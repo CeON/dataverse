@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SolrIndexCleaner {
@@ -45,7 +46,12 @@ public class SolrIndexCleaner {
         
         solrClient.deleteByQuery("*:*");
 
-        Stream.concat(indexDataverses(), indexDatasets()).forEach(f -> Try.of(f::get));
+        long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).map(f -> {
+            Try.of(f::get).get();
+            return 1;
+        }).count();
+
+        System.out.println("Number of indexed documents: " + numIndexed);
 
         solrClient.commit();
 
