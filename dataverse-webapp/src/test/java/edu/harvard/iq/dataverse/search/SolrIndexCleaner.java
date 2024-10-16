@@ -6,11 +6,14 @@ import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.awaitility.Awaitility;
 
 import javax.inject.Inject;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class SolrIndexCleaner {
 
@@ -47,6 +50,16 @@ public class SolrIndexCleaner {
         }
 
         solrClient.commit();
-        
+
+        SolrQuery query = new SolrQuery("*:*");
+        query.setRows(0);
+        Awaitility.await()
+                .atMost(5, TimeUnit.MINUTES)
+                .pollInterval(2, TimeUnit.SECONDS)
+                .until(() -> {
+                    long numFound = solrClient.query(query).getResults().getNumFound();
+                    System.out.println("Number of documents: " + numFound);
+                    return numFound == 44;
+                });
     }
 }
