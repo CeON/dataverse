@@ -39,15 +39,20 @@ public class SolrIndexCleaner {
     public void cleanupSolrIndex() throws SolrServerException, IOException {
         
         solrClient.deleteByQuery("*:*");
+        long numIndexed = 0;
         for (Dataverse dataverse: dataverseDao.findAll()) {
             if (dataverse.isRoot()) {
                 continue;
             }
             indexService.indexDataverse(dataverse);
+            numIndexed++;
         }
         for (Dataset dataset: datasetDao.findAll()) {
             indexService.indexDataset(dataset, true);
+            numIndexed++;
         }
+
+        System.out.println("Number of indexed documents: " + numIndexed);
 
         solrClient.commit();
 
@@ -58,7 +63,7 @@ public class SolrIndexCleaner {
                 .pollInterval(2, TimeUnit.SECONDS)
                 .until(() -> {
                     long numFound = solrClient.query(query).getResults().getNumFound();
-                    System.out.println("Number of documents: " + numFound);
+                    System.out.println("Number of found documents: " + numFound);
                     return numFound == 44;
                 });
     }
