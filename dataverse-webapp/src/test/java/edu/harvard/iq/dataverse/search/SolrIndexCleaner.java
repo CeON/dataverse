@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
+import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -13,7 +14,11 @@ import org.awaitility.Awaitility;
 import javax.inject.Inject;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class SolrIndexCleaner {
 
@@ -39,20 +44,8 @@ public class SolrIndexCleaner {
     public void cleanupSolrIndex() throws SolrServerException, IOException {
         
         solrClient.deleteByQuery("*:*");
-        long numIndexed = 0;
-        for (Dataverse dataverse: dataverseDao.findAll()) {
-            if (dataverse.isRoot()) {
-                continue;
-            }
-            indexService.indexDataverse(dataverse);
-            numIndexed++;
-        }
-        for (Dataset dataset: datasetDao.findAll()) {
-            indexService.indexDataset(dataset, true);
-            numIndexed++;
-        }
 
-        System.out.println("Number of indexed documents: " + numIndexed);
+        Stream.concat(indexDataverses(), indexDatasets()).forEach(f -> Try.of(f::get));
 
         solrClient.commit();
 
@@ -66,5 +59,18 @@ public class SolrIndexCleaner {
                     System.out.println("Number of found documents: " + numFound);
                     return numFound == 44;
                 });
+    }
+
+    private Stream<Future<String>> indexDatasets() {
+        return datasetDao.findAll().stream().map(dataset -> indexService.indexDataset(dataset, true));
+    }
+
+    private Stream<Future<String>> indexDataverses() {
+        return dataverseDao.findAll().stream().map(dataverse -> {
+            if (dataverse.isRoot()) {
+                return CompletableFuture.completedFuture("Root");
+            }
+            return indexService.indexDataverse(dataverse);
+        });
     }
 }
