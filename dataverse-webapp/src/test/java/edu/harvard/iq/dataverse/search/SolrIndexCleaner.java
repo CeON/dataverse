@@ -2,23 +2,16 @@ package edu.harvard.iq.dataverse.search;
 
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
-import edu.harvard.iq.dataverse.persistence.dataset.Dataset;
-import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
 import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.awaitility.Awaitility;
 
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SolrIndexCleaner {
@@ -43,28 +36,30 @@ public class SolrIndexCleaner {
      * that are currently in database)
      */
     public void cleanupSolrIndex() throws SolrServerException, IOException {
-        
-        solrClient.deleteByQuery("*:*");
 
-        long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).map(f -> {
+        System.out.println("Number of solr documents before delete: " + countSolrDocuments());
+
+        solrClient.deleteByQuery("*:*");
+        solrClient.commit();
+
+        System.out.println("Number of solr documents after delete: " + countSolrDocuments());
+
+        long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).mapToInt(f -> {
             Try.of(f::get).get();
             return 1;
-        }).count();
+        }).sum();
 
         System.out.println("Number of indexed documents: " + numIndexed);
 
         solrClient.commit();
 
+        System.out.println("Number of solr documents: " + countSolrDocuments());
+    }
+
+    private long countSolrDocuments() throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery("*:*");
         query.setRows(0);
-        Awaitility.await()
-                .atMost(1, TimeUnit.MINUTES)
-                .pollInterval(2, TimeUnit.SECONDS)
-                .until(() -> {
-                    long numFound = solrClient.query(query).getResults().getNumFound();
-                    System.out.println("Number of found documents: " + numFound);
-                    return numFound == 44;
-                });
+        return solrClient.query(query).getResults().getNumFound();
     }
 
     private Stream<Future<String>> indexDatasets() {
