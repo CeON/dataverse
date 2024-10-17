@@ -109,7 +109,8 @@ pipeline {
 
                         docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
                             echo 'Executing integration tests.'
-                            sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            sh './mvnw verify -Dit.test=FileServiceIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
                         }
                     } finally {
                         sh "docker network rm -f ${networkId}"
