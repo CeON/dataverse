@@ -12,6 +12,7 @@ import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.GuestUser;
+import edu.harvard.iq.dataverse.search.SolrIndexCleaner;
 import io.vavr.control.Either;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -22,6 +23,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.primefaces.model.DualListModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Inject;
@@ -42,6 +45,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DataverseServiceIT extends WebappArquillianDeployment {
 
+    private static final Logger log = LoggerFactory.getLogger(DataverseServiceIT.class);
+
     @Inject
     private DataverseService dataverseService;
 
@@ -57,11 +62,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
     @Inject
     private SolrClient solrClient;
 
+    @Inject
+    private SolrIndexCleaner solrIndexCleaner;
+
     @BeforeEach
     public void init() throws SolrServerException, IOException, SQLException {
         FacesContextMocker.mockServletRequest();
-        solrClient.deleteByQuery("*:*");
-        solrClient.commit();
+        solrIndexCleaner.cleanupSolrIndex();
     }
 
     // -------------------- TESTS --------------------
@@ -87,9 +94,10 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
                 .until(() -> smtpServer.getMails().stream()
                         .anyMatch(emailModel -> emailModel.getSubject().contains("Your dataverse has been created")));
 
+        await().atMost(Duration.ofSeconds(15L))
+                .until(() -> solrClient.getById("dataverse_" + savedDataverse.get().getId()) != null);
 
         SolrDocument dataverseSolrDoc = solrClient.getById("dataverse_" + savedDataverse.get().getId());
-        System.out.println("Saved dataverse " + savedDataverse.get().getId() + " doc:" + dataverseSolrDoc);
         assertDataverseSolrDocument(dataverseSolrDoc, savedDataverse.get().getId(), "FIRSTDATAVERSE", "NICE DATAVERSE");
 
         SolrDocument dataversePermSolrDoc = solrClient.getById("dataverse_" + savedDataverse.get().getId() + "_permission");

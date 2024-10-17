@@ -8,6 +8,8 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.awaitility.Awaitility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.util.stream.Stream;
 
 public class SolrIndexCleaner {
 
+    private static final Logger log = LoggerFactory.getLogger(SolrIndexCleaner.class);
     @Inject
     private DataverseDao dataverseDao;
     
@@ -39,27 +42,27 @@ public class SolrIndexCleaner {
      */
     public void cleanupSolrIndex() throws SolrServerException, IOException {
 
-        System.out.println("Number of solr documents before delete: " + countSolrDocuments());
+        log.info("****** Number of solr documents before delete: {}", countSolrDocuments());
 
         solrClient.deleteByQuery("*:*");
         solrClient.commit();
 
-        System.out.println("Number of solr documents after delete: " + countSolrDocuments());
+        log.info("****** Number of solr documents after delete: {}", countSolrDocuments());
 
         long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).mapToInt(f -> {
             Try.of(f::get).get();
             return 1;
         }).sum();
 
-        System.out.println("Number of indexed documents: " + numIndexed);
+        log.info("****** Number of indexed documents: {}", numIndexed);
 
         solrClient.commit();
 
         Awaitility.await()
                 .pollInterval(5, TimeUnit.SECONDS)
-                .atMost(10, TimeUnit.MINUTES).until(() -> {
+                .atMost(1, TimeUnit.MINUTES).until(() -> {
             long numSolr = countSolrDocuments();
-            System.out.println("Number of solr documents: " + numSolr);
+            log.info("****** Number of solr documents: {}", numSolr);
             return numSolr == 44;
         });
     }
