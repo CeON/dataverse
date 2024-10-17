@@ -89,6 +89,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
 
         SolrDocument dataverseSolrDoc = solrClient.getById("dataverse_" + savedDataverse.get().getId());
+        System.out.println("Saved dataverse " + savedDataverse.get().getId() + " doc:" + dataverseSolrDoc);
         assertDataverseSolrDocument(dataverseSolrDoc, savedDataverse.get().getId(), "FIRSTDATAVERSE", "NICE DATAVERSE");
 
         SolrDocument dataversePermSolrDoc = solrClient.getById("dataverse_" + savedDataverse.get().getId() + "_permission");
