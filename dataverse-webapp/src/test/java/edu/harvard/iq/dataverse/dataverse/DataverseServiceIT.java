@@ -75,6 +75,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
     @Test
     public void saveNewDataverse_ShouldSuccessfullySave() throws SolrServerException, IOException, InterruptedException {
+        solrIndexCleaner.logTestStart();
         //given
         long userId = loginSessionWithSuperUser();
         Dataverse dataverse = prepareDataverse();
@@ -103,11 +104,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
         SolrDocument dataversePermSolrDoc = solrClient.getById("dataverse_" + savedDataverse.get().getId() + "_permission");
         assertDataversePermSolrDocument(dataversePermSolrDoc, savedDataverse.get().getId(), Lists.newArrayList(userId));
 
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void saveNewDataverse_WithWrongUser() {
+        solrIndexCleaner.logTestStart();
         //given
         final int EXPECTED_DV_COUNT = 9; // Root + 8 dataverses from dbinit
 
@@ -120,11 +123,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
         //then
         Assertions.assertTrue(savedDataverse.isLeft());
         Assertions.assertEquals(EXPECTED_DV_COUNT, dataverseDao.findAll().size());
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void saveEditedDataverse() {
+        solrIndexCleaner.logTestStart();
         //given
         loginSessionWithSuperUser();
         Dataverse dataverse = dataverseDao.findRootDataverse();
@@ -137,22 +142,26 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
         //then
         Assertions.assertNotEquals(oldDataverseName, updatedDataverse.get().getName());
 
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void saveEditedDataverse_WithNonExistingDataverse() {
+        solrIndexCleaner.logTestStart();
         //given
         Dataverse dataverse = new Dataverse();
 
         //when & then
         Assertions.assertThrows(EJBTransactionRolledbackException.class,
                 () -> dataverseService.saveEditedDataverse(Lists.newArrayList(), dataverse, new DualListModel<>()));
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void publishDataverse() {
+        solrIndexCleaner.logTestStart();
         //given
         loginSessionWithSuperUser();
         Dataverse unpublishedDataverse = dataverseDao.findRootDataverse();
@@ -163,11 +172,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //then
         Assertions.assertTrue(publishedDataverse.isReleased());
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void publishDataverse_WithIllegalCommandException() {
+        solrIndexCleaner.logTestStart();
         //given
         loginSessionWithSuperUser();
         Dataverse unpublishedDataverse = dataverseDao.findRootDataverse();
@@ -175,11 +186,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //when & then
         Assertions.assertThrows(IllegalCommandException.class, () -> dataverseService.publishDataverse(unpublishedDataverse));
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void deleteDataverse() {
+        solrIndexCleaner.logTestStart();
         //given
         loginSessionWithSuperUser();
         Dataverse unpublishedDataverse = dataverseDao.find(67L);
@@ -189,11 +202,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //then
         Assertions.assertNull(dataverseDao.find(67L));
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void deleteDataverse_withData() {
+        solrIndexCleaner.logTestStart();
         //given
         loginSessionWithSuperUser();
         Dataverse dataverseWithData = dataverseDao.find(19L);
@@ -201,11 +216,13 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
         //when & then
         Exception thrown = assertThrows(IllegalCommandException.class, () -> dataverseService.deleteDataverse(dataverseWithData));
         Assertions.assertEquals("Cannot delete non-empty dataverses", thrown.getMessage());
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
     public void deleteDataverse_WithIllegalCommandException() {
+        solrIndexCleaner.logTestStart();
         //given
         loginSessionWithSuperUser();
         Dataverse unpublishedDataverse = dataverseDao.find(19L);
@@ -213,6 +230,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //when
         Assertions.assertThrows(IllegalCommandException.class, () -> dataverseService.deleteDataverse(unpublishedDataverse));
+        solrIndexCleaner.logTestEnd();
     }
 
     // -------------------- PRIVATE --------------------

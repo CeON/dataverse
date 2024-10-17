@@ -42,19 +42,19 @@ public class SolrIndexCleaner {
      */
     public void cleanupSolrIndex() throws SolrServerException, IOException {
 
-        log.info("****** Number of solr documents before delete: {}", countSolrDocuments());
+        log.info("********* Number of solr documents before delete: {}", countSolrDocuments());
 
         solrClient.deleteByQuery("*:*");
         solrClient.commit();
 
-        log.info("****** Number of solr documents after delete: {}", countSolrDocuments());
+        log.info("********* Number of solr documents after delete: {}", countSolrDocuments());
 
         long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).mapToInt(f -> {
             Try.of(f::get).get();
             return 1;
         }).sum();
 
-        log.info("****** Number of indexed documents: {}", numIndexed);
+        log.info("********* Number of indexed documents: {}", numIndexed);
 
         solrClient.commit();
 
@@ -62,7 +62,7 @@ public class SolrIndexCleaner {
                 .pollInterval(5, TimeUnit.SECONDS)
                 .atMost(1, TimeUnit.MINUTES).until(() -> {
             long numSolr = countSolrDocuments();
-            log.info("****** Number of solr documents: {}", numSolr);
+            log.info("********* Number of solr documents: {}", numSolr);
             return numSolr == 44;
         });
     }
@@ -84,5 +84,13 @@ public class SolrIndexCleaner {
             }
             return indexService.indexDataverse(dataverse);
         });
+    }
+
+    public void logTestStart() {
+        log.info("********* test start");
+    }
+
+    public void logTestEnd() {
+        log.info("********* test end");
     }
 }

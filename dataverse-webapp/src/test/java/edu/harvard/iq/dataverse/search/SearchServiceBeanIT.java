@@ -76,6 +76,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
     @Test
     public void search__with_query() throws SearchException {
+        solrIndexCleaner.logTestStart();
         // given
         List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
 
@@ -88,11 +89,13 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                 "dataset_66_draft", "dataset_52_draft");
         assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "doi:10.18150/FK2/MLXK1N", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
                 "dataset_52_draft");
+        solrIndexCleaner.logTestEnd();
 
     }
 
     @Test
     public void search__with_filters() throws SearchException {
+        solrIndexCleaner.logTestStart();
         // given
         List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
         List<String> filters1 = Lists.newArrayList(
@@ -110,10 +113,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                 "dataset_66_draft", "dataset_52_draft");
         assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "*", SearchForTypes.all(), filters3, "dateSort", SortOrder.desc, 0, 20, false),
                 "datafile_55_draft", "datafile_53_draft", "datafile_58_draft");
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     public void search__with_dv_object_filter() throws SearchException {
+        solrIndexCleaner.logTestStart();
         // given
         List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
         SearchForTypes dataverseOnlyFilters = SearchForTypes.byTypes(SearchObjectType.DATAVERSES);
@@ -129,10 +134,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                 "dataset_74", "dataset_73", "dataset_72", "dataset_57", "dataset_101", "dataset_102", "dataset_56_draft", "dataset_56",
                 "dataset_66_draft", "dataset_71_draft", "datafile_55_draft",
                 "datafile_53_draft", "datafile_58_draft", "dataset_52_draft");
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     public void search__with_sorting() throws SearchException {
+        solrIndexCleaner.logTestStart();
         // given
         List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
 
@@ -154,10 +161,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                 "datafile_58_draft", "dataverse_68", "datafile_55_draft", "datafile_53_draft", "dataverse_51", "dataverse_20",
                 "dataverse_67", "dataverse_22", "dataset_56_draft", "dataset_56", "dataset_57", "dataset_72",
                 "dataset_71_draft", "dataset_73", "dataset_74");  // don't have any name (no title)
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     public void search__with_paging() throws SearchException {
+        solrIndexCleaner.logTestStart();
         // given
         List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
 
@@ -171,10 +180,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                 "dataset_71_draft", "datafile_55_draft", "datafile_53_draft", "datafile_58_draft", "dataset_52_draft",
                 "dataverse_51", "dataverse_68", "dataverse_21", "dataverse_20", "dataverse_22", "dataverse_23",
                 "dataverse_19", "dataverse_67");
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     public void search__by_guest_user() throws SearchException {
+        solrIndexCleaner.logTestStart();
         // when
         SolrQueryResponse searchResponse = searchService.search(guestDataverseRequest, Collections.singletonList(dataverseDao.findRootDataverse()),
                 "*", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false);
@@ -182,10 +193,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
         // then
         assertSearchResultIds(searchResponse, "dataset_74", "dataset_73", "dataset_72", "dataset_57", "dataset_101",
                 "dataset_102", "dataset_56", "dataverse_21", "dataverse_20", "dataverse_22", "dataverse_23", "dataverse_19");
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     public void search__query_all() throws SearchException {
+        solrIndexCleaner.logTestStart();
 
         // when
         SolrQueryResponse searchResponse = searchService.search(adminDataverseRequest, Collections.singletonList(dataverseDao.findRootDataverse()),
@@ -253,10 +266,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
         FacetCategory fileTypeGroupFacet = extractFacetWithName(facets, "fileTypeGroupFacet");
         assertContainsFacetCount(fileTypeGroupFacet, "ZIP", 3);
 
+        solrIndexCleaner.logTestEnd();
     }
 
     @Test
     public void search__no_results() throws SearchException {
+        solrIndexCleaner.logTestStart();
 
         // when
         SolrQueryResponse searchResponse = searchService.search(adminDataverseRequest, Collections.singletonList(dataverseDao.findRootDataverse()),
@@ -274,6 +289,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
         assertThat(searchResponse.getSpellingSuggestionsByToken(), aMapWithSize(0));
 
         assertThat(searchResponse.getFacetCategoryList(), is(empty()));
+        solrIndexCleaner.logTestEnd();
     }
 
     // -------------------- PRIVATE --------------------
