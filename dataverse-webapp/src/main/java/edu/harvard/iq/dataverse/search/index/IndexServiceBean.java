@@ -1277,7 +1277,7 @@ public class IndexServiceBean {
         docs.add(solrInputDocument);
 
         try {
-            logger.info("Document added: " + solrServer.add(docs).toString());
+            logger.info("Document added " + datasetSolrDocId + ": " + solrServer.add(docs).toString());
             logger.info("Committed: " + solrServer.commit().toString());
         } catch (SolrServerException | IOException ex) {
             return ex.toString();

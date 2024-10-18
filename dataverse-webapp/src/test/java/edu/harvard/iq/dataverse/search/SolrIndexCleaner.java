@@ -33,6 +33,8 @@ public class SolrIndexCleaner {
     
     @Inject
     private IndexServiceBean indexService;
+
+    private static boolean indexedAtLeastOnce = false;
     
     // -------------------- LOGIC --------------------
     
@@ -43,7 +45,12 @@ public class SolrIndexCleaner {
      */
     public void cleanupSolrIndex() throws SolrServerException, IOException {
 
-        log.info("********* Number of solr documents before delete: {}", countSolrDocuments());
+        long beforeDelete = countSolrDocuments();
+        if (beforeDelete == 0 && indexedAtLeastOnce) {
+            throw new RuntimeException("********* No documents in solr found.");
+        }
+
+        log.info("********* Number of solr documents before delete: {}", beforeDelete);
 
         new UpdateRequest().deleteByQuery("*:*").commit(solrClient, null);
 
@@ -63,6 +70,8 @@ public class SolrIndexCleaner {
             log.info("********* Number of solr documents: {}", numSolr);
             return numSolr == 44;
         });
+
+        indexedAtLeastOnce = true;
     }
 
     private long countSolrDocuments() throws SolrServerException, IOException {
