@@ -75,29 +75,23 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     // -------------------- TESTS --------------------
 
     @Test
-    public void search__with_query() throws SearchException, SolrServerException, IOException {
-        int i = 0;
-        while (i < 100) {
-            solrIndexCleaner.logTestStart("search__with_query " + i);
+    public void search__with_query() throws SearchException {
+        solrIndexCleaner.logTestStart("search__with_query");
 
-            solrIndexCleaner.cleanupSolrIndex();
+        // given
+        List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
 
-            // given
-            List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
+        // when & then
+        assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "title:only", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
+                "dataset_66_draft");
+        assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "only", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
+                "dataset_66_draft");
+        assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "dateOfDeposit:2019", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
+                "dataset_66_draft", "dataset_52_draft");
+        assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "doi:10.18150/FK2/MLXK1N", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
+                "dataset_52_draft");
 
-            // when & then
-            assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "title:only", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
-                    "dataset_66_draft");
-            assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "only", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
-                    "dataset_66_draft");
-            assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "dateOfDeposit:2019", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
-                    "dataset_66_draft", "dataset_52_draft");
-            assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "doi:10.18150/FK2/MLXK1N", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
-                    "dataset_52_draft");
-
-            solrIndexCleaner.logTestEnd("search__with_query " + i);
-            i++;
-        }
+        solrIndexCleaner.logTestEnd("search__with_query");
     }
 
     @Test
