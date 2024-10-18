@@ -76,10 +76,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
     @Test
     public void search__with_query() throws SearchException, SolrServerException, IOException {
-        for (int i = 0; i < 100; i++) {
+        int i = 0;
+        while (i < 100) {
+            solrIndexCleaner.logTestStart("search__with_query " + i);
+
             solrIndexCleaner.cleanupSolrIndex();
 
-            solrIndexCleaner.logTestStart("search__with_query");
             // given
             List<Dataverse> dataverses = Collections.singletonList(dataverseDao.findRootDataverse());
 
@@ -92,7 +94,9 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                     "dataset_66_draft", "dataset_52_draft");
             assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "doi:10.18150/FK2/MLXK1N", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
                     "dataset_52_draft");
-            solrIndexCleaner.logTestEnd("search__with_query");
+
+            solrIndexCleaner.logTestEnd("search__with_query " + i);
+            i++;
         }
     }
 
