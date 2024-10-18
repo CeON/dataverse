@@ -86,11 +86,11 @@ public class SolrIndexCleaner {
         });
     }
 
-    public void logTestStart() {
-        log.info("********* test start");
+    public void logTestStart(String what) {
+        log.info("********* test start: {}", what);
     }
 
-    public void logTestEnd() {
-        log.info("********* test end");
+    public void logTestEnd(String what) {
+        log.info("********* test end: {}", what);
     }
 }

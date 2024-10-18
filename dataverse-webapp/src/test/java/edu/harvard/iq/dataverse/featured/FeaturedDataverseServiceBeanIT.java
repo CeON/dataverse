@@ -38,7 +38,7 @@ public class FeaturedDataverseServiceBeanIT extends WebappArquillianDeployment {
 
     @Test
     public void refreshFeaturedDataversesAutomaticSorting() {
-        solrIndexCleaner.logTestStart();
+        solrIndexCleaner.logTestStart("refreshFeaturedDataversesAutomaticSorting");
         // given
         Dataverse root = dataverseRepository.getById(1L);
         List<Dataverse> featuredDataverses = service.findByDataverseId(1L);
@@ -51,12 +51,12 @@ public class FeaturedDataverseServiceBeanIT extends WebappArquillianDeployment {
 
         // then
         assertThat(service.findByDataverseId(1L).stream().map(Dataverse::getId)).containsExactly(21L, 19L, 20L, 23L);
-        solrIndexCleaner.logTestEnd();
+        solrIndexCleaner.logTestEnd("refreshFeaturedDataversesAutomaticSorting");
     }
 
     @Test
     public void sortFeaturedDataverses() {
-        solrIndexCleaner.logTestStart();
+        solrIndexCleaner.logTestStart("sortFeaturedDataverses");
         // given
         // given
         Dataverse root = dataverseRepository.getById(1L);
@@ -88,6 +88,6 @@ public class FeaturedDataverseServiceBeanIT extends WebappArquillianDeployment {
 
         // then
         assertThat(sortedDatasetCount.stream().map(Dataverse::getId)).containsExactly(21L, 19L, 20L, 23L);
-        solrIndexCleaner.logTestEnd();
+        solrIndexCleaner.logTestEnd("sortFeaturedDataverses");
     }
 }
