@@ -836,9 +836,6 @@
                                     <ports>
                                         <port>test.solr.docker.port:8983</port>
                                     </ports>
-                                    <env>
-                                        <SOLR_LOG_LEVEL>DEBUG</SOLR_LOG_LEVEL>
-                                    </env>
                                     <network>
                                         <mode>${test.network.mode}</mode>
                                         <name>${test.network.name}</name>
