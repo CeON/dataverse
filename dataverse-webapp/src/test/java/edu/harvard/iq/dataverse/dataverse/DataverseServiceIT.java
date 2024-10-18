@@ -67,6 +67,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
     @BeforeEach
     public void init() throws SolrServerException, IOException, SQLException {
+        solrIndexCleaner.logTestStart("class DataverseServiceIT");
         FacesContextMocker.mockServletRequest();
         solrIndexCleaner.cleanupSolrIndex();
     }

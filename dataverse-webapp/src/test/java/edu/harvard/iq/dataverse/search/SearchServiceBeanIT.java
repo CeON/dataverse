@@ -65,6 +65,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
     @BeforeEach
     public void init() throws SolrServerException, IOException {
+        solrIndexCleaner.logTestStart("class SearchServiceBeanIT");
         adminDataverseRequest = new DataverseRequest(authenticationServiceBean.getAdminUser(), IpAddress.valueOf("127.0.0.1"));
         guestDataverseRequest = new DataverseRequest(GuestUser.get(), IpAddress.valueOf("127.0.0.1"));
 

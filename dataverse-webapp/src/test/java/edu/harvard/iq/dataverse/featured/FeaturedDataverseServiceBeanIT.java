@@ -31,6 +31,7 @@ public class FeaturedDataverseServiceBeanIT extends WebappArquillianDeployment {
 
     @BeforeEach
     public void init() throws SolrServerException, IOException {
+        solrIndexCleaner.logTestStart("class FeaturedDataverseServiceBeanIT");
         solrIndexCleaner.cleanupSolrIndex();
     }
 
