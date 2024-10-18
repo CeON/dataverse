@@ -7,6 +7,7 @@ import io.vavr.control.Try;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +45,16 @@ public class SolrIndexCleaner {
 
         log.info("********* Number of solr documents before delete: {}", countSolrDocuments());
 
-        solrClient.deleteByQuery("*:*");
-        solrClient.commit();
+        new UpdateRequest().deleteByQuery("*:*").commit(solrClient, null);
 
         log.info("********* Number of solr documents after delete: {}", countSolrDocuments());
 
         long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).mapToInt(f -> {
-            Try.of(f::get).get();
+            log.info("********* Index result: {}", Try.of(f::get).get());
             return 1;
         }).sum();
 
         log.info("********* Number of indexed documents: {}", numIndexed);
-
-        solrClient.commit();
 
         Awaitility.await()
                 .pollInterval(5, TimeUnit.SECONDS)
