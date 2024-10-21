@@ -103,8 +103,12 @@ pipeline {
             parallel {
                 stage('Tests') {
                     steps {
+                        echo "Running Tests"
                         script {
                             try {
+                                sh "date"
+                                sh "docker ps"
+
                                 networkId = UUID.randomUUID().toString()
                                 sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
                                 env.DOCKER_NETWORK_NAME = "${networkId}"
@@ -124,11 +128,17 @@ pipeline {
 
                 stage('SolrCheck') {
                     steps {
+                        echo "Running solr check"
                         script {
-                            for (int i = 0; i++; i < 40) {
-                                sh "docker ps"
-                                sh 'docker exec solr-1 /bin/bash -c "ls -lRrt /var/solr/data/collection1/data" || echo "No container found"'
-                                sleep 10000
+                            try {
+                                for (int i = 0; i++; i < 40) {
+                                    sh "date"
+                                    sh "docker ps"
+                                    sh 'docker exec solr-1 /bin/bash -c "ls -lRrt /var/solr/data/collection1/data" || echo "No container found"'
+                                    sleep 10000
+                                }
+                            } catch (e) {
+
                             }
                         }
                     }
