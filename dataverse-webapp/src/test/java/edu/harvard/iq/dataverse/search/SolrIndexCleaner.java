@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.search;
 
+import com.google.common.base.Stopwatch;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
@@ -44,30 +45,32 @@ public class SolrIndexCleaner {
      * that are currently in database)
      */
     public void cleanupSolrIndex() throws SolrServerException, IOException {
-
+        Stopwatch watch = new Stopwatch().start();
         long beforeDelete = countSolrDocuments();
-        if (beforeDelete == 0 && indexedAtLeastOnce) {
-            throw new RuntimeException("********* No documents in solr found.");
-        }
+        log.info("********* {} Number of solr documents before delete: {}", watch.elapsedMillis(), beforeDelete);
 
-        log.info("********* Number of solr documents before delete: {}", beforeDelete);
+        if (beforeDelete == 0 && indexedAtLeastOnce) {
+            Awaitility.await().atMost(1, TimeUnit.MINUTES)
+                    .pollInterval(10, TimeUnit.SECONDS)
+                    .until(() -> countSolrDocuments() > 0);
+        }
 
         new UpdateRequest().deleteByQuery("*:*").commit(solrClient, null);
 
-        log.info("********* Number of solr documents after delete: {}", countSolrDocuments());
+        log.info("********* {} Number of solr documents after delete: {}", watch.elapsedMillis(), countSolrDocuments());
 
         long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).mapToInt(f -> {
             log.info("********* Index result: {}", Try.of(f::get).get());
             return 1;
         }).sum();
 
-        log.info("********* Number of indexed documents: {}", numIndexed);
+        log.info("********* {} Number of indexed documents: {}", watch.elapsedMillis(), numIndexed);
 
         Awaitility.await()
                 .pollInterval(5, TimeUnit.SECONDS)
                 .atMost(1, TimeUnit.MINUTES).until(() -> {
             long numSolr = countSolrDocuments();
-            log.info("********* Number of solr documents: {}", numSolr);
+            log.info("********* {} Number of solr documents: {}", watch.elapsedMillis(), numSolr);
             return numSolr == 44;
         });
 

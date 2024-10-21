@@ -23,7 +23,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -44,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author madryk
  */
 @Transactional(TransactionMode.ROLLBACK)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
     @Inject
@@ -76,6 +80,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     // -------------------- TESTS --------------------
 
     @Test
+    @Order(1)
     public void search__with_query() throws SearchException {
         solrIndexCleaner.logTestStart("search__with_query");
 
@@ -96,6 +101,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(2)
     public void search__with_filters() throws SearchException {
         solrIndexCleaner.logTestStart("search__with_filters");
         // given
@@ -119,6 +125,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(3)
     public void search__with_dv_object_filter() throws SearchException {
         solrIndexCleaner.logTestStart("search__with_dv_object_filter");
         // given
@@ -140,6 +147,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(4)
     public void search__with_sorting() throws SearchException {
         solrIndexCleaner.logTestStart("search__with_sorting");
         // given
@@ -167,6 +175,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(5)
     public void search__with_paging() throws SearchException {
         solrIndexCleaner.logTestStart("search__with_paging");
         // given
@@ -186,6 +195,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(6)
     public void search__by_guest_user() throws SearchException {
         solrIndexCleaner.logTestStart("search__by_guest_user");
         // when
@@ -199,6 +209,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(7)
     public void search__query_all() throws SearchException {
         solrIndexCleaner.logTestStart("search__query_all");
 
@@ -272,6 +283,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
     }
 
     @Test
+    @Order(8)
     public void search__no_results() throws SearchException {
         solrIndexCleaner.logTestStart("search__no_results");
 
