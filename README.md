@@ -36,6 +36,20 @@ Dataverse is a trademark of President and Fellows of Harvard College and is regi
 [open source]: LICENSE.md
 
 
+# Building development WAR
+For GUI development with deployment to containerized Glassfish server.
+```bash
+docker exec glassfish /usr/local/glassfish4/bin/asadmin list-applications && \
+docker exec glassfish /usr/local/glassfish4/bin/asadmin undeploy dataverse-webapp-1.0.0-SNAPSHOT & \
+./mvnw clean package -DskipTests -Ddocker.skip -pl :dataverse-webapp -am && \
+docker exec glassfish /usr/local/glassfish4/bin/asadmin deploy /dataverse/dataverse-webapp/target/dataverse-webapp-1.0.0-SNAPSHOT.war
+docker exec glassfish /usr/local/glassfish4/bin/asadmin list-applications
+```
+# Deployment
+```bash
+ /usr/local/glassfish4/bin/asadmin deploy /dataverse/dataverse-webapp/target/dataverse-webapp-1.0.0-SNAPSHOT.war
+ ```
+
 # Running integration tests
 
 All tests:

@@ -26,7 +26,7 @@ public class ControlledVocabularyValueConverter implements Converter {
         if (submittedValue == null || submittedValue.equals("")) {
             return "";
         } else {
-            ControlledVocabularyValue cvv = datasetFieldService.findControlledVocabularyValue(new Long(submittedValue));
+            ControlledVocabularyValue cvv = datasetFieldService.findControlledVocabularyValueByIdentifier(new Long(submittedValue));
             return cvv;
         }
     }
@@ -35,7 +35,11 @@ public class ControlledVocabularyValueConverter implements Converter {
         if (value == null || value.equals("")) {
             return "";
         } else {
-            return ((ControlledVocabularyValue) value).getId().toString();
+            if(value instanceof ControlledVocabularyValue) {
+                return ((ControlledVocabularyValue) value).getId().toString();
+            } else {
+                return value.toString();
+            }
         }
     }
 }

@@ -1,0 +1,133 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+    <!--@elvariable id="datasetField" type="edu.harvard.iq.dataverse.persistence.dataset.DatasetField"-->
+    <!--@elvariable id="inputRenderer" type="edu.harvard.iq.dataverse.dataset.metadata.inputRenderer.VocabSelectEnhancedInputFieldRenderer"-->
+
+    <div class="control-label-with-tooltip">
+        <p:outputLabel styleClass="control-label #{hiddenLabel ? 'sr-only' : ''}" for="#{datasetField.datasetFieldType.allowMultiples ? 'suggestionTextEnhancedMultipleSelectWidget' : 'suggestionTextEnhancedSingleSelectWidget'}">
+            <h:outputText value="#{datasetField.datasetFieldType.localeTitle}" escape="false" />
+            <h:outputText value=" #{labelFieldNumber}" rendered="#{not (labelFieldNumber eq 0)}" />
+            <h:outputText styleClass="glyphicon glyphicon-asterisk text-danger" value="" rendered="#{datasetField.datasetFieldType.requiredInDataverse}" />
+        </p:outputLabel>
+        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+              jsf:rendered="#{(not empty datasetField.datasetFieldType.localeDescription) and !hiddenLabel}"
+              tabindex="0" role="button"
+              aria-label="#{bundle['common.forms.field.tooltip.ariaLabel']} #{datasetField.datasetFieldType.localeTitle}"
+              data-toggle="tooltip" data-placement="auto right"
+              data-original-title="#{datasetField.datasetFieldType.localeDescription}"></span>
+    </div>
+
+
+    <h:head>
+        <script>
+            // Helper function to find a scrollable element by traversing the DOM tree
+            function findScrollableElement(element) {
+                // Traverse the DOM tree and check if the element is scrollable
+                while (element) {
+                    var e = $(element);
+                    if (   e.css('overflow') == 'scroll'
+                        || e.css('overflow') == 'auto'
+                        || e.css('overflowY') == 'scroll'
+                        || e.css('overflowY') == 'auto'
+                        || e.css('height') != 'none'
+                        || e.css('max-height') != 'none'
+                    ) {
+                        return element;
+                    } else {
+                        element = element.firstElementChild;  // Go deeper into the tree
+                    }
+                }
+                return null;  // No scrollable element found
+            }
+            function scrollToBottomOfScrollable(widgetVar) {
+                var autoCompleteWidget = PF(widgetVar);
+                if (autoCompleteWidget) {
+                    // Use a timeout to ensure the panel is visible and rendered
+                    setTimeout(function() {
+                        // Start from the widget's panel and traverse down the tree
+                        var panel = autoCompleteWidget.panel;
+                        var children =  panel[0];
+                        if (panel) {
+                            var scrollableElement = findScrollableElement(children);
+                            if (scrollableElement) {
+                                // Scroll the element to the bottom
+                                scrollableElement.scrollTop = scrollableElement.scrollHeight;
+                            }
+                        }
+                    }, 100);
+                }
+            }
+        </script>
+        <script type="text/javascript">
+            function reopenAutocompleteSuggestions(widgetVar) {
+                var widget = PF(widgetVar);
+                if (widget) {
+                    widget.searchWithDropdown();
+                    scrollToBottomOfScrollable(widgetVar);
+                }
+            }
+        </script>
+    </h:head>
+
+    <span id="pre-input-#{datasetField.datasetFieldType.name}" class="pre-input-tag"/>
+    <p:autoComplete rendered="#{!datasetField.datasetFieldType.allowMultiples}"
+                    id="suggestionTextEnhancedSingleSelectWidget"
+                    value="#{datasetField.singleControlledVocabularyValue}"
+                    completeMethod="#{inputRenderer.complete(datasetField, 'suggestionTextEnhancedSingleSelectWidget')}"
+                    styleClass="autocomplete-form-control"
+                    resultsMessage="#{bundle['common.forms.autocomplete.resultsMessage']}"
+                    emptyMessage="#{bundle['common.forms.autocomplete.emptySuggestionMessage']}"
+                    var="item" itemLabel="#{item.strValue}" itemValue="#{item.id}"
+                    autoSelection="false"
+                    autoHighlight="false"
+                    converter="controlledVocabularyValueConverter"
+                    forceSelection="true"
+                    scrollHeight="350"
+                    minQueryLength="3" dropdown="true" placeholder="Type 3 characters..."
+                    unique="true"
+                    widgetVar="suggestionTextEnhancedSingleSelectWidget"
+                    moreText="Load more"
+                    maxResults="#{inputRenderer.getMaxResults()-1}"
+    >
+        <p:ajax event="moreText"
+                listener="#{inputRenderer.loadMore(datasetField, 'suggestionTextEnhancedSingleSelectWidget')}"
+                onsuccess="reopenAutocompleteSuggestions('suggestionTextEnhancedSingleSelectWidget')" />
+        <p:column style="width:100%"><h:outputText value="#{item.strValue}" /></p:column>
+    </p:autoComplete>
+
+    <p:autoComplete rendered="#{datasetField.datasetFieldType.allowMultiples}"
+                    id="suggestionTextEnhancedMultipleSelectWidget"
+                    value="#{datasetField.controlledVocabularyValues}"
+                    completeMethod="#{inputRenderer.complete(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}"
+                    resultsMessage="#{bundle['common.forms.autocomplete.resultsMessage']}"
+                    emptyMessage="#{bundle['common.forms.autocomplete.emptySuggestionMessage']}"
+                    var="item" itemLabel="#{item.strValue}" itemValue="#{item.id}"
+                    multiple="true"
+                    converter="controlledVocabularyValueConverter"
+                    forceSelection="true"
+                    scrollHeight="350"
+                    minQueryLength="3" dropdown="true" placeholder="Type 3 characters..."
+                    unique="true"
+                    widgetVar="suggestionTextEnhancedMultipleSelectWidget"
+                    moreText="Load more"
+                    maxResults="#{inputRenderer.getMaxResults()-1}"
+    >
+        <p:ajax event="moreText"
+                listener="#{inputRenderer.loadMore(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}"
+                onsuccess="reopenAutocompleteSuggestions('suggestionTextEnhancedMultipleSelectWidget')" />
+        <p:ajax event="itemSelect" listener="#{inputRenderer.onSelection(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}"  />
+        <p:column style="width:20%"><h:outputText value="#{item.strValue}" /></p:column>
+    </p:autoComplete>
+
+    <div class="ui-message ui-message-error ui-widget ui-corner-all" aria-live="polite"
+         jsf:rendered="#{!empty datasetField.validationMessage}">
+        <span class="ui-message-error-detail">
+            <h:outputText value="#{datasetField.validationMessage}" escape="false"/>
+        </span>
+    </div>
+
+</ui:composition>
