@@ -50,12 +50,8 @@ public class SolrIndexCleaner {
         log.info("********* {} Number of solr documents before delete: {}", watch.elapsedMillis(), beforeDelete);
 
         if (beforeDelete == 0 && indexedAtLeastOnce) {
-            Awaitility.await().atMost(2, TimeUnit.MINUTES)
-                    .pollInterval(10, TimeUnit.SECONDS)
-                    .until(() -> countSolrDocuments() > 0);
+            throw new RuntimeException("No solr documents found.");
         }
-
-
 
         new UpdateRequest().deleteByQuery("*:*").commit(solrClient, null);
 
