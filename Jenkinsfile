@@ -100,9 +100,9 @@ pipeline {
 
         stage('Integration tests') {
             when { expression { params.skipIntegrationTests != true } }
-            steps {
-                parallel {
-                    tests: {
+            parallel {
+                stage('Tests') {
+                    steps {
                         script {
                             try {
                                 networkId = UUID.randomUUID().toString()
@@ -120,8 +120,10 @@ pipeline {
                             }
                         }
                     }
+                }
 
-                    solrCheck: {
+                stage('SolrCheck') {
+                    steps {
                         script {
                             for (int i = 0; i++; i < 40) {
                                 sh "docker ps"
