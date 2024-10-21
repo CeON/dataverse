@@ -101,20 +101,33 @@ pipeline {
         stage('Integration tests') {
             when { expression { params.skipIntegrationTests != true } }
             steps {
-                script {
-                    try {
-                        networkId = UUID.randomUUID().toString()
-                        sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
-                        env.DOCKER_NETWORK_NAME = "${networkId}"
+                parallel {
+                    tests: {
+                        script {
+                            try {
+                                networkId = UUID.randomUUID().toString()
+                                sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
+                                env.DOCKER_NETWORK_NAME = "${networkId}"
 
-                        docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
-                            echo 'Executing integration tests.'
-                            //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                            //sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                            sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                                docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
+                                    echo 'Executing integration tests.'
+                                    //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                                    //sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                                    sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                                }
+                            } finally {
+                                sh "docker network rm -f ${networkId}"
+                            }
                         }
-                    } finally {
-                        sh "docker network rm -f ${networkId}"
+                    }
+
+                    solrCheck: {
+                        script {
+                            for (int i = 0; i++; i < 40) {
+                                sh 'docker exec solr-2 /bin/bash -c "ls -lRrt /var/solr/data/collection1/data" || echo "No container found"'
+                                sleep 10000
+                            }
+                        }
                     }
                 }
             }
