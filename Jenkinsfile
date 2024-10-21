@@ -1,6 +1,8 @@
 GIT_USER_NAME = "jenkinsci"
 GIT_USER_EMAIL = "jenkinsci@icm.edu.pl"
 NEXT_DEVELOPMENT_VERSION_CHOICES = ['patch', 'minor', 'major']
+SOLR_CONTAINER_ALIAS="dataverse-solr-ittest"
+POSTGRES_CONTAINER_ALIAS="dataverse-postgres-ittest"
 
 pipeline {
     agent {
@@ -111,17 +113,17 @@ pipeline {
                         env.DOCKER_NETWORK_NAME = "${networkId}"
 
                         docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
+                            IT_TEST_DOCKER_OPTS="-Dtest.network.name=${env.DOCKER_NETWORK_NAME} -Ddocker.host=${env.DOCKER_HOST_EXT} -Ddocker.certPath=${env.DOCKER_CERT_EXT}"
+
                             echo 'Starting containers.'
-                            sh './mvnw docker:start -pl dataverse-webapp -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            sh "./mvnw docker:start -pl dataverse-webapp -P integration-tests-only,ci-jenkins ${IT_TEST_DOCKER_OPTS}"
 
                             echo 'Executing integration tests.'
-                            //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                            sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -Ddocker.skip  -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                            //sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            sh "./mvnw verify -P integration-tests-only,ci-jenkins -Ddocker.skip  ${IT_TEST_DOCKER_OPTS}"
                         }
                     } finally {
-                        sh 'docker ps -q --filter "name=dataverse-solr-ittest|dataverse-postgres-ittest" | xargs -r docker stop'
-                        sh 'docker ps -q -a --filter "name=dataverse-solr-ittest|dataverse-postgres-ittest" | xargs -r docker rm'
+                        sh "docker ps -q --filter 'name=${SOLR_CONTAINER_ALIAS}|${POSTGRES_CONTAINER_ALIAS}' | xargs -r docker stop"
+                        sh "docker ps -q -a --filter 'name=${SOLR_CONTAINER_ALIAS}|${POSTGRES_CONTAINER_ALIAS}' | xargs -r docker rm"
                         sh "docker network rm -f ${networkId}"
                     }
                 }
