@@ -111,12 +111,17 @@ pipeline {
                         env.DOCKER_NETWORK_NAME = "${networkId}"
 
                         docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
+                            echo 'Starting containers.'
+                            sh './mvnw docker:start -pl dataverse-webapp -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+
                             echo 'Executing integration tests.'
                             //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                            //sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                            sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -Ddocker.skip  -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            //sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
                         }
                     } finally {
+                        sh 'docker ps -q --filter "name=dataverse-solr-ittest|dataverse-postgres-ittest" | xargs -r docker stop'
+                        sh 'docker ps -q -a --filter "name=dataverse-solr-ittest|dataverse-postgres-ittest" | xargs -r docker rm'
                         sh "docker network rm -f ${networkId}"
                     }
                 }
