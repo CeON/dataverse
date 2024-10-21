@@ -100,47 +100,24 @@ pipeline {
 
         stage('Integration tests') {
             when { expression { params.skipIntegrationTests != true } }
-            parallel {
-                stage('Tests') {
-                    steps {
-                        echo "Running Tests"
-                        script {
-                            try {
-                                sh "date"
-                                sh "docker ps"
+            steps {
+                script {
+                    try {
+                        sh "date"
+                        sh "docker ps"
 
-                                networkId = UUID.randomUUID().toString()
-                                sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
-                                env.DOCKER_NETWORK_NAME = "${networkId}"
+                        networkId = UUID.randomUUID().toString()
+                        sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
+                        env.DOCKER_NETWORK_NAME = "${networkId}"
 
-                                docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
-                                    echo 'Executing integration tests.'
-                                    //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                                    //sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                                    sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
-                                }
-                            } finally {
-                                sh "docker network rm -f ${networkId}"
-                            }
+                        docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
+                            echo 'Executing integration tests.'
+                            //sh './mvnw verify -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            //sh './mvnw verify -Dit.test=FeaturedDataverseServiceBeanIT,SearchServiceBeanIT,DataverseServiceIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
+                            sh './mvnw verify -Dit.test=SearchServiceBeanIT -pl dataverse-webapp -am -DfailIfNoTests=false -P integration-tests-only,ci-jenkins -Dtest.network.name=$DOCKER_NETWORK_NAME -Ddocker.host=$DOCKER_HOST_EXT -Ddocker.certPath=$DOCKER_CERT_EXT'
                         }
-                    }
-                }
-
-                stage('SolrCheck') {
-                    steps {
-                        echo "Running solr check"
-                        script {
-                            try {
-                                for (int i = 0; i++; i < 40) {
-                                    sh "date"
-                                    sh "docker ps"
-                                    sh 'docker exec solr-1 /bin/bash -c "ls -lRrt /var/solr/data/collection1/data" || echo "No container found"'
-                                    sleep 10000
-                                }
-                            } catch (e) {
-
-                            }
-                        }
+                    } finally {
+                        sh "docker network rm -f ${networkId}"
                     }
                 }
             }
