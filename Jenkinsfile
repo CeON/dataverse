@@ -124,7 +124,8 @@ pipeline {
                     solrCheck: {
                         script {
                             for (int i = 0; i++; i < 40) {
-                                sh 'docker exec solr-2 /bin/bash -c "ls -lRrt /var/solr/data/collection1/data" || echo "No container found"'
+                                sh "docker ps"
+                                sh 'docker exec solr-1 /bin/bash -c "ls -lRrt /var/solr/data/collection1/data" || echo "No container found"'
                                 sleep 10000
                             }
                         }
