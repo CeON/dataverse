@@ -54,7 +54,6 @@ pipeline {
 
             steps {
                echo 'Preparing build.'
-               sh 'docker ps'
             }
         }
 
@@ -104,6 +103,7 @@ pipeline {
         stage('Integration tests') {
             when { expression { params.skipIntegrationTests != true } }
             steps {
+                sh 'docker ps'
                 script {
                     withinContainer {
                         IT_TEST_OPTS="-P integration-tests-only,ci-jenkins -Dtest.network.name=${env.DOCKER_NETWORK_NAME} -Ddocker.host=${env.DOCKER_HOST_EXT} -Ddocker.certPath=${env.DOCKER_CERT_EXT}"
