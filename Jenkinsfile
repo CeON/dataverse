@@ -116,7 +116,7 @@ pipeline {
 
         stage('Deploy') {
             when {
-                expression { params.branch == MAIN_BRANCH || params.branch.startsWith('releases/') }
+                expression { params.branch == MAIN_BRANCH || params.branch.startsWith(RELEASE_BRANCH_PREFIX) }
             }
 
             agent {
