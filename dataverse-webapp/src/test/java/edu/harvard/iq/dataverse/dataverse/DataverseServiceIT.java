@@ -21,11 +21,8 @@ import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.primefaces.model.DualListModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJBTransactionRolledbackException;
 import javax.inject.Inject;
@@ -45,8 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DataverseServiceIT extends WebappArquillianDeployment {
-
-    private static final Logger log = LoggerFactory.getLogger(DataverseServiceIT.class);
 
     @Inject
     private DataverseService dataverseService;
@@ -204,7 +199,6 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
-    @Order(9)
     public void deleteDataverse_WithIllegalCommandException() {
         //given
         loginSessionWithSuperUser();

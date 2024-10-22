@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 public class SolrIndexCleaner {
 
     private static final Logger log = LoggerFactory.getLogger(SolrIndexCleaner.class);
+
     @Inject
     private DataverseDao dataverseDao;
     

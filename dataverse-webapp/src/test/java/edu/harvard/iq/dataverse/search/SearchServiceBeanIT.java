@@ -88,6 +88,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
                 "dataset_66_draft", "dataset_52_draft");
         assertSearchResultIds(searchService.search(adminDataverseRequest, dataverses, "doi:10.18150/FK2/MLXK1N", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false),
                 "dataset_52_draft");
+
     }
 
     @Test
@@ -250,10 +251,12 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
         FacetCategory fileTypeGroupFacet = extractFacetWithName(facets, "fileTypeGroupFacet");
         assertContainsFacetCount(fileTypeGroupFacet, "ZIP", 3);
+
     }
 
     @Test
     public void search__no_results() throws SearchException {
+
         // when
         SolrQueryResponse searchResponse = searchService.search(adminDataverseRequest, Collections.singletonList(dataverseDao.findRootDataverse()),
                 "willDefenitelyNotExists", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 20, false);
