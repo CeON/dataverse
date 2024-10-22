@@ -186,6 +186,7 @@ public class SearchServiceBeanIT extends WebappArquillianDeployment {
 
     @Test
     public void search__query_all() throws SearchException {
+
         // when
         SolrQueryResponse searchResponse = searchService.search(adminDataverseRequest, Collections.singletonList(dataverseDao.findRootDataverse()),
                 "*", SearchForTypes.all(), Collections.emptyList(), "dateSort", SortOrder.desc, 0, 30, false);

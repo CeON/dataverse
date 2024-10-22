@@ -98,6 +98,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         SolrDocument dataversePermSolrDoc = solrClient.getById("dataverse_" + savedDataverse.get().getId() + "_permission");
         assertDataversePermSolrDocument(dataversePermSolrDoc, savedDataverse.get().getId(), Lists.newArrayList(userId));
+
     }
 
     @Test
@@ -131,6 +132,7 @@ public class DataverseServiceIT extends WebappArquillianDeployment {
 
         //then
         Assertions.assertNotEquals(oldDataverseName, updatedDataverse.get().getName());
+
     }
 
     @Test
