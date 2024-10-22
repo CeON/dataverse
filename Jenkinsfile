@@ -54,6 +54,7 @@ pipeline {
 
             steps {
                echo 'Preparing build.'
+               sh 'docker ps'
             }
         }
 
@@ -104,27 +105,14 @@ pipeline {
             when { expression { params.skipIntegrationTests != true } }
             steps {
                 script {
-                    try {
-                        sh "date"
-                        sh "docker ps"
+                    withinContainer {
+                        IT_TEST_OPTS="-P integration-tests-only,ci-jenkins -Dtest.network.name=${env.DOCKER_NETWORK_NAME} -Ddocker.host=${env.DOCKER_HOST_EXT} -Ddocker.certPath=${env.DOCKER_CERT_EXT}"
 
-                        networkId = UUID.randomUUID().toString()
-                        sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
-                        env.DOCKER_NETWORK_NAME = "${networkId}"
+                        echo 'Starting containers.'
+                        sh "./mvnw docker:start -pl dataverse-webapp ${IT_TEST_OPTS}"
 
-                        docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
-                            IT_TEST_DOCKER_OPTS="-Dtest.network.name=${env.DOCKER_NETWORK_NAME} -Ddocker.host=${env.DOCKER_HOST_EXT} -Ddocker.certPath=${env.DOCKER_CERT_EXT}"
-
-                            echo 'Starting containers.'
-                            sh "./mvnw docker:start -pl dataverse-webapp -P integration-tests-only,ci-jenkins ${IT_TEST_DOCKER_OPTS}"
-
-                            echo 'Executing integration tests.'
-                            sh "./mvnw verify -P integration-tests-only,ci-jenkins -Ddocker.skip  ${IT_TEST_DOCKER_OPTS}"
-                        }
-                    } finally {
-                        sh "docker ps -q --filter 'name=${SOLR_CONTAINER_ALIAS}|${POSTGRES_CONTAINER_ALIAS}' | xargs -r docker stop"
-                        sh "docker ps -q -a --filter 'name=${SOLR_CONTAINER_ALIAS}|${POSTGRES_CONTAINER_ALIAS}' | xargs -r docker rm"
-                        sh "docker network rm -f ${networkId}"
+                        echo 'Executing integration tests.'
+                        sh "./mvnw verify -Ddocker.skip ${IT_TEST_OPTS}"
                     }
                 }
             }
@@ -182,6 +170,22 @@ pipeline {
             }
         }
 
+    }
+}
+
+void withinContainer(body) {
+    try {
+        networkId = UUID.randomUUID().toString()
+        sh "docker network inspect ${networkId} >/dev/null 2>&1 || docker network create --driver bridge ${networkId}"
+        env.DOCKER_NETWORK_NAME = "${networkId}"
+
+        docker.image('drodb-build:latest').inside("--network ${networkId}") { c ->
+            body()
+        }
+    } finally {
+        sh "docker ps -q --filter 'name=${SOLR_CONTAINER_ALIAS}|${POSTGRES_CONTAINER_ALIAS}' | xargs -r docker stop"
+        sh "docker ps -q -a --filter 'name=${SOLR_CONTAINER_ALIAS}|${POSTGRES_CONTAINER_ALIAS}' | xargs -r docker rm"
+        sh "docker network rm -f ${networkId}"
     }
 }
 

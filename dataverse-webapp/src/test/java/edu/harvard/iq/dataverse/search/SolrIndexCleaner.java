@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.search;
 
-import com.google.common.base.Stopwatch;
 import edu.harvard.iq.dataverse.DatasetDao;
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
@@ -9,7 +8,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +15,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class SolrIndexCleaner {
@@ -35,8 +32,6 @@ public class SolrIndexCleaner {
     @Inject
     private IndexServiceBean indexService;
 
-    private static boolean indexedAtLeastOnce = false;
-    
     // -------------------- LOGIC --------------------
     
     /**
@@ -45,33 +40,19 @@ public class SolrIndexCleaner {
      * that are currently in database)
      */
     public void cleanupSolrIndex() throws SolrServerException, IOException {
-        Stopwatch watch = new Stopwatch().start();
-        long beforeDelete = countSolrDocuments();
-        log.info("********* {} Number of solr documents before delete: {}", watch.elapsedMillis(), beforeDelete);
-
-        if (beforeDelete == 0 && indexedAtLeastOnce) {
-            throw new RuntimeException("No solr documents found.");
-        }
-
         new UpdateRequest().deleteByQuery("*:*").commit(solrClient, null);
 
-        log.info("********* {} Number of solr documents after delete: {}", watch.elapsedMillis(), countSolrDocuments());
-
         long numIndexed = Stream.concat(indexDataverses(), indexDatasets()).mapToInt(f -> {
-            log.info("********* Index result: {}", Try.of(f::get).get());
+            Try.of(f::get).get();
             return 1;
         }).sum();
 
-        log.info("********* {} Number of indexed documents: {}", watch.elapsedMillis(), numIndexed);
-        log.info("********* {} Number of solr documents: {}", watch.elapsedMillis(), countSolrDocuments());
-
-        indexedAtLeastOnce = true;
+        log.info("Number of indexed documents: {}", numIndexed);
+        log.info("Number of solr documents: {}", countSolrDocuments());
     }
 
     private long countSolrDocuments() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("*:*");
-        query.setRows(0);
-        return solrClient.query(query).getResults().getNumFound();
+        return solrClient.query(new SolrQuery("*:*").setRows(0)).getResults().getNumFound();
     }
 
     private Stream<Future<String>> indexDatasets() {
@@ -85,13 +66,5 @@ public class SolrIndexCleaner {
             }
             return indexService.indexDataverse(dataverse);
         });
-    }
-
-    public void logTestStart(String what) {
-        log.info("********* test start: {}", what);
-    }
-
-    public void logTestEnd(String what) {
-        log.info("********* test end: {}", what);
     }
 }
