@@ -78,10 +78,10 @@
                     id="suggestionTextEnhancedSingleSelectWidget"
                     value="#{datasetField.singleControlledVocabularyValue}"
                     completeMethod="#{inputRenderer.complete(datasetField, 'suggestionTextEnhancedSingleSelectWidget')}"
-                    styleClass="autocomplete-form-control"
                     resultsMessage="#{bundle['common.forms.autocomplete.resultsMessage']}"
                     emptyMessage="#{bundle['common.forms.autocomplete.emptySuggestionMessage']}"
                     var="item" itemLabel="#{item.strValue}" itemValue="#{item.id}"
+                    multiple="false"
                     autoSelection="false"
                     autoHighlight="false"
                     converter="controlledVocabularyValueConverter"
@@ -92,6 +92,7 @@
                     widgetVar="suggestionTextEnhancedSingleSelectWidget"
                     moreText="Load more"
                     maxResults="#{inputRenderer.getMaxResults()-1}"
+                    style="width: 100%;"
     >
         <p:ajax event="moreText"
                 listener="#{inputRenderer.loadMore(datasetField, 'suggestionTextEnhancedSingleSelectWidget')}"
@@ -120,7 +121,8 @@
                 listener="#{inputRenderer.loadMore(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}"
                 onsuccess="reopenAutocompleteSuggestions('suggestionTextEnhancedMultipleSelectWidget')" />
         <p:ajax event="itemSelect" listener="#{inputRenderer.onSelection(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}"  />
-        <p:column style="width:20%"><h:outputText value="#{item.strValue}" /></p:column>
+        <p:ajax event="itemUnselect" listener="#{inputRenderer.onDeselection(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}" />
+        #{item.strValue}
     </p:autoComplete>
 
     <div class="ui-message ui-message-error ui-widget ui-corner-all" aria-live="polite"

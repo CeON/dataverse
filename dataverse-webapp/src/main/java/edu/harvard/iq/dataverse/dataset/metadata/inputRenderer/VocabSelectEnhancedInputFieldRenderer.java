@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer {
 
     private Collection<ControlledVocabularyValue> all = new ArrayList<>();
-    private int maxResults = 10;
+    private static int MAX_RESULTS = 100;
+    private static final int RESULTS_INCREMENT_STEP = 100;
 
     // -------------------- GETTERS --------------------
 
@@ -46,10 +47,14 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
     }
 
     public Integer getMaxResults() {
-        return maxResults;
+        return MAX_RESULTS;
     }
 
     public void onSelection(DatasetField datasetField, String autoCompleteId) {
+        queryControlledVocabularyValues(datasetField, autoCompleteId);
+    }
+
+    public void onDeselection(DatasetField datasetField, String autoCompleteId) {
         queryControlledVocabularyValues(datasetField, autoCompleteId);
     }
 
@@ -58,7 +63,7 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
     }
 
     public List<ControlledVocabularyValue> loadMore(DatasetField datasetField, String autoCompleteId) {
-        maxResults += 10;
+        MAX_RESULTS += RESULTS_INCREMENT_STEP;
         return queryControlledVocabularyValues(datasetField, autoCompleteId);
     }
 
@@ -70,7 +75,7 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
         return all.stream()
                 .filter(item -> !datasetField.getControlledVocabularyValues().contains(item))
                 .filter(item -> item.getStrValue().toLowerCase().contains(query.toLowerCase()))
-                .limit(maxResults)
+                .limit(MAX_RESULTS)
                 .collect(Collectors.toList());
     }
 }
