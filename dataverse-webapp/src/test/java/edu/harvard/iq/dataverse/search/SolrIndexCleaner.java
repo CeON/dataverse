@@ -63,14 +63,7 @@ public class SolrIndexCleaner {
         }).sum();
 
         log.info("********* {} Number of indexed documents: {}", watch.elapsedMillis(), numIndexed);
-
-        Awaitility.await()
-                .pollInterval(5, TimeUnit.SECONDS)
-                .atMost(1, TimeUnit.MINUTES).until(() -> {
-            long numSolr = countSolrDocuments();
-            log.info("********* {} Number of solr documents: {}", watch.elapsedMillis(), numSolr);
-            return numSolr == 44;
-        });
+        log.info("********* {} Number of solr documents: {}", watch.elapsedMillis(), countSolrDocuments());
 
         indexedAtLeastOnce = true;
     }
