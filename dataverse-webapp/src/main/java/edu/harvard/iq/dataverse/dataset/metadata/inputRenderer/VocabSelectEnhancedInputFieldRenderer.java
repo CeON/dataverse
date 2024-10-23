@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer {
 
     private Collection<ControlledVocabularyValue> all = new ArrayList<>();
-    private static int MAX_RESULTS = 100;
+    private int numberOfResults = 100;
     private static final int RESULTS_INCREMENT_STEP = 100;
 
     // -------------------- GETTERS --------------------
@@ -19,7 +19,7 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation always returns {@link InputRendererType#VOCABULARY_SELECT}
+     * This implementation always returns {@link InputRendererType#VOCABULARY_ENHANCED_SELECT}
      */
     @Override
     public InputRendererType getType() {
@@ -46,8 +46,8 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
         return false;
     }
 
-    public Integer getMaxResults() {
-        return MAX_RESULTS;
+    public Integer getNumberOfResults() {
+        return numberOfResults;
     }
 
     public void onSelection(DatasetField datasetField, String autoCompleteId) {
@@ -63,11 +63,11 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
     }
 
     public List<ControlledVocabularyValue> loadMore(DatasetField datasetField, String autoCompleteId) {
-        MAX_RESULTS += RESULTS_INCREMENT_STEP;
+        numberOfResults += RESULTS_INCREMENT_STEP;
         return queryControlledVocabularyValues(datasetField, autoCompleteId);
     }
 
-    public List<ControlledVocabularyValue> queryControlledVocabularyValues(DatasetField datasetField, String autoCompleteId) {
+    private List<ControlledVocabularyValue> queryControlledVocabularyValues(DatasetField datasetField, String autoCompleteId) {
         if (all == null || all.isEmpty()) {
             all = datasetField.getDatasetFieldType().getControlledVocabularyValues();
         }
@@ -75,7 +75,7 @@ public class VocabSelectEnhancedInputFieldRenderer implements InputFieldRenderer
         return all.stream()
                 .filter(item -> !datasetField.getControlledVocabularyValues().contains(item))
                 .filter(item -> item.getStrValue().toLowerCase().contains(query.toLowerCase()))
-                .limit(MAX_RESULTS)
+                .limit(numberOfResults)
                 .collect(Collectors.toList());
     }
 }

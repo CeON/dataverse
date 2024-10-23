@@ -12,7 +12,7 @@ public class VocabSelectEnhancedInputFieldRendererFactory implements InputFieldR
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation always returns {@link InputRendererType#VOCABULARY_SELECT}
+     * This implementation always returns {@link InputRendererType#VOCABULARY_ENHANCED_SELECT}
      */
     @Override
     public InputRendererType isFactoryForType() {

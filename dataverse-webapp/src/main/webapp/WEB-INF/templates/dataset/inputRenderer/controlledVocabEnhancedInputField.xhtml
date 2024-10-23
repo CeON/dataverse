@@ -91,7 +91,7 @@
                     unique="true"
                     widgetVar="suggestionTextEnhancedSingleSelectWidget"
                     moreText="Load more"
-                    maxResults="#{inputRenderer.getMaxResults()-1}"
+                    maxResults="#{inputRenderer.numberOfResults()-1}"
                     style="width: 100%;"
     >
         <p:ajax event="moreText"
@@ -115,7 +115,7 @@
                     unique="true"
                     widgetVar="suggestionTextEnhancedMultipleSelectWidget"
                     moreText="Load more"
-                    maxResults="#{inputRenderer.getMaxResults()-1}"
+                    maxResults="#{inputRenderer.numberOfResults()-1}"
     >
         <p:ajax event="moreText"
                 listener="#{inputRenderer.loadMore(datasetField, 'suggestionTextEnhancedMultipleSelectWidget')}"
