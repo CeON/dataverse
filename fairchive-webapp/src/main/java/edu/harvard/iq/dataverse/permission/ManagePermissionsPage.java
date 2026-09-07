@@ -209,7 +209,10 @@ public class ManagePermissionsPage implements java.io.Serializable {
 
     public void removeRoleAssignment() {
 
-        roleAssignments = initRoleAssignments();
+    	if(this.selectedRoleAssignment != null) {
+    		removeRoleAssignment(this.selectedRoleAssignment);
+    	}
+    	roleAssignments = initRoleAssignments();
         showAssignmentMessages();
     }
     
@@ -361,6 +364,27 @@ public class ManagePermissionsPage implements java.io.Serializable {
 
         showAssignmentMessages();
     }
+   
+   private void removeRoleAssignment(final RoleAssignment assignment) {
+   	try {
+   		this.managePermissionsService.removeRoleAssignmentWithNotification(assignment);
+   		this.ui.addFlashSuccessMessage(
+   				getStringFromBundle("permission.roleWasRemoved",
+           		assignment.getRole().getName(), this.roleAssigneeService.getRoleAssignee(
+            			assignment.getAssigneeIdentifier()).getDisplayInfo().getTitle()));
+   	} catch(final PermissionException e) {
+   		this.ui.addErrorMessage(
+   				getStringFromBundle("permission.roleNotAbleToBeRemoved"),
+                   getStringFromBundle("permission.permissionsMissing",
+                           e.getMissingPermissions().toString()));
+   		throw e;
+   	} catch(final CommandException e) {
+   		this.ui.addErrorMessage(
+   				getStringFromBundle("permission.roleNotAbleToBeRemoved"));
+           logger.error("Error removing role assignment: " + e.getMessage(), e);
+           throw e;
+   	}
+   }
 
     private boolean isAllowedToManageRole(DataverseRole role) {
         return DataverseRolePermissionHelper.getRolesAllowedToBeAssignedByManageMinorDatasetPermissions().contains(role.getAlias());
