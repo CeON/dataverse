@@ -221,4 +221,8 @@ public class DataverseRole implements Serializable, JpaEntity<Long> {
     			this.alias.equals(BuiltInRole.DV_CONTRIBUTOR.getAlias()) ||
     			this.alias.equals(BuiltInRole.FULL_CONTRIBUTOR.getAlias());
     }
+    
+    public boolean is(final BuiltInRole builtIn) {
+    	return builtIn.alias.equals(this.alias);
+    }
 }

@@ -1,5 +1,19 @@
 package edu.harvard.iq.dataverse;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
+
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.persistence.dataverse.DataverseRepository;
@@ -10,21 +24,6 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignmentRepository;
 import edu.harvard.iq.dataverse.search.index.PermissionReindexEvent;
-
-import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.persistence.EntityNotFoundException;
-
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author michael
@@ -136,13 +135,13 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
     }
 
     public Set<RoleAssignment> rolesAssignments(DvObject dvObject) {
-        LinkedList<Long> dvOwnerIds = new LinkedList<>();
-        dvOwnerIds.add(dvObject.getId());
+        final ArrayList<Long> ids = new ArrayList<>(4);
+        ids.add(dvObject.getId());
         while (!dvObject.isEffectivelyPermissionRoot()) {
             dvObject = dvObject.getOwner();
-            dvOwnerIds.add(dvObject.getId());
+            ids.add(dvObject.getId());
         }
-        return new HashSet<>(roleAssignmentRepository.findByDefinitionPointIds(dvOwnerIds));
+        return new HashSet<>(roleAssignmentRepository.findByDefinitionPointIds(ids));
     }
 
     /**
@@ -200,6 +199,11 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
      */
     public List<RoleAssignment> directRoleAssignments(DvObject dvObject) {
         return roleAssignmentRepository.findByDefinitionPointId(dvObject.getId());
+    }
+    
+    public List<RoleAssignment> findByDefinitionPointIdAndRoleAlias(final Long id, 
+    		final String alias) {
+    	return this.roleAssignmentRepository.findByDefinitionPointIdAndRoleAlias(id, alias);
     }
 
     /**

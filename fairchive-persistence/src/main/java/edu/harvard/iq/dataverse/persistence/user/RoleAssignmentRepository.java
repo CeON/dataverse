@@ -30,6 +30,15 @@ public class RoleAssignmentRepository extends JpaRepository<Long, RoleAssignment
                 .setParameter("id", id)
                 .getResultList();
     }
+    
+    public List<RoleAssignment> findByDefinitionPointIdAndRoleAlias(final Long id, 
+    		final String alias) {
+        return createQuery("SELECT r FROM RoleAssignment r " +
+        		"WHERE r.definitionPoint.id = :id AND r.role.alias = :alias")
+                .setParameter("id", id)
+                .setParameter("alias", alias)
+                .getResultList();
+    }
 
     public List<RoleAssignment> findByDefinitionPointIds(final List<Long> ids) {
         return createQuery("SELECT r FROM RoleAssignment r WHERE r.definitionPoint.id IN :ids")

@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.persistence.user;
 import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
 import static java.util.Arrays.stream;
 
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import edu.harvard.iq.dataverse.persistence.DvObject;
@@ -131,5 +133,9 @@ public enum Permission implements java.io.Serializable {
     
     public static Stream<Permission> streamFrom(final long bits) {
     	return stream(values).filter(p -> p.isIn(bits));
+    }
+    
+    public static Set<Permission> all() {
+    	return EnumSet.allOf(Permission.class);
     }
 }

@@ -124,11 +124,11 @@ public class PermissionServiceBean {
         User user = request.getUser();
         if (user.isSuperuser()) {
             if (systemConfig.isReadonlyMode()) {
-              Set<Permission> readonlyPermissions = EnumSet.allOf(Permission.class);
+              Set<Permission> readonlyPermissions = Permission.all();
               readonlyPermissions.removeAll(WRITE_PERMISSIONS);
               return readonlyPermissions;
             }
-            return EnumSet.allOf(Permission.class);
+            return Permission.all();
         }
 
         Set<Permission> permissions = getInferredPermissions(dvObject);
