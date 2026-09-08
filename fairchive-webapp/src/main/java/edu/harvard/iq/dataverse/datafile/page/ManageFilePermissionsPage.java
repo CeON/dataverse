@@ -366,7 +366,7 @@ public class ManageFilePermissionsPage implements java.io.Serializable {
         List<RoleAssignment> ras = roleService.directRoleAssignments(file);
         List<RoleAssignment> downloadFileRoleAssigments = new ArrayList<>();
         for (RoleAssignment ra : ras) {
-            if (ra.getRole().has(Permission.DownloadFile)) {
+            if (ra.has(Permission.DownloadFile)) {
                 downloadFileRoleAssigments.add(ra);
             }
         }

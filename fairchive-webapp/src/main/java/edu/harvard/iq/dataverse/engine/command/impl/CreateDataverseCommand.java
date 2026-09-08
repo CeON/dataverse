@@ -1,5 +1,13 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import static edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole.EDITOR;
+import static edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole.ADMIN;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import edu.harvard.iq.dataverse.engine.command.AbstractCommand;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -11,16 +19,10 @@ import edu.harvard.iq.dataverse.persistence.dataverse.DataverseFieldTypeInputLev
 import edu.harvard.iq.dataverse.persistence.group.Group;
 import edu.harvard.iq.dataverse.persistence.user.AuthenticatedUser;
 import edu.harvard.iq.dataverse.persistence.user.DataverseRole;
-import edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * TODO make override the date and user more active, so prevent code errors.
@@ -79,25 +81,33 @@ public class CreateDataverseCommand extends AbstractCommand<Dataverse> {
             created.setDataverseType(Dataverse.DataverseType.UNCATEGORIZED);
         }
 
-        if (created.getDefaultContributorRole() == null) {
-            created.setDefaultContributorRole(ctxt.roles().findBuiltinRoleByAlias(BuiltInRole.EDITOR));
+        if (created.getDefaultDatasetContributorRole() == null) {
+            created.setDefaultDatasetContributorRole(ctxt.roles().findBuiltinRoleByAlias(EDITOR));
+        }
+        
+        if(owner.getDefaultDataverseContributorRole() != null) {
+        	this.created.setDefaultDataverseContributorRole(owner.getDefaultDataverseContributorRole());
+        } else {
+        	this.created.setDefaultDataverseContributorRole(ctxt.roles().findBuiltinRoleByAlias(ADMIN));
         }
 
         // @todo for now we are saying all dataverses are permission root
         created.setPermissionRoot(true);
 
         if (ctxt.dataverses().findByAlias(created.getAlias()) != null) {
-            throw new IllegalCommandException("A dataverse with alias " + created.getAlias() + " already exists", this);
+            throw new IllegalCommandException("A dataverse with alias " + 
+            		created.getAlias() + " already exists", this);
         }
 
         // Save the dataverse
         Dataverse managedDv = ctxt.dataverses().save(created);
 
         // Find the built in admin role (currently by alias)
-        DataverseRole adminRole = ctxt.roles().findBuiltinRoleByAlias(BuiltInRole.ADMIN);
+        DataverseRole adminRole = ctxt.roles().findBuiltinRoleByAlias(ADMIN);
         String privateUrlToken = null;
 
-        ctxt.roles().save(new RoleAssignment(adminRole, getRequest().getUser(), managedDv, privateUrlToken));
+        ctxt.roles().save(new RoleAssignment(this.created.getDefaultDataverseContributorRole(), 
+        		getRequest().getUser(), managedDv, privateUrlToken));
         // Add additional role assignments if inheritance is set
         boolean inheritAllRoles = false;
         List<String> rolesToInherit = ctxt.settings().getValueForKeyAsList(SettingsServiceBean.Key.InheritParentRoleAssignments);

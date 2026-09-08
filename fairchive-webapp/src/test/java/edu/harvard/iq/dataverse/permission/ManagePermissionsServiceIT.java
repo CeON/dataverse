@@ -182,7 +182,7 @@ public class ManagePermissionsServiceIT extends WebappArquillianDeployment {
 
     @Test
     @Transactional(TransactionMode.ROLLBACK)
-    public void shouldSetDataverseDefaultContributorRole() {
+    public void shouldSetDefaultDatasetContributorRole() {
         // given
         Dataverse dataverse = dataverseDao.find(19L);
         DataverseRole toBeSetDefault = new DataverseRole();
@@ -194,11 +194,32 @@ public class ManagePermissionsServiceIT extends WebappArquillianDeployment {
         em.flush();
 
         // when
-        managePermissionsService.setDataverseDefaultContributorRole(toBeSetDefault, dataverse);
+        managePermissionsService.setDefaultDatasetContributorRole(toBeSetDefault, dataverse);
 
         // then
-        assertEquals(toBeSetDefault.getId(), dataverse.getDefaultContributorRole().getId());
-        assertEquals(toBeSetDefault.getAlias(), dataverse.getDefaultContributorRole().getAlias());
+        assertEquals(toBeSetDefault.getId(), dataverse.getDefaultDatasetContributorRole().getId());
+        assertEquals(toBeSetDefault.getAlias(), dataverse.getDefaultDatasetContributorRole().getAlias());
+    }
+    
+    @Test
+    @Transactional(TransactionMode.ROLLBACK)
+    public void shouldSetDefaultDataverseContributorRole() {
+        // given
+        Dataverse dataverse = dataverseDao.find(19L);
+        DataverseRole toBeSetDefault = new DataverseRole();
+        toBeSetDefault.setOwner(dataverse);
+        toBeSetDefault.setName("newRoleName");
+        toBeSetDefault.setAlias("newRoleAlias");
+        toBeSetDefault.setDescription("newRoleDesc");
+        em.persist(toBeSetDefault);
+        em.flush();
+
+        // when
+        managePermissionsService.setDefaultDataverseContributorRole(toBeSetDefault, dataverse);
+
+        // then
+        assertEquals(toBeSetDefault.getId(), dataverse.getDefaultDataverseContributorRole().getId());
+        assertEquals(toBeSetDefault.getAlias(), dataverse.getDefaultDataverseContributorRole().getAlias());
     }
 
     @Test
@@ -215,6 +236,6 @@ public class ManagePermissionsServiceIT extends WebappArquillianDeployment {
         dataverseSession.logIn(GuestUser.get());
 
         // when&then
-        assertThrows(PermissionException.class, () -> managePermissionsService.setDataverseDefaultContributorRole(toBeSetDefault, dataverse));
+        assertThrows(PermissionException.class, () -> managePermissionsService.setDefaultDatasetContributorRole(toBeSetDefault, dataverse));
     }
 }

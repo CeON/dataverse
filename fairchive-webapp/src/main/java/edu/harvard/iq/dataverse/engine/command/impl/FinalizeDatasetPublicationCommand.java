@@ -268,7 +268,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
     //If more notifications are needed in this command, they should probably be collapsed.
     private void notifyUsersFileDownload(CommandContext ctxt, DvObject subject) {
         ctxt.roles().directRoleAssignments(subject).stream()
-                .filter(ra -> ra.getRole().has(Permission.DownloadFile))
+                .filter(ra -> ra.has(Permission.DownloadFile))
                 .flatMap(ra -> ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier())).stream())
                 .distinct() // prevent double-send
                 .forEach(au -> ctxt.notifications().sendNotificationWithEmail(au, getTimestamp(), NotificationType.GRANTFILEACCESS, getDataset().getId(), NotificationObjectType.DATASET));
@@ -276,7 +276,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
 
     private void notifyUsersDatasetPublish(CommandContext ctxt, DvObject subject) {
         ctxt.roles().rolesAssignments(subject).stream()
-                .filter(ra -> ra.getRole().hasAny(Permission.ViewUnpublishedDataset, Permission.DownloadFile))
+                .filter(ra -> ra.hasAny(Permission.ViewUnpublishedDataset, Permission.DownloadFile))
                 .flatMap(ra -> ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier())).stream())
                 .distinct() // prevent double-send
                 .forEach(au -> ctxt.notifications().sendNotificationWithEmail(au, getTimestamp(), NotificationType.PUBLISHEDDS, getDataset().getLatestVersion().getId(), NotificationObjectType.DATASET_VERSION));

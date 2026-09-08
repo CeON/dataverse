@@ -1,50 +1,77 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:o="http://omnifaces.org/ui">
-    
-    <div class="form-group">
-        <fieldset>
-            <legend class="control-label">
-                #{bundle['dataverse.permissions.Q1']}
-            </legend>
-            <div class="col-sm-offset-1">
-                <p:selectOneRadio id="authenticatedUsersContributorRoleRadio" value="#{managePermissionsPage.authenticatedUsersContributorRoleAlias}" layout="grid" columns="1" styleClass="inline-labels">
-                    <f:selectItem itemLabel="#{bundle['dataverse.permissions.Q1.answer1']}" itemValue="" />
-                    <f:selectItem itemLabel="#{bundle['dataverse.permissions.Q1.answer2']}" itemValue="dvContributor" />
-                    <f:selectItem itemLabel="#{bundle['dataverse.permissions.Q1.answer3']}" itemValue="dsContributor" />
-                    <f:selectItem itemLabel="#{bundle['dataverse.permissions.Q1.answer4']}" itemValue="fullContributor" />
-                </p:selectOneRadio>
-            </div>
-        </fieldset>
-    </div>
 
-    <div class="form-group">
-        <fieldset>
-            <legend class="control-label">
-                #{bundle['dataverse.permissions.Q2']}
-            </legend>
-            <div class="col-sm-offset-1">
-                <o:importFunctions type="org.apache.commons.lang3.StringEscapeUtils"/>
-                
-                <p:selectOneRadio id="defaultContributorRoleRadio" value="#{managePermissionsPage.defaultContributorRoleAlias}" layout="grid" columns="1" styleClass="inline-labels">
-                    <f:selectItem itemLabel="#{bundle.editor} &lt;span class='text-muted'&gt; #{bundle['dataverse.permissions.Q2.answer.editor.description']} &lt;/span&gt;" 
-                                  itemValue="editor" itemEscaped="false" />
-                    <f:selectItem itemLabel="#{bundle.curator} &lt;span class='text-muted'&gt; #{bundle['dataverse.permissions.Q2.answer.curator.description']} &lt;/span&gt;" 
-                                  itemValue="curator" itemEscaped="false" />
-                    <f:selectItem itemLabel="#{bundle.depositor} &lt;span class='text-muted'&gt; #{bundle['dataverse.permissions.Q2.answer.depositor.description']} &lt;/span&gt;"
-                                  itemValue="depositor" itemEscaped="false"/>
-                    <c:if test="#{managePermissionsPage.isCustomDefaultContributorRole()}">
-                        <f:selectItem itemLabel="#{StringEscapeUtils:escapeHtml4(managePermissionsPage.customDefaultContributorRoleName)} 
-                                                 &lt;span class='text-muted'&gt;
-                                                 - #{StringEscapeUtils:escapeHtml4(managePermissionsPage.customDefaultContributorRoleDescription)} &lt;/span&gt;"
-                                      itemValue="#{managePermissionsPage.customDefaultContributorRoleAlias}"
-                                      itemEscaped="false"/>
-                    </c:if>
-                </p:selectOneRadio>
-            </div>
+<p:dialog id="accessDialog" 
+          widgetVar="accessDialog" 
+          styleClass="largePopUp" 
+          header="#{bundle['dataverse.permissions.accessDialog.header']}" 
+          modal="true"
+          closeOnEscape="true">
+    <h:form id="accessDialogForm">
+	    <fieldset class="form-group">
+	        <legend class="control-label">#{bundle['dataverse.permissions.Q1']}</legend>
+	        <p:selectOneRadio id="creatorRole" 
+	                          value="#{dialog.creatorRoleIndex}" 
+	                          layout="grid" 
+	                          columns="1" 
+	                          styleClass="col-sm-offset-1 inline-labels">
+	            <f:selectItems value="#{dialog.creatorRoles}"
+	                           var="role"
+	                           itemValue="#{dialog.creatorRoles.indexOf(role)}"
+	                           itemLabel="#{role.label}" />
+	        </p:selectOneRadio>
+	    </fieldset>
+	
+	    <fieldset class="form-group">
+	        <legend class="control-label">#{bundle['dataverse.permissions.Q2']}</legend>
+	        <p:selectOneRadio id="defaultRole" 
+	                          value="#{dialog.defaultDatasetContributorRoleIndex}" 
+	                          layout="grid" 
+	                          columns="1" 
+	                          styleClass="col-sm-offset-1 inline-labels">
+	                          
+	            <f:selectItems value="#{dialog.defaultDatasetContributorRoles}"
+	                           var="role"
+	                           itemValue="#{dialog.defaultDatasetContributorRoles.indexOf(role)}"
+	                           itemLabel="#{role.labelWithDetails}" />              
+	        </p:selectOneRadio>
+	    </fieldset>
+	    
+	   <fieldset class="form-group">
+            <legend class="control-label">#{bundle['dataverse.permissions.Q3']}</legend>
+            <p:selectOneRadio id="defaultCollectionRole" 
+                              value="#{dialog.defaultDataverseContributorRoleIndex}" 
+                              layout="grid" 
+                              columns="1" 
+                              styleClass="col-sm-offset-1 inline-labels">
+                              
+                <f:selectItems value="#{dialog.defaultDataverseContributorRoles}"
+                               var="role"
+                               itemValue="#{dialog.defaultDataverseContributorRoles.indexOf(role)}"
+                               itemLabel="#{role.label}" />              
+            </p:selectOneRadio>
         </fieldset>
-    </div>
+	    
+	    <div class="button-block">
+	        <p:commandButton id="saveButton" 
+	                         value="#{bundle['saveChanges']}" 
+	                         styleClass="btn btn-default"
+	                         process="@form"
+	                         update="#{updateTarget}"
+	                         action="#{dialog.save}"
+	                         oncomplete="PF('accessDialog').hide()"/>
+	        <p:commandButton type="button" 
+	                class="btn btn-default" 
+	                onclick="PF('accessDialog').hide()" 
+	                value="#{bundle.cancel}"/>
+	        <p:defaultCommand target="saveButton" 
+	                          scope="accessDialog" />
+	    </div>
+    </h:form>
+</p:dialog>
 </ui:composition>

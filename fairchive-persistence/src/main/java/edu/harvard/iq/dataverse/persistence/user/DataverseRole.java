@@ -215,4 +215,10 @@ public class DataverseRole implements Serializable, JpaEntity<Long> {
     public boolean hasPermissionFor(final Class<? extends DvObject> dvObjectClass) {
     	return permissionsStream().anyMatch(p -> p.appliesTo(dvObjectClass));
     } 
+    
+    public boolean isContributor() {
+    	return this.alias.equals(BuiltInRole.DS_CONTRIBUTOR.getAlias()) ||
+    			this.alias.equals(BuiltInRole.DV_CONTRIBUTOR.getAlias()) ||
+    			this.alias.equals(BuiltInRole.FULL_CONTRIBUTOR.getAlias());
+    }
 }

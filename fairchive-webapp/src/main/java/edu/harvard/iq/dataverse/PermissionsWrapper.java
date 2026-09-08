@@ -2,10 +2,10 @@ package edu.harvard.iq.dataverse;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -33,21 +33,32 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 @SuppressWarnings("serial")
 @ViewScoped
 @Named
-public class PermissionsWrapper implements java.io.Serializable {
+public class PermissionsWrapper implements Serializable {
 
-    @EJB
-    PermissionServiceBean permissionService;
-
-    @Inject
-    DataverseRequestServiceBean dvRequestService;
+    private PermissionServiceBean permissionService;
+    private DataverseRequestServiceBean dvRequestService;
+    // todo: move any calls to this to call NavigationWrapper
+    private NavigationWrapper navigationWrapper;
 
     private final Map<Long, Map<Class<? extends Command<?>>, Boolean>> commandMap = new HashMap<>();
 
     // Maps for caching permissions lookup results:
     private final Map<Long, Boolean> fileDownloadPermissionMap = new HashMap<>(); // { DvObject.id : Boolean }
     private final Map<Permission, Boolean> datasetPermissionMap = new HashMap<>();
+    
+    public PermissionsWrapper() {}
+    
+    @Inject
+    public PermissionsWrapper(final PermissionServiceBean permissionService, 
+    						  final DataverseRequestServiceBean dvRequestService,
+    						  final NavigationWrapper navigationWrapper) {
 
-    /**
+		this.permissionService = permissionService;
+		this.dvRequestService = dvRequestService;
+		this.navigationWrapper = navigationWrapper;
+	}
+
+	/**
      * Check if the current Dataset can Issue Commands
      *
      * @param dvo     Target dataverse object.
@@ -265,11 +276,6 @@ public class PermissionsWrapper implements java.io.Serializable {
     public boolean canIssuePublishDatasetCommand(DvObject dvo) {
         return canIssueCommand(dvo, PublishDatasetCommand.class);
     }
-
-
-    // todo: move any calls to this to call NavigationWrapper
-    @Inject
-    NavigationWrapper navigationWrapper;
 
     public String notAuthorized() {
         return navigationWrapper.notAuthorized();

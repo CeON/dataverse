@@ -74,8 +74,8 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
     protected void postPersist(Dataset theDataset, CommandContext ctxt) {
         // set the role to be default contributor role for its dataverse
         String privateUrlToken = null;
-        if (theDataset.getOwner().getDefaultContributorRole() != null) {
-            RoleAssignment roleAssignment = new RoleAssignment(theDataset.getOwner().getDefaultContributorRole(),
+        if (theDataset.getOwner().getDefaultDatasetContributorRole() != null) {
+            RoleAssignment roleAssignment = new RoleAssignment(theDataset.getOwner().getDefaultDatasetContributorRole(),
                                                                getRequest().getUser(), theDataset, privateUrlToken);
             ctxt.roles().save(roleAssignment, false);
 

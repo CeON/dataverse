@@ -1,12 +1,22 @@
 package edu.harvard.iq.dataverse.permission;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.engine.command.impl.AssignRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseDefaultContributorRoleCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDefaultDatasetContributorRoleCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDefaultDataverseContributorRoleCommand;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.DvObject;
@@ -20,14 +30,6 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignee;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import io.vavr.control.Try;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @SuppressWarnings("serial")
 @Stateless
@@ -46,8 +48,10 @@ public class ManagePermissionsService implements Serializable {
     }
 
     @Inject
-    public ManagePermissionsService(EjbDataverseEngine commandEngine, DataverseRequestServiceBean dvRequestService,
-                                    UserNotificationService userNotificationService, RoleAssigneeServiceBean roleAssigneeService) {
+    public ManagePermissionsService(final EjbDataverseEngine commandEngine, 
+    								final DataverseRequestServiceBean dvRequestService,
+                                    final UserNotificationService userNotificationService, 
+                                    final RoleAssigneeServiceBean roleAssigneeService) {
         this.commandEngine = commandEngine;
         this.dvRequestService = dvRequestService;
         this.userNotificationService = userNotificationService;
@@ -102,8 +106,18 @@ public class ManagePermissionsService implements Serializable {
         return commandEngine.submit(new CreateRoleCommand(role, dvRequestService.getDataverseRequest(), (Dataverse) role.getOwner()));
     }
 
-    public Dataverse setDataverseDefaultContributorRole(DataverseRole defaultRole, Dataverse affectedDataverse) {
-        return commandEngine.submit(new UpdateDataverseDefaultContributorRoleCommand(defaultRole, dvRequestService.getDataverseRequest(), affectedDataverse));
+    public Dataverse setDefaultDatasetContributorRole(final DataverseRole role, 
+    		final Dataverse dataverse) {
+        return this.commandEngine.submit(
+        		new UpdateDefaultDatasetContributorRoleCommand(role, 
+        				this.dvRequestService.getDataverseRequest(), dataverse));
+    }
+    
+    public Dataverse setDefaultDataverseContributorRole(final DataverseRole role, 
+    		final Dataverse dataverse) {
+        return this.commandEngine.submit(
+        		new UpdateDefaultDataverseContributorRoleCommand(role, 
+        				this.dvRequestService.getDataverseRequest(), dataverse));
     }
 
     // -------------------- PRIVATE ---------------------

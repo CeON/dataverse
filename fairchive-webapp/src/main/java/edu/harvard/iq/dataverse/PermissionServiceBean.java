@@ -198,7 +198,7 @@ public class PermissionServiceBean {
         List<AuthenticatedUser> usersHasPermissionOn = new LinkedList<>();
         Set<RoleAssignment> roleAssignments = roleService.rolesAssignments(dvObject);
         for (RoleAssignment assignment : roleAssignments) {
-            if (assignment.getRole().has(permission)) {
+            if (assignment.has(permission)) {
                 RoleAssignee assignee = roleAssigneeService.getRoleAssignee(assignment.getAssigneeIdentifier());
                 usersHasPermissionOn.addAll(roleAssigneeService.getExplicitUsers(assignee));
             }

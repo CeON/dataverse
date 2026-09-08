@@ -46,7 +46,7 @@ INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, auth
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (19, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, '2019-06-06 08:27:43.217',
             1, '2019-06-06 08:27:17.531', '2019-06-06 08:27:43.217', '2019-06-06 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (19, 'ownmetadatablocks', 'Own Metadatablock Dataverse', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 INSERT INTO dataverse_metadatablock (dataverse_id, metadatablocks_id) VALUES (19, 1);
 INSERT INTO dataversefacet (id, displayorder, datasetfieldtype_id, dataverse_id) VALUES (19, 3, 58, 1);
@@ -60,28 +60,28 @@ INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, auth
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (20, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, '2019-06-07 01:20:10.027',
             1, '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (20, 'wally', 'Wally', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 
 INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate,
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (21, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, '2019-06-07 01:21:00.000',
             1, '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (21, 'andromeda', 'Andromeda', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 
 INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate,
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (22, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, '2019-06-07 01:22:00.000',
             1, '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (22, 'zebra', 'Zebra', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 
 INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, authority, identifier, globalidcreatetime, identifierregistered, storageidentifier, releaseuser_id, publicationdate,
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (23, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, '2019-06-07 01:23:00.000',
             1, '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', '2019-06-08 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (23, 'papo', 'Papo', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 
 --- ROOT -> unreleased ---
@@ -89,7 +89,7 @@ INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, auth
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (51, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, NULL,
             1, '2019-08-19 13:14:48.434', '2019-08-19 13:15:02.415', '2019-08-19 13:14:48.799', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (51, 'unreleased', 'Unreleased Dataverse', 'ICM UW', 'JOURNALS', 'das', 6, NULL, false, false, false, true, false, true, false);
 INSERT INTO dataversecontact (id, contactemail, displayorder, dataverse_id) VALUES (5, 'unreleased.dv.contact@mailinator.com', 0, 51);
 INSERT INTO dataverserole (id, alias, description, name, permissionbits, owner_id) VALUES (13, 'unreleased_dv_test_role', 'Role description', 'Role name', 64, 51);
@@ -106,7 +106,7 @@ INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, auth
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
     VALUES (67, 'Dataverse', 1, false, NULL, NULL, NULL, NULL, false, NULL, 1, NULL,
             1, '2019-06-06 08:27:17.531', '2019-06-06 08:27:43.217', '2019-06-06 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
     VALUES (67, 'withoutData', 'withoutData', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 
 --- ROOT -> ownmatadatablocks -> sub Dataverse - dataverse inside non-Root dataverse ---
@@ -115,7 +115,7 @@ INSERT INTO dvobject (id, dtype, owner_id, previewimageavailable, protocol, auth
                       creator_id, createdate, modificationtime, permissionmodificationtime, indextime, permissionindextime)
 VALUES (68, 'Dataverse', 19, false, NULL, NULL, NULL, NULL, false, NULL, 1, NULL,
         1, '2019-06-07 08:27:17.531', '2019-06-07 08:27:43.217', '2019-06-07 08:27:17.588', NULL, NULL);
-INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
+INSERT INTO dataverse (id, alias, name, affiliation, dataversetype, description, defaultdatasetcontributorrole_id, defaulttemplate_id, facetroot, guestbookroot, metadatablockroot, permissionroot, templateroot, themeroot, allowmessagesbanners)
 VALUES (68, 'subDataverse', 'subDataverse', 'aff', 'ORGANIZATIONS_INSTITUTIONS', NULL, 6, NULL, false, false, true, true, false, true, false);
 
 

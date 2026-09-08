@@ -210,7 +210,7 @@ public class CreateDataverseCommandTest {
         dv.setCreateDate(null);
         dv.setId(null);
         dv.setCreator(null);
-        dv.setDefaultContributorRole(null);
+        dv.setDefaultDatasetContributorRole(null);
         dv.setOwner(makeDataverse());
         final DataverseRequest request = makeRequest(makeAuthenticatedUser("jk", "rollin'"));
 
@@ -222,7 +222,7 @@ public class CreateDataverseCommandTest {
 
         assertEquals(result.getCreator(), request.getUser());
         assertEquals(Dataverse.DataverseType.UNCATEGORIZED, result.getDataverseType());
-        assertEquals(roles.findBuiltinRoleByAlias(BuiltInRole.EDITOR), result.getDefaultContributorRole());
+        assertEquals(roles.findBuiltinRoleByAlias(BuiltInRole.EDITOR), result.getDefaultDatasetContributorRole());
 
         // Assert that the creator is admin.
         final RoleAssignment roleAssignment = roles.directRoleAssignments(dv).get(0);
@@ -250,10 +250,10 @@ public class CreateDataverseCommandTest {
 
         dv.setId(null);
         dv.setCreator(creator);
-        dv.setDefaultContributorRole(null);
+        dv.setDefaultDatasetContributorRole(null);
         dv.setOwner(makeDataverse());
         dv.setDataverseType(Dataverse.DataverseType.JOURNALS);
-        dv.setDefaultContributorRole(roles.findBuiltinRoleByAlias(BuiltInRole.CURATOR));
+        dv.setDefaultDatasetContributorRole(roles.findBuiltinRoleByAlias(BuiltInRole.CURATOR));
 
         final DataverseRequest request = makeRequest();
         List<DatasetFieldType> expectedFacets = Arrays.asList(makeDatasetFieldType(), makeDatasetFieldType(), makeDatasetFieldType());
@@ -269,7 +269,7 @@ public class CreateDataverseCommandTest {
 
         assertEquals(creator, result.getCreator());
         assertEquals(Dataverse.DataverseType.JOURNALS, result.getDataverseType());
-        assertEquals(roles.findBuiltinRoleByAlias(BuiltInRole.CURATOR), result.getDefaultContributorRole());
+        assertEquals(roles.findBuiltinRoleByAlias(BuiltInRole.CURATOR), result.getDefaultDatasetContributorRole());
 
         // Assert that the creator is admin.
         final RoleAssignment roleAssignment = roles.directRoleAssignments(dv).get(0);

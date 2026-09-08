@@ -219,14 +219,26 @@ public class Dataverse extends DvObjectContainer {
 
     @ManyToOne
     @JoinColumn(nullable = true)
-    private DataverseRole defaultContributorRole;
+    private DataverseRole defaultDatasetContributorRole;
 
-    public DataverseRole getDefaultContributorRole() {
-        return defaultContributorRole;
+    public DataverseRole getDefaultDatasetContributorRole() {
+        return this.defaultDatasetContributorRole;
     }
 
-    public void setDefaultContributorRole(DataverseRole defaultContributorRole) {
-        this.defaultContributorRole = defaultContributorRole;
+    public void setDefaultDatasetContributorRole(final DataverseRole role) {
+        this.defaultDatasetContributorRole = role;
+    }
+    
+    @ManyToOne
+    @JoinColumn(nullable = true)
+    private DataverseRole defaultDataverseContributorRole;
+
+    public DataverseRole getDefaultDataverseContributorRole() {
+        return this.defaultDataverseContributorRole;
+    }
+
+    public void setDefaultDataverseContributorRole(final DataverseRole role) {
+        this.defaultDataverseContributorRole = role;
     }
 
     private boolean metadataBlockRoot;

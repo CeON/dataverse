@@ -6,7 +6,7 @@ import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.engine.command.impl.AssignRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseDefaultContributorRoleCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDefaultDatasetContributorRoleCommand;
 import edu.harvard.iq.dataverse.notification.NotificationObjectType;
 import edu.harvard.iq.dataverse.notification.UserNotificationService;
 import edu.harvard.iq.dataverse.persistence.dataverse.Dataverse;
@@ -65,7 +65,7 @@ public class ManagePermissionsServiceTest {
 
         when(commandEngine.submit(any(AssignRoleCommand.class))).thenReturn(new RoleAssignment(role, roleAssignee, dvObject, null));
         when(commandEngine.submit(any(CreateRoleCommand.class))).thenReturn(this.role);
-        when(commandEngine.submit(any(UpdateDataverseDefaultContributorRoleCommand.class))).thenReturn(this.dvObject);
+        when(commandEngine.submit(any(UpdateDefaultDatasetContributorRoleCommand.class))).thenReturn(this.dvObject);
         doNothing().when(userNotificationService).sendNotificationWithEmail(any(AuthenticatedUser.class), any(Timestamp.class), any(String.class), any(Long.class), any(NotificationObjectType.class));
     }
 
@@ -120,10 +120,10 @@ public class ManagePermissionsServiceTest {
     @Test
     public void setDataverseDefaultContributorRole() {
         // given & when
-        Dataverse setResult = managePermissionsService.setDataverseDefaultContributorRole(role, dvObject);
+        Dataverse setResult = managePermissionsService.setDefaultDatasetContributorRole(role, dvObject);
 
         // then
-        verify(commandEngine, times(1)).submit(any(UpdateDataverseDefaultContributorRoleCommand.class));
+        verify(commandEngine, times(1)).submit(any(UpdateDefaultDatasetContributorRoleCommand.class));
         assertEquals("testDv", setResult.getName());
     }
 }

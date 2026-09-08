@@ -14,6 +14,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -42,13 +45,19 @@ public class NavigationWrapper implements Serializable {
             "q", "types", "sort", "order");
 
     @Inject
-    DataverseSession session;
+    private DataverseSession session;
+    
+    private String redirectPage;
+    
+    public NavigationWrapper() {}
 
-    String redirectPage;
+    public NavigationWrapper(final DataverseSession session) {
 
+		this.session = session;
+	}
 
-    public String getRedirectPage() {
-        return !StringUtils.isEmpty(getPageFromContext()) ? "?redirectPage=" + getPageFromContext() : "";
+	public String getRedirectPage() {
+        return !isEmpty(getPageFromContext()) ? "?redirectPage=" + getPageFromContext() : "";
     }
 
     public String getPageFromContext() {

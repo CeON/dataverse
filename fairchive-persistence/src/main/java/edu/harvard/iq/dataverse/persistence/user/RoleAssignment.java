@@ -122,6 +122,14 @@ public class RoleAssignment implements java.io.Serializable, JpaEntity<Long> {
     public void setAnonymized(final boolean anonymized) {
         this.anonymized = anonymized;
     }
+    
+    public boolean has(final Permission p) {
+    	return this.role.has(p);
+    }
+    
+    public boolean hasAny(final Permission p1, final Permission p2) {
+    	return this.role.hasAny(p1, p2);
+    }
 
     @Override
     public int hashCode() {

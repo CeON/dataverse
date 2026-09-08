@@ -13,23 +13,23 @@ import edu.harvard.iq.dataverse.persistence.user.Permission;
  */
 @SuppressWarnings("serial")
 @RequiredPermissions(Permission.ManageDataversePermissions)
-public class UpdateDataverseDefaultContributorRoleCommand extends AbstractCommand<Dataverse> {
+public class UpdateDefaultDatasetContributorRoleCommand extends AbstractCommand<Dataverse> {
 
     private final DataverseRole role;
-    private Dataverse dv;
+    private Dataverse dataverse;
 
-    public UpdateDataverseDefaultContributorRoleCommand(DataverseRole role, 
-            DataverseRequest aRequest, Dataverse anAffectedDataverse) {
-        super(aRequest, anAffectedDataverse);
+    public UpdateDefaultDatasetContributorRoleCommand(final DataverseRole role, 
+            final DataverseRequest request, final Dataverse dataverse) {
+        super(request, dataverse);
         this.role = role;
-        this.dv = anAffectedDataverse;
+        this.dataverse = dataverse;
     }
 
     @Override
-    public Dataverse execute(CommandContext ctxt) {
-        dv.setDefaultContributorRole(role);
-        dv = ctxt.dataverses().save(dv);
-        return dv;
+    public Dataverse execute(final CommandContext context) {
+    	this.dataverse.setDefaultDatasetContributorRole(this.role);
+    	this.dataverse = context.dataverses().save(this.dataverse);
+        return this.dataverse;
     }
 
 }

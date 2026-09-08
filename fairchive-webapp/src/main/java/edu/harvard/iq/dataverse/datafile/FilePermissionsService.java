@@ -202,7 +202,7 @@ public class FilePermissionsService {
 
         // collect users with permissions to grant/reject access to file
         Set<AuthenticatedUser> usersToNotify = assignmentAndUsers.stream()
-                .filter(a -> a._1().getRole().hasAny(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions))
+                .filter(a -> a._1().hasAny(Permission.ManageDatasetPermissions, Permission.ManageMinorDatasetPermissions))
                 .flatMap(a -> a._2().stream())
                 .collect(Collectors.toSet());
 

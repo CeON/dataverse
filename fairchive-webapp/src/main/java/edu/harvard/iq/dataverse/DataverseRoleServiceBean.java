@@ -49,6 +49,7 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
             DataverseRoleRepository dataverseRoleRepository, 
             RoleAssignmentRepository roleAssignmentRepository,
             DataverseRepository dataverseRepository) {
+    	
         this.roleAssigneeService = roleAssigneeService;
         this.permissionReindexEvent = permissionReindexEvent;
         this.dataverseRoleRepository = dataverseRoleRepository;
@@ -99,10 +100,10 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
         return dataverseRoleRepository.findWithoutOwner();
     }
 
-    public DataverseRole findBuiltinRoleByAlias(BuiltInRole builtInRole) {
-        return dataverseRoleRepository.findByAlias(builtInRole.getAlias())
-                .orElseThrow(() -> new IllegalStateException("Builtin role is not present in database: " 
-                                                                + builtInRole));
+    public DataverseRole findBuiltinRoleByAlias(final BuiltInRole role) {
+        return this.dataverseRoleRepository.findByAlias(role.getAlias())
+                .orElseThrow(() -> new IllegalStateException(
+                		"Builtin role is not present in database: " + role));
     }
 
     public DataverseRole findRoleByAliasAssignableInDataverse(String alias, Long dataverseId) {
@@ -154,9 +155,11 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
      * @see #roleAssignments(edu.harvard.iq.dataverse.DataverseUser,
      * edu.harvard.iq.dataverse.persistence.dataverse.Dataverse)
      */
-    public List<RoleAssignment> directRoleAssignments(RoleAssignee assignee, DvObject dvObject) {
-        List<RoleAssignment> assignments = roleAssignmentRepository.findByAssigneeIdentifier(assignee.getIdentifier());
-        return assignments.stream()
+    public List<RoleAssignment> directRoleAssignments(final RoleAssignee assignee, 
+    		final DvObject dvObject) {
+
+        return this.roleAssignmentRepository.findByAssigneeIdentifier(assignee.getIdentifier())
+        		.stream()
                 .filter(a -> Objects.equals(a.getDefinitionPoint().getId(), dvObject.getId()))
                 .collect(toList());
     }

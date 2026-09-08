@@ -65,7 +65,7 @@ public class PublishDataverseCommand extends AbstractCommand<Dataverse> {
      */
     private void sendAssignRoleNotifications(CommandContext ctxt) {
         ctxt.roles().directRoleAssignments(dataverse).stream()
-            .filter(ra -> !ra.getRole().has(Permission.ViewUnpublishedDataverse))
+            .filter(ra -> !ra.has(Permission.ViewUnpublishedDataverse))
             .flatMap(ra -> ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier())).stream())
             .distinct()
             .forEach(au -> ctxt.notifications().sendNotificationWithEmail(

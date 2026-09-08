@@ -49,7 +49,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RemoveRoleAssigneesFromExplicitGroupCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseDefaultContributorRoleCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDefaultDatasetContributorRoleCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseMetadataBlocksCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateExplicitGroupCommand;
 import edu.harvard.iq.dataverse.persistence.DvObject;
@@ -844,7 +844,7 @@ public class Dataverses extends AbstractApiBean {
                     defaultRole.getName();
 
             return response(req -> {
-                execCommand(new UpdateDataverseDefaultContributorRoleCommand(defaultRole, req, dv));
+                execCommand(new UpdateDefaultDatasetContributorRoleCommand(defaultRole, req, dv));
 
                 String retString = BundleUtil.getStringFromBundle(
                         "dataverses.api.update.default.contributor.role.success",

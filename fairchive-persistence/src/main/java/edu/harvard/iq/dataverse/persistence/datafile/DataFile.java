@@ -175,6 +175,11 @@ public class DataFile extends DvObject implements Comparable<DataFile> {
 
     // -------------------- GETTERS --------------------
     @Override
+    public DvObject getPermissionRoot() {
+    	return getOwner();
+    }
+    
+    @Override
     public String getAuthorString() {
         return this.getOwner().getLatestVersion().getAuthorsStr();
     }

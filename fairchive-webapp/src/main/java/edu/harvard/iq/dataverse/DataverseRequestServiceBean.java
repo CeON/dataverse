@@ -17,21 +17,28 @@ import javax.servlet.http.HttpServletRequest;
 @RequestScoped
 public class DataverseRequestServiceBean {
 
-    @Inject
-    DataverseSession dataverseSessionSvc;
-
-    @Inject
+    private DataverseSession session;
     private HttpServletRequest request;
 
     private DataverseRequest dataverseRequest;
+    
+    public DataverseRequestServiceBean() {}
+    
+    @Inject
+    public DataverseRequestServiceBean(final DataverseSession session, 
+    								   final HttpServletRequest request) {
+		this.session = session;
+		this.request = request;
+	}
 
-    @PostConstruct
-    protected void setup() {
-        dataverseRequest = new DataverseRequest(dataverseSessionSvc.getUser(), request);
+	@PostConstruct
+    public void setup() {
+        this.dataverseRequest = new DataverseRequest(this.session.getUser(), 
+        		this.request);
     }
 
     public DataverseRequest getDataverseRequest() {
-        return dataverseRequest;
+        return this.dataverseRequest;
     }
 
 }
