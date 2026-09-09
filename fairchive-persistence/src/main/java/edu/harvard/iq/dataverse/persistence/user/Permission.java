@@ -139,15 +139,29 @@ public enum Permission implements java.io.Serializable {
     	return EnumSet.allOf(Permission.class);
     }
     
-    public static Set<Permission> emptySet() {
+    public static Set<Permission> all(final boolean readOnly) {
+    	return readOnly ? readOnly() : all();
+    }
+    
+    public static Set<Permission> empty() {
     	return EnumSet.noneOf(Permission.class);
+    }
+    
+    public static Set<Permission> readOnly() {
+    	final Set<Permission> result = all();
+        result.removeIf(Permission::requiresWrite);
+        return result;
     }
     
     public static Set<Permission> setOf(final Permission p) {
     	return EnumSet.of(p);
     }
     
-    public static boolean requireWrite(final Set<Permission> set) {
+    public static boolean requiresWrite(final Set<Permission> set) {
     	return set.stream().anyMatch(Permission::requiresWrite);
+    }
+    
+    public static boolean requiresAuthenticatedUser(final Set<Permission> set) {
+    	return set.stream().anyMatch(Permission::requiresAuthenticatedUser);
     }
 }
