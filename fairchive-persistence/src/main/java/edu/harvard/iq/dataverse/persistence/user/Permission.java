@@ -138,4 +138,16 @@ public enum Permission implements java.io.Serializable {
     public static Set<Permission> all() {
     	return EnumSet.allOf(Permission.class);
     }
+    
+    public static Set<Permission> emptySet() {
+    	return EnumSet.noneOf(Permission.class);
+    }
+    
+    public static Set<Permission> setOf(final Permission p) {
+    	return EnumSet.of(p);
+    }
+    
+    public static boolean requireWrite(final Set<Permission> set) {
+    	return set.stream().anyMatch(Permission::requiresWrite);
+    }
 }

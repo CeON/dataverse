@@ -43,6 +43,7 @@ import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Dc
 import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Ingest;
 import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Workflow;
 import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.pidRegister;
+import static edu.harvard.iq.dataverse.persistence.user.Permission.requireWrite;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -388,7 +389,7 @@ public class PermissionServiceBean {
             DvObject dvObject, Set<Permission> required) {
         if ((systemConfig.isReadonlyMode() 
                 || confirmEmailService.hasEffectivelyUnconfirmedMail(request.getUser()))
-                && required.stream().anyMatch(WRITE_PERMISSIONS::contains)) {
+                && requireWrite(required)) {
             return false;
         }
         User user = request.getUser();
@@ -458,13 +459,9 @@ public class PermissionServiceBean {
      * Calculates permissions based on object state and other context
      */
     private Set<Permission> getInferredPermissions(DvObject dvObject) {
-        Set<Permission> permissions = EnumSet.noneOf(Permission.class);
-
-        if (isPubliclyDownloadable(dvObject)) {
-            permissions.add(Permission.DownloadFile);
-        }
-
-        return permissions;
+        return isPubliclyDownloadable(dvObject) 
+        		? Permission.setOf(Permission.DownloadFile)
+        		: Permission.emptySet();
     }
 
     /**
