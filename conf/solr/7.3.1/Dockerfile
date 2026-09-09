@@ -2,7 +2,7 @@ FROM solr:7.3.1
 
 ADD --chmod=444 https://repo1.maven.org/maven2/org/locationtech/jts/jts-core/1.19.0/jts-core-1.19.0.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 
-USER solr
+USER root
 
 ADD schema.xml ./
 ADD solrconfig.xml ./
@@ -36,6 +36,7 @@ RUN chmod 777 /opt/solr/server/solr/collection1 -R
 RUN chmod 777 /opt/solr/server/solr/rorSuggestions -R
 RUN chmod 777 /opt/solr/server/solr/geonames -R
 RUN chmod 777 /opt/solr/server/solr/periodo -R
+
 USER solr
 
 RUN ./bin/solr start \

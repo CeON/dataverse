@@ -110,7 +110,6 @@ services:
     command: ["server", "/data"]
 
   libretranslate:
-    build: "./libretranslate"
     image: "libretranslate/libretranslate:v1.7.3"
     container_name: "fairchive-dev-libretranslate"
     ports:
