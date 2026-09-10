@@ -20,19 +20,19 @@ import static edu.harvard.iq.dataverse.engine.command.CommandHelper.CH;
 @SuppressWarnings("serial")
 public abstract class AbstractCommand<R> implements Command<R>, Serializable {
 
-    private final Map<String, DvObject> affectedDvObjects;
-    private final DataverseRequest request;
-
     static protected class DvNamePair {
 
         final String name;
         final DvObject dvObject;
 
-        public DvNamePair(String name, DvObject dv) {
+        public DvNamePair(final String name, final DvObject dvObject) {
             this.name = name;
-            this.dvObject = dv;
+            this.dvObject = dvObject;
         }
     }
+    
+    private final Map<String, DvObject> affectedDvObjects;
+    private final DataverseRequest request;
 
     /**
      * Convenience method to name affected dataverses.
@@ -41,36 +41,36 @@ public abstract class AbstractCommand<R> implements Command<R>, Serializable {
      * @param d the dataverse
      * @return the named pair
      */
-    protected static DvNamePair dv(String s, DvObject d) {
+    protected static DvNamePair dv(final String s, final DvObject d) {
         return new DvNamePair(s, d);
     }
 
-    public AbstractCommand(DataverseRequest aRequest, DvObject anAffectedDvObject) {
-        this(aRequest, dv("", anAffectedDvObject));
+    public AbstractCommand(final DataverseRequest request, final DvObject afectedDvObject) {
+        this(request, dv("", afectedDvObject));
     }
 
-    public AbstractCommand(DataverseRequest aRequest, DvNamePair dvp, DvNamePair... more) {
-        request = aRequest;
-        affectedDvObjects = new HashMap<>();
-        affectedDvObjects.put(dvp.name, dvp.dvObject);
-        for (DvNamePair p : more) {
-            affectedDvObjects.put(p.name, p.dvObject);
+    public AbstractCommand(final DataverseRequest request, final DvNamePair pair, final DvNamePair... more) {
+    	this(request, new HashMap<>());
+        this.affectedDvObjects.put(pair.name, pair.dvObject);
+        for (final DvNamePair p : more) {
+            this.affectedDvObjects.put(p.name, p.dvObject);
         }
     }
 
-    public AbstractCommand(DataverseRequest aRequest, Map<String, DvObject> someAffectedDvObjects) {
-        request = aRequest;
-        affectedDvObjects = someAffectedDvObjects;
+    public AbstractCommand(final DataverseRequest request, 
+    		final Map<String, DvObject> affectedDvObjects) {
+        this.request = request;
+        this.affectedDvObjects = affectedDvObjects;
     }
 
     @Override
     public Map<String, DvObject> getAffectedDvObjects() {
-        return affectedDvObjects;
+        return this.affectedDvObjects;
     }
 
     @Override
     public DataverseRequest getRequest() {
-        return request;
+        return this.request;
     }
 
     @Override
@@ -94,12 +94,12 @@ public abstract class AbstractCommand<R> implements Command<R>, Serializable {
 
     @Override
     public String describe() {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, DvObject> ent : affectedDvObjects.entrySet()) {
-            DvObject value = ent.getValue();
-            sb.append(ent.getKey()).append(":");
+        final StringBuilder sb = new StringBuilder();
+        for (final Map.Entry<String, DvObject> entry : affectedDvObjects.entrySet()) {
+            final DvObject value = entry.getValue();
+            sb.append(entry.getKey()).append(':');
             sb.append((value != null) ? value.accept(DvObject.NameIdPrinter) : "<null>");
-            sb.append(" ");
+            sb.append(' ');
         }
         return sb.toString();
     }

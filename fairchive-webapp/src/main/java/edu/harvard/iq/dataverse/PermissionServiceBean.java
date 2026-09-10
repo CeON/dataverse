@@ -1,5 +1,32 @@
 package edu.harvard.iq.dataverse;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
+import static edu.harvard.iq.dataverse.engine.command.CommandHelper.CH;
+import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.DcmUpload;
+import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Ingest;
+import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Workflow;
+import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.pidRegister;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -22,32 +49,6 @@ import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignmentRepository;
 import edu.harvard.iq.dataverse.persistence.user.User;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import org.slf4j.Logger;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static edu.harvard.iq.dataverse.common.BundleUtil.getStringFromBundle;
-import static edu.harvard.iq.dataverse.engine.command.CommandHelper.CH;
-import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.DcmUpload;
-import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Ingest;
-import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.Workflow;
-import static edu.harvard.iq.dataverse.persistence.dataset.DatasetLock.Reason.pidRegister;
-import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Your one-stop-shop for deciding which user can do what action on which
@@ -60,16 +61,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Stateless
 public class PermissionServiceBean {
     private static final Logger logger = getLogger(PermissionServiceBean.class);
-
-    private static final Set<Permission> PERMISSIONS_FOR_AUTHENTICATED_USERS_ONLY
-            = EnumSet.copyOf(stream(Permission.values())
-                                     .filter(Permission::requiresAuthenticatedUser)
-                                     .collect(toList()));
-
-    private static final Set<Permission> WRITE_PERMISSIONS
-            = EnumSet.copyOf(stream(Permission.values())
-                    .filter(Permission::requiresWrite)
-                    .collect(toList()));
 
     private DataverseRoleServiceBean roleService;
     private RoleAssigneeServiceBean roleAssigneeService;
@@ -85,14 +76,15 @@ public class PermissionServiceBean {
     public PermissionServiceBean() { }
 
     @Inject
-    public PermissionServiceBean(DataverseRoleServiceBean roleService, 
-            RoleAssigneeServiceBean roleAssigneeService,
-            DataverseDao dataverseDao, 
-            DvObjectServiceBean dvObjectServiceBean,
-            GroupServiceBean groupService, 
-            SystemConfig systemConfig,
-            ConfirmEmailServiceBean confirmEmailService, 
-            RoleAssignmentRepository roleAssignmentRepository) {
+    public PermissionServiceBean(final DataverseRoleServiceBean roleService, 
+            final RoleAssigneeServiceBean roleAssigneeService,
+            final DataverseDao dataverseDao, 
+            final DvObjectServiceBean dvObjectServiceBean,
+            final GroupServiceBean groupService, 
+            final SystemConfig systemConfig,
+            final ConfirmEmailServiceBean confirmEmailService, 
+            final RoleAssignmentRepository roleAssignmentRepository) {
+    	
         this.roleService = roleService;
         this.roleAssigneeService = roleAssigneeService;
         this.dataverseDao = dataverseDao;
@@ -120,31 +112,32 @@ public class PermissionServiceBean {
      *
      * @return Permissions of {@code request.getUser()} over {@code dvObject}.
      */
-    public Set<Permission> permissionsFor(DataverseRequest request, DvObject dvObject) {
-        User user = request.getUser();
+    public Set<Permission> permissionsFor(final DataverseRequest request, 
+    		final DvObject object) {
+    	
+        final User user = request.getUser();
+        
         if (user.isSuperuser()) {
-            if (systemConfig.isReadonlyMode()) {
-              Set<Permission> readonlyPermissions = EnumSet.allOf(Permission.class);
-              readonlyPermissions.removeAll(WRITE_PERMISSIONS);
-              return readonlyPermissions;
-            }
-            return EnumSet.allOf(Permission.class);
+            return Permission.all(this.systemConfig.isReadonlyMode());
+        } else {
+	        final Set<Permission> permissions = getInferredPermissions(object);
+	
+	        // Add permissions gained from ras
+	        final Set<RoleAssignee> assignees = new HashSet<>(this.groupService.groupsFor(request, object));
+	        assignees.add(user);
+	        for (RoleAssignment assignment : assignmentsFor(assignees, object)) {
+	            permissions.addAll(assignment.getRole().permissions());
+	        }
+	
+	        if (this.systemConfig.isReadonlyMode() || 
+	        		this.confirmEmailService.hasEffectivelyUnconfirmedMail(user)) {
+	            permissions.removeIf(Permission::requiresWrite);
+	        }
+	        if (!user.isAuthenticated()) {
+	            permissions.removeIf(Permission::requiresAuthenticatedUser);
+	        }
+	        return permissions;
         }
-
-        Set<Permission> permissions = getInferredPermissions(dvObject);
-
-        // Add permissions gained from ras
-        Set<RoleAssignee> ras = new HashSet<>(groupService.groupsFor(request, dvObject));
-        ras.add(user);
-        addGroupPermissionsFor(ras, dvObject, permissions);
-
-        if (systemConfig.isReadonlyMode() || confirmEmailService.hasEffectivelyUnconfirmedMail(user)) {
-            permissions.removeAll(WRITE_PERMISSIONS);
-        }
-        if (!user.isAuthenticated()) {
-            permissions.removeAll(PERMISSIONS_FOR_AUTHENTICATED_USERS_ONLY);
-        }
-        return permissions;
     }
 
     public boolean isUserAllowedOn(User user, Command<?> command, DvObject dvObject) {
@@ -235,7 +228,7 @@ public class PermissionServiceBean {
         }
         if (dataset.isInReview()) {
             // The "InReview" lock is not really a lock for curators. They can still make edits.
-            if (!hasPermissionsFor(dataverseRequest, dataset, EnumSet.of(Permission.PublishDataset))) {
+            if (!hasPermissionsFor(dataverseRequest, dataset, Permission.setOf(Permission.PublishDataset))) {
                 return true;
             }
         }
@@ -324,7 +317,7 @@ public class PermissionServiceBean {
 
         if (user.isSuperuser()) {
             return children;
-        } else if (!user.isAuthenticated() && required.stream().anyMatch(PERMISSIONS_FOR_AUTHENTICATED_USERS_ONLY::contains)) {
+        } else if (!user.isAuthenticated() && Permission.requiresAuthenticatedUser(required)) {
             // At least one of the permissions requires that the user is authenticated, which is not the case.
             return emptyList();
         }
@@ -384,27 +377,24 @@ public class PermissionServiceBean {
                 : true;
     }
 
-    private boolean hasPermissionsFor(DataverseRequest request, 
-            DvObject dvObject, Set<Permission> required) {
-        if ((systemConfig.isReadonlyMode() 
-                || confirmEmailService.hasEffectivelyUnconfirmedMail(request.getUser()))
-                && required.stream().anyMatch(WRITE_PERMISSIONS::contains)) {
+    private boolean hasPermissionsFor(final DataverseRequest request, 
+            final DvObject object, final Set<Permission> required) {
+    	
+    	final User user = request.getUser();
+        if ((this.systemConfig.isReadonlyMode() 
+                || this.confirmEmailService.hasEffectivelyUnconfirmedMail(user))
+                && Permission.requiresWrite(required)) {
             return false;
         }
-        User user = request.getUser();
         if (user.isSuperuser()) {
             return true;
-        } else if (!user.isAuthenticated()) {
-            Set<Permission> requiredCopy = EnumSet.copyOf(required);
-            requiredCopy.retainAll(PERMISSIONS_FOR_AUTHENTICATED_USERS_ONLY);
-            if (!requiredCopy.isEmpty()) {
-                return false;
-            }
         }
-
-        Set<RoleAssignee> ras = new HashSet<>(groupService.groupsFor(request, dvObject));
+        if (!user.isAuthenticated() && Permission.requiresAuthenticatedUser(required)) {
+        	return false;
+        }
+        final Set<RoleAssignee> ras = new HashSet<>(groupService.groupsFor(request, object));
         ras.add(user);
-        return hasGroupPermissionsFor(ras, dvObject, required);
+        return hasGroupPermissionsFor(ras, object, required);
     }
 
     private boolean hasPermissionsFor(RoleAssignee roleAssignee, 
@@ -412,7 +402,7 @@ public class PermissionServiceBean {
         boolean unconfirmedEmail = roleAssignee instanceof User
                 && confirmEmailService.hasEffectivelyUnconfirmedMail((User) roleAssignee);
         if ((systemConfig.isReadonlyMode() || unconfirmedEmail)
-                && required.stream().anyMatch(WRITE_PERMISSIONS::contains)) {
+                && Permission.requiresWrite(required)) {
             return false;
         }
 
@@ -420,12 +410,8 @@ public class PermissionServiceBean {
             User user = (User) roleAssignee;
             if (user.isSuperuser()) {
                 return true;
-            } else if (!user.isAuthenticated()) {
-                Set<Permission> requiredCopy = EnumSet.copyOf(required);
-                requiredCopy.retainAll(PERMISSIONS_FOR_AUTHENTICATED_USERS_ONLY);
-                if (!requiredCopy.isEmpty()) {
-                    return false;
-                }
+            } else if (!user.isAuthenticated() && Permission.requiresAuthenticatedUser(required)) {
+            	return false;
             }
         }
         required.removeAll(getInferredPermissions(dvObject));
@@ -433,7 +419,7 @@ public class PermissionServiceBean {
             return true;
         }
 
-        Set<RoleAssignee> ras = new HashSet<>(groupService.groupsFor(roleAssignee, dvObject));
+        final Set<RoleAssignee> ras = new HashSet<>(groupService.groupsFor(roleAssignee, dvObject));
         ras.add(roleAssignee);
         return hasGroupPermissionsFor(ras, dvObject, required);
     }
@@ -446,25 +432,13 @@ public class PermissionServiceBean {
         return required.isEmpty();
     }
 
-    private void addGroupPermissionsFor(Set<RoleAssignee> roleAssignees, 
-            DvObject dvObject, Set<Permission> permissions) {
-        for (RoleAssignment assignment : assignmentsFor(roleAssignees, dvObject)) {
-            permissions.addAll(assignment.getRole().permissions());
-        }
-    }
-
-
     /**
      * Calculates permissions based on object state and other context
      */
     private Set<Permission> getInferredPermissions(DvObject dvObject) {
-        Set<Permission> permissions = EnumSet.noneOf(Permission.class);
-
-        if (isPubliclyDownloadable(dvObject)) {
-            permissions.add(Permission.DownloadFile);
-        }
-
-        return permissions;
+        return isPubliclyDownloadable(dvObject) 
+        		? Permission.setOf(Permission.DownloadFile)
+        		: Permission.empty();
     }
 
     /**
@@ -496,29 +470,35 @@ public class PermissionServiceBean {
      * {@code dvObject}. Traverses the containment hierarchy of the {@code dvObject}.
      *
      * @param assignee The role assignee whose role assignemnts we look for.
-     * @param dvObject  The dataverse object over which the roles are assigned
+     * @param object  The dataverse object over which the roles are assigned
      * @return A set of all the role assignments for {@code assignee} over {@code dvObject}.
      */
-    private Set<RoleAssignment> assignmentsFor(RoleAssignee assignee, DvObject dvObject) {
-        return assignmentsFor(Collections.singleton(assignee), dvObject);
+    private Set<RoleAssignment> assignmentsFor(final RoleAssignee assignee, 
+    		final DvObject object) {
+    	
+        return new HashSet<>(assignmentsFor(singleton(assignee), object));
     }
 
-    private Set<RoleAssignment> assignmentsFor(Set<RoleAssignee> roleAssignees, DvObject dvObject) {
-        Set<DvObject> permAncestors = getPermissionAncestors(dvObject);
-        return new HashSet<>(roleService.directRoleAssignmentsByAssigneesAndDvObjects(roleAssignees, permAncestors));
+    private List<RoleAssignment> assignmentsFor(final Set<RoleAssignee> assignees, 
+    		final DvObject object) {
+    	
+        final Set<DvObject> ancestors = getPermissionAncestors(object);
+        return this.roleService.
+        		directRoleAssignmentsByAssigneesAndDvObjects(assignees, ancestors);
     }
 
-    private Set<DvObject> getPermissionAncestors(DvObject dvObject) {
-        Set<DvObject> ancestors = new HashSet<>();
-        DvObject currentDvObject = dvObject;
-        while (currentDvObject != null) {
-            ancestors.add(currentDvObject);
-            if (currentDvObject instanceof Dataverse && currentDvObject.isEffectivelyPermissionRoot()) {
-                return ancestors;
+    private Set<DvObject> getPermissionAncestors(DvObject object) {
+    	
+        final Set<DvObject> result = new HashSet<>();
+        
+        while (object != null) {
+            result.add(object);
+            if (object.isEffectivelyPermissionRoot()) {
+                return result;
             }
-            currentDvObject = currentDvObject.getOwner();
+            object = object.getOwner();
         }
-        return ancestors;
+        return result;
     }
 
     private boolean isUserAllowedOn(User user, Map<String, Set<Permission>> required, 
@@ -626,7 +606,7 @@ public class PermissionServiceBean {
         }
 
         public boolean has(Permission permission) {
-            return hasPermissionsFor(user, subject, EnumSet.of(permission));
+            return hasPermissionsFor(user, subject, Permission.setOf(permission));
         }
 
     }

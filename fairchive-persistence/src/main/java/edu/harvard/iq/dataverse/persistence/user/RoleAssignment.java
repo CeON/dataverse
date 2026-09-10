@@ -163,5 +163,23 @@ public class RoleAssignment implements java.io.Serializable, JpaEntity<Long> {
                 + ", role=" + role + ", definitionPoint=" + definitionPoint
                 + ", anonymized=" + this.anonymized + '}';
     }
+    
+    public RoleAssignment cloneForDefinitionPoint(final DvObject definitionPoint) {
+    	final RoleAssignment result = new RoleAssignment();
+    	
+    	result.setRole(this.role);
+    	result.setDefinitionPoint(definitionPoint);
+    	result.setAssigneeIdentifier(this.assigneeIdentifier);
+    	result.setAnonymized(this.anonymized);
+    	
+    	return result;
+    }
+    
+    public boolean isEquivalentTo(final RoleAssignment other) {
+    	return this.role.equals(other.role)
+    			&& this.assigneeIdentifier.equals(other.assigneeIdentifier)
+				&& this.anonymized == other.anonymized;
+    			
+    }
 
 }

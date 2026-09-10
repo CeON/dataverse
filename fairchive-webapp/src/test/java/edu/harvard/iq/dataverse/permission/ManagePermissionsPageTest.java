@@ -130,7 +130,6 @@ public class ManagePermissionsPageTest {
 		this.session = new DataverseSession(this.logService, systemConfig);
 		this.requestService = new DataverseRequestServiceBean(
 				this.session, this.request);
-		this.requestService.setup();
 		
 		DataverseRoleServiceBean  roleService = new DataverseRoleServiceBean(
 				this.roleAssigneeService, this.permissionReindexEvent, 
@@ -560,7 +559,6 @@ public class ManagePermissionsPageTest {
 	//--------------------------------------------------------------------------
 	private void logIn(final AuthenticatedUser user) {
 		this.session.logIn(user);
-		this.requestService.setup();
 	}
 	
 	private static Dataverse newDataverse() {

@@ -1,5 +1,25 @@
 package edu.harvard.iq.dataverse.interceptors;
 
+import static edu.harvard.iq.dataverse.interceptors.InterceptorCommons.createName;
+
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.ejb.EJB;
+import javax.ejb.EJBException;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.annotations.processors.permissions.PermissionDataProcessor;
@@ -10,25 +30,6 @@ import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.persistence.ActionLogRecord;
 import edu.harvard.iq.dataverse.persistence.DvObject;
 import edu.harvard.iq.dataverse.persistence.user.Permission;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static edu.harvard.iq.dataverse.interceptors.InterceptorCommons.createName;
 
 @Interceptor
 @Restricted
@@ -120,7 +121,7 @@ public class RestrictedInterceptor {
     private Set<Permission> fetchGrantedPermissions(DvObject dvObject, DataverseRequest request) {
         return dvObject != null
                 ? permissionService.permissionsFor(request, dvObject)
-                : EnumSet.allOf(Permission.class);
+                : Permission.all();
     }
 
     private boolean isAnyPermissionMissing(DvObjectWithUserPermissions toCheck) {

@@ -1,5 +1,35 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import static edu.harvard.iq.dataverse.mocks.MockRequestFactory.makeRequest;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeAuthenticatedUser;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDatasetFieldType;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataverse;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataverseFieldTypeInputLevel;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeRole;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.nextId;
+import static edu.harvard.iq.dataverse.persistence.MocksFactory.timestamp;
+import static edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole.ADMIN;
+import static edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole.CURATOR;
+import static edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole.EDITOR;
+import static java.lang.Math.abs;
+import static java.lang.System.currentTimeMillis;
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import edu.harvard.iq.dataverse.DataverseDao;
 import edu.harvard.iq.dataverse.DataverseFacetServiceBean;
 import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevelServiceBean;
@@ -20,30 +50,6 @@ import edu.harvard.iq.dataverse.persistence.user.DataverseRole.BuiltInRole;
 import edu.harvard.iq.dataverse.persistence.user.GuestUser;
 import edu.harvard.iq.dataverse.persistence.user.RoleAssignment;
 import edu.harvard.iq.dataverse.search.index.IndexServiceBean;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import static edu.harvard.iq.dataverse.mocks.MockRequestFactory.makeRequest;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeAuthenticatedUser;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDatasetFieldType;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataverse;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeDataverseFieldTypeInputLevel;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.makeRole;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.nextId;
-import static edu.harvard.iq.dataverse.persistence.MocksFactory.timestamp;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author michael
@@ -94,9 +100,9 @@ public class CreateDataverseCommandTest {
 
         {
             builtInRoles = new HashMap<>();
-            builtInRoles.put(BuiltInRole.EDITOR, makeRole("default-editor"));
-            builtInRoles.put(BuiltInRole.ADMIN, makeRole("default-admin"));
-            builtInRoles.put(BuiltInRole.CURATOR, makeRole("default-curator"));
+            builtInRoles.put(EDITOR, makeRole("default-editor"));
+            builtInRoles.put(ADMIN, makeRole("default-admin"));
+            builtInRoles.put(CURATOR, makeRole("default-curator"));
         }
 
         @Override
@@ -232,7 +238,8 @@ public class CreateDataverseCommandTest {
 
         // The following is a pretty weird way to test that the create date defaults to
         // now, but it works across date changes.
-        assertTrue(Math.abs(System.currentTimeMillis() - result.getCreateDate().toInstant().toEpochMilli()) < 1000, "When the supplied creation date is null, date shuld default to command execution time");
+        assertTrue(abs(currentTimeMillis() - result.getCreateDate().toInstant().toEpochMilli()) < 1000, 
+        		"When the supplied creation date is null, date shuld default to command execution time");
 
         assertTrue(result.isPermissionRoot());
         assertTrue(result.isThemeRoot());
@@ -253,15 +260,18 @@ public class CreateDataverseCommandTest {
         dv.setDefaultDatasetContributorRole(null);
         dv.setOwner(makeDataverse());
         dv.setDataverseType(Dataverse.DataverseType.JOURNALS);
-        dv.setDefaultDatasetContributorRole(roles.findBuiltinRoleByAlias(BuiltInRole.CURATOR));
+        dv.setDefaultDatasetContributorRole(roles.findBuiltinRoleByAlias(CURATOR));
 
-        final DataverseRequest request = makeRequest();
-        List<DatasetFieldType> expectedFacets = Arrays.asList(makeDatasetFieldType(), makeDatasetFieldType(), makeDatasetFieldType());
-        List<DataverseFieldTypeInputLevel> dftils = Arrays.asList(makeDataverseFieldTypeInputLevel(makeDatasetFieldType()),
-                                                                  makeDataverseFieldTypeInputLevel(makeDatasetFieldType()),
-                                                                  makeDataverseFieldTypeInputLevel(makeDatasetFieldType()));
+        final DataverseRequest request = makeRequest(creator);
+        List<DatasetFieldType> expectedFacets = 
+        		asList(makeDatasetFieldType(), makeDatasetFieldType(), makeDatasetFieldType());
+        List<DataverseFieldTypeInputLevel> dftils = 
+        		asList(makeDataverseFieldTypeInputLevel(makeDatasetFieldType()),
+                       makeDataverseFieldTypeInputLevel(makeDatasetFieldType()),
+                       makeDataverseFieldTypeInputLevel(makeDatasetFieldType()));
 
-        CreateDataverseCommand sut = new CreateDataverseCommand(dv, request, new LinkedList<>(expectedFacets), new LinkedList<>(dftils));
+        CreateDataverseCommand sut = new CreateDataverseCommand(dv, request,
+        		new LinkedList<>(expectedFacets), new LinkedList<>(dftils));
         Dataverse result = engine.submit(sut);
 
         assertEquals(creation, result.getCreateDate());
@@ -269,13 +279,15 @@ public class CreateDataverseCommandTest {
 
         assertEquals(creator, result.getCreator());
         assertEquals(Dataverse.DataverseType.JOURNALS, result.getDataverseType());
-        assertEquals(roles.findBuiltinRoleByAlias(BuiltInRole.CURATOR), result.getDefaultDatasetContributorRole());
+        assertEquals(roles.findBuiltinRoleByAlias(CURATOR), result.getDefaultDatasetContributorRole());
 
+        
         // Assert that the creator is admin.
         final RoleAssignment roleAssignment = roles.directRoleAssignments(dv).get(0);
-        assertEquals(roles.findBuiltinRoleByAlias(BuiltInRole.ADMIN), roleAssignment.getRole());
+        assertEquals(roles.findBuiltinRoleByAlias(ADMIN), roleAssignment.getRole());
         assertEquals(dv, roleAssignment.getDefinitionPoint());
         assertEquals(roleAssignment.getAssigneeIdentifier(), request.getUser().getIdentifier());
+        
 
         assertTrue(result.isPermissionRoot());
         assertTrue(result.isThemeRoot());
