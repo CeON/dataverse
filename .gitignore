@@ -59,3 +59,6 @@ scripts/installer/default.config
 /fairchive-test-common/.factorypath
 /fairchive-webapp/.factorypath
 /switchTo8.bat
+
+# collection logos written at runtime; integration tests leave a copy here
+/docroot/
